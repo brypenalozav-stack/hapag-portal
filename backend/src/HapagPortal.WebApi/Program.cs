@@ -117,6 +117,9 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+
 app.UseAuthentication();
 app.UseAuthorization();
 
