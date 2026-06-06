@@ -106,7 +106,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
