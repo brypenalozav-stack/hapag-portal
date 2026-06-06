@@ -28,14 +28,14 @@ public static class HostBuilder
                     args, context.Configuration);
 
                 services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlServer(connectionString, sqlOptions =>
+                    options.UseNpgsql(connectionString, npgsqlOptions =>
                     {
-                        sqlOptions.MigrationsAssembly(typeof(HostBuilder).Assembly.FullName);
-                        sqlOptions.EnableRetryOnFailure(
+                        npgsqlOptions.MigrationsAssembly(typeof(HostBuilder).Assembly.FullName);
+                        npgsqlOptions.EnableRetryOnFailure(
                             maxRetryCount: MaxRetryCount,
                             maxRetryDelay: TimeSpan.FromSeconds(RetryDelaySeconds),
-                            errorNumbersToAdd: null);
-                        sqlOptions.CommandTimeout(CommandTimeoutSeconds);
+                            errorCodesToAdd: null);
+                        npgsqlOptions.CommandTimeout(CommandTimeoutSeconds);
                     }));
 
                 services.AddScoped<IMigrationService, MigrationService>();

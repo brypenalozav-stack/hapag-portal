@@ -10,11 +10,11 @@ public sealed class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Ap
     {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-        optionsBuilder.UseSqlServer(
-            "Server=localhost;Database=HapagPortalDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true",
-            sqlOptions =>
+        optionsBuilder.UseNpgsql(
+            "Host=localhost;Database=HapagPortalDb;Username=postgres;Password=postgres",
+            npgsqlOptions =>
             {
-                sqlOptions.MigrationsAssembly(typeof(ApplicationDbContextFactory).Assembly.FullName);
+                npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContextFactory).Assembly.FullName);
             });
 
         return new ApplicationDbContext(optionsBuilder.Options);
