@@ -106,7 +106,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors();
 
-if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -116,6 +116,9 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
         options.DocumentTitle = "Hapag Portal API - Swagger UI";
     });
 }
+
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 app.UseAuthentication();
 app.UseAuthorization();
