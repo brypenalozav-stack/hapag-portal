@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+.exempt-row {
+  background-color: rgba(0, 152, 64, 0.04) !important;
+}
+
+.exempt-reason-row {
+  background-color: rgba(0, 152, 64, 0.02) !important;
+
+  td {
+    border-bottom: 1px solid var(--hl-border);
+    padding-top: 0 !important;
+    padding-bottom: 0.5rem !important;
+  }
+}

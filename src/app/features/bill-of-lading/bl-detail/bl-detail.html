@@ -1,0 +1,178 @@
+<div class="hl-page-header">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/bills-of-lading" class="text-decoration-none">Consulta BL</a></li>
+      <li class="breadcrumb-item active">{{ blNumber() }}</li>
+    </ol>
+  </nav>
+  <h1>BL {{ blNumber() }}</h1>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+} @else if (bl(); as bl) {
+  <!-- BL Header Info -->
+  <div class="hl-card p-4 mb-4">
+    <div class="row g-3">
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">Número BL</div>
+        <div class="detail-value">{{ bl.blNumber }}</div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">Tipo</div>
+        <div class="detail-value">{{ bl.type }}</div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">Estado</div>
+        <div><app-status-badge [status]="bl.status" /></div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">País</div>
+        <div><app-country-badge [country]="bl.country" /></div>
+      </div>
+    </div>
+
+    <hr class="my-3">
+
+    <div class="row g-3">
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">Nave</div>
+        <div class="detail-value">{{ bl.vessel }}</div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">Viaje</div>
+        <div class="detail-value">{{ bl.voyage }}</div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">Puerto de Carga</div>
+        <div class="detail-value">{{ bl.portOfLoading }}</div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">Puerto de Descarga</div>
+        <div class="detail-value">{{ bl.portOfDischarge }}</div>
+      </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">Lugar de Entrega</div>
+        <div class="detail-value">{{ bl.placeOfDelivery }}</div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">ETD</div>
+        <div class="detail-value">{{ bl.etd | date:'dd/MM/yyyy' }}</div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">ETA</div>
+        <div class="detail-value">{{ bl.eta | date:'dd/MM/yyyy' }}</div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="detail-label">Cliente</div>
+        <div class="detail-value">{{ bl.clientName }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Containers -->
+  @if (bl.containers && bl.containers.length > 0) {
+    <div class="hl-card mb-4">
+      <div class="card-header p-3">
+        <h5 class="mb-0">Contenedores ({{ bl.containers.length }})</h5>
+      </div>
+      <div class="table-responsive">
+        <table class="hl-table">
+          <thead>
+            <tr>
+              <th>Contenedor</th>
+              <th>Tipo</th>
+              <th>Tamaño</th>
+              <th>Sello</th>
+              <th>Peso (kg)</th>
+              <th>Bultos</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (container of bl.containers; track container.id) {
+              <tr>
+                <td class="fw-semibold">{{ container.containerNumber }}</td>
+                <td>{{ container.type }}</td>
+                <td>{{ container.size }}</td>
+                <td>{{ container.sealNumber }}</td>
+                <td>{{ container.weight | number:'1.0-0' }}</td>
+                <td>{{ container.packages }}</td>
+                <td>{{ container.description }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- Charges Summary -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="hl-stat-card">
+        <div class="stat-label">Flete</div>
+        <div class="stat-value">{{ bl.freightCurrency }} {{ bl.freightAmount | number:'1.2-2' }}</div>
+        <app-status-badge [status]="bl.freightStatus" />
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="hl-stat-card">
+        <div class="stat-label">Cargos Locales</div>
+        <div class="stat-value">USD {{ totalCharges | number:'1.2-2' }}</div>
+        <span class="small text-muted">{{ charges().length }} cargos</span>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="hl-stat-card">
+        <div class="stat-label">Demurrage</div>
+        <div class="stat-value">USD {{ totalDemurrage | number:'1.2-2' }}</div>
+        <span class="small text-muted">{{ demurrage().length }} contenedores</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="hl-card p-4">
+    <h5 class="mb-3">Acciones</h5>
+    <div class="d-flex flex-wrap gap-2">
+      @if (bl.freightStatus === 'PENDING') {
+        <a [routerLink]="['/payments/new', bl.id]" [queryParams]="{type: 'FREIGHT'}" class="btn btn-hl-orange">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+            <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/>
+            <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v1H1V3a1 1 0 0 1 1-1z"/>
+          </svg>
+          Pagar Flete
+        </a>
+      }
+      @if (charges().length > 0) {
+        <a [routerLink]="['/local-charges', bl.blNumber]" class="btn btn-hl-green">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+            <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
+          </svg>
+          Pagar Cargos Locales
+        </a>
+      }
+      @if (demurrage().length > 0) {
+        <a [routerLink]="['/demurrage', bl.blNumber]" class="btn btn-hl-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+          </svg>
+          Pagar Demurrage
+        </a>
+      }
+      <a [routerLink]="['/warehouse']" [queryParams]="{blId: bl.id}" class="btn btn-outline-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+          <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923z"/>
+        </svg>
+        Solicitar Cambio Almacén
+      </a>
+    </div>
+  </div>
+}

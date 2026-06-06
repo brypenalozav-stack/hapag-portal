@@ -1,0 +1,127 @@
+<div class="hl-page-header">
+  <h1>Cargos Locales</h1>
+  <p class="text-muted mb-0">Consulte y pague los cargos locales por número de BL</p>
+</div>
+
+<!-- Search form -->
+<div class="hl-card p-4 mb-4">
+  <form (ngSubmit)="search()" class="row g-3 align-items-end">
+    <div class="col-md-8 col-lg-6">
+      <label for="blNumber" class="form-label fw-semibold">Número de BL</label>
+      <input type="text" class="form-control" id="blNumber"
+             [(ngModel)]="searchBlNumber" name="blNumber"
+             placeholder="Ej: HLCUVAL250100123" />
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-hl-orange px-4" [disabled]="!searchBlNumber.trim()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+        </svg>
+        Buscar
+      </button>
+    </div>
+  </form>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+} @else if (searched()) {
+  <div class="mb-3">
+    <span class="text-muted">Resultados para BL:</span>
+    <span class="fw-bold ms-1">{{ activeBlNumber() }}</span>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="hl-card">
+        @if (pendingCharges().length === 0) {
+          <div class="p-5 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#009840" class="mb-3" viewBox="0 0 16 16">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+            </svg>
+            <p class="text-muted mb-0">No hay cargos locales pendientes.</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="hl-table">
+              <thead>
+                <tr>
+                  <th style="width: 40px;">
+                    <input type="checkbox" class="form-check-input" [checked]="allSelected" (change)="toggleAll()" />
+                  </th>
+                  <th>Código</th>
+                  <th>Descripción</th>
+                  <th>Monto</th>
+                  <th>Impuesto</th>
+                  <th>Total</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (charge of charges(); track charge.id) {
+                  <tr [class.table-active]="isSelected(charge.id)">
+                    <td>
+                      @if (charge.status === 'Pending') {
+                        <input type="checkbox" class="form-check-input"
+                               [checked]="isSelected(charge.id)"
+                               (change)="toggleCharge(charge.id)" />
+                      }
+                    </td>
+                    <td class="fw-semibold">{{ charge.chargeCode }}</td>
+                    <td>{{ charge.description }}</td>
+                    <td>{{ charge.currency }} {{ charge.amount | number:'1.2-2' }}</td>
+                    <td>{{ charge.currency }} {{ charge.taxAmount | number:'1.2-2' }}</td>
+                    <td class="fw-semibold">{{ charge.currency }} {{ charge.totalAmount | number:'1.2-2' }}</td>
+                    <td><app-status-badge [status]="charge.status" /></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="hl-card p-4 sticky-top" style="top: calc(var(--navbar-height) + 1.5rem);">
+        <h5 class="mb-3">Resumen de Pago</h5>
+
+        <div class="mb-3">
+          <span class="small text-muted">Cargos seleccionados: </span>
+          <span class="fw-semibold">{{ selectedCharges().length }}</span>
+        </div>
+
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Subtotal</span>
+          <span class="fw-semibold">USD {{ subtotal() | number:'1.2-2' }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">IVA ({{ taxRate() * 100 | number:'1.0-0' }}%)</span>
+          <span class="fw-semibold">USD {{ taxAmount() | number:'1.2-2' }}</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between mb-3">
+          <span class="fw-bold fs-5">Total</span>
+          <span class="fw-bold fs-5 text-hl-orange">USD {{ total() | number:'1.2-2' }}</span>
+        </div>
+
+        <a [routerLink]="['/payments/new', charges()[0]?.blId ?? activeBlNumber()]"
+           [queryParams]="{type: 'LOCAL_CHARGES'}"
+           class="btn btn-hl-orange w-100 py-2"
+           [class.disabled]="selectedCharges().length === 0">
+          Pagar Seleccionados
+        </a>
+      </div>
+    </div>
+  </div>
+} @else {
+  <!-- Initial state - no search yet -->
+  <div class="hl-card p-5 text-center">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#33424F" class="mb-3 opacity-25" viewBox="0 0 16 16">
+      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+    </svg>
+    <p class="text-muted mb-0">Ingrese un número de BL para consultar los cargos locales.</p>
+  </div>
+}

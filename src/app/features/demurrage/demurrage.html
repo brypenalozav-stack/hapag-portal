@@ -1,0 +1,142 @@
+<div class="hl-page-header">
+  <h1>Demurrage</h1>
+  <p class="text-muted mb-0">Consulte los cargos de demurrage por número de BL</p>
+</div>
+
+<!-- Search form -->
+<div class="hl-card p-4 mb-4">
+  <form (ngSubmit)="search()" class="row g-3 align-items-end">
+    <div class="col-md-8 col-lg-6">
+      <label for="blNumber" class="form-label fw-semibold">Número de BL</label>
+      <input type="text" class="form-control" id="blNumber"
+             [(ngModel)]="searchBlNumber" name="blNumber"
+             placeholder="Ej: HLCUVAL250100123" />
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-hl-orange px-4" [disabled]="!searchBlNumber.trim()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+        </svg>
+        Buscar
+      </button>
+    </div>
+  </form>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+} @else if (searched()) {
+  @if (country() === 'BO') {
+    <div class="alert alert-info d-flex align-items-center gap-2 mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.399l-.451.003.082-.381 1.97-.411.164-.014z"/>
+        <path d="M8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+      </svg>
+      <div>
+        <strong>Nota para clientes de Bolivia:</strong> Algunos contenedores pueden estar exentos de demurrage según acuerdos comerciales vigentes.
+      </div>
+    </div>
+  }
+
+  <div class="mb-3">
+    <span class="text-muted">Resultados para BL:</span>
+    <span class="fw-bold ms-1">{{ activeBlNumber() }}</span>
+  </div>
+
+  @if (charges().length === 0) {
+    <div class="hl-card p-5 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#009840" class="mb-3" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+      </svg>
+      <p class="text-muted mb-0">No hay cargos de demurrage para este BL.</p>
+    </div>
+  } @else {
+    <div class="hl-card mb-4">
+      <div class="table-responsive">
+        <table class="hl-table">
+          <thead>
+            <tr>
+              <th>Contenedor</th>
+              <th>Días Libres</th>
+              <th>Días Demurrage</th>
+              <th>Tarifa Diaria</th>
+              <th>Total</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (charge of charges(); track charge.id) {
+              <tr [class.exempt-row]="charge.isExempt">
+                <td class="fw-semibold">{{ charge.containerNumber }}</td>
+                <td>{{ charge.freeDays }}</td>
+                <td>
+                  <span class="fw-semibold" [class.text-danger]="charge.demurrageDays > 0">
+                    {{ charge.demurrageDays }}
+                  </span>
+                </td>
+                <td>{{ charge.currency }} {{ charge.dailyRate | number:'1.2-2' }}</td>
+                <td class="fw-semibold">
+                  @if (charge.isExempt) {
+                    <span class="text-decoration-line-through text-muted me-2">
+                      {{ charge.currency }} {{ charge.totalAmount | number:'1.2-2' }}
+                    </span>
+                    <span class="text-hl-green">EXENTO</span>
+                  } @else {
+                    {{ charge.currency }} {{ charge.totalAmount | number:'1.2-2' }}
+                  }
+                </td>
+                <td>
+                  @if (charge.isExempt) {
+                    <app-status-badge status="EXEMPT" />
+                  } @else {
+                    <app-status-badge [status]="charge.status" />
+                  }
+                </td>
+              </tr>
+              @if (charge.isExempt && charge.exemptionReason) {
+                <tr class="exempt-reason-row">
+                  <td colspan="6" class="small text-muted ps-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="var(--hl-green)" class="me-1" viewBox="0 0 16 16">
+                      <path d="M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.118a1 1 0 0 0 .101.025 1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524z"/>
+                      <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0"/>
+                    </svg>
+                    Motivo de exención: {{ charge.exemptionReason }}
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Total and Pay -->
+    <div class="row justify-content-end">
+      <div class="col-md-5 col-lg-4">
+        <div class="hl-card p-4">
+          <div class="d-flex justify-content-between mb-3">
+            <span class="fw-bold fs-5">Total Demurrage</span>
+            <span class="fw-bold fs-5 text-hl-orange">USD {{ totalDemurrage() | number:'1.2-2' }}</span>
+          </div>
+          @if (totalDemurrage() > 0) {
+            <a [routerLink]="['/payments/new', charges()[0]?.blId ?? activeBlNumber()]"
+               [queryParams]="{type: 'DEMURRAGE'}"
+               class="btn btn-hl-orange w-100 py-2">
+              Pagar Demurrage
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  }
+} @else {
+  <!-- Initial state - no search yet -->
+  <div class="hl-card p-5 text-center">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#33424F" class="mb-3 opacity-25" viewBox="0 0 16 16">
+      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+    </svg>
+    <p class="text-muted mb-0">Ingrese un número de BL para consultar los cargos de demurrage.</p>
+  </div>
+}
