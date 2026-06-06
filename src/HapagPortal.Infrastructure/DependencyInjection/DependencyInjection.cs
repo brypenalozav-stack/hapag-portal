@@ -1,0 +1,49 @@
+using HapagPortal.Application.Auth.Common;
+using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Infrastructure.Authentication;
+using HapagPortal.Infrastructure.Persistence;
+using HapagPortal.Infrastructure.Persistence.Interceptors;
+using HapagPortal.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace HapagPortal.Infrastructure.DependencyInjection;
+
+public static partial class DependencyInjectionExtensions
+{
+    public static IServiceCollection AddInfrastructureServices(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddScoped<AuditableEntityInterceptor>();
+
+        services.AddDbContext<ApplicationDbContext>((sp, options) =>
+        {
+            var interceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
+                    sqlOptions.CommandTimeout(120);
+                });
+            options.AddInterceptors(interceptor);
+        });
+
+        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
+
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddSingleton<IJwtTokenService, JwtTokenService>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddTransient<IEmailService, EmailService>();
+        services.AddTransient<IPaymentGatewayService, PaymentGatewayService>();
+
+        services.AddHttpContextAccessor();
+
+        services.AddJwtAuthentication(configuration);
+        services.AddAuthorizationPolicies();
+
+        return services;
+    }
+}

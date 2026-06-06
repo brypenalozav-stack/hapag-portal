@@ -1,0 +1,2504 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documento de Dise&#241;o T&#233;cnico - Portal CL/BO - Hapag-Lloyd</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --hl-dark: #33424F; --hl-orange: #FF6600; --hl-green: #009840; --hl-blue: #004D6C;
+            --hl-dark-deep: #1a2530; --bg-light: #F5F7FA; --bg-white: #FFFFFF;
+            --text-primary: #2D3748; --text-secondary: #4A5568; --text-muted: #718096;
+            --border-light: #E2E8F0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+            --radius: 8px; --radius-lg: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text-primary); line-height: 1.7; background: var(--bg-light); -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4, h5 { font-family: 'Montserrat', 'Inter', sans-serif; line-height: 1.3; }
+        html { scroll-behavior: smooth; }
+        .cover-page { min-height: 100vh; background: linear-gradient(160deg, var(--hl-dark) 0%, var(--hl-dark-deep) 50%, #0d1520 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; position: relative; overflow: hidden; padding: 2rem; }
+        .cover-page::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 20%, rgba(255,102,0,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(0,77,108,0.08) 0%, transparent 50%); pointer-events: none; }
+        .cover-page::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--hl-orange), var(--hl-green), var(--hl-blue)); }
+        .cover-logo { margin-bottom: 3rem; position: relative; z-index: 1; }
+        .cover-logo svg { width: 280px; height: auto; }
+        .cover-title { font-size: 3rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 0.75rem; position: relative; z-index: 1; }
+        .cover-subtitle { font-size: 1.35rem; font-weight: 300; color: rgba(255,255,255,0.8); margin-bottom: 3rem; position: relative; z-index: 1; }
+        .cover-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; max-width: 700px; width: 100%; margin-bottom: 2.5rem; position: relative; z-index: 1; }
+        .cover-meta-item { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 0.75rem 1rem; }
+        .cover-meta-item .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.5); display: block; margin-bottom: 0.25rem; }
+        .cover-meta-item .value { font-size: 0.95rem; font-weight: 600; color: #fff; }
+        .cover-badge { display: inline-block; background: var(--hl-orange); color: #fff; padding: 0.5rem 1.5rem; border-radius: 50px; font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; position: relative; z-index: 1; }
+        .main-content { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
+        .toc { background: var(--bg-white); border-radius: var(--radius-lg); padding: 2.5rem; margin-bottom: 3rem; box-shadow: var(--shadow-md); }
+        .toc h2 { font-size: 1.75rem; color: var(--hl-dark); margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid var(--hl-orange); }
+        .toc-list { list-style: none; counter-reset: toc-counter; }
+        .toc-list li { counter-increment: toc-counter; margin-bottom: 0.5rem; }
+        .toc-list li a { display: flex; align-items: center; padding: 0.6rem 1rem; color: var(--text-primary); text-decoration: none; border-radius: var(--radius); transition: all 0.2s; font-weight: 500; }
+        .toc-list li a:hover { background: var(--bg-light); color: var(--hl-orange); transform: translateX(4px); }
+        .toc-list li a::before { content: counter(toc-counter, decimal-leading-zero); font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--hl-orange); margin-right: 1rem; font-size: 0.85rem; min-width: 28px; }
+        .section { background: var(--bg-white); border-radius: var(--radius-lg); padding: 2.5rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-sm); }
+        .section-header { font-size: 2rem; color: var(--hl-dark); margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid var(--hl-orange); }
+        .section h3 { font-size: 1.35rem; color: var(--hl-dark); margin: 2rem 0 1rem; }
+        .section h4 { font-size: 1.1rem; color: var(--hl-blue); margin: 1.5rem 0 0.75rem; }
+        .section p { color: var(--text-secondary); margin-bottom: 1rem; }
+        .table-container { overflow-x: auto; margin: 1.5rem 0; border-radius: var(--radius); border: 1px solid var(--border-light); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        thead th { background: var(--hl-dark); color: #fff; padding: 0.85rem 1rem; text-align: left; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        tbody td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+        tbody tr:nth-child(even) { background: #f8fafc; }
+        tbody tr:hover { background: #edf2f7; }
+        .info-box { background: #EBF8FF; border-left: 4px solid var(--hl-blue); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+        .info-box p { color: var(--hl-blue); margin: 0; }
+        .info-box strong { color: var(--hl-dark); }
+        .warning-box { background: #FFFFF0; border-left: 4px solid #ECC94B; border-radius: 0 var(--radius) var(--radius) 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+        .warning-box p { color: #744210; margin: 0; }
+        .use-case { background: var(--bg-white); border-left: 5px solid var(--hl-orange); border-radius: 0 var(--radius-lg) var(--radius-lg) 0; padding: 1.75rem 2rem; margin: 1.5rem 0; box-shadow: var(--shadow-sm); }
+        .use-case h4 { color: var(--hl-dark); font-size: 1.15rem; margin-bottom: 1rem; }
+        .use-case .uc-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.88rem; }
+        .use-case .uc-meta span { color: var(--text-muted); }
+        .use-case .uc-meta strong { color: var(--text-primary); }
+        .use-case ol, .use-case ul { margin-left: 1.25rem; margin-bottom: 0.75rem; color: var(--text-secondary); }
+        .use-case li { margin-bottom: 0.35rem; }
+        .diagram-container { background: #f7f9fb; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; margin: 1.5rem 0; overflow-x: auto; }
+        .diagram-container .mermaid { display: flex; justify-content: center; }
+        /* ER diagram styling — handled by Mermaid themeVariables (primaryTextColor: dark) */
+        .er.entityBox { fill: #33424F !important; stroke: #FF6600 !important; stroke-width: 2px !important; }
+        .er.entityLabel { fill: #ffffff !important; }
+        .er.attributeBoxOdd { fill: #ffffff !important; stroke: #e2e8f0 !important; }
+        .er.attributeBoxEven { fill: #f5f7fa !important; stroke: #e2e8f0 !important; }
+        .er.relationshipLine { stroke: #33424F !important; stroke-width: 1.5px !important; }
+        /* Floating back-to-top button */
+        .btn-back-top { position: fixed; bottom: 2rem; right: 2rem; width: 50px; height: 50px; border-radius: 50%; background: var(--hl-orange); color: #fff; border: none; cursor: pointer; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; z-index: 1000; transition: all 0.3s ease; opacity: 0; pointer-events: none; text-decoration: none; }
+        .btn-back-top.visible { opacity: 1; pointer-events: auto; }
+        .btn-back-top:hover { background: var(--hl-dark); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+        .btn-back-top svg { width: 24px; height: 24px; }
+        .code-block { background: #1a202c; color: #e2e8f0; border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre; }
+        .code-block .kw { color: #63b3ed; } .code-block .tp { color: #68d391; } .code-block .st { color: #f6ad55; } .code-block .cm { color: #718096; font-style: italic; }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px; font-family: 'Montserrat', sans-serif; color: #fff; min-width: 55px; text-align: center; }
+        .badge-get { background: var(--hl-blue); } .badge-post { background: var(--hl-green); } .badge-put { background: var(--hl-orange); } .badge-delete { background: #E53E3E; }
+        .doc-footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border-light); margin-top: 2rem; }
+        @media print { .cover-page { page-break-after: always; } .section { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; } .toc { page-break-after: always; } body { background: #fff; } }
+        @media (max-width: 768px) { .cover-title { font-size: 2rem; } .cover-subtitle { font-size: 1rem; } .cover-meta { grid-template-columns: 1fr 1fr; } .main-content { padding: 1.5rem 1rem; } .section { padding: 1.5rem; } .section-header { font-size: 1.5rem; } .use-case .uc-meta { grid-template-columns: 1fr; } }
+        @media (max-width: 480px) { .cover-meta { grid-template-columns: 1fr; } .cover-logo svg { width: 200px; } }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: var(--bg-light); } ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
+        /* ER Diagram Magnifying Lens */
+        .zoomable { position: relative; cursor: none; }
+        .zoomable:hover { cursor: none; }
+        .er-lens {
+            position: absolute; pointer-events: none; z-index: 100;
+            width: 180px; height: 180px; border-radius: 50%;
+            border: 3px solid var(--hl-orange); box-shadow: 0 0 0 2px rgba(51,66,79,0.3), 0 8px 24px rgba(0,0,0,0.25);
+            overflow: hidden; display: none; background: #fff;
+            /* small magnifier icon hint */
+        }
+        .er-lens::after {
+            content: ''; position: absolute; bottom: -6px; right: -6px;
+            width: 20px; height: 6px; background: var(--hl-orange);
+            border-radius: 3px; transform: rotate(-45deg); transform-origin: top left;
+        }
+        .er-lens-content { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+        .er-lens-hint {
+            position: absolute; top: 8px; right: 8px; background: rgba(255,102,0,0.9);
+            color: #fff; font-size: 0.65rem; font-family: 'Montserrat', sans-serif; font-weight: 600;
+            padding: 2px 8px; border-radius: 10px; letter-spacing: 0.5px; pointer-events: none;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .zoomable:hover .er-lens-hint { opacity: 1; }
+        @media (max-width: 768px) {
+            .er-lens { width: 140px; height: 140px; }
+            .er-lens-hint { opacity: 1; }
+        }
+        /* Sticky navigation bar */
+        .doc-nav { position: sticky; top: 0; z-index: 1000; background: #33424F; display: flex; align-items: center; padding: 0 2rem; gap: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-family: 'Montserrat', sans-serif; }
+        .doc-nav-logo { display: flex; align-items: center; gap: 0.5rem; color: #fff; font-weight: 700; font-size: 0.9rem; padding: 0.75rem 0; white-space: nowrap; }
+        .doc-nav-logo span { background: #FF6600; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+        .doc-nav-tabs { display: flex; gap: 0; margin-left: auto; }
+        .doc-nav-tab { color: rgba(255,255,255,0.6); text-decoration: none; padding: 0.85rem 1.5rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.3px; border-bottom: 3px solid transparent; transition: all 0.2s ease; }
+        .doc-nav-tab:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .doc-nav-tab.active { color: #fff; border-bottom-color: #FF6600; }
+        @media (max-width: 600px) { .doc-nav { padding: 0 1rem; gap: 0.5rem; } .doc-nav-tab { padding: 0.75rem 0.8rem; font-size: 0.7rem; } }
+    </style>
+</head>
+<body>
+<!-- NAVIGATION BAR -->
+<nav class="doc-nav">
+    <div class="doc-nav-logo"><span>HL</span> Hapag-Lloyd</div>
+    <div class="doc-nav-tabs">
+        <a href="technical-design-document.html" class="doc-nav-tab active">Documento T&#233;cnico</a>
+        <a href="executive-business-case.html" class="doc-nav-tab">Business Case Ejecutivo</a>
+    </div>
+</nav>
+<!-- COVER PAGE -->
+<div class="cover-page">
+    <div class="cover-logo">
+        <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="10" width="60" height="60" rx="6" fill="#FF6600"/>
+            <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" fill="#FFFFFF">HL</text>
+            <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" fill="#FFFFFF">Hapag-Lloyd</text>
+            <text x="75" y="58" font-family="Inter, sans-serif" font-weight="300" font-size="11" fill="rgba(255,255,255,0.6)" letter-spacing="3">SHIPPING &amp; LOGISTICS</text>
+        </svg>
+    </div>
+    <h1 class="cover-title">Documento de Dise&#241;o T&#233;cnico</h1>
+    <p class="cover-subtitle">Portal de Servicios al Cliente &mdash; Chile / Bolivia</p>
+    <div class="cover-meta">
+        <div class="cover-meta-item"><span class="label">Versi&#243;n</span><span class="value">2.0</span></div>
+        <div class="cover-meta-item"><span class="label">Fecha</span><span class="value">Mayo 2026</span></div>
+        <div class="cover-meta-item"><span class="label">Proyecto</span><span class="value">DES-03-08-CL-260020</span></div>
+        <div class="cover-meta-item"><span class="label">Estado</span><span class="value">En Desarrollo</span></div>
+        <div class="cover-meta-item"><span class="label">Autor</span><span class="value">Equipo RPX / Desarrollo</span></div>
+        <div class="cover-meta-item"><span class="label">Clasificaci&#243;n</span><span class="value">Confidencial</span></div>
+    </div>
+    <div class="cover-badge">DOCUMENTO T&#201;CNICO v2.0</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+<!-- TABLE OF CONTENTS -->
+<nav class="toc" id="toc">
+    <h2>Tabla de Contenidos</h2>
+    <ol class="toc-list">
+        <li><a href="#sec1">Introducci&#243;n y Alcance</a></li>
+        <li><a href="#sec2">Contexto de Negocio</a></li>
+        <li><a href="#sec3">Arquitectura del Sistema</a></li>
+        <li><a href="#sec4">Diagramas BPMN de Procesos</a></li>
+        <li><a href="#sec5">Diagramas de Secuencia</a></li>
+        <li><a href="#sec6">Casos de Uso Detallados</a></li>
+        <li><a href="#sec7">Diagrama de Casos de Uso</a></li>
+        <li><a href="#sec8">Modelo de Datos Detallado</a></li>
+        <li><a href="#sec9">Especificaci&#243;n API REST</a></li>
+        <li><a href="#sec10">Seguridad</a></li>
+        <li><a href="#sec11">Consideraciones Bolivia vs Chile</a></li>
+        <li><a href="#sec12">Plan de Migraci&#243;n de Base de Datos</a></li>
+        <li><a href="#sec13">Glosario</a></li>
+        <li><a href="#sec14">Gu&#237;a de Instalaci&#243;n y Ejecuci&#243;n</a></li>
+    </ol>
+</nav>
+<!-- SECTION 1: INTRODUCCION Y ALCANCE -->
+<div class="section" id="sec1">
+    <h2 class="section-header">1. Introducci&#243;n y Alcance</h2>
+    <h3>1.1 Prop&#243;sito</h3>
+    <p>El presente documento describe el dise&#241;o t&#233;cnico del <strong>Portal de Servicios al Cliente para Chile y Bolivia</strong> de Hapag-Lloyd. Este portal permite a clientes y agentes de aduana realizar consultas de Bills of Lading (BL), generar recibos de pago, procesar pagos de flete, cargos locales, demurrage, cambios de bodega y &#243;rdenes de servicio (ODS), optimizando los procesos operativos y reduciendo la carga manual del equipo de Customer Service.</p>
+    <div class="info-box">
+        <p><strong>Objetivo principal:</strong> Digitalizar y automatizar los procesos de pago y consulta de servicios mar&#237;timos para las operaciones de Hapag-Lloyd en Chile y Bolivia, reduciendo tiempos de respuesta y mejorando la experiencia del cliente.</p>
+    </div>
+    <h3>1.2 Alcance del Sistema</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>#</th><th>M&#243;dulo</th><th>Descripci&#243;n</th><th>Pa&#237;s</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td><strong>Gesti&#243;n de Clientes</strong></td><td>Registro, autenticaci&#243;n y administraci&#243;n de perfiles de clientes y agentes de aduana</td><td>CL / BO</td></tr>
+                <tr><td>2</td><td><strong>Consulta de BL</strong></td><td>B&#250;squeda y visualizaci&#243;n de Bills of Lading de importaci&#243;n con datos de contenedores, cargos y estado</td><td>CL / BO</td></tr>
+                <tr><td>3</td><td><strong>Pago de Flete</strong></td><td>Procesamiento de pagos de flete mar&#237;timo con m&#250;ltiples m&#233;todos de pago seg&#250;n pa&#237;s</td><td>CL / BO</td></tr>
+                <tr><td>4</td><td><strong>Cargos Locales</strong></td><td>Pago de cargos Gate In, Gate Out, EDS y XMY con c&#225;lculo de impuestos por pa&#237;s</td><td>CL / BO</td></tr>
+                <tr><td>5</td><td><strong>Demurrage</strong></td><td>Consulta y pago de demurrage con c&#225;lculo de d&#237;as libres, tarifa diaria y exenciones para Bolivia</td><td>CL / BO</td></tr>
+                <tr><td>6</td><td><strong>Cambio de Bodega</strong></td><td>Solicitud de cambio de bodega de destino con c&#225;lculo de costos e impuestos</td><td>CL / BO</td></tr>
+                <tr><td>7</td><td><strong>ODS (Orden de Servicio)</strong></td><td>Generaci&#243;n autom&#225;tica de ODS tras pago de Gate Out y solicitud manual</td><td>CL / BO</td></tr>
+                <tr><td>8</td><td><strong>Clientes Cr&#233;dito (BO)</strong></td><td>Administraci&#243;n de lista de clientes con cr&#233;dito provenientes del sistema SIAN</td><td>BO</td></tr>
+                <tr><td>9</td><td><strong>Exenciones Demurrage (BO)</strong></td><td>Gesti&#243;n de lista de clientes exentos de demurrage en Bolivia</td><td>BO</td></tr>
+                <tr><td>10</td><td><strong>FAQ</strong></td><td>Preguntas frecuentes con categor&#237;as, b&#250;squeda y manuales de pago descargables</td><td>CL / BO</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <h3>1.3 Stakeholders</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Nombre</th><th>Rol</th><th>Responsabilidad</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Katiusca Budrovich</strong></td><td>CS Manager CL-BO</td><td>Sponsor del proyecto, validaci&#243;n de requerimientos funcionales y aprobaci&#243;n de entregables</td></tr>
+                <tr><td><strong>Carolina Aranibar</strong></td><td>Country Manager BO</td><td>Validaci&#243;n de requerimientos espec&#237;ficos de Bolivia, regulaciones locales y flujos de pago</td></tr>
+                <tr><td><strong>Andr&#233;s Kr&#246;ll</strong></td><td>BA RPX</td><td>An&#225;lisis de negocio, definici&#243;n de requerimientos, coordinaci&#243;n entre equipos</td></tr>
+                <tr><td><strong>Claudia Paez</strong></td><td>CS Director</td><td>Direcci&#243;n estrat&#233;gica de Customer Service, aprobaci&#243;n de alto nivel</td></tr>
+                <tr><td><strong>Karina Gonz&#225;lez</strong></td><td>CS Manager</td><td>Gesti&#243;n operativa de Customer Service, validaci&#243;n de procesos</td></tr>
+                <tr><td><strong>Diego Villaroel</strong></td><td>Sales BO</td><td>Requerimientos comerciales Bolivia, relaci&#243;n con clientes cr&#233;dito</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <h3>1.4 Stack Tecnol&#243;gico</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Capa</th><th>Tecnolog&#237;a</th><th>Versi&#243;n</th><th>Prop&#243;sito</th></tr></thead>
+            <tbody>
+                <tr><td>Backend</td><td>.NET Core</td><td>10</td><td>Framework principal del API</td></tr>
+                <tr><td>ORM</td><td>Entity Framework Core</td><td>10</td><td>Acceso a datos y migraciones</td></tr>
+                <tr><td>Base de Datos</td><td>SQL Server</td><td>2022</td><td>Almacenamiento persistente</td></tr>
+                <tr><td>Frontend</td><td>Angular</td><td>19</td><td>SPA del portal web</td></tr>
+                <tr><td>UI Framework</td><td>Bootstrap</td><td>5.3</td><td>Sistema de grillas y componentes UI</td></tr>
+                <tr><td>Tipograf&#237;a</td><td>Google Fonts</td><td>&mdash;</td><td>Fuentes Inter y Montserrat</td></tr>
+                <tr><td>Iconograf&#237;a</td><td>SVG Icons</td><td>&mdash;</td><td>Iconos vectoriales personalizados</td></tr>
+                <tr><td>Autenticaci&#243;n</td><td>JWT Bearer</td><td>&mdash;</td><td>Tokens de acceso y refresco</td></tr>
+                <tr><td>Validaci&#243;n</td><td>FluentValidation</td><td>&mdash;</td><td>Validaci&#243;n de comandos y queries</td></tr>
+                <tr><td>Mediador</td><td>MediatR</td><td>&mdash;</td><td>Patr&#243;n CQRS y pipeline behaviors</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- SECTION 2: CONTEXTO DE NEGOCIO -->
+<div class="section" id="sec2">
+    <h2 class="section-header">2. Contexto de Negocio</h2>
+    <h3>2.1 Hapag-Lloyd en Chile y Bolivia</h3>
+    <p>Hapag-Lloyd opera servicios de transporte mar&#237;timo de contenedores en Chile y Bolivia. Chile cuenta con una extensa costa pac&#237;fica con puertos principales como Valpara&#237;so, San Antonio, Arica e Iquique. Bolivia, al ser un pa&#237;s mediterr&#225;neo (sin acceso al mar), depende de los puertos chilenos &mdash;principalmente <strong>Arica</strong> e <strong>Iquique</strong>&mdash; para sus operaciones de comercio exterior, amparado en el <strong>Tratado de Paz y Amistad de 1904</strong> que garantiza el libre tr&#225;nsito de mercanc&#237;as bolivianas por territorio chileno.</p>
+    <p>Esta dualidad geogr&#225;fica genera diferencias operativas significativas que el portal debe manejar:</p>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Aspecto</th><th>Chile</th><th>Bolivia</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Moneda</strong></td><td>CLP (Peso Chileno)</td><td>BOB (Boliviano)</td></tr>
+                <tr><td><strong>Identificaci&#243;n Tributaria</strong></td><td>RUT (Rol &#218;nico Tributario)</td><td>NIT (N&#250;mero de Identificaci&#243;n Tributaria)</td></tr>
+                <tr><td><strong>IVA</strong></td><td>19%</td><td>13%</td></tr>
+                <tr><td><strong>Clientes Cr&#233;dito</strong></td><td>No aplica en portal</td><td>Lista importada desde SIAN</td></tr>
+                <tr><td><strong>Exenciones Demurrage</strong></td><td>No aplica</td><td>Lista administrada por BA</td></tr>
+                <tr><td><strong>Pagos</strong></td><td>Khipu, Banco de Chile, dep&#243;sito</td><td>Dep&#243;sito bancario</td></tr>
+                <tr><td><strong>Notificaci&#243;n de Pagos</strong></td><td>Autom&#225;tica</td><td>Email a Pagosbolivia@hlag.com</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <h3>2.2 Marco Regulatorio</h3>
+    <h4>Chile</h4>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Regulaci&#243;n</th><th>Descripci&#243;n</th><th>Impacto en el Portal</th></tr></thead>
+            <tbody>
+                <tr><td>DL 2.222/1978 &mdash; Ley de Navegaci&#243;n</td><td>Regula la navegaci&#243;n y el transporte mar&#237;timo en aguas chilenas</td><td>Define el marco legal para BLs y documentos de transporte</td></tr>
+                <tr><td>C&#243;digo de Comercio, Libro III</td><td>Regula el comercio mar&#237;timo, contratos de transporte y conocimientos de embarque</td><td>Base legal para la emisi&#243;n y gesti&#243;n de BLs</td></tr>
+                <tr><td>Ley 18.680 &mdash; Ordenanza de Aduanas</td><td>Regula las operaciones aduaneras, importaci&#243;n y exportaci&#243;n</td><td>Requisitos para documentaci&#243;n de importaci&#243;n y agentes de aduana</td></tr>
+                <tr><td>Regulaciones SII &mdash; IVA 19%</td><td>Servicio de Impuestos Internos establece el IVA en 19%</td><td>C&#225;lculo de impuestos en todos los cargos locales y servicios</td></tr>
+                <tr><td>Ley 19.496 &mdash; Protecci&#243;n al Consumidor</td><td>Derechos del consumidor en transacciones comerciales</td><td>Transparencia en cobros, recibos detallados, derecho a informaci&#243;n</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <h4>Bolivia</h4>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Regulaci&#243;n</th><th>Descripci&#243;n</th><th>Impacto en el Portal</th></tr></thead>
+            <tbody>
+                <tr><td>Ley 1990 &mdash; Ley General de Aduanas</td><td>Regula el r&#233;gimen aduanero boliviano y el tr&#225;nsito de mercanc&#237;as</td><td>Requisitos documentales para importaciones bolivianas</td></tr>
+                <tr><td>Ley 2492 &mdash; C&#243;digo Tributario</td><td>Marco tributario general de Bolivia</td><td>Obligaciones tributarias, NIT, facturaci&#243;n</td></tr>
+                <tr><td>Tratado de 1904 &mdash; Libre Tr&#225;nsito</td><td>Garantiza el libre tr&#225;nsito de mercanc&#237;as bolivianas por puertos chilenos</td><td>Base legal para operaciones portuarias de carga boliviana en Arica/Iquique</td></tr>
+                <tr><td>DS 25870 &mdash; Reglamento Aduanero</td><td>Reglamento de la Ley General de Aduanas</td><td>Procedimientos espec&#237;ficos de despacho aduanero</td></tr>
+                <tr><td>Ley 843 &mdash; IVA 13%</td><td>Establece el Impuesto al Valor Agregado en 13%</td><td>C&#225;lculo diferenciado de impuestos para clientes bolivianos</td></tr>
+                <tr><td>SIAN</td><td>Sistema Integrado de Administraci&#243;n Nacional &mdash; sistema de gesti&#243;n de cr&#233;ditos</td><td>Fuente de datos para clientes cr&#233;dito Bolivia</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <h3>2.3 Procesos Actuales y Puntos de Dolor</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>&#193;rea</th><th>Proceso Actual</th><th>Punto de Dolor</th><th>Impacto</th></tr></thead>
+            <tbody>
+                <tr><td><strong>BA (Business Administration)</strong></td><td>Procesamiento manual de pagos, conciliaci&#243;n de dep&#243;sitos, generaci&#243;n manual de recibos</td><td>Alto consumo de FTE, errores en conciliaci&#243;n, demoras en confirmaci&#243;n</td><td>Alto &mdash; 3+ FTE dedicados a tareas manuales</td></tr>
+                <tr><td><strong>CS (Customer Service)</strong></td><td>Atenci&#243;n de solicitudes por email, consultas de BL manuales, coordinaci&#243;n telef&#243;nica</td><td>Carga operativa elevada, tiempos de respuesta largos, informaci&#243;n dispersa</td><td>Alto &mdash; Insatisfacci&#243;n del cliente, SLA incumplidos</td></tr>
+                <tr><td><strong>ED/Ops (Equipment &amp; Operations)</strong></td><td>Generaci&#243;n manual de TATC, coordinaci&#243;n de ODS por email</td><td>Proceso manual propenso a errores, demoras en liberaci&#243;n de contenedores</td><td>Medio &mdash; Retrasos en operaciones portuarias</td></tr>
+                <tr><td><strong>Clientes BO</strong></td><td>BLs no siempre cargados en sistemas, consultas por email/tel&#233;fono</td><td>Falta de visibilidad, dependencia total del equipo CS</td><td>Alto &mdash; Clientes sin autoservicio</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- SECTION 3: ARQUITECTURA DEL SISTEMA -->
+<div class="section" id="sec3">
+    <h2 class="section-header">3. Arquitectura del Sistema</h2>
+    <h3>3.1 Diagrama de Contexto</h3>
+    <p>Vista de alto nivel del sistema y sus interacciones con actores externos y sistemas integrados.</p>
+    <div class="diagram-container zoomable">
+        <div class="mermaid">
+graph TB
+    subgraph Usuarios
+        CL["Cliente"]
+        AA["Agente de Aduana"]
+        AD["Administrador BA"]
+    end
+    subgraph Portal["Portal Hapag-Lloyd CL/BO"]
+        FE["Angular 21 SPA"]
+        API[".NET Core 10 Web API"]
+        DB["SQL Server 2022"]
+    end
+    subgraph Externos["Sistemas Externos"]
+        SIAN["SIAN Bolivia"]
+        DL["DataLake"]
+        FIS["FIS"]
+        KH["Khipu"]
+        BC["Banco de Chile"]
+        BCI["BCI Piloto"]
+        SMTP["SMTP Email"]
+    end
+    CL -->|HTTPS| FE
+    AA -->|HTTPS| FE
+    AD -->|HTTPS| FE
+    FE -->|REST API| API
+    API -->|EF Core| DB
+    API -->|API| SIAN
+    API -->|Query| DL
+    API -->|Query| FIS
+    API -->|Payment| KH
+    API -->|Payment| BC
+    API -->|Crypto Pilot| BCI
+    API -->|Notifications| SMTP
+        </div>
+    </div>
+
+    <h3>3.2 Arquitectura Backend &mdash; Clean Architecture</h3>
+    <p>El backend sigue los principios de <strong>Clean Architecture</strong> con separaci&#243;n clara de responsabilidades y el patr&#243;n <strong>CQRS</strong> implementado mediante <strong>MediatR</strong>.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+graph TB
+    subgraph Domain["HapagPortal.Domain"]
+        E["Entities"]
+        VO["Value Objects"]
+        ER["Errors and Results"]
+        EV["Domain Events"]
+        CO["Constants"]
+    end
+    subgraph Application["HapagPortal.Application"]
+        CMD["Commands CQRS"]
+        QRY["Queries CQRS"]
+        VAL["Validators"]
+        BEH["Pipeline Behaviors"]
+        INT["Interfaces"]
+        DTO["DTOs"]
+    end
+    subgraph Infrastructure["HapagPortal.Infrastructure"]
+        CTX["DbContext"]
+        CFG["Entity Configurations"]
+        ICP["Interceptors"]
+        AUTH["Auth JWT Service"]
+        SVC["External Services"]
+        JOB["Background Jobs"]
+    end
+    subgraph WebApi["HapagPortal.WebApi"]
+        CTRL["Controllers V1"]
+        MW["Middleware"]
+        SW["Swagger OpenAPI"]
+        PG["Program.cs"]
+    end
+    subgraph Migrations["HapagPortal.DatabaseMigrations"]
+        MR["Migration Runner"]
+        DF["DbContext Factory"]
+    end
+    WebApi --> Application
+    Application --> Domain
+    Infrastructure --> Application
+    Infrastructure --> Domain
+    Migrations --> Infrastructure
+        </div>
+    </div>
+
+    <h4>Ejemplo CQRS + MediatR: CreateClientCommand</h4>
+    <div class="code-block"><span class="cm">// Command</span>
+<span class="kw">public sealed record</span> <span class="tp">CreateClientCommand</span>(
+    <span class="tp">string</span> Name,
+    <span class="tp">string</span> TaxId,
+    <span class="tp">string</span> Email,
+    <span class="tp">string</span> Country,
+    <span class="tp">ClientType</span> ClientType
+) : <span class="tp">IRequest</span>&lt;<span class="tp">Result</span>&lt;<span class="tp">ClientResponse</span>&gt;&gt;;
+
+<span class="cm">// Handler</span>
+<span class="kw">public sealed class</span> <span class="tp">CreateClientCommandHandler</span>
+    : <span class="tp">IRequestHandler</span>&lt;<span class="tp">CreateClientCommand</span>, <span class="tp">Result</span>&lt;<span class="tp">ClientResponse</span>&gt;&gt;
+{
+    <span class="kw">private readonly</span> <span class="tp">IClientRepository</span> _repository;
+    <span class="kw">private readonly</span> <span class="tp">IUnitOfWork</span> _unitOfWork;
+
+    <span class="kw">public async</span> <span class="tp">Task</span>&lt;<span class="tp">Result</span>&lt;<span class="tp">ClientResponse</span>&gt;&gt; Handle(
+        <span class="tp">CreateClientCommand</span> request,
+        <span class="tp">CancellationToken</span> cancellationToken)
+    {
+        <span class="kw">var</span> exists = <span class="kw">await</span> _repository
+            .ExistsByTaxIdAsync(request.TaxId, cancellationToken);
+
+        <span class="kw">if</span> (exists)
+            <span class="kw">return</span> <span class="tp">Result</span>.Failure&lt;<span class="tp">ClientResponse</span>&gt;(
+                <span class="tp">ClientErrors</span>.AlreadyExists);
+
+        <span class="kw">var</span> client = <span class="tp">Client</span>.Create(
+            request.Name, request.TaxId,
+            request.Email, request.Country,
+            request.ClientType);
+
+        _repository.Add(client);
+        <span class="kw">await</span> _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        <span class="kw">return</span> client.ToResponse();
+    }
+}
+
+<span class="cm">// Validator</span>
+<span class="kw">public sealed class</span> <span class="tp">CreateClientCommandValidator</span>
+    : <span class="tp">AbstractValidator</span>&lt;<span class="tp">CreateClientCommand</span>&gt;
+{
+    <span class="kw">public</span> CreateClientCommandValidator()
+    {
+        RuleFor(x =&gt; x.Name).NotEmpty().MaximumLength(<span class="st">200</span>);
+        RuleFor(x =&gt; x.TaxId).NotEmpty()
+            .Must(BeValidTaxId).WithMessage(<span class="st">"Invalid Tax ID format"</span>);
+        RuleFor(x =&gt; x.Email).NotEmpty().EmailAddress();
+        RuleFor(x =&gt; x.Country).Must(c =&gt; c == <span class="st">"CL"</span> || c == <span class="st">"BO"</span>);
+    }
+}</div>
+
+    <h4>Pipeline Behaviors</h4>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Behavior</th><th>Orden</th><th>Descripci&#243;n</th></tr></thead>
+            <tbody>
+                <tr><td><strong>ValidationBehavior</strong></td><td>1</td><td>Ejecuta FluentValidation antes del handler. Retorna errores de validaci&#243;n sin ejecutar l&#243;gica de negocio.</td></tr>
+                <tr><td><strong>TelemetryBehavior</strong></td><td>2</td><td>Registra m&#233;tricas de tiempo de ejecuci&#243;n, contadores de requests y errores para monitoreo.</td></tr>
+                <tr><td><strong>AuditLogBehavior</strong></td><td>3</td><td>Registra en AuditLog las operaciones de escritura (Commands) con usuario, timestamp y datos del request.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>3.3 Arquitectura Frontend</h3>
+    <p>El frontend est&#225; construido con <strong>Angular 21</strong> siguiendo una estructura modular basada en features.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+graph TB
+    subgraph Core["core/"]
+        AUTH2["auth/"]
+        GRD["guards/"]
+        INTR["interceptors/"]
+        SRVC["services/"]
+        MDL["models/"]
+    end
+    subgraph Features["features/"]
+        DASH["dashboard/"]
+        CLNT["clients/"]
+        BOL["bill-of-lading/"]
+        PAY["payments/"]
+        LC["local-charges/"]
+        DEM["demurrage/"]
+        WH["warehouse/"]
+        ODS2["ods/"]
+        FAQ2["faq/"]
+        ADM["admin/"]
+    end
+    subgraph Shared["shared/"]
+        COMP["components/"]
+        DIR["directives/"]
+        PIPE["pipes/"]
+        LAY["layout/"]
+    end
+    subgraph Assets["assets/"]
+        ICO["icons svg/"]
+        IMG["images/"]
+        STY["styles/"]
+    end
+    Core --> Features
+    Shared --> Features
+    Assets --> Shared
+        </div>
+    </div>
+
+    <h3>3.4 Diagrama Entidad-Relaci&#243;n</h3>
+    <p>Modelo de datos principal del sistema con todas las entidades y sus relaciones.</p>
+
+    <h4>3.4.1 Entidades Principales (Cliente, Usuario, BL, Contenedor)</h4>
+    <div class="diagram-container zoomable zoomable-er">
+        <div class="mermaid">
+erDiagram
+    CLIENT ||--o{ BILL_OF_LADING : "tiene BLs"
+    CLIENT ||--o{ PAYMENT : "realiza pagos"
+    CLIENT ||--o{ APP_USER : "posee usuarios"
+    CLIENT ||--o{ CREDIT_CLIENT : "tiene credito"
+    CLIENT ||--o{ SERVICE_ORDER : "solicita ODS"
+    APP_USER ||--o{ USER_ROLE : "tiene roles"
+    BILL_OF_LADING ||--o{ BL_CONTAINER : "contiene"
+    BILL_OF_LADING ||--o{ LOCAL_CHARGE : "tiene cargos"
+    BILL_OF_LADING ||--o{ DEMURRAGE_CHARGE : "tiene demurrage"
+    BILL_OF_LADING ||--o{ PAYMENT : "recibe pagos"
+    BILL_OF_LADING ||--o{ WAREHOUSE_CHANGE : "cambia bodega"
+    BILL_OF_LADING ||--o{ SERVICE_ORDER : "genera ODS"
+
+    CLIENT {
+        guid Id PK
+        string Name
+        string TaxId UK
+        string TaxIdType
+        string Country
+        string Email UK
+        string Phone
+        string Address
+        string City
+        string ClientType
+        string AgentCode
+        bit IsActive
+        bit IsEmailConfirmed
+        datetime CreatedAt
+        string CreatedBy
+        datetime ModifiedAt
+        string ModifiedBy
+    }
+    APP_USER {
+        guid Id PK
+        guid ClientId FK
+        string Username
+        string Email UK
+        string PasswordHash
+        string UserType
+        string Country
+        bit IsActive
+        datetime LastLoginAt
+        datetime CreatedAt
+        string CreatedBy
+    }
+    USER_ROLE {
+        guid Id PK
+        guid UserId FK
+        string RoleName
+    }
+    BILL_OF_LADING {
+        guid Id PK
+        guid ClientId FK
+        string BLNumber UK
+        string ShipmentType
+        string Vessel
+        string Voyage
+        string PortOfLoading
+        string PortOfDischarge
+        datetime ETD
+        datetime ETA
+        string Consignee
+        string Shipper
+        string NotifyParty
+        decimal FreightAmount
+        string FreightCurrency
+        string Status
+        string Country
+        datetime CreatedAt
+        string CreatedBy
+    }
+    BL_CONTAINER {
+        guid Id PK
+        guid BillOfLadingId FK
+        string ContainerNumber
+        string ContainerType
+        string SealNumber
+        decimal Weight
+        string Status
+        datetime CreatedAt
+    }
+        </div>
+    </div>
+
+    <h4>3.4.2 Entidades de Cargos, Pagos y Operaciones</h4>
+    <div class="diagram-container zoomable zoomable-er">
+        <div class="mermaid">
+erDiagram
+    PAYMENT ||--o{ PAYMENT_DETAIL : "contiene lineas"
+
+    LOCAL_CHARGE {
+        guid Id PK
+        guid BillOfLadingId FK
+        string ChargeType
+        string Description
+        decimal Amount
+        string Currency
+        string Status
+        bit IsTaxable
+        decimal TaxRate
+        decimal TaxAmount
+        decimal TotalAmount
+        datetime CreatedAt
+        string CreatedBy
+    }
+    DEMURRAGE_CHARGE {
+        guid Id PK
+        guid BillOfLadingId FK
+        string ContainerNumber
+        int FreeDays
+        int DemurrageDays
+        decimal DailyRate
+        decimal TotalAmount
+        string Currency
+        datetime StartDate
+        datetime EndDate
+        string Status
+        bit IsExempt
+        string ExemptReason
+        datetime CreatedAt
+        string CreatedBy
+    }
+    PAYMENT {
+        guid Id PK
+        guid ClientId FK
+        guid BillOfLadingId FK
+        string PaymentNumber UK
+        string PaymentType
+        string PaymentMethod
+        decimal Amount
+        decimal TaxAmount
+        decimal TotalAmount
+        string Currency
+        decimal ExchangeRate
+        string Status
+        string Country
+        datetime PaymentDate
+        datetime ConfirmedAt
+        string ConfirmedBy
+        string ExternalReference
+        string ReceiptNumber
+        string DepositProofUrl
+        datetime CreatedAt
+        string CreatedBy
+    }
+    PAYMENT_DETAIL {
+        guid Id PK
+        guid PaymentId FK
+        string ConceptType
+        string Description
+        decimal Amount
+        string Currency
+        decimal TaxAmount
+    }
+    SERVICE_ORDER {
+        guid Id PK
+        guid BillOfLadingId FK
+        guid ClientId FK
+        string OrderNumber UK
+        string OrderType
+        string Status
+        string Description
+        string Country
+        datetime RequestedAt
+        datetime CompletedAt
+        datetime CreatedAt
+        string CreatedBy
+    }
+    WAREHOUSE_CHANGE {
+        guid Id PK
+        guid BillOfLadingId FK
+        string FromWarehouse
+        string ToWarehouse
+        decimal Amount
+        string Currency
+        string Status
+        string Country
+        datetime CreatedAt
+        string CreatedBy
+    }
+        </div>
+    </div>
+
+    <h4>3.4.3 Entidades de Configuraci&#243;n, Bolivia y Auditor&#237;a</h4>
+    <div class="diagram-container zoomable zoomable-er">
+        <div class="mermaid">
+erDiagram
+    CLIENT ||--o{ CREDIT_CLIENT : "tiene credito BO"
+
+    CREDIT_CLIENT {
+        guid Id PK
+        guid ClientId FK
+        string Country
+        decimal CreditLimit
+        string CreditStatus
+        string ApprovedBy
+        datetime ApprovedAt
+        datetime ExpiresAt
+        datetime CreatedAt
+        string CreatedBy
+    }
+    DEMURRAGE_EXEMPTION {
+        guid Id PK
+        string ClientName
+        string TaxId
+        string Country
+        string Reason
+        bit IsActive
+        datetime CreatedAt
+        string CreatedBy
+    }
+    FAQ {
+        guid Id PK
+        string Question
+        string Answer
+        string Category
+        string Country
+        int SortOrder
+        bit IsActive
+        datetime CreatedAt
+        string CreatedBy
+    }
+    AUDIT_LOG {
+        guid Id PK
+        string EntityName
+        string EntityId
+        string Action
+        string OldValues
+        string NewValues
+        string UserId
+        datetime Timestamp
+    }
+    TAX_CONFIGURATION {
+        guid Id PK
+        string Country
+        string ServiceType
+        string TaxName
+        decimal TaxRate
+        bit IsActive
+        datetime EffectiveFrom
+        datetime EffectiveTo
+        datetime CreatedAt
+        string CreatedBy
+    }
+    CURRENCY {
+        guid Id PK
+        string Code UK
+        string Name
+        string Symbol
+        decimal ExchangeRateToUSD
+        datetime LastUpdated
+        datetime CreatedAt
+        string CreatedBy
+    }
+        </div>
+    </div>
+
+    <h3>3.5 Diagrama de Despliegue</h3>
+    <div class="diagram-container">
+        <div class="mermaid">
+graph LR
+    subgraph Cliente["Navegador Web"]
+        BR["Angular 21 SPA + Bootstrap 5.3"]
+    end
+    subgraph Servidor["IIS Server"]
+        SF["Static Files - Angular Build"]
+        WA[".NET Core 10 Web API"]
+    end
+    subgraph Datos["Base de Datos"]
+        SQL["SQL Server 2022"]
+    end
+    subgraph Ext["Servicios Externos"]
+        E1["DataLake"]
+        E2["FIS"]
+        E3["Khipu"]
+        E4["Banco de Chile"]
+        E5["SMTP"]
+        E6["SIAN"]
+    end
+    BR -->|HTTPS| SF
+    BR -->|REST API| WA
+    WA -->|EF Core| SQL
+    WA --> E1
+    WA --> E2
+    WA --> E3
+    WA --> E4
+    WA --> E5
+    WA --> E6
+        </div>
+    </div>
+</div>
+<!-- SECTION 4: DIAGRAMAS BPMN -->
+<div class="section" id="sec4">
+    <h2 class="section-header">4. Diagramas BPMN de Procesos</h2>
+
+    <h3>4.1 Proceso de Registro de Cliente</h3>
+    <p>Flujo de registro de nuevos clientes y agentes de aduana en el portal.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+flowchart TD
+    A([Inicio]) --> B[Acceder al Portal]
+    B --> C{Tipo de Usuario}
+    C -->|Cliente| D1[Formulario Cliente]
+    C -->|Agente Aduana| D2[Formulario Agente]
+    D1 --> E{Seleccionar Pais}
+    D2 --> E
+    E -->|Chile| F1[Ingresar RUT]
+    E -->|Bolivia| F2[Ingresar NIT]
+    F1 --> G[Completar Datos]
+    F2 --> G
+    G --> H{Formato RUT o NIT Valido}
+    H -->|Invalido| I[Mostrar Error Formato]
+    I --> G
+    H -->|Valido| J{Existe en BD}
+    J -->|Ya Existe| K[Cliente ya registrado]
+    K --> L([Fin])
+    J -->|No Existe| M[Crear Cuenta]
+    M --> N[Enviar Email Confirmacion]
+    N --> O{Confirma Email}
+    O -->|Si| P[Activar Cuenta]
+    P --> Q[Redirigir a Login]
+    Q --> L
+    O -->|No en 24hrs| R[Expirar Registro]
+    R --> L
+        </div>
+    </div>
+
+    <h3>4.2 Proceso de Pago de Flete</h3>
+    <p>Flujo completo de pago de flete mar&#237;timo con diferenciaci&#243;n por pa&#237;s y m&#233;todo de pago.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+flowchart TD
+    A([Inicio]) --> B[Login en Portal]
+    B --> C[Seleccionar Pago de Flete]
+    C --> D[Ingresar Numero BL]
+    D --> E[Buscar en DataLake y FIS]
+    E --> F{BL Encontrado}
+    F -->|No| G[Error BL no encontrado]
+    G --> D
+    F -->|Si| H[Mostrar Detalles del BL]
+    H --> I{Metodo de Pago}
+    I -->|Chile Khipu| J1[Redirigir a Khipu]
+    I -->|Chile Banco| J2[Redirigir a Banco Chile]
+    I -->|Chile Deposito| J3[Generar Recibo CL]
+    I -->|Bolivia Deposito| J4[Generar Recibo BO]
+    J1 --> K[Procesar Pago Electronico]
+    J2 --> K
+    J3 --> L[Cliente Deposita Manual]
+    J4 --> L2[Notificar Pagos Bolivia]
+    L2 --> L
+    K --> M{Pago Exitoso}
+    M -->|Si| N[Confirmar Pago]
+    M -->|No| O[Mostrar Error Pago]
+    O --> I
+    L --> P[Auto-confirmar 3 horas]
+    N --> Q2[Generar Recibo]
+    P --> Q2
+    Q2 --> R2[Enviar Email]
+    R2 --> S([Fin])
+        </div>
+    </div>
+
+    <h3>4.3 Proceso de Cargos Locales</h3>
+    <p>Flujo de pago de cargos locales: Gate In, Gate Out, EDS y XMY. Disponible 24/7.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+flowchart TD
+    A([Inicio]) --> B[Seleccionar Cargos Locales]
+    B --> C{"Tipo de Cargo: Gate In, Gate Out, EDS, XMY"}
+    C --> D[Ingresar BL]
+    D --> E[Listar Cargos Pendientes del Tipo Seleccionado]
+    E --> F{Hay Cargos Pendientes}
+    F -->|No| G[Sin cargos pendientes]
+    G --> H([Fin])
+    F -->|Si| I2[Seleccionar Cargos a Pagar]
+    I2 --> J{Pais del Cliente}
+    J -->|Chile| K1[Calcular IVA 19 porciento]
+    J -->|Bolivia| K2[Calcular IVA 13 porciento]
+    K1 --> L3[Mostrar Desglose]
+    K2 --> L3
+    L3 --> M2[Generar Recibo]
+    M2 --> N2[Procesar Pago]
+    N2 --> O2{Es Gate Out}
+    O2 -->|Si| P2[Auto-generar ODS]
+    P2 --> Q3[Enviar Confirmacion]
+    O2 -->|No| Q3
+    Q3 --> H
+        </div>
+    </div>
+
+    <h3>4.4 Proceso de Demurrage</h3>
+    <p>Flujo de consulta y pago de demurrage con verificaci&#243;n de exenciones para Bolivia.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+flowchart TD
+    A([Inicio]) --> B[Consultar Demurrage]
+    B --> C[Ingresar BL o Contenedor]
+    C --> D[Calcular Demurrage]
+    D --> E{Pais del Cliente}
+    E -->|Bolivia| F{En Lista Exenciones}
+    F -->|Si| G[Aplicar Exencion]
+    G --> H[Mostrar Detalle con Exencion]
+    F -->|No| I3[Calcular con IVA 13 porciento]
+    E -->|Chile| J2[Calcular con IVA 19 porciento]
+    I3 --> K3[Mostrar Desglose Completo]
+    J2 --> K3
+    H --> L4([Fin])
+    K3 --> M3{Proceder al Pago}
+    M3 -->|No| L4
+    M3 -->|Si| N3[Procesar Pago Demurrage]
+    N3 --> O3[Generar Recibo]
+    O3 --> P3[Enviar Confirmacion]
+    P3 --> L4
+        </div>
+    </div>
+
+    <h3>4.5 Proceso de Cambio de Bodega</h3>
+    <p>Flujo de solicitud de cambio de bodega de destino para contenedores.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+flowchart TD
+    A([Inicio]) --> B[Seleccionar Cambio de Bodega]
+    B --> C[Seleccionar BL]
+    C --> D[Indicar Bodega Destino]
+    D --> E2[Calcular Costo de Cambio]
+    E2 --> F2{Pais del Cliente}
+    F2 -->|Chile| G2[Aplicar IVA 19 porciento]
+    F2 -->|Bolivia| G3[Aplicar IVA segun config]
+    G2 --> H2[Mostrar Desglose]
+    G3 --> H2
+    H2 --> I4{Confirmar Solicitud}
+    I4 -->|No| J3([Fin])
+    I4 -->|Si| K4[Generar Recibo]
+    K4 --> L5[Procesar Pago]
+    L5 --> M4{Pago Exitoso}
+    M4 -->|No| N4[Mostrar Error]
+    N4 --> I4
+    M4 -->|Si| O4[Registrar Cambio]
+    O4 --> P4[Notificar Operaciones]
+    P4 --> Q4[Enviar Confirmacion]
+    Q4 --> J3
+        </div>
+    </div>
+</div>
+<!-- SECTION 5: DIAGRAMAS DE SECUENCIA -->
+<div class="section" id="sec5">
+    <h2 class="section-header">5. Diagramas de Secuencia</h2>
+
+    <h3>5.1 Autenticaci&#243;n</h3>
+    <p>Flujo de autenticaci&#243;n con JWT, incluyendo manejo de intentos fallidos y bloqueo de cuenta.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+sequenceDiagram
+    actor U as Usuario
+    participant FE as Angular SPA
+    participant API as .NET Web API
+    participant DB as SQL Server
+    participant JWT as JWT Service
+
+    U->>FE: Ingresar credenciales
+    FE->>API: POST /api/v1/auth/login
+    API->>DB: Buscar usuario por email
+    DB-->>API: Usuario encontrado
+
+    alt Cuenta bloqueada
+        API-->>FE: 423 Locked
+        FE-->>U: Mostrar error de bloqueo
+    else Credenciales invalidas
+        API->>DB: Incrementar FailedAttempts
+        Note over API,DB: Si FailedAttempts 5 o mas, bloquear cuenta
+        API-->>FE: 401 Unauthorized
+        FE-->>U: Mostrar error de credenciales
+    else Credenciales validas
+        API->>DB: Reset FailedAttempts y Update LastLoginAt
+        API->>JWT: Generar Access Token 1hr y Refresh Token 7d
+        JWT-->>API: Tokens generados
+        API->>DB: Guardar Refresh Token
+        API-->>FE: 200 OK con Tokens y UserInfo
+        FE->>FE: Almacenar tokens en memoria
+        FE-->>U: Redirigir a Dashboard
+    end
+        </div>
+    </div>
+
+    <h3>5.2 Consulta de BL y Generaci&#243;n de Recibo</h3>
+    <p>Flujo de b&#250;squeda de BL con cach&#233; local y fallback a DataLake/FIS, seguido de generaci&#243;n de recibo.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+sequenceDiagram
+    actor C as Cliente
+    participant FE as Angular SPA
+    participant API as .NET Web API
+    participant DB as SQL Server
+    participant DL as DataLake
+    participant FS as FIS
+
+    C->>FE: Ingresar numero de BL
+    FE->>API: GET /api/v1/bills-of-lading/BL123
+    API->>DB: Buscar BL en cache local
+
+    alt BL en cache menor a 24hrs
+        DB-->>API: BL encontrado en cache
+    else BL no en cache
+        API->>DL: Consultar BL en DataLake
+        DL-->>API: Datos del BL
+        API->>FS: Consultar cargos en FIS
+        FS-->>API: Cargos del BL
+        API->>DB: Guardar o Actualizar cache
+    end
+
+    API-->>FE: 200 OK con BL Details y Containers y Charges
+    FE-->>C: Mostrar informacion del BL
+
+    C->>FE: Solicitar generacion de recibo
+    FE->>API: POST /api/v1/receipts
+    API->>API: Calcular impuestos segun pais
+    API->>API: Generar numero de recibo unico
+    API->>DB: Guardar recibo
+    API-->>FE: 201 Created con Receipt PDF
+    FE-->>C: Mostrar y Descargar recibo
+        </div>
+    </div>
+
+    <h3>5.3 Flujo de Pago (Khipu / Banco / Dep&#243;sito)</h3>
+    <p>Flujo de procesamiento de pago con diferenciaci&#243;n entre pago electr&#243;nico y dep&#243;sito bancario.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+sequenceDiagram
+    actor C as Cliente
+    participant FE as Angular SPA
+    participant API as .NET Web API
+    participant DB as SQL Server
+    participant PG as Payment Gateway
+    participant EM as Email Service
+
+    C->>FE: Seleccionar metodo de pago
+    FE->>API: POST /api/v1/payments
+
+    alt Pago Electronico Khipu o Banco
+        API->>PG: Crear intencion de pago
+        PG-->>API: URL de pago y TransactionRef
+        API->>DB: Guardar Payment con Status Pending
+        API-->>FE: 200 OK con PaymentURL
+        FE->>FE: Redirigir a pasarela
+        C->>PG: Completar pago en pasarela
+        PG->>API: Webhook confirmando pago
+        API->>DB: Actualizar Status a Confirmed
+        API->>EM: Enviar confirmacion
+        EM-->>C: Email de confirmacion
+        PG-->>FE: Redirigir a portal
+        FE-->>C: Mostrar confirmacion
+    else Deposito Bancario
+        API->>DB: Guardar Payment con Status PendingDeposit
+        API->>API: Generar recibo con datos bancarios
+        API-->>FE: 200 OK con Receipt y BankDetails
+        FE-->>C: Mostrar datos para deposito
+        Note over C,EM: Cliente realiza deposito en banco
+        Note over API,EM: Si Bolivia notificar a Pagosbolivia
+        Note over API,DB: Job automatico confirma en 3hrs
+    end
+        </div>
+    </div>
+
+    <h3>5.4 Confirmaci&#243;n Autom&#225;tica de Pagos</h3>
+    <p>Job en background que verifica y confirma pagos pendientes cada 30 minutos.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+sequenceDiagram
+    participant JOB as Background Job
+    participant DB as SQL Server
+    participant PG as Payment Gateway
+    participant EM as Email Service
+
+    JOB->>DB: Obtener pagos electronicos pendientes
+    DB-->>JOB: Lista de pagos pendientes
+
+    loop Por cada pago electronico pendiente
+        JOB->>PG: Verificar estado de transaccion
+        PG-->>JOB: Estado actual
+
+        alt Pago Confirmado por gateway
+            JOB->>DB: Actualizar Status a Confirmed
+            JOB->>EM: Enviar confirmacion al cliente
+        else Pago Rechazado por gateway
+            JOB->>DB: Actualizar Status a Rejected
+            JOB->>EM: Notificar rechazo al cliente
+        else Sigue Pendiente
+            Note over JOB: Se reintenta en siguiente ciclo
+        end
+    end
+
+    JOB->>DB: Obtener depositos con mas de 3hrs
+    DB-->>JOB: Lista de depositos antiguos
+
+    loop Por cada deposito pendiente
+        JOB->>DB: Auto-confirmar con Status AutoConfirmed
+        JOB->>EM: Enviar confirmacion al cliente
+    end
+
+    Note over JOB: Este job se ejecuta cada 30 minutos
+        </div>
+    </div>
+</div>
+<!-- SECTION 6: CASOS DE USO DETALLADOS -->
+<div class="section" id="sec6">
+    <h2 class="section-header">6. Casos de Uso Detallados</h2>
+
+    <div class="use-case">
+        <h4>CU-01: Registrar Cliente</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Cliente / Agente de Aduana</span>
+            <span><strong>Prioridad:</strong> Alta</span>
+            <span><strong>Precondiciones:</strong> El usuario no tiene cuenta en el portal</span>
+            <span><strong>Postcondiciones:</strong> Cuenta creada y email de confirmaci&#243;n enviado</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El usuario accede a la p&#225;gina de registro del portal.</li>
+            <li>El sistema muestra el formulario de registro con selecci&#243;n de tipo de usuario (Cliente / Agente de Aduana).</li>
+            <li>El usuario selecciona su tipo y pa&#237;s (Chile / Bolivia).</li>
+            <li>El sistema muestra el campo de identificaci&#243;n tributaria correspondiente (RUT para Chile, NIT para Bolivia).</li>
+            <li>El usuario completa los datos: nombre, identificaci&#243;n tributaria, email, tel&#233;fono y contrase&#241;a.</li>
+            <li>El sistema valida el formato del RUT/NIT seg&#250;n las reglas del pa&#237;s.</li>
+            <li>El sistema verifica que no exista un cliente con la misma identificaci&#243;n tributaria.</li>
+            <li>El sistema crea la cuenta en estado "Pendiente de Confirmaci&#243;n".</li>
+            <li>El sistema env&#237;a un email de confirmaci&#243;n con enlace de activaci&#243;n.</li>
+            <li>El usuario hace clic en el enlace de confirmaci&#243;n.</li>
+            <li>El sistema activa la cuenta y redirige al login.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>6a.</strong> Formato de RUT/NIT inv&#225;lido: El sistema muestra un mensaje de error indicando el formato correcto esperado. El usuario corrige y vuelve al paso 6.</li>
+            <li><strong>7a.</strong> Cliente ya registrado: El sistema informa que ya existe una cuenta con esa identificaci&#243;n y sugiere recuperar contrase&#241;a.</li>
+            <li><strong>10a.</strong> Enlace expirado (24 horas): El sistema muestra mensaje de expiraci&#243;n y ofrece reenviar el email de confirmaci&#243;n.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Cliente]) --> UC1((CU-01 Registrar Cliente))
+    A2([Agente Aduana]) --> UC1
+    UC1 -.->|include| V1((Validar RUT o NIT))
+    UC1 -.->|extend| E1((Enviar Email))
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-02: Iniciar Sesi&#243;n</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Usuario registrado</span>
+            <span><strong>Prioridad:</strong> Alta</span>
+            <span><strong>Precondiciones:</strong> El usuario tiene una cuenta activa en el portal</span>
+            <span><strong>Postcondiciones:</strong> Sesi&#243;n iniciada con token JWT v&#225;lido</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El usuario accede a la p&#225;gina de login.</li>
+            <li>El usuario ingresa su email y contrase&#241;a.</li>
+            <li>El sistema valida las credenciales contra la base de datos (BCrypt).</li>
+            <li>El sistema genera un Access Token JWT (1 hora) y un Refresh Token (7 d&#237;as).</li>
+            <li>El sistema registra el &#250;ltimo acceso y resetea el contador de intentos fallidos.</li>
+            <li>El sistema redirige al dashboard seg&#250;n el rol del usuario.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>3a.</strong> Credenciales inv&#225;lidas: El sistema incrementa el contador de intentos fallidos y muestra mensaje de error gen&#233;rico. Vuelve al paso 2.</li>
+            <li><strong>3b.</strong> Cuenta bloqueada (5+ intentos fallidos): El sistema muestra mensaje de cuenta bloqueada y sugiere contactar soporte.</li>
+            <li><strong>3c.</strong> Cuenta no confirmada: El sistema informa que debe confirmar su email y ofrece reenviar el enlace.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Cliente]) --> UC2((CU-02 Iniciar Sesion))
+    A2([Agente Aduana]) --> UC2
+    A3([Admin BA]) --> UC2
+    A4([SuperAdmin]) --> UC2
+    UC2 -.->|include| V2((Generar JWT))
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-03: Consultar BL de Importaci&#243;n</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Cliente / Agente de Aduana</span>
+            <span><strong>Prioridad:</strong> Alta</span>
+            <span><strong>Precondiciones:</strong> Usuario autenticado en el portal</span>
+            <span><strong>Postcondiciones:</strong> Informaci&#243;n del BL mostrada con contenedores y cargos</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El usuario navega a la secci&#243;n de consulta de BL.</li>
+            <li>El usuario ingresa el n&#250;mero de BL.</li>
+            <li>El sistema busca el BL en la cach&#233; local (SQL Server).</li>
+            <li>Si no est&#225; en cach&#233; o tiene m&#225;s de 24 horas, consulta DataLake y FIS.</li>
+            <li>El sistema muestra los datos del BL: consignatario, embarcador, buque, viaje, puertos, ETA/ETD.</li>
+            <li>El sistema muestra la lista de contenedores con n&#250;mero, tipo, peso y estado.</li>
+            <li>El sistema muestra los cargos asociados (flete, locales, demurrage).</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>3a.</strong> BL encontrado en cach&#233; v&#225;lida (&lt; 24hrs): El sistema retorna datos de cach&#233; directamente, sin consultar sistemas externos.</li>
+            <li><strong>4a.</strong> BL no encontrado en DataLake ni FIS: El sistema muestra mensaje "BL no encontrado" y sugiere verificar el n&#250;mero.</li>
+            <li><strong>4b.</strong> Error de conexi&#243;n con DataLake/FIS: El sistema muestra datos de cach&#233; si existen, o un mensaje de error temporal.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Cliente]) --> UC3((CU-03 Consultar BL))
+    A2([Agente Aduana]) --> UC3
+    UC3 -.->|include| V3((Autenticacion))
+    UC3 -.->|include| V4((Consultar DataLake))
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-04: Generar Recibo de Pago</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Cliente / Agente de Aduana</span>
+            <span><strong>Prioridad:</strong> Alta</span>
+            <span><strong>Precondiciones:</strong> BL consultado con cargos pendientes</span>
+            <span><strong>Postcondiciones:</strong> Recibo generado con n&#250;mero &#250;nico y c&#243;digo de barras</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El usuario selecciona los conceptos a pagar desde la vista del BL.</li>
+            <li>El sistema calcula los montos netos de cada concepto seleccionado.</li>
+            <li>El sistema determina el pa&#237;s del cliente y aplica la tasa de IVA correspondiente (19% Chile, 13% Bolivia).</li>
+            <li>El sistema muestra el desglose: conceptos, montos netos, IVA, total.</li>
+            <li>El usuario confirma la generaci&#243;n del recibo.</li>
+            <li>El sistema genera un n&#250;mero de recibo &#250;nico y un c&#243;digo de barras.</li>
+            <li>El sistema almacena el recibo en la base de datos.</li>
+            <li>El sistema presenta el recibo en formato PDF descargable.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>3a.</strong> Pa&#237;s no determinado: El sistema solicita al usuario confirmar su pa&#237;s de operaci&#243;n.</li>
+            <li><strong>5a.</strong> Usuario cancela: El sistema descarta el recibo y vuelve a la vista del BL.</li>
+            <li><strong>5b.</strong> Montos han cambiado desde la consulta: El sistema recalcula y muestra los montos actualizados antes de confirmar.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Cliente]) --> UC4((CU-04 Generar Recibo))
+    A2([Agente Aduana]) --> UC4
+    UC4 -.->|include| V5((Calcular Impuestos))
+    UC4 -.->|include| V6((Autenticacion))
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-05: Procesar Pago de Flete</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Cliente / Agente de Aduana</span>
+            <span><strong>Prioridad:</strong> Alta</span>
+            <span><strong>Precondiciones:</strong> Recibo de flete generado, horario h&#225;bil (L-V 9:00-17:00)</span>
+            <span><strong>Postcondiciones:</strong> Pago procesado o pendiente de confirmaci&#243;n</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El usuario selecciona el recibo de flete a pagar.</li>
+            <li>El sistema verifica que est&#233; dentro del horario h&#225;bil (Lunes a Viernes, 9:00 a 17:00).</li>
+            <li>El sistema muestra los m&#233;todos de pago disponibles seg&#250;n el pa&#237;s del cliente.</li>
+            <li>El usuario selecciona el m&#233;todo de pago.</li>
+            <li>Para pago electr&#243;nico: el sistema redirige a la pasarela correspondiente (Khipu o Banco de Chile).</li>
+            <li>El usuario completa el pago en la pasarela externa.</li>
+            <li>La pasarela notifica al sistema v&#237;a webhook.</li>
+            <li>El sistema confirma el pago y actualiza el estado.</li>
+            <li>El sistema env&#237;a email de confirmaci&#243;n al cliente.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>2a.</strong> Fuera de horario h&#225;bil: El sistema muestra mensaje indicando el horario de operaci&#243;n para pagos de flete.</li>
+            <li><strong>4a.</strong> M&#233;todo dep&#243;sito bancario: El sistema genera recibo con datos bancarios. Para Bolivia, notifica a Pagosbolivia@hlag.com. Auto-confirmaci&#243;n en 3 horas.</li>
+            <li><strong>6a.</strong> Pago rechazado por pasarela: El sistema muestra error y permite reintentar con otro m&#233;todo.</li>
+            <li><strong>7a.</strong> Webhook no recibido: El job de confirmaci&#243;n autom&#225;tica verifica el estado cada 30 minutos.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Cliente]) --> UC5((CU-05 Pagar Flete))
+    A2([Agente Aduana]) --> UC5
+    UC5 -.->|include| V7((Calcular Impuestos))
+    UC5 -.->|extend| E2((Notificar Email))
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-06: Pagar Cargos Locales</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Cliente / Agente de Aduana</span>
+            <span><strong>Prioridad:</strong> Alta</span>
+            <span><strong>Precondiciones:</strong> Usuario autenticado, cargos locales pendientes</span>
+            <span><strong>Postcondiciones:</strong> Cargos pagados, ODS generada autom&#225;ticamente si es Gate Out</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El usuario navega a la secci&#243;n de cargos locales.</li>
+            <li>El usuario selecciona el tipo de cargo: Gate In, Gate Out, EDS o XMY.</li>
+            <li>El usuario ingresa el n&#250;mero de BL o contenedor.</li>
+            <li>El sistema lista los cargos pendientes del tipo seleccionado.</li>
+            <li>El usuario selecciona los cargos a pagar.</li>
+            <li>El sistema calcula impuestos seg&#250;n el pa&#237;s (IVA 19% CL / 13% BO).</li>
+            <li>El sistema muestra el desglose y genera el recibo.</li>
+            <li>El usuario procesa el pago (disponible 24/7).</li>
+            <li>Si el cargo es Gate Out, el sistema genera autom&#225;ticamente una ODS.</li>
+            <li>El sistema env&#237;a confirmaci&#243;n por email.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>4a.</strong> Sin cargos pendientes: El sistema muestra mensaje "No hay cargos pendientes del tipo seleccionado".</li>
+            <li><strong>8a.</strong> Error en procesamiento de pago: El sistema muestra error y permite reintentar.</li>
+            <li><strong>9a.</strong> Error en generaci&#243;n de ODS: El sistema registra el error y permite solicitud manual de ODS.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Cliente]) --> UC6((CU-06 Cargos Locales))
+    A2([Agente Aduana]) --> UC6
+    UC6 -.->|include| V8((Calcular Impuestos))
+    UC6 -.->|extend| E3((Auto-generar ODS))
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-07: Gestionar Demurrage</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Cliente / Agente de Aduana</span>
+            <span><strong>Prioridad:</strong> Alta</span>
+            <span><strong>Precondiciones:</strong> Usuario autenticado, contenedor con demurrage</span>
+            <span><strong>Postcondiciones:</strong> Demurrage calculado y pagado o exento</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El usuario navega a la secci&#243;n de demurrage.</li>
+            <li>El usuario ingresa el n&#250;mero de BL o contenedor.</li>
+            <li>El sistema calcula el demurrage: d&#237;as libres, d&#237;as utilizados, d&#237;as extra.</li>
+            <li>El sistema aplica la tarifa diaria correspondiente.</li>
+            <li>El sistema calcula el monto total con impuestos seg&#250;n pa&#237;s.</li>
+            <li>El sistema muestra el desglose completo.</li>
+            <li>El usuario procede al pago.</li>
+            <li>El sistema procesa el pago y genera recibo.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>3a.</strong> Sin d&#237;as extra (dentro de d&#237;as libres): El sistema muestra demurrage = $0 y no requiere pago.</li>
+            <li><strong>5a.</strong> Cliente boliviano en lista de exenciones: El sistema aplica exenci&#243;n total, demurrage = $0. Muestra detalle con nota de exenci&#243;n.</li>
+            <li><strong>5b.</strong> Tarifa no configurada: El sistema muestra error y sugiere contactar a Customer Service.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Cliente]) --> UC7((CU-07 Demurrage))
+    A2([Agente Aduana]) --> UC7
+    UC7 -.->|include| V9((Calcular Impuestos))
+    UC7 -.->|include| V10((Verificar Exencion))
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-08: Solicitar Cambio de Bodega</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Cliente / Agente de Aduana</span>
+            <span><strong>Prioridad:</strong> Media</span>
+            <span><strong>Precondiciones:</strong> Usuario autenticado, BL con contenedor en bodega</span>
+            <span><strong>Postcondiciones:</strong> Cambio de bodega registrado y pagado</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El usuario navega a la secci&#243;n de cambio de bodega.</li>
+            <li>El usuario selecciona el BL correspondiente.</li>
+            <li>El sistema muestra la bodega actual del contenedor.</li>
+            <li>El usuario indica la bodega de destino deseada.</li>
+            <li>El sistema calcula el costo del cambio.</li>
+            <li>El sistema aplica impuestos seg&#250;n pa&#237;s.</li>
+            <li>El sistema muestra el desglose: costo + IVA + total.</li>
+            <li>El usuario confirma y procede al pago.</li>
+            <li>El sistema genera recibo y procesa el pago.</li>
+            <li>El sistema notifica al &#225;rea de operaciones.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>4a.</strong> Bodega de destino no disponible: El sistema muestra las bodegas disponibles y solicita selecci&#243;n.</li>
+            <li><strong>8a.</strong> Usuario cancela: El sistema descarta la solicitud sin cargos.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Cliente]) --> UC8((CU-08 Cambio Bodega))
+    A2([Agente Aduana]) --> UC8
+    UC8 -.->|include| V11((Calcular Impuestos))
+    UC8 -.->|extend| E4((Notificar Operaciones))
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-09: Generar ODS (Orden de Servicio)</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Sistema (autom&#225;tico) / Cliente</span>
+            <span><strong>Prioridad:</strong> Alta</span>
+            <span><strong>Precondiciones:</strong> Pago de Gate Out confirmado o solicitud manual autorizada</span>
+            <span><strong>Postcondiciones:</strong> ODS generada y disponible para descarga</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El sistema detecta un pago de Gate Out confirmado.</li>
+            <li>El sistema genera autom&#225;ticamente la ODS con los datos del BL, contenedor y pago.</li>
+            <li>El sistema asigna un n&#250;mero de orden &#250;nico.</li>
+            <li>El sistema almacena la ODS en la base de datos.</li>
+            <li>El sistema notifica al cliente por email con la ODS adjunta.</li>
+            <li>El cliente puede descargar la ODS desde el portal.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>1a.</strong> Solicitud manual de ODS: El cliente solicita la ODS desde la secci&#243;n correspondiente. El sistema verifica que el pago de Gate Out est&#233; confirmado antes de generar.</li>
+            <li><strong>2a.</strong> Error en generaci&#243;n: El sistema registra el error en AuditLog y permite reintento manual.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Sistema Automatico]) --> UC9((CU-09 Generar ODS))
+    A2([Cliente]) --> UC9
+    UC9 -.->|include| V12((Verificar Pago GateOut))
+    UC9 -.->|extend| E5((Notificar Email))
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-10: Gestionar Clientes Cr&#233;dito (Bolivia)</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Administrador BA</span>
+            <span><strong>Prioridad:</strong> Media</span>
+            <span><strong>Precondiciones:</strong> Usuario con rol AdminBA autenticado</span>
+            <span><strong>Postcondiciones:</strong> Lista de clientes cr&#233;dito actualizada</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El administrador BA accede a la secci&#243;n de administraci&#243;n de clientes cr&#233;dito.</li>
+            <li>El sistema muestra la lista actual de clientes cr&#233;dito de Bolivia.</li>
+            <li>El administrador puede importar datos desde SIAN.</li>
+            <li>El sistema sincroniza la lista con los datos de SIAN (NIT, nombre, l&#237;mite de cr&#233;dito).</li>
+            <li>El administrador puede agregar, editar o desactivar clientes cr&#233;dito manualmente.</li>
+            <li>El sistema registra todos los cambios en el AuditLog.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>3a.</strong> Error de conexi&#243;n con SIAN: El sistema muestra error y permite gesti&#243;n manual.</li>
+            <li><strong>4a.</strong> Conflicto de datos: El sistema muestra diferencias entre SIAN y datos locales para resoluci&#243;n manual.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Admin BA]) --> UC10((CU-10 Clientes Credito))
+    A2([SuperAdmin]) --> UC10
+    UC10 -.->|include| V13((Autenticacion))
+    UC10 -.->|extend| E6((Sincronizar SIAN))
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-11: Consultar FAQ</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Cualquier usuario (acceso p&#250;blico)</span>
+            <span><strong>Prioridad:</strong> Baja</span>
+            <span><strong>Precondiciones:</strong> Ninguna (acceso p&#250;blico)</span>
+            <span><strong>Postcondiciones:</strong> Usuario obtiene respuesta a su consulta</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El usuario accede a la secci&#243;n de FAQ.</li>
+            <li>El sistema muestra las categor&#237;as de preguntas frecuentes.</li>
+            <li>El usuario selecciona una categor&#237;a o utiliza el buscador.</li>
+            <li>El sistema muestra las preguntas y respuestas correspondientes.</li>
+            <li>El usuario puede descargar manuales de pago en formato PDF.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>3a.</strong> B&#250;squeda sin resultados: El sistema muestra mensaje "No se encontraron resultados" y sugiere categor&#237;as relacionadas.</li>
+            <li><strong>5a.</strong> Manual no disponible: El sistema muestra mensaje indicando que el manual est&#225; en preparaci&#243;n.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Cliente]) --> UC11((CU-11 FAQ))
+    A2([Agente Aduana]) --> UC11
+    A3([Usuario Anonimo]) --> UC11
+            </div>
+        </div>
+    </div>
+
+    <div class="use-case">
+        <h4>CU-12: Gestionar Exenciones de Demurrage (Bolivia)</h4>
+        <div class="uc-meta">
+            <span><strong>Actor:</strong> Administrador BA</span>
+            <span><strong>Prioridad:</strong> Media</span>
+            <span><strong>Precondiciones:</strong> Usuario con rol AdminBA autenticado</span>
+            <span><strong>Postcondiciones:</strong> Lista de exenciones actualizada</span>
+        </div>
+        <h5>Escenario Principal:</h5>
+        <ol>
+            <li>El administrador BA accede a la secci&#243;n de exenciones de demurrage.</li>
+            <li>El sistema muestra la lista actual de clientes exentos (ej: Jorge Cabrera Sanguino, Rolo Arteaga Aguilera).</li>
+            <li>El administrador puede agregar un nuevo cliente exento ingresando nombre, NIT y motivo.</li>
+            <li>El sistema valida que el NIT sea v&#225;lido y no est&#233; duplicado.</li>
+            <li>El administrador puede desactivar una exenci&#243;n existente.</li>
+            <li>El sistema registra todos los cambios en el AuditLog con usuario y timestamp.</li>
+        </ol>
+        <h5>Escenarios Alternativos:</h5>
+        <ul>
+            <li><strong>3a.</strong> NIT duplicado: El sistema informa que el cliente ya tiene una exenci&#243;n activa.</li>
+            <li><strong>5a.</strong> Exenci&#243;n con pagos pendientes: El sistema advierte que hay pagos de demurrage pendientes para este cliente antes de desactivar.</li>
+        </ul>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    A1([Admin BA]) --> UC12((CU-12 Exenciones Demurrage))
+    A2([SuperAdmin]) --> UC12
+    UC12 -.->|include| V14((Autenticacion))
+    UC12 -.->|include| V15((Validar NIT))
+            </div>
+        </div>
+    </div>
+</div>
+<!-- SECTION 7: DIAGRAMA DE CASOS DE USO -->
+<div class="section" id="sec7">
+    <h2 class="section-header">7. Diagrama de Casos de Uso</h2>
+    <p>Vista general de actores, casos de uso y sus relaciones (include/extend).</p>
+    <div class="diagram-container zoomable">
+        <div class="mermaid">
+graph TB
+    subgraph Actores
+        CL["Cliente"]
+        AA["Agente de Aduana"]
+        BA["Administrador BA"]
+        SA["SuperAdmin"]
+        SYS["Sistema Automatico"]
+    end
+    subgraph Portal["Portal Hapag-Lloyd CL/BO"]
+        CU01["CU-01 Registrar Cliente"]
+        CU02["CU-02 Iniciar Sesion"]
+        CU03["CU-03 Consultar BL"]
+        CU04["CU-04 Generar Recibo"]
+        CU05["CU-05 Pagar Flete"]
+        CU06["CU-06 Pagar Cargos Locales"]
+        CU07["CU-07 Gestionar Demurrage"]
+        CU08["CU-08 Cambio de Bodega"]
+        CU09["CU-09 Generar ODS"]
+        CU10["CU-10 Clientes Credito BO"]
+        CU11["CU-11 FAQ"]
+        CU12["CU-12 Exenciones Demurrage BO"]
+    end
+    subgraph Relaciones
+        INC1["include - Autenticacion"]
+        INC2["include - Calcular Impuestos"]
+        EXT1["extend - Notificar Email"]
+        EXT2["extend - Auto-generar ODS"]
+    end
+    CL --> CU01
+    CL --> CU02
+    CL --> CU03
+    CL --> CU04
+    CL --> CU05
+    CL --> CU06
+    CL --> CU07
+    CL --> CU08
+    CL --> CU11
+    AA --> CU01
+    AA --> CU02
+    AA --> CU03
+    AA --> CU04
+    AA --> CU05
+    AA --> CU06
+    AA --> CU07
+    AA --> CU08
+    AA --> CU11
+    BA --> CU02
+    BA --> CU10
+    BA --> CU12
+    SA --> CU02
+    SA --> CU10
+    SA --> CU12
+    SYS --> CU09
+    CU03 -.->|include| INC1
+    CU05 -.->|include| INC2
+    CU06 -.->|include| INC2
+    CU07 -.->|include| INC2
+    CU05 -.->|extend| EXT1
+    CU06 -.->|extend| EXT2
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 8: MODELO DE DATOS DETALLADO -->
+<div class="section" id="sec8">
+    <h2 class="section-header">8. Modelo de Datos Detallado</h2>
+
+    <h3>8.1 Tabla: Client</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Nullable</th><th>Descripci&#243;n</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Id</strong></td><td>INT (PK, Identity)</td><td>No</td><td>Identificador &#250;nico del cliente</td></tr>
+                <tr><td>Name</td><td>NVARCHAR(200)</td><td>No</td><td>Raz&#243;n social o nombre completo</td></tr>
+                <tr><td>TaxId</td><td>NVARCHAR(20)</td><td>No</td><td>RUT (Chile) o NIT (Bolivia), &#250;nico</td></tr>
+                <tr><td>Email</td><td>NVARCHAR(256)</td><td>No</td><td>Correo electr&#243;nico principal, &#250;nico</td></tr>
+                <tr><td>Phone</td><td>NVARCHAR(20)</td><td>S&#237;</td><td>Tel&#233;fono de contacto</td></tr>
+                <tr><td>Country</td><td>CHAR(2)</td><td>No</td><td>C&#243;digo de pa&#237;s: CL o BO</td></tr>
+                <tr><td>ClientType</td><td>NVARCHAR(20)</td><td>No</td><td>Tipo: Client, CustomsAgent</td></tr>
+                <tr><td>IsActive</td><td>BIT</td><td>No</td><td>Estado de la cuenta (activa/inactiva)</td></tr>
+                <tr><td>IsEmailConfirmed</td><td>BIT</td><td>No</td><td>Indica si el email fue confirmado</td></tr>
+                <tr><td>CreatedAt</td><td>DATETIME2</td><td>No</td><td>Fecha de creaci&#243;n del registro</td></tr>
+                <tr><td>UpdatedAt</td><td>DATETIME2</td><td>S&#237;</td><td>Fecha de &#250;ltima actualizaci&#243;n</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>8.2 Tabla: BillOfLading</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Nullable</th><th>Descripci&#243;n</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Id</strong></td><td>INT (PK, Identity)</td><td>No</td><td>Identificador &#250;nico del BL</td></tr>
+                <tr><td>BLNumber</td><td>NVARCHAR(30)</td><td>No</td><td>N&#250;mero de Bill of Lading, &#250;nico</td></tr>
+                <tr><td>ClientId</td><td>INT (FK)</td><td>No</td><td>Referencia al cliente consignatario</td></tr>
+                <tr><td>Consignee</td><td>NVARCHAR(300)</td><td>No</td><td>Nombre del consignatario</td></tr>
+                <tr><td>Shipper</td><td>NVARCHAR(300)</td><td>No</td><td>Nombre del embarcador</td></tr>
+                <tr><td>Vessel</td><td>NVARCHAR(100)</td><td>S&#237;</td><td>Nombre del buque</td></tr>
+                <tr><td>Voyage</td><td>NVARCHAR(20)</td><td>S&#237;</td><td>N&#250;mero de viaje</td></tr>
+                <tr><td>PortOfLoading</td><td>NVARCHAR(100)</td><td>S&#237;</td><td>Puerto de carga</td></tr>
+                <tr><td>PortOfDischarge</td><td>NVARCHAR(100)</td><td>S&#237;</td><td>Puerto de descarga</td></tr>
+                <tr><td>ETA</td><td>DATETIME2</td><td>S&#237;</td><td>Fecha estimada de arribo</td></tr>
+                <tr><td>ETD</td><td>DATETIME2</td><td>S&#237;</td><td>Fecha estimada de salida</td></tr>
+                <tr><td>Status</td><td>NVARCHAR(30)</td><td>No</td><td>Estado: Active, Completed, Cancelled</td></tr>
+                <tr><td>FreightAmount</td><td>DECIMAL(18,2)</td><td>No</td><td>Monto del flete</td></tr>
+                <tr><td>Currency</td><td>CHAR(3)</td><td>No</td><td>Moneda del flete (USD, CLP, BOB)</td></tr>
+                <tr><td>CachedAt</td><td>DATETIME2</td><td>S&#237;</td><td>Fecha de &#250;ltima sincronizaci&#243;n con DataLake</td></tr>
+                <tr><td>CreatedAt</td><td>DATETIME2</td><td>No</td><td>Fecha de creaci&#243;n del registro</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>8.3 Tabla: Payment</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Nullable</th><th>Descripci&#243;n</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Id</strong></td><td>INT (PK, Identity)</td><td>No</td><td>Identificador &#250;nico del pago</td></tr>
+                <tr><td>ClientId</td><td>INT (FK)</td><td>No</td><td>Referencia al cliente que realiza el pago</td></tr>
+                <tr><td>PaymentType</td><td>NVARCHAR(30)</td><td>No</td><td>Tipo: Freight, LocalCharge, Demurrage, Warehouse</td></tr>
+                <tr><td>PaymentMethod</td><td>NVARCHAR(30)</td><td>No</td><td>M&#233;todo: Khipu, BancoChile, BCI, Deposit</td></tr>
+                <tr><td>SubtotalAmount</td><td>DECIMAL(18,2)</td><td>No</td><td>Monto neto antes de impuestos</td></tr>
+                <tr><td>TaxAmount</td><td>DECIMAL(18,2)</td><td>No</td><td>Monto del IVA calculado</td></tr>
+                <tr><td>TotalAmount</td><td>DECIMAL(18,2)</td><td>No</td><td>Monto total (neto + IVA)</td></tr>
+                <tr><td>Currency</td><td>CHAR(3)</td><td>No</td><td>Moneda del pago</td></tr>
+                <tr><td>Status</td><td>NVARCHAR(20)</td><td>No</td><td>Estado: Pending, PendingDeposit, Confirmed, AutoConfirmed, Rejected, Cancelled</td></tr>
+                <tr><td>TransactionRef</td><td>NVARCHAR(100)</td><td>S&#237;</td><td>Referencia de transacci&#243;n de la pasarela</td></tr>
+                <tr><td>ReceiptNumber</td><td>NVARCHAR(30)</td><td>No</td><td>N&#250;mero de recibo &#250;nico generado</td></tr>
+                <tr><td>PaidAt</td><td>DATETIME2</td><td>S&#237;</td><td>Fecha/hora del pago</td></tr>
+                <tr><td>ConfirmedAt</td><td>DATETIME2</td><td>S&#237;</td><td>Fecha/hora de confirmaci&#243;n</td></tr>
+                <tr><td>CreatedAt</td><td>DATETIME2</td><td>No</td><td>Fecha de creaci&#243;n del registro</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>8.4 &#205;ndices Recomendados</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Tabla</th><th>&#205;ndice</th><th>Columnas</th><th>Tipo</th><th>Justificaci&#243;n</th></tr></thead>
+            <tbody>
+                <tr><td>Client</td><td>IX_Client_TaxId</td><td>TaxId</td><td>Unique</td><td>B&#250;squeda por RUT/NIT, unicidad</td></tr>
+                <tr><td>Client</td><td>IX_Client_Email</td><td>Email</td><td>Unique</td><td>Login por email, unicidad</td></tr>
+                <tr><td>Client</td><td>IX_Client_Country</td><td>Country, IsActive</td><td>Non-Clustered</td><td>Filtrado por pa&#237;s y estado</td></tr>
+                <tr><td>BillOfLading</td><td>IX_BL_BLNumber</td><td>BLNumber</td><td>Unique</td><td>B&#250;squeda por n&#250;mero de BL</td></tr>
+                <tr><td>BillOfLading</td><td>IX_BL_ClientId</td><td>ClientId, Status</td><td>Non-Clustered</td><td>BLs por cliente y estado</td></tr>
+                <tr><td>BillOfLading</td><td>IX_BL_CachedAt</td><td>CachedAt</td><td>Non-Clustered</td><td>Identificar cach&#233; expirada</td></tr>
+                <tr><td>Payment</td><td>IX_Payment_ClientId</td><td>ClientId, Status</td><td>Non-Clustered</td><td>Pagos por cliente y estado</td></tr>
+                <tr><td>Payment</td><td>IX_Payment_Status</td><td>Status, CreatedAt</td><td>Non-Clustered</td><td>Job de confirmaci&#243;n autom&#225;tica</td></tr>
+                <tr><td>Payment</td><td>IX_Payment_Receipt</td><td>ReceiptNumber</td><td>Unique</td><td>B&#250;squeda por recibo</td></tr>
+                <tr><td>LocalCharge</td><td>IX_LC_BLId</td><td>BillOfLadingId, Status</td><td>Non-Clustered</td><td>Cargos pendientes por BL</td></tr>
+                <tr><td>DemurrageCharge</td><td>IX_Dem_ContainerId</td><td>ContainerId, Status</td><td>Non-Clustered</td><td>Demurrage por contenedor</td></tr>
+                <tr><td>AuditLog</td><td>IX_Audit_UserId</td><td>UserId, CreatedAt</td><td>Non-Clustered</td><td>Auditor&#237;a por usuario</td></tr>
+                <tr><td>CreditClient</td><td>IX_CC_NIT</td><td>NIT</td><td>Unique</td><td>B&#250;squeda por NIT</td></tr>
+                <tr><td>DemurrageExemption</td><td>IX_DE_NIT</td><td>NIT, IsActive</td><td>Non-Clustered</td><td>Verificaci&#243;n de exenci&#243;n</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- SECTION 9: API REST -->
+<div class="section" id="sec9">
+    <h2 class="section-header">9. Especificaci&#243;n API REST</h2>
+    <p>Todos los endpoints est&#225;n bajo el prefijo <code>/api/v1</code>. La autenticaci&#243;n se realiza mediante JWT Bearer Token en el header <code>Authorization</code>.</p>
+
+    <h3>9.1 Auth</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/auth/register</td><td>Registrar nuevo cliente o agente de aduana</td><td>No</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/auth/login</td><td>Iniciar sesi&#243;n, obtener JWT tokens</td><td>No</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/auth/refresh-token</td><td>Renovar access token con refresh token</td><td>No</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/auth/confirm-email</td><td>Confirmar email con token de activaci&#243;n</td><td>No</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/auth/forgot-password</td><td>Solicitar restablecimiento de contrase&#241;a</td><td>No</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/auth/reset-password</td><td>Restablecer contrase&#241;a con token</td><td>No</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.2 Clients</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/clients/me</td><td>Obtener perfil del cliente autenticado</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-put">PUT</span></td><td>/clients/me</td><td>Actualizar perfil del cliente</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/clients</td><td>Listar clientes (admin)</td><td>AdminBA</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/clients/{id}</td><td>Obtener cliente por ID (admin)</td><td>AdminBA</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.3 Bills of Lading</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/bills-of-lading/{blNumber}</td><td>Consultar BL por n&#250;mero</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/bills-of-lading/{blNumber}/containers</td><td>Listar contenedores del BL</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/bills-of-lading/{blNumber}/charges</td><td>Listar cargos del BL</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/bills-of-lading/my</td><td>Listar BLs del cliente autenticado</td><td>S&#237;</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.4 Payments</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/payments</td><td>Crear nuevo pago</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/payments/{id}</td><td>Obtener detalle de pago</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/payments/my</td><td>Listar pagos del cliente</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/payments/{id}/confirm</td><td>Confirmar pago manualmente (admin)</td><td>AdminBA</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/payments/{id}/cancel</td><td>Cancelar pago pendiente</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/payments/webhook/khipu</td><td>Webhook de notificaci&#243;n Khipu</td><td>No</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/payments/webhook/banco-chile</td><td>Webhook de notificaci&#243;n Banco de Chile</td><td>No</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.5 Receipts</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/receipts</td><td>Generar nuevo recibo de pago</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/receipts/{id}</td><td>Obtener recibo por ID</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/receipts/{id}/pdf</td><td>Descargar recibo en PDF</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/receipts/my</td><td>Listar recibos del cliente</td><td>S&#237;</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.6 Local Charges</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/local-charges/{blNumber}</td><td>Listar cargos locales pendientes por BL</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/local-charges/container/{containerNumber}</td><td>Listar cargos locales por contenedor</td><td>S&#237;</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.7 Demurrage</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/demurrage/{blNumber}</td><td>Calcular demurrage por BL</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/demurrage/container/{containerNumber}</td><td>Calcular demurrage por contenedor</td><td>S&#237;</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.8 Warehouse</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/warehouse-changes</td><td>Solicitar cambio de bodega</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/warehouse-changes/my</td><td>Listar solicitudes del cliente</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/warehouse-changes/{id}</td><td>Obtener detalle de solicitud</td><td>S&#237;</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.9 Service Orders</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/service-orders</td><td>Solicitar ODS manualmente</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/service-orders/my</td><td>Listar ODS del cliente</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/service-orders/{id}/pdf</td><td>Descargar ODS en PDF</td><td>S&#237;</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.10 Admin Bolivia</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/admin/credit-clients</td><td>Listar clientes cr&#233;dito Bolivia</td><td>AdminBA</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/admin/credit-clients</td><td>Agregar cliente cr&#233;dito</td><td>AdminBA</td></tr>
+                <tr><td><span class="badge badge-put">PUT</span></td><td>/admin/credit-clients/{id}</td><td>Actualizar cliente cr&#233;dito</td><td>AdminBA</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/admin/demurrage-exemptions</td><td>Listar exenciones de demurrage</td><td>AdminBA</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/admin/demurrage-exemptions</td><td>Agregar exenci&#243;n de demurrage</td><td>AdminBA</td></tr>
+                <tr><td><span class="badge badge-delete">DELETE</span></td><td>/admin/demurrage-exemptions/{id}</td><td>Desactivar exenci&#243;n de demurrage</td><td>AdminBA</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.11 FAQ</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/faq</td><td>Listar todas las FAQ activas</td><td>No</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/faq/categories</td><td>Listar categor&#237;as de FAQ</td><td>No</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/faq/search</td><td>Buscar FAQ por texto</td><td>No</td></tr>
+                <tr><td><span class="badge badge-post">POST</span></td><td>/faq</td><td>Crear nueva FAQ (admin)</td><td>AdminBA</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9.12 Config</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>M&#233;todo</th><th>Endpoint</th><th>Descripci&#243;n</th><th>Auth</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/config/tax-rates</td><td>Obtener tasas de impuestos por pa&#237;s</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/config/currencies</td><td>Obtener monedas y tipos de cambio</td><td>S&#237;</td></tr>
+                <tr><td><span class="badge badge-get">GET</span></td><td>/config/payment-methods/{country}</td><td>Obtener m&#233;todos de pago por pa&#237;s</td><td>S&#237;</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- SECTION 10: SEGURIDAD -->
+<div class="section" id="sec10">
+    <h2 class="section-header">10. Seguridad</h2>
+
+    <h3>10.1 Autenticaci&#243;n</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Aspecto</th><th>Implementaci&#243;n</th><th>Detalle</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Algoritmo JWT</strong></td><td>RS256 (RSA + SHA-256)</td><td>Firma asim&#233;trica con clave p&#250;blica/privada para mayor seguridad</td></tr>
+                <tr><td><strong>Access Token</strong></td><td>Duraci&#243;n: 1 hora</td><td>Token de corta duraci&#243;n para acceso a recursos protegidos</td></tr>
+                <tr><td><strong>Refresh Token</strong></td><td>Duraci&#243;n: 7 d&#237;as</td><td>Token de larga duraci&#243;n para renovar access tokens sin re-autenticaci&#243;n</td></tr>
+                <tr><td><strong>Hashing de Contrase&#241;as</strong></td><td>BCrypt</td><td>Algoritmo de hashing adaptativo con salt autom&#225;tico, work factor 12</td></tr>
+                <tr><td><strong>Bloqueo de Cuenta</strong></td><td>5 intentos fallidos</td><td>Cuenta bloqueada tras 5 intentos fallidos consecutivos. Requiere desbloqueo por admin.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>10.2 Autorizaci&#243;n</h3>
+    <p>El sistema implementa autorizaci&#243;n basada en roles (RBAC) con los siguientes perfiles:</p>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Rol</th><th>Descripci&#243;n</th><th>Permisos</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Client</strong></td><td>Cliente final de Hapag-Lloyd</td><td>Consultar BLs propios, generar recibos, procesar pagos, solicitar ODS, cambio de bodega, ver FAQ</td></tr>
+                <tr><td><strong>CustomsAgent</strong></td><td>Agente de aduana autorizado</td><td>Mismos permisos que Client, puede gestionar BLs de m&#250;ltiples clientes asignados</td></tr>
+                <tr><td><strong>AdminBA</strong></td><td>Administrador de Business Administration</td><td>Gestionar clientes cr&#233;dito BO, exenciones demurrage, confirmar pagos manualmente, gestionar FAQ, ver reportes</td></tr>
+                <tr><td><strong>SuperAdmin</strong></td><td>Administrador del sistema</td><td>Todos los permisos de AdminBA, gesti&#243;n de usuarios, configuraci&#243;n del sistema, acceso a AuditLog completo</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>10.3 Seguridad de Datos</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Medida</th><th>Implementaci&#243;n</th><th>Descripci&#243;n</th></tr></thead>
+            <tbody>
+                <tr><td><strong>HTTPS</strong></td><td>TLS 1.2+</td><td>Todas las comunicaciones cifradas en tr&#225;nsito</td></tr>
+                <tr><td><strong>CORS</strong></td><td>Pol&#237;tica restrictiva</td><td>Solo or&#237;genes autorizados pueden acceder al API</td></tr>
+                <tr><td><strong>Rate Limiting</strong></td><td>100 req/min por IP</td><td>Protecci&#243;n contra ataques de fuerza bruta y DDoS</td></tr>
+                <tr><td><strong>Validaci&#243;n de Entrada</strong></td><td>FluentValidation</td><td>Validaci&#243;n exhaustiva de todos los inputs en el servidor</td></tr>
+                <tr><td><strong>SQL Injection</strong></td><td>EF Core Parameterized</td><td>Queries parametrizadas autom&#225;ticas por Entity Framework Core</td></tr>
+                <tr><td><strong>XSS Protection</strong></td><td>Angular Sanitization</td><td>Angular sanitiza autom&#225;ticamente el contenido din&#225;mico</td></tr>
+                <tr><td><strong>Audit Trail</strong></td><td>AuditLog completo</td><td>Registro de todas las operaciones cr&#237;ticas con usuario, IP, timestamp y datos</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="warning-box">
+        <p><strong>Nota de Seguridad:</strong> Los webhooks de pasarelas de pago (Khipu, Banco de Chile) deben validar la firma del mensaje para evitar notificaciones fraudulentas. Se implementa verificaci&#243;n de HMAC-SHA256 con la clave secreta compartida.</p>
+    </div>
+</div>
+
+<!-- SECTION 11: CONSIDERACIONES BOLIVIA VS CHILE -->
+<div class="section" id="sec11">
+    <h2 class="section-header">11. Consideraciones Bolivia vs Chile</h2>
+    <p>Tabla comparativa de las diferencias operativas y t&#233;cnicas entre ambos pa&#237;ses que el portal debe manejar.</p>
+
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Aspecto</th><th>Chile (CL)</th><th>Bolivia (BO)</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Identificaci&#243;n Tributaria</strong></td><td>RUT (formato: XX.XXX.XXX-X)</td><td>NIT (formato num&#233;rico)</td></tr>
+                <tr><td><strong>Moneda Local</strong></td><td>CLP (Peso Chileno)</td><td>BOB (Boliviano)</td></tr>
+                <tr><td><strong>IVA General</strong></td><td>19%</td><td>13%</td></tr>
+                <tr><td><strong>IVA Bodega</strong></td><td>19%</td><td>Por definir (TBD)</td></tr>
+                <tr><td><strong>M&#233;todos de Pago</strong></td><td>Khipu, Banco de Chile, Dep&#243;sito bancario</td><td>Dep&#243;sito bancario</td></tr>
+                <tr><td><strong>Piloto Crypto BCI</strong></td><td>S&#237; (en evaluaci&#243;n)</td><td>No aplica</td></tr>
+                <tr><td><strong>Notificaci&#243;n de Pagos</strong></td><td>Autom&#225;tica v&#237;a sistema</td><td>Email a Pagosbolivia@hlag.com</td></tr>
+                <tr><td><strong>Contacto Soporte</strong></td><td>CS Chile directo</td><td>CS CL-BO (Katiusca Budrovich)</td></tr>
+                <tr><td><strong>Clientes Cr&#233;dito</strong></td><td>No gestionado en portal</td><td>Lista importada desde SIAN, gestionada por AdminBA</td></tr>
+                <tr><td><strong>Exenciones Demurrage</strong></td><td>No aplica</td><td>Lista administrada (ej: Jorge Cabrera Sanguino, Rolo Arteaga Aguilera)</td></tr>
+                <tr><td><strong>Conceptos de Pago BO</strong></td><td>Todos los conceptos</td><td>Flete importaci&#243;n + Gate In + EDS (principales)</td></tr>
+                <tr><td><strong>Puertos Principales</strong></td><td>Valpara&#237;so, San Antonio, Arica, Iquique</td><td>Arica, Iquique (puertos chilenos)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-box">
+        <p><strong>Implementaci&#243;n T&#233;cnica:</strong> Las diferencias por pa&#237;s se manejan mediante la tabla <code>TaxConfiguration</code> para impuestos, l&#243;gica condicional en los Commands/Queries basada en el campo <code>Client.Country</code>, y configuraci&#243;n de m&#233;todos de pago por pa&#237;s en el endpoint <code>/config/payment-methods/{country}</code>.</p>
+    </div>
+</div>
+
+<!-- SECTION 12: PLAN DE MIGRACION -->
+<div class="section" id="sec12">
+    <h2 class="section-header">12. Plan de Migraci&#243;n de Base de Datos</h2>
+
+    <h3>12.1 Proyecto de Migraciones</h3>
+    <p>Las migraciones de base de datos se gestionan en un proyecto separado: <strong>HapagPortal.DatabaseMigrations</strong>, una aplicaci&#243;n de consola .NET que ejecuta las migraciones de Entity Framework Core de forma independiente del Web API.</p>
+
+    <div class="info-box">
+        <p><strong>Ventaja:</strong> Separar las migraciones permite ejecutarlas en pipelines CI/CD sin necesidad de desplegar el API, y facilita la gesti&#243;n de esquemas en diferentes ambientes (desarrollo, staging, producci&#243;n).</p>
+    </div>
+
+    <h3>12.2 Estrategia de Migraci&#243;n</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Fase</th><th>Migraci&#243;n</th><th>Descripci&#243;n</th><th>Contenido</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td><strong>InitialCreate</strong></td><td>Creaci&#243;n del esquema inicial</td><td>Todas las tablas, &#237;ndices, relaciones FK, constraints</td></tr>
+                <tr><td>2</td><td><strong>SeedTaxConfigurations</strong></td><td>Datos semilla de configuraci&#243;n fiscal</td><td>IVA Chile 19%, IVA Bolivia 13%, configuraciones por tipo de cargo</td></tr>
+                <tr><td>3</td><td><strong>SeedCurrencies</strong></td><td>Datos semilla de monedas</td><td>CLP, BOB, USD con tipos de cambio iniciales</td></tr>
+                <tr><td>4</td><td><strong>SeedFAQ</strong></td><td>Datos semilla de FAQ</td><td>Preguntas frecuentes iniciales por categor&#237;a y pa&#237;s</td></tr>
+                <tr><td>5</td><td><strong>SeedUserRoles</strong></td><td>Datos semilla de roles</td><td>Client, CustomsAgent, AdminBA, SuperAdmin con permisos</td></tr>
+                <tr><td>6</td><td><strong>AddBoliviaFeatures</strong></td><td>Tablas espec&#237;ficas Bolivia</td><td>CreditClient, DemurrageExemption con datos iniciales</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>12.3 Design-Time Factory</h3>
+    <p>El proyecto incluye un <code>DesignTimeDbContextFactory</code> que permite a las herramientas de EF Core (como <code>dotnet ef migrations add</code>) crear el DbContext en tiempo de dise&#241;o sin necesidad de ejecutar la aplicaci&#243;n.</p>
+
+    <div class="code-block"><span class="kw">public class</span> <span class="tp">DesignTimeDbContextFactory</span>
+    : <span class="tp">IDesignTimeDbContextFactory</span>&lt;<span class="tp">HapagPortalDbContext</span>&gt;
+{
+    <span class="kw">public</span> <span class="tp">HapagPortalDbContext</span> CreateDbContext(<span class="tp">string</span>[] args)
+    {
+        <span class="kw">var</span> optionsBuilder = <span class="kw">new</span> <span class="tp">DbContextOptionsBuilder</span>&lt;<span class="tp">HapagPortalDbContext</span>&gt;();
+        optionsBuilder.UseSqlServer(
+            <span class="st">"Server=.;Database=HapagPortal;Trusted_Connection=true;"</span>);
+        <span class="kw">return new</span> <span class="tp">HapagPortalDbContext</span>(optionsBuilder.Options);
+    }
+}</div>
+</div>
+
+<!-- SECTION 13: GLOSARIO -->
+<div class="section" id="sec13">
+    <h2 class="section-header">13. Glosario</h2>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>T&#233;rmino</th><th>Definici&#243;n</th></tr></thead>
+            <tbody>
+                <tr><td><strong>BL</strong></td><td>Bill of Lading &mdash; Conocimiento de embarque, documento que acredita el contrato de transporte mar&#237;timo de mercanc&#237;as</td></tr>
+                <tr><td><strong>BOB</strong></td><td>Boliviano &mdash; Moneda oficial de Bolivia</td></tr>
+                <tr><td><strong>CLP</strong></td><td>Peso Chileno &mdash; Moneda oficial de Chile</td></tr>
+                <tr><td><strong>CQRS</strong></td><td>Command Query Responsibility Segregation &mdash; Patr&#243;n que separa las operaciones de lectura (Queries) de las de escritura (Commands)</td></tr>
+                <tr><td><strong>Demurrage</strong></td><td>Cargo por estad&#237;a &mdash; Penalizaci&#243;n por exceder el tiempo libre de uso de un contenedor en puerto</td></tr>
+                <tr><td><strong>EDS</strong></td><td>Equipment Delivery Service &mdash; Servicio de entrega de equipos/contenedores</td></tr>
+                <tr><td><strong>ETA</strong></td><td>Estimated Time of Arrival &mdash; Fecha estimada de arribo del buque al puerto de destino</td></tr>
+                <tr><td><strong>ETD</strong></td><td>Estimated Time of Departure &mdash; Fecha estimada de salida del buque del puerto de origen</td></tr>
+                <tr><td><strong>FIS</strong></td><td>Freight Information System &mdash; Sistema de informaci&#243;n de fletes de Hapag-Lloyd</td></tr>
+                <tr><td><strong>Gate In</strong></td><td>Ingreso de contenedor al terminal portuario</td></tr>
+                <tr><td><strong>Gate Out</strong></td><td>Retiro de contenedor del terminal portuario</td></tr>
+                <tr><td><strong>IVA</strong></td><td>Impuesto al Valor Agregado &mdash; 19% en Chile, 13% en Bolivia</td></tr>
+                <tr><td><strong>JWT</strong></td><td>JSON Web Token &mdash; Est&#225;ndar para transmisi&#243;n segura de informaci&#243;n entre partes como objeto JSON firmado</td></tr>
+                <tr><td><strong>MHD</strong></td><td>Master House Document &mdash; Documento maestro de la casa naviera</td></tr>
+                <tr><td><strong>NIT</strong></td><td>N&#250;mero de Identificaci&#243;n Tributaria &mdash; Identificaci&#243;n fiscal en Bolivia</td></tr>
+                <tr><td><strong>ODS</strong></td><td>Orden de Servicio &mdash; Documento que autoriza operaciones sobre contenedores en el terminal</td></tr>
+                <tr><td><strong>RUT</strong></td><td>Rol &#218;nico Tributario &mdash; Identificaci&#243;n fiscal en Chile</td></tr>
+                <tr><td><strong>SIAN</strong></td><td>Sistema Integrado de Administraci&#243;n Nacional &mdash; Sistema boliviano de gesti&#243;n de cr&#233;ditos y administraci&#243;n</td></tr>
+                <tr><td><strong>TATC</strong></td><td>Turn Around Time Certificate &mdash; Certificado de tiempo de rotaci&#243;n de contenedores</td></tr>
+                <tr><td><strong>XMY</strong></td><td>Cargo por manipulaci&#243;n extra de contenedores en terminal</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- SECTION 14: GUIA DE INSTALACION Y EJECUCION -->
+<div class="section" id="sec14">
+    <h2 class="section-header">14. Gu&#237;a de Instalaci&#243;n y Ejecuci&#243;n</h2>
+
+    <h3>14.1 Prerrequisitos</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Software</th><th>Versi&#243;n M&#237;nima</th><th>Descarga</th></tr></thead>
+            <tbody>
+                <tr><td><strong>.NET SDK</strong></td><td>10.0</td><td>https://dotnet.microsoft.com/download</td></tr>
+                <tr><td><strong>Node.js</strong></td><td>22.x LTS</td><td>https://nodejs.org</td></tr>
+                <tr><td><strong>npm</strong></td><td>11.x (incluido con Node.js)</td><td>&mdash;</td></tr>
+                <tr><td><strong>Angular CLI</strong></td><td>21.x</td><td><code>npm install -g @angular/cli</code></td></tr>
+                <tr><td><strong>SQL Server</strong></td><td>2019+</td><td>https://www.microsoft.com/sql-server</td></tr>
+                <tr><td><strong>Visual Studio</strong></td><td>2022 17.x</td><td>https://visualstudio.microsoft.com (opcional, para desarrollo)</td></tr>
+                <tr><td><strong>Git</strong></td><td>2.x</td><td>https://git-scm.com</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>14.2 Estructura del Repositorio</h3>
+    <div class="code-block">hapag/
+&#9500;&#9472;&#9472; docs/
+&#9474;   &#9492;&#9472;&#9472; technical-design-document.html
+&#9500;&#9472;&#9472; backend/
+&#9474;   &#9500;&#9472;&#9472; HapagPortal.sln
+&#9474;   &#9500;&#9472;&#9472; src/
+&#9474;   &#9474;   &#9500;&#9472;&#9472; HapagPortal.Domain/
+&#9474;   &#9474;   &#9500;&#9472;&#9472; HapagPortal.Application/
+&#9474;   &#9474;   &#9500;&#9472;&#9472; HapagPortal.Infrastructure/
+&#9474;   &#9474;   &#9500;&#9472;&#9472; HapagPortal.WebApi/
+&#9474;   &#9474;   &#9492;&#9472;&#9472; HapagPortal.DatabaseMigrations/
+&#9474;   &#9492;&#9472;&#9472; tests/
+&#9474;       &#9500;&#9472;&#9472; HapagPortal.UnitTests.Domain/
+&#9474;       &#9500;&#9472;&#9472; HapagPortal.UnitTests.Application/
+&#9474;       &#9500;&#9472;&#9472; HapagPortal.UnitTests.Infrastructure/
+&#9474;       &#9500;&#9472;&#9472; HapagPortal.UnitTests.WebApi/
+&#9474;       &#9492;&#9472;&#9472; HapagPortal.ArchitectureTests/
+&#9492;&#9472;&#9472; frontend/
+    &#9500;&#9472;&#9472; src/
+    &#9474;   &#9500;&#9472;&#9472; app/
+    &#9474;   &#9500;&#9472;&#9472; environments/
+    &#9474;   &#9492;&#9472;&#9472; styles.scss
+    &#9500;&#9472;&#9472; angular.json
+    &#9500;&#9472;&#9472; package.json
+    &#9492;&#9472;&#9472; proxy.conf.json</div>
+
+    <h3>14.3 Base de Datos &mdash; Creaci&#243;n y Migraciones</h3>
+    <p>El proyecto utiliza <strong>Entity Framework Core</strong> con un proyecto de migraciones separado (<code>HapagPortal.DatabaseMigrations</code>). La base de datos se crea autom&#225;ticamente al ejecutar las migraciones.</p>
+
+    <h4>Paso 1: Verificar SQL Server</h4>
+    <p>Aseg&#250;rese de que SQL Server est&#233; corriendo en <code>localhost</code> con autenticaci&#243;n Windows (Trusted Connection). Puede verificarlo con:</p>
+    <div class="code-block">sqlcmd -S localhost -E -Q "SELECT @@VERSION"</div>
+
+    <h4>Paso 2: Configurar Connection String</h4>
+    <p>La cadena de conexi&#243;n se encuentra en los siguientes archivos:</p>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Archivo</th><th>Ambiente</th><th>Ubicaci&#243;n</th></tr></thead>
+            <tbody>
+                <tr><td><code>appsettings.Development.json</code></td><td>Desarrollo</td><td><code>backend/src/HapagPortal.WebApi/</code></td></tr>
+                <tr><td><code>appsettings.Staging.json</code></td><td>Staging</td><td><code>backend/src/HapagPortal.WebApi/</code></td></tr>
+                <tr><td><code>appsettings.json</code></td><td>Producci&#243;n</td><td><code>backend/src/HapagPortal.WebApi/</code></td></tr>
+                <tr><td><code>appsettings.json</code></td><td>Migraciones</td><td><code>backend/src/HapagPortal.DatabaseMigrations/</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>Formato de la cadena de conexi&#243;n:</p>
+    <div class="code-block">Server=localhost;Database=HapagPortalDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true</div>
+    <div class="warning-box">
+        <p><strong>Importante:</strong> Para ambientes de staging y producci&#243;n, reemplace <code>localhost</code> por el servidor correspondiente y configure credenciales seguras. Nunca use <code>Trusted_Connection=true</code> en producci&#243;n si el API corre en un servidor diferente al de la BD.</p>
+    </div>
+
+    <h4>Paso 3: Ejecutar Migraciones</h4>
+    <div class="code-block"><span class="cm"># Desde la ra&#237;z del backend</span>
+cd backend
+
+<span class="cm"># Opci&#243;n A: Ejecutar el proyecto de migraciones (recomendado)</span>
+dotnet run --project src/HapagPortal.DatabaseMigrations
+
+<span class="cm"># Opci&#243;n B: Usar EF Core CLI directamente</span>
+dotnet ef database update --project src/HapagPortal.Infrastructure --startup-project src/HapagPortal.WebApi
+
+<span class="cm"># Para crear una nueva migraci&#243;n</span>
+dotnet ef migrations add NombreMigracion --project src/HapagPortal.Infrastructure --startup-project src/HapagPortal.WebApi</div>
+
+    <h3>14.4 Backend &mdash; Levantar el API</h3>
+
+    <h4>Opci&#243;n A: L&#237;nea de Comandos (recomendado para desarrollo r&#225;pido)</h4>
+    <div class="code-block"><span class="cm"># Desde la ra&#237;z del backend</span>
+cd backend
+
+<span class="cm"># Restaurar dependencias</span>
+dotnet restore
+
+<span class="cm"># Compilar la soluci&#243;n</span>
+dotnet build
+
+<span class="cm"># Ejecutar el API (perfil HTTPS)</span>
+dotnet run --project src/HapagPortal.WebApi --launch-profile https
+
+<span class="cm"># El API estar&#225; disponible en:</span>
+<span class="cm">#   https://localhost:7062</span>
+<span class="cm">#   http://localhost:5072</span>
+<span class="cm"># Swagger UI: https://localhost:7062/swagger</span></div>
+
+    <h4>Opci&#243;n B: Visual Studio</h4>
+    <ol>
+        <li>Abrir <code>backend/HapagPortal.sln</code> en Visual Studio 2022.</li>
+        <li>Establecer <strong>HapagPortal.WebApi</strong> como proyecto de inicio (clic derecho &rarr; Set as Startup Project).</li>
+        <li>Seleccionar el perfil <strong>https</strong> en la barra de ejecuci&#243;n.</li>
+        <li>Presionar <strong>F5</strong> (Debug) o <strong>Ctrl+F5</strong> (sin debug).</li>
+    </ol>
+
+    <h4>Ejecutar Tests</h4>
+    <div class="code-block"><span class="cm"># Ejecutar todos los tests (111 tests)</span>
+dotnet test
+
+<span class="cm"># Ejecutar tests de un proyecto espec&#237;fico</span>
+dotnet test tests/HapagPortal.UnitTests.Domain
+dotnet test tests/HapagPortal.UnitTests.Application
+dotnet test tests/HapagPortal.UnitTests.Infrastructure
+dotnet test tests/HapagPortal.UnitTests.WebApi
+dotnet test tests/HapagPortal.ArchitectureTests</div>
+
+    <h4>Configuraci&#243;n por Ambiente (Backend)</h4>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Archivo</th><th>Ambiente</th><th>Variable de Entorno</th></tr></thead>
+            <tbody>
+                <tr><td><code>appsettings.Development.json</code></td><td>Desarrollo local</td><td><code>ASPNETCORE_ENVIRONMENT=Development</code></td></tr>
+                <tr><td><code>appsettings.Staging.json</code></td><td>Staging / QA</td><td><code>ASPNETCORE_ENVIRONMENT=Staging</code></td></tr>
+                <tr><td><code>appsettings.json</code></td><td>Producci&#243;n</td><td><code>ASPNETCORE_ENVIRONMENT=Production</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>Cada archivo contiene la configuraci&#243;n espec&#237;fica del ambiente:</p>
+    <div class="code-block"><span class="cm">// appsettings.{Ambiente}.json</span>
+{
+  <span class="st">"ConnectionStrings"</span>: {
+    <span class="st">"DefaultConnection"</span>: <span class="st">"Server=...;Database=HapagPortalDb;..."</span>
+  },
+  <span class="st">"Jwt"</span>: {
+    <span class="st">"Secret"</span>: <span class="st">"CLAVE_SECRETA_MIN_32_CARACTERES"</span>,
+    <span class="st">"Issuer"</span>: <span class="st">"HapagPortal"</span>,
+    <span class="st">"Audience"</span>: <span class="st">"HapagPortalClients"</span>,
+    <span class="st">"ExpirationMinutes"</span>: 60
+  },
+  <span class="st">"Cors"</span>: {
+    <span class="st">"AllowedOrigins"</span>: [<span class="st">"https://portal.hapag-lloyd.cl"</span>]
+  }
+}</div>
+    <div class="warning-box">
+        <p><strong>Seguridad:</strong> En staging y producci&#243;n, reemplace el <code>Jwt:Secret</code> por una clave segura de al menos 32 caracteres. Nunca reutilice la clave de desarrollo.</p>
+    </div>
+
+    <h3>14.5 Frontend &mdash; Levantar la Aplicaci&#243;n Angular</h3>
+
+    <h4>Paso 1: Instalar Dependencias</h4>
+    <div class="code-block"><span class="cm"># Desde la ra&#237;z del frontend</span>
+cd frontend
+
+<span class="cm"># Instalar dependencias</span>
+npm install
+
+<span class="cm"># Instalar Angular CLI globalmente (si no est&#225; instalado)</span>
+npm install -g @angular/cli</div>
+
+    <h4>Paso 2: Ejecutar en Modo Desarrollo</h4>
+    <div class="code-block"><span class="cm"># Iniciar servidor de desarrollo con proxy al backend</span>
+npm start
+
+<span class="cm"># Equivalente a: ng serve --configuration development</span>
+<span class="cm"># La aplicaci&#243;n estar&#225; disponible en: http://localhost:4200</span>
+<span class="cm"># El proxy redirige /api/* a https://localhost:7062</span></div>
+
+    <h4>Paso 3: Compilar para Despliegue</h4>
+    <div class="code-block"><span class="cm"># Build para staging</span>
+npm run build:staging
+
+<span class="cm"># Build para producci&#243;n</span>
+npm run build:prod
+
+<span class="cm"># Los archivos compilados se generan en: frontend/dist/hapag-portal/</span></div>
+
+    <h4>Configuraci&#243;n por Ambiente (Frontend)</h4>
+    <p>Angular utiliza archivos de entorno en <code>src/environments/</code> que se reemplazan autom&#225;ticamente seg&#250;n la configuraci&#243;n de build:</p>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Archivo</th><th>Ambiente</th><th>Comando de Build</th><th>API URL</th></tr></thead>
+            <tbody>
+                <tr><td><code>environment.ts</code></td><td>Desarrollo</td><td><code>npm start</code></td><td><code>https://localhost:7062/api/v1</code></td></tr>
+                <tr><td><code>environment.staging.ts</code></td><td>Staging</td><td><code>npm run build:staging</code></td><td><code>https://staging-api.hapag-portal.example.com/api/v1</code></td></tr>
+                <tr><td><code>environment.prod.ts</code></td><td>Producci&#243;n</td><td><code>npm run build:prod</code></td><td><code>/api/v1</code> (relativo, mismo origen)</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>Ejemplo de archivo de entorno:</p>
+    <div class="code-block"><span class="cm">// src/environments/environment.ts (Desarrollo)</span>
+<span class="kw">export const</span> environment = {
+  production: <span class="kw">false</span>,
+  apiUrl: <span class="st">'https://localhost:7062/api/v1'</span>,
+};
+
+<span class="cm">// src/environments/environment.staging.ts (Staging)</span>
+<span class="kw">export const</span> environment = {
+  production: <span class="kw">false</span>,
+  apiUrl: <span class="st">'https://staging-api.hapag-portal.example.com/api/v1'</span>,
+};
+
+<span class="cm">// src/environments/environment.prod.ts (Producci&#243;n)</span>
+<span class="kw">export const</span> environment = {
+  production: <span class="kw">true</span>,
+  apiUrl: <span class="st">'/api/v1'</span>,
+};</div>
+    <div class="info-box">
+        <p><strong>Proxy de Desarrollo:</strong> En modo desarrollo (<code>npm start</code>), el archivo <code>proxy.conf.json</code> redirige todas las peticiones a <code>/api/*</code> hacia <code>https://localhost:7062</code>, evitando problemas de CORS. En producci&#243;n, el frontend y el API se sirven desde el mismo origen (IIS).</p>
+    </div>
+
+    <h4>Proxy de Desarrollo</h4>
+    <p>El archivo <code>proxy.conf.json</code> en la ra&#237;z del frontend configura el proxy para desarrollo:</p>
+    <div class="code-block">{
+  <span class="st">"/api"</span>: {
+    <span class="st">"target"</span>: <span class="st">"https://localhost:7062"</span>,
+    <span class="st">"secure"</span>: <span class="kw">false</span>,
+    <span class="st">"changeOrigin"</span>: <span class="kw">true</span>
+  }
+}</div>
+
+    <h3>14.6 Flujo Completo de Desarrollo Local</h3>
+    <p>Resumen paso a paso para levantar todo el entorno de desarrollo desde cero:</p>
+    <div class="code-block"><span class="cm"># 1. Clonar el repositorio</span>
+git clone [URL_REPOSITORIO]
+cd hapag
+
+<span class="cm"># 2. Crear la base de datos (requiere SQL Server corriendo)</span>
+cd backend
+dotnet run --project src/HapagPortal.DatabaseMigrations
+
+<span class="cm"># 3. Verificar que el backend compila y los tests pasan</span>
+dotnet build
+dotnet test
+
+<span class="cm"># 4. Levantar el backend (en una terminal)</span>
+dotnet run --project src/HapagPortal.WebApi --launch-profile https
+<span class="cm"># API disponible en https://localhost:7062</span>
+<span class="cm"># Swagger en https://localhost:7062/swagger</span>
+
+<span class="cm"># 5. En otra terminal, levantar el frontend</span>
+cd ../frontend
+npm install
+npm start
+<span class="cm"># App disponible en http://localhost:4200</span></div>
+
+    <h3>14.7 Puertos y URLs</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Servicio</th><th>URL</th><th>Protocolo</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Frontend (dev)</strong></td><td>http://localhost:4200</td><td>HTTP</td></tr>
+                <tr><td><strong>Backend API (HTTPS)</strong></td><td>https://localhost:7062</td><td>HTTPS</td></tr>
+                <tr><td><strong>Backend API (HTTP)</strong></td><td>http://localhost:5072</td><td>HTTP</td></tr>
+                <tr><td><strong>Swagger UI</strong></td><td>https://localhost:7062/swagger</td><td>HTTPS</td></tr>
+                <tr><td><strong>SQL Server</strong></td><td>localhost:1433</td><td>TCP</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div><!-- end main-content -->
+
+<!-- FOOTER -->
+<div class="doc-footer">
+    <p><strong>Hapag-Lloyd</strong> &mdash; Portal de Servicios al Cliente CL/BO</p>
+    <p>Documento de Dise&#241;o T&#233;cnico v2.0 &mdash; Mayo 2026 &mdash; Proyecto DES-03-08-CL-260020</p>
+    <p>Clasificaci&#243;n: Confidencial &mdash; Equipo RPX / Desarrollo</p>
+</div>
+
+<!-- Floating back-to-top button -->
+<a href="#toc" id="btn-back-top" class="btn-back-top" title="Volver al &#237;ndice">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+</a>
+
+<script>
+// Init Mermaid for ALL diagrams — primaryTextColor dark for ER readability,
+// nodeTextColor/actorTextColor white for flowchart/sequence nodes on dark backgrounds
+mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: 'loose',
+    theme: 'base',
+    themeVariables: {
+        primaryColor: '#33424F',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#FF6600',
+        lineColor: '#33424F',
+        secondaryColor: '#F5F7FA',
+        tertiaryColor: '#E8F5E9',
+        actorTextColor: '#ffffff',
+        actorBkg: '#33424F',
+        signalTextColor: '#33424F',
+        loopTextColor: '#33424F'
+    },
+    flowchart: { useMaxWidth: true, htmlLabels: false, curve: 'basis' },
+    sequence: { useMaxWidth: true, actorMargin: 80 },
+    er: { useMaxWidth: true, fontSize: 12 }
+});
+
+// Fix ER diagram text colors after Mermaid renders.
+// Strategy: select EVERY <text> inside .zoomable SVGs, force dark fill.
+// Then find entity headers (first <text> in each entity group) and set white.
+function fixErTextColors() {
+    document.querySelectorAll('.zoomable-er svg').forEach(function(svg) {
+        if (svg.dataset.erFixed) return;
+        var allTexts = svg.querySelectorAll('text');
+        if (allTexts.length === 0) return; // SVG not rendered yet
+        svg.dataset.erFixed = '1';
+
+        // Step 1: EVERY text and tspan -> dark
+        allTexts.forEach(function(txt) {
+            txt.setAttribute('fill', '#33424F');
+            txt.style.setProperty('fill', '#33424F', 'important');
+            txt.querySelectorAll('tspan').forEach(function(ts) {
+                ts.setAttribute('fill', '#33424F');
+                ts.style.setProperty('fill', '#33424F', 'important');
+            });
+        });
+
+        // Step 2: Entity headers -> white
+        // In Mermaid ER, each entity is a <g> containing: <rect class="entityBox">, <text> (header), then attribute rects/texts
+        // The header <text> is the first <text> child that is a sibling of the entityBox rect
+        svg.querySelectorAll('rect.entityBox, rect[class*="entityBox"]').forEach(function(box) {
+            var g = box.parentElement;
+            if (!g) return;
+            // Find the first text element in this group
+            var texts = g.querySelectorAll('text');
+            if (texts.length > 0) {
+                texts[0].setAttribute('fill', '#ffffff');
+                texts[0].style.setProperty('fill', '#ffffff', 'important');
+                texts[0].querySelectorAll('tspan').forEach(function(ts) {
+                    ts.setAttribute('fill', '#ffffff');
+                    ts.style.setProperty('fill', '#ffffff', 'important');
+                });
+            }
+        });
+
+        // Step 3: Also update the lens clone if it exists
+        var lensContent = svg.closest('.zoomable').querySelector('.er-lens-content');
+        if (lensContent) { lensContent.innerHTML = ''; } // force re-clone on next hover
+    });
+}
+// Run multiple times to catch async Mermaid rendering
+window.addEventListener('load', function() {
+    [500, 1000, 2000, 3500, 5000].forEach(function(ms) {
+        setTimeout(fixErTextColors, ms);
+    });
+});
+
+// Back to top button
+var btnTop = document.getElementById('btn-back-top');
+window.addEventListener('scroll', function() {
+    if (window.scrollY > 400) {
+        btnTop.classList.add('visible');
+    } else {
+        btnTop.classList.remove('visible');
+    }
+});
+
+// ER Diagram Magnifying Lens
+(function() {
+    var ZOOM = 2.5;
+    var LENS_DESKTOP = 180;
+    var LENS_MOBILE = 140;
+    var isMobile = 'ontouchstart' in window;
+
+    function initLens(container) {
+        // Create lens element
+        var lens = document.createElement('div');
+        lens.className = 'er-lens';
+        var lensContent = document.createElement('div');
+        lensContent.className = 'er-lens-content';
+        lens.appendChild(lensContent);
+        container.appendChild(lens);
+
+        // Create hint badge
+        var hint = document.createElement('div');
+        hint.className = 'er-lens-hint';
+        hint.textContent = isMobile ? 'Toque para ampliar' : 'Lupa activa';
+        container.appendChild(hint);
+
+        var svgReady = false;
+
+        function setupSvgClone() {
+            var svg = container.querySelector('svg');
+            if (!svg) return false;
+            // Clone the SVG into the lens
+            var clone = svg.cloneNode(true);
+            clone.style.position = 'absolute';
+            clone.style.top = '0';
+            clone.style.left = '0';
+            clone.style.width = svg.getBoundingClientRect().width * ZOOM + 'px';
+            clone.style.height = svg.getBoundingClientRect().height * ZOOM + 'px';
+            clone.style.maxWidth = 'none';
+            lensContent.innerHTML = '';
+            lensContent.appendChild(clone);
+            svgReady = true;
+            return true;
+        }
+
+        function showLens(pageX, pageY) {
+            if (!svgReady && !setupSvgClone()) return;
+
+            var lensSize = isMobile ? LENS_MOBILE : LENS_DESKTOP;
+            var rect = container.getBoundingClientRect();
+            var scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+            var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+            // Mouse/touch position relative to container
+            var x = pageX - (rect.left + scrollX);
+            var y = pageY - (rect.top + scrollY);
+
+            // Clamp to container bounds
+            x = Math.max(0, Math.min(x, rect.width));
+            y = Math.max(0, Math.min(y, rect.height));
+
+            // Position lens centered on cursor
+            lens.style.display = 'block';
+            lens.style.left = (x - lensSize / 2) + 'px';
+            lens.style.top = (y - lensSize / 2) + 'px';
+
+            // Offset the cloned SVG so the zoomed area is centered in the lens
+            var svg = container.querySelector('svg');
+            if (!svg) return;
+            var svgRect = svg.getBoundingClientRect();
+            // Position within the SVG element
+            var svgX = pageX - (svgRect.left + scrollX);
+            var svgY = pageY - (svgRect.top + scrollY);
+
+            var offsetX = -(svgX * ZOOM) + lensSize / 2;
+            var offsetY = -(svgY * ZOOM) + lensSize / 2;
+
+            lensContent.style.transform = 'translate(' + offsetX + 'px, ' + offsetY + 'px)';
+        }
+
+        function hideLens() {
+            lens.style.display = 'none';
+        }
+
+        // Desktop events
+        container.addEventListener('mouseenter', function() {
+            setupSvgClone();
+        });
+        container.addEventListener('mousemove', function(e) {
+            showLens(e.pageX, e.pageY);
+        });
+        container.addEventListener('mouseleave', function() {
+            hideLens();
+        });
+
+        // Mobile events
+        container.addEventListener('touchstart', function(e) {
+            setupSvgClone();
+            var t = e.touches[0];
+            showLens(t.pageX, t.pageY);
+        }, { passive: true });
+        container.addEventListener('touchmove', function(e) {
+            var t = e.touches[0];
+            showLens(t.pageX, t.pageY);
+            e.preventDefault(); // prevent scroll while using lens
+        }, { passive: false });
+        container.addEventListener('touchend', function() {
+            hideLens();
+        });
+    }
+
+    // Wait for Mermaid to finish rendering, then init lenses
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            var containers = document.querySelectorAll('.zoomable');
+            containers.forEach(function(c) { initLens(c); });
+        }, 2000); // wait for Mermaid render
+    });
+})();
+</script>
+
+</body>
+</html>
