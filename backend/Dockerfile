@@ -19,4 +19,4 @@ COPY --from=build /app/publish .
 
 ENV ASPNETCORE_ENVIRONMENT=Staging
 
-CMD ["dotnet", "HapagPortal.WebApi.dll"]
+CMD ASPNETCORE_URLS=http://+:${PORT:-8080} dotnet HapagPortal.WebApi.dll
