@@ -1,0 +1,19 @@
+# Railway monorepo configuration
+# Each service is deployed from its own subdirectory
+
+[build]
+# This file is at the root; Railway uses per-service config below
+
+# Backend API (.NET 10 + PostgreSQL)
+# Service name: backend
+# Root directory: /backend
+# Dockerfile: /backend/Dockerfile
+
+# Frontend (Angular 21 + Nginx)
+# Service name: frontend
+# Root directory: /frontend
+# Dockerfile: /frontend/Dockerfile
+
+# PostgreSQL
+# Add via Railway dashboard: "New Service" -> "Database" -> "PostgreSQL"
+# Railway auto-injects PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD

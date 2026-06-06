@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hapag-Lloyd | Portal de Servicios - Chile &amp; Bolivia</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+:root {
+  --hl-dark: #33424f;
+  --hl-orange: #ff6600;
+  --hl-green: #009840;
+  --hl-blue: #004d6c;
+  --hl-light-gray: #f5f7fa;
+  --hl-border: #e2e8f0;
+  --sidebar-width: 260px;
+  --navbar-height: 60px;
+}
+*{box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--hl-light-gray);color:#2d3748;margin:0;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5,h6{font-family:'Montserrat','Inter',sans-serif}
+
+/* ── Navbar ── */
+.hl-navbar{background:var(--hl-dark);height:var(--navbar-height);box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:1030;position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:0 1rem}
+.hl-navbar .nav-brand{display:flex;align-items:center;gap:.75rem;color:#fff;text-decoration:none}
+.hl-navbar .nav-brand svg{height:32px}
+.hl-navbar .nav-right{display:flex;align-items:center;gap:1rem}
+.hl-navbar .nav-right .badge-country{background:rgba(255,255,255,.1);color:#fff;padding:.25rem .6rem;border-radius:.375rem;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:.35rem}
+.hl-navbar .nav-right .user-menu{color:rgba(255,255,255,.85);font-size:.85rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;background:none;border:none;padding:.25rem .5rem;border-radius:.375rem;transition:background .2s}
+.hl-navbar .nav-right .user-menu:hover{background:rgba(255,255,255,.1)}
+.btn-logout{background:none;border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.8rem;padding:.3rem .75rem;border-radius:.375rem;cursor:pointer;transition:all .2s}
+.btn-logout:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.5)}
+
+/* ── Sidebar ── */
+.hl-sidebar{background:var(--hl-dark);width:var(--sidebar-width);position:fixed;top:var(--navbar-height);left:0;bottom:0;overflow-y:auto;z-index:1020;transition:transform .3s}
+.sidebar-section-title{color:rgba(255,255,255,.4);font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.75rem 1.25rem .5rem;margin-top:.5rem}
+.sidebar-link{display:flex;align-items:center;gap:.75rem;padding:.65rem 1.25rem;color:rgba(255,255,255,.75);text-decoration:none;font-size:.875rem;font-weight:500;border-left:3px solid transparent;transition:all .2s;cursor:pointer}
+.sidebar-link:hover{color:#fff;background:rgba(255,255,255,.06);border-left-color:var(--hl-green)}
+.sidebar-link.active{color:#fff;background:rgba(255,255,255,.1);border-left-color:var(--hl-orange)}
+.sidebar-link i{font-size:1.1rem;width:20px;text-align:center;opacity:.7}
+.sidebar-link.active i,.sidebar-link:hover i{opacity:1}
+
+/* ── Main ── */
+.hl-main{margin-left:var(--sidebar-width);margin-top:var(--navbar-height);padding:1.5rem;min-height:calc(100vh - var(--navbar-height))}
+.hl-footer{background:var(--hl-dark);color:rgba(255,255,255,.6);font-size:.8rem;padding:1rem 1.5rem;text-align:center;margin-left:var(--sidebar-width)}
+
+/* ── Page sections ── */
+.page-section{display:none}
+.page-section.active{display:block}
+
+/* ── Cards ── */
+.hl-card{background:#fff;border:1px solid var(--hl-border);border-radius:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:box-shadow .2s}
+.hl-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.hl-stat-card{background:#fff;border:1px solid var(--hl-border);border-radius:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:1.25rem}
+.stat-icon{width:48px;height:48px;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.stat-value{font-family:'Montserrat',sans-serif;font-size:1.75rem;font-weight:700;color:var(--hl-dark)}
+.stat-label{font-size:.8rem;color:#718096;font-weight:500}
+
+/* ── Tables ── */
+.hl-table{width:100%;border-collapse:separate;border-spacing:0}
+.hl-table thead th{background:var(--hl-dark);color:#fff;font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:.75rem 1rem;border:none;white-space:nowrap}
+.hl-table thead th:first-child{border-radius:.5rem 0 0 0}
+.hl-table thead th:last-child{border-radius:0 .5rem 0 0}
+.hl-table tbody td{padding:.75rem 1rem;font-size:.875rem;border-bottom:1px solid var(--hl-border);vertical-align:middle}
+.hl-table tbody tr{background:#fff;transition:background .15s;cursor:pointer}
+.hl-table tbody tr:nth-child(even){background:#f8fafc}
+.hl-table tbody tr:hover{background:#edf2f7}
+
+/* ── Badges ── */
+.hl-badge{font-size:.75rem;font-weight:600;padding:.3em .75em;border-radius:50rem;display:inline-flex;align-items:center;gap:.35em}
+.hl-badge--pending{background:#fef3cd;color:#856404}
+.hl-badge--confirmed,.hl-badge--paid{background:#d4edda;color:#155724}
+.hl-badge--failed,.hl-badge--rejected{background:#f8d7da;color:#721c24}
+.hl-badge--processing{background:#cce5ff;color:#004085}
+.hl-badge--active{background:#d4edda;color:#155724}
+.hl-badge--released{background:#d4edda;color:#155724}
+.hl-badge--in-port{background:#cce5ff;color:#004085}
+
+/* ── Buttons ── */
+.btn-hl-orange{background:var(--hl-orange);border-color:var(--hl-orange);color:#fff;font-weight:600}
+.btn-hl-orange:hover{background:#e65c00;border-color:#e65c00;color:#fff}
+.btn-hl-green{background:var(--hl-green);border-color:var(--hl-green);color:#fff;font-weight:600}
+.btn-hl-green:hover{background:#007a33;border-color:#007a33;color:#fff}
+.btn-hl-blue{background:var(--hl-blue);border-color:var(--hl-blue);color:#fff;font-weight:600}
+.btn-hl-blue:hover{background:#003a52;border-color:#003a52;color:#fff}
+
+/* ── Forms ── */
+.hl-form-group{margin-bottom:1rem}
+.hl-form-group label{font-size:.85rem;font-weight:600;color:var(--hl-dark);margin-bottom:.35rem;display:block}
+.hl-form-group .form-control,.hl-form-group .form-select{border-color:var(--hl-border);font-size:.9rem;padding:.6rem .85rem}
+.hl-form-group .form-control:focus,.hl-form-group .form-select:focus{border-color:var(--hl-orange);box-shadow:0 0 0 .2rem rgba(255,102,0,.15)}
+
+/* ── Login ── */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--hl-dark) 0%,var(--hl-blue) 100%);padding:2rem}
+.login-card{background:#fff;border-radius:1rem;padding:2.5rem;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-title{font-size:1.25rem;font-weight:700;color:var(--hl-dark);margin-top:1rem;margin-bottom:.25rem}
+.login-subtitle{color:#718096;font-size:.9rem}
+.login-footer{text-align:center;color:rgba(255,255,255,.5);font-size:.8rem;margin-top:2rem}
+
+/* ── Page header ── */
+.hl-page-header{margin-bottom:1.5rem}
+.hl-page-header h1{font-size:1.5rem;font-weight:700;color:var(--hl-dark);margin-bottom:.25rem}
+
+/* ── Detail tabs ── */
+.detail-tabs .nav-link{color:var(--hl-dark);font-weight:600;font-size:.875rem;border:none;padding:.6rem 1rem}
+.detail-tabs .nav-link.active{color:var(--hl-orange);border-bottom:3px solid var(--hl-orange);background:transparent}
+.detail-tabs .nav-link:hover{color:var(--hl-orange)}
+
+/* ── Country badge ── */
+.country-badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:600;padding:.2em .6em;border-radius:.375rem;background:rgba(0,77,108,.1);color:var(--hl-blue)}
+
+/* ── Accordion FAQ ── */
+.faq-accordion .accordion-button{font-weight:600;color:var(--hl-dark);font-size:.95rem}
+.faq-accordion .accordion-button:not(.collapsed){color:var(--hl-orange);background:var(--hl-light-gray)}
+.faq-accordion .accordion-button:focus{box-shadow:0 0 0 .2rem rgba(255,102,0,.15)}
+
+/* ── Toast ── */
+.hl-toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--hl-green);color:#fff;padding:.75rem 1.25rem;border-radius:.5rem;font-size:.9rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:9999;display:none;animation:slideUp .3s ease}
+.hl-toast.show{display:flex;align-items:center;gap:.5rem}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── Responsive ── */
+@media(max-width:991.98px){
+  .hl-sidebar{transform:translateX(-100%)}
+  .hl-sidebar.show{transform:translateX(0)}
+  .hl-main,.hl-footer{margin-left:0}
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e0;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#a0aec0}
+
+/* ── Utilities ── */
+.text-hl-orange{color:var(--hl-orange)!important}
+.text-hl-green{color:var(--hl-green)!important}
+.text-hl-blue{color:var(--hl-blue)!important}
+.cursor-pointer{cursor:pointer}
+
+/* ── Country Modal ── */
+.country-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem}
+.country-modal{background:#fff;border-radius:1rem;padding:2rem;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.country-option{border:2px solid var(--hl-border);border-radius:.75rem;padding:1.25rem;text-align:center;cursor:pointer;transition:all .2s}
+.country-option:hover{border-color:var(--hl-orange);background:rgba(255,102,0,.03)}
+.country-option.selected{border-color:var(--hl-orange);background:rgba(255,102,0,.06)}
+.country-option .flag{font-size:2.5rem;margin-bottom:.5rem}
+.country-option .name{font-weight:700;font-size:1rem;color:var(--hl-dark)}
+.country-option .desc{font-size:.8rem;color:#718096}
+.geo-warning{background:#FFF3CD;border:1px solid #FFEEBA;border-radius:.5rem;padding:.75rem 1rem;font-size:.82rem;color:#856404;margin-top:1rem}
+.geo-warning i{color:#D97706}
+
+/* ── QR Payment ── */
+.qr-payment-box{background:#f0fdf4;border:2px solid var(--hl-green);border-radius:.75rem;padding:1.5rem;text-align:center}
+.qr-code-mock{width:200px;height:200px;margin:1rem auto;background:#fff;border:2px solid var(--hl-dark);border-radius:.5rem;display:flex;align-items:center;justify-content:center;position:relative}
+.qr-code-mock canvas{width:180px;height:180px}
+.qr-timer{font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:700;color:var(--hl-orange)}
+.payment-method-card{border:2px solid var(--hl-border);border-radius:.75rem;padding:1rem;text-align:center;cursor:pointer;transition:all .2s}
+.payment-method-card:hover{border-color:var(--hl-blue);background:rgba(0,77,108,.02)}
+.payment-method-card.selected{border-color:var(--hl-orange);background:rgba(255,102,0,.05)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     COUNTRY DETECTION MODAL
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="countryOverlay" class="country-overlay">
+  <div class="country-modal">
+    <div class="text-center mb-3">
+      <svg viewBox="0 0 280 50" xmlns="http://www.w3.org/2000/svg" style="max-width:200px">
+        <rect x="0" y="3" width="44" height="44" rx="6" fill="#FF6600"/>
+        <text x="22" y="34" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="800" font-size="22" fill="#fff">HL</text>
+        <text x="54" y="24" font-family="Montserrat,sans-serif" font-weight="700" font-size="18" fill="#33424F">Hapag-Lloyd</text>
+        <text x="54" y="40" font-family="Inter,sans-serif" font-weight="300" font-size="9" fill="rgba(51,66,79,0.5)" letter-spacing="2.5">PORTAL DE SERVICIOS</text>
+      </svg>
+    </div>
+    <h5 class="text-center fw-bold mb-1" style="color:var(--hl-dark)">Seleccione su pais de operacion</h5>
+    <p class="text-center text-muted mb-3" style="font-size:.85rem" id="geoStatusText">Detectando ubicacion...</p>
+
+    <div class="row g-3 mb-3">
+      <div class="col-6">
+        <div class="country-option" id="optionCL" onclick="selectCountry('CL')">
+          <div class="flag">🇨🇱</div>
+          <div class="name">Chile</div>
+          <div class="desc">CLP &middot; IVA 19%</div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="country-option" id="optionBO" onclick="selectCountry('BO')">
+          <div class="flag">🇧🇴</div>
+          <div class="name">Bolivia</div>
+          <div class="desc">BOB &middot; IVA 13%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="geo-warning" id="geoWarning" style="display:none">
+      <i class="bi bi-exclamation-triangle-fill me-1"></i>
+      <strong>Importante:</strong> El portal debe utilizarse desde el pais donde opera su empresa. Los medios de pago, tasas impositivas y regulaciones varian segun el pais. Seleccionar un pais incorrecto puede generar errores en facturacion y pagos. Si no compartio su ubicacion, seleccione manualmente su pais de operacion.
+    </div>
+
+    <button class="btn btn-hl-orange w-100 py-2 mt-3 fw-bold" id="btnConfirmCountry" onclick="confirmCountry()" disabled>
+      Continuar
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     LOGIN PAGE
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="loginPage" class="login-page" style="display:none">
+  <div>
+    <div class="login-card">
+      <div class="text-center mb-4">
+        <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="max-width:260px">
+          <rect x="0" y="10" width="60" height="60" rx="6" fill="#FF6600"/>
+          <text x="30" y="52" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="800" font-size="28" fill="#fff">HL</text>
+          <text x="75" y="38" font-family="Montserrat,sans-serif" font-weight="700" font-size="22" fill="#33424F">Hapag-Lloyd</text>
+          <text x="75" y="58" font-family="Inter,sans-serif" font-weight="300" font-size="11" fill="rgba(51,66,79,0.5)" letter-spacing="3">SHIPPING &amp; LOGISTICS</text>
+        </svg>
+        <h1 class="login-title">Portal de Servicios</h1>
+        <p class="login-subtitle">Chile / Bolivia</p>
+      </div>
+      <div id="loginError" class="alert alert-danger py-2 d-none" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i><span>Credenciales incorrectas</span>
+      </div>
+      <form id="loginForm" onsubmit="return handleLogin(event)">
+        <div class="hl-form-group">
+          <label for="loginEmail">Correo Electronico</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="usuario@empresa.com" value="admin@hapag-lloyd.cl">
+        </div>
+        <div class="hl-form-group">
+          <label for="loginPass">Contrasena</label>
+          <input type="password" id="loginPass" class="form-control" placeholder="Ingrese su contrasena" value="demo1234">
+        </div>
+        <button type="submit" class="btn btn-hl-orange w-100 py-2 mt-2 fw-bold">Iniciar Sesion</button>
+      </form>
+      <div class="text-center mt-3">
+        <a href="#" class="text-hl-orange text-decoration-none d-block mb-2" style="font-size:.85rem">Olvido su contrasena?</a>
+        <a href="#" class="text-hl-blue text-decoration-none" style="font-size:.85rem">No tiene cuenta? <strong>Registrese aqui</strong></a>
+      </div>
+    </div>
+    <div class="login-footer">&copy; 2026 Hapag-Lloyd AG. Todos los derechos reservados.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     APP SHELL (navbar + sidebar + content)
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="appShell" style="display:none">
+
+<!-- NAVBAR -->
+<nav class="hl-navbar">
+  <div class="d-flex align-items-center gap-3">
+    <button class="btn btn-link text-white d-lg-none p-0" onclick="document.querySelector('.hl-sidebar').classList.toggle('show')">
+      <i class="bi bi-list" style="font-size:1.5rem"></i>
+    </button>
+    <a class="nav-brand" href="#" onclick="navigateTo('dashboard');return false">
+      <svg viewBox="0 0 280 50" xmlns="http://www.w3.org/2000/svg" height="32">
+        <rect x="0" y="3" width="44" height="44" rx="6" fill="#FF6600"/>
+        <text x="22" y="34" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="800" font-size="22" fill="#fff">HL</text>
+        <text x="54" y="24" font-family="Montserrat,sans-serif" font-weight="700" font-size="18" fill="#fff">Hapag-Lloyd</text>
+        <text x="54" y="40" font-family="Inter,sans-serif" font-weight="300" font-size="9" fill="rgba(255,255,255,0.6)" letter-spacing="2.5">PORTAL DE SERVICIOS</text>
+      </svg>
+    </a>
+  </div>
+  <div class="nav-right">
+    <span class="badge-country d-none d-md-flex" id="navCountryBadge"><i class="bi bi-geo-alt"></i> <span id="navCountryName">Chile</span></span>
+    <span class="user-menu" id="userMenuBtn"><i class="bi bi-person-circle"></i> <span class="d-none d-md-inline" id="navUserName">Admin Demo</span></span>
+    <button class="btn-logout" onclick="handleLogout()"><i class="bi bi-box-arrow-right me-1"></i>Salir</button>
+  </div>
+</nav>
+
+<!-- SIDEBAR -->
+<aside class="hl-sidebar">
+  <nav>
+    <div class="sidebar-section-title">Principal</div>
+    <a class="sidebar-link active" data-page="dashboard" onclick="navigateTo('dashboard')"><i class="bi bi-house-door-fill"></i> Dashboard</a>
+    <a class="sidebar-link" data-page="bl-list" onclick="navigateTo('bl-list')"><i class="bi bi-file-earmark-text"></i> Consulta BL</a>
+    <a class="sidebar-link" data-page="payments" onclick="navigateTo('payments')"><i class="bi bi-credit-card"></i> Pagos</a>
+
+    <div class="sidebar-section-title">Cargos</div>
+    <a class="sidebar-link" data-page="local-charges" onclick="navigateTo('local-charges')"><i class="bi bi-wallet2"></i> Cargos Locales</a>
+    <a class="sidebar-link" data-page="demurrage" onclick="navigateTo('demurrage')"><i class="bi bi-clock-history"></i> Demurrage</a>
+
+    <div class="sidebar-section-title">Servicios</div>
+    <a class="sidebar-link" data-page="warehouse" onclick="navigateTo('warehouse')"><i class="bi bi-box-seam"></i> Cambio Almacen</a>
+    <a class="sidebar-link" data-page="service-orders" onclick="navigateTo('service-orders')"><i class="bi bi-file-earmark-ruled"></i> Ordenes de Servicio</a>
+    <a class="sidebar-link" data-page="receipts" onclick="navigateTo('receipts')"><i class="bi bi-receipt"></i> Comprobantes</a>
+    <a class="sidebar-link" data-page="faq" onclick="navigateTo('faq')"><i class="bi bi-question-circle"></i> FAQ</a>
+
+    <div id="adminSection" style="display:none">
+      <div class="sidebar-section-title"><i class="bi bi-shield-lock me-1"></i>Administracion</div>
+      <a class="sidebar-link" data-page="admin-credit" onclick="navigateTo('admin-credit')"><i class="bi bi-people"></i> Clientes Credito</a>
+      <a class="sidebar-link" data-page="admin-exemptions" onclick="navigateTo('admin-exemptions')"><i class="bi bi-shield-check"></i> Excepciones Demurrage</a>
+      <a class="sidebar-link" data-page="admin-payments" onclick="navigateTo('admin-payments')"><i class="bi bi-cash-stack"></i> Pagos por Operacion</a>
+    </div>
+  </nav>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="hl-main">
+
+<!-- ─── DASHBOARD ─── -->
+<div id="page-dashboard" class="page-section active">
+  <div class="hl-page-header">
+    <h1>Dashboard</h1>
+    <p class="text-muted mb-0">Bienvenido, <strong id="dashUserName">Admin Demo</strong> <span class="country-badge ms-2"><i class="bi bi-geo-alt"></i> Chile</span></p>
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="hl-stat-card">
+        <div class="d-flex align-items-start justify-content-between">
+          <div><div class="stat-label">Pagos Pendientes</div><div class="stat-value text-hl-orange">7</div></div>
+          <div class="stat-icon" style="background:rgba(255,102,0,.1)"><i class="bi bi-exclamation-circle text-hl-orange"></i></div>
+        </div>
+        <a href="#" onclick="navigateTo('payments');return false" class="small text-hl-orange text-decoration-none mt-2 d-inline-block">Ver pagos <i class="bi bi-chevron-right"></i></a>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="hl-stat-card">
+        <div class="d-flex align-items-start justify-content-between">
+          <div><div class="stat-label">BLs Activos</div><div class="stat-value text-hl-green">12</div></div>
+          <div class="stat-icon" style="background:rgba(0,152,64,.1)"><i class="bi bi-file-earmark-text text-hl-green"></i></div>
+        </div>
+        <a href="#" onclick="navigateTo('bl-list');return false" class="small text-hl-green text-decoration-none mt-2 d-inline-block">Ver BLs <i class="bi bi-chevron-right"></i></a>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="hl-stat-card">
+        <div class="d-flex align-items-start justify-content-between">
+          <div><div class="stat-label">Actividad Reciente</div><div class="stat-value text-hl-blue">24</div></div>
+          <div class="stat-icon" style="background:rgba(0,77,108,.1)"><i class="bi bi-clock text-hl-blue"></i></div>
+        </div>
+        <span class="small text-muted mt-2 d-inline-block">Ultimos 30 dias</span>
+      </div>
+    </div>
+  </div>
+  <!-- Quick Actions -->
+  <div class="hl-card p-4 mb-4">
+    <h5 class="mb-3">Acciones Rapidas</h5>
+    <div class="d-flex flex-wrap gap-2">
+      <button class="btn btn-hl-orange" onclick="navigateTo('bl-list')"><i class="bi bi-search me-2"></i>Consultar BL</button>
+      <button class="btn btn-hl-green" onclick="navigateTo('payments')"><i class="bi bi-credit-card me-2"></i>Ver Pagos</button>
+      <button class="btn btn-hl-blue" onclick="navigateTo('local-charges')"><i class="bi bi-wallet2 me-2"></i>Cargos Locales</button>
+      <button class="btn btn-outline-secondary" onclick="navigateTo('warehouse')"><i class="bi bi-box-seam me-2"></i>Cambio Almacen</button>
+      <button class="btn btn-outline-secondary" onclick="navigateTo('faq')"><i class="bi bi-question-circle me-2"></i>FAQ</button>
+    </div>
+  </div>
+  <!-- Recent BLs -->
+  <div class="hl-card">
+    <div class="card-header p-3 d-flex justify-content-between align-items-center" style="background:transparent;border-bottom:1px solid var(--hl-border)">
+      <h6 class="mb-0 fw-bold">BLs Recientes</h6>
+      <a href="#" onclick="navigateTo('bl-list');return false" class="text-hl-orange text-decoration-none small">Ver todos <i class="bi bi-chevron-right"></i></a>
+    </div>
+    <div class="table-responsive">
+      <table class="hl-table mb-0">
+        <thead><tr><th>BL</th><th>Nave</th><th>Contenedores</th><th>Estado</th><th>Pais</th></tr></thead>
+        <tbody>
+          <tr onclick="navigateTo('bl-detail')"><td class="fw-bold text-hl-blue">HLCUSC250001234</td><td>MSC AURORA</td><td>2</td><td><span class="hl-badge hl-badge--active"><i class="bi bi-circle-fill" style="font-size:.5rem"></i> Activo</span></td><td><span class="country-badge">CL</span></td></tr>
+          <tr onclick="navigateTo('bl-detail')"><td class="fw-bold text-hl-blue">HLCUSC250001890</td><td>EVER GIVEN</td><td>1</td><td><span class="hl-badge hl-badge--pending"><i class="bi bi-circle-fill" style="font-size:.5rem"></i> Pendiente</span></td><td><span class="country-badge">CL</span></td></tr>
+          <tr onclick="navigateTo('bl-detail')"><td class="fw-bold text-hl-blue">HLCUBO250000456</td><td>MAERSK SEALAND</td><td>3</td><td><span class="hl-badge hl-badge--released"><i class="bi bi-circle-fill" style="font-size:.5rem"></i> Liberado</span></td><td><span class="country-badge">BO</span></td></tr>
+          <tr onclick="navigateTo('bl-detail')"><td class="fw-bold text-hl-blue">HLCUSC250002100</td><td>CMA CGM MARCO POLO</td><td>1</td><td><span class="hl-badge hl-badge--in-port"><i class="bi bi-circle-fill" style="font-size:.5rem"></i> En Puerto</span></td><td><span class="country-badge">CL</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── BL LIST ─── -->
+<div id="page-bl-list" class="page-section">
+  <div class="hl-page-header d-flex justify-content-between align-items-start">
+    <div><h1>Consulta de BL</h1><p class="text-muted mb-0">Busque y consulte sus Bills of Lading</p></div>
+  </div>
+  <div class="hl-card p-3 mb-4">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4"><div class="hl-form-group mb-0"><label>Numero de BL</label><input type="text" class="form-control" placeholder="Ej: HLCUSC250001234" id="blSearchInput"></div></div>
+      <div class="col-md-3"><div class="hl-form-group mb-0"><label>Estado</label><select class="form-select"><option value="">Todos</option><option>Activo</option><option>Pendiente</option><option>Liberado</option><option>En Puerto</option></select></div></div>
+      <div class="col-md-3"><div class="hl-form-group mb-0"><label>Pais</label><select class="form-select"><option value="">Todos</option><option>Chile</option><option>Bolivia</option></select></div></div>
+      <div class="col-md-2"><button class="btn btn-hl-orange w-100" onclick="showToast('Busqueda realizada')"><i class="bi bi-search me-1"></i> Buscar</button></div>
+    </div>
+  </div>
+  <div class="hl-card">
+    <div class="table-responsive">
+      <table class="hl-table mb-0">
+        <thead><tr><th>BL</th><th>Nave</th><th>Viaje</th><th>Contenedores</th><th>Puerto Destino</th><th>ETA</th><th>Estado</th><th>Pais</th></tr></thead>
+        <tbody id="blTableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── BL DETAIL ─── -->
+<div id="page-bl-detail" class="page-section">
+  <div class="hl-page-header">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb" style="font-size:.8rem"><li class="breadcrumb-item"><a href="#" onclick="navigateTo('bl-list');return false" class="text-hl-orange text-decoration-none">Consulta BL</a></li><li class="breadcrumb-item active">HLCUSC250001234</li></ol></nav>
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <h1>BL HLCUSC250001234</h1>
+        <p class="text-muted mb-0">MSC AURORA &mdash; Viaje 2026-W12 &mdash; <span class="country-badge">CL</span></p>
+      </div>
+      <span class="hl-badge hl-badge--active" style="font-size:.85rem;padding:.4em 1em"><i class="bi bi-circle-fill" style="font-size:.5rem"></i> Activo</span>
+    </div>
+  </div>
+  <!-- Info cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="hl-card p-3"><div class="small text-muted mb-1">Consignatario</div><div class="fw-bold">Importadora Santiago SpA</div><div class="small text-muted">RUT: 76.543.210-K</div></div></div>
+    <div class="col-md-3"><div class="hl-card p-3"><div class="small text-muted mb-1">Puerto Origen</div><div class="fw-bold">Shanghai (CNSHA)</div><div class="small text-muted">Zarpe: 15-Abr-2026</div></div></div>
+    <div class="col-md-3"><div class="hl-card p-3"><div class="small text-muted mb-1">Puerto Destino</div><div class="fw-bold">San Antonio (CLSAI)</div><div class="small text-muted">ETA: 20-May-2026</div></div></div>
+    <div class="col-md-3"><div class="hl-card p-3"><div class="small text-muted mb-1">Total Cargos</div><div class="fw-bold text-hl-orange" style="font-size:1.25rem">$2.450.000</div><div class="small text-muted">CLP + IVA 19%</div></div></div>
+  </div>
+  <!-- Tabs -->
+  <ul class="nav detail-tabs mb-3" role="tablist">
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabContainers">Contenedores</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabCharges">Cargos Locales</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabDemurrage">Demurrage</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabDocs">Documentos</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade show active" id="tabContainers">
+      <div class="hl-card"><div class="table-responsive"><table class="hl-table mb-0">
+        <thead><tr><th>Contenedor</th><th>Tipo</th><th>Tamano</th><th>Peso (kg)</th><th>Sello</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td class="fw-bold">HLXU1234567</td><td>Dry</td><td>40' HC</td><td>24.500</td><td>SL-98765</td><td><span class="hl-badge hl-badge--in-port">En Puerto</span></td></tr>
+          <tr><td class="fw-bold">HLXU7654321</td><td>Reefer</td><td>20' ST</td><td>18.200</td><td>SL-12345</td><td><span class="hl-badge hl-badge--in-port">En Puerto</span></td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+    <div class="tab-pane fade" id="tabCharges">
+      <div class="hl-card"><div class="table-responsive"><table class="hl-table mb-0">
+        <thead><tr><th>Concepto</th><th>Contenedor</th><th>Moneda</th><th>Monto</th><th>IVA</th><th>Total</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>THC</td><td>HLXU1234567</td><td>CLP</td><td>$850.000</td><td>$161.500</td><td>$1.011.500</td><td><span class="hl-badge hl-badge--pending">Pendiente</span></td></tr>
+          <tr><td>BL Fee</td><td>-</td><td>USD</td><td>$75.00</td><td>$14.25</td><td>$89.25</td><td><span class="hl-badge hl-badge--pending">Pendiente</span></td></tr>
+          <tr><td>Gate In</td><td>HLXU1234567</td><td>CLP</td><td>$120.000</td><td>$22.800</td><td>$142.800</td><td><span class="hl-badge hl-badge--paid">Pagado</span></td></tr>
+          <tr><td>THC</td><td>HLXU7654321</td><td>CLP</td><td>$650.000</td><td>$123.500</td><td>$773.500</td><td><span class="hl-badge hl-badge--pending">Pendiente</span></td></tr>
+        </tbody>
+      </table></div></div>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div><strong>Total pendiente:</strong> <span class="text-hl-orange fw-bold" style="font-size:1.1rem">$1.874.250 CLP + $89.25 USD</span></div>
+        <button class="btn btn-hl-orange" onclick="navigateTo('payment-form')"><i class="bi bi-cart me-2"></i>Pagar Seleccionados</button>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="tabDemurrage">
+      <div class="hl-card"><div class="table-responsive"><table class="hl-table mb-0">
+        <thead><tr><th>Contenedor</th><th>Free Time</th><th>Dias Demurrage</th><th>Tarifa/Dia</th><th>Total</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td class="fw-bold">HLXU1234567</td><td>10 dias (vence 30-May)</td><td>0</td><td>$85.00 USD</td><td>$0</td><td><span class="hl-badge hl-badge--active">En Free Time</span></td></tr>
+          <tr><td class="fw-bold">HLXU7654321</td><td>7 dias (vencido 27-May)</td><td>3</td><td>$95.00 USD</td><td>$285.00</td><td><span class="hl-badge hl-badge--pending">Acumulando</span></td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+    <div class="tab-pane fade" id="tabDocs">
+      <div class="hl-card p-4">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="d-flex align-items-center gap-3 p-3 border rounded"><i class="bi bi-file-earmark-pdf text-danger" style="font-size:2rem"></i><div><div class="fw-bold">Carta de Responsabilidad</div><div class="small text-muted">Generada: 18-May-2026</div></div><button class="btn btn-sm btn-outline-secondary ms-auto"><i class="bi bi-download"></i></button></div></div>
+          <div class="col-md-6"><div class="d-flex align-items-center gap-3 p-3 border rounded"><i class="bi bi-file-earmark-pdf text-danger" style="font-size:2rem"></i><div><div class="fw-bold">BL Original</div><div class="small text-muted">Emitido: 15-Abr-2026</div></div><button class="btn btn-sm btn-outline-secondary ms-auto"><i class="bi bi-download"></i></button></div></div>
+          <div class="col-md-6"><div class="d-flex align-items-center gap-3 p-3 border rounded"><i class="bi bi-file-earmark-text text-hl-blue" style="font-size:2rem"></i><div><div class="fw-bold">Manifiesto de Carga</div><div class="small text-muted">Emitido: 16-Abr-2026</div></div><button class="btn btn-sm btn-outline-secondary ms-auto"><i class="bi bi-download"></i></button></div></div>
+          <div class="col-md-6"><div class="d-flex align-items-center gap-3 p-3 border rounded bg-light"><i class="bi bi-file-earmark-lock text-muted" style="font-size:2rem"></i><div><div class="fw-bold text-muted">Carta de Liberacion</div><div class="small text-muted">Pendiente de pago</div></div><span class="hl-badge hl-badge--pending ms-auto">Bloqueado</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PAYMENTS LIST ─── -->
+<div id="page-payments" class="page-section">
+  <div class="hl-page-header d-flex justify-content-between align-items-start">
+    <div><h1>Pagos</h1><p class="text-muted mb-0">Historial y gestion de pagos</p></div>
+  </div>
+  <div class="hl-card p-3 mb-4">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3"><div class="hl-form-group mb-0"><label>BL</label><input type="text" class="form-control" placeholder="Numero de BL"></div></div>
+      <div class="col-md-2"><div class="hl-form-group mb-0"><label>Estado</label><select class="form-select"><option value="">Todos</option><option>Pendiente</option><option>Confirmado</option><option>Rechazado</option></select></div></div>
+      <div class="col-md-2"><div class="hl-form-group mb-0"><label>Metodo</label><select class="form-select"><option value="">Todos</option><option>Transferencia</option><option>FLOW</option><option>Credito</option></select></div></div>
+      <div class="col-md-2"><div class="hl-form-group mb-0"><label>Desde</label><input type="date" class="form-control" value="2026-01-01"></div></div>
+      <div class="col-md-2"><div class="hl-form-group mb-0"><label>Hasta</label><input type="date" class="form-control" value="2026-05-26"></div></div>
+      <div class="col-md-1"><button class="btn btn-hl-orange w-100" onclick="showToast('Filtros aplicados')"><i class="bi bi-funnel"></i></button></div>
+    </div>
+  </div>
+  <div class="hl-card">
+    <div class="table-responsive">
+      <table class="hl-table mb-0">
+        <thead><tr><th>ID Pago</th><th>BL</th><th>Fecha</th><th>Metodo</th><th>Monto</th><th>Moneda</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td class="fw-bold">PAY-2026-0047</td><td>HLCUSC250001234</td><td>25-May-2026</td><td>Transferencia</td><td>$1.874.250</td><td>CLP</td><td><span class="hl-badge hl-badge--pending">Pendiente</span></td></tr>
+          <tr><td class="fw-bold">PAY-2026-0046</td><td>HLCUSC250001890</td><td>24-May-2026</td><td>FLOW</td><td>$3.200.000</td><td>CLP</td><td><span class="hl-badge hl-badge--confirmed">Confirmado</span></td></tr>
+          <tr><td class="fw-bold">PAY-2026-0045</td><td>HLCUBO250000456</td><td>23-May-2026</td><td>Transferencia</td><td>$1.250.00</td><td>BOB</td><td><span class="hl-badge hl-badge--confirmed">Confirmado</span></td></tr>
+          <tr><td class="fw-bold">PAY-2026-0044</td><td>HLCUSC250002100</td><td>22-May-2026</td><td>Credito</td><td>$4.500.000</td><td>CLP</td><td><span class="hl-badge hl-badge--processing">Procesando</span></td></tr>
+          <tr><td class="fw-bold">PAY-2026-0043</td><td>HLCUSC250001567</td><td>21-May-2026</td><td>FLOW</td><td>$890.000</td><td>CLP</td><td><span class="hl-badge hl-badge--confirmed">Confirmado</span></td></tr>
+          <tr><td class="fw-bold">PAY-2026-0042</td><td>HLCUSC250001234</td><td>20-May-2026</td><td>Transferencia</td><td>$142.800</td><td>CLP</td><td><span class="hl-badge hl-badge--confirmed">Confirmado</span></td></tr>
+          <tr><td class="fw-bold">PAY-2026-0041</td><td>HLCUBO250000789</td><td>19-May-2026</td><td>Transferencia</td><td>$2.100.00</td><td>BOB</td><td><span class="hl-badge hl-badge--rejected">Rechazado</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PAYMENT FORM ─── -->
+<div id="page-payment-form" class="page-section">
+  <div class="hl-page-header">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb" style="font-size:.8rem"><li class="breadcrumb-item"><a href="#" onclick="navigateTo('payments');return false" class="text-hl-orange text-decoration-none">Pagos</a></li><li class="breadcrumb-item active">Nuevo Pago</li></ol></nav>
+    <h1>Nuevo Pago</h1>
+    <p class="text-muted mb-0">BL: HLCUSC250001234</p>
+  </div>
+  <!-- Cart summary -->
+  <div class="row g-4">
+    <div class="col-md-8">
+      <div class="hl-card p-4 mb-3">
+        <h5 class="mb-3">Cargos Seleccionados</h5>
+        <table class="hl-table mb-0">
+          <thead><tr><th>Concepto</th><th>Contenedor</th><th>Monto</th><th>IVA</th><th>Total</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>THC</td><td>HLXU1234567</td><td>$850.000</td><td>$161.500</td><td class="fw-bold">$1.011.500</td><td><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></td></tr>
+            <tr><td>BL Fee</td><td>-</td><td>$75.00 USD</td><td>$14.25</td><td class="fw-bold">$89.25 USD</td><td><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></td></tr>
+            <tr><td>THC</td><td>HLXU7654321</td><td>$650.000</td><td>$123.500</td><td class="fw-bold">$773.500</td><td><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="hl-card p-4">
+        <h5 class="mb-3">Metodo de Pago</h5>
+        <div class="row g-3" id="paymentMethodsContainer">
+          <!-- Populated by JS based on country -->
+        </div>
+        <!-- QR Payment Panel (Bolivia) -->
+        <div id="qrPaymentPanel" style="display:none" class="mt-4">
+          <div class="qr-payment-box">
+            <h6 class="fw-bold mb-1"><i class="bi bi-qr-code me-2"></i>QR BCB Bolivia - Pago Inmediato</h6>
+            <p class="small text-muted mb-2">Escanee este codigo QR con la app de su banco o billetera movil</p>
+            <div class="qr-code-mock">
+              <canvas id="qrCanvas" width="180" height="180"></canvas>
+            </div>
+            <div class="mb-2"><span class="qr-timer" id="qrTimer">04:59</span></div>
+            <p class="small text-muted mb-1">El QR expira en 5 minutos</p>
+            <div class="d-flex justify-content-center gap-2 flex-wrap mt-2" style="font-size:.75rem">
+              <span class="badge bg-light text-dark border">Banco Union</span>
+              <span class="badge bg-light text-dark border">BNB</span>
+              <span class="badge bg-light text-dark border">Banco Mercantil</span>
+              <span class="badge bg-light text-dark border">Banco FIE</span>
+              <span class="badge bg-light text-dark border">BancoSol</span>
+              <span class="badge bg-light text-dark border">Tigo Money</span>
+            </div>
+            <div class="mt-3 p-2 rounded" style="background:rgba(0,152,64,.08);font-size:.8rem">
+              <i class="bi bi-shield-check text-hl-green me-1"></i>
+              <strong>QR BCB Bolivia</strong> - Regulado por el Banco Central de Bolivia. Interoperable con todo el sistema financiero nacional.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="hl-card p-4" style="border-top:3px solid var(--hl-orange)">
+        <h5 class="mb-3">Resumen</h5>
+        <div id="paymentSummaryContent">
+          <!-- Populated by JS based on country -->
+        </div>
+        <button class="btn btn-hl-orange w-100 py-2" onclick="handleConfirmPayment()"><i class="bi bi-lock me-2"></i>Confirmar Pago</button>
+        <div class="text-center mt-2"><small class="text-muted"><i class="bi bi-shield-check me-1"></i>Transaccion segura</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── LOCAL CHARGES ─── -->
+<div id="page-local-charges" class="page-section">
+  <div class="hl-page-header"><h1>Cargos Locales</h1><p class="text-muted mb-0">Consulte y pague cargos locales asociados a sus BLs</p></div>
+  <div class="hl-card p-3 mb-4">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-5"><div class="hl-form-group mb-0"><label>Numero de BL</label><input type="text" class="form-control" placeholder="Ej: HLCUSC250001234"></div></div>
+      <div class="col-md-3"><div class="hl-form-group mb-0"><label>Estado</label><select class="form-select"><option value="">Todos</option><option>Pendiente</option><option>Pagado</option></select></div></div>
+      <div class="col-md-2"><button class="btn btn-hl-orange w-100" onclick="showToast('Busqueda realizada')"><i class="bi bi-search me-1"></i> Buscar</button></div>
+    </div>
+  </div>
+  <div class="hl-card">
+    <div class="table-responsive">
+      <table class="hl-table mb-0">
+        <thead><tr><th><input type="checkbox"></th><th>BL</th><th>Concepto</th><th>Contenedor</th><th>Moneda</th><th>Monto</th><th>IVA</th><th>Total</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><input type="checkbox"></td><td>HLCUSC250001234</td><td>THC</td><td>HLXU1234567</td><td>CLP</td><td>$850.000</td><td>$161.500</td><td class="fw-bold">$1.011.500</td><td><span class="hl-badge hl-badge--pending">Pendiente</span></td></tr>
+          <tr><td><input type="checkbox"></td><td>HLCUSC250001234</td><td>BL Fee</td><td>-</td><td>USD</td><td>$75.00</td><td>$14.25</td><td class="fw-bold">$89.25</td><td><span class="hl-badge hl-badge--pending">Pendiente</span></td></tr>
+          <tr><td><input type="checkbox" disabled></td><td>HLCUSC250001234</td><td>Gate In</td><td>HLXU1234567</td><td>CLP</td><td>$120.000</td><td>$22.800</td><td class="fw-bold">$142.800</td><td><span class="hl-badge hl-badge--paid">Pagado</span></td></tr>
+          <tr><td><input type="checkbox"></td><td>HLCUSC250001890</td><td>THC</td><td>TEMU4567890</td><td>CLP</td><td>$920.000</td><td>$174.800</td><td class="fw-bold">$1.094.800</td><td><span class="hl-badge hl-badge--pending">Pendiente</span></td></tr>
+          <tr><td><input type="checkbox"></td><td>HLCUSC250001890</td><td>Handling</td><td>TEMU4567890</td><td>CLP</td><td>$180.000</td><td>$34.200</td><td class="fw-bold">$214.200</td><td><span class="hl-badge hl-badge--pending">Pendiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <div><strong>Seleccionados:</strong> <span class="text-hl-orange fw-bold">0 items &mdash; $0</span></div>
+    <button class="btn btn-hl-orange" onclick="navigateTo('payment-form')"><i class="bi bi-cart me-2"></i>Agregar al Carro</button>
+  </div>
+</div>
+
+<!-- ─── DEMURRAGE ─── -->
+<div id="page-demurrage" class="page-section">
+  <div class="hl-page-header"><h1>Demurrage</h1><p class="text-muted mb-0">Consulte demurrage y free time de sus contenedores</p></div>
+  <div class="hl-card p-3 mb-4">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-5"><div class="hl-form-group mb-0"><label>Numero de BL</label><input type="text" class="form-control" placeholder="Ej: HLCUSC250001234"></div></div>
+      <div class="col-md-3"><div class="hl-form-group mb-0"><label>Estado</label><select class="form-select"><option value="">Todos</option><option>En Free Time</option><option>Acumulando</option><option>Pagado</option></select></div></div>
+      <div class="col-md-2"><button class="btn btn-hl-orange w-100" onclick="showToast('Busqueda realizada')"><i class="bi bi-search me-1"></i> Buscar</button></div>
+    </div>
+  </div>
+  <!-- Summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="hl-stat-card"><div class="stat-label">Contenedores Activos</div><div class="stat-value text-hl-blue">5</div></div></div>
+    <div class="col-md-3"><div class="hl-stat-card"><div class="stat-label">En Free Time</div><div class="stat-value text-hl-green">3</div></div></div>
+    <div class="col-md-3"><div class="hl-stat-card"><div class="stat-label">Acumulando</div><div class="stat-value text-hl-orange">2</div></div></div>
+    <div class="col-md-3"><div class="hl-stat-card"><div class="stat-label">Total Demurrage</div><div class="stat-value text-hl-orange">$570 USD</div></div></div>
+  </div>
+  <div class="hl-card">
+    <div class="table-responsive">
+      <table class="hl-table mb-0">
+        <thead><tr><th>BL</th><th>Contenedor</th><th>Tipo</th><th>Free Time</th><th>Vencimiento</th><th>Dias Dem.</th><th>Tarifa/Dia</th><th>Total USD</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>HLCUSC250001234</td><td class="fw-bold">HLXU1234567</td><td>40'HC</td><td>10 dias</td><td>30-May-2026</td><td>0</td><td>$85.00</td><td>$0</td><td><span class="hl-badge hl-badge--active">Free Time</span></td></tr>
+          <tr><td>HLCUSC250001234</td><td class="fw-bold">HLXU7654321</td><td>20'ST</td><td>7 dias</td><td>27-May-2026</td><td>3</td><td>$95.00</td><td class="fw-bold text-danger">$285.00</td><td><span class="hl-badge hl-badge--pending">Acumulando</span></td></tr>
+          <tr><td>HLCUSC250001890</td><td class="fw-bold">TEMU4567890</td><td>40'HC</td><td>10 dias</td><td>02-Jun-2026</td><td>0</td><td>$85.00</td><td>$0</td><td><span class="hl-badge hl-badge--active">Free Time</span></td></tr>
+          <tr><td>HLCUSC250002100</td><td class="fw-bold">CMAU9876543</td><td>20'ST</td><td>7 dias</td><td>25-May-2026</td><td>5</td><td>$57.00</td><td class="fw-bold text-danger">$285.00</td><td><span class="hl-badge hl-badge--pending">Acumulando</span></td></tr>
+          <tr><td>HLCUBO250000456</td><td class="fw-bold">HLXU3333333</td><td>40'HC</td><td>14 dias</td><td>08-Jun-2026</td><td>0</td><td>$85.00</td><td>$0</td><td><span class="hl-badge hl-badge--active">Free Time</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── WAREHOUSE ─── -->
+<div id="page-warehouse" class="page-section">
+  <div class="hl-page-header"><h1>Cambio de Almacen</h1><p class="text-muted mb-0">Solicite cambio de almacen para sus contenedores</p></div>
+  <div class="row g-4">
+    <div class="col-md-7">
+      <div class="hl-card p-4">
+        <h5 class="mb-3">Nueva Solicitud</h5>
+        <div class="hl-form-group"><label>Numero de BL</label><input type="text" class="form-control" placeholder="Ej: HLCUSC250001234" value="HLCUSC250001234"></div>
+        <div class="hl-form-group"><label>Contenedor</label><select class="form-select"><option>HLXU1234567 - 40'HC</option><option>HLXU7654321 - 20'ST</option></select></div>
+        <div class="row g-3">
+          <div class="col-md-6"><div class="hl-form-group"><label>Almacen Actual</label><input type="text" class="form-control" value="AGUNSA - San Antonio" disabled></div></div>
+          <div class="col-md-6"><div class="hl-form-group"><label>Almacen Destino</label><select class="form-select"><option value="">Seleccione...</option><option>SITRANS - Santiago</option><option>ULTRAMAR - Valparaiso</option><option>STI - San Antonio</option><option>SAAM - San Antonio</option></select></div></div>
+        </div>
+        <div class="hl-form-group"><label>Motivo</label><textarea class="form-control" rows="2" placeholder="Indique el motivo del cambio..."></textarea></div>
+        <button class="btn btn-hl-orange" onclick="showToast('Solicitud enviada exitosamente! Codigo: WH-2026-0012')"><i class="bi bi-send me-2"></i>Enviar Solicitud</button>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="hl-card p-4">
+        <h5 class="mb-3">Historial de Solicitudes</h5>
+        <div class="border-bottom pb-3 mb-3">
+          <div class="d-flex justify-content-between"><span class="fw-bold">WH-2026-0011</span><span class="hl-badge hl-badge--confirmed">Aprobada</span></div>
+          <div class="small text-muted mt-1">HLXU1234567 &mdash; AGUNSA &rarr; SITRANS</div>
+          <div class="small text-muted">20-May-2026</div>
+        </div>
+        <div class="border-bottom pb-3 mb-3">
+          <div class="d-flex justify-content-between"><span class="fw-bold">WH-2026-0010</span><span class="hl-badge hl-badge--processing">En Revision</span></div>
+          <div class="small text-muted mt-1">TEMU4567890 &mdash; STI &rarr; ULTRAMAR</div>
+          <div class="small text-muted">18-May-2026</div>
+        </div>
+        <div class="border-bottom pb-3 mb-3">
+          <div class="d-flex justify-content-between"><span class="fw-bold">WH-2026-0009</span><span class="hl-badge hl-badge--rejected">Rechazada</span></div>
+          <div class="small text-muted mt-1">CMAU9876543 &mdash; SAAM &rarr; AGUNSA</div>
+          <div class="small text-muted">15-May-2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SERVICE ORDERS ─── -->
+<div id="page-service-orders" class="page-section">
+  <div class="hl-page-header d-flex justify-content-between align-items-start">
+    <div><h1>Ordenes de Servicio</h1><p class="text-muted mb-0">Gestione sus ordenes de servicio</p></div>
+    <button class="btn btn-hl-orange" onclick="showToast('Formulario de nueva orden (demo)')"><i class="bi bi-plus-lg me-1"></i> Nueva Orden</button>
+  </div>
+  <div class="hl-card">
+    <div class="table-responsive">
+      <table class="hl-table mb-0">
+        <thead><tr><th>Orden</th><th>BL</th><th>Tipo Servicio</th><th>Fecha</th><th>Monto</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td class="fw-bold">SO-2026-0034</td><td>HLCUSC250001234</td><td>Pesaje Contenedor</td><td>25-May-2026</td><td>$85.000 CLP</td><td><span class="hl-badge hl-badge--pending">Pendiente</span></td></tr>
+          <tr><td class="fw-bold">SO-2026-0033</td><td>HLCUSC250001890</td><td>Inspeccion</td><td>24-May-2026</td><td>$120.000 CLP</td><td><span class="hl-badge hl-badge--confirmed">Completada</span></td></tr>
+          <tr><td class="fw-bold">SO-2026-0032</td><td>HLCUBO250000456</td><td>Consolidacion</td><td>22-May-2026</td><td>$350.00 USD</td><td><span class="hl-badge hl-badge--processing">En Proceso</span></td></tr>
+          <tr><td class="fw-bold">SO-2026-0031</td><td>HLCUSC250002100</td><td>Fumigacion</td><td>20-May-2026</td><td>$95.000 CLP</td><td><span class="hl-badge hl-badge--confirmed">Completada</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── RECEIPTS ─── -->
+<div id="page-receipts" class="page-section">
+  <div class="hl-page-header"><h1>Comprobantes</h1><p class="text-muted mb-0">Descargue facturas y comprobantes de pago</p></div>
+  <div class="hl-card p-3 mb-4">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4"><div class="hl-form-group mb-0"><label>Numero de Factura / Pago</label><input type="text" class="form-control" placeholder="Buscar..."></div></div>
+      <div class="col-md-3"><div class="hl-form-group mb-0"><label>Desde</label><input type="date" class="form-control" value="2026-01-01"></div></div>
+      <div class="col-md-3"><div class="hl-form-group mb-0"><label>Hasta</label><input type="date" class="form-control" value="2026-05-26"></div></div>
+      <div class="col-md-2"><button class="btn btn-hl-orange w-100" onclick="showToast('Busqueda realizada')"><i class="bi bi-search me-1"></i> Buscar</button></div>
+    </div>
+  </div>
+  <div class="hl-card">
+    <div class="table-responsive">
+      <table class="hl-table mb-0">
+        <thead><tr><th><input type="checkbox"></th><th>Factura</th><th>Pago</th><th>BL</th><th>Fecha</th><th>Monto</th><th>Tipo</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><input type="checkbox"></td><td class="fw-bold">F-2026-1234</td><td>PAY-2026-0046</td><td>HLCUSC250001890</td><td>24-May-2026</td><td>$3.200.000 CLP</td><td>Factura DBNet</td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i></button></td></tr>
+          <tr><td><input type="checkbox"></td><td class="fw-bold">F-2026-1233</td><td>PAY-2026-0045</td><td>HLCUBO250000456</td><td>23-May-2026</td><td>$1.250.00 BOB</td><td>Factura DBNet</td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i></button></td></tr>
+          <tr><td><input type="checkbox"></td><td class="fw-bold">BAP-2026-0891</td><td>PAY-2026-0043</td><td>HLCUSC250001567</td><td>21-May-2026</td><td>$890.000 CLP</td><td>Respaldo BAP</td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i></button></td></tr>
+          <tr><td><input type="checkbox"></td><td class="fw-bold">F-2026-1230</td><td>PAY-2026-0042</td><td>HLCUSC250001234</td><td>20-May-2026</td><td>$142.800 CLP</td><td>Factura DBNet</td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="d-flex justify-content-end mt-3">
+    <button class="btn btn-outline-secondary" onclick="showToast('Descargando 0 comprobantes seleccionados')"><i class="bi bi-download me-1"></i> Descargar Seleccionados</button>
+  </div>
+</div>
+
+<!-- ─── FAQ ─── -->
+<div id="page-faq" class="page-section">
+  <div class="hl-page-header"><h1>Preguntas Frecuentes</h1><p class="text-muted mb-0">Encuentre respuestas a las consultas mas comunes</p></div>
+  <div class="hl-card p-3 mb-4">
+    <input type="text" class="form-control" placeholder="Buscar en preguntas frecuentes..." style="max-width:500px">
+  </div>
+  <div class="accordion faq-accordion" id="faqAccordion">
+    <div class="accordion-item border mb-2 rounded overflow-hidden">
+      <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">Como consulto un BL en el portal?</button></h2>
+      <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion"><div class="accordion-body">Ingrese a la seccion <strong>"Consulta BL"</strong> en el menu lateral. Puede buscar por numero de BL, filtrar por estado o pais. Al hacer clic en un BL, vera el detalle completo con contenedores, cargos locales, demurrage y documentos asociados.</div></div>
+    </div>
+    <div class="accordion-item border mb-2 rounded overflow-hidden">
+      <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">Como realizo un pago?</button></h2>
+      <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Puede pagar desde la seccion <strong>"Pagos"</strong> o directamente desde el detalle de un BL. Seleccione los cargos que desea pagar, elija el metodo de pago (transferencia bancaria, FLOW o credito) y confirme la transaccion. Recibira una confirmacion en linea inmediata.</div></div>
+    </div>
+    <div class="accordion-item border mb-2 rounded overflow-hidden">
+      <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">Que es el demurrage y como se calcula?</button></h2>
+      <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">El demurrage es el cargo por el uso del contenedor mas alla del periodo de free time acordado. Se calcula multiplicando los dias excedidos por la tarifa diaria correspondiente al tipo y tamano del contenedor. Puede consultar el estado de demurrage de sus contenedores en la seccion <strong>"Demurrage"</strong>.</div></div>
+    </div>
+    <div class="accordion-item border mb-2 rounded overflow-hidden">
+      <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">Como solicito un cambio de almacen?</button></h2>
+      <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Ingrese a <strong>"Cambio Almacen"</strong> en el menu lateral. Seleccione el BL y contenedor, elija el almacen destino e indique el motivo. La solicitud sera procesada y recibira una confirmacion en linea con el estado de aprobacion.</div></div>
+    </div>
+    <div class="accordion-item border mb-2 rounded overflow-hidden">
+      <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">Que metodos de pago estan disponibles?</button></h2>
+      <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Actualmente el portal soporta: <strong>Transferencia bancaria</strong> (Banco Estado, BCI), <strong>FLOW</strong> (tarjetas de credito y debito) y <strong>Credito</strong> (para clientes habilitados). Los pagos se pueden realizar en CLP, USD y BOB segun el pais de operacion.</div></div>
+    </div>
+    <div class="accordion-item border mb-2 rounded overflow-hidden">
+      <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">Como descargo mis facturas y comprobantes?</button></h2>
+      <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Vaya a la seccion <strong>"Comprobantes"</strong> en el menu lateral. Puede buscar por numero de factura, rango de fechas o BL. Seleccione los documentos que necesita y haga clic en <strong>"Descargar Seleccionados"</strong> para obtenerlos en formato PDF.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADMIN: CREDIT CLIENTS ─── -->
+<div id="page-admin-credit" class="page-section">
+  <div class="hl-page-header d-flex justify-content-between align-items-start">
+    <div><h1>Clientes con Credito</h1><p class="text-muted mb-0">Administracion de clientes habilitados para pago con credito</p></div>
+    <button class="btn btn-hl-orange" onclick="showToast('Formulario de nuevo cliente (demo)')"><i class="bi bi-plus-lg me-1"></i> Agregar Cliente</button>
+  </div>
+  <div class="hl-card">
+    <div class="table-responsive">
+      <table class="hl-table mb-0">
+        <thead><tr><th>RUT / NIT</th><th>Razon Social</th><th>Pais</th><th>Limite Credito</th><th>Utilizado</th><th>Disponible</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="fw-bold">76.543.210-K</td><td>Importadora Santiago SpA</td><td><span class="country-badge">CL</span></td><td>$50.000.000</td><td>$32.400.000</td><td class="text-hl-green fw-bold">$17.600.000</td><td><span class="hl-badge hl-badge--active">Activo</span></td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button></td></tr>
+          <tr><td class="fw-bold">91.234.567-8</td><td>Comercial Andina Ltda</td><td><span class="country-badge">CL</span></td><td>$30.000.000</td><td>$28.500.000</td><td class="text-danger fw-bold">$1.500.000</td><td><span class="hl-badge hl-badge--pending">Limite</span></td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button></td></tr>
+          <tr><td class="fw-bold">1023456789</td><td>Distribuidora Boliviana SRL</td><td><span class="country-badge">BO</span></td><td>$200.000 BOB</td><td>$85.000 BOB</td><td class="text-hl-green fw-bold">$115.000 BOB</td><td><span class="hl-badge hl-badge--active">Activo</span></td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button></td></tr>
+          <tr><td class="fw-bold">78.901.234-5</td><td>Logistica del Pacifico SA</td><td><span class="country-badge">CL</span></td><td>$80.000.000</td><td>$45.200.000</td><td class="text-hl-green fw-bold">$34.800.000</td><td><span class="hl-badge hl-badge--active">Activo</span></td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADMIN: DEMURRAGE EXEMPTIONS ─── -->
+<div id="page-admin-exemptions" class="page-section">
+  <div class="hl-page-header d-flex justify-content-between align-items-start">
+    <div><h1>Excepciones de Demurrage</h1><p class="text-muted mb-0">Gestione excepciones y extensiones de free time</p></div>
+    <button class="btn btn-hl-orange" onclick="showToast('Formulario de nueva excepcion (demo)')"><i class="bi bi-plus-lg me-1"></i> Nueva Excepcion</button>
+  </div>
+  <div class="hl-card">
+    <div class="table-responsive">
+      <table class="hl-table mb-0">
+        <thead><tr><th>ID</th><th>BL</th><th>Contenedor</th><th>Cliente</th><th>Tipo</th><th>Dias Extra</th><th>Motivo</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="fw-bold">EXC-0045</td><td>HLCUSC250001234</td><td>HLXU7654321</td><td>Importadora Santiago</td><td>Extension Free Time</td><td>5</td><td>Demora aduanera</td><td><span class="hl-badge hl-badge--confirmed">Aprobada</span></td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></button></td></tr>
+          <tr><td class="fw-bold">EXC-0044</td><td>HLCUSC250002100</td><td>CMAU9876543</td><td>Logistica del Pacifico</td><td>Condonacion</td><td>-</td><td>Error operacional HL</td><td><span class="hl-badge hl-badge--processing">En Revision</span></td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></button></td></tr>
+          <tr><td class="fw-bold">EXC-0043</td><td>HLCUBO250000456</td><td>HLXU3333333</td><td>Distribuidora Boliviana</td><td>Extension Free Time</td><td>7</td><td>Feriado nacional BO</td><td><span class="hl-badge hl-badge--confirmed">Aprobada</span></td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></button></td></tr>
+          <tr><td class="fw-bold">EXC-0042</td><td>HLCUSC250001567</td><td>MSKU1111111</td><td>Comercial Andina</td><td>Condonacion</td><td>-</td><td>Huelga portuaria</td><td><span class="hl-badge hl-badge--rejected">Rechazada</span></td><td><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADMIN: PAGOS POR OPERACION ─── -->
+<div id="page-admin-payments" class="page-section">
+  <div class="hl-page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div><h1><i class="bi bi-cash-stack me-2"></i>Pagos por Operacion</h1><p class="text-muted mb-0">Consulte todos los pagos asociados a cada BL / operacion</p></div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" onclick="exportAdminPayments()"><i class="bi bi-download me-1"></i> Exportar Excel</button>
+      <button class="btn btn-hl-orange" onclick="showToast('Reporte generado (demo)')"><i class="bi bi-file-earmark-bar-graph me-1"></i> Generar Reporte</button>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="hl-card p-3 mb-4">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3"><div class="hl-form-group mb-0"><label>BL / Operacion</label><input type="text" class="form-control" id="adminPayFilterBL" placeholder="HLCU..." oninput="filterAdminPayments()"></div></div>
+      <div class="col-md-2"><div class="hl-form-group mb-0"><label>Estado Pago</label><select class="form-select" id="adminPayFilterStatus" onchange="filterAdminPayments()"><option value="">Todos</option><option value="Confirmado">Confirmado</option><option value="Pendiente">Pendiente</option><option value="Rechazado">Rechazado</option><option value="En Proceso">En Proceso</option></select></div></div>
+      <div class="col-md-2"><div class="hl-form-group mb-0"><label>Metodo</label><select class="form-select" id="adminPayFilterMethod" onchange="filterAdminPayments()"><option value="">Todos</option><option value="Transferencia">Transferencia</option><option value="FLOW">FLOW</option><option value="Credito">Credito</option><option value="QR BCB">QR BCB</option><option value="Tigo Money">Tigo Money</option></select></div></div>
+      <div class="col-md-2"><div class="hl-form-group mb-0"><label>Desde</label><input type="date" class="form-control" id="adminPayFilterFrom" value="2026-01-01" onchange="filterAdminPayments()"></div></div>
+      <div class="col-md-2"><div class="hl-form-group mb-0"><label>Hasta</label><input type="date" class="form-control" id="adminPayFilterTo" value="2026-06-05" onchange="filterAdminPayments()"></div></div>
+      <div class="col-md-1"><button class="btn btn-outline-secondary w-100" onclick="resetAdminPayFilters()" title="Limpiar filtros"><i class="bi bi-x-circle"></i></button></div>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="row g-3 mb-4" id="adminPaySummary">
+    <div class="col-6 col-md-3">
+      <div class="hl-card p-3 text-center">
+        <div class="text-muted small">Total Pagos</div>
+        <div class="fw-bold fs-4 text-hl-blue" id="adminPayTotalCount">18</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="hl-card p-3 text-center">
+        <div class="text-muted small">Monto Total CLP</div>
+        <div class="fw-bold fs-4 text-hl-orange" id="adminPayTotalCLP">$12.847.800</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="hl-card p-3 text-center">
+        <div class="text-muted small">Monto Total BOB</div>
+        <div class="fw-bold fs-4 text-hl-green" id="adminPayTotalBOB">Bs 38.950</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="hl-card p-3 text-center">
+        <div class="text-muted small">Pendientes</div>
+        <div class="fw-bold fs-4 text-danger" id="adminPayPending">3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="hl-card">
+    <div class="table-responsive">
+      <table class="hl-table mb-0">
+        <thead>
+          <tr>
+            <th style="width:30px"></th>
+            <th>Pago ID</th>
+            <th>BL</th>
+            <th>Cliente</th>
+            <th>Pais</th>
+            <th>Fecha</th>
+            <th>Metodo</th>
+            <th>Monto</th>
+            <th>Estado</th>
+            <th>Ref. Banco</th>
+          </tr>
+        </thead>
+        <tbody id="adminPayTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <span class="text-muted small" id="adminPayShowing">Mostrando 18 de 18 pagos</span>
+    <nav><ul class="pagination pagination-sm mb-0">
+      <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+      <li class="page-item active"><a class="page-link" href="#">1</a></li>
+      <li class="page-item disabled"><a class="page-link" href="#">&raquo;</a></li>
+    </ul></nav>
+  </div>
+
+  <!-- DETAIL MODAL (inline) -->
+  <div id="adminPayDetail" style="display:none" class="mt-4">
+    <div class="hl-card p-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <h5 class="mb-0"><i class="bi bi-receipt-cutoff me-2"></i>Detalle del Pago <span id="adminPayDetailId" class="text-hl-orange"></span></h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('adminPayDetail').style.display='none'"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="row g-3" id="adminPayDetailContent"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="hl-footer">&copy; 2026 Hapag-Lloyd AG. Todos los derechos reservados.</footer>
+
+</div><!-- /appShell -->
+
+<!-- TOAST -->
+<div id="hlToast" class="hl-toast"><i class="bi bi-check-circle"></i> <span id="toastMsg"></span></div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// COUNTRY STATE
+// ═══════════════════════════════════════════════════════════════
+let currentCountry = 'CL'; // 'CL' or 'BO'
+let geoDetected = false;
+let qrTimerInterval = null;
+let currentRole = 'client'; // 'admin' or 'client'
+
+// ═══════════════════════════════════════════════════════════════
+// GEOLOCATION DETECTION
+// ═══════════════════════════════════════════════════════════════
+(function detectCountry() {
+  const statusEl = document.getElementById('geoStatusText');
+  const warningEl = document.getElementById('geoWarning');
+
+  if (!navigator.geolocation) {
+    statusEl.textContent = 'Geolocalizacion no disponible. Seleccione su pais manualmente.';
+    warningEl.style.display = 'block';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      // Simple bounding box detection
+      // Chile: lat -17 to -56, lng -66 to -75
+      // Bolivia: lat -9 to -23, lng -57 to -70
+      let detected = null;
+      if (lat >= -56 && lat <= -17 && lng >= -76 && lng <= -66) detected = 'CL';
+      if (lat >= -23 && lat <= -9 && lng >= -70 && lng <= -57) detected = 'BO';
+
+      if (detected) {
+        geoDetected = true;
+        selectCountry(detected);
+        statusEl.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i> Ubicacion detectada: <strong>' + (detected === 'CL' ? 'Chile' : 'Bolivia') + '</strong>';
+      } else {
+        statusEl.textContent = 'No se detecto Chile ni Bolivia. Seleccione manualmente.';
+        warningEl.style.display = 'block';
+      }
+    },
+    function(err) {
+      // User denied or error
+      statusEl.textContent = 'Seleccione su pais de operacion manualmente.';
+      warningEl.style.display = 'block';
+    },
+    { timeout: 8000, maximumAge: 300000 }
+  );
+})();
+
+function selectCountry(code) {
+  currentCountry = code;
+  document.getElementById('optionCL').classList.toggle('selected', code === 'CL');
+  document.getElementById('optionBO').classList.toggle('selected', code === 'BO');
+  document.getElementById('btnConfirmCountry').disabled = false;
+}
+
+function confirmCountry() {
+  document.getElementById('countryOverlay').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  // Pre-fill email based on country
+  const emailInput = document.getElementById('loginEmail');
+  emailInput.value = currentCountry === 'BO' ? 'admin@hapag-lloyd.bo' : 'admin@hapag-lloyd.cl';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// COUNTRY-AWARE UI UPDATES
+// ═══════════════════════════════════════════════════════════════
+function applyCountryUI() {
+  const isBo = currentCountry === 'BO';
+  // Navbar
+  document.getElementById('navCountryName').textContent = isBo ? 'Bolivia' : 'Chile';
+  // Dashboard country badge
+  document.querySelector('#page-dashboard .country-badge').innerHTML = '<i class="bi bi-geo-alt"></i> ' + (isBo ? 'Bolivia' : 'Chile');
+  // Payment methods
+  renderPaymentMethods();
+  // Payment summary
+  renderPaymentSummary();
+}
+
+function renderPaymentMethods() {
+  const container = document.getElementById('paymentMethodsContainer');
+  const isBo = currentCountry === 'BO';
+
+  if (isBo) {
+    container.innerHTML = `
+      <div class="col-md-3">
+        <div class="payment-method-card selected" onclick="selectPaymentMethod(this,'transfer')">
+          <i class="bi bi-bank text-hl-orange" style="font-size:2rem"></i>
+          <div class="fw-bold mt-2">Transferencia</div>
+          <div class="small text-muted">Banco Union / BNB</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="payment-method-card" onclick="selectPaymentMethod(this,'qr')">
+          <i class="bi bi-qr-code text-hl-green" style="font-size:2rem"></i>
+          <div class="fw-bold mt-2">QR BCB Bolivia</div>
+          <div class="small text-muted">Pago inmediato</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="payment-method-card" onclick="selectPaymentMethod(this,'credit')">
+          <i class="bi bi-building text-hl-blue" style="font-size:2rem"></i>
+          <div class="fw-bold mt-2">Credito</div>
+          <div class="small text-muted">Clientes habilitados</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="payment-method-card" onclick="selectPaymentMethod(this,'tigo')">
+          <i class="bi bi-phone text-hl-blue" style="font-size:2rem"></i>
+          <div class="fw-bold mt-2">Tigo Money</div>
+          <div class="small text-muted">Billetera movil</div>
+        </div>
+      </div>
+    `;
+  } else {
+    container.innerHTML = `
+      <div class="col-md-4">
+        <div class="payment-method-card selected" onclick="selectPaymentMethod(this,'transfer')">
+          <i class="bi bi-bank text-hl-orange" style="font-size:2rem"></i>
+          <div class="fw-bold mt-2">Transferencia</div>
+          <div class="small text-muted">Banco Estado / BCI</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="payment-method-card" onclick="selectPaymentMethod(this,'flow')">
+          <i class="bi bi-credit-card text-hl-blue" style="font-size:2rem"></i>
+          <div class="fw-bold mt-2">FLOW</div>
+          <div class="small text-muted">Tarjeta / Debito</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="payment-method-card" onclick="selectPaymentMethod(this,'credit')">
+          <i class="bi bi-building text-hl-green" style="font-size:2rem"></i>
+          <div class="fw-bold mt-2">Credito</div>
+          <div class="small text-muted">Clientes habilitados</div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function selectPaymentMethod(el, method) {
+  document.querySelectorAll('#paymentMethodsContainer .payment-method-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const qrPanel = document.getElementById('qrPaymentPanel');
+  if (method === 'qr') {
+    qrPanel.style.display = 'block';
+    generateMockQR();
+    startQRTimer();
+  } else {
+    qrPanel.style.display = 'none';
+    if (qrTimerInterval) clearInterval(qrTimerInterval);
+  }
+}
+
+function renderPaymentSummary() {
+  const isBo = currentCountry === 'BO';
+  const container = document.getElementById('paymentSummaryContent');
+  if (isBo) {
+    container.innerHTML = `
+      <div class="d-flex justify-content-between mb-2"><span class="text-muted">Subtotal BOB</span><span class="fw-bold">Bs 10.350</span></div>
+      <div class="d-flex justify-content-between mb-2"><span class="text-muted">IVA 13%</span><span>Bs 1.346</span></div>
+      <div class="d-flex justify-content-between mb-2"><span class="text-muted">Subtotal USD</span><span class="fw-bold">$75.00</span></div>
+      <div class="d-flex justify-content-between mb-2"><span class="text-muted">IVA 13% USD</span><span>$9.75</span></div>
+      <hr>
+      <div class="d-flex justify-content-between mb-1"><span class="fw-bold">Total BOB</span><span class="fw-bold text-hl-orange" style="font-size:1.2rem">Bs 11.696</span></div>
+      <div class="d-flex justify-content-between mb-3"><span class="fw-bold">Total USD</span><span class="fw-bold text-hl-orange" style="font-size:1.2rem">$84.75</span></div>
+    `;
+  } else {
+    container.innerHTML = `
+      <div class="d-flex justify-content-between mb-2"><span class="text-muted">Subtotal CLP</span><span class="fw-bold">$1.500.000</span></div>
+      <div class="d-flex justify-content-between mb-2"><span class="text-muted">IVA 19%</span><span>$285.000</span></div>
+      <div class="d-flex justify-content-between mb-2"><span class="text-muted">Subtotal USD</span><span class="fw-bold">$75.00</span></div>
+      <div class="d-flex justify-content-between mb-2"><span class="text-muted">IVA 19% USD</span><span>$14.25</span></div>
+      <hr>
+      <div class="d-flex justify-content-between mb-1"><span class="fw-bold">Total CLP</span><span class="fw-bold text-hl-orange" style="font-size:1.2rem">$1.785.000</span></div>
+      <div class="d-flex justify-content-between mb-3"><span class="fw-bold">Total USD</span><span class="fw-bold text-hl-orange" style="font-size:1.2rem">$89.25</span></div>
+    `;
+  }
+}
+
+function handleConfirmPayment() {
+  const isBo = currentCountry === 'BO';
+  const selectedMethod = document.querySelector('#paymentMethodsContainer .payment-method-card.selected');
+  const methodText = selectedMethod ? selectedMethod.querySelector('.fw-bold').textContent : 'Transferencia';
+  if (isBo && methodText === 'QR BCB Bolivia') {
+    showToast('QR generado! Escanee con su app bancaria para completar el pago.');
+  } else {
+    showToast('Pago enviado exitosamente! Confirmacion en linea.');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// QR CODE GENERATOR (mock visual)
+// ═══════════════════════════════════════════════════════════════
+function generateMockQR() {
+  const canvas = document.getElementById('qrCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const size = 180;
+  const cellSize = 6;
+  const modules = Math.floor(size / cellSize);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#000';
+
+  // Generate pseudo-random QR pattern
+  const seed = Date.now();
+  function pseudoRandom(x, y) {
+    const n = Math.sin(x * 127.1 + y * 311.7 + seed) * 43758.5453;
+    return n - Math.floor(n);
+  }
+
+  // Draw finder patterns (3 corners)
+  function drawFinder(ox, oy) {
+    for (let r = 0; r < 7; r++) {
+      for (let c = 0; c < 7; c++) {
+        const isOuter = r === 0 || r === 6 || c === 0 || c === 6;
+        const isInner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+        if (isOuter || isInner) {
+          ctx.fillRect((ox + c) * cellSize, (oy + r) * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+  }
+  drawFinder(1, 1);
+  drawFinder(modules - 8, 1);
+  drawFinder(1, modules - 8);
+
+  // Fill data area
+  for (let r = 0; r < modules; r++) {
+    for (let c = 0; c < modules; c++) {
+      const inFinder1 = r < 9 && c < 9;
+      const inFinder2 = r < 9 && c > modules - 10;
+      const inFinder3 = r > modules - 10 && c < 9;
+      if (inFinder1 || inFinder2 || inFinder3) continue;
+      if (pseudoRandom(r, c) > 0.55) {
+        ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+
+  // BCB logo in center
+  const cx = size / 2;
+  const cy = size / 2;
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(cx - 18, cy - 10, 36, 20);
+  ctx.fillStyle = '#009840';
+  ctx.font = 'bold 11px Montserrat, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('BCB', cx, cy);
+}
+
+function startQRTimer() {
+  if (qrTimerInterval) clearInterval(qrTimerInterval);
+  let seconds = 299; // 4:59
+  const timerEl = document.getElementById('qrTimer');
+  function update() {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    timerEl.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    if (seconds <= 0) {
+      clearInterval(qrTimerInterval);
+      timerEl.textContent = 'EXPIRADO';
+      timerEl.style.color = '#dc3545';
+    }
+    seconds--;
+  }
+  update();
+  qrTimerInterval = setInterval(update, 1000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MOCK DATA
+// ═══════════════════════════════════════════════════════════════
+const MOCK_BLS = [
+  { bl:'HLCUSC250001234', vessel:'MSC AURORA', voyage:'2026-W12', containers:2, port:'San Antonio (CLSAI)', eta:'20-May-2026', status:'Activo', statusClass:'active', country:'CL' },
+  { bl:'HLCUSC250001890', vessel:'EVER GIVEN', voyage:'2026-W11', containers:1, port:'Valparaiso (CLVAP)', eta:'22-May-2026', status:'Pendiente', statusClass:'pending', country:'CL' },
+  { bl:'HLCUBO250000456', vessel:'MAERSK SEALAND', voyage:'2026-W10', containers:3, port:'Arica (CLARI)', eta:'18-May-2026', status:'Liberado', statusClass:'released', country:'BO' },
+  { bl:'HLCUSC250002100', vessel:'CMA CGM MARCO POLO', voyage:'2026-W13', containers:1, port:'San Antonio (CLSAI)', eta:'25-May-2026', status:'En Puerto', statusClass:'in-port', country:'CL' },
+  { bl:'HLCUSC250001567', vessel:'COSCO SHIPPING ALPS', voyage:'2026-W09', containers:2, port:'Valparaiso (CLVAP)', eta:'15-May-2026', status:'Liberado', statusClass:'released', country:'CL' },
+  { bl:'HLCUBO250000789', vessel:'ONE CONTINUITY', voyage:'2026-W08', containers:1, port:'Arica (CLARI)', eta:'12-May-2026', status:'Activo', statusClass:'active', country:'BO' },
+  { bl:'HLCUSC250002345', vessel:'HAMBURG EXPRESS', voyage:'2026-W14', containers:4, port:'San Antonio (CLSAI)', eta:'28-May-2026', status:'Pendiente', statusClass:'pending', country:'CL' },
+  { bl:'HLCUSC250002567', vessel:'MSC GULSUN', voyage:'2026-W15', containers:2, port:'Valparaiso (CLVAP)', eta:'01-Jun-2026', status:'Activo', statusClass:'active', country:'CL' },
+  { bl:'HLCUBO250001000', vessel:'MAERSK EINDHOVEN', voyage:'2026-W12', containers:1, port:'Arica (CLARI)', eta:'20-May-2026', status:'Liberado', statusClass:'released', country:'BO' },
+  { bl:'HLCUSC250002800', vessel:'EVER ACE', voyage:'2026-W16', containers:3, port:'San Antonio (CLSAI)', eta:'05-Jun-2026', status:'En Puerto', statusClass:'in-port', country:'CL' },
+  { bl:'HLCUSC250003100', vessel:'HMM ALGECIRAS', voyage:'2026-W17', containers:1, port:'Valparaiso (CLVAP)', eta:'08-Jun-2026', status:'Pendiente', statusClass:'pending', country:'CL' },
+  { bl:'HLCUBO250001200', vessel:'YANG MING WARRANTY', voyage:'2026-W14', containers:2, port:'Arica (CLARI)', eta:'28-May-2026', status:'Activo', statusClass:'active', country:'BO' },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function navigateTo(page) {
+  // Block non-admin from admin pages
+  if (page.startsWith('admin-') && currentRole !== 'admin') {
+    showToast('Acceso denegado: se requiere rol Administrador');
+    return;
+  }
+  // Hide all pages
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+  // Show target
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  // Update sidebar
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  const link = document.querySelector('.sidebar-link[data-page="' + page + '"]');
+  if (link) link.classList.add('active');
+  // Close mobile sidebar
+  document.querySelector('.hl-sidebar').classList.remove('show');
+  // Scroll to top
+  window.scrollTo(0, 0);
+  // Init admin payments table if needed
+  if (page === 'admin-payments') renderAdminPayments();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOGIN / LOGOUT
+// ═══════════════════════════════════════════════════════════════
+function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPass').value;
+  if (!email || !pass) {
+    document.getElementById('loginError').classList.remove('d-none');
+    return false;
+  }
+  // Detect role: emails containing "admin" are admin users
+  currentRole = email.toLowerCase().includes('admin') ? 'admin' : 'client';
+  // Mock login success
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  const name = email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  document.getElementById('navUserName').textContent = name;
+  document.getElementById('dashUserName').textContent = name;
+  // Show/hide admin section based on role
+  applyRoleUI();
+  applyCountryUI();
+  renderBLTable();
+  return false;
+}
+
+function applyRoleUI() {
+  const isAdmin = currentRole === 'admin';
+  document.getElementById('adminSection').style.display = isAdmin ? 'block' : 'none';
+  // Show role badge in navbar
+  const userEl = document.getElementById('navUserName');
+  if (isAdmin) {
+    userEl.innerHTML = userEl.textContent + ' <span class="badge bg-danger ms-1" style="font-size:.65rem;vertical-align:middle">ADMIN</span>';
+  }
+}
+
+function handleLogout() {
+  currentRole = 'client';
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('loginError').classList.add('d-none');
+  document.getElementById('adminSection').style.display = 'none';
+  navigateTo('dashboard');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER BL TABLE
+// ═══════════════════════════════════════════════════════════════
+function renderBLTable() {
+  const tbody = document.getElementById('blTableBody');
+  tbody.innerHTML = MOCK_BLS.map(b => `
+    <tr onclick="navigateTo('bl-detail')">
+      <td class="fw-bold text-hl-blue">${b.bl}</td>
+      <td>${b.vessel}</td>
+      <td>${b.voyage}</td>
+      <td>${b.containers}</td>
+      <td>${b.port}</td>
+      <td>${b.eta}</td>
+      <td><span class="hl-badge hl-badge--${b.statusClass}"><i class="bi bi-circle-fill" style="font-size:.5rem"></i> ${b.status}</span></td>
+      <td><span class="country-badge">${b.country}</span></td>
+    </tr>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('hlToast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN: PAGOS POR OPERACION
+// ═══════════════════════════════════════════════════════════════
+const MOCK_ADMIN_PAYMENTS = [
+  { id:'PAY-2026-0050', bl:'HLCUSC250001234', client:'Importadora Santiago SpA', country:'CL', date:'2026-05-28', method:'Transferencia', amount:'$3.200.000 CLP', amountRaw:3200000, currency:'CLP', status:'Confirmado', ref:'TRF-BE-98712', concept:'Cargos Locales + Demurrage', items:['THC: $850.000','BL Fee: $45.000','Demurrage 3 dias: $2.305.000'], invoice:'F-2026-1240' },
+  { id:'PAY-2026-0049', bl:'HLCUSC250001234', client:'Importadora Santiago SpA', country:'CL', date:'2026-05-25', method:'FLOW', amount:'$142.800 CLP', amountRaw:142800, currency:'CLP', status:'Confirmado', ref:'FLOW-44521', concept:'BL Fee', items:['BL Fee: $120.000','IVA 19%: $22.800'], invoice:'F-2026-1238' },
+  { id:'PAY-2026-0048', bl:'HLCUBO250000456', client:'Distribuidora Boliviana SRL', country:'BO', date:'2026-05-24', method:'QR BCB', amount:'Bs 12.350', amountRaw:12350, currency:'BOB', status:'Confirmado', ref:'QR-BCB-77801', concept:'Cargos Locales', items:['THC: Bs 6.200','Handling: Bs 3.500','Almacenaje: Bs 2.650'], invoice:'F-2026-1237' },
+  { id:'PAY-2026-0047', bl:'HLCUSC250001890', client:'Comercial Andina Ltda', country:'CL', date:'2026-05-23', method:'Credito', amount:'$1.890.000 CLP', amountRaw:1890000, currency:'CLP', status:'Confirmado', ref:'CRED-0891', concept:'Demurrage', items:['Demurrage 5 dias 40HC: $1.575.000','IVA 19%: $315.000'], invoice:'F-2026-1236' },
+  { id:'PAY-2026-0046', bl:'HLCUSC250001890', client:'Comercial Andina Ltda', country:'CL', date:'2026-05-22', method:'Transferencia', amount:'$890.000 CLP', amountRaw:890000, currency:'CLP', status:'Confirmado', ref:'TRF-BCI-55432', concept:'Cargos Locales', items:['THC: $650.000','BL Fee: $120.000','Handling: $120.000'], invoice:'BAP-2026-0891' },
+  { id:'PAY-2026-0045', bl:'HLCUBO250000456', client:'Distribuidora Boliviana SRL', country:'BO', date:'2026-05-21', method:'Tigo Money', amount:'Bs 8.400', amountRaw:8400, currency:'BOB', status:'Confirmado', ref:'TIGO-90234', concept:'Almacenaje', items:['Almacenaje 7 dias: Bs 7.434','IVA 13%: Bs 966'], invoice:'F-2026-1233' },
+  { id:'PAY-2026-0044', bl:'HLCUSC250002100', client:'Logistica del Pacifico SA', country:'CL', date:'2026-05-20', method:'FLOW', amount:'$2.450.000 CLP', amountRaw:2450000, currency:'CLP', status:'Pendiente', ref:'-', concept:'Cargos Locales + Demurrage', items:['THC: $850.000','Demurrage 2 dias: $1.200.000','IVA 19%: $400.000'], invoice:'-' },
+  { id:'PAY-2026-0043', bl:'HLCUSC250001567', client:'Importadora Santiago SpA', country:'CL', date:'2026-05-19', method:'Transferencia', amount:'$567.000 CLP', amountRaw:567000, currency:'CLP', status:'Confirmado', ref:'TRF-BE-98700', concept:'BL Fee + Handling', items:['BL Fee: $120.000','Handling: $356.000','IVA 19%: $91.000'], invoice:'F-2026-1230' },
+  { id:'PAY-2026-0042', bl:'HLCUBO250000789', client:'Distribuidora Boliviana SRL', country:'BO', date:'2026-05-18', method:'QR BCB', amount:'Bs 5.200', amountRaw:5200, currency:'BOB', status:'Confirmado', ref:'QR-BCB-77785', concept:'THC', items:['THC: Bs 4.602','IVA 13%: Bs 598'], invoice:'F-2026-1228' },
+  { id:'PAY-2026-0041', bl:'HLCUSC250002345', client:'Logistica del Pacifico SA', country:'CL', date:'2026-05-17', method:'Credito', amount:'$1.200.000 CLP', amountRaw:1200000, currency:'CLP', status:'En Proceso', ref:'CRED-0890', concept:'Demurrage', items:['Demurrage 4 dias 20DV: $1.008.000','IVA 19%: $192.000'], invoice:'-' },
+  { id:'PAY-2026-0040', bl:'HLCUSC250002567', client:'Comercial Andina Ltda', country:'CL', date:'2026-05-16', method:'Transferencia', amount:'$780.000 CLP', amountRaw:780000, currency:'CLP', status:'Confirmado', ref:'TRF-BCI-55410', concept:'Cargos Locales', items:['THC: $650.000','Handling: $130.000'], invoice:'F-2026-1225' },
+  { id:'PAY-2026-0039', bl:'HLCUBO250001000', client:'Distribuidora Boliviana SRL', country:'BO', date:'2026-05-15', method:'QR BCB', amount:'Bs 13.000', amountRaw:13000, currency:'BOB', status:'Confirmado', ref:'QR-BCB-77790', concept:'Cargos Locales + Demurrage', items:['THC: Bs 6.200','Demurrage 2 dias: Bs 4.600','IVA 13%: Bs 2.200'], invoice:'F-2026-1222' },
+  { id:'PAY-2026-0038', bl:'HLCUSC250002800', client:'Importadora Santiago SpA', country:'CL', date:'2026-05-14', method:'FLOW', amount:'$456.000 CLP', amountRaw:456000, currency:'CLP', status:'Rechazado', ref:'FLOW-44490', concept:'BL Fee', items:['BL Fee: $120.000','Handling: $263.000','IVA 19%: $73.000'], invoice:'-' },
+  { id:'PAY-2026-0037', bl:'HLCUSC250002800', client:'Importadora Santiago SpA', country:'CL', date:'2026-05-14', method:'Transferencia', amount:'$456.000 CLP', amountRaw:456000, currency:'CLP', status:'Confirmado', ref:'TRF-BE-98688', concept:'BL Fee (reintento)', items:['BL Fee: $120.000','Handling: $263.000','IVA 19%: $73.000'], invoice:'F-2026-1220' },
+  { id:'PAY-2026-0036', bl:'HLCUSC250003100', client:'Logistica del Pacifico SA', country:'CL', date:'2026-05-13', method:'Credito', amount:'$320.000 CLP', amountRaw:320000, currency:'CLP', status:'Pendiente', ref:'CRED-0889', concept:'THC', items:['THC: $268.908','IVA 19%: $51.092'], invoice:'-' },
+  { id:'PAY-2026-0035', bl:'HLCUBO250001200', client:'Distribuidora Boliviana SRL', country:'BO', date:'2026-05-12', method:'QR BCB', amount:'Bs 0', amountRaw:0, currency:'BOB', status:'Pendiente', ref:'-', concept:'Demurrage (en disputa)', items:['Demurrage 3 dias: Bs 6.900 (en revision)'], invoice:'-' },
+  { id:'PAY-2026-0034', bl:'HLCUSC250001234', client:'Importadora Santiago SpA', country:'CL', date:'2026-05-10', method:'Transferencia', amount:'$495.000 CLP', amountRaw:495000, currency:'CLP', status:'Confirmado', ref:'TRF-BE-98670', concept:'Almacenaje', items:['Almacenaje 5 dias: $415.966','IVA 19%: $79.034'], invoice:'F-2026-1215' },
+  { id:'PAY-2026-0033', bl:'HLCUSC250002567', client:'Comercial Andina Ltda', country:'CL', date:'2026-05-08', method:'FLOW', amount:'$1.000.000 CLP', amountRaw:1000000, currency:'CLP', status:'Confirmado', ref:'FLOW-44478', concept:'Demurrage', items:['Demurrage 2 dias 40HC: $840.336','IVA 19%: $159.664'], invoice:'F-2026-1210' },
+];
+
+function renderAdminPayments(data) {
+  const tbody = document.getElementById('adminPayTableBody');
+  if (!data) data = MOCK_ADMIN_PAYMENTS;
+  const statusMap = { 'Confirmado':'confirmed', 'Pendiente':'pending', 'Rechazado':'rejected', 'En Proceso':'processing' };
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td><button class="btn btn-sm btn-link p-0 text-hl-blue" onclick="showAdminPayDetail('${p.id}')" title="Ver detalle"><i class="bi bi-chevron-right"></i></button></td>
+      <td class="fw-bold text-hl-blue" style="cursor:pointer" onclick="showAdminPayDetail('${p.id}')">${p.id}</td>
+      <td class="fw-bold">${p.bl}</td>
+      <td>${p.client}</td>
+      <td><span class="country-badge">${p.country}</span></td>
+      <td>${formatDateES(p.date)}</td>
+      <td><span class="badge bg-light text-dark border">${p.method}</span></td>
+      <td class="fw-bold">${p.amount}</td>
+      <td><span class="hl-badge hl-badge--${statusMap[p.status] || 'pending'}">${p.status}</span></td>
+      <td class="text-muted small">${p.ref}</td>
+    </tr>
+  `).join('');
+  document.getElementById('adminPayShowing').textContent = 'Mostrando ' + data.length + ' de ' + MOCK_ADMIN_PAYMENTS.length + ' pagos';
+  // Update summary
+  const totalCLP = data.filter(p => p.currency === 'CLP').reduce((s, p) => s + p.amountRaw, 0);
+  const totalBOB = data.filter(p => p.currency === 'BOB').reduce((s, p) => s + p.amountRaw, 0);
+  const pending = data.filter(p => p.status === 'Pendiente' || p.status === 'En Proceso').length;
+  document.getElementById('adminPayTotalCount').textContent = data.length;
+  document.getElementById('adminPayTotalCLP').textContent = '$' + totalCLP.toLocaleString('es-CL');
+  document.getElementById('adminPayTotalBOB').textContent = 'Bs ' + totalBOB.toLocaleString('es-BO');
+  document.getElementById('adminPayPending').textContent = pending;
+}
+
+function formatDateES(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return d.getDate().toString().padStart(2,'0') + '-' + months[d.getMonth()] + '-' + d.getFullYear();
+}
+
+function filterAdminPayments() {
+  const bl = document.getElementById('adminPayFilterBL').value.toUpperCase();
+  const status = document.getElementById('adminPayFilterStatus').value;
+  const method = document.getElementById('adminPayFilterMethod').value;
+  const from = document.getElementById('adminPayFilterFrom').value;
+  const to = document.getElementById('adminPayFilterTo').value;
+  let filtered = MOCK_ADMIN_PAYMENTS.filter(p => {
+    if (bl && !p.bl.includes(bl) && !p.id.toUpperCase().includes(bl)) return false;
+    if (status && p.status !== status) return false;
+    if (method && !p.method.includes(method)) return false;
+    if (from && p.date < from) return false;
+    if (to && p.date > to) return false;
+    return true;
+  });
+  renderAdminPayments(filtered);
+  document.getElementById('adminPayDetail').style.display = 'none';
+}
+
+function resetAdminPayFilters() {
+  document.getElementById('adminPayFilterBL').value = '';
+  document.getElementById('adminPayFilterStatus').value = '';
+  document.getElementById('adminPayFilterMethod').value = '';
+  document.getElementById('adminPayFilterFrom').value = '2026-01-01';
+  document.getElementById('adminPayFilterTo').value = '2026-06-05';
+  renderAdminPayments(MOCK_ADMIN_PAYMENTS);
+  document.getElementById('adminPayDetail').style.display = 'none';
+}
+
+// Cuentas bancarias destino Hapag-Lloyd por pais
+const HL_BANK_ACCOUNTS = {
+  CL: {
+    bank: 'Banco Estado',
+    accountType: 'Cuenta Corriente',
+    accountNumber: '001-0234567-08',
+    rut: '96.906.980-4',
+    holder: 'Hapag-Lloyd Chile SpA',
+    email: 'pagos.chile@hapag-lloyd.com',
+    swift: 'BABORCLSXXX',
+    bankAlt: 'BCI',
+    accountAlt: '007-8901234-05',
+  },
+  BO: {
+    bank: 'Banco Union S.A.',
+    accountType: 'Cuenta Corriente USD',
+    accountNumber: '1-4567890',
+    nit: '1023456013',
+    holder: 'Hapag-Lloyd Bolivia SRL',
+    email: 'pagos.bolivia@hapag-lloyd.com',
+    swift: 'ABORBOBBXXX',
+    bankAlt: 'Banco Nacional de Bolivia',
+    accountAlt: '2-7890123 (BOB)',
+  }
+};
+
+// Mock: comprobantes adjuntos por pago
+const MOCK_PAY_VOUCHERS = {
+  'PAY-2026-0050': { file:'comprobante_TRF-BE-98712.pdf', uploadDate:'2026-05-28', size:'245 KB', verified:true },
+  'PAY-2026-0049': { file:'comprobante_FLOW-44521.pdf', uploadDate:'2026-05-25', size:'132 KB', verified:true },
+  'PAY-2026-0048': { file:'qr_confirmacion_77801.pdf', uploadDate:'2026-05-24', size:'98 KB', verified:true },
+  'PAY-2026-0047': { file:null, uploadDate:null, size:null, verified:false },
+  'PAY-2026-0046': { file:'comprobante_TRF-BCI-55432.pdf', uploadDate:'2026-05-22', size:'210 KB', verified:true },
+  'PAY-2026-0045': { file:'tigo_receipt_90234.jpg', uploadDate:'2026-05-21', size:'340 KB', verified:true },
+  'PAY-2026-0044': { file:null, uploadDate:null, size:null, verified:false },
+  'PAY-2026-0043': { file:'comprobante_TRF-BE-98700.pdf', uploadDate:'2026-05-19', size:'198 KB', verified:true },
+  'PAY-2026-0042': { file:'qr_confirmacion_77785.pdf', uploadDate:'2026-05-18', size:'102 KB', verified:true },
+  'PAY-2026-0041': { file:null, uploadDate:null, size:null, verified:false },
+  'PAY-2026-0040': { file:'comprobante_TRF-BCI-55410.pdf', uploadDate:'2026-05-16', size:'220 KB', verified:true },
+  'PAY-2026-0039': { file:'qr_confirmacion_77790.pdf', uploadDate:'2026-05-15', size:'105 KB', verified:true },
+  'PAY-2026-0038': { file:'comprobante_FLOW-44490_rechazado.pdf', uploadDate:'2026-05-14', size:'88 KB', verified:false },
+  'PAY-2026-0037': { file:'comprobante_TRF-BE-98688.pdf', uploadDate:'2026-05-14', size:'201 KB', verified:true },
+  'PAY-2026-0036': { file:null, uploadDate:null, size:null, verified:false },
+  'PAY-2026-0035': { file:null, uploadDate:null, size:null, verified:false },
+  'PAY-2026-0034': { file:'comprobante_TRF-BE-98670.pdf', uploadDate:'2026-05-10', size:'190 KB', verified:true },
+  'PAY-2026-0033': { file:'comprobante_FLOW-44478.pdf', uploadDate:'2026-05-08', size:'145 KB', verified:true },
+};
+
+function showAdminPayDetail(payId) {
+  const p = MOCK_ADMIN_PAYMENTS.find(x => x.id === payId);
+  if (!p) return;
+  const statusMap = { 'Confirmado':'confirmed', 'Pendiente':'pending', 'Rechazado':'rejected', 'En Proceso':'processing' };
+  const acct = HL_BANK_ACCOUNTS[p.country];
+  const voucher = MOCK_PAY_VOUCHERS[p.id] || { file:null, verified:false };
+  const isTransfer = p.method === 'Transferencia';
+  const isQR = p.method === 'QR BCB';
+  const isTigo = p.method === 'Tigo Money';
+  const isFLOW = p.method === 'FLOW';
+  const isCredit = p.method === 'Credito';
+  const isCL = p.country === 'CL';
+
+  // Conciliacion status
+  let concilStatus, concilClass, concilIcon;
+  if (p.status === 'Confirmado' && voucher.verified) {
+    concilStatus = 'Conciliado'; concilClass = 'confirmed'; concilIcon = 'check-circle-fill';
+  } else if (p.status === 'En Proceso') {
+    concilStatus = 'En conciliacion'; concilClass = 'processing'; concilIcon = 'hourglass-split';
+  } else if (p.status === 'Pendiente') {
+    concilStatus = 'Pendiente de pago'; concilClass = 'pending'; concilIcon = 'exclamation-circle';
+  } else if (p.status === 'Rechazado') {
+    concilStatus = 'No conciliado'; concilClass = 'rejected'; concilIcon = 'x-circle-fill';
+  } else {
+    concilStatus = 'Sin comprobante'; concilClass = 'pending'; concilIcon = 'question-circle';
+  }
+
+  // ── COL 2: Cambia segun metodo de pago ──
+  let col2Html = '';
+
+  if (isQR) {
+    // QR BCB Bolivia: confirmacion automatica del sistema BCB, no hay cuenta destino
+    col2Html = `
+      <h6 class="mb-2 text-hl-green"><i class="bi bi-qr-code me-1"></i>Pago QR BCB Bolivia</h6>
+      <div class="hl-card p-3 mb-3" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:4px solid var(--hl-green)">
+        <div class="text-center mb-2">
+          <span class="badge bg-success px-3 py-2"><i class="bi bi-shield-check me-1"></i>Regulado por Banco Central de Bolivia</span>
+        </div>
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted small" style="width:40%">Sistema</td><td class="fw-bold">QR Estandarizado BCB</td></tr>
+          <tr><td class="text-muted small">Tipo</td><td>Pago inmediato interoperable</td></tr>
+          <tr><td class="text-muted small">ID Transaccion</td><td class="fw-bold font-monospace">${p.ref}</td></tr>
+          <tr><td class="text-muted small">Confirmacion</td><td>${p.status === 'Confirmado' ? '<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Automatica por BCB</span>' : '<span class="text-warning"><i class="bi bi-hourglass-split me-1"></i>Esperando escaneo</span>'}</td></tr>
+          ${p.status === 'Confirmado' ? '<tr><td class="text-muted small">Banco Origen</td><td>Banco Union / App Movil</td></tr>' : ''}
+          ${p.status === 'Confirmado' ? '<tr><td class="text-muted small">Acreditacion</td><td class="fw-bold">Inmediata</td></tr>' : ''}
+        </table>
+      </div>
+      <div class="hl-card p-3" style="background:#f8f9fa">
+        <div class="small text-muted mb-2"><i class="bi bi-bank2 me-1"></i>Bancos compatibles QR BCB</div>
+        <div class="d-flex flex-wrap gap-1">
+          ${['Banco Union','BNB','Mercantil Santa Cruz','FIE','BancoSol','Banco Economico','Tigo Money'].map(b => '<span class="badge bg-light text-dark border" style="font-size:.7rem">'+b+'</span>').join('')}
+        </div>
+      </div>
+    `;
+  } else if (isTigo) {
+    // Tigo Money Bolivia: billetera movil
+    col2Html = `
+      <h6 class="mb-2 text-hl-blue"><i class="bi bi-phone me-1"></i>Pago Tigo Money</h6>
+      <div class="hl-card p-3 mb-3" style="background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-left:4px solid #1565c0">
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted small" style="width:40%">Plataforma</td><td class="fw-bold">Tigo Money Bolivia</td></tr>
+          <tr><td class="text-muted small">Tipo</td><td>Billetera movil</td></tr>
+          <tr><td class="text-muted small">ID Transaccion</td><td class="fw-bold font-monospace">${p.ref}</td></tr>
+          <tr><td class="text-muted small">Confirmacion</td><td>${p.status === 'Confirmado' ? '<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Confirmado por Tigo</span>' : '<span class="text-warning"><i class="bi bi-hourglass-split me-1"></i>Pendiente</span>'}</td></tr>
+          ${p.status === 'Confirmado' ? '<tr><td class="text-muted small">Acreditacion</td><td class="fw-bold">Inmediata</td></tr>' : ''}
+        </table>
+      </div>
+      <div class="hl-card p-3" style="background:#fff8f0;border-left:4px solid var(--hl-orange)">
+        <div class="small text-muted mb-1"><i class="bi bi-info-circle me-1"></i>Nota</div>
+        <div class="small">Los pagos Tigo Money se confirman automaticamente via API. No requiere conciliacion manual.</div>
+      </div>
+    `;
+  } else if (isFLOW) {
+    // FLOW Chile: pasarela de pago
+    col2Html = `
+      <h6 class="mb-2 text-hl-blue"><i class="bi bi-credit-card me-1"></i>Pago via FLOW</h6>
+      <div class="hl-card p-3 mb-3" style="background:linear-gradient(135deg,#f3e5f5,#e1bee7);border-left:4px solid #7b1fa2">
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted small" style="width:40%">Pasarela</td><td class="fw-bold">FLOW Chile</td></tr>
+          <tr><td class="text-muted small">Tipo</td><td>Tarjeta credito / debito</td></tr>
+          <tr><td class="text-muted small">ID Transaccion</td><td class="fw-bold font-monospace">${p.ref}</td></tr>
+          <tr><td class="text-muted small">Confirmacion</td><td>${p.status === 'Confirmado' ? '<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Confirmado por FLOW</span>' : p.status === 'Rechazado' ? '<span class="text-danger fw-bold"><i class="bi bi-x-circle-fill me-1"></i>Rechazado por FLOW</span>' : '<span class="text-warning"><i class="bi bi-hourglass-split me-1"></i>Procesando</span>'}</td></tr>
+          ${p.status === 'Confirmado' ? '<tr><td class="text-muted small">Acreditacion</td><td class="fw-bold">T+1 dia habil</td></tr>' : ''}
+        </table>
+      </div>
+      <div class="hl-card p-3" style="background:#f8f9fa">
+        <div class="small text-muted mb-1"><i class="bi bi-bank me-1"></i>Cuenta de deposito FLOW</div>
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted small" style="width:40%">Banco</td><td class="fw-bold">${acct.bank}</td></tr>
+          <tr><td class="text-muted small">Cuenta</td><td class="fw-bold font-monospace">${acct.accountNumber}</td></tr>
+          <tr><td class="text-muted small">Titular</td><td>${acct.holder}</td></tr>
+        </table>
+      </div>
+    `;
+  } else if (isCredit) {
+    // Credito: linea de credito interna
+    col2Html = `
+      <h6 class="mb-2 text-hl-blue"><i class="bi bi-building me-1"></i>Pago con Linea de Credito</h6>
+      <div class="hl-card p-3 mb-3" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:4px solid var(--hl-orange)">
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted small" style="width:40%">Tipo</td><td class="fw-bold">Credito Hapag-Lloyd</td></tr>
+          <tr><td class="text-muted small">ID Credito</td><td class="fw-bold font-monospace">${p.ref}</td></tr>
+          <tr><td class="text-muted small">Cliente</td><td>${p.client}</td></tr>
+          <tr><td class="text-muted small">Estado</td><td>${p.status === 'Confirmado' ? '<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Aplicado a cuenta</span>' : '<span class="text-warning"><i class="bi bi-hourglass-split me-1"></i>Pendiente aprobacion</span>'}</td></tr>
+        </table>
+      </div>
+      <div class="hl-card p-3" style="background:#f8f9fa">
+        <div class="small text-muted mb-1"><i class="bi bi-info-circle me-1"></i>Nota</div>
+        <div class="small">El cargo se aplica contra la linea de credito del cliente. No hay movimiento bancario externo. La factura se emite a 30 dias.</div>
+      </div>
+    `;
+  } else {
+    // Transferencia bancaria: muestra cuenta destino completa
+    col2Html = `
+      <h6 class="mb-2 text-hl-blue"><i class="bi bi-bank me-1"></i>Cuenta Destino Hapag-Lloyd</h6>
+      <div class="hl-card p-3 mb-3" style="background:linear-gradient(135deg,#f0f4f8,#e8ecf1);border-left:4px solid var(--hl-blue)">
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted small" style="width:35%">Banco</td><td class="fw-bold">${acct.bank}</td></tr>
+          <tr><td class="text-muted small">Tipo Cuenta</td><td>${acct.accountType}</td></tr>
+          <tr><td class="text-muted small">N Cuenta</td><td class="fw-bold font-monospace">${acct.accountNumber}</td></tr>
+          <tr><td class="text-muted small">${isCL ? 'RUT' : 'NIT'}</td><td class="fw-bold">${isCL ? acct.rut : acct.nit}</td></tr>
+          <tr><td class="text-muted small">Titular</td><td>${acct.holder}</td></tr>
+          <tr><td class="text-muted small">SWIFT</td><td class="font-monospace small">${acct.swift}</td></tr>
+          <tr><td class="text-muted small">Email Pagos</td><td><a href="mailto:${acct.email}" class="text-hl-blue small">${acct.email}</a></td></tr>
+        </table>
+      </div>
+      <div class="hl-card p-3" style="background:#fff8f0;border-left:4px solid var(--hl-orange)">
+        <div class="small text-muted mb-1"><i class="bi bi-bank2 me-1"></i>Cuenta Alternativa</div>
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted small" style="width:35%">Banco</td><td class="fw-bold">${acct.bankAlt}</td></tr>
+          <tr><td class="text-muted small">N Cuenta</td><td class="fw-bold font-monospace">${acct.accountAlt}</td></tr>
+        </table>
+      </div>
+    `;
+  }
+
+  document.getElementById('adminPayDetailId').textContent = p.id;
+  document.getElementById('adminPayDetailContent').innerHTML = `
+    <!-- COL 1: Datos del pago + desglose -->
+    <div class="col-md-4">
+      <h6 class="mb-2 text-hl-blue"><i class="bi bi-info-circle me-1"></i>Datos del Pago</h6>
+      <table class="table table-sm mb-3">
+        <tr><td class="text-muted" style="width:40%">BL / Operacion</td><td class="fw-bold">${p.bl}</td></tr>
+        <tr><td class="text-muted">Cliente</td><td>${p.client}</td></tr>
+        <tr><td class="text-muted">Pais</td><td><span class="country-badge">${p.country}</span> ${isCL ? 'Chile' : 'Bolivia'}</td></tr>
+        <tr><td class="text-muted">Fecha</td><td>${formatDateES(p.date)}</td></tr>
+        <tr><td class="text-muted">Metodo</td><td><span class="badge bg-light text-dark border">${p.method}</span></td></tr>
+        <tr><td class="text-muted">Ref. Banco</td><td class="fw-bold">${p.ref}</td></tr>
+        <tr><td class="text-muted">Factura</td><td>${p.invoice !== '-' ? '<a href="#" class="text-hl-blue" onclick="showToast(\'Descargando ' + p.invoice + ' (demo)\')">' + p.invoice + ' <i class="bi bi-download"></i></a>' : '<span class="text-muted">-</span>'}</td></tr>
+        <tr><td class="text-muted">Estado</td><td><span class="hl-badge hl-badge--${statusMap[p.status]}">${p.status}</span></td></tr>
+      </table>
+
+      <h6 class="mb-2"><i class="bi bi-list-check me-1"></i>Desglose: ${p.concept}</h6>
+      <div class="hl-card p-3" style="background:#f8f9fa">
+        <ul class="mb-0 ps-3">
+          ${p.items.map(i => '<li class="mb-1">' + i + '</li>').join('')}
+        </ul>
+        <hr class="my-2">
+        <div class="d-flex justify-content-between fw-bold">
+          <span>Total</span>
+          <span class="text-hl-orange">${p.amount}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- COL 2: Canal de pago (contextual segun metodo) -->
+    <div class="col-md-4">
+      ${col2Html}
+    </div>
+
+    <!-- COL 3: Comprobante + Conciliacion -->
+    <div class="col-md-4">
+      <h6 class="mb-2 text-hl-blue"><i class="bi bi-file-earmark-check me-1"></i>Comprobante</h6>
+      ${voucher.file ? `
+        <div class="hl-card p-3 mb-3">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <i class="bi bi-file-earmark-${voucher.file.endsWith('.jpg') ? 'image text-primary' : 'pdf text-danger'}" style="font-size:2rem"></i>
+            <div>
+              <div class="fw-bold small">${voucher.file}</div>
+              <div class="text-muted" style="font-size:.75rem">Subido: ${formatDateES(voucher.uploadDate)} &middot; ${voucher.size}</div>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" onclick="showToast('Descargando ${voucher.file} (demo)')"><i class="bi bi-download me-1"></i>Descargar</button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="showToast('Abriendo vista previa (demo)')"><i class="bi bi-eye me-1"></i>Ver</button>
+          </div>
+        </div>
+      ` : (isQR || isTigo || isFLOW) && p.status === 'Confirmado' ? `
+        <div class="hl-card p-3 mb-3 text-center" style="background:#e8f5e9;border:1px solid #a5d6a7">
+          <i class="bi bi-cloud-check text-success" style="font-size:2rem"></i>
+          <div class="fw-bold small mt-1">Confirmacion electronica</div>
+          <div class="text-muted" style="font-size:.75rem">Pago confirmado automaticamente por ${isQR ? 'sistema BCB' : isTigo ? 'Tigo Money' : 'FLOW'}</div>
+        </div>
+      ` : `
+        <div class="hl-card p-3 mb-3 text-center" style="background:#fff3cd;border:1px dashed #ffc107">
+          <i class="bi bi-cloud-upload text-warning" style="font-size:2rem"></i>
+          <div class="fw-bold small mt-1">Sin comprobante</div>
+          <div class="text-muted" style="font-size:.75rem">${isTransfer ? 'El cliente aun no ha subido el comprobante de transferencia' : 'Pendiente de confirmacion'}</div>
+          ${isTransfer ? '<button class="btn btn-sm btn-outline-warning mt-2" onclick="showToast(\'Notificacion enviada al cliente (demo)\')"><i class="bi bi-bell me-1"></i>Solicitar al cliente</button>' : ''}
+        </div>
+      `}
+
+      <h6 class="mb-2 text-hl-blue"><i class="bi bi-arrow-left-right me-1"></i>Conciliacion</h6>
+      <div class="hl-card p-3 mb-3">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-${concilIcon} text-${concilClass === 'confirmed' ? 'success' : concilClass === 'rejected' ? 'danger' : 'warning'}" style="font-size:1.3rem"></i>
+          <span class="hl-badge hl-badge--${concilClass}">${concilStatus}</span>
+        </div>
+        ${p.ref !== '-' ? `
+          <table class="table table-sm table-borderless mb-0">
+            <tr><td class="text-muted small" style="width:45%">Ref. Transaccion</td><td class="fw-bold font-monospace small">${p.ref}</td></tr>
+            <tr><td class="text-muted small">Monto Recibido</td><td class="fw-bold">${p.status === 'Confirmado' ? p.amount : '<span class=text-muted>-</span>'}</td></tr>
+            <tr><td class="text-muted small">Fecha Acreditacion</td><td>${p.status === 'Confirmado' ? formatDateES(p.date) : '<span class=text-muted>Pendiente</span>'}</td></tr>
+            <tr><td class="text-muted small">Match</td><td>${p.status === 'Confirmado' && voucher.verified ? '<span class="text-success fw-bold"><i class="bi bi-check-lg"></i> Monto coincide</span>' : (isQR || isTigo || isFLOW) && p.status === 'Confirmado' ? '<span class="text-success fw-bold"><i class="bi bi-check-lg"></i> Confirmado electronicamente</span>' : '<span class="text-warning"><i class="bi bi-dash-lg"></i> Por verificar</span>'}</td></tr>
+          </table>
+        ` : `
+          <div class="text-muted small">Sin referencia bancaria registrada</div>
+        `}
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        ${p.status === 'Pendiente' ? '<button class="btn btn-sm btn-hl-green" onclick="showToast(\'Pago aprobado manualmente (demo)\')"><i class="bi bi-check-lg me-1"></i>Aprobar</button><button class="btn btn-sm btn-outline-danger" onclick="showToast(\'Pago rechazado (demo)\')"><i class="bi bi-x-lg me-1"></i>Rechazar</button>' : ''}
+        ${p.invoice !== '-' ? '<button class="btn btn-sm btn-outline-secondary" onclick="showToast(\'Descargando comprobante (demo)\')"><i class="bi bi-file-pdf me-1"></i>PDF</button>' : ''}
+        <button class="btn btn-sm btn-outline-secondary" onclick="showToast('Historial de auditoria (demo)')"><i class="bi bi-clock-history me-1"></i>Auditoria</button>
+        ${p.status === 'En Proceso' ? '<button class="btn btn-sm btn-outline-primary" onclick="showToast(\'Conciliacion manual iniciada (demo)\')"><i class="bi bi-arrow-left-right me-1"></i>Conciliar</button>' : ''}
+      </div>
+    </div>
+  `;
+  document.getElementById('adminPayDetail').style.display = 'block';
+  document.getElementById('adminPayDetail').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function exportAdminPayments() {
+  showToast('Exportando 18 pagos a Excel (demo)');
+}
+
+// Init
+renderBLTable();
+renderAdminPayments();
+</script>
+</body>
+</html>
