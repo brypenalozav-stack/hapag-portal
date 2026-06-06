@@ -21,12 +21,12 @@ public static partial class DependencyInjectionExtensions
         services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
             var interceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
-            options.UseSqlServer(
+            options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
-                sqlOptions =>
+                npgsqlOptions =>
                 {
-                    sqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
-                    sqlOptions.CommandTimeout(120);
+                    npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
+                    npgsqlOptions.CommandTimeout(120);
                 });
             options.AddInterceptors(interceptor);
         });
