@@ -1,0 +1,77 @@
+<div class="hl-page-header">
+  <h1>Pagos</h1>
+  <p class="text-muted mb-0">Historial y estado de sus pagos</p>
+</div>
+
+<!-- Filters -->
+<div class="hl-card p-3 mb-4">
+  <div class="d-flex flex-wrap gap-2 align-items-center">
+    <span class="small fw-semibold me-2">Filtrar por estado:</span>
+    <button class="btn btn-sm" [class.btn-hl-blue]="statusFilter() === 'ALL'" [class.btn-outline-secondary]="statusFilter() !== 'ALL'" (click)="onFilterChange('ALL')">Todos</button>
+    <button class="btn btn-sm" [class.btn-warning]="statusFilter() === 'Pending'" [class.btn-outline-secondary]="statusFilter() !== 'Pending'" (click)="onFilterChange('Pending')">Pendientes</button>
+    <button class="btn btn-sm" [class.btn-success]="statusFilter() === 'Confirmed'" [class.btn-outline-secondary]="statusFilter() !== 'Confirmed'" (click)="onFilterChange('Confirmed')">Confirmados</button>
+    <button class="btn btn-sm" [class.btn-danger]="statusFilter() === 'Failed'" [class.btn-outline-secondary]="statusFilter() !== 'Failed'" (click)="onFilterChange('Failed')">Fallidos</button>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else {
+  @if (filteredPayments().length === 0) {
+    <div class="hl-card p-5 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#cbd5e0" class="mb-3" viewBox="0 0 16 16">
+        <path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1zm13 4H1v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"/>
+      </svg>
+      <p class="text-muted mb-0">No se encontraron pagos.</p>
+    </div>
+  } @else {
+    <div class="hl-card">
+      <div class="table-responsive">
+        <table class="hl-table">
+          <thead>
+            <tr>
+              <th>Numero</th>
+              <th>Tipo</th>
+              <th>Metodo</th>
+              <th>Monto</th>
+              <th>Moneda</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>BL</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (payment of filteredPayments(); track payment.id) {
+              <tr>
+                <td class="fw-semibold">{{ payment.paymentNumber }}</td>
+                <td>{{ getTypeLabel(payment.type) }}</td>
+                <td>{{ getMethodLabel(payment.method) }}</td>
+                <td class="fw-semibold">{{ payment.totalAmount | number:'1.2-2' }}</td>
+                <td>{{ payment.currency }}</td>
+                <td><app-status-badge [status]="payment.status" /></td>
+                <td>{{ payment.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  @if (payment.blNumber) {
+                    <a [routerLink]="['/bills-of-lading', payment.blNumber]" class="text-hl-blue text-decoration-none">
+                      {{ payment.blNumber }}
+                    </a>
+                  }
+                </td>
+                <td>
+                  @if (payment.receiptUrl) {
+                    <a [href]="payment.receiptUrl" target="_blank" class="btn btn-sm btn-outline-secondary" title="Ver Recibo">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                      </svg>
+                    </a>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+}

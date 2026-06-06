@@ -1,0 +1,17 @@
+<app-navbar (toggleSidebar)="toggleSidebar()" />
+
+@if (auth.isAuthenticated()) {
+  <app-sidebar [isOpen]="sidebarOpen()" (closed)="closeSidebar()" />
+
+  <main class="hl-main-content">
+    <router-outlet />
+  </main>
+
+  <footer class="hl-footer">
+    <span>&copy; 2025 Hapag-Lloyd AG. Todos los derechos reservados.</span>
+  </footer>
+} @else {
+  <main>
+    <router-outlet />
+  </main>
+}

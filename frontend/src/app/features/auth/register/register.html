@@ -1,0 +1,189 @@
+<div class="register-page">
+  <div class="register-container">
+    <div class="register-card">
+      <!-- Logo -->
+      <div class="text-center mb-4">
+        <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="max-width: 240px;">
+          <rect x="0" y="10" width="60" height="60" rx="6" fill="#FF6600"/>
+          <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" fill="#FFFFFF">HL</text>
+          <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" fill="#33424F">Hapag-Lloyd</text>
+          <text x="75" y="58" font-family="Inter, sans-serif" font-weight="300" font-size="11" fill="rgba(51,66,79,0.5)" letter-spacing="3">SHIPPING &amp; LOGISTICS</text>
+        </svg>
+        <h1 class="register-title">Crear Cuenta</h1>
+        <p class="register-subtitle">Regístrese en el Portal Hapag-Lloyd</p>
+      </div>
+
+      @if (success()) {
+        <div class="alert alert-success text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mb-2" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>
+          <p class="mb-0"><strong>Registro exitoso.</strong> Redirigiendo al inicio de sesión...</p>
+        </div>
+      } @else {
+        @if (error()) {
+          <div class="alert alert-danger py-2">{{ error() }}</div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <!-- Type selector -->
+          <div class="hl-form-group">
+            <label>Tipo de Usuario</label>
+            <div class="d-flex gap-2">
+              <button type="button"
+                      class="btn flex-fill"
+                      [class.btn-hl-blue]="form.controls.type.value === 'CLIENT'"
+                      [class.btn-outline-secondary]="form.controls.type.value !== 'CLIENT'"
+                      (click)="form.controls.type.setValue('CLIENT'); onTypeChange()">
+                Cliente
+              </button>
+              <button type="button"
+                      class="btn flex-fill"
+                      [class.btn-hl-blue]="form.controls.type.value === 'AGENT'"
+                      [class.btn-outline-secondary]="form.controls.type.value !== 'AGENT'"
+                      (click)="form.controls.type.setValue('AGENT'); onTypeChange()">
+                Agente Aduanero
+              </button>
+            </div>
+          </div>
+
+          <!-- Country selector -->
+          <div class="hl-form-group">
+            <label>País</label>
+            <div class="d-flex gap-2">
+              <button type="button"
+                      class="btn flex-fill"
+                      [class.btn-hl-blue]="form.controls.country.value === 'CL'"
+                      [class.btn-outline-secondary]="form.controls.country.value !== 'CL'"
+                      (click)="form.controls.country.setValue('CL'); onCountryChange()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="14" viewBox="0 0 20 14" class="me-1">
+                  <rect width="20" height="7" fill="#fff"/><rect y="7" width="20" height="7" fill="#D52B1E"/>
+                  <rect width="6.66" height="7" fill="#0039A6"/>
+                </svg>
+                Chile
+              </button>
+              <button type="button"
+                      class="btn flex-fill"
+                      [class.btn-hl-blue]="form.controls.country.value === 'BO'"
+                      [class.btn-outline-secondary]="form.controls.country.value !== 'BO'"
+                      (click)="form.controls.country.setValue('BO'); onCountryChange()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="14" viewBox="0 0 20 14" class="me-1">
+                  <rect width="20" height="4.66" fill="#D52B1E"/><rect y="4.66" width="20" height="4.66" fill="#F9E300"/>
+                  <rect y="9.33" width="20" height="4.66" fill="#007934"/>
+                </svg>
+                Bolivia
+              </button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12">
+              <div class="hl-form-group">
+                <label for="name">Nombre Completo / Razón Social</label>
+                <input type="text" id="name" class="form-control" formControlName="name"
+                       [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid" />
+                @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
+                  <div class="invalid-feedback">El nombre es obligatorio.</div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="hl-form-group">
+                <label for="taxId">{{ form.controls.country.value === 'CL' ? 'RUT' : 'NIT' }}</label>
+                <input type="text" id="taxId" class="form-control" formControlName="taxId"
+                       [placeholder]="form.controls.country.value === 'CL' ? '12.345.678-9' : '1234567890'"
+                       [class.is-invalid]="form.controls.taxId.touched && form.controls.taxId.invalid" />
+                @if (form.controls.taxId.touched && form.controls.taxId.errors?.['required']) {
+                  <div class="invalid-feedback">Este campo es obligatorio.</div>
+                }
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="hl-form-group">
+                <label for="phone">Teléfono</label>
+                <input type="tel" id="phone" class="form-control" formControlName="phone"
+                       [placeholder]="form.controls.country.value === 'CL' ? '+56 9 1234 5678' : '+591 7 1234567'"
+                       [class.is-invalid]="form.controls.phone.touched && form.controls.phone.invalid" />
+                @if (form.controls.phone.touched && form.controls.phone.errors?.['required']) {
+                  <div class="invalid-feedback">El teléfono es obligatorio.</div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="hl-form-group">
+            <label for="regEmail">Correo Electrónico</label>
+            <input type="email" id="regEmail" class="form-control" formControlName="email"
+                   placeholder="usuario@empresa.com"
+                   [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid" />
+            @if (form.controls.email.touched && form.controls.email.errors?.['required']) {
+              <div class="invalid-feedback">El correo es obligatorio.</div>
+            }
+            @if (form.controls.email.touched && form.controls.email.errors?.['email']) {
+              <div class="invalid-feedback">Ingrese un correo válido.</div>
+            }
+          </div>
+
+          @if (form.controls.type.value === 'AGENT') {
+            <div class="hl-form-group">
+              <label for="agentCode">Código de Agente</label>
+              <input type="text" id="agentCode" class="form-control" formControlName="agentCode"
+                     placeholder="Código asignado por Hapag-Lloyd"
+                     [class.is-invalid]="form.controls.agentCode.touched && form.controls.agentCode.invalid" />
+              @if (form.controls.agentCode.touched && form.controls.agentCode.errors?.['required']) {
+                <div class="invalid-feedback">El código de agente es obligatorio.</div>
+              }
+            </div>
+          }
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="hl-form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" class="form-control" formControlName="password"
+                       placeholder="Mínimo 8 caracteres"
+                       [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid" />
+                @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
+                  <div class="invalid-feedback">La contraseña es obligatoria.</div>
+                }
+                @if (form.controls.password.touched && form.controls.password.errors?.['minlength']) {
+                  <div class="invalid-feedback">Mínimo 8 caracteres.</div>
+                }
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="hl-form-group">
+                <label for="confirmPassword">Confirmar Contraseña</label>
+                <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
+                       placeholder="Repita la contraseña"
+                       [class.is-invalid]="form.controls.confirmPassword.touched && form.controls.confirmPassword.invalid" />
+                @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['required']) {
+                  <div class="invalid-feedback">Confirme la contraseña.</div>
+                }
+                @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['mismatch']) {
+                  <div class="invalid-feedback">Las contraseñas no coinciden.</div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-hl-orange w-100 py-2 mt-2" [disabled]="loading()">
+            @if (loading()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            }
+            Crear Cuenta
+          </button>
+        </form>
+
+        <div class="text-center mt-3">
+          <a routerLink="/login" class="back-link">
+            ¿Ya tiene cuenta? <strong>Inicie sesión</strong>
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+</div>

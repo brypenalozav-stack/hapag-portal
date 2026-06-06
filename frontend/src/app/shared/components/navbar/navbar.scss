@@ -1,0 +1,10 @@
+:host {
+  display: block;
+}
+
+.dropdown-menu {
+  border: 1px solid var(--hl-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-radius: 0.5rem;
+  min-width: 200px;
+}

@@ -1,0 +1,193 @@
+<div class="hl-page-header">
+  <h1>Dashboard</h1>
+  <p class="text-muted mb-0">
+    Bienvenido, <strong>{{ auth.currentUser()?.name ?? 'Usuario' }}</strong>
+    <app-country-badge [country]="auth.getCountry()" class="ms-2" />
+  </p>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="hl-stat-card">
+      <div class="d-flex align-items-start justify-content-between">
+        <div>
+          <div class="stat-label">Pagos Pendientes</div>
+          <div class="stat-value">{{ pendingPayments() }}</div>
+        </div>
+        <div class="stat-icon bg-warning bg-opacity-10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#FF6600" viewBox="0 0 16 16">
+            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16M8 4a.905.905 0 0 1 .9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+          </svg>
+        </div>
+      </div>
+      <a routerLink="/payments" class="small text-hl-orange text-decoration-none mt-2 d-inline-block">
+        Ver pagos
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="hl-stat-card">
+      <div class="d-flex align-items-start justify-content-between">
+        <div>
+          <div class="stat-label">BLs Activos</div>
+          <div class="stat-value">{{ activeBLs() }}</div>
+        </div>
+        <div class="stat-icon bg-success bg-opacity-10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#009840" viewBox="0 0 16 16">
+            <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
+          </svg>
+        </div>
+      </div>
+      <a routerLink="/bills-of-lading" class="small text-hl-green text-decoration-none mt-2 d-inline-block">
+        Ver BLs
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="hl-stat-card">
+      <div class="d-flex align-items-start justify-content-between">
+        <div>
+          <div class="stat-label">Actividad Reciente</div>
+          <div class="stat-value">{{ recentActivity() }}</div>
+        </div>
+        <div class="stat-icon bg-info bg-opacity-10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#004D6C" viewBox="0 0 16 16">
+            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+          </svg>
+        </div>
+      </div>
+      <span class="small text-muted mt-2 d-inline-block">Últimos 30 días</span>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+  <div class="col-12">
+    <div class="hl-card p-4">
+      <h5 class="mb-3">Acciones Rápidas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <a routerLink="/bills-of-lading" class="btn btn-hl-orange">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+          </svg>
+          Consultar BL
+        </a>
+        <a routerLink="/payments" class="btn btn-hl-green">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+            <path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1zm13 4H1v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"/>
+          </svg>
+          Ver Pagos
+        </a>
+        <a routerLink="/faq" class="btn btn-hl-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+          </svg>
+          Preguntas Frecuentes
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Country Info Panel -->
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="hl-card p-4">
+      <h5 class="mb-3">Información del País</h5>
+      @if (auth.getCountry() === 'CL') {
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3">
+              <div class="small text-muted mb-1">Oficina</div>
+              <div class="fw-semibold">Santiago, Chile</div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3">
+              <div class="small text-muted mb-1">Moneda</div>
+              <div class="fw-semibold">USD / CLP</div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3">
+              <div class="small text-muted mb-1">Impuesto</div>
+              <div class="fw-semibold">IVA 19%</div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3">
+              <div class="small text-muted mb-1">Métodos de Pago</div>
+              <div class="fw-semibold">Transferencia, Tarjeta, Crédito</div>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3">
+              <div class="small text-muted mb-1">Oficina</div>
+              <div class="fw-semibold">Santa Cruz, Bolivia</div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3">
+              <div class="small text-muted mb-1">Moneda</div>
+              <div class="fw-semibold">USD / BOB</div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3">
+              <div class="small text-muted mb-1">Impuesto</div>
+              <div class="fw-semibold">IVA 13%</div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3">
+              <div class="small text-muted mb-1">Métodos de Pago</div>
+              <div class="fw-semibold">Transferencia, QR, Crédito</div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="hl-card p-4">
+      <h5 class="mb-3">Contacto</h5>
+      <div class="d-flex flex-column gap-3">
+        <div class="d-flex align-items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="var(--hl-blue)" viewBox="0 0 16 16">
+            <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm3.436-.586L16 11.801V4.697z"/>
+          </svg>
+          <span class="small">{{ auth.getCountry() === 'CL' ? 'chile@hapag-lloyd.com' : 'bolivia@hapag-lloyd.com' }}</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="var(--hl-blue)" viewBox="0 0 16 16">
+            <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58z"/>
+          </svg>
+          <span class="small">{{ auth.getCountry() === 'CL' ? '+56 2 2630 1000' : '+591 3 312 0000' }}</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="var(--hl-blue)" viewBox="0 0 16 16">
+            <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
+            <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+          </svg>
+          <span class="small">{{ auth.getCountry() === 'CL' ? 'Av. El Bosque Norte 500, Las Condes' : 'Av. San Martín 1500, Santa Cruz' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,158 @@
+<div class="hl-page-header d-flex justify-content-between align-items-start">
+  <div>
+    <h1>Clientes con Línea de Crédito</h1>
+    <p class="text-muted mb-0">Administración de clientes con crédito aprobado</p>
+  </div>
+  @if (!showForm()) {
+    <button class="btn btn-hl-orange" (click)="openCreateForm()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+      </svg>
+      Nuevo Cliente
+    </button>
+  }
+</div>
+
+<!-- Create/Edit Form -->
+@if (showForm()) {
+  <div class="hl-card p-4 mb-4">
+    <h5 class="mb-3">{{ editingClient() ? 'Editar Cliente' : 'Nuevo Cliente con Crédito' }}</h5>
+
+    @if (formError()) {
+      <div class="alert alert-danger py-2">{{ formError() }}</div>
+    }
+    @if (formSuccess()) {
+      <div class="alert alert-success py-2">{{ formSuccess() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Nombre / Razón Social</label>
+          <input type="text" class="form-control" formControlName="name"
+                 placeholder="Nombre del cliente"
+                 [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid" />
+          @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
+            <div class="invalid-feedback">El nombre es obligatorio.</div>
+          }
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">RUT / NIT</label>
+          <input type="text" class="form-control" formControlName="taxId"
+                 placeholder="Ej: 76.123.456-7"
+                 [class.is-invalid]="form.controls.taxId.touched && form.controls.taxId.invalid" />
+          @if (form.controls.taxId.touched && form.controls.taxId.errors?.['required']) {
+            <div class="invalid-feedback">El RUT/NIT es obligatorio.</div>
+          }
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">País</label>
+          <select class="form-select" formControlName="country">
+            <option value="CL">Chile</option>
+            <option value="BO">Bolivia</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Límite de Crédito</label>
+          <input type="number" class="form-control" formControlName="creditLimit"
+                 [class.is-invalid]="form.controls.creditLimit.touched && form.controls.creditLimit.invalid" />
+          @if (form.controls.creditLimit.touched && form.controls.creditLimit.errors?.['min']) {
+            <div class="invalid-feedback">El límite debe ser mayor a 0.</div>
+          }
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Moneda</label>
+          <select class="form-select" formControlName="currency">
+            <option value="USD">USD</option>
+            <option value="CLP">CLP</option>
+            <option value="BOB">BOB</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-3">
+        <button type="submit" class="btn btn-hl-orange px-4" [disabled]="submitting()">
+          @if (submitting()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          }
+          {{ editingClient() ? 'Actualizar' : 'Crear Cliente' }}
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+}
+
+<!-- Filters -->
+<div class="hl-card p-3 mb-4">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label small fw-semibold">Buscar cliente</label>
+      <input type="text" class="form-control" placeholder="Nombre, RUT/NIT..."
+             [(ngModel)]="searchTerm" (ngModelChange)="onFilterChange()" />
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small fw-semibold">País</label>
+      <select class="form-select" [(ngModel)]="countryFilter" (ngModelChange)="onFilterChange()">
+        <option value="ALL">Todos</option>
+        <option value="CL">Chile</option>
+        <option value="BO">Bolivia</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger py-2 mb-3">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else {
+  <div class="hl-card">
+    <div class="table-responsive">
+      <table class="hl-table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>RUT/NIT</th>
+            <th>País</th>
+            <th>Límite Crédito</th>
+            <th>Crédito Usado</th>
+            <th>Disponible</th>
+            <th>Estado</th>
+            <th style="width: 80px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (client of filteredClients(); track client.id) {
+            <tr>
+              <td class="fw-semibold">{{ client.name }}</td>
+              <td>{{ client.taxId }}</td>
+              <td><app-country-badge [country]="client.country" /></td>
+              <td>{{ client.currency }} {{ client.creditLimit | number:'1.2-2' }}</td>
+              <td>{{ client.currency }} {{ client.creditUsed | number:'1.2-2' }}</td>
+              <td class="fw-semibold text-hl-green">
+                {{ client.currency }} {{ client.creditLimit - client.creditUsed | number:'1.2-2' }}
+              </td>
+              <td><app-status-badge [status]="client.status" /></td>
+              <td>
+                <button class="btn btn-sm btn-outline-secondary" (click)="openEditForm(client)" title="Editar">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          }
+          @if (filteredClients().length === 0) {
+            <tr>
+              <td colspan="8" class="text-center text-muted py-4">No se encontraron clientes.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

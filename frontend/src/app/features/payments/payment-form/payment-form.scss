@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+.payment-method-option {
+  cursor: pointer;
+
+  .border {
+    transition: all 0.2s;
+  }
+
+  &.selected .border,
+  &:hover .border {
+    border-color: var(--hl-orange) !important;
+    background-color: rgba(255, 102, 0, 0.03);
+  }
+}
+
+.method-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--hl-border);
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.2s;
+
+  &.active {
+    border-color: var(--hl-orange);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--hl-orange);
+    }
+  }
+}
