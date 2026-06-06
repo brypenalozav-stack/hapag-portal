@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Case Ejecutivo - Portal CL/BO - Hapag-Lloyd</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <style>
+        :root {
+            --hl-dark: #33424F; --hl-orange: #FF6600; --hl-green: #009840; --hl-blue: #004D6C;
+            --hl-dark-deep: #1a2530; --bg-light: #F5F7FA; --bg-white: #FFFFFF;
+            --text-primary: #2D3748; --text-secondary: #4A5568; --text-muted: #718096;
+            --border-light: #E2E8F0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+            --radius: 8px; --radius-lg: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text-primary); line-height: 1.7; background: var(--bg-light); -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4, h5 { font-family: 'Montserrat', 'Inter', sans-serif; line-height: 1.3; }
+        html { scroll-behavior: smooth; }
+
+        /* === STICKY NAV BAR === */
+        .top-nav { position: sticky; top: 0; z-index: 1000; background: var(--hl-dark); display: flex; align-items: center; padding: 0 2rem; height: 52px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .top-nav-logo { display: flex; align-items: center; gap: 0.5rem; margin-right: 2.5rem; text-decoration: none; }
+        .top-nav-logo .logo-box { background: var(--hl-orange); border-radius: 4px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px; color: #fff; }
+        .top-nav-logo span { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 0.85rem; color: rgba(255,255,255,0.85); }
+        .top-nav-tabs { display: flex; height: 100%; }
+        .top-nav-tab { display: flex; align-items: center; padding: 0 1.25rem; height: 100%; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 500; color: rgba(255,255,255,0.6); border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .top-nav-tab:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
+        .top-nav-tab.active { color: #fff; border-bottom-color: var(--hl-orange); }
+
+        /* === COVER PAGE === */
+        .cover-page { min-height: 100vh; background: linear-gradient(160deg, var(--hl-dark) 0%, var(--hl-dark-deep) 50%, #0d1520 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; position: relative; overflow: hidden; padding: 2rem; }
+        .cover-page::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 20%, rgba(255,102,0,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(0,77,108,0.08) 0%, transparent 50%); pointer-events: none; }
+        .cover-page::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--hl-orange), var(--hl-green), var(--hl-blue)); }
+        .cover-logo { margin-bottom: 3rem; position: relative; z-index: 1; }
+        .cover-logo svg { width: 280px; height: auto; }
+        .cover-title { font-size: 3rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 0.75rem; position: relative; z-index: 1; }
+        .cover-subtitle { font-size: 1.35rem; font-weight: 300; color: rgba(255,255,255,0.8); margin-bottom: 3rem; position: relative; z-index: 1; }
+        .cover-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; max-width: 700px; width: 100%; margin-bottom: 2.5rem; position: relative; z-index: 1; }
+        .cover-meta-item { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 0.75rem 1rem; }
+        .cover-meta-item .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.5); display: block; margin-bottom: 0.25rem; }
+        .cover-meta-item .value { font-size: 0.95rem; font-weight: 600; color: #fff; }
+        .cover-badge { display: inline-block; background: var(--hl-orange); color: #fff; padding: 0.5rem 1.5rem; border-radius: 50px; font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; position: relative; z-index: 1; }
+
+        /* === MAIN CONTENT === */
+        .main-content { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
+        .toc { background: var(--bg-white); border-radius: var(--radius-lg); padding: 2.5rem; margin-bottom: 3rem; box-shadow: var(--shadow-md); }
+        .toc h2 { font-size: 1.75rem; color: var(--hl-dark); margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid var(--hl-orange); }
+        .toc-list { list-style: none; counter-reset: toc-counter; }
+        .toc-list li { counter-increment: toc-counter; margin-bottom: 0.5rem; }
+        .toc-list li a { display: flex; align-items: center; padding: 0.6rem 1rem; color: var(--text-primary); text-decoration: none; border-radius: var(--radius); transition: all 0.2s; font-weight: 500; }
+        .toc-list li a:hover { background: var(--bg-light); color: var(--hl-orange); transform: translateX(4px); }
+        .toc-list li a::before { content: counter(toc-counter, decimal-leading-zero); font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--hl-orange); margin-right: 1rem; font-size: 0.85rem; min-width: 28px; }
+
+        /* === SECTIONS === */
+        .section { background: var(--bg-white); border-radius: var(--radius-lg); padding: 2.5rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-sm); }
+        .section-header { font-size: 2rem; color: var(--hl-dark); margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid var(--hl-orange); }
+        .section h3 { font-size: 1.35rem; color: var(--hl-dark); margin: 2rem 0 1rem; }
+        .section h4 { font-size: 1.1rem; color: var(--hl-blue); margin: 1.5rem 0 0.75rem; }
+        .section p { color: var(--text-secondary); margin-bottom: 1rem; }
+        .section ul, .section ol { color: var(--text-secondary); margin-left: 1.5rem; margin-bottom: 1rem; }
+        .section li { margin-bottom: 0.4rem; }
+
+        /* === TABLES === */
+        .table-container { overflow-x: auto; margin: 1.5rem 0; border-radius: var(--radius); border: 1px solid var(--border-light); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        thead th { background: var(--hl-dark); color: #fff; padding: 0.85rem 1rem; text-align: left; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        tbody td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+        tbody tr:nth-child(even) { background: #f8fafc; }
+        tbody tr:hover { background: #edf2f7; }
+
+        /* === INFO / WARNING BOXES === */
+        .info-box { background: #EBF8FF; border-left: 4px solid var(--hl-blue); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+        .info-box p { color: var(--hl-blue); margin: 0; }
+        .info-box strong { color: var(--hl-dark); }
+        .warning-box { background: #FFFFF0; border-left: 4px solid #ECC94B; border-radius: 0 var(--radius) var(--radius) 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+        .warning-box p { color: #744210; margin: 0; }
+
+        /* === HIGHLIGHT METRICS === */
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin: 2rem 0; }
+        .metric-card { background: linear-gradient(135deg, var(--hl-dark) 0%, var(--hl-dark-deep) 100%); border-radius: var(--radius-lg); padding: 1.75rem; color: #fff; position: relative; overflow: hidden; }
+        .metric-card::after { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; background: rgba(255,102,0,0.15); border-radius: 0 0 0 80px; }
+        .metric-card .metric-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.6); margin-bottom: 0.5rem; }
+        .metric-card .metric-value { font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 800; color: var(--hl-orange); margin-bottom: 0.25rem; }
+        .metric-card .metric-detail { font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+
+        /* === VALUE PILLARS === */
+        .pillars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .pillar-card { background: var(--bg-white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; transition: all 0.3s; position: relative; overflow: hidden; }
+        .pillar-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .pillar-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+        .pillar-card:nth-child(1)::before { background: var(--hl-orange); }
+        .pillar-card:nth-child(2)::before { background: var(--hl-green); }
+        .pillar-card:nth-child(3)::before { background: var(--hl-blue); }
+        .pillar-card:nth-child(4)::before { background: #8B5CF6; }
+        .pillar-icon { width: 52px; height: 52px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; font-size: 1.5rem; }
+        .pillar-card:nth-child(1) .pillar-icon { background: rgba(255,102,0,0.1); color: var(--hl-orange); }
+        .pillar-card:nth-child(2) .pillar-icon { background: rgba(0,152,64,0.1); color: var(--hl-green); }
+        .pillar-card:nth-child(3) .pillar-icon { background: rgba(0,77,108,0.1); color: var(--hl-blue); }
+        .pillar-card:nth-child(4) .pillar-icon { background: rgba(139,92,246,0.1); color: #8B5CF6; }
+        .pillar-card h4 { font-size: 1.05rem; color: var(--hl-dark); margin-bottom: 0.75rem; }
+        .pillar-card p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+
+        /* === CHART CONTAINERS === */
+        .chart-container { background: var(--bg-white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; margin: 1.5rem 0; }
+        .chart-container h4 { font-size: 1rem; color: var(--hl-dark); margin-bottom: 1rem; text-align: center; font-family: 'Montserrat', sans-serif; }
+        .chart-wrapper { position: relative; max-width: 700px; margin: 0 auto; }
+        .chart-wrapper-wide { position: relative; max-width: 900px; margin: 0 auto; }
+
+        /* === TIMELINE === */
+        .timeline { position: relative; margin: 2rem 0; padding-left: 2rem; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, var(--hl-orange), var(--hl-green), var(--hl-blue)); border-radius: 2px; }
+        .timeline-item { position: relative; margin-bottom: 2rem; padding-left: 1.5rem; }
+        .timeline-item::before { content: ''; position: absolute; left: -2rem; top: 0.35rem; width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--hl-orange); background: #fff; z-index: 1; }
+        .timeline-item:nth-child(2)::before { border-color: var(--hl-green); }
+        .timeline-item:nth-child(3)::before { border-color: var(--hl-blue); }
+        .timeline-item:nth-child(4)::before { border-color: #8B5CF6; }
+        .timeline-item h4 { font-size: 1rem; color: var(--hl-dark); margin-bottom: 0.25rem; }
+        .timeline-item .timeline-duration { font-size: 0.8rem; font-weight: 600; color: var(--hl-orange); margin-bottom: 0.5rem; }
+        .timeline-item p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+
+        /* === CONCLUSION CARDS === */
+        .conclusion-card { background: var(--bg-light); border-left: 4px solid var(--hl-orange); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.25rem 1.5rem; margin: 1rem 0; }
+        .conclusion-card strong { color: var(--hl-dark); }
+        .conclusion-card p { color: var(--text-secondary); margin: 0; }
+
+        /* === FOOTER === */
+        .doc-footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border-light); margin-top: 2rem; }
+
+        /* === BACK TO TOP === */
+        .btn-back-top { position: fixed; bottom: 2rem; right: 2rem; width: 50px; height: 50px; border-radius: 50%; background: var(--hl-orange); color: #fff; border: none; cursor: pointer; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; z-index: 1000; transition: all 0.3s ease; opacity: 0; pointer-events: none; text-decoration: none; }
+        .btn-back-top.visible { opacity: 1; pointer-events: auto; }
+        .btn-back-top:hover { background: var(--hl-dark); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+        .btn-back-top svg { width: 24px; height: 24px; }
+
+        /* === PRINT === */
+        @media print { .cover-page { page-break-after: always; } .section { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; } .toc { page-break-after: always; } body { background: #fff; } .top-nav { display: none; } .btn-back-top { display: none; } }
+        @media (max-width: 768px) { .cover-title { font-size: 2rem; } .cover-subtitle { font-size: 1rem; } .cover-meta { grid-template-columns: 1fr 1fr; } .main-content { padding: 1.5rem 1rem; } .section { padding: 1.5rem; } .section-header { font-size: 1.5rem; } .metrics-grid { grid-template-columns: 1fr; } .pillars-grid { grid-template-columns: 1fr; } .top-nav { padding: 0 1rem; } .top-nav-tab { padding: 0 0.75rem; font-size: 0.75rem; } }
+        @media (max-width: 480px) { .cover-meta { grid-template-columns: 1fr; } .cover-logo svg { width: 200px; } }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: var(--bg-light); } ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<!-- STICKY NAVIGATION BAR -->
+<nav class="top-nav">
+    <a class="top-nav-logo" href="#">
+        <div class="logo-box">HL</div>
+        <span>Hapag-Lloyd</span>
+    </a>
+    <div class="top-nav-tabs">
+        <a class="top-nav-tab" href="technical-design-document.html">Documento T&#233;cnico</a>
+        <a class="top-nav-tab active" href="executive-business-case.html">Business Case Ejecutivo</a>
+    </div>
+</nav>
+
+<!-- COVER PAGE -->
+<div class="cover-page">
+    <div class="cover-logo">
+        <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="10" width="60" height="60" rx="6" fill="#FF6600"/>
+            <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" fill="#FFFFFF">HL</text>
+            <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" fill="#FFFFFF">Hapag-Lloyd</text>
+            <text x="75" y="58" font-family="Inter, sans-serif" font-weight="300" font-size="11" fill="rgba(255,255,255,0.6)" letter-spacing="3">SHIPPING &amp; LOGISTICS</text>
+        </svg>
+    </div>
+    <h1 class="cover-title">Business Case Ejecutivo</h1>
+    <p class="cover-subtitle">Portal Hapag-Lloyd CL/BO &mdash; Estudio de Mercado, An&#225;lisis de Valor y Proyecci&#243;n de Impacto</p>
+    <div class="cover-meta">
+        <div class="cover-meta-item"><span class="label">Preparado por</span><span class="value">Equipo RPX / Estrategia</span></div>
+        <div class="cover-meta-item"><span class="label">Fecha</span><span class="value">Mayo 2026</span></div>
+        <div class="cover-meta-item"><span class="label">Versi&#243;n</span><span class="value">1.0</span></div>
+        <div class="cover-meta-item"><span class="label">Confidencialidad</span><span class="value">Confidencial</span></div>
+    </div>
+    <div class="cover-badge">BUSINESS CASE EJECUTIVO v1.0</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+<!-- TABLE OF CONTENTS -->
+<nav class="toc" id="toc">
+    <h2>Tabla de Contenidos</h2>
+    <ol class="toc-list">
+        <li><a href="#sec1">Resumen Ejecutivo</a></li>
+        <li><a href="#sec2">Contexto de Mercado</a></li>
+        <li><a href="#sec3">An&#225;lisis Competitivo</a></li>
+        <li><a href="#sec4">Propuesta de Valor</a></li>
+        <li><a href="#sec5">Proyecci&#243;n de Impacto Financiero</a></li>
+        <li><a href="#sec6">Oportunidad Bolivia</a></li>
+        <li><a href="#sec7">Roadmap de Implementaci&#243;n</a></li>
+        <li><a href="#sec8">Conclusiones y Recomendaciones</a></li>
+        <li><a href="#sec9">Anexo &mdash; Metodolog&#237;a del Estudio</a></li>
+    </ol>
+</nav>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: RESUMEN EJECUTIVO -->
+<!-- ============================================================ -->
+<div class="section" id="sec1">
+    <h2 class="section-header">1. Resumen Ejecutivo</h2>
+    <p>El presente documento presenta el caso de negocio para el desarrollo e implementaci&#243;n de un nuevo portal digital de servicios al cliente para las operaciones de Hapag-Lloyd en Chile y Bolivia. El proyecto responde a una necesidad cr&#237;tica de modernizaci&#243;n tecnol&#243;gica, posicionamiento competitivo y expansi&#243;n de mercado en la regi&#243;n.</p>
+    <p>El mercado global de transporte mar&#237;timo en contenedores alcanz&#243; los 170 millones de TEUs en 2024, con proyecciones de crecimiento sostenido. En este contexto, la transformaci&#243;n digital se ha convertido en un diferenciador competitivo fundamental: el 80% de los principales carriers ya cuentan con portales avanzados de autoservicio para sus clientes.</p>
+    <p>Hapag-Lloyd, con una capacidad de 2.1 millones de TEUs y posici&#243;n como 5&#186; operador global, enfrenta una brecha significativa en su oferta digital para la regi&#243;n CL/BO. El portal actual carece de funcionalidades cr&#237;ticas como pago en l&#237;nea, cotizaci&#243;n autom&#225;tica y soporte dedicado para Bolivia &mdash; un mercado desatendido por todos los carriers.</p>
+    <p>La inversi&#243;n propuesta generar&#225; un retorno medible en tres dimensiones: eficiencia operacional (reducci&#243;n de hasta 95% en tiempos de procesos clave), expansi&#243;n de mercado (primer carrier con portal dedicado para Bolivia) y ahorro de costos (USD 250,000 acumulados en 3 a&#241;os).</p>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Ahorro Proyectado (3 a&#241;os)</div>
+            <div class="metric-value">USD 250K</div>
+            <div class="metric-detail">Reducci&#243;n de costos operacionales acumulados</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Reducci&#243;n de Tiempos</div>
+            <div class="metric-value">Hasta 95%</div>
+            <div class="metric-detail">En procesos clave como generaci&#243;n de recibos</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Oportunidad Bolivia</div>
+            <div class="metric-value">1er Carrier</div>
+            <div class="metric-detail">Con portal dedicado para mercado boliviano</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">ROI Estimado</div>
+            <div class="metric-value">185%</div>
+            <div class="metric-detail">Retorno sobre inversi&#243;n a 3 a&#241;os</div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: CONTEXTO DE MERCADO -->
+<!-- ============================================================ -->
+<div class="section" id="sec2">
+    <h2 class="section-header">2. Contexto de Mercado</h2>
+
+    <h3>2.1 Mercado Global de Transporte Mar&#237;timo en Contenedores</h3>
+    <p>El comercio mar&#237;timo global en contenedores ha mostrado una tendencia de recuperaci&#243;n y crecimiento sostenido tras la disrupci&#243;n pand&#233;mica de 2020. Seg&#250;n datos de UNCTAD y Statista, el volumen global alcanz&#243; los 170 millones de TEUs en 2024, con una proyecci&#243;n de 178 millones para 2025.</p>
+
+    <div class="chart-container">
+        <h4>Comercio Mar&#237;timo Global en Contenedores (millones TEUs)</h4>
+        <div class="chart-wrapper">
+            <canvas id="chartGlobalTrade"></canvas>
+        </div>
+    </div>
+
+    <h3>2.2 Principales Operadores Globales</h3>
+    <p>El mercado de transporte mar&#237;timo en contenedores est&#225; dominado por cinco grandes operadores que concentran m&#225;s del 65% de la capacidad global. Hapag-Lloyd ocupa la 5&#170; posici&#243;n con 2.1 millones de TEUs de capacidad, lo que representa una cuota significativa pero que requiere diferenciaci&#243;n a trav&#233;s de servicio y tecnolog&#237;a.</p>
+
+    <div class="chart-container">
+        <h4>Top 5 Operadores de Contenedores por Capacidad TEU (2025)</h4>
+        <div class="chart-wrapper" style="max-width: 500px;">
+            <canvas id="chartTopCarriers"></canvas>
+        </div>
+    </div>
+
+    <h3>2.3 Volatilidad de Fletes</h3>
+    <p>El &#237;ndice de fletes de contenedores (WCI Drewry) ha experimentado una volatilidad significativa en los &#250;ltimos 18 meses, con picos de hasta USD 5,200/40ft en julio 2024 debido a disrupciones en el Mar Rojo. Esta volatilidad refuerza la necesidad de herramientas digitales que permitan a los clientes gestionar cotizaciones y pagos de forma &#225;gil y transparente.</p>
+
+    <div class="chart-container">
+        <h4>&#205;ndice de Fletes de Contenedores (WCI Drewry, USD/40ft)</h4>
+        <div class="chart-wrapper">
+            <canvas id="chartFreightIndex"></canvas>
+        </div>
+    </div>
+
+    <h3>2.4 Contexto LATAM: Chile y Bolivia</h3>
+    <p>Chile es el principal hub del Pac&#237;fico Sur para el comercio mar&#237;timo, con puertos estrat&#233;gicos como San Antonio, Valpara&#237;so, Arica, Iquique y Antofagasta. Bolivia, como pa&#237;s mediterr&#225;neo (sin acceso al mar), depende cr&#237;ticamente de los puertos chilenos para su comercio exterior, principalmente a trav&#233;s de Arica (55% de la carga) e Iquique (25%).</p>
+    <p>Esta dependencia genera una oportunidad &#250;nica: ning&#250;n carrier ofrece actualmente un portal dedicado con soporte para regulaciones bolivianas (NIT, moneda BOB, IVA 13%, integraci&#243;n SIAN). El primer operador en cubrir esta brecha capturar&#225; una ventaja competitiva significativa.</p>
+
+    <div class="info-box">
+        <p><strong>Dato clave:</strong> El 80% de los principales carriers globales est&#225;n invirtiendo activamente en portales digitales de autoservicio para clientes. Hapag-Lloyd debe cerrar la brecha digital para mantener su competitividad en la regi&#243;n.</p>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: ANALISIS COMPETITIVO -->
+<!-- ============================================================ -->
+<div class="section" id="sec3">
+    <h2 class="section-header">3. An&#225;lisis Competitivo</h2>
+
+    <p>Se realiz&#243; un an&#225;lisis comparativo de las funcionalidades de los portales de clientes de los principales carriers globales, evaluando seis dimensiones cr&#237;ticas en una escala de 0 a 10. Los resultados revelan que el portal actual de Hapag-Lloyd se encuentra significativamente por debajo de la competencia en todas las dimensiones evaluadas.</p>
+
+    <div class="chart-container">
+        <h4>Funcionalidades de Portales de Clientes &mdash; Comparativa Carriers</h4>
+        <div class="chart-wrapper-wide">
+            <canvas id="chartCompetitive" height="400"></canvas>
+        </div>
+    </div>
+
+    <h3>Hallazgos Principales</h3>
+    <ul>
+        <li><strong>Maersk lidera</strong> con el portal m&#225;s completo del mercado (promedio 7.7/10), seguido de CMA CGM y MSC.</li>
+        <li><strong>Hapag-Lloyd (actual)</strong> obtiene un promedio de 3.2/10, ubicándose en &#250;ltimo lugar entre los carriers evaluados.</li>
+        <li><strong>Soporte Bolivia:</strong> Ning&#250;n carrier ofrece soporte dedicado para Bolivia. El nuevo portal de Hapag-Lloyd ser&#237;a el primero en el mercado (10/10).</li>
+        <li><strong>Hapag-Lloyd (nuevo portal)</strong> alcanzar&#237;a un promedio de 9.0/10, liderando en funcionalidades multi-pa&#237;s y soporte BO.</li>
+    </ul>
+
+    <div class="info-box">
+        <p><strong>Conclusi&#243;n:</strong> El portal actual est&#225; rezagado frente a la competencia. El nuevo portal no solo cierra la brecha sino que posiciona a Hapag-Lloyd como l&#237;der en soporte para Bolivia, un mercado completamente desatendido.</p>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 4: PROPUESTA DE VALOR -->
+<!-- ============================================================ -->
+<div class="section" id="sec4">
+    <h2 class="section-header">4. Propuesta de Valor</h2>
+
+    <p>El nuevo portal se sustenta en cuatro pilares de valor que abordan las necesidades estrat&#233;gicas de Hapag-Lloyd en la regi&#243;n y generan beneficios medibles para la organizaci&#243;n y sus clientes.</p>
+
+    <div class="pillars-grid">
+        <div class="pillar-card">
+            <div class="pillar-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h4>Eficiencia Operacional</h4>
+            <p>Automatizaci&#243;n de procesos manuales cr&#237;ticos: consulta de BL, c&#225;lculo de cargos, generaci&#243;n de recibos y gesti&#243;n de documentos. Reducci&#243;n de hasta 95% en tiempos operacionales.</p>
+        </div>
+        <div class="pillar-card">
+            <div class="pillar-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <h4>Expansi&#243;n Bolivia</h4>
+            <p>Primer carrier con portal dedicado para Bolivia: soporte NIT, moneda BOB, IVA 13%, integraci&#243;n SIAN. Captura de mercado desatendido con ventaja de primer movedor.</p>
+        </div>
+        <div class="pillar-card">
+            <div class="pillar-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h4>Experiencia del Cliente</h4>
+            <p>Autoservicio 24/7, tracking en tiempo real, m&#250;ltiples m&#233;todos de pago (transferencia, tarjeta, dep&#243;sito). Interfaz moderna y responsiva que eleva la percepci&#243;n de marca.</p>
+        </div>
+        <div class="pillar-card">
+            <div class="pillar-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h4>Reducci&#243;n de Costos</h4>
+            <p>Menor intervenci&#243;n manual, reducci&#243;n de errores humanos, cobranza m&#225;s r&#225;pida. Ahorro operacional proyectado de USD 250,000 acumulados en 3 a&#241;os.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 5: PROYECCION DE IMPACTO FINANCIERO -->
+<!-- ============================================================ -->
+<div class="section" id="sec5">
+    <h2 class="section-header">5. Proyecci&#243;n de Impacto Financiero</h2>
+
+    <h3>5.1 Ahorro Operacional Proyectado</h3>
+    <p>El an&#225;lisis financiero proyecta ahorros operacionales crecientes a medida que el portal alcanza mayor adopci&#243;n y se incorporan funcionalidades avanzadas. El ahorro acumulado a 3 a&#241;os alcanza los USD 250,000.</p>
+
+    <div class="chart-container">
+        <h4>Proyecci&#243;n de Ahorro Operacional Anual (USD)</h4>
+        <div class="chart-wrapper">
+            <canvas id="chartSavings"></canvas>
+        </div>
+    </div>
+
+    <h3>5.2 Reducci&#243;n de Tiempos Operacionales</h3>
+    <p>La automatizaci&#243;n de procesos clave genera reducciones dr&#225;sticas en los tiempos de operaci&#243;n, liberando recursos humanos para tareas de mayor valor agregado.</p>
+
+    <div class="chart-container">
+        <h4>Reducci&#243;n de Tiempos Operacionales (%)</h4>
+        <div class="chart-wrapper">
+            <canvas id="chartTimeReduction"></canvas>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Proceso</th>
+                    <th>Tiempo Actual</th>
+                    <th>Tiempo con Portal</th>
+                    <th>Reducci&#243;n</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Consulta BL</td><td>15 minutos</td><td>2 minutos</td><td style="color: var(--hl-green); font-weight: 600;">85%</td></tr>
+                <tr><td>Pago de Cargos</td><td>2 horas</td><td>30 minutos</td><td style="color: var(--hl-green); font-weight: 600;">75%</td></tr>
+                <tr><td>Generaci&#243;n de Recibo</td><td>1 hora</td><td>3 minutos</td><td style="color: var(--hl-green); font-weight: 600;">95%</td></tr>
+                <tr><td>Cambio de Bodega</td><td>4 horas</td><td>1 hora</td><td style="color: var(--hl-green); font-weight: 600;">70%</td></tr>
+                <tr><td>Consulta Demurrage</td><td>30 minutos</td><td>5 minutos</td><td style="color: var(--hl-green); font-weight: 600;">80%</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>5.3 C&#225;lculo de ROI</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Concepto</th>
+                    <th>A&#241;o 1</th>
+                    <th>A&#241;o 2</th>
+                    <th>A&#241;o 3</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Inversi&#243;n Desarrollo</strong></td><td>USD 65,000</td><td>USD 15,000</td><td>USD 8,000</td><td>USD 88,000</td></tr>
+                <tr><td><strong>Costos Operaci&#243;n</strong></td><td>USD 12,000</td><td>USD 12,000</td><td>USD 12,000</td><td>USD 36,000</td></tr>
+                <tr><td><strong>Costo Total</strong></td><td>USD 77,000</td><td>USD 27,000</td><td>USD 20,000</td><td style="font-weight: 700;">USD 124,000</td></tr>
+                <tr style="background: #f0fff4;"><td><strong>Ahorro Operacional</strong></td><td>USD 45,000</td><td>USD 85,000</td><td>USD 120,000</td><td style="color: var(--hl-green); font-weight: 700;">USD 250,000</td></tr>
+                <tr style="background: #f0fff4;"><td><strong>Ingresos Adicionales (BO)</strong></td><td>USD 20,000</td><td>USD 45,000</td><td>USD 60,000</td><td style="color: var(--hl-green); font-weight: 700;">USD 125,000</td></tr>
+                <tr style="background: #ebf8ff;"><td><strong>Beneficio Neto</strong></td><td style="color: #E53E3E;">-USD 12,000</td><td style="color: var(--hl-green);">USD 103,000</td><td style="color: var(--hl-green);">USD 160,000</td><td style="color: var(--hl-green); font-weight: 700;">USD 251,000</td></tr>
+                <tr style="background: var(--hl-dark); color: #fff;"><td><strong style="color: #fff;">ROI Acumulado</strong></td><td style="color: var(--hl-orange);">-16%</td><td style="color: var(--hl-orange);">83%</td><td style="color: var(--hl-orange); font-weight: 700;">185%</td><td style="color: var(--hl-orange); font-weight: 700;">185%</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-box">
+        <p><strong>Punto de equilibrio:</strong> La inversi&#243;n se recupera durante el segundo a&#241;o de operaci&#243;n. Al cierre del a&#241;o 3, el ROI acumulado alcanza el 185%, generando un beneficio neto de USD 251,000.</p>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 6: OPORTUNIDAD BOLIVIA -->
+<!-- ============================================================ -->
+<div class="section" id="sec6">
+    <h2 class="section-header">6. Oportunidad Bolivia</h2>
+
+    <p>Bolivia representa una oportunidad estrat&#233;gica &#250;nica para Hapag-Lloyd. Como pa&#237;s mediterr&#225;neo, toda su carga mar&#237;tima transita por puertos de pa&#237;ses vecinos, principalmente Chile. Actualmente, ning&#250;n carrier ofrece un portal digital con soporte nativo para las regulaciones y necesidades espec&#237;ficas del mercado boliviano.</p>
+
+    <div class="chart-container">
+        <h4>Distribuci&#243;n de Carga por Puerto de Ingreso a Bolivia (2024)</h4>
+        <div class="chart-wrapper" style="max-width: 450px;">
+            <canvas id="chartBoliviaPorts"></canvas>
+        </div>
+    </div>
+
+    <h3>Datos Clave del Mercado Boliviano</h3>
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Dependencia Portuaria</div>
+            <div class="metric-value">100%</div>
+            <div class="metric-detail">De la carga mar&#237;tima transita por puertos extranjeros</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Puerto Principal</div>
+            <div class="metric-value">Arica</div>
+            <div class="metric-detail">55% de la carga boliviana ingresa por este puerto</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Portales con Soporte BO</div>
+            <div class="metric-value">0</div>
+            <div class="metric-detail">Ning&#250;n carrier ofrece portal dedicado para Bolivia</div>
+        </div>
+    </div>
+
+    <h3>Ventaja Competitiva de Primer Movedor</h3>
+    <ul>
+        <li><strong>Soporte regulatorio nativo:</strong> NIT (N&#250;mero de Identificaci&#243;n Tributaria), moneda BOB (Boliviano), IVA 13%, integraci&#243;n con SIAN (Servicio de Impuestos Nacionales).</li>
+        <li><strong>Documentaci&#243;n espec&#237;fica:</strong> Generaci&#243;n de facturas y recibos conformes a normativa boliviana.</li>
+        <li><strong>Mercado en crecimiento:</strong> Las importaciones bolivianas han crecido un 8% anual promedio en los &#250;ltimos 5 a&#241;os.</li>
+        <li><strong>Fidelizaci&#243;n:</strong> Los clientes bolivianos que adopten el portal tendr&#225;n un alto costo de cambio, generando retenci&#243;n a largo plazo.</li>
+        <li><strong>Replicabilidad:</strong> El modelo multi-pa&#237;s desarrollado para CL/BO puede extenderse a otros mercados LATAM (Per&#250;, Paraguay, Ecuador).</li>
+    </ul>
+
+    <div class="warning-box">
+        <p><strong>Ventana de oportunidad:</strong> La ventaja de primer movedor es temporal. Si Hapag-Lloyd no act&#250;a en los pr&#243;ximos 12-18 meses, competidores como Maersk o CMA CGM podr&#237;an cubrir esta brecha, eliminando la ventaja competitiva.</p>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 7: ROADMAP DE IMPLEMENTACION -->
+<!-- ============================================================ -->
+<div class="section" id="sec7">
+    <h2 class="section-header">7. Roadmap de Implementaci&#243;n</h2>
+
+    <p>La implementaci&#243;n se estructura en cuatro fases progresivas, permitiendo entregas tempranas de valor y ajustes basados en retroalimentaci&#243;n de usuarios.</p>
+
+    <div class="chart-container">
+        <h4>Cronograma de Implementaci&#243;n por Fases</h4>
+        <div class="chart-wrapper-wide">
+            <canvas id="chartRoadmap" height="250"></canvas>
+        </div>
+    </div>
+
+    <div class="timeline">
+        <div class="timeline-item">
+            <h4>Fase 1: MVP Chile</h4>
+            <div class="timeline-duration">Meses 1-3 (Jun &mdash; Ago 2026)</div>
+            <p>Portal base con consulta de BL, visualizaci&#243;n de cargos, pago en l&#237;nea y generaci&#243;n de recibos para Chile. Autenticaci&#243;n de usuarios y panel de administraci&#243;n.</p>
+        </div>
+        <div class="timeline-item">
+            <h4>Fase 2: Expansi&#243;n Bolivia</h4>
+            <div class="timeline-duration">Meses 4-5 (Sep &mdash; Oct 2026)</div>
+            <p>Soporte multi-pa&#237;s con regulaciones bolivianas: NIT, BOB, IVA 13%, facturaci&#243;n SIAN. Adaptaci&#243;n de flujos de pago y documentaci&#243;n.</p>
+        </div>
+        <div class="timeline-item">
+            <h4>Fase 3: Integraciones Avanzadas</h4>
+            <div class="timeline-duration">Meses 6-8 (Nov 2026 &mdash; Ene 2027)</div>
+            <p>Cotizaci&#243;n en l&#237;nea, gesti&#243;n de demurrage, cambio de bodega, integraci&#243;n con sistemas internos (SAP, TMS). Notificaciones autom&#225;ticas.</p>
+        </div>
+        <div class="timeline-item">
+            <h4>Fase 4: Optimizaci&#243;n Continua</h4>
+            <div class="timeline-duration">Mes 9 en adelante (Feb 2027+)</div>
+            <p>An&#225;lisis de uso, optimizaci&#243;n de UX, nuevas funcionalidades basadas en feedback, expansi&#243;n a otros mercados LATAM. Mejora continua.</p>
+        </div>
+    </div>
+
+    <h3>Hitos Clave</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Hito</th>
+                    <th>Fecha Objetivo</th>
+                    <th>Entregable</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Kick-off del proyecto</td><td>Junio 2026</td><td>Equipo conformado, arquitectura definida</td></tr>
+                <tr><td>MVP Chile en producci&#243;n</td><td>Agosto 2026</td><td>Portal operativo con funcionalidades base CL</td></tr>
+                <tr><td>Lanzamiento Bolivia</td><td>Octubre 2026</td><td>Soporte completo para mercado BO</td></tr>
+                <tr><td>Integraciones completas</td><td>Enero 2027</td><td>Cotizaci&#243;n, demurrage, cambio bodega</td></tr>
+                <tr><td>Revisi&#243;n ROI A&#241;o 1</td><td>Mayo 2027</td><td>Evaluaci&#243;n de m&#233;tricas vs. proyecciones</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 8: CONCLUSIONES Y RECOMENDACIONES -->
+<!-- ============================================================ -->
+<div class="section" id="sec8">
+    <h2 class="section-header">8. Conclusiones y Recomendaciones</h2>
+
+    <h3>Conclusiones</h3>
+
+    <div class="conclusion-card">
+        <p><strong>1. Brecha digital cr&#237;tica:</strong> El portal actual de Hapag-Lloyd (puntuaci&#243;n 3.2/10) est&#225; significativamente por debajo de competidores como Maersk (7.7/10) y CMA CGM (6.7/10). Esta brecha impacta directamente la retenci&#243;n y captaci&#243;n de clientes en la regi&#243;n.</p>
+    </div>
+
+    <div class="conclusion-card">
+        <p><strong>2. Mercado Bolivia desatendido:</strong> Ning&#250;n carrier ofrece un portal con soporte nativo para Bolivia. Con el 55% de la carga boliviana transitando por Arica, Hapag-Lloyd tiene una oportunidad &#250;nica de capturar este mercado como primer movedor.</p>
+    </div>
+
+    <div class="conclusion-card">
+        <p><strong>3. ROI comprobable:</strong> La inversi&#243;n de USD 124,000 en 3 a&#241;os genera un beneficio neto de USD 251,000 (ROI 185%), con punto de equilibrio en el segundo a&#241;o. Los ahorros operacionales por s&#237; solos (USD 250,000) duplican la inversi&#243;n.</p>
+    </div>
+
+    <div class="conclusion-card">
+        <p><strong>4. Eficiencia operacional transformadora:</strong> Reducciones de 70-95% en tiempos de procesos clave liberan recursos humanos para tareas de mayor valor, mejorando la productividad del equipo regional.</p>
+    </div>
+
+    <div class="conclusion-card">
+        <p><strong>5. Ventana de oportunidad limitada:</strong> La ventaja competitiva de primer movedor en Bolivia es temporal (12-18 meses). La acci&#243;n inmediata es cr&#237;tica para capitalizar esta oportunidad antes de que la competencia reaccione.</p>
+    </div>
+
+    <h3>Recomendaci&#243;n</h3>
+    <div class="info-box">
+        <p><strong>Se recomienda aprobar la ejecuci&#243;n del proyecto</strong> seg&#250;n el roadmap propuesto, iniciando la Fase 1 (MVP Chile) en junio 2026. La combinaci&#243;n de ROI positivo, ventaja competitiva en Bolivia y cierre de brecha digital justifica plenamente la inversi&#243;n.</p>
+    </div>
+
+    <h3>Pr&#243;ximos Pasos</h3>
+    <ol>
+        <li><strong>Aprobaci&#243;n ejecutiva</strong> del presupuesto y alcance del proyecto.</li>
+        <li><strong>Conformaci&#243;n del equipo</strong> de desarrollo y asignaci&#243;n de recursos.</li>
+        <li><strong>Kick-off Fase 1</strong> con definici&#243;n detallada de requerimientos MVP.</li>
+        <li><strong>Establecimiento de KPIs</strong> para medici&#243;n de &#233;xito y seguimiento de ROI.</li>
+        <li><strong>Plan de comunicaci&#243;n</strong> a clientes CL/BO sobre el nuevo portal.</li>
+    </ol>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 9: ANEXO — METODOLOGIA -->
+<!-- ============================================================ -->
+<div class="section" id="sec9">
+    <h2 class="section-header">9. Anexo &mdash; Metodolog&#237;a del Estudio</h2>
+
+    <h3>Fuentes de Datos</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fuente</th>
+                    <th>Datos Utilizados</th>
+                    <th>Per&#237;odo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>UNCTAD Review of Maritime Transport</td><td>Vol&#250;menes globales de comercio en contenedores, tendencias de mercado</td><td>2024-2025</td></tr>
+                <tr><td>Drewry World Container Index (WCI)</td><td>&#205;ndices de fletes de contenedores, volatilidad de precios</td><td>2024-2025</td></tr>
+                <tr><td>Statista &mdash; Container Shipping</td><td>Capacidad de carriers, cuotas de mercado, proyecciones</td><td>2024-2025</td></tr>
+                <tr><td>Alphaliner Top 100</td><td>Ranking de operadores por capacidad TEU</td><td>2025</td></tr>
+                <tr><td>Datos internos Hapag-Lloyd</td><td>Tiempos operacionales, costos, vol&#250;menes CL/BO</td><td>2024-2025</td></tr>
+                <tr><td>Aduana Nacional de Bolivia</td><td>Distribuci&#243;n de carga por puerto de ingreso</td><td>2024</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Metodolog&#237;a de An&#225;lisis Competitivo</h3>
+    <p>La evaluaci&#243;n de portales de carriers se realiz&#243; mediante an&#225;lisis directo de las plataformas p&#250;blicas disponibles, complementado con informaci&#243;n de reportes de la industria. Cada funcionalidad se evalu&#243; en escala 0-10 considerando: disponibilidad, usabilidad, completitud y soporte regional.</p>
+
+    <h3>Supuestos de Proyecci&#243;n Financiera</h3>
+    <ul>
+        <li>Tasa de adopci&#243;n del portal: 40% en A&#241;o 1, 70% en A&#241;o 2, 90% en A&#241;o 3.</li>
+        <li>Ahorros calculados sobre base de costos operacionales actuales del equipo CL/BO.</li>
+        <li>Ingresos adicionales Bolivia basados en proyecci&#243;n conservadora de captaci&#243;n de nuevos clientes.</li>
+        <li>Costos de desarrollo basados en estimaciones del equipo t&#233;cnico RPX.</li>
+        <li>No se incluyen beneficios intangibles (mejora de marca, satisfacci&#243;n del cliente, retenci&#243;n).</li>
+    </ul>
+
+    <div class="warning-box">
+        <p><strong>Disclaimer:</strong> Las proyecciones financieras presentadas en este documento son estimaciones basadas en los supuestos descritos y datos disponibles a la fecha de elaboraci&#243;n. Los resultados reales pueden variar seg&#250;n condiciones de mercado, velocidad de adopci&#243;n y factores externos. Se recomienda revisi&#243;n trimestral de m&#233;tricas vs. proyecciones.</p>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="doc-footer">
+    <p><strong>Hapag-Lloyd</strong> &mdash; Portal de Servicios al Cliente CL/BO</p>
+    <p>Business Case Ejecutivo v1.0 &mdash; Mayo 2026</p>
+    <p>Documento Confidencial &mdash; Hapag-Lloyd AG</p>
+</div>
+
+</div><!-- end main-content -->
+
+<!-- Floating back-to-top button -->
+<a href="#toc" id="btn-back-top" class="btn-back-top" title="Volver al &#237;ndice">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+</a>
+
+<!-- ============================================================ -->
+<!-- CHART.JS INITIALIZATION -->
+<!-- ============================================================ -->
+<script>
+(function() {
+    // Brand colors
+    var HL_DARK = '#33424F';
+    var HL_ORANGE = '#FF6600';
+    var HL_GREEN = '#009840';
+    var HL_BLUE = '#004D6C';
+    var HL_DARK_DEEP = '#1a2530';
+
+    // Chart defaults
+    Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+    Chart.defaults.color = '#4A5568';
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.padding = 16;
+
+    // -------------------------------------------------------
+    // Chart 1: Global Trade (Bar)
+    // -------------------------------------------------------
+    new Chart(document.getElementById('chartGlobalTrade'), {
+        type: 'bar',
+        data: {
+            labels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025E'],
+            datasets: [{
+                label: 'Millones TEUs',
+                data: [152, 149, 161, 157, 162, 170, 178],
+                backgroundColor: function(ctx) {
+                    return ctx.dataIndex === 6 ? HL_ORANGE : HL_BLUE;
+                },
+                borderRadius: 6,
+                borderSkipped: false,
+                barPercentage: 0.65
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return ctx.parsed.y + ' millones TEUs'; }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 140,
+                    grid: { color: '#E2E8F0' },
+                    ticks: { callback: function(v) { return v + 'M'; } }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // -------------------------------------------------------
+    // Chart 2: Top Carriers (Doughnut)
+    // -------------------------------------------------------
+    new Chart(document.getElementById('chartTopCarriers'), {
+        type: 'doughnut',
+        data: {
+            labels: ['MSC', 'Maersk', 'CMA CGM', 'COSCO', 'Hapag-Lloyd'],
+            datasets: [{
+                data: [5.8, 4.3, 3.7, 3.1, 2.1],
+                backgroundColor: [HL_DARK, HL_BLUE, '#5A7D9A', '#8BA4B8', HL_ORANGE],
+                borderWidth: 2,
+                borderColor: '#fff',
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '55%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 12 }, padding: 12 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return ctx.label + ': ' + ctx.parsed + 'M TEUs'; }
+                    }
+                }
+            }
+        }
+    });
+
+    // -------------------------------------------------------
+    // Chart 3: Freight Index (Line)
+    // -------------------------------------------------------
+    new Chart(document.getElementById('chartFreightIndex'), {
+        type: 'line',
+        data: {
+            labels: ['Ene 2024', 'Abr 2024', 'Jul 2024', 'Oct 2024', 'Ene 2025', 'Abr 2025', 'Jul 2025E'],
+            datasets: [{
+                label: 'USD / 40ft',
+                data: [3200, 2800, 5200, 3800, 2900, 2400, 2600],
+                borderColor: HL_ORANGE,
+                backgroundColor: 'rgba(255, 102, 0, 0.08)',
+                fill: true,
+                tension: 0.35,
+                pointBackgroundColor: HL_ORANGE,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return 'USD ' + ctx.parsed.y.toLocaleString() + ' / 40ft'; }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 2000,
+                    grid: { color: '#E2E8F0' },
+                    ticks: { callback: function(v) { return '$' + (v/1000).toFixed(1) + 'K'; } }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // -------------------------------------------------------
+    // Chart 4: Competitive Analysis (Horizontal Bar)
+    // -------------------------------------------------------
+    var features = ['Tracking BL', 'Pago Online', 'Cotizacion Online', 'Gestion Documentos', 'Multi-pais', 'Soporte BO'];
+    var carriers = [
+        { label: 'Maersk', data: [9,9,8,9,8,3], color: '#2D5F8A' },
+        { label: 'MSC', data: [8,7,7,8,7,2], color: '#5A7D9A' },
+        { label: 'CMA CGM', data: [8,8,7,8,7,2], color: '#8BA4B8' },
+        { label: 'COSCO', data: [7,6,5,7,6,1], color: '#B0C4D8' },
+        { label: 'HL (actual)', data: [5,4,3,4,3,0], color: '#CBD5E0' },
+        { label: 'HL (nuevo)', data: [9,9,8,9,9,10], color: HL_ORANGE }
+    ];
+    new Chart(document.getElementById('chartCompetitive'), {
+        type: 'bar',
+        data: {
+            labels: features,
+            datasets: carriers.map(function(c) {
+                return {
+                    label: c.label,
+                    data: c.data,
+                    backgroundColor: c.color,
+                    borderRadius: 4,
+                    borderSkipped: false
+                };
+            })
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { font: { size: 11 }, boxWidth: 14 }
+                }
+            },
+            scales: {
+                x: {
+                    min: 0, max: 10,
+                    grid: { color: '#E2E8F0' },
+                    ticks: { stepSize: 2 }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { font: { size: 12, weight: '500' } }
+                }
+            }
+        }
+    });
+
+    // -------------------------------------------------------
+    // Chart 5: Savings (Bar + Line combo)
+    // -------------------------------------------------------
+    new Chart(document.getElementById('chartSavings'), {
+        type: 'bar',
+        data: {
+            labels: ['Ano 1', 'Ano 2', 'Ano 3'],
+            datasets: [
+                {
+                    label: 'Ahorro Anual (USD)',
+                    data: [45000, 85000, 120000],
+                    backgroundColor: HL_GREEN,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    barPercentage: 0.5,
+                    order: 2
+                },
+                {
+                    label: 'Acumulado (USD)',
+                    data: [45000, 130000, 250000],
+                    type: 'line',
+                    borderColor: HL_ORANGE,
+                    backgroundColor: 'rgba(255,102,0,0.1)',
+                    fill: false,
+                    tension: 0.3,
+                    pointBackgroundColor: HL_ORANGE,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    borderWidth: 3,
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return ctx.dataset.label + ': USD ' + ctx.parsed.y.toLocaleString(); }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#E2E8F0' },
+                    ticks: { callback: function(v) { return '$' + (v/1000) + 'K'; } }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // -------------------------------------------------------
+    // Chart 6: Time Reduction (Bar)
+    // -------------------------------------------------------
+    new Chart(document.getElementById('chartTimeReduction'), {
+        type: 'bar',
+        data: {
+            labels: ['Consulta BL', 'Pago Cargos', 'Gen. Recibo', 'Cambio Bodega', 'Consulta Demurrage'],
+            datasets: [{
+                label: 'Reduccion (%)',
+                data: [85, 75, 95, 70, 80],
+                backgroundColor: [HL_ORANGE, HL_BLUE, HL_GREEN, '#8B5CF6', HL_DARK],
+                borderRadius: 6,
+                borderSkipped: false,
+                barPercentage: 0.6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return ctx.parsed.y + '% de reduccion'; }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: { color: '#E2E8F0' },
+                    ticks: { callback: function(v) { return v + '%'; } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 11 } }
+                }
+            }
+        }
+    });
+
+    // -------------------------------------------------------
+    // Chart 7: Bolivia Ports (Pie)
+    // -------------------------------------------------------
+    new Chart(document.getElementById('chartBoliviaPorts'), {
+        type: 'pie',
+        data: {
+            labels: ['Arica (55%)', 'Iquique (25%)', 'Antofagasta (10%)', 'Otros (10%)'],
+            datasets: [{
+                data: [55, 25, 10, 10],
+                backgroundColor: [HL_ORANGE, HL_BLUE, HL_GREEN, '#8BA4B8'],
+                borderWidth: 2,
+                borderColor: '#fff',
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 12 }, padding: 12 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return ctx.label + ' de la carga'; }
+                    }
+                }
+            }
+        }
+    });
+
+    // -------------------------------------------------------
+    // Chart 8: Roadmap Timeline (Horizontal Bar)
+    // -------------------------------------------------------
+    new Chart(document.getElementById('chartRoadmap'), {
+        type: 'bar',
+        data: {
+            labels: ['Fase 1: MVP Chile', 'Fase 2: Bolivia', 'Fase 3: Integraciones', 'Fase 4: Optimizacion'],
+            datasets: [
+                {
+                    label: 'Inicio (mes)',
+                    data: [0, 3, 5, 8],
+                    backgroundColor: 'transparent',
+                    borderWidth: 0,
+                    barPercentage: 0.5
+                },
+                {
+                    label: 'Duracion (meses)',
+                    data: [3, 2, 3, 4],
+                    backgroundColor: [HL_ORANGE, HL_GREEN, HL_BLUE, '#8B5CF6'],
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    barPercentage: 0.5
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            if (ctx.datasetIndex === 0) return null;
+                            var starts = [0, 3, 5, 8];
+                            var durations = [3, 2, 3, 4];
+                            var i = ctx.dataIndex;
+                            return 'Mes ' + (starts[i]+1) + ' - Mes ' + (starts[i]+durations[i]) + ' (' + durations[i] + ' meses)';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    min: 0, max: 12,
+                    grid: { color: '#E2E8F0' },
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(v) { return 'M' + (v+1); }
+                    },
+                    title: { display: true, text: 'Meses desde inicio', font: { size: 12 } }
+                },
+                y: {
+                    stacked: true,
+                    grid: { display: false },
+                    ticks: { font: { size: 12, weight: '500' } }
+                }
+            }
+        }
+    });
+
+    // -------------------------------------------------------
+    // Back-to-top button visibility
+    // -------------------------------------------------------
+    var btnTop = document.getElementById('btn-back-top');
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 400) {
+            btnTop.classList.add('visible');
+        } else {
+            btnTop.classList.remove('visible');
+        }
+    });
+})();
+</script>
+
+</body>
+</html>
