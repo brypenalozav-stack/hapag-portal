@@ -10,6 +10,19 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Build connection string from Railway PG environment variables if available
+var pgHost = Environment.GetEnvironmentVariable("PGHOST");
+var pgPort = Environment.GetEnvironmentVariable("PGPORT");
+var pgDatabase = Environment.GetEnvironmentVariable("PGDATABASE");
+var pgUser = Environment.GetEnvironmentVariable("PGUSER");
+var pgPassword = Environment.GetEnvironmentVariable("PGPASSWORD");
+
+if (!string.IsNullOrEmpty(pgHost))
+{
+    var connectionString = $"Host={pgHost};Port={pgPort};Database={pgDatabase};Username={pgUser};Password={pgPassword}";
+    builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+}
+
 // Application & Infrastructure
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
