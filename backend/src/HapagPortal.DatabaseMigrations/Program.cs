@@ -25,4 +25,4 @@ catch (Exception ex)
     return 1;
 }
 
-public partial class Program;
+internal partial class Program;
