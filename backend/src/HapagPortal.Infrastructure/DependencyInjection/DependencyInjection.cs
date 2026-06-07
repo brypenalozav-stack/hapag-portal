@@ -5,6 +5,7 @@ using HapagPortal.Infrastructure.Persistence;
 using HapagPortal.Infrastructure.Persistence.Interceptors;
 using HapagPortal.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,6 +30,8 @@ public static partial class DependencyInjectionExtensions
                     npgsqlOptions.CommandTimeout(120);
                 });
             options.AddInterceptors(interceptor);
+            options.ConfigureWarnings(w =>
+                w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
