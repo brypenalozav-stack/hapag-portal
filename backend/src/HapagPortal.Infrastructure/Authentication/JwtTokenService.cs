@@ -84,7 +84,8 @@ public sealed class JwtTokenService(
                 return null;
             }
 
-            return principal.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
+            return principal.FindFirst(ClaimTypes.Email)?.Value
+                ?? principal.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
         }
         catch (Exception ex)
         {
