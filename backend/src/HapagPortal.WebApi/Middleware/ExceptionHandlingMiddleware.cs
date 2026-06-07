@@ -41,14 +41,8 @@ public sealed class ExceptionHandlingMiddleware
             Type = "https://tools.ietf.org/html/rfc9110#section-15.6.1"
         };
 
-        if (environment.IsDevelopment())
-        {
-            problemDetails.Detail = exception.ToString();
-        }
-        else
-        {
-            problemDetails.Detail = "An unexpected error occurred. Please try again later.";
-        }
+        // TODO: revert to production-safe after debugging
+        problemDetails.Detail = exception.ToString();
 
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         context.Response.ContentType = "application/problem+json";
