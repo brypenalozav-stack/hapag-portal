@@ -164,53 +164,6 @@ if (app.Environment.IsDevelopment())
 // Health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
-// Database diagnostic endpoint (temporary)
-app.MapGet("/health/db", async (ApplicationDbContext db) =>
-{
-    try
-    {
-        var canConnect = await db.Database.CanConnectAsync();
-        var pending = await db.Database.GetPendingMigrationsAsync();
-        var applied = await db.Database.GetAppliedMigrationsAsync();
-        var connStr = db.Database.GetConnectionString() ?? "null";
-        var maskedConn = System.Text.RegularExpressions.Regex.Replace(connStr, @"Password=[^;]*", "Password=***");
-        return Results.Ok(new
-        {
-            canConnect,
-            pendingMigrations = pending.ToList(),
-            appliedMigrations = applied.ToList(),
-            connectionString = maskedConn,
-            pgHostSet = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PGHOST")),
-            environment = app.Environment.EnvironmentName
-        });
-    }
-    catch (Exception ex)
-    {
-        return Results.Ok(new { error = ex.Message, innerError = ex.InnerException?.Message });
-    }
-});
-
-// Migration trigger endpoint (temporary - for debugging)
-app.MapPost("/health/migrate", async (ApplicationDbContext db) =>
-{
-    try
-    {
-        await db.Database.MigrateAsync();
-        var applied = await db.Database.GetAppliedMigrationsAsync();
-        return Results.Ok(new { success = true, appliedMigrations = applied.ToList() });
-    }
-    catch (Exception ex)
-    {
-        return Results.Ok(new
-        {
-            success = false,
-            error = ex.Message,
-            innerError = ex.InnerException?.Message,
-            innerInnerError = ex.InnerException?.InnerException?.Message
-        });
-    }
-});
-
 app.UseAuthentication();
 app.UseAuthorization();
 
