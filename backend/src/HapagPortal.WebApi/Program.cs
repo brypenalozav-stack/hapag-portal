@@ -190,6 +190,27 @@ app.MapGet("/health/db", async (ApplicationDbContext db) =>
     }
 });
 
+// Migration trigger endpoint (temporary - for debugging)
+app.MapPost("/health/migrate", async (ApplicationDbContext db) =>
+{
+    try
+    {
+        await db.Database.MigrateAsync();
+        var applied = await db.Database.GetAppliedMigrationsAsync();
+        return Results.Ok(new { success = true, appliedMigrations = applied.ToList() });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new
+        {
+            success = false,
+            error = ex.Message,
+            innerError = ex.InnerException?.Message,
+            innerInnerError = ex.InnerException?.InnerException?.Message
+        });
+    }
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
