@@ -21,8 +21,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     EntityName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     EntityId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Action = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    OldValues = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NewValues = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OldValues = table.Column<string>(type: "text", nullable: true),
+                    NewValues = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
