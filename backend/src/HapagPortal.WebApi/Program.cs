@@ -104,10 +104,32 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Auto-apply pending migrations on startup
-using (var scope = app.Services.CreateScope())
+try
 {
+    using var scope = app.Services.CreateScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    
+    logger.LogInformation("Checking database connection...");
+    var canConnect = await db.Database.CanConnectAsync();
+    logger.LogInformation("Database connection: {CanConnect}", canConnect);
+    
+    var pending = await db.Database.GetPendingMigrationsAsync();
+    logger.LogInformation("Pending migrations: {Count} - {Migrations}", 
+        pending.Count(), string.Join(", ", pending));
+    
     await db.Database.MigrateAsync();
+    logger.LogInformation("Database migrations applied successfully");
+    
+    var applied = await db.Database.GetAppliedMigrationsAsync();
+    logger.LogInformation("Applied migrations: {Count} - {Migrations}", 
+        applied.Count(), string.Join(", ", applied));
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "Failed to apply database migrations: {Message}", ex.Message);
+    // Don't crash the app - let it start so we can see the error in health/logs
 }
 
 // Middleware pipeline
