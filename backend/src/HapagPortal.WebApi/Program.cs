@@ -3,7 +3,9 @@ using System.Text.Json.Serialization;
 using Asp.Versioning;
 using HapagPortal.Application;
 using HapagPortal.Infrastructure.DependencyInjection;
+using HapagPortal.Infrastructure.Persistence;
 using HapagPortal.WebApi.Middleware;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -100,6 +102,13 @@ builder.Services.AddCors(options =>
 // HttpContextAccessor is registered in Infrastructure layer
 
 var app = builder.Build();
+
+// Auto-apply pending migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 // Middleware pipeline
 app.UseMiddleware<ExceptionHandlingMiddleware>();

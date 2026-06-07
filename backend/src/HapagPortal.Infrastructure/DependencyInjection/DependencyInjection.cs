@@ -25,7 +25,7 @@ public static partial class DependencyInjectionExtensions
                 configuration.GetConnectionString("DefaultConnection"),
                 npgsqlOptions =>
                 {
-                    npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
+                    npgsqlOptions.MigrationsAssembly("HapagPortal.DatabaseMigrations");
                     npgsqlOptions.CommandTimeout(120);
                 });
             options.AddInterceptors(interceptor);
