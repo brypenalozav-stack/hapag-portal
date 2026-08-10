@@ -25,6 +25,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents => Set<CustomsTransmissionEvent>();
     public DbSet<DeadlineRule> DeadlineRules => Set<DeadlineRule>();
     public DbSet<DeadlineInstance> DeadlineInstances => Set<DeadlineInstance>();
+    public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<LocalCharge> LocalCharges => Set<LocalCharge>();
     public DbSet<DemurrageCharge> DemurrageCharges => Set<DemurrageCharge>();
     public DbSet<Payment> Payments => Set<Payment>();

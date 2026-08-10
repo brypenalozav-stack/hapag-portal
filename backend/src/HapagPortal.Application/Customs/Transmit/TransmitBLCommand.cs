@@ -17,7 +17,8 @@ public sealed record TransmitBLCommand(Guid ManifestId, Guid BillOfLadingId) : I
 
 public sealed class TransmitBLCommandHandler(
     IApplicationDbContext dbContext,
-    ICustomsTransmitter transmitter)
+    ICustomsTransmitter transmitter,
+    INotificationPublisher? publisher = null)
     : ICommandHandler<TransmitBLCommand, TransmissionDto>
 {
     public async Task<Result<TransmissionDto>> Handle(
@@ -82,6 +83,9 @@ public sealed class TransmitBLCommandHandler(
             transmission, bl.BLNumber, payload, transmitter, dbContext, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        await CustomsAlert.NotifyIfNotAcceptedAsync(
+            transmission, $"B/L {bl.BLNumber}", publisher, cancellationToken);
 
         return Result<TransmissionDto>.Success(transmission.ToDto(bl.BLNumber));
     }

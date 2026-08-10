@@ -23,6 +23,7 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<CustomsTransmissionEvent> CustomsTransmissionEventList { get; } = [];
     public List<DeadlineRule> DeadlineRuleList { get; } = [];
     public List<DeadlineInstance> DeadlineInstanceList { get; } = [];
+    public List<Notification> NotificationList { get; } = [];
     public List<LocalCharge> LocalChargeList { get; } = [];
     public List<DemurrageCharge> DemurrageChargeList { get; } = [];
     public List<Payment> PaymentList { get; } = [];
@@ -53,6 +54,7 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents => MockDbSetHelper.CreateMockDbSet(CustomsTransmissionEventList);
     public DbSet<DeadlineRule> DeadlineRules => MockDbSetHelper.CreateMockDbSet(DeadlineRuleList);
     public DbSet<DeadlineInstance> DeadlineInstances => MockDbSetHelper.CreateMockDbSet(DeadlineInstanceList);
+    public DbSet<Notification> Notifications => MockDbSetHelper.CreateMockDbSet(NotificationList);
     public DbSet<LocalCharge> LocalCharges => MockDbSetHelper.CreateMockDbSet(LocalChargeList);
     public DbSet<DemurrageCharge> DemurrageCharges => MockDbSetHelper.CreateMockDbSet(DemurrageChargeList);
     public DbSet<Payment> Payments => MockDbSetHelper.CreateMockDbSet(PaymentList);

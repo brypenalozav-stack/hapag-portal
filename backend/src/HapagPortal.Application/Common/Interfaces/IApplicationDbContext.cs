@@ -22,6 +22,7 @@ public interface IApplicationDbContext
     DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents { get; }
     DbSet<DeadlineRule> DeadlineRules { get; }
     DbSet<DeadlineInstance> DeadlineInstances { get; }
+    DbSet<Notification> Notifications { get; }
     DbSet<LocalCharge> LocalCharges { get; }
     DbSet<DemurrageCharge> DemurrageCharges { get; }
     DbSet<Payment> Payments { get; }

@@ -14,7 +14,8 @@ public sealed record TransmitManifestHeaderCommand(Guid ManifestId) : ICommand<T
 
 public sealed class TransmitManifestHeaderCommandHandler(
     IApplicationDbContext dbContext,
-    ICustomsTransmitter transmitter)
+    ICustomsTransmitter transmitter,
+    INotificationPublisher? publisher = null)
     : ICommandHandler<TransmitManifestHeaderCommand, TransmissionDto>
 {
     public async Task<Result<TransmissionDto>> Handle(
@@ -50,6 +51,9 @@ public sealed class TransmitManifestHeaderCommandHandler(
             transmission, $"{manifest.VesselImo}/{manifest.Voyage}", payload, transmitter, dbContext, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        await CustomsAlert.NotifyIfNotAcceptedAsync(
+            transmission, $"encabezado {manifest.VesselImo}/{manifest.Voyage}", publisher, cancellationToken);
 
         return Result<TransmissionDto>.Success(transmission.ToDto(null));
     }

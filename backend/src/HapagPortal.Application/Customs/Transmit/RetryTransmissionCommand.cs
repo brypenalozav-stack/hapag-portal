@@ -13,7 +13,8 @@ public sealed record RetryTransmissionCommand(Guid TransmissionId) : ICommand<Tr
 
 public sealed class RetryTransmissionCommandHandler(
     IApplicationDbContext dbContext,
-    ICustomsTransmitter transmitter)
+    ICustomsTransmitter transmitter,
+    INotificationPublisher? publisher = null)
     : ICommandHandler<RetryTransmissionCommand, TransmissionDto>
 {
     public async Task<Result<TransmissionDto>> Handle(
@@ -44,6 +45,9 @@ public sealed class RetryTransmissionCommandHandler(
             transmission, referenceKey, payload, transmitter, dbContext, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        await CustomsAlert.NotifyIfNotAcceptedAsync(
+            transmission, blNumber ?? $"transmisión {transmission.Id}", publisher, cancellationToken);
 
         return Result<TransmissionDto>.Success(transmission.ToDto(blNumber));
     }
