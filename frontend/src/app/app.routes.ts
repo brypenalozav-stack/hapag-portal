@@ -126,5 +126,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/users/users').then((m) => m.UsersComponent),
     canActivate: [authGuard, adminGuard],
   },
+  {
+    path: 'admin/bl-import',
+    loadComponent: () =>
+      import('./features/admin/bl-import/bl-import').then((m) => m.BlImportComponent),
+    canActivate: [authGuard, adminGuard],
+  },
   { path: '**', redirectTo: '/dashboard' },
 ];
