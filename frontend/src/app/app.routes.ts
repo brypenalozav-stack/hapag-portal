@@ -144,5 +144,11 @@ export const routes: Routes = [
       import('./features/admin/deadlines/deadlines').then((m) => m.DeadlinesComponent),
     canActivate: [authGuard, adminGuard],
   },
+  {
+    path: 'admin/audit',
+    loadComponent: () =>
+      import('./features/admin/audit/audit').then((m) => m.AuditComponent),
+    canActivate: [authGuard, adminGuard],
+  },
   { path: '**', redirectTo: '/dashboard' },
 ];
