@@ -9,6 +9,11 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<Client> ClientList { get; } = [];
     public List<User> UserList { get; } = [];
     public List<UserRole> UserRoleList { get; } = [];
+    public List<Role> RoleList { get; } = [];
+    public List<Permission> PermissionList { get; } = [];
+    public List<RolePermission> RolePermissionList { get; } = [];
+    public List<ConfigurationSetting> ConfigurationSettingList { get; } = [];
+    public List<SecretCredential> SecretCredentialList { get; } = [];
     public List<BillOfLading> BillsOfLadingList { get; } = [];
     public List<BLContainer> BLContainerList { get; } = [];
     public List<LocalCharge> LocalChargeList { get; } = [];
@@ -27,6 +32,11 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<Client> Clients => MockDbSetHelper.CreateMockDbSet(ClientList);
     public DbSet<User> Users => MockDbSetHelper.CreateMockDbSet(UserList);
     public DbSet<UserRole> UserRoles => MockDbSetHelper.CreateMockDbSet(UserRoleList);
+    public DbSet<Role> Roles => MockDbSetHelper.CreateMockDbSet(RoleList);
+    public DbSet<Permission> Permissions => MockDbSetHelper.CreateMockDbSet(PermissionList);
+    public DbSet<RolePermission> RolePermissions => MockDbSetHelper.CreateMockDbSet(RolePermissionList);
+    public DbSet<ConfigurationSetting> ConfigurationSettings => MockDbSetHelper.CreateMockDbSet(ConfigurationSettingList);
+    public DbSet<SecretCredential> SecretCredentials => MockDbSetHelper.CreateMockDbSet(SecretCredentialList);
     public DbSet<BillOfLading> BillsOfLading => MockDbSetHelper.CreateMockDbSet(BillsOfLadingList);
     public DbSet<BLContainer> BLContainers => MockDbSetHelper.CreateMockDbSet(BLContainerList);
     public DbSet<LocalCharge> LocalCharges => MockDbSetHelper.CreateMockDbSet(LocalChargeList);

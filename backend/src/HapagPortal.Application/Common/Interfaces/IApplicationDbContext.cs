@@ -8,6 +8,11 @@ public interface IApplicationDbContext
     DbSet<Client> Clients { get; }
     DbSet<User> Users { get; }
     DbSet<UserRole> UserRoles { get; }
+    DbSet<Role> Roles { get; }
+    DbSet<Permission> Permissions { get; }
+    DbSet<RolePermission> RolePermissions { get; }
+    DbSet<ConfigurationSetting> ConfigurationSettings { get; }
+    DbSet<SecretCredential> SecretCredentials { get; }
     DbSet<BillOfLading> BillsOfLading { get; }
     DbSet<BLContainer> BLContainers { get; }
     DbSet<LocalCharge> LocalCharges { get; }

@@ -11,6 +11,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<User> Users => Set<User>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<ConfigurationSetting> ConfigurationSettings => Set<ConfigurationSetting>();
+    public DbSet<SecretCredential> SecretCredentials => Set<SecretCredential>();
     public DbSet<BillOfLading> BillsOfLading => Set<BillOfLading>();
     public DbSet<BLContainer> BLContainers => Set<BLContainer>();
     public DbSet<LocalCharge> LocalCharges => Set<LocalCharge>();

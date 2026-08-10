@@ -18,5 +18,11 @@ internal sealed class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 
         builder.HasIndex(e => new { e.UserId, e.RoleName })
             .IsUnique();
+
+        // Vínculo aditivo a Role (nullable durante la transición).
+        builder.HasOne(e => e.Role)
+            .WithMany()
+            .HasForeignKey(e => e.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
