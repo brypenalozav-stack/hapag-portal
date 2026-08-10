@@ -121,5 +121,10 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard, adminGuard],
   },
+  {
+    path: 'admin/users',
+    loadComponent: () => import('./features/admin/users/users').then((m) => m.UsersComponent),
+    canActivate: [authGuard, adminGuard],
+  },
   { path: '**', redirectTo: '/dashboard' },
 ];
