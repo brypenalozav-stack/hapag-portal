@@ -8,7 +8,9 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class CreateReceiptCommandHandler(IApplicationDbContext dbContext)
+public sealed class CreateReceiptCommandHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : ICommandHandler<CreateReceiptCommand, ReceiptResponseDto>
 {
     public async Task<Result<ReceiptResponseDto>> Handle(
@@ -19,6 +21,10 @@ public sealed class CreateReceiptCommandHandler(IApplicationDbContext dbContext)
             .FirstOrDefaultAsync(p => p.Id == request.PaymentId, cancellationToken);
 
         if (payment is null)
+            return Result<ReceiptResponseDto>.Failure(
+                DomainErrors.Payment.NotFound(request.PaymentId));
+
+        if (payment.ClientId != currentUserService.ClientId)
             return Result<ReceiptResponseDto>.Failure(
                 DomainErrors.Payment.NotFound(request.PaymentId));
 

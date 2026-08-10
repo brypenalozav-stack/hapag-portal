@@ -6,17 +6,22 @@ using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class GetDemurrageByContainerQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetDemurrageByContainerQueryHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : IQueryHandler<GetDemurrageByContainerQuery, List<DemurrageChargeDto>>
 {
     public async Task<Result<List<DemurrageChargeDto>>> Handle(
         GetDemurrageByContainerQuery request,
         CancellationToken cancellationToken)
     {
+        var clientId = currentUserService.ClientId;
+
         var entities = await dbContext.DemurrageCharges
             .AsNoTracking()
             .Include(dc => dc.BillOfLading)
-            .Where(dc => dc.ContainerNumber == request.ContainerNumber)
+            .Where(dc => dc.ContainerNumber == request.ContainerNumber
+                && dc.BillOfLading!.ClientId == clientId)
             .ToListAsync(cancellationToken);
 
         var charges = entities.Select(dc => new DemurrageChargeDto(

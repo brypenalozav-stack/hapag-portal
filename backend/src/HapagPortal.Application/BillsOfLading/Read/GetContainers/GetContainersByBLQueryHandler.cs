@@ -7,7 +7,9 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class GetContainersByBLQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetContainersByBLQueryHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : IQueryHandler<GetContainersByBLQuery, List<BLContainerDto>>
 {
     public async Task<Result<List<BLContainerDto>>> Handle(
@@ -19,7 +21,7 @@ public sealed class GetContainersByBLQueryHandler(IApplicationDbContext dbContex
             .Include(b => b.Containers)
             .FirstOrDefaultAsync(b => b.BLNumber == request.BLNumber, cancellationToken);
 
-        if (bl is null)
+        if (bl is null || bl.ClientId != currentUserService.ClientId)
             return Result<List<BLContainerDto>>.Failure(
                 DomainErrors.BillOfLading.NotFoundByNumber(request.BLNumber));
 

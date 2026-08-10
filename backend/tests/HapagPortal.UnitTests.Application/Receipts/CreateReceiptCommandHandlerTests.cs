@@ -1,19 +1,24 @@
 namespace HapagPortal.UnitTests.Application.Receipts;
 
 using FluentAssertions;
+using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Receipts.Commands.Create;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
+using NSubstitute;
 
 public sealed class CreateReceiptCommandHandlerTests
 {
     private readonly MockApplicationDbContext _dbContext = new();
+    private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
+    private readonly Guid _clientId = Guid.NewGuid();
     private readonly CreateReceiptCommandHandler _handler;
 
     public CreateReceiptCommandHandlerTests()
     {
-        _handler = new CreateReceiptCommandHandler(_dbContext);
+        _currentUser.ClientId.Returns(_clientId);
+        _handler = new CreateReceiptCommandHandler(_dbContext, _currentUser);
     }
 
     [Fact]
@@ -30,7 +35,7 @@ public sealed class CreateReceiptCommandHandlerTests
             Currency = "USD",
             Status = PaymentStatus.Confirmed,
             Country = "CL",
-            ClientId = Guid.NewGuid(),
+            ClientId = _clientId,
             BillOfLadingId = Guid.NewGuid(),
             ConfirmedAt = DateTime.UtcNow
         };
@@ -75,7 +80,7 @@ public sealed class CreateReceiptCommandHandlerTests
             Currency = "USD",
             Status = PaymentStatus.Pending,
             Country = "CL",
-            ClientId = Guid.NewGuid(),
+            ClientId = _clientId,
             BillOfLadingId = Guid.NewGuid()
         };
 

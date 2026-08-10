@@ -2,17 +2,22 @@ namespace HapagPortal.UnitTests.Application.BillsOfLading;
 
 using FluentAssertions;
 using HapagPortal.Application.BillsOfLading.Read.GetAll;
+using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
+using NSubstitute;
 
 public sealed class GetAllBLsQueryHandlerTests
 {
     private readonly MockApplicationDbContext _dbContext = new();
+    private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
     private readonly GetAllBLsQueryHandler _handler;
 
     public GetAllBLsQueryHandlerTests()
     {
-        _handler = new GetAllBLsQueryHandler(_dbContext);
+        // Estos tests ejercitan el comportamiento de Admin (ver todo / filtrar por clientId).
+        _currentUser.Roles.Returns(new[] { "Admin" });
+        _handler = new GetAllBLsQueryHandler(_dbContext, _currentUser);
     }
 
     private static BillOfLading CreateBL(string blNumber, string country, Guid? clientId = null) => new()
@@ -87,5 +92,28 @@ public sealed class GetAllBLsQueryHandlerTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task NonAdmin_ShouldOnlySeeOwnClientBLs()
+    {
+        var ownClient = Guid.NewGuid();
+        var nonAdmin = Substitute.For<ICurrentUserService>();
+        nonAdmin.Roles.Returns([]);
+        nonAdmin.ClientId.Returns(ownClient);
+        var handler = new GetAllBLsQueryHandler(_dbContext, nonAdmin);
+
+        _dbContext.BillsOfLadingList.Add(CreateBL("BL-001", "CL", ownClient));
+        _dbContext.BillsOfLadingList.Add(CreateBL("BL-002", "CL")); // otro cliente
+        _dbContext.BillsOfLadingList.Add(CreateBL("BL-003", "CL", ownClient));
+
+        // Aunque pida el clientId de otro, se ignora y solo ve los suyos (BUG-7).
+        var query = new GetAllBLsQuery(null, Guid.NewGuid());
+
+        var result = await handler.Handle(query, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().HaveCount(2);
+        result.Value.Should().OnlyContain(bl => bl.ClientId == ownClient);
     }
 }

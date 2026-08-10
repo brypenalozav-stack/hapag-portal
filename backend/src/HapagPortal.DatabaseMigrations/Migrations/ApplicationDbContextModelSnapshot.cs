@@ -17,7 +17,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.6")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -2170,7 +2170,13 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Property<string>("EmailConfirmationToken")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("EmailConfirmationTokenExpiry")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEmailConfirmed")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastLoginAt")
@@ -2232,6 +2238,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             Email = "admin@hapag-lloyd.cl",
                             IsActive = true,
+                            IsEmailConfirmed = false,
                             PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
                             UserType = "Admin",
                             Username = "admin@hapag-lloyd.cl"
@@ -2245,6 +2252,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             Email = "demo@importadorademo.cl",
                             IsActive = true,
+                            IsEmailConfirmed = false,
                             PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
                             UserType = "Client",
                             Username = "demo@importadorademo.cl"
@@ -2258,6 +2266,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             Email = "demo@altiplano.bo",
                             IsActive = true,
+                            IsEmailConfirmed = false,
                             PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
                             UserType = "Client",
                             Username = "demo@altiplano.bo"
@@ -2271,6 +2280,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             Email = "agente@maritimpacifico.cl",
                             IsActive = true,
+                            IsEmailConfirmed = false,
                             PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
                             UserType = "Agent",
                             Username = "agente@maritimpacifico.cl"

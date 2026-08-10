@@ -5,7 +5,8 @@ import { Client } from '../models/client.model';
 import { API_ENDPOINTS } from '../constants/app.constants';
 
 export interface UpdateProfileRequest {
-  name: string;
+  // El backend (UpdateMyClientCommand) solo acepta Phone/Address/City; el nombre
+  // no es editable por el cliente, así que no se envía (BUG-13).
   phone: string;
 }
 

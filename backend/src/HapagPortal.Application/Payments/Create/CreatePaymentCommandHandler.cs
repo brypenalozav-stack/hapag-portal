@@ -56,22 +56,20 @@ public sealed class CreatePaymentCommandHandler(
         CreatePaymentCommand request,
         CancellationToken cancellationToken)
     {
-        if (currentUserService.UserId is null)
+        var clientId = currentUserService.ClientId;
+
+        if (clientId is null)
             return Result<PaymentResponseDto>.Failure(
-                new Error("Error.Unauthorized", "User is not authenticated."));
+                new Error("Error.Unauthorized", "User is not associated with a client."));
 
-        var user = await dbContext.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == currentUserService.UserId.Value, cancellationToken);
-
-        if (user is null)
-            return Result<PaymentResponseDto>.Failure(
-                DomainErrors.User.NotFound(currentUserService.UserId.Value));
-
+        // Se filtra por cliente EN LA CONSULTA: nunca se carga un BL ajeno (BUG IDOR
+        // detectado en la revision del PR; mismo patron que CreateServiceOrder/WarehouseChange).
         var bl = await dbContext.BillsOfLading
             .Include(b => b.Client)
             .Include(b => b.LocalCharges)
-            .FirstOrDefaultAsync(b => b.Id == request.BlId, cancellationToken);
+            .FirstOrDefaultAsync(
+                b => b.Id == request.BlId && b.ClientId == clientId.Value,
+                cancellationToken);
 
         if (bl is null)
             return Result<PaymentResponseDto>.Failure(
@@ -87,17 +85,24 @@ public sealed class CreatePaymentCommandHandler(
 
         // Calculate amount: if no details provided, auto-generate from BL charges
         decimal subtotal;
+        decimal? precomputedTax = null;
         var details = request.Details ?? [];
 
         if (details.Count == 0)
         {
-            // Auto-generate details from BL data based on payment type
-            subtotal = paymentType switch
+            if (paymentType == "LocalCharges")
             {
-                "Freight" => bl.FreightAmount,
-                "LocalCharges" => bl.LocalCharges?.Sum(lc => lc.TotalAmount) ?? 0,
-                _ => bl.FreightAmount,
-            };
+                // Los cargos locales ya traen su impuesto desglosado. El subtotal es la
+                // BASE (lc.Amount) y el impuesto es la suma por cargo gravable, evitando
+                // el doble IVA de sumar TotalAmount y volver a aplicar la tasa país (BUG-8).
+                var charges = bl.LocalCharges ?? [];
+                subtotal = charges.Sum(lc => lc.Amount);
+                precomputedTax = charges.Where(lc => lc.IsTaxable).Sum(lc => lc.TaxAmount);
+            }
+            else
+            {
+                subtotal = bl.FreightAmount;
+            }
 
             details =
             [
@@ -113,11 +118,20 @@ public sealed class CreatePaymentCommandHandler(
             subtotal = details.Sum(d => d.Amount);
         }
 
-        var taxConfig = await dbContext.TaxConfigurations
-            .FirstOrDefaultAsync(t => t.Country == request.Country && t.IsActive, cancellationToken);
+        decimal taxAmount;
+        if (precomputedTax.HasValue)
+        {
+            taxAmount = Math.Round(precomputedTax.Value, CurrencyDecimalPlaces);
+        }
+        else
+        {
+            var taxConfig = await dbContext.TaxConfigurations
+                .FirstOrDefaultAsync(t => t.Country == request.Country && t.IsActive, cancellationToken);
 
-        var taxRate = taxConfig?.TaxRate ?? 0m;
-        var taxAmount = Math.Round(subtotal * taxRate / TaxPercentageDivisor, CurrencyDecimalPlaces);
+            var taxRate = taxConfig?.TaxRate ?? 0m;
+            taxAmount = Math.Round(subtotal * taxRate / TaxPercentageDivisor, CurrencyDecimalPlaces);
+        }
+
         var totalAmount = subtotal + taxAmount;
 
         var paymentNumber = $"{DocumentPrefixes.Payment}{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpperInvariant()}";
@@ -125,7 +139,7 @@ public sealed class CreatePaymentCommandHandler(
         var payment = new Payment
         {
             BillOfLadingId = request.BlId,
-            ClientId = user.ClientId ?? Guid.Empty,
+            ClientId = clientId.Value,
             PaymentNumber = paymentNumber,
             PaymentType = paymentType,
             PaymentMethod = paymentMethod,

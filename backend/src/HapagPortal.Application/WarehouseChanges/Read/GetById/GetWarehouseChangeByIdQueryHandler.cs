@@ -7,7 +7,9 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class GetWarehouseChangeByIdQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetWarehouseChangeByIdQueryHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : IQueryHandler<GetWarehouseChangeByIdQuery, WarehouseChangeResponseDto>
 {
     public async Task<Result<WarehouseChangeResponseDto>> Handle(
@@ -19,6 +21,15 @@ public sealed class GetWarehouseChangeByIdQueryHandler(IApplicationDbContext dbC
             .FirstOrDefaultAsync(w => w.Id == request.Id, cancellationToken);
 
         if (wc is null)
+            return Result<WarehouseChangeResponseDto>.Failure(
+                DomainErrors.WarehouseChange.NotFound(request.Id));
+
+        // WarehouseChange no tiene ClientId: la propiedad se resuelve por el BL (BUG-7).
+        var owningBl = await dbContext.BillsOfLading
+            .AsNoTracking()
+            .FirstOrDefaultAsync(b => b.Id == wc.BillOfLadingId, cancellationToken);
+
+        if (owningBl is null || owningBl.ClientId != currentUserService.ClientId)
             return Result<WarehouseChangeResponseDto>.Failure(
                 DomainErrors.WarehouseChange.NotFound(request.Id));
 

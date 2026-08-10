@@ -53,7 +53,7 @@ public sealed class PaymentsController : ApiController
     }
 
     [HttpPost("{id:guid}/confirm")]
-    [Authorize(Roles = "Admin,BA")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Confirm(
         Guid id,
         CancellationToken cancellationToken)
@@ -85,7 +85,9 @@ public sealed class PaymentsController : ApiController
         [FromBody] KhipuWebhookCommand command,
         CancellationToken cancellationToken)
     {
-        var result = await Sender.Send(command, cancellationToken);
+        // El secreto viaja por cabecera, no en el body (evita quedar en logs de request).
+        var secret = Request.Headers["X-Webhook-Secret"].ToString();
+        var result = await Sender.Send(command with { Secret = secret }, cancellationToken);
 
         return result.IsSuccess
             ? Ok()
@@ -98,7 +100,8 @@ public sealed class PaymentsController : ApiController
         [FromBody] BancoChileWebhookCommand command,
         CancellationToken cancellationToken)
     {
-        var result = await Sender.Send(command, cancellationToken);
+        var secret = Request.Headers["X-Webhook-Secret"].ToString();
+        var result = await Sender.Send(command with { Secret = secret }, cancellationToken);
 
         return result.IsSuccess
             ? Ok()

@@ -2,17 +2,22 @@ namespace HapagPortal.UnitTests.Application.BillsOfLading;
 
 using FluentAssertions;
 using HapagPortal.Application.BillsOfLading.Read.GetCharges;
+using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
+using NSubstitute;
 
 public sealed class GetChargesByBLQueryHandlerTests
 {
     private readonly MockApplicationDbContext _dbContext = new();
+    private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
+    private readonly Guid _clientId = Guid.NewGuid();
     private readonly GetChargesByBLQueryHandler _handler;
 
     public GetChargesByBLQueryHandlerTests()
     {
-        _handler = new GetChargesByBLQueryHandler(_dbContext);
+        _currentUser.ClientId.Returns(_clientId);
+        _handler = new GetChargesByBLQueryHandler(_dbContext, _currentUser);
     }
 
     [Fact]
@@ -26,6 +31,7 @@ public sealed class GetChargesByBLQueryHandlerTests
             FreightCurrency = "USD",
             Status = "Active",
             Country = "CL",
+            ClientId = _clientId,
             LocalCharges = new List<LocalCharge>
             {
                 new()

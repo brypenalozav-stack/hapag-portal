@@ -8,7 +8,9 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class CancelPaymentCommandHandler(IApplicationDbContext dbContext)
+public sealed class CancelPaymentCommandHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : ICommandHandler<CancelPaymentCommand, PaymentResponseDto>
 {
     public async Task<Result<PaymentResponseDto>> Handle(
@@ -22,6 +24,11 @@ public sealed class CancelPaymentCommandHandler(IApplicationDbContext dbContext)
             .FirstOrDefaultAsync(p => p.Id == request.PaymentId, cancellationToken);
 
         if (payment is null)
+            return Result<PaymentResponseDto>.Failure(
+                DomainErrors.Payment.NotFound(request.PaymentId));
+
+        // Impedir cancelar pagos de otro cliente (BUG-7).
+        if (payment.ClientId != currentUserService.ClientId)
             return Result<PaymentResponseDto>.Failure(
                 DomainErrors.Payment.NotFound(request.PaymentId));
 

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiVersion("1.0")]
-[Authorize(Roles = "Admin,BA")]
+[Authorize(Roles = "Admin")]
 [Route("api/v{version:apiVersion}/admin")]
 public sealed class AdminController : ApiController
 {

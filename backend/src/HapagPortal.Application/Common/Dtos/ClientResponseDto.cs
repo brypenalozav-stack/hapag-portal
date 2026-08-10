@@ -25,7 +25,7 @@ public sealed record ClientResponseDto(
             client.TaxId,
             client.Phone,
             client.Country,
-            client.ClientType == "Agent" ? "AGENT" : "CLIENT",
+            client.ClientType is "Agent" or "CustomsAgent" ? "AGENT" : "CLIENT",
             role,
             client.IsActive,
             client.CreatedAt);

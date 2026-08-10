@@ -6,7 +6,9 @@ using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class GetAllBLsQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetAllBLsQueryHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : IQueryHandler<GetAllBLsQuery, List<BillOfLadingResponseDto>>
 {
     public async Task<Result<List<BillOfLadingResponseDto>>> Handle(
@@ -23,8 +25,17 @@ public sealed class GetAllBLsQueryHandler(IApplicationDbContext dbContext)
         if (!string.IsNullOrWhiteSpace(request.Country))
             query = query.Where(b => b.Country == request.Country);
 
-        if (request.ClientId.HasValue)
-            query = query.Where(b => b.ClientId == request.ClientId.Value);
+        // Solo Admin puede consultar por un clientId arbitrario; cualquier otro rol
+        // queda acotado a su propio cliente, ignorando el parámetro recibido (BUG-7).
+        if (currentUserService.Roles.Contains("Admin"))
+        {
+            if (request.ClientId.HasValue)
+                query = query.Where(b => b.ClientId == request.ClientId.Value);
+        }
+        else
+        {
+            query = query.Where(b => b.ClientId == currentUserService.ClientId);
+        }
 
         var entities = await query
             .OrderByDescending(b => b.CreatedAt)

@@ -19,6 +19,15 @@ public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor)
         }
     }
 
+    public Guid? ClientId
+    {
+        get
+        {
+            var value = User?.FindFirstValue("clientId");
+            return Guid.TryParse(value, out var id) ? id : null;
+        }
+    }
+
     public string? Email =>
         User?.FindFirstValue(JwtRegisteredClaimNames.Email)
         ?? User?.FindFirstValue(ClaimTypes.Email);

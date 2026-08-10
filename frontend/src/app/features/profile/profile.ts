@@ -74,7 +74,7 @@ export class ProfileComponent implements OnInit {
     this.error.set('');
     this.success.set('');
 
-    this.clientService.updateProfile(this.form.getRawValue()).pipe(
+    this.clientService.updateProfile({ phone: this.form.controls.phone.value }).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (updated) => {
