@@ -18,6 +18,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<SecretCredential> SecretCredentials => Set<SecretCredential>();
     public DbSet<BillOfLading> BillsOfLading => Set<BillOfLading>();
     public DbSet<BLContainer> BLContainers => Set<BLContainer>();
+    public DbSet<BLParty> BLParties => Set<BLParty>();
+    public DbSet<BLCargoItem> BLCargoItems => Set<BLCargoItem>();
     public DbSet<LocalCharge> LocalCharges => Set<LocalCharge>();
     public DbSet<DemurrageCharge> DemurrageCharges => Set<DemurrageCharge>();
     public DbSet<Payment> Payments => Set<Payment>();

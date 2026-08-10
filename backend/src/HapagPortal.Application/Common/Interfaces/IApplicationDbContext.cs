@@ -15,6 +15,8 @@ public interface IApplicationDbContext
     DbSet<SecretCredential> SecretCredentials { get; }
     DbSet<BillOfLading> BillsOfLading { get; }
     DbSet<BLContainer> BLContainers { get; }
+    DbSet<BLParty> BLParties { get; }
+    DbSet<BLCargoItem> BLCargoItems { get; }
     DbSet<LocalCharge> LocalCharges { get; }
     DbSet<DemurrageCharge> DemurrageCharges { get; }
     DbSet<Payment> Payments { get; }
