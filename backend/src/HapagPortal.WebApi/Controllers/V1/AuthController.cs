@@ -69,7 +69,7 @@ public sealed class AuthController : ApiController
         var result = await Sender.Send(command, cancellationToken);
 
         return result.IsSuccess
-            ? Ok(result.Value)
+            ? Ok()
             : HandleFailure(result);
     }
 

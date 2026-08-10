@@ -8,11 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 public sealed class ForgotPasswordCommandHandler(
     IApplicationDbContext dbContext,
-    IEmailService emailService,
-    IAppEnvironment environment)
-    : ICommandHandler<ForgotPasswordCommand, ForgotPasswordResponse>
+    IEmailService emailService)
+    : ICommandHandler<ForgotPasswordCommand>
 {
-    public async Task<Result<ForgotPasswordResponse>> Handle(
+    public async Task<Result> Handle(
         ForgotPasswordCommand request,
         CancellationToken cancellationToken)
     {
@@ -20,8 +19,6 @@ public sealed class ForgotPasswordCommandHandler(
 
         var user = await dbContext.Users
             .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
-
-        string? devToken = null;
 
         if (user is not null)
         {
@@ -32,18 +29,16 @@ public sealed class ForgotPasswordCommandHandler(
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            // El token se entrega SOLO por email. En local, EmailService lo escribe en el
+            // log cuando no hay SMTP configurado. La respuesta HTTP nunca lo expone.
             await emailService.SendEmailAsync(
                 user.Email,
                 "Reset Your Password - Hapag-Lloyd Portal",
                 $"Use the following token to reset your password: {resetToken}",
                 cancellationToken);
-
-            // Atajo de desarrollo: exponer el token cuando no es producción (BUG-5).
-            if (!environment.IsProduction)
-                devToken = resetToken;
         }
 
-        // Siempre se devuelve éxito para no revelar si el email existe.
-        return Result<ForgotPasswordResponse>.Success(new ForgotPasswordResponse(devToken));
+        // Respuesta siempre idéntica, exista o no el correo (anti-enumeración).
+        return Result.Success();
     }
 }

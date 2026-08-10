@@ -41,7 +41,6 @@ public static partial class DependencyInjectionExtensions
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddTransient<IEmailService, EmailService>();
         services.AddTransient<IPaymentGatewayService, PaymentGatewayService>();
-        services.AddSingleton<IAppEnvironment, AppEnvironment>();
 
         services.AddHttpContextAccessor();
 

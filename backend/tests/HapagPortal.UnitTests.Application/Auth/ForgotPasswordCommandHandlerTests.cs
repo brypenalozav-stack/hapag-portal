@@ -11,13 +11,11 @@ public sealed class ForgotPasswordCommandHandlerTests
 {
     private readonly MockApplicationDbContext _dbContext = new();
     private readonly IEmailService _emailService = Substitute.For<IEmailService>();
-    private readonly IAppEnvironment _environment = Substitute.For<IAppEnvironment>();
     private readonly ForgotPasswordCommandHandler _handler;
 
     public ForgotPasswordCommandHandlerTests()
     {
-        // Por defecto IsProduction devuelve false (entorno de prueba).
-        _handler = new ForgotPasswordCommandHandler(_dbContext, _emailService, _environment);
+        _handler = new ForgotPasswordCommandHandler(_dbContext, _emailService);
     }
 
     [Fact]
@@ -40,7 +38,6 @@ public sealed class ForgotPasswordCommandHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.ResetToken.Should().NotBeNullOrEmpty(); // atajo de dev (BUG-5)
         user.PasswordResetToken.Should().NotBeNullOrEmpty();
         user.PasswordResetTokenExpiry.Should().NotBeNull();
         user.PasswordResetTokenExpiry.Should().BeCloseTo(DateTime.UtcNow.AddHours(1), TimeSpan.FromSeconds(5));
@@ -60,7 +57,6 @@ public sealed class ForgotPasswordCommandHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.ResetToken.Should().BeNull(); // usuario inexistente: sin token
         _dbContext.SaveChangesCallCount.Should().Be(0);
         await _emailService.DidNotReceive().SendEmailAsync(
             Arg.Any<string>(),
