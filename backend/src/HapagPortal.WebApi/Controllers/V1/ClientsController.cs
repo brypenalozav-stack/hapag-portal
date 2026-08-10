@@ -28,7 +28,7 @@ public sealed class ClientsController : ApiController
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,BA")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll([FromQuery] string? country, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetAllClientsQuery(country), cancellationToken);
@@ -36,7 +36,7 @@ public sealed class ClientsController : ApiController
     }
 
     [HttpGet("{id:guid}")]
-    [Authorize(Roles = "Admin,BA")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetClientByIdQuery(id), cancellationToken);

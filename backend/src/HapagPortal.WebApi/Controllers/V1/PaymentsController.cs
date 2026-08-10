@@ -53,7 +53,7 @@ public sealed class PaymentsController : ApiController
     }
 
     [HttpPost("{id:guid}/confirm")]
-    [Authorize(Roles = "Admin,BA")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Confirm(
         Guid id,
         CancellationToken cancellationToken)

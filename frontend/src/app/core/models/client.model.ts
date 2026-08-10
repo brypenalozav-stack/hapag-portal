@@ -7,7 +7,7 @@ export interface Client {
   country: 'CL' | 'BO';
   type: 'CLIENT' | 'AGENT';
   agentCode?: string;
-  role: 'USER' | 'ADMIN' | 'BA' | 'AGENT';
+  role: 'USER' | 'ADMIN';
   isActive: boolean;
   createdAt: string;
 }

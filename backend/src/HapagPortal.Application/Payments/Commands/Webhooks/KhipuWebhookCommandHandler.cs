@@ -25,6 +25,11 @@ public sealed class KhipuWebhookCommandHandler(IApplicationDbContext dbContext)
             return Result.Failure(
                 new Error("Payment.NotFound", $"No payment found with external reference '{request.ExternalReference}'."));
 
+        // No reabrir un pago en estado terminal (evita que un webhook 'done' confirme
+        // un pago ya cancelado).
+        if (payment.Status is PaymentStatus.Confirmed or PaymentStatus.Cancelled)
+            return Result.Success();
+
         payment.Status = request.Status switch
         {
             KhipuStatusDone => PaymentStatus.Confirmed,
