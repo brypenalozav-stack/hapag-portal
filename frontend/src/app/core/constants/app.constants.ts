@@ -22,6 +22,9 @@ export const ROLES = {
   AGENT: 'AGENT',
 } as const;
 
+/** Roles de la consola operativa interna (ven los módulos internos). */
+export const INTERNAL_ROLES = ['ADMIN', 'ADMINISTRADOR', 'COORDINADOR', 'SUPERVISOR', 'SUPERADMIN'] as const;
+
 export const COUNTRIES = {
   CHILE: 'CL' as const,
   BOLIVIA: 'BO' as const,

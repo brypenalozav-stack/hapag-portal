@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { internalGuard } from './core/guards/internal.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -136,31 +137,31 @@ export const routes: Routes = [
     path: 'admin/bl-import',
     loadComponent: () =>
       import('./features/admin/bl-import/bl-import').then((m) => m.BlImportComponent),
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, internalGuard],
   },
   {
     path: 'admin/customs',
     loadComponent: () =>
       import('./features/admin/customs/customs').then((m) => m.CustomsComponent),
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, internalGuard],
   },
   {
     path: 'admin/deadlines',
     loadComponent: () =>
       import('./features/admin/deadlines/deadlines').then((m) => m.DeadlinesComponent),
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, internalGuard],
   },
   {
     path: 'admin/audit',
     loadComponent: () =>
       import('./features/admin/audit/audit').then((m) => m.AuditComponent),
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, internalGuard],
   },
   {
     path: 'admin/reports',
     loadComponent: () =>
       import('./features/admin/reports/reports').then((m) => m.ReportsComponent),
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, internalGuard],
   },
   { path: '**', redirectTo: '/dashboard' },
 ];
