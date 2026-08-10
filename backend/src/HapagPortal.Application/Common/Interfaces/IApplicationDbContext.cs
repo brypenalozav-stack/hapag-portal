@@ -20,6 +20,8 @@ public interface IApplicationDbContext
     DbSet<CustomsManifest> CustomsManifests { get; }
     DbSet<CustomsTransmission> CustomsTransmissions { get; }
     DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents { get; }
+    DbSet<DeadlineRule> DeadlineRules { get; }
+    DbSet<DeadlineInstance> DeadlineInstances { get; }
     DbSet<LocalCharge> LocalCharges { get; }
     DbSet<DemurrageCharge> DemurrageCharges { get; }
     DbSet<Payment> Payments { get; }
