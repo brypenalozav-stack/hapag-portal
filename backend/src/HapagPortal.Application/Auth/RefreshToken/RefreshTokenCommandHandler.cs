@@ -32,6 +32,15 @@ public sealed class RefreshTokenCommandHandler(
         if (!user.IsActive)
             return Result<AuthResponseDto>.Failure(DomainErrors.User.Inactive);
 
+        // El refresh token debe coincidir con el almacenado y no estar expirado (BUG-3).
+        if (user.RefreshToken is null ||
+            user.RefreshToken != request.RefreshToken ||
+            user.RefreshTokenExpiryTime is null ||
+            user.RefreshTokenExpiryTime < DateTime.UtcNow)
+        {
+            return Result<AuthResponseDto>.Failure(DomainErrors.User.InvalidCredentials);
+        }
+
         var roles = await dbContext.UserRoles
             .Where(ur => ur.UserId == user.Id)
             .Select(ur => ur.RoleName)
@@ -39,11 +48,19 @@ public sealed class RefreshTokenCommandHandler(
 
         var token = jwtTokenService.GenerateToken(user, roles);
 
+        // Rotar el refresh token en cada renovacion: el anterior deja de ser valido (BUG-3).
+        var newRefreshToken = jwtTokenService.GenerateRefreshToken();
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+
         var client = user.Client;
         var primaryRole = roles.Contains("Admin") ? "ADMIN" : "USER";
         var clientType = client?.ClientType switch
         {
             "Agent" => "AGENT",
+            "CustomsAgent" => "AGENT",
             _ => "CLIENT"
         };
 
@@ -62,6 +79,6 @@ public sealed class RefreshTokenCommandHandler(
         const int expirationMinutes = 60;
 
         return Result<AuthResponseDto>.Success(
-            new AuthResponseDto(token, expirationMinutes, userDto));
+            new AuthResponseDto(token, expirationMinutes, userDto, newRefreshToken));
     }
 }

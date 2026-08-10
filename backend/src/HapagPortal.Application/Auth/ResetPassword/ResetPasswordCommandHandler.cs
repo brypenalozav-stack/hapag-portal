@@ -25,6 +25,9 @@ public sealed class ResetPasswordCommandHandler(
         if (user is null)
             return Result.Failure(DomainErrors.User.NotFoundByEmail(request.Email));
 
+        if (!user.IsActive)
+            return Result.Failure(DomainErrors.User.Inactive);
+
         if (user.PasswordResetToken is null ||
             user.PasswordResetToken != request.Token)
         {
@@ -42,6 +45,10 @@ public sealed class ResetPasswordCommandHandler(
         user.PasswordHash = passwordHasher.Hash(request.NewPassword);
         user.PasswordResetToken = null;
         user.PasswordResetTokenExpiry = null;
+
+        // Revocar sesiones activas al cambiar la contrasena (BUG-10).
+        user.RefreshToken = null;
+        user.RefreshTokenExpiryTime = null;
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
