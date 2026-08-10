@@ -1,0 +1,37 @@
+<div class="hl-page-header d-flex justify-content-between align-items-start">
+  <div>
+    <h1>Notificaciones</h1>
+    <p class="text-muted mb-0">Alertas operativas dirigidas a ti o a tus roles</p>
+  </div>
+  <button class="btn btn-outline-secondary" (click)="markAll()">Marcar todas como leídas</button>
+</div>
+
+@if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+
+<div class="hl-card">
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else {
+    <div class="list-group list-group-flush">
+      @for (n of items(); track n.id) {
+        <div class="list-group-item d-flex justify-content-between align-items-start"
+             [class.bg-light]="!n.isRead">
+          <div>
+            <div class="fw-semibold">
+              @if (!n.isRead) { <span class="badge bg-primary me-2">Nuevo</span> }
+              {{ n.title }}
+            </div>
+            <div class="small text-muted">{{ n.body }}</div>
+            <div class="small text-muted mt-1">{{ n.createdAt | date: 'dd-MM-yyyy HH:mm' }}</div>
+          </div>
+          @if (!n.isRead) {
+            <button class="btn btn-sm btn-outline-secondary" (click)="markRead(n)">Marcar leída</button>
+          }
+        </div>
+      }
+      @if (items().length === 0) {
+        <div class="text-center text-muted py-5">No tienes notificaciones.</div>
+      }
+    </div>
+  }
+</div>
