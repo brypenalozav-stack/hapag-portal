@@ -28,9 +28,9 @@ public abstract class ApiController : ControllerBase
                 Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1"
             };
 
-            foreach (var error in validationResult.Errors)
+            foreach (var group in validationResult.Errors.GroupBy(e => e.Code))
             {
-                problemDetails.Errors.Add(error.Code, [error.Message]);
+                problemDetails.Errors[group.Key] = group.Select(e => e.Message).ToArray();
             }
 
             return BadRequest(problemDetails);
@@ -43,6 +43,9 @@ public abstract class ApiController : ControllerBase
             "Error.Forbidden" => StatusCodes.Status403Forbidden,
             _ when result.Error.Code.EndsWith(".HasData") => StatusCodes.Status409Conflict,
             _ when result.Error.Code.EndsWith(".Exists") => StatusCodes.Status409Conflict,
+            _ when result.Error.Code.EndsWith(".AlreadyExists") => StatusCodes.Status409Conflict,
+            _ when result.Error.Code.EndsWith(".EmailExists") => StatusCodes.Status409Conflict,
+            _ when result.Error.Code.EndsWith(".HasPayments") => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status400BadRequest
         };
 
