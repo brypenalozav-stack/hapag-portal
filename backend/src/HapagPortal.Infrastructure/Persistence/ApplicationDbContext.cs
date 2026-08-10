@@ -41,6 +41,79 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         SeedAdminClientAndUser(modelBuilder);
         SeedFAQs(modelBuilder);
         SeedDemoData(modelBuilder);
+        SeedRbac(modelBuilder);
+    }
+
+    /// <summary>GUID determinista y estable (no aleatorio) para datos semilla, derivado del código.</summary>
+    private static Guid DeterministicGuid(string seed)
+    {
+        var bytes = System.Security.Cryptography.MD5.HashData(System.Text.Encoding.UTF8.GetBytes(seed));
+        return new Guid(bytes);
+    }
+
+    private static void SeedRbac(ModelBuilder modelBuilder)
+    {
+        var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // Roles del sistema
+        var roles = new (string Code, string Name)[]
+        {
+            (RoleCodes.Administrador, "Administrador"),
+            (RoleCodes.Coordinador, "Coordinador"),
+            (RoleCodes.Supervisor, "Supervisor"),
+            (RoleCodes.ExternalApi, "External API"),
+            (RoleCodes.Client, "Cliente"),
+            (RoleCodes.CustomsAgent, "Agente de Aduana"),
+            (RoleCodes.AdminBA, "Administrador BA"),
+            (RoleCodes.SuperAdmin, "Super Administrador"),
+        };
+
+        modelBuilder.Entity<Role>().HasData(roles.Select(r => new Role
+        {
+            Id = DeterministicGuid($"role:{r.Code}"),
+            Code = r.Code,
+            Name = r.Name,
+            IsSystem = true,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
+
+        // Catálogo de permisos de la consola operativa
+        var permissions = new[]
+        {
+            "users.manage", "roles.manage", "maintainers.manage",
+            "config.global.manage", "config.client.manage",
+            "bl.upload", "bl.view",
+            "customs.transmit", "customs.retry", "customs.view",
+            "deadlines.view", "audit.view", "reports.view", "notifications.view",
+        };
+
+        modelBuilder.Entity<Permission>().HasData(permissions.Select(p => new Permission
+        {
+            Id = DeterministicGuid($"perm:{p}"),
+            Code = p,
+            Description = p
+        }));
+
+        // Asignaciones base por rol (Administrador/SuperAdmin se resuelven como comodín en runtime).
+        var assignments = new (string Role, string Perm)[]
+        {
+            (RoleCodes.Coordinador, "bl.upload"), (RoleCodes.Coordinador, "bl.view"),
+            (RoleCodes.Coordinador, "customs.view"), (RoleCodes.Coordinador, "deadlines.view"),
+            (RoleCodes.Coordinador, "reports.view"), (RoleCodes.Coordinador, "notifications.view"),
+            (RoleCodes.Supervisor, "bl.view"), (RoleCodes.Supervisor, "customs.transmit"),
+            (RoleCodes.Supervisor, "customs.retry"), (RoleCodes.Supervisor, "customs.view"),
+            (RoleCodes.Supervisor, "deadlines.view"), (RoleCodes.Supervisor, "audit.view"),
+            (RoleCodes.Supervisor, "reports.view"), (RoleCodes.Supervisor, "notifications.view"),
+            (RoleCodes.ExternalApi, "bl.upload"), (RoleCodes.ExternalApi, "customs.transmit"),
+        };
+
+        modelBuilder.Entity<RolePermission>().HasData(assignments.Select(a => new RolePermission
+        {
+            Id = DeterministicGuid($"rp:{a.Role}:{a.Perm}"),
+            RoleId = DeterministicGuid($"role:{a.Role}"),
+            PermissionId = DeterministicGuid($"perm:{a.Perm}")
+        }));
     }
 
     private static void SeedCurrencies(ModelBuilder modelBuilder)
