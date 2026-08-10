@@ -150,5 +150,11 @@ export const routes: Routes = [
       import('./features/admin/audit/audit').then((m) => m.AuditComponent),
     canActivate: [authGuard, adminGuard],
   },
+  {
+    path: 'admin/reports',
+    loadComponent: () =>
+      import('./features/admin/reports/reports').then((m) => m.ReportsComponent),
+    canActivate: [authGuard, adminGuard],
+  },
   { path: '**', redirectTo: '/dashboard' },
 ];
