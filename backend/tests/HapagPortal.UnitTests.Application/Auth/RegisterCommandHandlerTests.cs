@@ -81,4 +81,58 @@ public sealed class RegisterCommandHandlerTests
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Client.AlreadyExists");
     }
+
+    [Fact]
+    public async Task CustomsAgent_ShouldCreateAgentUserAndReturnAgentType()
+    {
+        _passwordHasher.Hash(Arg.Any<string>()).Returns("hashed");
+
+        var command = new RegisterCommand(
+            Name: "Agencia Demo",
+            TaxId: "1234567890",
+            Country: "BO",
+            Email: "Agente@Empresa.BO",
+            Password: "Password1!",
+            ClientType: "CustomsAgent",
+            Phone: null,
+            AgentCode: "HL-AG-001");
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Type.Should().Be("AGENT");          // BUG-15
+        _dbContext.UserList.Should().ContainSingle();
+        _dbContext.UserList[0].UserType.Should().Be("Agent");
+        _dbContext.UserRoleList[0].RoleName.Should().Be("Agent");
+        _dbContext.UserList[0].Email.Should().Be("agente@empresa.bo"); // BUG-9 normalizado
+    }
+
+    [Fact]
+    public async Task EmailWithDifferentCase_ShouldBeRejectedAsDuplicate()
+    {
+        _dbContext.UserList.Add(new User
+        {
+            Username = "x@test.cl",
+            Email = "x@test.cl",
+            PasswordHash = "h",
+            UserType = "Client",
+            Country = "CL",
+            IsActive = true
+        });
+
+        var command = new RegisterCommand(
+            Name: "Dup",
+            TaxId: "76.111.111-1",
+            Country: "CL",
+            Email: "X@TEST.CL",
+            Password: "Password1!",
+            ClientType: "Client",
+            Phone: null,
+            AgentCode: null);
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("User.EmailExists");
+    }
 }

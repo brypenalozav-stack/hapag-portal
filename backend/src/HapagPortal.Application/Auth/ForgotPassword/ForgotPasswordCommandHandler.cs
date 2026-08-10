@@ -1,5 +1,6 @@
 namespace HapagPortal.Application.Auth.ForgotPassword;
 
+using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Domain.Results;
@@ -14,8 +15,10 @@ public sealed class ForgotPasswordCommandHandler(
         ForgotPasswordCommand request,
         CancellationToken cancellationToken)
     {
+        var email = EmailNormalizer.Normalize(request.Email);
+
         var user = await dbContext.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
         if (user is not null)
         {

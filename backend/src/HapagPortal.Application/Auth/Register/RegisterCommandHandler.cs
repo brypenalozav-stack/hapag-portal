@@ -2,6 +2,7 @@ namespace HapagPortal.Application.Auth.Register;
 
 using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Common.Dtos;
+using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Domain.Constants;
@@ -21,6 +22,7 @@ public sealed class RegisterCommandHandler(
         CancellationToken cancellationToken)
     {
         var taxIdType = CountryCodes.GetTaxIdType(request.Country);
+        var email = EmailNormalizer.Normalize(request.Email);
 
         var exists = await dbContext.Clients
             .AnyAsync(c => c.TaxId == request.TaxId && c.Country == request.Country, cancellationToken);
@@ -29,11 +31,20 @@ public sealed class RegisterCommandHandler(
             return Result<ClientResponseDto>.Failure(DomainErrors.Client.AlreadyExists(request.TaxId));
 
         var emailExists = await dbContext.Users
-            .AnyAsync(u => u.Email == request.Email, cancellationToken);
+            .AnyAsync(u => u.Email == email, cancellationToken);
 
         if (emailExists)
             return Result<ClientResponseDto>.Failure(
-                new Error("User.EmailExists", $"A user with email '{request.Email}' already exists."));
+                new Error("User.EmailExists", $"A user with email '{email}' already exists."));
+
+        // Clients.Email también tiene índice único; validarlo aquí evita un
+        // DbUpdateException -> 500 al hacer SaveChanges (BUG-19).
+        var clientEmailExists = await dbContext.Clients
+            .AnyAsync(c => c.Email == email, cancellationToken);
+
+        if (clientEmailExists)
+            return Result<ClientResponseDto>.Failure(
+                new Error("Client.EmailExists", $"A client with email '{email}' already exists."));
 
         var client = new Client
         {
@@ -41,7 +52,7 @@ public sealed class RegisterCommandHandler(
             TaxId = request.TaxId,
             TaxIdType = taxIdType,
             Country = request.Country,
-            Email = request.Email,
+            Email = email,
             Phone = request.Phone,
             ClientType = request.ClientType,
             AgentCode = request.AgentCode,
@@ -58,9 +69,9 @@ public sealed class RegisterCommandHandler(
         var user = new User
         {
             ClientId = client.Id,
-            Email = request.Email,
+            Email = email,
             PasswordHash = passwordHasher.Hash(request.Password),
-            Username = request.Email,
+            Username = email,
             UserType = userType,
             Country = request.Country,
             IsActive = true,
@@ -80,12 +91,26 @@ public sealed class RegisterCommandHandler(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         await emailService.SendEmailAsync(
-            request.Email,
+            email,
             "Welcome to Hapag-Lloyd Portal",
             $"Hello {request.Name}, your account has been created successfully. Please confirm your email to activate your account. Your confirmation token is: {emailConfirmationToken}",
             cancellationToken);
 
-        return Result<ClientResponseDto>.Success(
-            ClientResponseDto.FromClient(client, userType));
+        // Mismo contrato que el login: User.Id y role normalizado (BUG-16).
+        var responseType = client.ClientType is UserTypes.CustomsAgent or UserTypes.Agent
+            ? "AGENT"
+            : "CLIENT";
+
+        return Result<ClientResponseDto>.Success(new ClientResponseDto(
+            user.Id,
+            client.Name,
+            user.Email,
+            client.TaxId,
+            client.Phone,
+            user.Country,
+            responseType,
+            "USER",
+            user.IsActive,
+            user.CreatedAt));
     }
 }

@@ -78,8 +78,19 @@ export class RegisterComponent {
     this.loading.set(true);
     this.error.set('');
 
-    const { confirmPassword: _confirmPassword, ...data } = this.form.getRawValue();
-    this.auth.register(data).pipe(
+    const raw = this.form.getRawValue();
+    const payload = {
+      name: raw.name,
+      email: raw.email,
+      password: raw.password,
+      taxId: raw.taxId,
+      phone: raw.phone,
+      country: raw.country,
+      // El backend espera clientType con estos valores exactos (BUG-1)
+      clientType: raw.type === 'AGENT' ? ('CustomsAgent' as const) : ('Client' as const),
+      agentCode: raw.agentCode || undefined,
+    };
+    this.auth.register(payload).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: () => {

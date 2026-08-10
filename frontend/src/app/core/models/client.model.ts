@@ -31,7 +31,7 @@ export interface RegisterRequest {
   taxId: string;
   phone: string;
   country: 'CL' | 'BO';
-  type: 'CLIENT' | 'AGENT';
+  clientType: 'Client' | 'CustomsAgent';
   agentCode?: string;
 }
 
