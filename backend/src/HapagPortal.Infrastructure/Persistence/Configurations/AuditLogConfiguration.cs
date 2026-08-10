@@ -24,11 +24,13 @@ internal sealed class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
             .HasMaxLength(50)
             .IsRequired();
 
+        // 'text' es el tipo correcto en PostgreSQL; 'nvarchar(max)' es de SQL Server
+        // y rompería las migraciones sobre Npgsql (deuda D1 / BUG menor Fase 8).
         builder.Property(e => e.OldValues)
-            .HasColumnType("nvarchar(max)");
+            .HasColumnType("text");
 
         builder.Property(e => e.NewValues)
-            .HasColumnType("nvarchar(max)");
+            .HasColumnType("text");
 
         builder.Property(e => e.UserId)
             .HasMaxLength(50);

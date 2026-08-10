@@ -55,7 +55,7 @@ public sealed class ResetPasswordCommandHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be("User.NotFound");
+        result.Error.Code.Should().Be("Auth.InvalidResetRequest");
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public sealed class ResetPasswordCommandHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be("Auth.InvalidToken");
+        result.Error.Code.Should().Be("Auth.InvalidResetRequest");
     }
 
     [Fact]
@@ -105,6 +105,6 @@ public sealed class ResetPasswordCommandHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be("Auth.TokenExpired");
+        result.Error.Code.Should().Be("Auth.InvalidResetRequest");
     }
 }

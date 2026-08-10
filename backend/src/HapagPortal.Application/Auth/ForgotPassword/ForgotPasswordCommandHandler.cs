@@ -8,10 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 public sealed class ForgotPasswordCommandHandler(
     IApplicationDbContext dbContext,
-    IEmailService emailService)
-    : ICommandHandler<ForgotPasswordCommand>
+    IEmailService emailService,
+    IAppEnvironment environment)
+    : ICommandHandler<ForgotPasswordCommand, ForgotPasswordResponse>
 {
-    public async Task<Result> Handle(
+    public async Task<Result<ForgotPasswordResponse>> Handle(
         ForgotPasswordCommand request,
         CancellationToken cancellationToken)
     {
@@ -19,6 +20,8 @@ public sealed class ForgotPasswordCommandHandler(
 
         var user = await dbContext.Users
             .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+
+        string? devToken = null;
 
         if (user is not null)
         {
@@ -34,9 +37,13 @@ public sealed class ForgotPasswordCommandHandler(
                 "Reset Your Password - Hapag-Lloyd Portal",
                 $"Use the following token to reset your password: {resetToken}",
                 cancellationToken);
+
+            // Atajo de desarrollo: exponer el token cuando no es producción (BUG-5).
+            if (!environment.IsProduction)
+                devToken = resetToken;
         }
 
-        // Always return success to avoid revealing whether the email exists
-        return Result.Success();
+        // Siempre se devuelve éxito para no revelar si el email existe.
+        return Result<ForgotPasswordResponse>.Success(new ForgotPasswordResponse(devToken));
     }
 }

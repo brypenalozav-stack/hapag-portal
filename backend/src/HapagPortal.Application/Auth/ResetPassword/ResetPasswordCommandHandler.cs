@@ -22,24 +22,23 @@ public sealed class ResetPasswordCommandHandler(
         var user = await dbContext.Users
             .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
-        if (user is null)
-            return Result.Failure(DomainErrors.User.NotFoundByEmail(request.Email));
+        // Error genérico para no revelar si el email existe ni distinguir el motivo (BUG-11).
+        var invalidRequest = Result.Failure(
+            new Error("Auth.InvalidResetRequest", "The password reset request is invalid or has expired."));
 
-        if (!user.IsActive)
-            return Result.Failure(DomainErrors.User.Inactive);
+        if (user is null || !user.IsActive)
+            return invalidRequest;
 
         if (user.PasswordResetToken is null ||
             user.PasswordResetToken != request.Token)
         {
-            return Result.Failure(
-                new Error("Auth.InvalidToken", "The password reset token is invalid."));
+            return invalidRequest;
         }
 
         if (user.PasswordResetTokenExpiry is null ||
             user.PasswordResetTokenExpiry < DateTime.UtcNow)
         {
-            return Result.Failure(
-                new Error("Auth.TokenExpired", "The password reset token has expired."));
+            return invalidRequest;
         }
 
         user.PasswordHash = passwordHasher.Hash(request.NewPassword);

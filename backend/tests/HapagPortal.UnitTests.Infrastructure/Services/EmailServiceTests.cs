@@ -2,17 +2,20 @@ namespace HapagPortal.UnitTests.Infrastructure.Services;
 
 using FluentAssertions;
 using HapagPortal.Infrastructure.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
 public sealed class EmailServiceTests
 {
     private readonly ILogger<EmailService> _logger = Substitute.For<ILogger<EmailService>>();
+    private readonly IConfiguration _configuration = Substitute.For<IConfiguration>();
     private readonly EmailService _service;
 
     public EmailServiceTests()
     {
-        _service = new EmailService(_logger);
+        // Sin Smtp:Host configurado, el servicio registra en el log en vez de enviar.
+        _service = new EmailService(_configuration, _logger);
     }
 
     [Fact]

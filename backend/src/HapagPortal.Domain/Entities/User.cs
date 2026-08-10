@@ -14,6 +14,8 @@ public sealed class User : BaseAuditableEntity
     public string? PasswordResetToken { get; set; }
     public DateTime? PasswordResetTokenExpiry { get; set; }
     public string? EmailConfirmationToken { get; set; }
+    public DateTime? EmailConfirmationTokenExpiry { get; set; }
+    public bool IsEmailConfirmed { get; set; }
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
     public Guid? ClientId { get; set; }

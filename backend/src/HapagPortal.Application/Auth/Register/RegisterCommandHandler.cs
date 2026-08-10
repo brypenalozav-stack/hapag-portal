@@ -75,7 +75,8 @@ public sealed class RegisterCommandHandler(
             UserType = userType,
             Country = request.Country,
             IsActive = true,
-            EmailConfirmationToken = emailConfirmationToken
+            EmailConfirmationToken = emailConfirmationToken,
+            EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(48)
         };
 
         dbContext.Users.Add(user);
