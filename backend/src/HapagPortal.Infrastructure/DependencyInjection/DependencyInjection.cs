@@ -40,6 +40,7 @@ public static partial class DependencyInjectionExtensions
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<ISecretProtector, AesSecretProtector>();
         services.AddScoped<ISecretResolver, SecretResolver>();
+        services.AddScoped<IPermissionResolver, PermissionResolver>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddTransient<IEmailService, EmailService>();

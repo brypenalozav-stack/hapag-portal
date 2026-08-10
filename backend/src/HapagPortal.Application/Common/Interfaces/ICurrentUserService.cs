@@ -7,5 +7,7 @@ public interface ICurrentUserService
     string? Email { get; }
     string? Country { get; }
     IReadOnlyList<string> Roles { get; }
+    IReadOnlyList<string> Permissions { get; }
+    bool HasPermission(string permission);
     bool IsAuthenticated { get; }
 }

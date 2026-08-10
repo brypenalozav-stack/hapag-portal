@@ -3,6 +3,7 @@ namespace HapagPortal.UnitTests.Application.Auth;
 using FluentAssertions;
 using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Auth.Login;
+using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
 using NSubstitute;
@@ -12,11 +13,12 @@ public sealed class LoginCommandHandlerTests
     private readonly MockApplicationDbContext _dbContext = new();
     private readonly IPasswordHasher _passwordHasher = Substitute.For<IPasswordHasher>();
     private readonly IJwtTokenService _jwtTokenService = Substitute.For<IJwtTokenService>();
+    private readonly IPermissionResolver _permissionResolver = Substitute.For<IPermissionResolver>();
     private readonly LoginCommandHandler _handler;
 
     public LoginCommandHandlerTests()
     {
-        _handler = new LoginCommandHandler(_dbContext, _passwordHasher, _jwtTokenService);
+        _handler = new LoginCommandHandler(_dbContext, _passwordHasher, _jwtTokenService, _permissionResolver);
     }
 
     [Fact]
@@ -46,7 +48,7 @@ public sealed class LoginCommandHandlerTests
         _dbContext.UserRoleList.Add(new UserRole { UserId = user.Id, RoleName = "Client" });
 
         _passwordHasher.Verify("Password123", "hashed").Returns(true);
-        _jwtTokenService.GenerateToken(Arg.Any<User>(), Arg.Any<IList<string>>()).Returns("jwt-token");
+        _jwtTokenService.GenerateToken(Arg.Any<User>(), Arg.Any<IList<string>>(), Arg.Any<IList<string>?>()).Returns("jwt-token");
         _jwtTokenService.GenerateRefreshToken().Returns("refresh-token");
 
         var command = new LoginCommand("test@example.com", "Password123");

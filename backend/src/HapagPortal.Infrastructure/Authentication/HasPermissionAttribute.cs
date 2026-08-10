@@ -33,12 +33,13 @@ public sealed class HasPermissionAttribute(
             return Task.CompletedTask;
         }
 
-        var userRoles = user.FindAll(ClaimTypes.Role).Select(c => c.Value).ToHashSet();
+        // Se evalúa contra el claim dedicado "permission" (no contra los roles).
+        var granted = user.FindAll("permission").Select(c => c.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var hasPermission = Logic switch
         {
-            PermissionLogic.All => Permissions.All(p => userRoles.Contains(p)),
-            PermissionLogic.Any => Permissions.Any(p => userRoles.Contains(p)),
+            PermissionLogic.All => Permissions.All(granted.Contains),
+            PermissionLogic.Any => Permissions.Any(granted.Contains),
             _ => false,
         };
 

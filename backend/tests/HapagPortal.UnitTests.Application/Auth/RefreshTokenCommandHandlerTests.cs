@@ -3,6 +3,7 @@ namespace HapagPortal.UnitTests.Application.Auth;
 using FluentAssertions;
 using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Auth.RefreshToken;
+using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
 using NSubstitute;
@@ -11,11 +12,12 @@ public sealed class RefreshTokenCommandHandlerTests
 {
     private readonly MockApplicationDbContext _dbContext = new();
     private readonly IJwtTokenService _jwtTokenService = Substitute.For<IJwtTokenService>();
+    private readonly IPermissionResolver _permissionResolver = Substitute.For<IPermissionResolver>();
     private readonly RefreshTokenCommandHandler _handler;
 
     public RefreshTokenCommandHandlerTests()
     {
-        _handler = new RefreshTokenCommandHandler(_dbContext, _jwtTokenService);
+        _handler = new RefreshTokenCommandHandler(_dbContext, _jwtTokenService, _permissionResolver);
     }
 
     [Fact]
@@ -47,7 +49,7 @@ public sealed class RefreshTokenCommandHandlerTests
         _dbContext.UserRoleList.Add(new UserRole { UserId = user.Id, RoleName = "Client" });
 
         _jwtTokenService.GetEmailFromExpiredToken("expired-jwt").Returns("test@example.com");
-        _jwtTokenService.GenerateToken(Arg.Any<User>(), Arg.Any<IList<string>>()).Returns("new-jwt-token");
+        _jwtTokenService.GenerateToken(Arg.Any<User>(), Arg.Any<IList<string>>(), Arg.Any<IList<string>?>()).Returns("new-jwt-token");
         _jwtTokenService.GenerateRefreshToken().Returns("rotated-refresh-token");
 
         var command = new RefreshTokenCommand("expired-jwt", "valid-refresh-token");

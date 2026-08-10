@@ -10,7 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 public sealed class RefreshTokenCommandHandler(
     IApplicationDbContext dbContext,
-    IJwtTokenService jwtTokenService)
+    IJwtTokenService jwtTokenService,
+    IPermissionResolver permissionResolver)
     : ICommandHandler<RefreshTokenCommand, AuthResponseDto>
 {
     public async Task<Result<AuthResponseDto>> Handle(
@@ -46,7 +47,8 @@ public sealed class RefreshTokenCommandHandler(
             .Select(ur => ur.RoleName)
             .ToListAsync(cancellationToken);
 
-        var token = jwtTokenService.GenerateToken(user, roles);
+        var permissions = await permissionResolver.ResolveAsync(roles, cancellationToken) ?? [];
+        var token = jwtTokenService.GenerateToken(user, roles, permissions.ToList());
 
         // Rotar el refresh token en cada renovacion: el anterior deja de ser valido (BUG-3).
         var newRefreshToken = jwtTokenService.GenerateRefreshToken();
