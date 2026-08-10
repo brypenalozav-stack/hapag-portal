@@ -36,6 +36,11 @@ public sealed class JwtTokenService(
             new("country", user.Country),
         };
 
+        if (user.ClientId.HasValue)
+        {
+            claims.Add(new Claim("clientId", user.ClientId.Value.ToString()));
+        }
+
         foreach (var role in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));

@@ -7,7 +7,9 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class GetLocalChargesByBLQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetLocalChargesByBLQueryHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : IQueryHandler<GetLocalChargesByBLQuery, List<LocalChargeDto>>
 {
     public async Task<Result<List<LocalChargeDto>>> Handle(
@@ -19,7 +21,7 @@ public sealed class GetLocalChargesByBLQueryHandler(IApplicationDbContext dbCont
             .Include(b => b.LocalCharges)
             .FirstOrDefaultAsync(b => b.BLNumber == request.BLNumber, cancellationToken);
 
-        if (bl is null)
+        if (bl is null || bl.ClientId != currentUserService.ClientId)
             return Result<List<LocalChargeDto>>.Failure(
                 DomainErrors.BillOfLading.NotFoundByNumber(request.BLNumber));
 

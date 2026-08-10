@@ -37,7 +37,7 @@ public sealed class CreateServiceOrderCommandHandler(
         var bl = await dbContext.BillsOfLading
             .FirstOrDefaultAsync(b => b.Id == request.BillOfLadingId, cancellationToken);
 
-        if (bl is null)
+        if (bl is null || bl.ClientId != user.ClientId.Value)
             return Result<ServiceOrderResponseDto>.Failure(
                 DomainErrors.BillOfLading.NotFound(request.BillOfLadingId));
 

@@ -7,7 +7,9 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class GetChargesByBLQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetChargesByBLQueryHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : IQueryHandler<GetChargesByBLQuery, BLChargesResponseDto>
 {
     public async Task<Result<BLChargesResponseDto>> Handle(
@@ -20,7 +22,7 @@ public sealed class GetChargesByBLQueryHandler(IApplicationDbContext dbContext)
             .Include(b => b.DemurrageCharges)
             .FirstOrDefaultAsync(b => b.BLNumber == request.BLNumber, cancellationToken);
 
-        if (bl is null)
+        if (bl is null || bl.ClientId != currentUserService.ClientId)
             return Result<BLChargesResponseDto>.Failure(
                 DomainErrors.BillOfLading.NotFoundByNumber(request.BLNumber));
 

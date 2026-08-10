@@ -6,7 +6,9 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class GetServiceOrderPdfQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetServiceOrderPdfQueryHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : IQueryHandler<GetServiceOrderPdfQuery, byte[]>
 {
     public async Task<Result<byte[]>> Handle(
@@ -18,6 +20,10 @@ public sealed class GetServiceOrderPdfQueryHandler(IApplicationDbContext dbConte
             .FirstOrDefaultAsync(so => so.Id == request.Id, cancellationToken);
 
         if (serviceOrder is null)
+            return Result<byte[]>.Failure(
+                DomainErrors.ServiceOrder.NotFound(request.Id));
+
+        if (serviceOrder.ClientId != currentUserService.ClientId)
             return Result<byte[]>.Failure(
                 DomainErrors.ServiceOrder.NotFound(request.Id));
 

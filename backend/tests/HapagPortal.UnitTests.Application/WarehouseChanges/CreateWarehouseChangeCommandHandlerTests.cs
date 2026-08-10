@@ -1,19 +1,24 @@
 namespace HapagPortal.UnitTests.Application.WarehouseChanges;
 
 using FluentAssertions;
+using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.WarehouseChanges.Commands.Create;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
+using NSubstitute;
 
 public sealed class CreateWarehouseChangeCommandHandlerTests
 {
     private readonly MockApplicationDbContext _dbContext = new();
+    private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
+    private readonly Guid _clientId = Guid.NewGuid();
     private readonly CreateWarehouseChangeCommandHandler _handler;
 
     public CreateWarehouseChangeCommandHandlerTests()
     {
-        _handler = new CreateWarehouseChangeCommandHandler(_dbContext);
+        _currentUser.ClientId.Returns(_clientId);
+        _handler = new CreateWarehouseChangeCommandHandler(_dbContext, _currentUser);
     }
 
     [Fact]
@@ -26,7 +31,8 @@ public sealed class CreateWarehouseChangeCommandHandlerTests
             FreightAmount = 1500m,
             FreightCurrency = "USD",
             Status = "Active",
-            Country = "CL"
+            Country = "CL",
+            ClientId = _clientId
         };
 
         _dbContext.BillsOfLadingList.Add(bl);
@@ -67,7 +73,8 @@ public sealed class CreateWarehouseChangeCommandHandlerTests
             FreightAmount = 1500m,
             FreightCurrency = "USD",
             Status = "Active",
-            Country = "CL"
+            Country = "CL",
+            ClientId = _clientId
         };
 
         _dbContext.BillsOfLadingList.Add(bl);
@@ -90,7 +97,8 @@ public sealed class CreateWarehouseChangeCommandHandlerTests
             FreightAmount = 1500m,
             FreightCurrency = "USD",
             Status = "Active",
-            Country = "BO"
+            Country = "BO",
+            ClientId = _clientId
         };
 
         _dbContext.BillsOfLadingList.Add(bl);
