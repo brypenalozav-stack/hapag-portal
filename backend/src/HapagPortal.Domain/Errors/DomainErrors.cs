@@ -120,4 +120,25 @@ public static class DomainErrors
         public static Error NotFound(Guid id) =>
             new("WarehouseChange.NotFound", $"The warehouse change with ID '{id}' was not found.");
     }
+
+    public static class Customs
+    {
+        public static Error ManifestNotFound(Guid id) =>
+            new("Customs.ManifestNotFound", $"El manifiesto con ID '{id}' no existe.");
+
+        public static Error TransmissionNotFound(Guid id) =>
+            new("Customs.TransmissionNotFound", $"La transmisión con ID '{id}' no existe.");
+
+        public static readonly Error AlreadyAccepted =
+            new("Customs.AlreadyAccepted", "La transmisión ya fue aceptada por Aduana; no admite reintento ni reenvío.");
+
+        public static readonly Error HeaderNotAccepted =
+            new("Customs.HeaderNotAccepted", "El encabezado del manifiesto debe estar aceptado antes de transmitir los B/L.");
+
+        public static readonly Error ParentNotTransmitted =
+            new("Customs.ParentNotTransmitted", "El B/L padre (Máster) debe estar transmitido y aceptado antes que el B/L Hijo.");
+
+        public static Error IncompleteBL(string reason) =>
+            new("Customs.IncompleteBL", $"El B/L no está completo para transmitir: {reason}");
+    }
 }

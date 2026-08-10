@@ -18,6 +18,9 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<BLContainer> BLContainerList { get; } = [];
     public List<BLParty> BLPartyList { get; } = [];
     public List<BLCargoItem> BLCargoItemList { get; } = [];
+    public List<CustomsManifest> CustomsManifestList { get; } = [];
+    public List<CustomsTransmission> CustomsTransmissionList { get; } = [];
+    public List<CustomsTransmissionEvent> CustomsTransmissionEventList { get; } = [];
     public List<LocalCharge> LocalChargeList { get; } = [];
     public List<DemurrageCharge> DemurrageChargeList { get; } = [];
     public List<Payment> PaymentList { get; } = [];
@@ -43,6 +46,9 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<BLContainer> BLContainers => MockDbSetHelper.CreateMockDbSet(BLContainerList);
     public DbSet<BLParty> BLParties => MockDbSetHelper.CreateMockDbSet(BLPartyList);
     public DbSet<BLCargoItem> BLCargoItems => MockDbSetHelper.CreateMockDbSet(BLCargoItemList);
+    public DbSet<CustomsManifest> CustomsManifests => MockDbSetHelper.CreateMockDbSet(CustomsManifestList);
+    public DbSet<CustomsTransmission> CustomsTransmissions => MockDbSetHelper.CreateMockDbSet(CustomsTransmissionList);
+    public DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents => MockDbSetHelper.CreateMockDbSet(CustomsTransmissionEventList);
     public DbSet<LocalCharge> LocalCharges => MockDbSetHelper.CreateMockDbSet(LocalChargeList);
     public DbSet<DemurrageCharge> DemurrageCharges => MockDbSetHelper.CreateMockDbSet(DemurrageChargeList);
     public DbSet<Payment> Payments => MockDbSetHelper.CreateMockDbSet(PaymentList);

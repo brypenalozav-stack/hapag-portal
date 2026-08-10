@@ -17,6 +17,9 @@ public interface IApplicationDbContext
     DbSet<BLContainer> BLContainers { get; }
     DbSet<BLParty> BLParties { get; }
     DbSet<BLCargoItem> BLCargoItems { get; }
+    DbSet<CustomsManifest> CustomsManifests { get; }
+    DbSet<CustomsTransmission> CustomsTransmissions { get; }
+    DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents { get; }
     DbSet<LocalCharge> LocalCharges { get; }
     DbSet<DemurrageCharge> DemurrageCharges { get; }
     DbSet<Payment> Payments { get; }

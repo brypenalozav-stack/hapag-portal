@@ -20,6 +20,9 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<BLContainer> BLContainers => Set<BLContainer>();
     public DbSet<BLParty> BLParties => Set<BLParty>();
     public DbSet<BLCargoItem> BLCargoItems => Set<BLCargoItem>();
+    public DbSet<CustomsManifest> CustomsManifests => Set<CustomsManifest>();
+    public DbSet<CustomsTransmission> CustomsTransmissions => Set<CustomsTransmission>();
+    public DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents => Set<CustomsTransmissionEvent>();
     public DbSet<LocalCharge> LocalCharges => Set<LocalCharge>();
     public DbSet<DemurrageCharge> DemurrageCharges => Set<DemurrageCharge>();
     public DbSet<Payment> Payments => Set<Payment>();
