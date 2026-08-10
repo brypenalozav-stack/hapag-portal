@@ -228,7 +228,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.AdminUserRole,
             UserId = SeedDataIds.AdminUser,
-            RoleName = "Admin"
+            RoleName = "Admin",
+            RoleId = DeterministicGuid($"role:{RoleCodes.Administrador}")
         });
     }
 
@@ -446,7 +447,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.DemoUserRoleCL,
             UserId = SeedDataIds.DemoUserCL,
-            RoleName = "User"
+            RoleName = "User",
+            RoleId = DeterministicGuid($"role:{RoleCodes.Client}")
         });
 
         // Demo client — Bolivian importer
@@ -486,7 +488,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.DemoUserRoleBO,
             UserId = SeedDataIds.DemoUserBO,
-            RoleName = "User"
+            RoleName = "User",
+            RoleId = DeterministicGuid($"role:{RoleCodes.Client}")
         });
 
         // Agent client — Chilean freight agent
@@ -527,7 +530,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.AgentUserRoleCL,
             UserId = SeedDataIds.AgentUserCL,
-            RoleName = "User"
+            RoleName = "User",
+            RoleId = DeterministicGuid($"role:{RoleCodes.CustomsAgent}")
         });
 
         // ──────────────────────────────────────────────────────────────
