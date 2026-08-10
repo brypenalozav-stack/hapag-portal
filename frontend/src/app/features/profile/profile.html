@@ -20,11 +20,8 @@
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <div class="mb-3">
               <label class="form-label fw-semibold">Nombre</label>
-              <input type="text" class="form-control" formControlName="name"
-                     [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid" />
-              @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
-                <div class="invalid-feedback">El nombre es obligatorio.</div>
-              }
+              <input type="text" class="form-control" formControlName="name" readonly />
+              <div class="form-text">El nombre no puede modificarse desde el portal.</div>
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Teléfono</label>

@@ -16,6 +16,7 @@ export class PaymentService {
   }
 
   getAll(): Observable<Payment[]> {
-    return this.api.get<Payment[]>('payments');
+    // El backend expone la lista del cliente en payments/my (BUG-4).
+    return this.api.get<Payment[]>('payments/my');
   }
 }

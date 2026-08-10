@@ -21,9 +21,10 @@ export interface ServiceOrder {
 }
 
 export interface CreateServiceOrderRequest {
-  blNumber: string;
-  type: string;
+  orderType: string;
   description: string;
+  billOfLadingId: string;
+  country: 'CL' | 'BO';
 }
 
 @Injectable({ providedIn: 'root' })

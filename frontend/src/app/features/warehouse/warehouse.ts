@@ -1,8 +1,10 @@
 import { Component, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
+import { BillOfLadingService } from '../../core/services/bl.service';
 import { API_ENDPOINTS } from '../../core/constants/app.constants';
 
 @Component({
@@ -94,6 +96,16 @@ import { API_ENDPOINTS } from '../../core/constants/app.constants';
                        placeholder="Teléfono para coordinación" />
               </div>
 
+              <div class="hl-form-group">
+                <label for="amount">Monto</label>
+                <input type="number" id="amount" class="form-control" formControlName="amount" min="1"
+                       placeholder="Monto de la solicitud"
+                       [class.is-invalid]="form.controls.amount.touched && form.controls.amount.invalid" />
+                @if (form.controls.amount.touched && form.controls.amount.invalid) {
+                  <div class="invalid-feedback">Ingrese un monto válido.</div>
+                }
+              </div>
+
               <button type="submit" class="btn btn-hl-orange w-100 py-2 mt-2" [disabled]="submitting()">
                 @if (submitting()) {
                   <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -111,6 +123,7 @@ import { API_ENDPOINTS } from '../../core/constants/app.constants';
 export class WarehouseComponent {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(ApiService);
+  private readonly blService = inject(BillOfLadingService);
   private readonly destroyRef = inject(DestroyRef);
 
   form = this.fb.nonNullable.group({
@@ -120,6 +133,7 @@ export class WarehouseComponent {
     requestedWarehouse: ['', Validators.required],
     reason: ['', Validators.required],
     contactPhone: [''],
+    amount: [0, [Validators.required, Validators.min(1)]],
   });
 
   submitting = signal(false);
@@ -135,7 +149,17 @@ export class WarehouseComponent {
     this.submitting.set(true);
     this.error.set('');
 
-    this.api.post(API_ENDPOINTS.WAREHOUSE_CHANGES, this.form.getRawValue()).pipe(
+    // El backend espera fromWarehouse/toWarehouse/billOfLadingId (Guid)/country/amount;
+    // se resuelve el BL a partir del número antes de enviar (BUG-13).
+    const raw = this.form.getRawValue();
+    this.blService.getByNumber(raw.blNumber).pipe(
+      switchMap((bl) => this.api.post(API_ENDPOINTS.WAREHOUSE_CHANGES, {
+        fromWarehouse: raw.currentWarehouse,
+        toWarehouse: raw.requestedWarehouse,
+        billOfLadingId: bl.id,
+        country: bl.country,
+        amount: raw.amount,
+      })),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: () => {
