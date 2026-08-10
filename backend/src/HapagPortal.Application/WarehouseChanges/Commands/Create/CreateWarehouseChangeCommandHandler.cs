@@ -9,7 +9,9 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class CreateWarehouseChangeCommandHandler(IApplicationDbContext dbContext)
+public sealed class CreateWarehouseChangeCommandHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : ICommandHandler<CreateWarehouseChangeCommand, WarehouseChangeResponseDto>
 {
     public async Task<Result<WarehouseChangeResponseDto>> Handle(
@@ -19,7 +21,7 @@ public sealed class CreateWarehouseChangeCommandHandler(IApplicationDbContext db
         var bl = await dbContext.BillsOfLading
             .FirstOrDefaultAsync(b => b.Id == request.BillOfLadingId, cancellationToken);
 
-        if (bl is null)
+        if (bl is null || bl.ClientId != currentUserService.ClientId)
             return Result<WarehouseChangeResponseDto>.Failure(
                 DomainErrors.BillOfLading.NotFound(request.BillOfLadingId));
 

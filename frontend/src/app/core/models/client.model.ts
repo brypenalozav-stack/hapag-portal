@@ -7,7 +7,7 @@ export interface Client {
   country: 'CL' | 'BO';
   type: 'CLIENT' | 'AGENT';
   agentCode?: string;
-  role: 'USER' | 'ADMIN' | 'BA' | 'AGENT';
+  role: 'USER' | 'ADMIN';
   isActive: boolean;
   createdAt: string;
 }
@@ -31,7 +31,7 @@ export interface RegisterRequest {
   taxId: string;
   phone: string;
   country: 'CL' | 'BO';
-  type: 'CLIENT' | 'AGENT';
+  clientType: 'Client' | 'CustomsAgent';
   agentCode?: string;
 }
 

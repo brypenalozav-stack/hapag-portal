@@ -46,6 +46,9 @@ export class CreditClientsComponent implements OnInit {
   formSuccess = signal('');
 
   form = this.fb.nonNullable.group({
+    // El backend crea el crédito para un cliente EXISTENTE (por Guid); name/taxId
+    // son informativos y no se envían (BUG-13).
+    clientId: [''],
     name: ['', Validators.required],
     taxId: ['', Validators.required],
     country: ['CL' as 'CL' | 'BO', Validators.required],
@@ -97,7 +100,7 @@ export class CreditClientsComponent implements OnInit {
 
   openCreateForm(): void {
     this.editingClient.set(null);
-    this.form.reset({ name: '', taxId: '', country: 'CL', creditLimit: 0, currency: 'USD' });
+    this.form.reset({ clientId: '', name: '', taxId: '', country: 'CL', creditLimit: 0, currency: 'USD' });
     this.formError.set('');
     this.formSuccess.set('');
     this.showForm.set(true);
@@ -132,12 +135,24 @@ export class CreditClientsComponent implements OnInit {
     this.formError.set('');
     this.formSuccess.set('');
 
-    const data = this.form.getRawValue();
+    const raw = this.form.getRawValue();
     const editing = this.editingClient();
 
+    if (!editing && !raw.clientId.trim()) {
+      this.submitting.set(false);
+      this.formError.set('Debe indicar el ID del cliente existente.');
+      return;
+    }
+
+    // Create: el backend espera { clientId, country, creditLimit }.
+    // Update: solo { creditLimit } (el Id va en la ruta).
     const request$ = editing
-      ? this.api.put(`${API_ENDPOINTS.ADMIN_CREDIT_CLIENTS}/${editing.id}`, data)
-      : this.api.post(API_ENDPOINTS.ADMIN_CREDIT_CLIENTS, data);
+      ? this.api.put(`${API_ENDPOINTS.ADMIN_CREDIT_CLIENTS}/${editing.id}`, { creditLimit: raw.creditLimit })
+      : this.api.post(API_ENDPOINTS.ADMIN_CREDIT_CLIENTS, {
+          clientId: raw.clientId,
+          country: raw.country,
+          creditLimit: raw.creditLimit,
+        });
 
     request$.pipe(
       takeUntilDestroyed(this.destroyRef),

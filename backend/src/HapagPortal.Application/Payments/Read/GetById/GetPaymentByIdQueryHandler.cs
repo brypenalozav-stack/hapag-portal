@@ -7,7 +7,9 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class GetPaymentByIdQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetPaymentByIdQueryHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : IQueryHandler<GetPaymentByIdQuery, PaymentResponseDto>
 {
     public async Task<Result<PaymentResponseDto>> Handle(
@@ -22,6 +24,10 @@ public sealed class GetPaymentByIdQueryHandler(IApplicationDbContext dbContext)
             .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 
         if (payment is null)
+            return Result<PaymentResponseDto>.Failure(DomainErrors.Payment.NotFound(request.Id));
+
+        // Solo el cliente dueño puede verlo; si no, NotFound para no revelar existencia (BUG-7).
+        if (payment.ClientId != currentUserService.ClientId)
             return Result<PaymentResponseDto>.Failure(DomainErrors.Payment.NotFound(request.Id));
 
         return Result<PaymentResponseDto>.Success(

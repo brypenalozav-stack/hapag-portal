@@ -39,6 +39,7 @@ public sealed class ConfirmEmailCommandHandlerTests
             Country = "CL",
             IsActive = true,
             EmailConfirmationToken = "confirm-token",
+            EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(48),
             ClientId = client.Id,
             Client = client
         };
@@ -51,6 +52,7 @@ public sealed class ConfirmEmailCommandHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
+        user.IsEmailConfirmed.Should().BeTrue();      // ahora se marca el usuario (BUG-12)
         client.IsEmailConfirmed.Should().BeTrue();
         user.EmailConfirmationToken.Should().BeNull();
         _dbContext.SaveChangesCallCount.Should().Be(1);

@@ -1,5 +1,6 @@
 namespace HapagPortal.Application.Auth.ForgotPassword;
 
+using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Domain.Results;
@@ -14,8 +15,10 @@ public sealed class ForgotPasswordCommandHandler(
         ForgotPasswordCommand request,
         CancellationToken cancellationToken)
     {
+        var email = EmailNormalizer.Normalize(request.Email);
+
         var user = await dbContext.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
         if (user is not null)
         {
@@ -26,6 +29,8 @@ public sealed class ForgotPasswordCommandHandler(
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            // El token se entrega SOLO por email. En local, EmailService lo escribe en el
+            // log cuando no hay SMTP configurado. La respuesta HTTP nunca lo expone.
             await emailService.SendEmailAsync(
                 user.Email,
                 "Reset Your Password - Hapag-Lloyd Portal",
@@ -33,7 +38,7 @@ public sealed class ForgotPasswordCommandHandler(
                 cancellationToken);
         }
 
-        // Always return success to avoid revealing whether the email exists
+        // Respuesta siempre idéntica, exista o no el correo (anti-enumeración).
         return Result.Success();
     }
 }

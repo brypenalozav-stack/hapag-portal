@@ -2,6 +2,7 @@ namespace HapagPortal.Application.Auth.Login;
 
 using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Common.Dtos;
+using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Domain.Errors;
@@ -18,9 +19,11 @@ public sealed class LoginCommandHandler(
         LoginCommand request,
         CancellationToken cancellationToken)
     {
+        var email = EmailNormalizer.Normalize(request.Email);
+
         var user = await dbContext.Users
             .Include(u => u.Client)
-            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
         if (user is null)
             return Result<AuthResponseDto>.Failure(DomainErrors.User.InvalidCredentials);
@@ -50,6 +53,7 @@ public sealed class LoginCommandHandler(
         var clientType = client?.ClientType switch
         {
             "Agent" => "AGENT",
+            "CustomsAgent" => "AGENT",
             _ => "CLIENT"
         };
 

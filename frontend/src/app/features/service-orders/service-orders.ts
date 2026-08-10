@@ -1,8 +1,10 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { ServiceOrderService, ServiceOrder } from '../../core/services/service-order.service';
+import { BillOfLadingService } from '../../core/services/bl.service';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
 
@@ -16,6 +18,7 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
 export class ServiceOrdersComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ServiceOrderService);
+  private readonly blService = inject(BillOfLadingService);
   private readonly destroyRef = inject(DestroyRef);
 
   orders = signal<ServiceOrder[]>([]);
@@ -83,7 +86,16 @@ export class ServiceOrdersComponent implements OnInit {
     this.formError.set('');
     this.formSuccess.set('');
 
-    this.service.create(this.form.getRawValue()).pipe(
+    // El backend necesita el Guid del BL y el país; se resuelven a partir del
+    // número de BL antes de crear la orden (BUG-13).
+    const raw = this.form.getRawValue();
+    this.blService.getByNumber(raw.blNumber).pipe(
+      switchMap((bl) => this.service.create({
+        orderType: raw.type,
+        description: raw.description,
+        billOfLadingId: bl.id,
+        country: bl.country,
+      })),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (order) => {

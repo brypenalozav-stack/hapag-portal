@@ -6,7 +6,9 @@ using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class GetLocalChargesByContainerQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetLocalChargesByContainerQueryHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : IQueryHandler<GetLocalChargesByContainerQuery, List<LocalChargeDto>>
 {
     public async Task<Result<List<LocalChargeDto>>> Handle(
@@ -20,10 +22,13 @@ public sealed class GetLocalChargesByContainerQueryHandler(IApplicationDbContext
             .Distinct()
             .ToListAsync(cancellationToken);
 
+        var clientId = currentUserService.ClientId;
+
         var entities = await dbContext.LocalCharges
             .AsNoTracking()
             .Include(lc => lc.BillOfLading)
-            .Where(lc => blIds.Contains(lc.BillOfLadingId))
+            .Where(lc => blIds.Contains(lc.BillOfLadingId)
+                && lc.BillOfLading!.ClientId == clientId)
             .ToListAsync(cancellationToken);
 
         var charges = entities.Select(lc => new LocalChargeDto(

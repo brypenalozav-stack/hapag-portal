@@ -43,7 +43,7 @@ public sealed class FAQsController : ApiController
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,BA")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(
         [FromBody] CreateFAQCommand command,
         CancellationToken cancellationToken)

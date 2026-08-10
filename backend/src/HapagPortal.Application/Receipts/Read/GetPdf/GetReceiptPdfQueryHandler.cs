@@ -6,7 +6,9 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class GetReceiptPdfQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetReceiptPdfQueryHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService)
     : IQueryHandler<GetReceiptPdfQuery, byte[]>
 {
     public async Task<Result<byte[]>> Handle(
@@ -18,6 +20,10 @@ public sealed class GetReceiptPdfQueryHandler(IApplicationDbContext dbContext)
             .FirstOrDefaultAsync(p => p.Id == request.PaymentId && p.ReceiptNumber != null, cancellationToken);
 
         if (payment is null)
+            return Result<byte[]>.Failure(
+                DomainErrors.Payment.NotFound(request.PaymentId));
+
+        if (payment.ClientId != currentUserService.ClientId)
             return Result<byte[]>.Failure(
                 DomainErrors.Payment.NotFound(request.PaymentId));
 

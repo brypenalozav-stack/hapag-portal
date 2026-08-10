@@ -27,6 +27,14 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="row g-3">
+        @if (!editingClient()) {
+          <div class="col-md-12">
+            <label class="form-label fw-semibold">ID del Cliente (UUID)</label>
+            <input type="text" class="form-control" formControlName="clientId"
+                   placeholder="UUID de un cliente existente" />
+            <div class="form-text">El crédito se asocia a un cliente ya registrado.</div>
+          </div>
+        }
         <div class="col-md-6">
           <label class="form-label fw-semibold">Nombre / Razón Social</label>
           <input type="text" class="form-control" formControlName="name"

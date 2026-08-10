@@ -5,4 +5,5 @@ using HapagPortal.Application.Common.Messaging;
 public sealed record KhipuWebhookCommand(
     string NotificationToken,
     string ExternalReference,
-    string Status) : ICommand;
+    string Status,
+    string? Secret = null) : ICommand;

@@ -25,11 +25,8 @@ export class AuthService {
 
   isAuthenticated = computed(() => !!this.currentUser() && !!this.getToken());
 
-  /** Admin check: case-insensitive, accepts ADMIN and BA roles */
-  isAdmin = computed(() => {
-    const role = this.currentUser()?.role?.toUpperCase();
-    return role === ROLES.ADMIN || role === ROLES.BA;
-  });
+  /** Admin check: el backend solo emite ADMIN/USER (BUG-14). */
+  isAdmin = computed(() => this.currentUser()?.role?.toUpperCase() === ROLES.ADMIN);
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.api.post<LoginResponse>(API_ENDPOINTS.AUTH_LOGIN, credentials).pipe(
