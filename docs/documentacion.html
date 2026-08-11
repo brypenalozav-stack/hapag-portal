@@ -406,22 +406,6 @@ flowchart TD
       <div class="note">Qué debes hacer <strong>tú</strong>: al cargar un BL, indica el <strong>país</strong> correcto (CL o BO). El resto —qué identificador validar, qué moneda y qué plazos aplicar— lo resuelve el sistema. Para un país nuevo, primero el administrador carga sus reglas de plazo y credenciales.</div>
     </section>
 
-    <section id="u-journey">
-      <h2>Un día del Coordinador</h2>
-      <div class="diagram"><pre class="mermaid">
-journey
-  title Jornada del Coordinador
-  section Mañana
-    Revisar notificaciones: 4: Coordinador
-    Cargar BL del día: 3: Coordinador
-    Corregir errores de validación: 2: Coordinador
-  section Tarde
-    Revisar tablero de plazos: 4: Coordinador
-    Coordinar transmisión con Supervisor: 3: Coordinador
-    Exportar reporte: 5: Coordinador
-      </pre></div>
-    </section>
-
     <section id="u-glosario">
       <h2>Glosario del negocio naviero</h2>
       <table>
@@ -477,12 +461,8 @@ flowchart LR
   sys --> sii["SII"]
   sys --> fis2["FIS2 / DataLake"]
   sys --> smtp["SMTP"]
-  class interno,cliente actor
   class sys core
-  class aduana,sii,fis2,smtp ext
-  classDef actor fill:#1a2b45,color:#fff
-  classDef core fill:#ff6600,color:#fff
-  classDef ext fill:#66707c,color:#fff
+  classDef core fill:#ff6600,color:#fff,stroke:#c85200
       </pre></div>
     </section>
 
