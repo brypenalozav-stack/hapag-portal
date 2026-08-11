@@ -1,8 +1,11 @@
 using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Infrastructure.Authentication;
+using HapagPortal.Infrastructure.Customs;
+using HapagPortal.Infrastructure.Notifications;
 using HapagPortal.Infrastructure.Persistence;
 using HapagPortal.Infrastructure.Persistence.Interceptors;
+using HapagPortal.Infrastructure.Secrets;
 using HapagPortal.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -37,10 +40,15 @@ public static partial class DependencyInjectionExtensions
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddSingleton<ISecretProtector, AesSecretProtector>();
+        services.AddScoped<ISecretResolver, SecretResolver>();
+        services.AddScoped<IPermissionResolver, PermissionResolver>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddTransient<IEmailService, EmailService>();
         services.AddTransient<IPaymentGatewayService, PaymentGatewayService>();
+        services.AddTransient<ICustomsTransmitter, StubCustomsTransmitter>();
+        services.AddScoped<INotificationPublisher, NotificationPublisher>();
         services.AddSingleton<IWebhookAuthenticator, WebhookAuthenticator>();
 
         services.AddHttpContextAccessor();

@@ -11,8 +11,21 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<User> Users => Set<User>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<ConfigurationSetting> ConfigurationSettings => Set<ConfigurationSetting>();
+    public DbSet<SecretCredential> SecretCredentials => Set<SecretCredential>();
     public DbSet<BillOfLading> BillsOfLading => Set<BillOfLading>();
     public DbSet<BLContainer> BLContainers => Set<BLContainer>();
+    public DbSet<BLParty> BLParties => Set<BLParty>();
+    public DbSet<BLCargoItem> BLCargoItems => Set<BLCargoItem>();
+    public DbSet<CustomsManifest> CustomsManifests => Set<CustomsManifest>();
+    public DbSet<CustomsTransmission> CustomsTransmissions => Set<CustomsTransmission>();
+    public DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents => Set<CustomsTransmissionEvent>();
+    public DbSet<DeadlineRule> DeadlineRules => Set<DeadlineRule>();
+    public DbSet<DeadlineInstance> DeadlineInstances => Set<DeadlineInstance>();
+    public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<LocalCharge> LocalCharges => Set<LocalCharge>();
     public DbSet<DemurrageCharge> DemurrageCharges => Set<DemurrageCharge>();
     public DbSet<Payment> Payments => Set<Payment>();
@@ -36,6 +49,121 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         SeedAdminClientAndUser(modelBuilder);
         SeedFAQs(modelBuilder);
         SeedDemoData(modelBuilder);
+        SeedRbac(modelBuilder);
+        SeedDeadlineRules(modelBuilder);
+    }
+
+    /// <summary>
+    /// Reglas de plazo aduaneras como CONFIGURACIÓN editable (no hardcode). Valores, fuente y
+    /// certeza según la tabla de la Fase 4 del plan; lo no confirmado queda marcado como tal.
+    /// </summary>
+    private static void SeedDeadlineRules(ModelBuilder modelBuilder)
+    {
+        var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // (Code, Name, BaseEvent, OffsetHours, AtRisk, Direction, Country, BLType, Severity, Source, Certainty)
+        var rules = new[]
+        {
+            ("MANIFEST_HEADER_IN", "Encabezado manifiesto (ingreso)", DeadlineBaseEvents.ArrivalEstimated, -168, 48, "Ingreso", (string?)null, (string?)null, DeadlineSeverity.High, "Ficha aduana.cl", DeadlineCertainty.Confirmed),
+            ("BL_MASTER_IN", "B/L Máster (ingreso)", DeadlineBaseEvents.ArrivalEstimated, -48, 12, "Ingreso", null, "Master", DeadlineSeverity.High, "Material oficial Aduana (verificar Res. 7591/2012)", DeadlineCertainty.ToVerify),
+            ("BL_HOUSE_IN", "B/L Hijo (ingreso)", DeadlineBaseEvents.ArrivalEstimated, -24, 6, "Ingreso", null, "House", DeadlineSeverity.High, "Material oficial Aduana", DeadlineCertainty.ToVerify),
+            ("MANIFEST_AMEND_IN", "Aclaración al manifiesto (ingreso)", DeadlineBaseEvents.DepartureEstimated, 168, 48, "Ingreso", null, null, DeadlineSeverity.Medium, "Cap. 3 CNA num. 2.6", DeadlineCertainty.Confirmed),
+            ("GOODS_DELIVERY", "Entrega de mercancías a almacenista", DeadlineBaseEvents.DepartureEstimated, 24, 6, null, null, null, DeadlineSeverity.Medium, "Cap. 3 CNA num. 2.4", DeadlineCertainty.Confirmed),
+            ("MANIFEST_HEADER_OUT", "Encabezado manifiesto (salida)", DeadlineBaseEvents.DepartureEstimated, -48, 12, "Salida", null, null, DeadlineSeverity.High, "Res. 9432/2008", DeadlineCertainty.Confirmed),
+            ("BL_EMPTY_OUT", "B/L y contenedores vacíos (salida)", DeadlineBaseEvents.DepartureEstimated, 72, 24, "Salida", null, null, DeadlineSeverity.Low, "Res. 6609/2012 (valor por confirmar)", DeadlineCertainty.Uncertain),
+            ("MICDTA_BO", "MIC/DTA tránsito (Bolivia)", DeadlineBaseEvents.DespatchRequest, 48, 12, null, "BO", null, DeadlineSeverity.Medium, "Cap. 3 CNA", DeadlineCertainty.Confirmed),
+        };
+
+        modelBuilder.Entity<DeadlineRule>().HasData(rules.Select(r => new DeadlineRule
+        {
+            Id = DeterministicGuid($"deadline:{r.Item1}"),
+            Code = r.Item1,
+            Name = r.Item2,
+            BaseEvent = r.Item3,
+            OffsetHours = r.Item4,
+            AtRiskWindowHours = r.Item5,
+            Direction = r.Item6,
+            Country = r.Item7,
+            BLType = r.Item8,
+            Severity = r.Item9,
+            Source = r.Item10,
+            Certainty = r.Item11,
+            IsActive = true,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
+    }
+
+    /// <summary>GUID determinista y estable (no aleatorio) para datos semilla, derivado del código.</summary>
+    private static Guid DeterministicGuid(string seed)
+    {
+        var bytes = System.Security.Cryptography.MD5.HashData(System.Text.Encoding.UTF8.GetBytes(seed));
+        return new Guid(bytes);
+    }
+
+    private static void SeedRbac(ModelBuilder modelBuilder)
+    {
+        var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // Roles del sistema
+        var roles = new (string Code, string Name)[]
+        {
+            (RoleCodes.Administrador, "Administrador"),
+            (RoleCodes.Coordinador, "Coordinador"),
+            (RoleCodes.Supervisor, "Supervisor"),
+            (RoleCodes.ExternalApi, "External API"),
+            (RoleCodes.Client, "Cliente"),
+            (RoleCodes.CustomsAgent, "Agente de Aduana"),
+            (RoleCodes.AdminBA, "Administrador BA"),
+            (RoleCodes.SuperAdmin, "Super Administrador"),
+        };
+
+        modelBuilder.Entity<Role>().HasData(roles.Select(r => new Role
+        {
+            Id = DeterministicGuid($"role:{r.Code}"),
+            Code = r.Code,
+            Name = r.Name,
+            IsSystem = true,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
+
+        // Catálogo de permisos de la consola operativa
+        var permissions = new[]
+        {
+            "users.manage", "roles.manage", "maintainers.manage",
+            "config.global.manage", "config.client.manage",
+            "bl.upload", "bl.view",
+            "customs.transmit", "customs.retry", "customs.view",
+            "deadlines.view", "audit.view", "reports.view", "notifications.view",
+        };
+
+        modelBuilder.Entity<Permission>().HasData(permissions.Select(p => new Permission
+        {
+            Id = DeterministicGuid($"perm:{p}"),
+            Code = p,
+            Description = p
+        }));
+
+        // Asignaciones base por rol (Administrador/SuperAdmin se resuelven como comodín en runtime).
+        var assignments = new (string Role, string Perm)[]
+        {
+            (RoleCodes.Coordinador, "bl.upload"), (RoleCodes.Coordinador, "bl.view"),
+            (RoleCodes.Coordinador, "customs.view"), (RoleCodes.Coordinador, "deadlines.view"),
+            (RoleCodes.Coordinador, "reports.view"), (RoleCodes.Coordinador, "notifications.view"),
+            (RoleCodes.Supervisor, "bl.view"), (RoleCodes.Supervisor, "customs.transmit"),
+            (RoleCodes.Supervisor, "customs.retry"), (RoleCodes.Supervisor, "customs.view"),
+            (RoleCodes.Supervisor, "deadlines.view"), (RoleCodes.Supervisor, "audit.view"),
+            (RoleCodes.Supervisor, "reports.view"), (RoleCodes.Supervisor, "notifications.view"),
+            (RoleCodes.ExternalApi, "bl.upload"), (RoleCodes.ExternalApi, "customs.transmit"),
+        };
+
+        modelBuilder.Entity<RolePermission>().HasData(assignments.Select(a => new RolePermission
+        {
+            Id = DeterministicGuid($"rp:{a.Role}:{a.Perm}"),
+            RoleId = DeterministicGuid($"role:{a.Role}"),
+            PermissionId = DeterministicGuid($"perm:{a.Perm}")
+        }));
     }
 
     private static void SeedCurrencies(ModelBuilder modelBuilder)
@@ -150,7 +278,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.AdminUserRole,
             UserId = SeedDataIds.AdminUser,
-            RoleName = "Admin"
+            RoleName = "Admin",
+            RoleId = DeterministicGuid($"role:{RoleCodes.Administrador}")
         });
     }
 
@@ -368,7 +497,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.DemoUserRoleCL,
             UserId = SeedDataIds.DemoUserCL,
-            RoleName = "User"
+            RoleName = "User",
+            RoleId = DeterministicGuid($"role:{RoleCodes.Client}")
         });
 
         // Demo client — Bolivian importer
@@ -408,7 +538,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.DemoUserRoleBO,
             UserId = SeedDataIds.DemoUserBO,
-            RoleName = "User"
+            RoleName = "User",
+            RoleId = DeterministicGuid($"role:{RoleCodes.Client}")
         });
 
         // Agent client — Chilean freight agent
@@ -449,7 +580,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.AgentUserRoleCL,
             UserId = SeedDataIds.AgentUserCL,
-            RoleName = "User"
+            RoleName = "User",
+            RoleId = DeterministicGuid($"role:{RoleCodes.CustomsAgent}")
         });
 
         // ──────────────────────────────────────────────────────────────

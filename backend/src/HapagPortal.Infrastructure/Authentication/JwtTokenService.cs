@@ -17,7 +17,7 @@ public sealed class JwtTokenService(
     private const int DefaultExpirationMinutes = 60;
     private const int RefreshTokenSizeBytes = 64;
 
-    public string GenerateToken(User user, IList<string> roles)
+    public string GenerateToken(User user, IList<string> roles, IList<string>? permissions = null)
     {
         var secret = configuration["Jwt:Secret"]
             ?? throw new InvalidOperationException("JWT secret is not configured.");
@@ -44,6 +44,14 @@ public sealed class JwtTokenService(
         foreach (var role in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        if (permissions is not null)
+        {
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim("permission", permission));
+            }
         }
 
         var token = new JwtSecurityToken(

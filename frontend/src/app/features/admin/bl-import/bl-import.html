@@ -1,0 +1,108 @@
+<div class="hl-page-header">
+  <h1>Carga de Bill of Lading</h1>
+  <p class="text-muted mb-0">Ingesta masiva con validación aduanera por fila</p>
+</div>
+
+<div class="hl-card p-4 mb-4">
+  <div class="row g-3 align-items-end mb-3">
+    <div class="col-md-6">
+      <label class="form-label small fw-semibold">* Cliente</label>
+      <select class="form-select" [(ngModel)]="selectedClientId">
+        <option value="">Seleccione...</option>
+        @for (c of clients(); track c.id) {
+          <option [value]="c.id">{{ c.name }} ({{ c.taxId }})</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <label class="form-label small fw-semibold">Filas de BL</label>
+  <p class="small text-muted mb-1">
+    Una fila por línea, campos separados por punto y coma (<code>;</code>) en este orden:
+  </p>
+  <p class="small text-muted mb-2">
+    <code>{{ columns.join(';') }}</code>
+  </p>
+  <textarea class="form-control font-monospace" rows="8" [(ngModel)]="rawText"
+            placeholder="HLCUABC123;Import;CL;CNSHA;CLVAP;USD;Importadora Ltda;12.345.678-5;870323;15000;HLXU1234567;22G1"></textarea>
+
+  @if (parseError()) { <div class="alert alert-danger py-2 mt-3 mb-0">{{ parseError() }}</div> }
+
+  <div class="d-flex gap-2 mt-3">
+    <button class="btn btn-outline-secondary" (click)="reset()">Limpiar</button>
+    <button class="btn btn-hl-orange" (click)="parse()">Previsualizar</button>
+  </div>
+</div>
+
+@if (preview().length > 0 && !result()) {
+  <div class="hl-card mb-4">
+    <div class="p-3 border-bottom fw-semibold">
+      Previsualización ({{ preview().length }} filas)
+    </div>
+    <div class="table-responsive">
+      <table class="hl-table">
+        <thead>
+          <tr>
+            <th>BL</th><th>País</th><th>POL</th><th>POD</th>
+            <th>Consignatario</th><th>RUT/NIT</th><th>HS</th><th>Peso</th><th>Contenedor</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of preview(); track $index) {
+            <tr>
+              <td class="fw-semibold">{{ r.blNumber }}</td>
+              <td>{{ r.country }}</td>
+              <td>{{ r.portOfLoading || '—' }}</td>
+              <td>{{ r.portOfDischarge || '—' }}</td>
+              <td>{{ r.consigneeName || '—' }}</td>
+              <td>{{ r.consigneeTaxId || '—' }}</td>
+              <td>{{ r.hsCode || '—' }}</td>
+              <td>{{ r.grossWeight ?? '—' }}</td>
+              <td>{{ r.containerNumber || '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="p-3">
+      <button class="btn btn-hl-orange px-4" (click)="submit()" [disabled]="submitting()">
+        @if (submitting()) { <span class="spinner-border spinner-border-sm me-2" role="status"></span> }
+        Importar {{ preview().length }} BL
+      </button>
+    </div>
+  </div>
+}
+
+@if (result(); as res) {
+  <div class="hl-card mb-4">
+    <div class="p-3 border-bottom fw-semibold">Resultado de la importación</div>
+    <div class="p-3">
+      <div class="alert" [class.alert-success]="res.failed === 0" [class.alert-warning]="res.failed > 0">
+        {{ res.created }} creados · {{ res.failed }} rechazados
+      </div>
+      @if (res.errors.length > 0) {
+        <div class="table-responsive">
+          <table class="hl-table">
+            <thead>
+              <tr><th style="width: 80px;">Fila</th><th>BL</th><th>Errores</th></tr>
+            </thead>
+            <tbody>
+              @for (e of res.errors; track $index) {
+                <tr>
+                  <td>{{ e.index + 1 }}</td>
+                  <td>{{ e.blNumber || '—' }}</td>
+                  <td>
+                    <ul class="mb-0 ps-3">
+                      @for (m of e.messages; track m) { <li>{{ m }}</li> }
+                    </ul>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      <button class="btn btn-outline-secondary mt-3" (click)="reset()">Nueva carga</button>
+    </div>
+  </div>
+}
