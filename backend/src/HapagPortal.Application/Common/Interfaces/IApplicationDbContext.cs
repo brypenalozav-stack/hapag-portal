@@ -8,8 +8,21 @@ public interface IApplicationDbContext
     DbSet<Client> Clients { get; }
     DbSet<User> Users { get; }
     DbSet<UserRole> UserRoles { get; }
+    DbSet<Role> Roles { get; }
+    DbSet<Permission> Permissions { get; }
+    DbSet<RolePermission> RolePermissions { get; }
+    DbSet<ConfigurationSetting> ConfigurationSettings { get; }
+    DbSet<SecretCredential> SecretCredentials { get; }
     DbSet<BillOfLading> BillsOfLading { get; }
     DbSet<BLContainer> BLContainers { get; }
+    DbSet<BLParty> BLParties { get; }
+    DbSet<BLCargoItem> BLCargoItems { get; }
+    DbSet<CustomsManifest> CustomsManifests { get; }
+    DbSet<CustomsTransmission> CustomsTransmissions { get; }
+    DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents { get; }
+    DbSet<DeadlineRule> DeadlineRules { get; }
+    DbSet<DeadlineInstance> DeadlineInstances { get; }
+    DbSet<Notification> Notifications { get; }
     DbSet<LocalCharge> LocalCharges { get; }
     DbSet<DemurrageCharge> DemurrageCharges { get; }
     DbSet<Payment> Payments { get; }

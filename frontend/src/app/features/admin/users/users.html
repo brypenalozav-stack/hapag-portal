@@ -1,0 +1,136 @@
+<div class="hl-page-header d-flex justify-content-between align-items-start">
+  <div>
+    <h1>Búsqueda de usuarios</h1>
+    <p class="text-muted mb-0">Usuarios de la plataforma</p>
+  </div>
+  <button class="btn btn-hl-orange" (click)="openForm()">Nuevo Usuario</button>
+</div>
+
+<!-- Filtros -->
+<div class="hl-card p-3 mb-4">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label small fw-semibold">Estado</label>
+      <select class="form-select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+        <option value="">Seleccione...</option>
+        <option value="true">Activo</option>
+        <option value="false">Inactivo</option>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label small fw-semibold">Roles</label>
+      <select class="form-select" [(ngModel)]="roleFilter" (ngModelChange)="onFilterChange()">
+        <option value="">Todos</option>
+        @for (r of roles(); track r.id) {
+          <option [value]="r.code">{{ r.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label small fw-semibold">Buscar</label>
+      <input type="text" class="form-control" placeholder="Buscar nombre, apellido o correo electrónico"
+             [(ngModel)]="searchTerm" (ngModelChange)="onFilterChange()" />
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nuevo Usuario -->
+@if (showForm()) {
+  <div class="hl-card p-4 mb-4">
+    <h5 class="mb-3">Nuevo Usuario</h5>
+    @if (formError()) { <div class="alert alert-danger py-2">{{ formError() }}</div> }
+    @if (formSuccess()) { <div class="alert alert-success py-2">{{ formSuccess() }}</div> }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">* Identificador</label>
+          <input type="number" class="form-control" formControlName="displayId" placeholder="Identificador" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">* Nombre</label>
+          <input type="text" class="form-control" formControlName="firstName" placeholder="Ingrese el nombre"
+                 [class.is-invalid]="form.controls.firstName.touched && form.controls.firstName.invalid" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">* Apellidos</label>
+          <input type="text" class="form-control" formControlName="lastName" placeholder="Ingrese los apellidos"
+                 [class.is-invalid]="form.controls.lastName.touched && form.controls.lastName.invalid" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">* Correo electrónico</label>
+          <input type="email" class="form-control" formControlName="email" placeholder="Ingrese el correo electrónico"
+                 [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Teléfono <span class="text-muted">(Opcional)</span></label>
+          <input type="tel" class="form-control" formControlName="phone" placeholder="+56 Ingrese el teléfono" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">* Rol</label>
+          <select class="form-select" formControlName="roleCode"
+                  [class.is-invalid]="form.controls.roleCode.touched && form.controls.roleCode.invalid">
+            <option value="">Seleccione...</option>
+            @for (r of roles(); track r.id) {
+              <option [value]="r.code">{{ r.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-3">
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">Cancelar</button>
+        <button type="submit" class="btn btn-hl-orange px-4" [disabled]="submitting()">
+          @if (submitting()) { <span class="spinner-border spinner-border-sm me-2" role="status"></span> }
+          Aceptar
+        </button>
+      </div>
+    </form>
+  </div>
+}
+
+<!-- Tabla -->
+<div class="hl-card">
+  <div class="p-3 border-bottom fw-semibold">Tabla de usuarios de la plataforma</div>
+  @if (error()) { <div class="alert alert-danger py-2 m-3">{{ error() }}</div> }
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else {
+    <div class="table-responsive">
+      <table class="hl-table">
+        <thead>
+          <tr>
+            <th style="width: 120px;">Identificador</th>
+            <th>Nombre y apellido</th>
+            <th>Correo electrónico</th>
+            <th>Roles</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of users(); track u.id) {
+            <tr>
+              <td>{{ u.displayId ?? '—' }}</td>
+              <td class="fw-semibold">{{ u.fullName || '—' }}</td>
+              <td>{{ u.email }}</td>
+              <td>
+                @for (r of u.roles; track r) {
+                  <span class="badge bg-secondary me-1">{{ r }}</span>
+                }
+              </td>
+            </tr>
+          }
+          @if (users().length === 0) {
+            <tr><td colspan="4" class="text-center text-muted py-4">No se encontraron usuarios.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center p-3">
+      <span class="small text-muted">Mostrando {{ users().length }} de {{ total() }} encontrados</span>
+      <div class="btn-group">
+        <button class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">Anterior</button>
+        <span class="btn btn-sm btn-outline-secondary disabled">{{ page() }} / {{ totalPages }}</span>
+        <button class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">Siguiente</button>
+      </div>
+    </div>
+  }
+</div>

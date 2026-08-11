@@ -119,6 +119,75 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.BLCargoItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<decimal?>("GrossWeight")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<string>("HsCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<decimal?>("NetWeight")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<string>("PackageCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<int?>("PackageCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ShippingMarks")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<decimal?>("Volume")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BillOfLadingId");
+
+                    b.ToTable("BLCargoItems", (string)null);
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.BLContainer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -153,12 +222,24 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<decimal?>("GrossWeight")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsShipperOwned")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("IsoTypeCode")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<int?>("PackageCount")
+                        .HasColumnType("integer");
 
                     b.Property<string>("SealNumber")
                         .HasMaxLength(30)
@@ -168,6 +249,12 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<decimal?>("Tare")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("Vgm")
+                        .HasColumnType("numeric");
 
                     b.Property<decimal?>("Weight")
                         .HasPrecision(18, 2)
@@ -190,6 +277,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ContainerType = "40HC",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
                             SealNumber = "SL-001234",
                             Status = "Discharged",
                             Weight = 24500m
@@ -202,6 +290,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ContainerType = "20DV",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
                             SealNumber = "SL-005678",
                             Status = "Discharged",
                             Weight = 18200m
@@ -214,6 +303,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ContainerType = "40HC",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
                             SealNumber = "SL-009012",
                             Status = "OnBoard",
                             Weight = 22100m
@@ -226,6 +316,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ContainerType = "40RF",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
                             SealNumber = "SL-003456",
                             Status = "OnBoard",
                             Weight = 19800m
@@ -238,6 +329,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ContainerType = "40OT",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
                             SealNumber = "SL-007890",
                             Status = "Delivered",
                             Weight = 31500m
@@ -250,6 +342,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ContainerType = "20DV",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
                             SealNumber = "SL-011234",
                             Status = "Discharged",
                             Weight = 15600m
@@ -262,10 +355,75 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ContainerType = "40HC",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
                             SealNumber = "SL-015678",
                             Status = "OnBoard",
                             Weight = 21300m
                         });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.BLParty", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TaxId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TaxIdType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BillOfLadingId");
+
+                    b.ToTable("BLParties", (string)null);
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.BillOfLading", b =>
@@ -278,6 +436,9 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BLType")
+                        .HasColumnType("text");
 
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
@@ -321,6 +482,18 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(5)
                         .HasColumnType("character varying(5)");
 
+                    b.Property<string>("FreightTerms")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Incoterm")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsSeaWaybill")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsToOrder")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -331,6 +504,12 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Property<string>("NotifyParty")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("OperatorVoyage")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ParentBLId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("PlaceOfDelivery")
                         .HasColumnType("text");
@@ -361,6 +540,9 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("VesselImo")
+                        .HasColumnType("text");
+
                     b.Property<string>("Voyage")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -371,6 +553,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsUnique();
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("ParentBLId");
 
                     b.ToTable("BillsOfLading", (string)null);
 
@@ -388,6 +572,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ETD = new DateTime(2026, 3, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             FreightAmount = 3500m,
                             FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
                             NotifyParty = "Agencia Marítima del Pacífico Ltda",
                             PlaceOfDelivery = "Santiago, Chile",
                             PortOfDischarge = "San Antonio (CLSAI)",
@@ -411,6 +597,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ETD = new DateTime(2026, 4, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             FreightAmount = 5200m,
                             FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
                             PlaceOfDelivery = "Valparaiso, Chile",
                             PortOfDischarge = "Valparaiso (CLVAP)",
                             PortOfLoading = "Busan (KRPUS)",
@@ -433,6 +621,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ETD = new DateTime(2026, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc),
                             FreightAmount = 8750m,
                             FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
                             PlaceOfDelivery = "Santiago, Chile",
                             PortOfDischarge = "San Antonio (CLSAI)",
                             PortOfLoading = "Rotterdam (NLRTM)",
@@ -455,6 +645,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ETD = new DateTime(2026, 2, 20, 0, 0, 0, 0, DateTimeKind.Utc),
                             FreightAmount = 2800m,
                             FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
                             PlaceOfDelivery = "La Paz, Bolivia",
                             PortOfDischarge = "Arica (CLARI)",
                             PortOfLoading = "Ningbo (CNNGB)",
@@ -477,6 +669,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ETD = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             FreightAmount = 1950m,
                             FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
                             PlaceOfDelivery = "Santa Cruz, Bolivia",
                             PortOfDischarge = "Iquique (CLIQQ)",
                             PortOfLoading = "Mumbai (INBOM)",
@@ -646,6 +840,58 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TaxId = "96.555.444-3",
                             TaxIdType = "RUT"
                         });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ConfigurationSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Scope", "ClientId", "Key")
+                        .IsUnique();
+
+                    b.ToTable("ConfigurationSettings", (string)null);
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.CreditClient", b =>
@@ -852,6 +1098,484 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Name = "US Dollar",
                             Symbol = "$"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CustomsManifest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Direction")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTime?>("EstimatedArrival")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EstimatedDeparture")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Port")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("VesselImo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Voyage")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VesselImo", "Voyage", "Direction");
+
+                    b.ToTable("CustomsManifests", (string)null);
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CustomsTransmission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid?>("ManifestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("RespondedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ResponseCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ResponseMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BillOfLadingId");
+
+                    b.HasIndex("ManifestId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("CustomsTransmissions", (string)null);
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CustomsTransmissionEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Attempt")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ResponseCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ResponseMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("TransmissionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransmissionId");
+
+                    b.ToTable("CustomsTransmissionEvents", (string)null);
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.DeadlineInstance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("BaseEventAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime>("DueAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ManifestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("RuleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BillOfLadingId");
+
+                    b.HasIndex("ManifestId");
+
+                    b.HasIndex("RuleId", "ManifestId", "BillOfLadingId");
+
+                    b.ToTable("DeadlineInstances", (string)null);
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.DeadlineRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AtRiskWindowHours")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BLType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("BaseEvent")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Certainty")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Direction")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("OffsetHours")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Source")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("DeadlineRules", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("aa5613e1-c370-afc4-f954-962e4f6cd1d8"),
+                            AtRiskWindowHours = 48,
+                            BaseEvent = "ArrivalEstimated",
+                            Certainty = "Confirmed",
+                            Code = "MANIFEST_HEADER_IN",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Direction = "Ingreso",
+                            IsActive = true,
+                            Name = "Encabezado manifiesto (ingreso)",
+                            OffsetHours = -168,
+                            Severity = "High",
+                            Source = "Ficha aduana.cl"
+                        },
+                        new
+                        {
+                            Id = new Guid("5baf30ac-36f3-d799-478d-54101caa3166"),
+                            AtRiskWindowHours = 12,
+                            BLType = "Master",
+                            BaseEvent = "ArrivalEstimated",
+                            Certainty = "ToVerify",
+                            Code = "BL_MASTER_IN",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Direction = "Ingreso",
+                            IsActive = true,
+                            Name = "B/L Máster (ingreso)",
+                            OffsetHours = -48,
+                            Severity = "High",
+                            Source = "Material oficial Aduana (verificar Res. 7591/2012)"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8af1ca-8cc6-3021-231a-ccfd3fcb29e1"),
+                            AtRiskWindowHours = 6,
+                            BLType = "House",
+                            BaseEvent = "ArrivalEstimated",
+                            Certainty = "ToVerify",
+                            Code = "BL_HOUSE_IN",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Direction = "Ingreso",
+                            IsActive = true,
+                            Name = "B/L Hijo (ingreso)",
+                            OffsetHours = -24,
+                            Severity = "High",
+                            Source = "Material oficial Aduana"
+                        },
+                        new
+                        {
+                            Id = new Guid("75e384a7-55d8-941b-81a3-95b7411539ee"),
+                            AtRiskWindowHours = 48,
+                            BaseEvent = "DepartureEstimated",
+                            Certainty = "Confirmed",
+                            Code = "MANIFEST_AMEND_IN",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Direction = "Ingreso",
+                            IsActive = true,
+                            Name = "Aclaración al manifiesto (ingreso)",
+                            OffsetHours = 168,
+                            Severity = "Medium",
+                            Source = "Cap. 3 CNA num. 2.6"
+                        },
+                        new
+                        {
+                            Id = new Guid("4044ddb6-21da-c608-87bd-3dd6589224c7"),
+                            AtRiskWindowHours = 6,
+                            BaseEvent = "DepartureEstimated",
+                            Certainty = "Confirmed",
+                            Code = "GOODS_DELIVERY",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Name = "Entrega de mercancías a almacenista",
+                            OffsetHours = 24,
+                            Severity = "Medium",
+                            Source = "Cap. 3 CNA num. 2.4"
+                        },
+                        new
+                        {
+                            Id = new Guid("5bbd7a0d-7499-a627-e68c-347732ed175d"),
+                            AtRiskWindowHours = 12,
+                            BaseEvent = "DepartureEstimated",
+                            Certainty = "Confirmed",
+                            Code = "MANIFEST_HEADER_OUT",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Direction = "Salida",
+                            IsActive = true,
+                            Name = "Encabezado manifiesto (salida)",
+                            OffsetHours = -48,
+                            Severity = "High",
+                            Source = "Res. 9432/2008"
+                        },
+                        new
+                        {
+                            Id = new Guid("cd12e932-04f7-6f7c-b694-a28bb2eac93a"),
+                            AtRiskWindowHours = 24,
+                            BaseEvent = "DepartureEstimated",
+                            Certainty = "Uncertain",
+                            Code = "BL_EMPTY_OUT",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Direction = "Salida",
+                            IsActive = true,
+                            Name = "B/L y contenedores vacíos (salida)",
+                            OffsetHours = 72,
+                            Severity = "Low",
+                            Source = "Res. 6609/2012 (valor por confirmar)"
+                        },
+                        new
+                        {
+                            Id = new Guid("6bacf231-3e61-31b0-04d3-14c9a09fa33e"),
+                            AtRiskWindowHours = 12,
+                            BaseEvent = "DespatchRequest",
+                            Certainty = "Confirmed",
+                            Code = "MICDTA_BO",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Name = "MIC/DTA tránsito (Bolivia)",
+                            OffsetHours = 48,
+                            Severity = "Medium",
+                            Source = "Cap. 3 CNA"
                         });
                 });
 
@@ -1495,6 +2219,74 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("DedupKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RoleCode")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DedupKey");
+
+                    b.HasIndex("RoleCode");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.Payment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1922,6 +2714,414 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Permissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("22588ad4-e2ba-24bf-ed2c-90c1fc4611f5"),
+                            Code = "users.manage",
+                            Description = "users.manage"
+                        },
+                        new
+                        {
+                            Id = new Guid("4c4d494a-f9fe-55da-16d4-d763ee0e0d41"),
+                            Code = "roles.manage",
+                            Description = "roles.manage"
+                        },
+                        new
+                        {
+                            Id = new Guid("421213a8-3a92-e96d-7781-9248e1f9666d"),
+                            Code = "maintainers.manage",
+                            Description = "maintainers.manage"
+                        },
+                        new
+                        {
+                            Id = new Guid("30ff3460-163d-d904-96b9-ed31e48baf59"),
+                            Code = "config.global.manage",
+                            Description = "config.global.manage"
+                        },
+                        new
+                        {
+                            Id = new Guid("575065bf-620f-96a3-552c-8cd4a06631e6"),
+                            Code = "config.client.manage",
+                            Description = "config.client.manage"
+                        },
+                        new
+                        {
+                            Id = new Guid("6ae10bad-586a-bb93-ec27-c7e584daff6e"),
+                            Code = "bl.upload",
+                            Description = "bl.upload"
+                        },
+                        new
+                        {
+                            Id = new Guid("7fa0cf9a-4c6b-b038-a70c-4db8df0c54b8"),
+                            Code = "bl.view",
+                            Description = "bl.view"
+                        },
+                        new
+                        {
+                            Id = new Guid("6b761bce-b542-40c6-01cb-5d5b73bd1934"),
+                            Code = "customs.transmit",
+                            Description = "customs.transmit"
+                        },
+                        new
+                        {
+                            Id = new Guid("d5ceee54-2e0e-0fdb-c7ee-2b0805d55abc"),
+                            Code = "customs.retry",
+                            Description = "customs.retry"
+                        },
+                        new
+                        {
+                            Id = new Guid("3c5032f7-0a0f-1637-51f3-4de0f9cfbc65"),
+                            Code = "customs.view",
+                            Description = "customs.view"
+                        },
+                        new
+                        {
+                            Id = new Guid("d71d05fa-8d9e-4779-44a5-fca869915ebf"),
+                            Code = "deadlines.view",
+                            Description = "deadlines.view"
+                        },
+                        new
+                        {
+                            Id = new Guid("701f2591-7f87-b7fe-588d-efa5dc0634f4"),
+                            Code = "audit.view",
+                            Description = "audit.view"
+                        },
+                        new
+                        {
+                            Id = new Guid("ed7ca0d9-12d7-be02-9123-69b62cbb0a42"),
+                            Code = "reports.view",
+                            Description = "reports.view"
+                        },
+                        new
+                        {
+                            Id = new Guid("ef8b113d-8bdc-f78b-6796-2565876c88b0"),
+                            Code = "notifications.view",
+                            Description = "notifications.view"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("b02bbf39-dfb0-6123-13fa-4ea772ff1dfb"),
+                            Code = "Administrador",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "Administrador"
+                        },
+                        new
+                        {
+                            Id = new Guid("e5fafd0d-29c5-637b-6ab4-d7abc98e1c8a"),
+                            Code = "Coordinador",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "Coordinador"
+                        },
+                        new
+                        {
+                            Id = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556"),
+                            Code = "Supervisor",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "Supervisor"
+                        },
+                        new
+                        {
+                            Id = new Guid("5193bc68-e496-eb84-a035-08fbf67789d7"),
+                            Code = "ExternalApi",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "External API"
+                        },
+                        new
+                        {
+                            Id = new Guid("a99ecf29-a1a5-f563-a992-a59574d146c8"),
+                            Code = "Client",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "Cliente"
+                        },
+                        new
+                        {
+                            Id = new Guid("c2825776-5914-a3e3-0041-d2bface9e0b9"),
+                            Code = "CustomsAgent",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "Agente de Aduana"
+                        },
+                        new
+                        {
+                            Id = new Guid("421b7367-0023-88ac-ba09-345afafb157e"),
+                            Code = "AdminBA",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "Administrador BA"
+                        },
+                        new
+                        {
+                            Id = new Guid("e9da1089-6ad9-7f34-3937-7976d95ae7a0"),
+                            Code = "SuperAdmin",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "Super Administrador"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.RolePermission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId", "PermissionId")
+                        .IsUnique();
+
+                    b.ToTable("RolePermissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("d4b27ca4-185a-def1-64d7-770c870f9b80"),
+                            PermissionId = new Guid("6ae10bad-586a-bb93-ec27-c7e584daff6e"),
+                            RoleId = new Guid("e5fafd0d-29c5-637b-6ab4-d7abc98e1c8a")
+                        },
+                        new
+                        {
+                            Id = new Guid("974d869f-4e7d-202f-b7b0-8101e09834da"),
+                            PermissionId = new Guid("7fa0cf9a-4c6b-b038-a70c-4db8df0c54b8"),
+                            RoleId = new Guid("e5fafd0d-29c5-637b-6ab4-d7abc98e1c8a")
+                        },
+                        new
+                        {
+                            Id = new Guid("3f77a688-b174-0d0c-dc44-950a3bde75ea"),
+                            PermissionId = new Guid("3c5032f7-0a0f-1637-51f3-4de0f9cfbc65"),
+                            RoleId = new Guid("e5fafd0d-29c5-637b-6ab4-d7abc98e1c8a")
+                        },
+                        new
+                        {
+                            Id = new Guid("28e962eb-d75c-55a0-1034-96768ae83b4c"),
+                            PermissionId = new Guid("d71d05fa-8d9e-4779-44a5-fca869915ebf"),
+                            RoleId = new Guid("e5fafd0d-29c5-637b-6ab4-d7abc98e1c8a")
+                        },
+                        new
+                        {
+                            Id = new Guid("3c557c65-a35d-8cf7-1c04-c31f44e6c666"),
+                            PermissionId = new Guid("ed7ca0d9-12d7-be02-9123-69b62cbb0a42"),
+                            RoleId = new Guid("e5fafd0d-29c5-637b-6ab4-d7abc98e1c8a")
+                        },
+                        new
+                        {
+                            Id = new Guid("bce6d3c0-6b56-5340-993f-ca7360bfb4be"),
+                            PermissionId = new Guid("ef8b113d-8bdc-f78b-6796-2565876c88b0"),
+                            RoleId = new Guid("e5fafd0d-29c5-637b-6ab4-d7abc98e1c8a")
+                        },
+                        new
+                        {
+                            Id = new Guid("1225f32b-e00b-ed6c-44d3-9bdaadac695b"),
+                            PermissionId = new Guid("7fa0cf9a-4c6b-b038-a70c-4db8df0c54b8"),
+                            RoleId = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556")
+                        },
+                        new
+                        {
+                            Id = new Guid("806771ba-d9cc-c948-c4b7-176be3197d61"),
+                            PermissionId = new Guid("6b761bce-b542-40c6-01cb-5d5b73bd1934"),
+                            RoleId = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556")
+                        },
+                        new
+                        {
+                            Id = new Guid("0c15ee9d-1d0c-c5c1-b1e4-7533c0b78262"),
+                            PermissionId = new Guid("d5ceee54-2e0e-0fdb-c7ee-2b0805d55abc"),
+                            RoleId = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556")
+                        },
+                        new
+                        {
+                            Id = new Guid("03be28ba-43c4-8141-2680-97f0893a2104"),
+                            PermissionId = new Guid("3c5032f7-0a0f-1637-51f3-4de0f9cfbc65"),
+                            RoleId = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556")
+                        },
+                        new
+                        {
+                            Id = new Guid("20337084-df89-3ec0-d150-16ba1c09645d"),
+                            PermissionId = new Guid("d71d05fa-8d9e-4779-44a5-fca869915ebf"),
+                            RoleId = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556")
+                        },
+                        new
+                        {
+                            Id = new Guid("a9560721-003c-4583-cb9a-aeb5d799ec94"),
+                            PermissionId = new Guid("701f2591-7f87-b7fe-588d-efa5dc0634f4"),
+                            RoleId = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556")
+                        },
+                        new
+                        {
+                            Id = new Guid("c06e8ceb-b97f-980f-3849-ee5827c12e82"),
+                            PermissionId = new Guid("ed7ca0d9-12d7-be02-9123-69b62cbb0a42"),
+                            RoleId = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556")
+                        },
+                        new
+                        {
+                            Id = new Guid("7ef908b4-fd65-6b73-fdf8-22fc511db624"),
+                            PermissionId = new Guid("ef8b113d-8bdc-f78b-6796-2565876c88b0"),
+                            RoleId = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556")
+                        },
+                        new
+                        {
+                            Id = new Guid("b490e935-7cb3-d19e-af9b-0946e1f6c79d"),
+                            PermissionId = new Guid("6ae10bad-586a-bb93-ec27-c7e584daff6e"),
+                            RoleId = new Guid("5193bc68-e496-eb84-a035-08fbf67789d7")
+                        },
+                        new
+                        {
+                            Id = new Guid("81956975-58a7-1ece-9090-1630d703b862"),
+                            PermissionId = new Guid("6b761bce-b542-40c6-01cb-5d5b73bd1934"),
+                            RoleId = new Guid("5193bc68-e496-eb84-a035-08fbf67789d7")
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.SecretCredential", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("EncryptedValue")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Scope", "ClientId", "Type")
+                        .IsUnique();
+
+                    b.ToTable("SecretCredentials", (string)null);
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceOrder", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2162,6 +3362,9 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<int?>("DisplayId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -2173,6 +3376,9 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Property<DateTime?>("EmailConfirmationTokenExpiry")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -2181,6 +3387,9 @@ namespace HapagPortal.DatabaseMigrations.Migrations
 
                     b.Property<DateTime?>("LastLoginAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2199,6 +3408,9 @@ namespace HapagPortal.DatabaseMigrations.Migrations
 
                     b.Property<DateTime?>("PasswordResetTokenExpiry")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
 
                     b.Property<string>("RefreshToken")
                         .HasColumnType("text");
@@ -2293,6 +3505,9 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("RoleId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("RoleName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -2303,6 +3518,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RoleId");
+
                     b.HasIndex("UserId", "RoleName")
                         .IsUnique();
 
@@ -2312,24 +3529,28 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         new
                         {
                             Id = new Guid("e5f6a7b8-0005-0005-0005-000000000001"),
+                            RoleId = new Guid("b02bbf39-dfb0-6123-13fa-4ea772ff1dfb"),
                             RoleName = "Admin",
                             UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001")
                         },
                         new
                         {
                             Id = new Guid("e5f6a7b8-0005-0005-0005-000000000010"),
+                            RoleId = new Guid("a99ecf29-a1a5-f563-a992-a59574d146c8"),
                             RoleName = "User",
                             UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
                         },
                         new
                         {
                             Id = new Guid("e5f6a7b8-0005-0005-0005-000000000020"),
+                            RoleId = new Guid("a99ecf29-a1a5-f563-a992-a59574d146c8"),
                             RoleName = "User",
                             UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020")
                         },
                         new
                         {
                             Id = new Guid("e5f6a7b8-0005-0005-0005-000000000030"),
+                            RoleId = new Guid("c2825776-5914-a3e3-0041-d2bface9e0b9"),
                             RoleName = "User",
                             UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000030")
                         });
@@ -2430,10 +3651,32 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.BLCargoItem", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
+                        .WithMany("CargoItems")
+                        .HasForeignKey("BillOfLadingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BillOfLading");
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.BLContainer", b =>
                 {
                     b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
                         .WithMany("Containers")
+                        .HasForeignKey("BillOfLadingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BillOfLading");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.BLParty", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
+                        .WithMany("Parties")
                         .HasForeignKey("BillOfLadingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2449,7 +3692,13 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "ParentBL")
+                        .WithMany()
+                        .HasForeignKey("ParentBLId");
+
                     b.Navigation("Client");
+
+                    b.Navigation("ParentBL");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.CreditClient", b =>
@@ -2461,6 +3710,59 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsRequired();
 
                     b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CustomsTransmission", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
+                        .WithMany()
+                        .HasForeignKey("BillOfLadingId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HapagPortal.Domain.Entities.CustomsManifest", "Manifest")
+                        .WithMany("Transmissions")
+                        .HasForeignKey("ManifestId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("BillOfLading");
+
+                    b.Navigation("Manifest");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CustomsTransmissionEvent", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.CustomsTransmission", "Transmission")
+                        .WithMany("Events")
+                        .HasForeignKey("TransmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Transmission");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.DeadlineInstance", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
+                        .WithMany()
+                        .HasForeignKey("BillOfLadingId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HapagPortal.Domain.Entities.CustomsManifest", "Manifest")
+                        .WithMany()
+                        .HasForeignKey("ManifestId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("HapagPortal.Domain.Entities.DeadlineRule", "Rule")
+                        .WithMany("Instances")
+                        .HasForeignKey("RuleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BillOfLading");
+
+                    b.Navigation("Manifest");
+
+                    b.Navigation("Rule");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.DemurrageCharge", b =>
@@ -2515,6 +3817,25 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("Payment");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.RolePermission", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.Permission", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HapagPortal.Domain.Entities.Role", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceOrder", b =>
                 {
                     b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
@@ -2546,11 +3867,18 @@ namespace HapagPortal.DatabaseMigrations.Migrations
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.UserRole", b =>
                 {
+                    b.HasOne("HapagPortal.Domain.Entities.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("HapagPortal.Domain.Entities.User", "User")
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Role");
 
                     b.Navigation("User");
                 });
@@ -2568,11 +3896,15 @@ namespace HapagPortal.DatabaseMigrations.Migrations
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.BillOfLading", b =>
                 {
+                    b.Navigation("CargoItems");
+
                     b.Navigation("Containers");
 
                     b.Navigation("DemurrageCharges");
 
                     b.Navigation("LocalCharges");
+
+                    b.Navigation("Parties");
 
                     b.Navigation("Payments");
                 });
@@ -2584,9 +3916,29 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("Payments");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CustomsManifest", b =>
+                {
+                    b.Navigation("Transmissions");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CustomsTransmission", b =>
+                {
+                    b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.DeadlineRule", b =>
+                {
+                    b.Navigation("Instances");
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.Payment", b =>
                 {
                     b.Navigation("Details");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.Role", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.User", b =>

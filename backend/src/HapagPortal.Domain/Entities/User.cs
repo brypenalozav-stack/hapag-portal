@@ -9,6 +9,11 @@ public sealed class User : BaseAuditableEntity
     public required string PasswordHash { get; set; }
     public required string UserType { get; set; }
     public required string Country { get; set; }
+    // Perfil visible en la consola de usuarios (imagen). Nullable para no romper el seed/tests actuales.
+    public int? DisplayId { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Phone { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime? LastLoginAt { get; set; }
     public string? PasswordResetToken { get; set; }

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { internalGuard } from './core/guards/internal.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -93,6 +94,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'notifications',
+    loadComponent: () =>
+      import('./features/notifications/notifications').then((m) => m.NotificationsComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'forgot-password',
     loadComponent: () =>
       import('./features/auth/forgot-password/forgot-password').then((m) => m.ForgotPasswordComponent),
@@ -120,6 +127,41 @@ export const routes: Routes = [
         (m) => m.DemurrageExemptionsComponent,
       ),
     canActivate: [authGuard, adminGuard],
+  },
+  {
+    path: 'admin/users',
+    loadComponent: () => import('./features/admin/users/users').then((m) => m.UsersComponent),
+    canActivate: [authGuard, adminGuard],
+  },
+  {
+    path: 'admin/bl-import',
+    loadComponent: () =>
+      import('./features/admin/bl-import/bl-import').then((m) => m.BlImportComponent),
+    canActivate: [authGuard, internalGuard],
+  },
+  {
+    path: 'admin/customs',
+    loadComponent: () =>
+      import('./features/admin/customs/customs').then((m) => m.CustomsComponent),
+    canActivate: [authGuard, internalGuard],
+  },
+  {
+    path: 'admin/deadlines',
+    loadComponent: () =>
+      import('./features/admin/deadlines/deadlines').then((m) => m.DeadlinesComponent),
+    canActivate: [authGuard, internalGuard],
+  },
+  {
+    path: 'admin/audit',
+    loadComponent: () =>
+      import('./features/admin/audit/audit').then((m) => m.AuditComponent),
+    canActivate: [authGuard, internalGuard],
+  },
+  {
+    path: 'admin/reports',
+    loadComponent: () =>
+      import('./features/admin/reports/reports').then((m) => m.ReportsComponent),
+    canActivate: [authGuard, internalGuard],
   },
   { path: '**', redirectTo: '/dashboard' },
 ];

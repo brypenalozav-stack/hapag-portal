@@ -39,6 +39,13 @@ public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor)
         User?.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList().AsReadOnly()
         ?? (IReadOnlyList<string>)[];
 
+    public IReadOnlyList<string> Permissions =>
+        User?.FindAll("permission").Select(c => c.Value).ToList().AsReadOnly()
+        ?? (IReadOnlyList<string>)[];
+
+    public bool HasPermission(string permission) =>
+        User?.FindAll("permission").Any(c => c.Value == permission) ?? false;
+
     public bool IsAuthenticated =>
         User?.Identity?.IsAuthenticated ?? false;
 }

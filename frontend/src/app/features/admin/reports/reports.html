@@ -1,0 +1,51 @@
+<div class="hl-page-header">
+  <h1>Reportes</h1>
+  <p class="text-muted mb-0">Reportes operativos y exportación</p>
+</div>
+
+@if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+
+<div class="hl-card">
+  <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="btn-group">
+      @for (r of reports; track r.type) {
+        <button class="btn btn-sm"
+                [class.btn-hl-orange]="selectedType() === r.type"
+                [class.btn-outline-secondary]="selectedType() !== r.type"
+                (click)="select(r.type)">
+          {{ r.label }}
+        </button>
+      }
+    </div>
+    <button class="btn btn-sm btn-outline-primary" (click)="exportCsv()" [disabled]="!result()">
+      Exportar CSV
+    </button>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (result(); as res) {
+    <div class="table-responsive">
+      <table class="hl-table">
+        <thead>
+          <tr>
+            @for (c of res.columns; track c) { <th>{{ c }}</th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of res.rows; track $index) {
+            <tr>
+              @for (cell of row; track $index) { <td>{{ cell }}</td> }
+            </tr>
+          }
+          @if (res.rows.length === 0) {
+            <tr><td [attr.colspan]="res.columns.length" class="text-center text-muted py-4">
+              Sin datos para este reporte.
+            </td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="p-3 small text-muted">{{ res.rows.length }} filas</div>
+  }
+</div>

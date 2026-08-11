@@ -10,7 +10,7 @@ import {
   ForgotPasswordRequest,
   ResetPasswordRequest,
 } from '../models/client.model';
-import { ROLES, COUNTRIES, API_ENDPOINTS } from '../constants/app.constants';
+import { ROLES, INTERNAL_ROLES, COUNTRIES, API_ENDPOINTS } from '../constants/app.constants';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -27,6 +27,12 @@ export class AuthService {
 
   /** Admin check: el backend solo emite ADMIN/USER (BUG-14). */
   isAdmin = computed(() => this.currentUser()?.role?.toUpperCase() === ROLES.ADMIN);
+
+  /** Perfil interno (consola operativa): Administrador/Coordinador/Supervisor/SuperAdmin. */
+  isInternal = computed(() => {
+    const role = this.currentUser()?.role?.toUpperCase();
+    return !!role && (INTERNAL_ROLES as readonly string[]).includes(role);
+  });
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.api.post<LoginResponse>(API_ENDPOINTS.AUTH_LOGIN, credentials).pipe(

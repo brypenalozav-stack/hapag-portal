@@ -12,7 +12,8 @@ using Microsoft.EntityFrameworkCore;
 public sealed class LoginCommandHandler(
     IApplicationDbContext dbContext,
     IPasswordHasher passwordHasher,
-    IJwtTokenService jwtTokenService)
+    IJwtTokenService jwtTokenService,
+    IPermissionResolver permissionResolver)
     : ICommandHandler<LoginCommand, AuthResponseDto>
 {
     public async Task<Result<AuthResponseDto>> Handle(
@@ -39,7 +40,9 @@ public sealed class LoginCommandHandler(
             .Select(ur => ur.RoleName)
             .ToListAsync(cancellationToken);
 
-        var token = jwtTokenService.GenerateToken(user, roles);
+        var permissions = await permissionResolver.ResolveAsync(roles, cancellationToken) ?? [];
+
+        var token = jwtTokenService.GenerateToken(user, roles, permissions.ToList());
         var refreshToken = jwtTokenService.GenerateRefreshToken();
 
         user.LastLoginAt = DateTime.UtcNow;
