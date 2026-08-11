@@ -114,12 +114,18 @@ flowchart LR
       <h2>Casos de uso por rol</h2>
       <div class="diagram"><pre class="mermaid">
 flowchart LR
-  A(("Administrador")):::r --- ua["Gestionar usuarios/roles"] & cfg["Configurar credenciales por ámbito"]
-  C(("Coordinador")):::r --- uc["Cargar BL"] & up["Ver plazos"]
-  S(("Supervisor")):::r --- ut["Transmitir a Aduana"] & ur["Reintentar / Aclarar"] & uau["Revisar auditoría"]
-  E(("External API")):::r --- ue["Ingesta y transmisión M2M"]
-  CL(("Cliente")):::r --- ucb["Consultar BL"] & ucp["Pagar"]
-  classDef r fill:#ff6600,color:#fff,stroke:#c85200;
+  A(("Administrador")) --- ua["Gestionar usuarios/roles"]
+  A --- cfg["Configurar credenciales"]
+  C(("Coordinador")) --- uc["Cargar BL"]
+  C --- up["Ver plazos"]
+  S(("Supervisor")) --- ut["Transmitir a Aduana"]
+  S --- ur["Reintentar / Aclarar"]
+  S --- uau["Revisar auditoria"]
+  E(("External API")) --- ue["Ingesta y transmision M2M"]
+  CL(("Cliente")) --- ucb["Consultar BL"]
+  CL --- ucp["Pagar"]
+  class A,C,S,E,CL rol
+  classDef rol fill:#ff6600,color:#fff,stroke:#c85200
       </pre></div>
     </section>
 
@@ -220,8 +226,54 @@ flowchart TD
 
   <!-- ==================== USUARIO ==================== -->
   <div class="panel" data-tab="usuario">
+    <section id="u-empezar">
+      <h2>Primeros pasos (empieza aquí)</h2>
+      <p class="lead">Esta sección asume que es tu primera vez. No necesitas conocimientos técnicos: solo un navegador (Chrome o Edge) y las credenciales que te entregó tu administrador.</p>
+
+      <h3>1. Entrar al sistema</h3>
+      <ol>
+        <li>Abre el navegador y escribe la <strong>dirección de la plataforma</strong> que te dieron (por ejemplo <code>https://portal.tu-empresa.cl</code>). Aparece la pantalla <strong>Iniciar Sesión</strong>.</li>
+        <li>Escribe tu <strong>correo electrónico</strong> y tu <strong>contraseña</strong>.</li>
+        <li>Pulsa <strong>Iniciar Sesión</strong>. Si los datos son correctos, entras al <strong>Panel principal (Dashboard)</strong>.</li>
+      </ol>
+      <div class="note">Si es tu primer ingreso, tu contraseña es <strong>temporal</strong>: el sistema te pedirá crear una nueva. Elige una que recuerdes y guárdala en un lugar seguro.</div>
+
+      <h3>2. Si olvidaste tu contraseña</h3>
+      <ol>
+        <li>En la pantalla de inicio pulsa <strong>“¿Olvidaste tu contraseña?”</strong>.</li>
+        <li>Escribe tu correo y pulsa enviar. Recibirás un <strong>correo con un enlace</strong>.</li>
+        <li>Abre el enlace, escribe la nueva contraseña dos veces y confirma. Luego vuelve a iniciar sesión.</li>
+      </ol>
+
+      <h3>3. Salir</h3>
+      <p>Arriba a la derecha pulsa tu <strong>nombre → Cerrar Sesión</strong>. Hazlo siempre si usas un computador compartido.</p>
+    </section>
+
+    <section id="u-pantalla">
+      <h2>Conocer la pantalla</h2>
+      <p class="lead">Todas las pantallas comparten la misma estructura. Si entiendes estas tres zonas, sabes moverte por todo el sistema.</p>
+      <div class="diagram"><pre class="mermaid">
+flowchart TB
+  subgraph top["Barra superior"]
+    direction LR
+    L["Logo"] --- P["País"] --- C["Campana 🔔"] --- U["Tu nombre / Cerrar sesión"]
+  end
+  subgraph body["Cuerpo"]
+    direction LR
+    MENU["Menú lateral<br/>(módulos permitidos)"] --- CONT["Área de contenido<br/>(la pantalla del módulo)"]
+  end
+  top --- body
+      </pre></div>
+      <ul>
+        <li><strong>Barra superior:</strong> el logo (te lleva al inicio), el indicador de país, la <strong>campana 🔔</strong> con el número de notificaciones sin leer, y tu nombre para cerrar sesión.</li>
+        <li><strong>Menú lateral izquierdo:</strong> la lista de módulos. <em>Solo ves los que tu perfil tiene permitidos.</em> Los internos ven un grupo <strong>“Operaciones”</strong> (y el administrador además “Administración”); los clientes ven su portal.</li>
+        <li><strong>Área de contenido:</strong> aquí trabajas. Los listados traen <strong>filtros arriba</strong> y <strong>paginación abajo</strong> (“Anterior / Siguiente”).</li>
+      </ul>
+      <div class="note">Pistas visuales que se repiten: los botones naranjos son la <strong>acción principal</strong>; las <span class="pill ok">etiquetas verdes</span> indican “bien/hecho”, las <span class="pill warn">amarillas</span> “atención”, las <span class="pill risk">rojas</span> “problema/urgente”.</div>
+    </section>
+
     <section id="u-intro">
-      <h2>Guía de uso por perfil</h2>
+      <h2>¿Qué puede hacer cada perfil?</h2>
       <p class="lead">Qué ve y qué puede hacer cada rol en el menú lateral real de la plataforma.</p>
       <table>
         <thead><tr><th>Perfil</th><th>Menú que ve</th><th>Acciones principales</th></tr></thead>
@@ -236,28 +288,68 @@ flowchart TD
 
     <section id="u-pasos">
       <h2>Paso a paso — tareas frecuentes</h2>
-      <h3>Cargar BL</h3>
+      <p class="lead">Cada tarea está escrita como una receta: qué abrir, qué escribir, qué botón pulsar y qué deberías ver. Si algo no coincide, mira la sección <a href="#u-faq">Preguntas frecuentes</a>.</p>
+
+      <h3>A) Cargar Bill of Lading (BL)</h3>
+      <p><em>Para qué sirve:</em> ingresar al sistema los conocimientos de embarque de un cliente para luego transmitirlos a Aduana.</p>
       <ol>
-        <li>Menú <strong>Operaciones → Carga de BL</strong>.</li>
-        <li>Selecciona el <strong>cliente</strong> dueño de los BL.</li>
-        <li>Pega las filas (una por línea, campos separados por <code>;</code>) y pulsa <strong>Previsualizar</strong>.</li>
-        <li>Revisa la tabla y pulsa <strong>Importar</strong>: se crean las filas válidas y se listan los errores por fila (RUT, HS, puertos, país).</li>
+        <li>En el menú lateral abre <strong>Operaciones → Carga de BL</strong>.</li>
+        <li>En <strong>“Cliente”</strong> elige, del desplegable, la empresa dueña de los BL. <em>(Es obligatorio: sin cliente no se puede cargar.)</em></li>
+        <li>En el cuadro de texto <strong>pega las filas</strong>, una por línea. Cada línea son los datos de un BL con los campos separados por punto y coma <code>;</code> en este orden:
+          <br/><code>BL;Tipo;País;PuertoCarga;PuertoDescarga;Moneda;Consignatario;RUT;HS;Peso;Contenedor;TipoISO</code>
+          <br/>Ejemplo: <code>HLCUABC123;Import;CL;CNSHA;CLVAP;USD;Importadora Ltda;12.345.678-5;870323;15000;HLXU1234567;22G1</code>
+        </li>
+        <li>Pulsa <strong>Previsualizar</strong>. Aparece una tabla con lo que entendió el sistema. Revísala.</li>
+        <li>Pulsa <strong>Importar</strong>. El sistema muestra un resumen: <strong>“X creados · Y rechazados”</strong>.</li>
+        <li>Si hay rechazados, aparece una tabla con el <strong>número de fila y el motivo</strong> (RUT inválido, falta HS, puerto mal escrito, país que no es CL/BO, o cliente inexistente). Corrige esas líneas en el texto y vuelve a importar solo esas.</li>
       </ol>
-      <h3>Transmitir a Aduana</h3>
+      <div class="note"><strong>Qué deberías ver al terminar:</strong> un mensaje verde si todo entró, o amarillo con el detalle de las filas a corregir. Lo que ya se creó no se vuelve a duplicar.</div>
+
+      <h3>B) Transmitir a Aduana</h3>
+      <p><em>Para qué sirve:</em> enviar el manifiesto marítimo al Servicio Nacional de Aduanas, en dos etapas (primero el encabezado de la nave, luego los B/L).</p>
       <ol>
-        <li>Menú <strong>Operaciones → Transmisión Aduana</strong>. Crea un <strong>manifiesto</strong> (IMO, viaje, puerto, dirección).</li>
-        <li>Pulsa <strong>Transmitir encabezado</strong>. Cuando quede <span class="pill ok">Accepted</span>, transmite los <strong>B/L</strong>.</li>
-        <li>Ante <span class="pill risk">Rejected</span>: usa <strong>Reintentar</strong>, o <strong>Enviar aclaración</strong> (Anexo 4) si es posterior al arribo.</li>
+        <li>Abre <strong>Operaciones → Transmisión Aduana</strong>.</li>
+        <li>En <strong>“Nuevo manifiesto”</strong> completa: <strong>IMO</strong> de la nave, <strong>Viaje</strong>, <strong>Puerto</strong> (código de 5 letras, p. ej. <code>CLVAP</code>) y <strong>Dirección</strong> (Ingreso o Salida). Pulsa <strong>Crear manifiesto</strong>.</li>
+        <li>El manifiesto aparece en la lista de la izquierda. <strong>Haz clic en él</strong> para verlo a la derecha.</li>
+        <li>Pulsa <strong>Transmitir encabezado</strong>. En la tabla aparece una fila; espera a que su estado sea <span class="pill ok">Accepted</span> (aceptado).</li>
+        <li>Con el encabezado aceptado, escribe el <strong>ID del B/L</strong> en el cuadro y pulsa <strong>Transmitir B/L</strong>. Repite por cada B/L.</li>
+        <li>Si una fila queda <span class="pill risk">Rejected</span> (rechazada): lee el acuse en la columna, corrige y pulsa <strong>Reintentar</strong>. Si el barco <em>ya arribó</em>, usa <strong>Enviar aclaración</strong> (abajo) indicando el motivo.</li>
       </ol>
-      <h3>Vigilar plazos</h3>
+      <div class="note"><strong>Reglas que aplica el sistema por ti:</strong> no deja transmitir un B/L si el encabezado no está aceptado; no deja transmitir un <strong>B/L Hijo</strong> si su <strong>Máster</strong> no está aceptado; y no permite reenviar algo que Aduana ya aceptó.</div>
+
+      <h3>C) Vigilar plazos</h3>
+      <p><em>Para qué sirve:</em> no pasarse de las fechas legales (transmitir el encabezado 7 días antes del arribo, el B/L Máster 48 h antes, etc.).</p>
       <ol>
-        <li>Menú <strong>Operaciones → Control de Plazos</strong>: semáforo con En plazo / En riesgo / Vencidos / Cumplidos.</li>
-        <li>Filtra por estado; consulta el catálogo de reglas con su fuente y certeza.</li>
+        <li>Abre <strong>Operaciones → Control de Plazos</strong>.</li>
+        <li>Arriba ves cuatro contadores: <span class="pill">En plazo</span>, <span class="pill warn">En riesgo</span>, <span class="pill risk">Vencidos</span>, <span class="pill ok">Cumplidos</span>.</li>
+        <li>Usa el desplegable de estado para ver, por ejemplo, solo los <strong>vencidos</strong>. La tabla muestra la regla, el B/L, cuándo vence y su estado.</li>
+        <li>Con el botón <strong>“Ver reglas”</strong> consultas de dónde sale cada plazo (su fuente legal y si está confirmado o por verificar).</li>
       </ol>
-      <h3>Configurar credenciales (Global vs Cliente)</h3>
+
+      <h3>D) Revisar notificaciones</h3>
       <ol>
-        <li>El <strong>Administrador</strong> configura las credenciales de ámbito <strong>Global</strong> (SIDEMAR/SMS de Aduana).</li>
-        <li>Un <strong>cliente</strong> configura solo <strong>sus</strong> credenciales (p. ej. SII). El valor del secreto nunca se muestra: solo metadatos.</li>
+        <li>La <strong>campana 🔔</strong> arriba muestra un número rojo con las no leídas. Pulsa la campana.</li>
+        <li>Verás la lista (plazos en riesgo/vencidos, transmisiones rechazadas). Pulsa <strong>“Marcar leída”</strong> en cada una, o <strong>“Marcar todas como leídas”</strong>.</li>
+      </ol>
+
+      <h3>E) Exportar un reporte</h3>
+      <ol>
+        <li>Abre <strong>Operaciones → Reportes</strong>.</li>
+        <li>Elige el reporte (Transmisiones o Plazos) con los botones de arriba.</li>
+        <li>Pulsa <strong>Exportar CSV</strong>: se descarga un archivo que puedes abrir en Excel.</li>
+      </ol>
+
+      <h3>F) Consultar la auditoría (quién hizo qué)</h3>
+      <ol>
+        <li>Abre <strong>Operaciones → Auditoría</strong>.</li>
+        <li>Filtra por entidad (p. ej. <code>BillOfLading</code>), usuario o acción, y pulsa <strong>Buscar</strong>.</li>
+        <li>Pulsa <strong>“Ver cambios”</strong> en una fila para ver el antes y el después.</li>
+      </ol>
+
+      <h3>G) Configurar credenciales (solo Administrador)</h3>
+      <ol>
+        <li>El <strong>Administrador</strong> carga las credenciales de ámbito <strong>Global</strong> (usuario/clave de Aduana SIDEMAR/SMS).</li>
+        <li>Un <strong>cliente</strong> carga solo <strong>las suyas</strong> (p. ej. su clave del SII). El sistema <strong>nunca muestra el valor</strong> del secreto: solo indica que existe y cuándo caduca.</li>
       </ol>
     </section>
 
@@ -326,14 +418,18 @@ flowchart TB
       <h2>C4 — Contexto</h2>
       <div class="diagram"><pre class="mermaid">
 flowchart LR
-  interno["Usuario interno"]:::p --> sys
-  cliente["Cliente / Agente"]:::p --> sys
-  sys["Plataforma Hapag-Lloyd"]:::s
-  sys --> aduana["SNA Aduana (SIDEMAR/SMS)"]:::ext
-  sys --> sii["SII"]:::ext
-  sys --> fis2["FIS2 / DataLake"]:::ext
-  sys --> smtp["SMTP"]:::ext
-  classDef p fill:#1a2b45,color:#fff; classDef s fill:#ff6600,color:#fff; classDef ext fill:#66707c,color:#fff;
+  interno["Usuario interno"] --> sys["Plataforma Hapag-Lloyd"]
+  cliente["Cliente / Agente"] --> sys
+  sys --> aduana["SNA Aduana (SIDEMAR/SMS)"]
+  sys --> sii["SII"]
+  sys --> fis2["FIS2 / DataLake"]
+  sys --> smtp["SMTP"]
+  class interno,cliente actor
+  class sys core
+  class aduana,sii,fis2,smtp ext
+  classDef actor fill:#1a2b45,color:#fff
+  classDef core fill:#ff6600,color:#fff
+  classDef ext fill:#66707c,color:#fff
       </pre></div>
     </section>
 
