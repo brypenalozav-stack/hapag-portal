@@ -4399,26 +4399,35 @@ function(e){const t=Ye('<a href="http://bpmn.io" target="_blank" class="bjs-powe
     try { localStorage.setItem("doc-theme", next); } catch (e) {}
   });
 
-  // Mermaid
+  // Render perezoso por pestaña: flowchart/ER/BPMN necesitan que su panel esté
+  // VISIBLE para medir tamaños; si se procesan ocultos salen en blanco.
   var dark = root.getAttribute("data-theme") === "dark";
-  try {
-    mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "default", securityLevel: "loose" });
-    mermaid.run({ querySelector: ".mermaid" });
-  } catch (e) { console.error("Mermaid:", e); }
+  mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "default", securityLevel: "loose" });
+  var bpmnViewers = {};
 
-  // BPMN
-  function renderBpmn() {
-    document.querySelectorAll(".bpmn").forEach(function (el) {
-      if (el.dataset.rendered) return;
+  function renderPanel(tab) {
+    var panel = document.querySelector('.panel[data-tab="' + tab + '"]');
+    if (!panel) return;
+    var nodes = panel.querySelectorAll('.mermaid:not([data-processed])');
+    if (nodes.length) {
+      try { mermaid.run({ nodes: nodes }); } catch (e) { console.error("Mermaid:", e); }
+    }
+    panel.querySelectorAll(".bpmn").forEach(function (el) {
+      if (el.dataset.rendered) {
+        var v = bpmnViewers[el.dataset.bpmn];
+        if (v) { try { v.get("canvas").zoom("fit-viewport"); } catch (e) {} }
+        return;
+      }
       var xml = document.getElementById(el.dataset.bpmn).textContent.trim();
       var viewer = new BpmnJS({ container: el });
+      bpmnViewers[el.dataset.bpmn] = viewer;
       viewer.importXML(xml).then(function () {
         viewer.get("canvas").zoom("fit-viewport");
         el.dataset.rendered = "1";
       }).catch(function (err) { console.error("BPMN:", err); el.textContent = "No se pudo renderizar el diagrama BPMN."; });
     });
   }
-  renderBpmn();
+  renderPanel("funcional");
 
   // Tabs
   var buttons = document.querySelectorAll(".tabs button");
@@ -4427,11 +4436,8 @@ function(e){const t=Ye('<a href="http://bpmn.io" target="_blank" class="bjs-powe
     buttons.forEach(function (b) { b.classList.toggle("active", b.dataset.tab === tab); });
     panels.forEach(function (p) { p.classList.toggle("active", p.dataset.tab === tab); });
     buildNav(tab);
-    // Reajustar BPMN visibles (canvas necesita medir con el panel visible)
-    setTimeout(function () {
-      renderBpmn();
-      document.querySelectorAll(".panel.active .bpmn").forEach(function () {});
-    }, 30);
+    // Render/reajuste al mostrar el panel (ya visible => medidas correctas)
+    setTimeout(function () { renderPanel(tab); }, 40);
   }
   buttons.forEach(function (b) { b.addEventListener("click", function () { activate(b.dataset.tab); }); });
 
