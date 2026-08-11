@@ -95,7 +95,7 @@
       <h2>Mapa de módulos y perfiles</h2>
       <div class="diagram"><pre class="mermaid">
 flowchart LR
-  subgraph Interna["Consola operativa (perfiles internos)"]
+  subgraph Interna["Consola operativa interna"]
     BL["Carga de BL"]; TX["Transmisión Aduana"]; PL["Control de plazos"]
     AU["Auditoría"]; RE["Reportes"]; NO["Notificaciones"]; MA["Usuarios y config"]
   end
@@ -152,7 +152,7 @@ flowchart LR
       <div class="grid2">
         <div class="diagram"><pre class="mermaid">
 stateDiagram-v2
-  [*] --> Active: creado (ingesta)
+  [*] --> Active: creado en la ingesta
   Active --> Transmitido: transmisión aceptada
   Active --> Corregir: validación falla
   Corregir --> Active: corregido
@@ -178,9 +178,9 @@ stateDiagram-v2
       <h2>Jerarquía documental del manifiesto</h2>
       <div class="diagram"><pre class="mermaid">
 flowchart TD
-  M["B/L Máster (naviera)"] --> H1["B/L Hijo (agente de carga)"]
+  M["B/L Máster - naviera"] --> H1["B/L Hijo - agente de carga"]
   M --> H2["B/L Hijo"]
-  H1 --> N1["B/L Nieto (desconsolidación)"]
+  H1 --> N1["B/L Nieto - desconsolidación"]
   H1 --> N2["B/L Nieto"]
       </pre></div>
       <div class="note">La transmisión de un B/L Hijo requiere que su B/L Máster ya esté transmitido y aceptado (regla aplicada en <code>TransmitBLCommand</code>).</div>
@@ -260,7 +260,7 @@ flowchart TB
   end
   subgraph body["Cuerpo"]
     direction LR
-    MENU["Menú lateral<br/>(módulos permitidos)"] --- CONT["Área de contenido<br/>(la pantalla del módulo)"]
+    MENU["Menú lateral<br/>módulos permitidos"] --- CONT["Área de contenido<br/>pantalla del módulo"]
   end
   top --- body
       </pre></div>
@@ -284,6 +284,33 @@ flowchart TB
           <tr><td>Cliente / Agente</td><td>Portal de cliente</td><td>Consultar BL, pagar, demurrage, órdenes de servicio</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <section id="u-flujo">
+      <h2>El flujo completo de un extremo a otro</h2>
+      <p class="lead">Así se encadenan las tareas entre el Coordinador, el Supervisor, el Sistema y Aduana. Léelo de arriba hacia abajo: cada flecha es una acción y su respuesta.</p>
+      <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  actor Coord as Coordinador
+  actor Sup as Supervisor
+  participant Sis as Sistema
+  participant Adu as Aduana
+  Coord->>Sis: Inicia sesión
+  Coord->>Sis: Carga BL (valida RUT/NIT, HS, puertos)
+  Sis-->>Coord: Filas válidas / errores por corregir
+  Sup->>Sis: Crea manifiesto y transmite el encabezado
+  Sis->>Adu: Envía encabezado
+  Adu-->>Sis: Acuse (Aceptado / Rechazado)
+  Sup->>Sis: Transmite los B/L (Máster y luego Hijo)
+  Sis->>Adu: Envía B/L
+  Adu-->>Sis: Acuse
+  alt Rechazado
+    Sis-->>Sup: Notificación en la campana
+    Sup->>Sis: Reintenta o envía Aclaración (Anexo 4)
+  end
+  Sis-->>Coord: Actualiza el tablero de plazos
+      </pre></div>
+      <div class="note">Regla de oro: <strong>primero se carga el BL</strong>, luego se transmite el <strong>encabezado</strong>, y solo cuando está aceptado se transmiten los <strong>B/L</strong> (el Hijo siempre después de su Máster).</div>
     </section>
 
     <section id="u-pasos">
@@ -353,6 +380,32 @@ flowchart TB
       </ol>
     </section>
 
+    <section id="u-paises">
+      <h2>Diferencias por país (Chile / Bolivia / otros)</h2>
+      <p class="lead">El sistema se adapta automáticamente al <strong>país del BL o del cliente</strong>. Cambian el identificador fiscal, la moneda, el documento aduanero, el canal y los plazos. Tú trabajas igual; el sistema aplica las reglas del país correcto.</p>
+
+      <div class="diagram"><pre class="mermaid">
+flowchart TD
+  BL["Nuevo BL o manifiesto"] --> Q{"País del BL"}
+  Q -->|Chile CL| CLn["RUT módulo 11 · CLP · Manifiesto marítimo SNA · plazos 7d / 48h / 24h"]
+  Q -->|Bolivia BO| BOn["NIT · BOB · Tránsito MIC/DTA · plazo hasta 48h"]
+  Q -->|Otro país| OTn["Configurable · por definir con el cliente"]
+      </pre></div>
+
+      <table>
+        <thead><tr><th>Aspecto</th><th>Chile (CL)</th><th>Bolivia (BO)</th><th>Otro país</th></tr></thead>
+        <tbody>
+          <tr><td>Identificador fiscal</td><td><strong>RUT</strong> con dígito verificador módulo 11 (se valida al cargar)</td><td><strong>NIT</strong> (hoy se valida solo el formato)</td><td>Genérico (configurable)</td></tr>
+          <tr><td>Moneda por defecto</td><td>CLP</td><td>BOB</td><td>Según configuración</td></tr>
+          <tr><td>Documento aduanero</td><td>Manifiesto marítimo (encabezado + B/L)</td><td>Tránsito aduanero <strong>MIC/DTA</strong></td><td>Por definir</td></tr>
+          <tr><td>Canal de transmisión</td><td>SIDEMAR / SMS del Servicio Nacional de Aduanas</td><td>SIDEMAR-Bolivia (tránsito)</td><td>Pendiente de integración</td></tr>
+          <tr><td>Plazos destacados</td><td>Encabezado −7 días · B/L Máster −48 h · Hijo −24 h</td><td>MIC/DTA hasta 48 h</td><td>Reglas cargables como configuración</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note">Qué debes hacer <strong>tú</strong>: al cargar un BL, indica el <strong>país</strong> correcto (CL o BO). El resto —qué identificador validar, qué moneda y qué plazos aplicar— lo resuelve el sistema. Para un país nuevo, primero el administrador carga sus reglas de plazo y credenciales.</div>
+    </section>
+
     <section id="u-journey">
       <h2>Un día del Coordinador</h2>
       <div class="diagram"><pre class="mermaid">
@@ -404,12 +457,12 @@ journey
       <p class="lead">.NET 9 con Clean Architecture (Domain / Application / Infrastructure / WebApi / DatabaseMigrations), CQRS con MediatR, <code>Result&lt;T&gt;</code> y pipeline de validación. Frontend Angular 21 (standalone components, signals). PostgreSQL vía EF Core 9; migraciones en proyecto aparte.</p>
       <div class="diagram"><pre class="mermaid">
 flowchart TB
-  UI["Angular 21 SPA"] -->|HTTPS + JWT| API["WebApi (controllers)"]
-  API --> APP["Application (CQRS / MediatR)"]
-  APP --> DOM["Domain (entidades, reglas)"]
+  UI["Angular 21 SPA"] --> API["WebApi + JWT"]
+  API --> APP["Application CQRS / MediatR"]
+  APP --> DOM["Domain"]
   APP --> INF["Infrastructure"]
-  INF --> DB[("PostgreSQL")]
-  INF -. stub .-> ADUANA["Aduana SIDEMAR/SMS"]
+  INF --> DB["PostgreSQL"]
+  INF --> ADUANA["Aduana SIDEMAR / SMS - stub"]
   INF --> SMTP["Email"]
       </pre></div>
     </section>
@@ -420,7 +473,7 @@ flowchart TB
 flowchart LR
   interno["Usuario interno"] --> sys["Plataforma Hapag-Lloyd"]
   cliente["Cliente / Agente"] --> sys
-  sys --> aduana["SNA Aduana (SIDEMAR/SMS)"]
+  sys --> aduana["SNA Aduana SIDEMAR/SMS"]
   sys --> sii["SII"]
   sys --> fis2["FIS2 / DataLake"]
   sys --> smtp["SMTP"]
@@ -440,7 +493,7 @@ erDiagram
   BillOfLading ||--o{ BLParty : tiene
   BillOfLading ||--o{ BLCargoItem : tiene
   BillOfLading ||--o{ BLContainer : tiene
-  BillOfLading ||--o{ CustomsTransmission : "se transmite"
+  BillOfLading ||--o{ CustomsTransmission : transmite
   CustomsManifest ||--o{ CustomsTransmission : agrupa
   CustomsTransmission ||--o{ CustomsTransmissionEvent : registra
   DeadlineRule ||--o{ DeadlineInstance : genera
