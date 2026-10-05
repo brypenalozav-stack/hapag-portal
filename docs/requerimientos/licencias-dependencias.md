@@ -27,3 +27,11 @@ Cada fase que agrega una dependencia registra aquí el nombre, la **versión exa
 | Microsoft.AspNetCore.Mvc.Testing (incluye Microsoft.AspNetCore.TestHost 9.0.20) | 9.0.20 | `backend/tests/HapagPortal.IntegrationTests` | MIT | 6c |
 | schemathesis | 4.29.3 | `docs/integraciones/requirements.txt` | MIT | 6c |
 | hypothesis (transitiva de schemathesis) | 6.168.4 | `docs/integraciones/requirements.txt` (vía schemathesis) | MPL-2.0 | 6c |
+| Bootstrap (CSS y JS bundle, CDN cdn.jsdelivr.net con SRI) | 5.3.8 | `docs/prototipo/portal-2.0-prototipo.html` | MIT | 4 |
+| Bootstrap Icons (CDN cdn.jsdelivr.net con SRI) | 1.13.1 | `docs/prototipo/portal-2.0-prototipo.html` | MIT | 4 |
+| Inter (Google Fonts) | versión servida por fonts.googleapis.com | `docs/prototipo/portal-2.0-prototipo.html` | OFL-1.1 | 4 |
+| Montserrat (Google Fonts) | versión servida por fonts.googleapis.com | `docs/prototipo/portal-2.0-prototipo.html` | OFL-1.1 | 4 |
+| @playwright/test | 1.63.0 | `scripts/requerimientos/prototipo/package.json` | Apache-2.0 | 4 |
+| playwright, playwright-core (transitivas de @playwright/test) | 1.63.0 | `scripts/requerimientos/prototipo/package-lock.json` | Apache-2.0 | 4 |
+| @axe-core/playwright | 4.13.0 | `scripts/requerimientos/prototipo/package.json` | MPL-2.0 | 4 |
+| axe-core (transitiva de @axe-core/playwright) | 4.13.0 | `scripts/requerimientos/prototipo/package-lock.json` | MPL-2.0 | 4 |

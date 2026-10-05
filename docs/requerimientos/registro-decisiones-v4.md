@@ -69,4 +69,4 @@ Aprobación: el usuario aprobó todas las decisiones el 05-10-2026.
 
 | Fase | Entregable | URL |
 |---|---|---|
-| — | (se completa en la Fase 4 con la URL del prototipo) | — |
+| 4 | Prototipo navegable (`docs/prototipo/portal-2.0-prototipo.html`, copia en `katu4\Prototipo_Portal_2.0_v4.html`) | No publicado: usa la marca de Hapag-Lloyd, así que se entrega como archivo local y la publicación queda a decisión del usuario. |
