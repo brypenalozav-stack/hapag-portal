@@ -13,12 +13,15 @@
         <p class="register-subtitle">{{ 'auth.register.subtitle' | transloco }}</p>
       </div>
 
-      @if (success()) {
-        <div class="alert alert-success text-center" role="status">
-          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mb-2" viewBox="0 0 16 16">
-            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-          </svg>
-          <p class="mb-0"><strong>{{ 'auth.register.successTitle' | transloco }}</strong> {{ 'auth.register.successRedirect' | transloco }}</p>
+      @if (registeredName(); as name) {
+        <!-- Resultado (M1-07): la organización queda pendiente de la validación interna (M8-04) -->
+        <div class="alert alert-info" role="status">
+          <h2 class="h6 fw-bold mb-2">{{ 'auth.register.pending.title' | transloco }}</h2>
+          <p class="mb-2">{{ 'auth.register.pending.body' | transloco: { name: name } }}</p>
+          <p class="mb-0">{{ 'auth.register.pending.documents' | transloco }}</p>
+        </div>
+        <div class="text-center mt-3">
+          <a routerLink="/login" class="btn btn-hl-orange">{{ 'auth.register.pending.goToLogin' | transloco }}</a>
         </div>
       } @else {
         @if (error()) {
@@ -26,27 +29,21 @@
         }
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-          <!-- Type selector -->
-          <fieldset class="hl-form-group">
-            <legend>{{ 'auth.register.userType' | transloco }}</legend>
-            <div class="d-flex gap-2">
-              <button type="button"
-                      class="btn flex-fill"
-                      [attr.aria-pressed]="form.controls.type.value === 'CLIENT'"
-                      [class.btn-hl-blue]="form.controls.type.value === 'CLIENT'"
-                      [class.btn-outline-secondary]="form.controls.type.value !== 'CLIENT'"
-                      (click)="form.controls.type.setValue('CLIENT'); onTypeChange()">
-                {{ 'auth.register.typeClient' | transloco }}
-              </button>
-              <button type="button"
-                      class="btn flex-fill"
-                      [attr.aria-pressed]="form.controls.type.value === 'AGENT'"
-                      [class.btn-hl-blue]="form.controls.type.value === 'AGENT'"
-                      [class.btn-outline-secondary]="form.controls.type.value !== 'AGENT'"
-                      (click)="form.controls.type.setValue('AGENT'); onTypeChange()">
-                {{ 'auth.register.typeAgent' | transloco }}
-              </button>
+          <!-- Tipo de organización (M1-07): determina los permisos base de M1-11 -->
+          <fieldset class="hl-form-group" aria-describedby="organizationType-help">
+            <legend>{{ 'auth.register.organizationType' | transloco }}</legend>
+            <div class="row g-2">
+              @for (type of organizationTypes; track type) {
+                <div class="col-6">
+                  <input type="radio" class="btn-check" name="organizationType" formControlName="organizationType"
+                         [id]="'organizationType-' + type" [value]="type" (change)="onTypeChange()" />
+                  <label class="btn btn-outline-secondary w-100 h-100" [for]="'organizationType-' + type">
+                    {{ type | codeLabel: organizationTypeKeys }}
+                  </label>
+                </div>
+              }
             </div>
+            <div id="organizationType-help" class="form-text">{{ 'auth.register.organizationTypeHelp' | transloco }}</div>
           </fieldset>
 
           <!-- Country selector -->
@@ -74,20 +71,19 @@
             </div>
           </fieldset>
 
-          <div class="row">
-            <div class="col-12">
-              <div class="hl-form-group">
-                <label for="name">{{ 'auth.register.name' | transloco }}</label>
-                <input type="text" id="name" class="form-control" formControlName="name" autocomplete="organization" required
-                       aria-describedby="name-error"
-                       [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
-                       [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid" />
-                <div id="name-error" class="invalid-feedback">
-                  @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
-                    {{ 'auth.register.nameRequired' | transloco }}
-                  }
-                </div>
-              </div>
+          <div class="hl-form-group">
+            <label for="name">{{ 'auth.register.name' | transloco }}</label>
+            <input type="text" id="name" class="form-control" formControlName="name" autocomplete="organization" required
+                   aria-describedby="name-error"
+                   [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
+                   [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid" />
+            <div id="name-error" class="invalid-feedback">
+              @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
+                {{ 'auth.register.nameRequired' | transloco }}
+              }
+              @if (form.controls.name.touched && form.controls.name.errors?.['minlength']) {
+                {{ 'auth.register.nameMinLength' | transloco }}
+              }
             </div>
           </div>
 
@@ -97,9 +93,12 @@
                 <label for="taxId">{{ (form.controls.country.value === 'CL' ? 'auth.register.taxIdCl' : 'auth.register.taxIdBo') | transloco }}</label>
                 <input type="text" id="taxId" class="form-control" formControlName="taxId" autocomplete="off" required
                        [placeholder]="form.controls.country.value === 'CL' ? '12.345.678-9' : '1234567890'"
-                       aria-describedby="taxId-error"
+                       aria-describedby="taxId-help taxId-error"
                        [attr.aria-invalid]="form.controls.taxId.touched && form.controls.taxId.invalid"
                        [class.is-invalid]="form.controls.taxId.touched && form.controls.taxId.invalid" />
+                <div id="taxId-help" class="form-text">
+                  {{ (form.controls.country.value === 'CL' ? 'auth.register.taxIdHelpCl' : 'auth.register.taxIdHelpBo') | transloco }}
+                </div>
                 <div id="taxId-error" class="invalid-feedback">
                   @if (form.controls.taxId.touched && form.controls.taxId.errors?.['required']) {
                     {{ 'auth.register.taxIdRequired' | transloco }}
@@ -124,6 +123,38 @@
             </div>
           </div>
 
+          <!-- Datos de contacto (M1-07) -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="hl-form-group">
+                <label for="contactFirstName">{{ 'auth.register.contactFirstName' | transloco }}</label>
+                <input type="text" id="contactFirstName" class="form-control" formControlName="contactFirstName" autocomplete="given-name" required
+                       aria-describedby="contactFirstName-error"
+                       [attr.aria-invalid]="form.controls.contactFirstName.touched && form.controls.contactFirstName.invalid"
+                       [class.is-invalid]="form.controls.contactFirstName.touched && form.controls.contactFirstName.invalid" />
+                <div id="contactFirstName-error" class="invalid-feedback">
+                  @if (form.controls.contactFirstName.touched && form.controls.contactFirstName.errors?.['required']) {
+                    {{ 'auth.register.contactFirstNameRequired' | transloco }}
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="hl-form-group">
+                <label for="contactLastName">{{ 'auth.register.contactLastName' | transloco }}</label>
+                <input type="text" id="contactLastName" class="form-control" formControlName="contactLastName" autocomplete="family-name" required
+                       aria-describedby="contactLastName-error"
+                       [attr.aria-invalid]="form.controls.contactLastName.touched && form.controls.contactLastName.invalid"
+                       [class.is-invalid]="form.controls.contactLastName.touched && form.controls.contactLastName.invalid" />
+                <div id="contactLastName-error" class="invalid-feedback">
+                  @if (form.controls.contactLastName.touched && form.controls.contactLastName.errors?.['required']) {
+                    {{ 'auth.register.contactLastNameRequired' | transloco }}
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="hl-form-group">
             <label for="regEmail">{{ 'auth.register.email' | transloco }}</label>
             <input type="email" id="regEmail" class="form-control" formControlName="email" autocomplete="email" required
@@ -141,10 +172,10 @@
             </div>
           </div>
 
-          @if (form.controls.type.value === 'AGENT') {
+          @if (form.controls.organizationType.value === 'CustomsAgency') {
             <div class="hl-form-group">
               <label for="agentCode">{{ 'auth.register.agentCode' | transloco }}</label>
-              <input type="text" id="agentCode" class="form-control" formControlName="agentCode"
+              <input type="text" id="agentCode" class="form-control" formControlName="agentCode" required
                      [placeholder]="'auth.register.agentCodePlaceholder' | transloco"
                      aria-describedby="agentCode-error"
                      [attr.aria-invalid]="form.controls.agentCode.touched && form.controls.agentCode.invalid"
@@ -205,6 +236,9 @@
         </form>
 
         <div class="text-center mt-3">
+          <a routerLink="/register/join" class="back-link d-block mb-2">
+            {{ 'auth.register.joinExisting' | transloco }} <strong>{{ 'auth.register.joinLink' | transloco }}</strong>
+          </a>
           <a routerLink="/login" class="back-link">
             {{ 'auth.register.hasAccount' | transloco }} <strong>{{ 'auth.register.loginLink' | transloco }}</strong>
           </a>

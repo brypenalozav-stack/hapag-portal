@@ -1,7 +1,8 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
+import { PERMISSIONS } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,6 +15,13 @@ import { AuthService } from '../../../core/services/auth.service';
 export class SidebarComponent {
   readonly auth = inject(AuthService);
   isOpen = input(false);
+
+  /** Bandeja interna de organizaciones (M8-04). */
+  canReviewOrganizations = computed(() =>
+    this.auth.hasPermission(PERMISSIONS.REVIEW_ORGANIZATIONS, PERMISSIONS.CHECK_ORGANIZATIONS_AR),
+  );
+  /** Editor de la matriz base de accesos (M1-11). */
+  canManageAccessMatrix = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_ACCESS_MATRIX));
   closed = output<void>();
 
   onLinkClick(): void {

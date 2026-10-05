@@ -71,8 +71,9 @@ test('a 375 px el botón de menú alterna aria-expanded y el menú lateral', asy
 });
 
 for (const ruta of [
-  '/bills-of-lading',
-  `/bills-of-lading/${BL_PRUEBA.blNumber}`,
+  '/shipments',
+  `/shipments/${BL_PRUEBA.blNumber}`,
+  '/organization',
   '/payments',
   '/receipts',
 ]) {

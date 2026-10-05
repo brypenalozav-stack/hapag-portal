@@ -36,13 +36,25 @@
     </div>
 
     @if (auth.isAuthenticated()) {
-      <!-- Country indicator -->
-      <span class="badge bg-white bg-opacity-10 text-white d-none d-md-inline-flex align-items-center gap-1 px-2 py-1">
-        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
-        </svg>
-        {{ (auth.getCountry() === 'CL' ? 'common.country.cl' : 'common.country.bo') | transloco }}
-      </span>
+      @if (countries().length > 1) {
+        <!-- Selector de país de operación (M1-04) -->
+        <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'shared.navbar.country.label' | transloco">
+          @for (country of countries(); track country) {
+            <button type="button" class="btn btn-outline-light hl-lang-btn"
+                    [class.active]="auth.getCountry() === country" [attr.aria-pressed]="auth.getCountry() === country"
+                    [attr.aria-label]="(country === 'BO' ? 'shared.navbar.country.bo' : 'shared.navbar.country.cl') | transloco"
+                    [disabled]="changingCountry()" (click)="setCountry(country)">{{ country }}</button>
+          }
+        </div>
+      } @else {
+        <!-- Country indicator -->
+        <span class="badge bg-white bg-opacity-10 text-white d-none d-md-inline-flex align-items-center gap-1 px-2 py-1">
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+          </svg>
+          {{ (auth.getCountry() === 'CL' ? 'common.country.cl' : 'common.country.bo') | transloco }}
+        </span>
+      }
 
       <!-- Notifications bell -->
       <a routerLink="/notifications" class="btn btn-link text-white position-relative p-0 hl-icon-btn"
@@ -70,6 +82,14 @@
         <ul class="dropdown-menu dropdown-menu-end">
           <li><span class="dropdown-item-text small text-muted">{{ auth.currentUser()?.email }}</span></li>
           <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" routerLink="/organization">
+              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+                <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3z"/>
+              </svg>
+              {{ 'shared.navbar.organization' | transloco }}
+            </a>
+          </li>
           <li>
             <a class="dropdown-item" routerLink="/profile">
               <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">

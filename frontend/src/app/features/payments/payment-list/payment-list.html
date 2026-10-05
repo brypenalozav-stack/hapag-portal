@@ -57,7 +57,7 @@
                 <td>{{ payment.createdAt | hlDate:'datetime' }}</td>
                 <td>
                   @if (payment.blNumber) {
-                    <a [routerLink]="['/bills-of-lading', payment.blNumber]" class="text-hl-blue text-decoration-none">
+                    <a [routerLink]="['/shipments', payment.blNumber]" class="text-hl-blue text-decoration-none">
                       {{ payment.blNumber }}
                     </a>
                   }

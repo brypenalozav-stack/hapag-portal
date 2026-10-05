@@ -49,7 +49,8 @@ function handle401Error(
       }),
       catchError((err) => {
         isRefreshing = false;
-        authService.logout();
+        // La sesión ya no es válida en el servidor: solo se limpia la local.
+        authService.clearSession();
         return throwError(() => err);
       }),
     );

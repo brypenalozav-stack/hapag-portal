@@ -1,0 +1,75 @@
+<div class="hl-page-header">
+  <h1>{{ 'organization.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'organization.subtitle' | transloco }}</p>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (organization(); as org) {
+  @if (org.status !== 'Approved') {
+    <!-- M1-07: la organización no opera antes de que su registro sea aprobado -->
+    <div class="alert alert-warning" role="note">
+      {{ (org.status === 'Rejected' ? 'organization.statusNotice.rejected' : 'organization.statusNotice.pending') | transloco }}
+    </div>
+  }
+
+  <section class="hl-card p-4 mb-4" aria-labelledby="organization-data-title">
+    <h2 id="organization-data-title" class="section-title mb-3">{{ 'organization.data.title' | transloco }}</h2>
+    <dl class="row g-3 mb-0">
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'organization.data.name' | transloco }}</dt>
+        <dd class="detail-value">{{ org.name }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'organization.data.taxId' | transloco: { type: org.taxIdType } }}</dt>
+        <dd class="detail-value">{{ org.taxId }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'organization.data.country' | transloco }}</dt>
+        <dd class="detail-value">{{ (org.country === 'BO' ? 'common.country.bo' : 'common.country.cl') | transloco }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'organization.data.type' | transloco }}</dt>
+        <dd class="detail-value">{{ org.organizationType | codeLabel: typeKeys }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'organization.data.status' | transloco }}</dt>
+        <dd class="detail-value">{{ org.status | codeLabel: statusKeys }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'organization.data.matchCode' | transloco }}</dt>
+        <dd class="detail-value">{{ org.matchCode ?? ('organization.data.noMatchCode' | transloco) }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'organization.data.operatingCountries' | transloco }}</dt>
+        <dd class="detail-value">
+          @for (country of org.operatingCountries; track country; let last = $last) {
+            {{ (country === 'BO' ? 'common.country.bo' : 'common.country.cl') | transloco }}@if (!last) {<span>, </span>}
+          }
+        </dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'organization.data.myProfile' | transloco }}</dt>
+        <dd class="detail-value">{{ org.profile ? (org.profile | codeLabel: profileKeys) : ('organization.data.noProfile' | transloco) }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'organization.data.canOperate' | transloco }}</dt>
+        <dd class="detail-value">{{ (org.canOperate ? 'organization.data.canOperateYes' : 'organization.data.canOperateNo') | transloco }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <app-organization-documents class="d-block mb-4" />
+
+  @if (canApproveRequests()) {
+    <app-join-requests class="d-block mb-4" />
+  }
+
+  @if (canManageUsers()) {
+    <app-organization-users class="d-block mb-4" />
+  }
+}

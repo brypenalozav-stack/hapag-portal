@@ -6,6 +6,18 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { VALIDATION } from '../../../core/constants/app.constants';
+import { apiErrorKey } from '../../../core/http/api-error';
+
+/**
+ * Errores de ingreso con texto propio (M1-08): una solicitud de vinculación pendiente o
+ * rechazada no da acceso a la organización.
+ */
+const LOGIN_ERRORS: Record<string, string> = {
+  'User.PendingApproval': 'auth.login.errors.pendingApproval',
+  'User.MembershipRejected': 'auth.login.errors.membershipRejected',
+  'User.InvalidCredentials': 'auth.login.errors.invalidCredentials',
+  'User.Inactive': 'auth.login.errors.inactive',
+};
 
 @Component({
   selector: 'app-login',
@@ -50,7 +62,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message ?? translate('auth.login.error'));
+        this.error.set(translate(apiErrorKey(err, LOGIN_ERRORS, 'auth.login.error')));
       },
     });
   }

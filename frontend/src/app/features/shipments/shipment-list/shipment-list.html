@@ -1,0 +1,121 @@
+<div class="hl-page-header">
+  <h1>{{ 'shipments.list.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'shipments.list.subtitle' | transloco }}</p>
+</div>
+
+<!-- Importación / exportación (M2-07): se mantiene durante la navegación -->
+<div class="btn-group mb-3" role="group" [attr.aria-label]="'shipments.list.operation.label' | transloco">
+  @for (option of operations; track option.value) {
+    <button type="button" class="btn"
+            [class.btn-secondary]="operation() === option.value"
+            [class.btn-outline-secondary]="operation() !== option.value"
+            [attr.aria-pressed]="operation() === option.value"
+            (click)="setOperation(option.value)">
+      {{ option.key | transloco }}
+    </button>
+  }
+</div>
+
+<!-- Filtros (M2-06): BL, booking, nave, viaje, estado y país -->
+<form class="hl-card p-3 mb-4" [formGroup]="filters" (ngSubmit)="search()" role="search"
+      [attr.aria-label]="'shipments.list.filters.label' | transloco">
+  <div class="row g-3 align-items-end">
+    <div class="col-sm-6 col-lg-2">
+      <label for="shipments-filter-bl" class="form-label small fw-semibold">{{ 'shipments.list.filters.blNumber' | transloco }}</label>
+      <input id="shipments-filter-bl" type="text" class="form-control" formControlName="blNumber" autocomplete="off" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="shipments-filter-booking" class="form-label small fw-semibold">{{ 'shipments.list.filters.bookingNumber' | transloco }}</label>
+      <input id="shipments-filter-booking" type="text" class="form-control" formControlName="bookingNumber" autocomplete="off" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="shipments-filter-vessel" class="form-label small fw-semibold">{{ 'shipments.list.filters.vessel' | transloco }}</label>
+      <input id="shipments-filter-vessel" type="text" class="form-control" formControlName="vessel" autocomplete="off" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="shipments-filter-voyage" class="form-label small fw-semibold">{{ 'shipments.list.filters.voyage' | transloco }}</label>
+      <input id="shipments-filter-voyage" type="text" class="form-control" formControlName="voyage" autocomplete="off" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="shipments-filter-status" class="form-label small fw-semibold">{{ 'shipments.list.filters.status' | transloco }}</label>
+      <input id="shipments-filter-status" type="text" class="form-control" formControlName="status" autocomplete="off" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="shipments-filter-country" class="form-label small fw-semibold">{{ 'shipments.list.filters.country' | transloco }}</label>
+      <select id="shipments-filter-country" class="form-select" formControlName="country">
+        <option value="">{{ 'shipments.list.filters.allCountries' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+  </div>
+  <div class="d-flex flex-wrap gap-2 mt-3">
+    <button type="submit" class="btn btn-hl-orange">{{ 'shipments.list.filters.search' | transloco }}</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">{{ 'shipments.list.filters.clear' | transloco }}</button>
+  </div>
+</form>
+
+<p class="small text-muted">{{ 'shipments.list.universeNote' | transloco }}</p>
+
+@if (error()) {
+  <div class="alert alert-warning" role="alert">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (shipments().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'shipments.list.empty'" />
+} @else {
+  <div class="hl-card">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'shipments.list.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'shipments.list.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'shipments.list.col.blNumber' | transloco }}</th>
+            <th scope="col">{{ 'shipments.list.col.bookingNumber' | transloco }}</th>
+            <th scope="col">{{ 'shipments.list.col.vessel' | transloco }}</th>
+            <th scope="col">{{ 'shipments.list.col.voyage' | transloco }}</th>
+            <th scope="col">{{ 'shipments.list.col.status' | transloco }}</th>
+            <th scope="col">{{ 'shipments.list.col.operation' | transloco }}</th>
+            <th scope="col">{{ 'shipments.list.col.country' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (shipment of shipments(); track shipment.id) {
+            <tr>
+              <td>
+                <a [routerLink]="['/shipments', shipment.blNumber]" class="fw-semibold text-hl-blue">{{ shipment.blNumber }}</a>
+              </td>
+              <td>{{ shipment.bookingNumber ?? '—' }}</td>
+              <td>{{ shipment.vessel ?? '—' }}</td>
+              <td>{{ shipment.voyage ?? '—' }}</td>
+              <td>
+                <app-status-badge [status]="shipment.status" />
+                @if (shipment.hasPendingCharges) {
+                  <span class="hl-badge hl-badge--pending ms-1">{{ 'shipments.list.pendingCharges' | transloco }}</span>
+                }
+              </td>
+              <td>{{ shipment.operation | codeLabel: operationKeys }}</td>
+              <td><app-country-badge [country]="shipment.country" /></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'shipments.list.pagination.label' | transloco">
+      <span class="small text-muted">{{ 'shipments.list.pagination.showing' | transloco: { shown: shipments().length, total: total() } }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">
+          {{ 'shipments.list.pagination.previous' | transloco }}
+        </button>
+        <span class="small">{{ 'shipments.list.pagination.page' | transloco: { page: page(), pages: totalPages } }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">
+          {{ 'shipments.list.pagination.next' | transloco }}
+        </button>
+      </div>
+    </nav>
+  </div>
+}

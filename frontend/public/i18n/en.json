@@ -1,5 +1,85 @@
 {
   "admin": {
+    "accessMatrix": {
+      "action": {
+        "accessAdministrationArea": "Access the portal administration area",
+        "approveJoinRequests": "Review and approve requests to join the organization",
+        "configureDefaultAgents": "Set a default customs broker or haulier",
+        "downloadCollectReceipt": "View and download the Collect receipt",
+        "downloadNoDebtCertificate": "Download the debt clearance certificate",
+        "downloadTatc": "Download the TATC document",
+        "enableOpenAccess": "Enable open access by BL number",
+        "enableParentCompanyVisibility": "Share BL visibility with the parent company",
+        "extendDataVisibility": "Extend the visibility of a BL data item to another role",
+        "generateFreightCertificate": "Generate and download the freight certificate",
+        "generateReleaseLetter": "Generate and download the release and devanning letter",
+        "generateResponsibilityLetter": "Generate and download the letter of indemnity",
+        "generateTransshipmentCertificate": "Generate and download the transshipment certificate",
+        "grantAccess": "Grant access to a BL or booking, individually or in bulk",
+        "grantEarlyBookingAccess": "Grant early booking access to a future shipper",
+        "haveOwnUsers": "Have own users linked to the organization",
+        "payFreight": "View and pay freight amounts",
+        "payImportDemurrage": "View and pay import demurrage",
+        "payMandatoryLocalCharges": "View and pay mandatory local surcharges",
+        "payOnDemandLocalCharges": "View and pay on-demand local charges",
+        "preCreateCarrier": "Pre-create the profile of a haulier without an account",
+        "receiveThirdPartyQueryNotice": "Receive a notification when a third party views a BL",
+        "requestDropOff": "Request and pay Drop Off",
+        "requestUnvaluedBlCopy": "Request an unvalued BL copy",
+        "requestValuedBlCopy": "Request a valued BL copy",
+        "requestWarehouseChange": "Request a warehouse change, individually or in bulk",
+        "revokeAccess": "Revoke a granted access",
+        "searchOpenAccess": "Search an open-access BL by its number",
+        "selectCountry": "Select the operating country and check the DG classification",
+        "selfAssociate": "Self-associate with an open-access BL",
+        "setAccessValidity": "Set the validity period of an access",
+        "updateDistributionList": "Update the organization's email distribution list",
+        "useAssistant": "Use the portal assistant and view announcements",
+        "viewAccessAudit": "View the access audit of a BL or booking",
+        "viewAccountStatement": "View the online statement of account",
+        "viewBlIssuance": "View the BL issuance status",
+        "viewExportDepot": "View the depot assigned for export",
+        "viewImportDepot": "View the depot assigned for import",
+        "viewInvoicesAsBilled": "View invoices as the billed customer",
+        "viewInvoicesAsPayer": "View invoices as a payer other than the billed party",
+        "viewReleaseRequirements": "View the status of the release requirements",
+        "viewShipment": "View the list and details of a BL or booking",
+        "viewTracking": "View shipment tracking"
+      },
+      "administration": {
+        "caption": "Base level for access and organization administration by role",
+        "title": "Access and organization administration"
+      },
+      "cellLabel": "Level of “{{ action }}” for {{ role }}",
+      "col": {
+        "action": "Action"
+      },
+      "discard": "Discard changes",
+      "empty": "The matrix has no configured actions.",
+      "errors": {
+        "load": "The access matrix could not be loaded.",
+        "save": "Not all changes could be saved. The current matrix is shown; review it and try again."
+      },
+      "exceptionCellLabel": "Level of “{{ action }}” for {{ role }} of {{ type }}",
+      "exceptions": {
+        "caption": "Matrix exceptions by organization type",
+        "help": "Levels that replace the base level for an organization type.",
+        "level": "Level",
+        "organizationType": "Organization type",
+        "role": "Role",
+        "title": "Exceptions by organization type"
+      },
+      "information": {
+        "caption": "Base level for information visibility and service management by role",
+        "title": "Information visibility and service management"
+      },
+      "legend": "How to read the matrix",
+      "pending": "{count, plural, =0 {No pending changes} one {# unsaved change} other {# unsaved changes}}",
+      "save": "Save changes",
+      "saved": "{count, plural, one {# change saved to the matrix.} other {# changes saved to the matrix.}}",
+      "subtitle": "Base level of visibility and actions by role (M1-11). Changes apply immediately on the server.",
+      "title": "Access matrix"
+    },
     "audit": {
       "action": "Action",
       "actions": {
@@ -289,6 +369,135 @@
       "subtitle": "Management of demurrage exemptions for customers",
       "title": "Demurrage Exemptions"
     },
+    "organizations": {
+      "caption": "Registered organizations",
+      "col": {
+        "country": "Country",
+        "createdAt": "Registered",
+        "matchCode": "Match Code",
+        "name": "Legal name",
+        "status": "Status",
+        "taxId": "Tax ID (RUT / NIT)",
+        "type": "Type",
+        "users": "Users"
+      },
+      "empty": "There are no organizations matching those filters.",
+      "errors": {
+        "load": "The organization list could not be loaded."
+      },
+      "filters": {
+        "all": "All",
+        "apply": "Search",
+        "label": "Organization filters",
+        "search": "Search",
+        "searchHelp": "Legal name, Tax ID (RUT / NIT), email or Match Code.",
+        "status": "Status",
+        "type": "Organization type"
+      },
+      "pagination": {
+        "label": "Organization pagination",
+        "next": "Next",
+        "page": "Page {{ page }} of {{ pages }}",
+        "previous": "Previous",
+        "showing": "Showing {{ shown }} of {{ total }}"
+      },
+      "review": {
+        "actions": {
+          "finished": "The review is finished: the organization is {{ status }}.",
+          "title": "Registration review"
+        },
+        "approved": "AR check recorded: the organization is approved.",
+        "arCheck": {
+          "arReference": "AR reference (optional)",
+          "help": "Step 2: record the check with the AR team and assign the Match Code. The organization will be approved and able to operate.",
+          "matchCode": "Match Code",
+          "matchCodeHelp": "Letters, numbers or hyphen; up to 20 characters.",
+          "matchCodeInvalid": "Enter a Match Code of up to 20 characters, using only letters, numbers or hyphen.",
+          "noPermission": "The organization is waiting for the AR check; your profile does not have that permission.",
+          "operatingCountries": "Operating countries",
+          "submit": "Approve and assign Match Code",
+          "title": "AR check and Match Code"
+        },
+        "breadcrumbLabel": "Breadcrumb",
+        "breadcrumbList": "Organizations",
+        "data": {
+          "country": "Country",
+          "createdAt": "Registered on",
+          "email": "Email",
+          "matchCode": "Match Code (MC)",
+          "operatingCountries": "Operating countries",
+          "phone": "Phone",
+          "status": "Status",
+          "taxId": "Tax ID ({{ type }})",
+          "title": "Customer information",
+          "type": "Organization type"
+        },
+        "documents": {
+          "caption": "Organization supporting documents",
+          "col": {
+            "actions": "Actions",
+            "file": "File",
+            "size": "Size",
+            "type": "Document type",
+            "uploadedAt": "Uploaded on"
+          },
+          "download": "Download",
+          "downloadLabel": "Download {{ name }}",
+          "empty": "The organization has not attached any documents.",
+          "sizeKb": "{{ size }} KB",
+          "title": "Supporting documents"
+        },
+        "errors": {
+          "action": "The step could not be recorded. Please try again.",
+          "download": "The document could not be downloaded.",
+          "invalidStatus": "The organization's status changed and no longer allows this step. The current status is shown.",
+          "matchCodeExists": "That Match Code is already assigned to another organization."
+        },
+        "loadError": "The organization could not be loaded.",
+        "notFound": "We could not find the organization.",
+        "notes": "Notes (optional)",
+        "reject": {
+          "cancel": "Cancel",
+          "open": "Reject registration",
+          "reason": "Reason for rejection",
+          "reasonRequired": "Enter the reason for rejection.",
+          "submit": "Confirm rejection",
+          "title": "Reject the registration"
+        },
+        "rejected": "The organization's registration was rejected.",
+        "title": "Organization review",
+        "trail": {
+          "approvedAt": "Approved",
+          "arChecked": "AR check",
+          "arReference": "AR reference",
+          "by": "{{ date }} by {{ user }}",
+          "notes": "Review notes",
+          "rejectedAt": "Rejected",
+          "title": "Review trail",
+          "validated": "Customer validation"
+        },
+        "users": {
+          "caption": "Users linked to the organization",
+          "col": {
+            "email": "Email",
+            "membership": "Membership",
+            "name": "Name",
+            "profile": "Profile"
+          },
+          "empty": "The organization has no users.",
+          "title": "Linked users"
+        },
+        "validate": {
+          "help": "Step 1: review the customer's information and documents. Once validated, the registration moves to the AR check.",
+          "noPermission": "The organization is waiting for customer validation; your profile does not have that permission.",
+          "submit": "Validate customer",
+          "title": "Customer validation"
+        },
+        "validated": "Customer validated: the registration moved to the AR check."
+      },
+      "subtitle": "New customer creation and Match Code assignment (validation, AR check and approval)",
+      "title": "Organizations"
+    },
     "reports": {
       "caption": "Report results",
       "errors": {
@@ -375,6 +584,38 @@
       "success": "Instructions have been sent to your email. Check your inbox.",
       "title": "Recover Password"
     },
+    "join": {
+      "country": "Organization country",
+      "email": "Email",
+      "emailInvalid": "Enter a valid email.",
+      "emailRequired": "Email is required.",
+      "errors": {
+        "emailExists": "An account with that email already exists. Log in or reset your password.",
+        "generic": "The request could not be sent. Please try again.",
+        "notFound": "We could not find an active organization with that Tax ID (RUT / NIT) in the selected country. Check the information or register the organization."
+      },
+      "firstName": "First name",
+      "firstNameRequired": "First name is required.",
+      "hasAccount": "Already have an account?",
+      "lastName": "Last name",
+      "lastNameRequired": "Last name is required.",
+      "loginLink": "Log in",
+      "phone": "Phone (optional)",
+      "registerLink": "Register your organization",
+      "registerPrompt": "Is your company not registered yet?",
+      "result": {
+        "body": "Your request to join {{ organization }} is pending. The organization's administrator will review it and you will receive the result by email; you will be able to log in once it is approved.",
+        "goToLogin": "Go to log in",
+        "title": "Request sent, pending approval"
+      },
+      "submit": "Send request",
+      "subtitle": "Ask the administrator of an already registered organization to link you to it",
+      "taxIdBo": "Organization NIT",
+      "taxIdCl": "Organization RUT",
+      "taxIdHelp": "Tax ID of the organization you want to join.",
+      "taxIdRequired": "The Tax ID is required.",
+      "title": "Join an organization"
+    },
     "login": {
       "copyright": "© 2025 Hapag-Lloyd AG. All rights reserved.",
       "email": "Email",
@@ -382,7 +623,15 @@
       "emailPlaceholder": "user@company.com",
       "emailRequired": "Email is required.",
       "error": "Login failed. Check your credentials.",
+      "errors": {
+        "inactive": "Your account is deactivated. Contact your organization's administrator.",
+        "invalidCredentials": "Incorrect email or password.",
+        "membershipRejected": "Your request to join the organization was rejected. If you think this is a mistake, contact the organization's administrator.",
+        "pendingApproval": "Your request to join the organization has not been approved yet. You will be able to log in once the organization's administrator approves it."
+      },
       "forgotPassword": "Forgot your password?",
+      "joinLink": "Request to join",
+      "joinPrompt": "Is your company already registered?",
       "noAccount": "Don't have an account?",
       "password": "Password",
       "passwordMinLength": "At least {{ min }} characters.",
@@ -400,34 +649,50 @@
       "confirmPassword": "Confirm Password",
       "confirmPasswordPlaceholder": "Repeat the password",
       "confirmPasswordRequired": "Confirm the password.",
+      "contactFirstName": "Contact first name",
+      "contactFirstNameRequired": "The contact first name is required.",
+      "contactLastName": "Contact last name",
+      "contactLastNameRequired": "The contact last name is required.",
       "country": "Country",
       "email": "Email",
       "emailInvalid": "Enter a valid email.",
       "emailPlaceholder": "user@company.com",
       "emailRequired": "Email is required.",
       "error": "Registration failed. Please try again.",
+      "errors": {
+        "alreadyExists": "An organization with that Tax ID (RUT / NIT) is already registered. Request to join it.",
+        "emailExists": "An account with that email already exists. Log in or reset your password."
+      },
       "hasAccount": "Already have an account?",
+      "joinExisting": "Is your company already registered?",
+      "joinLink": "Request to join",
       "loginLink": "Log in",
-      "name": "Full Name / Legal Name",
-      "nameRequired": "Name is required.",
+      "name": "Legal name",
+      "nameMinLength": "The legal name must be at least 3 characters long.",
+      "nameRequired": "The legal name is required.",
+      "organizationType": "Organization type",
+      "organizationTypeHelp": "The organization type determines the permissions you will have in the portal.",
       "password": "Password",
       "passwordMinLength": "At least {{ min }} characters.",
       "passwordMismatch": "Passwords do not match.",
       "passwordPlaceholder": "At least {{ min }} characters",
       "passwordRequired": "Password is required.",
+      "pending": {
+        "body": "The registration of {{ name }} is pending approval. Hapag-Lloyd will validate the information and notify you by email when the organization can operate.",
+        "documents": "In the meantime, you can log in to attach the supporting documents under My organization.",
+        "goToLogin": "Go to log in",
+        "title": "Registration received, pending approval"
+      },
       "phone": "Phone",
       "phoneRequired": "Phone is required.",
       "submit": "Create Account",
-      "subtitle": "Sign up for the Hapag-Lloyd Portal",
-      "successRedirect": "Redirecting to login...",
-      "successTitle": "Registration successful.",
+      "subtitle": "Register your organization in the Hapag-Lloyd Portal",
       "taxIdBo": "Tax ID (NIT)",
       "taxIdCl": "Tax ID (RUT)",
+      "taxIdHelpBo": "Numeric NIT, at least 5 digits.",
+      "taxIdHelpCl": "RUT with dots and hyphen, for example 12.345.678-9.",
       "taxIdRequired": "This field is required.",
-      "title": "Create Account",
-      "typeAgent": "Customs Broker",
-      "typeClient": "Customer",
-      "userType": "User Type"
+      "title": "Register organization"
     },
     "resetPassword": {
       "backToLogin": "Back to login",
@@ -447,82 +712,19 @@
       "title": "New Password"
     }
   },
-  "bl": {
-    "detail": {
-      "actions": {
-        "payDemurrage": "Pay Demurrage",
-        "payFreight": "Pay Freight",
-        "payLocalCharges": "Pay Local Charges",
-        "title": "Actions",
-        "warehouseChange": "Request Warehouse Change"
-      },
-      "blNumber": "BL Number",
-      "breadcrumbLabel": "Breadcrumb",
-      "breadcrumbList": "BL Inquiry",
-      "client": "Customer",
-      "containers": {
-        "caption": "BL containers",
-        "col": {
-          "container": "Container",
-          "description": "Description",
-          "packages": "Packages",
-          "seal": "Seal",
-          "size": "Size",
-          "type": "Type",
-          "weight": "Weight (kg)"
-        },
-        "empty": "This BL has no registered containers.",
-        "title": "Containers ({{ count }})"
-      },
-      "country": "Country",
-      "errors": {
-        "loadBl": "Could not load the BL.",
-        "loadCharges": "Could not load the charges.",
-        "loadDemurrage": "Could not load demurrage."
-      },
-      "eta": "ETA",
-      "etd": "ETD",
-      "placeOfDelivery": "Place of Delivery",
-      "portOfDischarge": "Port of Discharge",
-      "portOfLoading": "Port of Loading",
-      "status": "Status",
-      "summary": {
-        "chargesCount": "{count, plural, one {# charge} other {# charges}}",
-        "containersCount": "{count, plural, one {# container} other {# containers}}",
-        "demurrage": "Demurrage",
-        "freight": "Freight",
-        "localCharges": "Local Charges"
-      },
-      "title": "BL",
-      "type": "Type",
-      "vessel": "Vessel",
-      "voyage": "Voyage"
-    },
-    "list": {
-      "blNumber": "BL Number",
-      "caption": "BL list",
-      "clearFilters": "Clear Filters",
-      "col": {
-        "actions": "Actions",
-        "blNumber": "BL Number",
-        "country": "Country",
-        "freight": "Freight",
-        "status": "Status",
-        "type": "Type",
-        "vessel": "Vessel"
-      },
-      "empty": "No bills of lading found.",
-      "loadError": "Could not load the BLs. Please try again.",
-      "notFound": "The specified BL was not found.",
-      "pay": "Pay",
-      "search": "Search",
-      "searchPlaceholder": "e.g. HLCU1234567890",
-      "subtitle": "Search and view your active BLs",
-      "title": "Bill of Lading Inquiry",
-      "viewDetail": "View Details"
-    }
-  },
   "common": {
+    "accessLevel": {
+      "allowed": "O",
+      "allowedHelp": "O: the role can perform the action and the permission can be withdrawn",
+      "denied": "X",
+      "deniedHelp": "X: the role cannot perform the action and the permission cannot be granted",
+      "onGrant": "X (o)",
+      "onGrantHelp": "X (o): the role cannot perform the action unless the permission is expressly granted"
+    },
+    "accessSource": {
+      "admin": "Hapag-Lloyd administrator",
+      "own": "Own"
+    },
     "brand": {
       "tagline": "SHIPPING & LOGISTICS"
     },
@@ -530,8 +732,49 @@
       "bo": "Bolivia",
       "cl": "Chile"
     },
+    "documentType": {
+      "creditAuthorization": "Credit check authorization",
+      "other": "Other",
+      "registrationLetter": "Registration request letter",
+      "taxCertificate": "Tax certificate"
+    },
     "form": {
       "invalid": "The form has errors. Check the highlighted fields."
+    },
+    "membershipStatus": {
+      "active": "Active",
+      "pending": "Pending",
+      "rejected": "Rejected"
+    },
+    "operation": {
+      "export": "Export",
+      "import": "Import"
+    },
+    "organizationProfile": {
+      "orgAdmin": "Administrator",
+      "orgOperator": "Operator",
+      "orgViewer": "Viewer"
+    },
+    "organizationStatus": {
+      "approved": "Approved",
+      "pendingArCheck": "Pending AR check",
+      "pendingValidation": "Pending validation",
+      "rejected": "Rejected"
+    },
+    "organizationType": {
+      "carrier": "Haulier",
+      "customer": "Customer organization",
+      "customsAgency": "Customs broker",
+      "freightForwarder": "Freight forwarder (FFWW)",
+      "internal": "Hapag-Lloyd"
+    },
+    "shipmentRole": {
+      "carrier": "Haulier",
+      "consignee": "Consignee (CN)",
+      "customer": "Customer (CU)",
+      "customsAgency": "Customs broker",
+      "shipper": "Shipper (SH)",
+      "thirdParty": "Third party"
     }
   },
   "dashboard": {
@@ -675,6 +918,139 @@
     "new": "New",
     "subtitle": "Operational alerts addressed to you or your roles",
     "title": "Notifications"
+  },
+  "organization": {
+    "data": {
+      "canOperate": "Can pay and request services",
+      "canOperateNo": "No",
+      "canOperateYes": "Yes",
+      "country": "Country",
+      "matchCode": "Match Code (MC)",
+      "myProfile": "My profile",
+      "name": "Legal name",
+      "noMatchCode": "Not assigned",
+      "noProfile": "No profile assigned",
+      "operatingCountries": "Operating countries",
+      "status": "Registration status",
+      "taxId": "Tax ID ({{ type }})",
+      "title": "Organization information",
+      "type": "Organization type"
+    },
+    "documents": {
+      "caption": "Attached supporting documents",
+      "col": {
+        "file": "File",
+        "size": "Size",
+        "type": "Document type",
+        "uploadedAt": "Uploaded on"
+      },
+      "empty": "You have not attached any documents yet.",
+      "errors": {
+        "fileRequired": "Select the file you want to attach.",
+        "fileSize": "The file is larger than 10 MB. Attach a smaller file.",
+        "fileType": "The format is not valid. Attach a PDF, PNG or JPEG.",
+        "typeRequired": "Select the document type.",
+        "upload": "The document could not be attached. Please try again."
+      },
+      "file": "File",
+      "fileHelp": "PDF, PNG or JPEG up to 10 MB.",
+      "help": "Attach the supporting documents required by your country. In Bolivia: registration request letter with a statement of responsibility and authorization to check credit history.",
+      "selectType": "Select…",
+      "sizeKb": "{{ size }} KB",
+      "title": "Supporting documents",
+      "type": "Document type",
+      "upload": "Attach",
+      "uploaded": "Document {{ name }} attached."
+    },
+    "joinRequests": {
+      "approve": "Approve",
+      "approveLabel": "Approve {{ name }}",
+      "approved": "Request from {{ name }} approved.",
+      "cancel": "Cancel",
+      "caption": "Pending requests to join",
+      "col": {
+        "actions": "Actions",
+        "email": "Email",
+        "name": "Requester",
+        "organization": "Organization",
+        "profile": "Profile to assign",
+        "requestedAt": "Requested on"
+      },
+      "confirmReject": "Reject request",
+      "empty": "There are no pending requests.",
+      "errors": {
+        "approve": "The request could not be approved. Please try again.",
+        "load": "The requests could not be loaded.",
+        "reject": "The request could not be rejected. Please try again."
+      },
+      "help": "People who asked to join your organization. When approving, choose the profile they will work with.",
+      "profileLabel": "Profile to assign to {{ name }}",
+      "reject": "Reject",
+      "rejectLabel": "Reject {{ name }}",
+      "rejectReason": "Reason for rejection (optional)",
+      "rejectTitle": "Reject the request from {{ name }}",
+      "rejected": "Request from {{ name }} rejected.",
+      "title": "Requests to join the organization"
+    },
+    "loadError": "The organization could not be loaded.",
+    "statusNotice": {
+      "pending": "Your organization's registration is under review by Hapag-Lloyd. You will be able to pay and request services once it is approved; in the meantime, attach the supporting documents.",
+      "rejected": "Your organization's registration was rejected. Contact Hapag-Lloyd for more information."
+    },
+    "subtitle": "Your organization's information, documents and users",
+    "title": "My organization",
+    "users": {
+      "activate": "Activate",
+      "activateLabel": "Activate {{ name }}",
+      "activated": "{{ name }} was activated.",
+      "active": "Active",
+      "caption": "Organization users",
+      "col": {
+        "actions": "Actions",
+        "email": "Email",
+        "lastLogin": "Last login",
+        "name": "Name",
+        "profile": "Profile",
+        "status": "Status"
+      },
+      "deactivate": "Deactivate",
+      "deactivateLabel": "Deactivate {{ name }}",
+      "deactivated": "{{ name }} was deactivated.",
+      "edit": "Edit",
+      "editLabel": "Edit {{ name }}",
+      "empty": "The organization has no users.",
+      "errors": {
+        "create": "The user could not be invited. Please try again.",
+        "emailExists": "An account with that email already exists.",
+        "load": "The users could not be loaded.",
+        "ownAccount": "You cannot deactivate or change the profile of your own account.",
+        "toggle": "The user's status could not be changed. Please try again.",
+        "update": "The user could not be saved. Please try again."
+      },
+      "form": {
+        "cancel": "Cancel",
+        "editTitle": "Edit user {{ email }}",
+        "email": "Email",
+        "emailInvalid": "Enter a valid email.",
+        "firstName": "First name",
+        "firstNameRequired": "First name is required.",
+        "inviteTitle": "Invite user",
+        "lastName": "Last name",
+        "lastNameRequired": "Last name is required.",
+        "phone": "Phone (optional)",
+        "profile": "Profile",
+        "profileHelp": "Administrator: manages users and requests. Operator: pays and requests services. Viewer: only views information.",
+        "save": "Save changes",
+        "sendInvite": "Send invitation"
+      },
+      "help": "Create, edit and deactivate the users who work on behalf of your organization.",
+      "inactive": "Inactive",
+      "invite": "Invite user",
+      "invited": "Invitation sent to {{ email }}.",
+      "neverLoggedIn": "Never",
+      "title": "Organization users",
+      "updated": "User {{ email }} updated."
+    }
   },
   "payments": {
     "form": {
@@ -858,6 +1234,13 @@
       "label": "Loading..."
     },
     "navbar": {
+      "country": {
+        "bo": "BO, Bolivia",
+        "changed": "Operating country changed to {{ country }}.",
+        "cl": "CL, Chile",
+        "error": "The operating country could not be changed. Please try again.",
+        "label": "Operating country"
+      },
       "home": "Hapag-Lloyd, go to home",
       "language": {
         "en": "English",
@@ -868,6 +1251,7 @@
       "logout": "Log Out",
       "menu": "Navigation menu",
       "notificationsCount": "{count, plural, =0 {Notifications} one {Notifications, # unread} other {Notifications, # unread}}",
+      "organization": "My organization",
       "profile": "My Profile",
       "tagline": "SERVICE PORTAL",
       "userMenu": "User menu: {{ name }}"
@@ -875,8 +1259,9 @@
     "sidebar": {
       "label": "Main menu",
       "link": {
+        "accessMatrix": "Access matrix",
+        "adminOrganizations": "Organizations",
         "audit": "Audit",
-        "bl": "BL Inquiry",
         "blImport": "BL Upload",
         "creditClients": "Credit Customers",
         "customs": "Customs Transmission",
@@ -886,10 +1271,12 @@
         "demurrageExemptions": "Demurrage Exemptions",
         "faq": "FAQ",
         "localCharges": "Local Charges",
+        "organization": "My organization",
         "payments": "Payments",
         "receipts": "Receipts",
         "reports": "Reports",
         "serviceOrders": "Service Orders",
+        "shipments": "Shipments",
         "users": "Users",
         "warehouse": "Warehouse Change"
       },
@@ -905,6 +1292,143 @@
       "empty": "No data",
       "error": "Service temporarily unavailable",
       "retry": "Retry"
+    }
+  },
+  "shipments": {
+    "detail": {
+      "actions": {
+        "title": "Requests",
+        "warehouseChange": "Request warehouse change"
+      },
+      "breadcrumbLabel": "Breadcrumb",
+      "breadcrumbList": "Shipments",
+      "containers": {
+        "caption": "Shipment containers",
+        "col": {
+          "container": "Container",
+          "packages": "Packages",
+          "seal": "Seal",
+          "size": "Size",
+          "type": "Type",
+          "weight": "Weight (kg)"
+        },
+        "empty": "The shipment has no registered containers.",
+        "title": "{count, plural, =0 {Containers} one {Containers (#)} other {Containers (#)}}"
+      },
+      "demurrage": {
+        "caption": "Shipment demurrage",
+        "col": {
+          "container": "Container",
+          "dailyRate": "Daily rate",
+          "demurrageDays": "Demurrage days",
+          "freeDays": "Free time",
+          "status": "Status",
+          "total": "Total"
+        },
+        "empty": "The shipment has no demurrage charges.",
+        "pay": "Pay demurrage",
+        "title": "Demurrage"
+      },
+      "freight": {
+        "pay": "Pay freight",
+        "title": "Freight"
+      },
+      "general": {
+        "blNumber": "BL",
+        "bookingNumber": "Booking",
+        "country": "Country",
+        "eta": "ETA",
+        "etd": "ETD",
+        "operation": "Operation",
+        "placeOfDelivery": "Place of delivery",
+        "portOfDischarge": "Port of discharge (POD)",
+        "portOfLoading": "Port of loading",
+        "status": "Status",
+        "title": "Shipment information",
+        "vessel": "Vessel",
+        "voyage": "Voyage"
+      },
+      "loadError": "The shipment could not be loaded.",
+      "localCharges": {
+        "caption": "Shipment local charges",
+        "col": {
+          "amount": "Amount",
+          "code": "Concept",
+          "description": "Description",
+          "status": "Status",
+          "tax": "Tax",
+          "total": "Total"
+        },
+        "empty": "The shipment has no local charges.",
+        "pay": "Pay local charges",
+        "title": "Local charges"
+      },
+      "notFound": "We could not find the shipment or you do not have access to it.",
+      "parties": {
+        "accessSource": "Access source",
+        "consignee": "Consignee (CN)",
+        "myRoles": "My roles",
+        "noRoles": "No role assigned",
+        "shipper": "Shipper (SH)",
+        "title": "Shipment parties"
+      },
+      "readOnly": "You can view this shipment, but your profile or your organization's status does not allow you to pay or request services.",
+      "serviceOrders": {
+        "caption": "Shipment service orders",
+        "col": {
+          "completedAt": "Completed",
+          "number": "Number",
+          "requestedAt": "Requested",
+          "status": "Status",
+          "type": "Type"
+        },
+        "empty": "The shipment has no service orders.",
+        "title": "Service orders"
+      },
+      "title": "Shipment {{ bl }}"
+    },
+    "list": {
+      "caption": "Accessible shipments",
+      "col": {
+        "blNumber": "BL",
+        "bookingNumber": "Booking",
+        "country": "Country",
+        "operation": "Operation",
+        "status": "Status",
+        "vessel": "Vessel",
+        "voyage": "Voyage"
+      },
+      "empty": "No shipments match the filters.",
+      "filters": {
+        "allCountries": "All",
+        "blNumber": "BL",
+        "bookingNumber": "Booking",
+        "clear": "Clear filters",
+        "country": "Country",
+        "label": "Shipment filters",
+        "search": "Search",
+        "status": "Status",
+        "vessel": "Vessel",
+        "voyage": "Voyage"
+      },
+      "loadError": "The shipment list could not be loaded.",
+      "operation": {
+        "all": "All",
+        "export": "Export",
+        "import": "Import",
+        "label": "Operation"
+      },
+      "pagination": {
+        "label": "Shipment pagination",
+        "next": "Next",
+        "page": "Page {{ page }} of {{ pages }}",
+        "previous": "Previous",
+        "showing": "Showing {{ shown }} of {{ total }}"
+      },
+      "pendingCharges": "Pending charges",
+      "subtitle": "All the BLs and bookings you have access to, whatever your role",
+      "title": "Shipments",
+      "universeNote": "The list shows the shipments you have access to. A BL missing from the list does not mean it has no associated debt."
     }
   },
   "status": {

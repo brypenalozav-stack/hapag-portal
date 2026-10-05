@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { internalGuard } from './core/guards/internal.guard';
+import { permissionGuard } from './core/guards/permission.guard';
+import { PERMISSIONS } from './core/constants/app.constants';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -16,21 +18,35 @@ export const routes: Routes = [
       import('./features/auth/register/register').then((m) => m.RegisterComponent),
   },
   {
+    path: 'register/join',
+    loadComponent: () =>
+      import('./features/auth/join-organization/join-organization').then((m) => m.JoinOrganizationComponent),
+  },
+  {
     path: 'dashboard',
     loadComponent: () =>
       import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
     canActivate: [authGuard],
   },
+  // Listado y detalle de embarques (M2-06, M2-07); reemplazan a la consulta de BL.
   {
-    path: 'bills-of-lading',
+    path: 'shipments',
     loadComponent: () =>
-      import('./features/bill-of-lading/bl-list/bl-list').then((m) => m.BLListComponent),
+      import('./features/shipments/shipment-list/shipment-list').then((m) => m.ShipmentListComponent),
     canActivate: [authGuard],
   },
   {
-    path: 'bills-of-lading/:blNumber',
+    path: 'shipments/:blNumber',
     loadComponent: () =>
-      import('./features/bill-of-lading/bl-detail/bl-detail').then((m) => m.BLDetailComponent),
+      import('./features/shipments/shipment-detail/shipment-detail').then((m) => m.ShipmentDetailComponent),
+    canActivate: [authGuard],
+  },
+  { path: 'bills-of-lading', redirectTo: '/shipments', pathMatch: 'full' },
+  { path: 'bills-of-lading/:blNumber', redirectTo: '/shipments/:blNumber' },
+  {
+    path: 'organization',
+    loadComponent: () =>
+      import('./features/organization/organization').then((m) => m.OrganizationComponent),
     canActivate: [authGuard],
   },
   {
@@ -162,6 +178,33 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/reports/reports').then((m) => m.ReportsComponent),
     canActivate: [authGuard, internalGuard],
+  },
+  // Flujo interno de clientes nuevos y Match Code (M8-04) y matriz base de accesos (M1-11).
+  {
+    path: 'admin/organizations',
+    loadComponent: () =>
+      import('./features/admin/organizations/organizations').then((m) => m.AdminOrganizationsComponent),
+    canActivate: [
+      authGuard,
+      internalGuard,
+      permissionGuard(PERMISSIONS.REVIEW_ORGANIZATIONS, PERMISSIONS.CHECK_ORGANIZATIONS_AR),
+    ],
+  },
+  {
+    path: 'admin/organizations/:id',
+    loadComponent: () =>
+      import('./features/admin/organizations/organization-review').then((m) => m.OrganizationReviewComponent),
+    canActivate: [
+      authGuard,
+      internalGuard,
+      permissionGuard(PERMISSIONS.REVIEW_ORGANIZATIONS, PERMISSIONS.CHECK_ORGANIZATIONS_AR),
+    ],
+  },
+  {
+    path: 'admin/access-matrix',
+    loadComponent: () =>
+      import('./features/admin/access-matrix/access-matrix').then((m) => m.AccessMatrixComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_ACCESS_MATRIX)],
   },
   { path: '**', redirectTo: '/dashboard' },
 ];

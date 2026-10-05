@@ -33,6 +33,8 @@ export const COUNTRIES = {
 export const API_ENDPOINTS = {
   AUTH_LOGIN: 'auth/login',
   AUTH_REGISTER: 'auth/register',
+  AUTH_REGISTER_JOIN: 'auth/register/join',
+  AUTH_LOGOUT: 'auth/logout',
   AUTH_REFRESH_TOKEN: 'auth/refresh-token',
   AUTH_FORGOT_PASSWORD: 'auth/forgot-password',
   AUTH_RESET_PASSWORD: 'auth/reset-password',
@@ -48,4 +50,25 @@ export const API_ENDPOINTS = {
   CLIENTS_ME: 'clients/me',
   ADMIN_CREDIT_CLIENTS: 'admin/credit-clients',
   ADMIN_DEMURRAGE_EXEMPTIONS: 'admin/demurrage-exemptions',
+  SHIPMENTS: 'shipments',
+  ORGANIZATIONS_ME: 'organizations/me',
+  ADMIN_ORGANIZATIONS: 'admin/organizations',
+  ACCESS_MATRIX: 'access-matrix',
+} as const;
+
+/**
+ * Permisos del claim `permission` del JWT (Fase 1, Ola A). Solo deciden qué se muestra;
+ * el servidor los vuelve a exigir en cada endpoint.
+ */
+export const PERMISSIONS = {
+  /** Gestionar los usuarios de la propia organización (M1-02). */
+  MANAGE_ORGANIZATION_USERS: 'org.users.manage',
+  /** Aprobar o rechazar solicitudes de vinculación (M1-08). */
+  APPROVE_JOIN_REQUESTS: 'org.requests.approve',
+  /** Validar organizaciones nuevas (M8-04). */
+  REVIEW_ORGANIZATIONS: 'organizations.review',
+  /** Control con AR y asignación del Match Code (M8-04). */
+  CHECK_ORGANIZATIONS_AR: 'organizations.ar-check',
+  /** Administrar la matriz base de accesos (M1-11). */
+  MANAGE_ACCESS_MATRIX: 'access-matrix.manage',
 } as const;
