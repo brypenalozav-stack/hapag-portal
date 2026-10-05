@@ -2,13 +2,15 @@ import { Component, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { VALIDATION } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -16,6 +18,7 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
 
   form = this.fb.nonNullable.group({
@@ -23,12 +26,15 @@ export class LoginComponent {
     password: ['', [Validators.required, Validators.minLength(VALIDATION.LOGIN_PASSWORD_MIN_LENGTH)]],
   });
 
+  readonly minPasswordLength = VALIDATION.LOGIN_PASSWORD_MIN_LENGTH;
+
   loading = signal(false);
   error = signal('');
 
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.announcer.announce(translate('common.form.invalid'), 'assertive');
       return;
     }
 
@@ -44,7 +50,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message ?? 'Error al iniciar sesión. Verifique sus credenciales.');
+        this.error.set(err.error?.message ?? translate('auth.login.error'));
       },
     });
   }

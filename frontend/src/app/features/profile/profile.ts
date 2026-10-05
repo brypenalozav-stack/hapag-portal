@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../core/services/auth.service';
 import { ClientService } from '../../core/services/client.service';
 import { Client } from '../../core/models/client.model';
@@ -10,7 +11,7 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, CountryBadgeComponent, LoadingSpinnerComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, CountryBadgeComponent, LoadingSpinnerComponent],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -81,11 +82,11 @@ export class ProfileComponent implements OnInit {
         this.profile.set(updated);
         this.saving.set(false);
         this.editing.set(false);
-        this.success.set('Perfil actualizado exitosamente.');
+        this.success.set(translate('profile.success'));
       },
       error: (err) => {
         this.saving.set(false);
-        this.error.set(err.error?.message ?? 'Error al actualizar el perfil.');
+        this.error.set(err.error?.message ?? translate('profile.error'));
       },
     });
   }

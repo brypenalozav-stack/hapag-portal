@@ -1,6 +1,6 @@
 .register-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #33424f 0%, #004d6c 50%, #33424f 100%);
+  background: linear-gradient(135deg, var(--hl-dark) 0%, var(--hl-blue) 50%, var(--hl-dark) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,7 +13,7 @@
 }
 
 .register-card {
-  background: #fff;
+  background: var(--hl-white);
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -29,7 +29,7 @@
 }
 
 .register-subtitle {
-  color: #718096;
+  color: var(--hl-text-muted);
   font-size: 0.85rem;
   margin-bottom: 0;
 }
@@ -40,7 +40,7 @@
   font-size: 0.875rem;
 
   &:hover {
-    color: var(--hl-orange);
+    color: var(--hl-orange-700);
     text-decoration: underline;
   }
 }

@@ -1,0 +1,10 @@
+# Frases donde "proveedor" es legítimo (no se refiere al proveedor anterior del portal).
+proveedor de firma electrónica
+proveedor de pago
+proveedores de pago
+proveedor del servicio
+proveedor de la plataforma de pago
+plataforma del proveedor de pago
+proveedor actual
+cambio de proveedor
+CambioProveedor

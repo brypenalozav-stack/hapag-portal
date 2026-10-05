@@ -1,0 +1,581 @@
+# CT-DBNET – DBNet / SII – documentos tributarios electrónicos
+# Contrato de integración en estado PROPUESTA (Fase 6a). Ver docs/integraciones/README.md.
+openapi: 3.1.0
+info:
+  title: DBNet / SII – documentos tributarios electrónicos
+  version: 0.1.0
+  description: |
+    PROPUESTA – pendiente de validación con Finanzas – Fer (apoyo: Jorge)
+
+    Emisión y consulta de documentos tributarios electrónicos a través de DBNet, que los envía al SII. Las tareas 50 y 51
+    de Pendientes (integración con DBNet y homologación con la API BAP) son el insumo para validar esta propuesta.
+    Montos en la moneda del documento; en CLP sin decimales.
+    Fichas: M5-09, M7-01, M7-02, M3-11.
+  x-contrato: CT-DBNET
+  x-estado: 'PROPUESTA – pendiente de validación con Finanzas – Fer (apoyo: Jorge)'
+  x-responsable: 'Finanzas – Fer (apoyo: Jorge)'
+  x-puerto:
+  - IInvoiceProvider
+  x-tareas-pendientes: 50–51
+servers:
+- url: '{baseUrl}'
+  description: URL base configurada en `Integrations:DbNet:BaseUrl`. La URL productiva la entrega el responsable al validar
+    el contrato; por defecto apunta al simulador local (Fase 6c).
+  variables:
+    baseUrl:
+      default: http://localhost:5199/dbnet
+security:
+- ApiKey: []
+tags:
+- name: Documentos tributarios
+paths:
+  /documents:
+    parameters:
+    - $ref: '#/components/parameters/CorrelationId'
+    post:
+      operationId: issueDocument
+      summary: Emitir un documento tributario
+      description: Emite el DTE asociado a un pago confirmado y devuelve el folio (M7-01, M7-02).
+      tags:
+      - Documentos tributarios
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: 'Clave de idempotencia (NF-01): un mismo pago no emite dos documentos.'
+        schema:
+          type: string
+          maxLength: 64
+        example: PAY-2026-000123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceIssueRequest'
+            examples:
+              factura:
+                value:
+                  documentType: 33
+                  externalReference: PAY-2026-000123
+                  issueDate: '2026-10-20'
+                  currency: CLP
+                  exchangeRate: 950
+                  receiver:
+                    taxId: 76000001-1
+                    businessName: Importadora Ejemplo SpA
+                    businessActivity: Importación de maquinaria
+                    address: Av. Apoquindo 1234
+                    commune: Las Condes
+                    city: Santiago
+                    email: dte@importadora.example
+                  lines:
+                  - lineNumber: 1
+                    code: THC
+                    description: Terminal handling charge – HLBU1234567
+                    quantity: 1
+                    unitPrice: 205882
+                    exempt: false
+                    amount: 205882
+                  totals:
+                    netAmount: 205882
+                    exemptAmount: 0
+                    vatRate: 19
+                    vatAmount: 39118
+                    totalAmount: 245000
+                  references:
+                  - referenceType: BL
+                    folio: HLCUSCL2609A1234
+                    date: null
+                    reason: null
+      responses:
+        '200':
+          description: Documento emitido.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+              examples:
+                factura:
+                  value:
+                    folio: '184522'
+                    documentType: 33
+                    externalReference: PAY-2026-000123
+                    status: ACCEPTED
+                    siiTrackId: 0241578963
+                    issueDate: '2026-10-20'
+                    totalAmount: 245000
+                    currency: CLP
+                    pdfUrl: https://dte.example/documentos/33/184522.pdf
+                    xmlUrl: https://dte.example/documentos/33/184522.xml
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /documents/{folio}:
+    parameters:
+    - $ref: '#/components/parameters/CorrelationId'
+    get:
+      operationId: getDocument
+      summary: Consultar un documento por folio
+      description: Estado ante el SII y enlaces de descarga del documento (M7-01).
+      tags:
+      - Documentos tributarios
+      parameters:
+      - name: folio
+        in: path
+        required: true
+        description: Folio del documento.
+        schema:
+          type: string
+        example: '184522'
+      - name: documentType
+        in: query
+        required: false
+        description: Tipo de DTE. Por defecto 33.
+        schema:
+          type: integer
+          enum:
+          - 33
+          - 34
+          - 39
+          - 41
+          - 61
+          - 110
+          description: 'Tipo de DTE del SII: 33 factura electrónica, 34 factura exenta, 39 boleta electrónica, 41 boleta exenta,
+            61 nota de crédito, 110 factura de exportación.'
+        example: 33
+      responses:
+        '200':
+          description: Documento.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+              examples:
+                factura:
+                  value:
+                    folio: '184522'
+                    documentType: 33
+                    externalReference: PAY-2026-000123
+                    status: ACCEPTED
+                    siiTrackId: 0241578963
+                    issueDate: '2026-10-20'
+                    totalAmount: 245000
+                    currency: CLP
+                    pdfUrl: https://dte.example/documentos/33/184522.pdf
+                    xmlUrl: https://dte.example/documentos/33/184522.xml
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  parameters:
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: Identificador de correlación (NF-27). El portal lo envía en cada llamada; si falta, el servicio genera
+        uno y lo devuelve en la respuesta.
+      schema:
+        type: string
+        maxLength: 64
+      example: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+  headers:
+    CorrelationId:
+      description: Mismo valor recibido en la solicitud, o uno generado por el servicio.
+      schema:
+        type: string
+        maxLength: 64
+    RetryAfter:
+      description: Segundos que el cliente debe esperar antes de reintentar (RFC 9110 §10.2.3).
+      schema:
+        type: integer
+        minimum: 0
+  responses:
+    BadRequest:
+      description: 'Solicitud inválida: parámetro faltante o con formato incorrecto.'
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            parametroInvalido:
+              value:
+                type: about:blank
+                title: Solicitud inválida
+                status: 400
+                detail: Uno o más parámetros no cumplen el formato esperado.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+                errors:
+                - field: taxId
+                  message: Debe tener el formato 12345678-9.
+    NotFound:
+      description: El recurso solicitado no existe.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            noEncontrado:
+              value:
+                type: about:blank
+                title: Recurso no encontrado
+                status: 404
+                detail: No existe un recurso con el identificador indicado.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    TooManyRequests:
+      description: Se superó el límite de solicitudes. El cliente reintenta después de `Retry-After`.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            limite:
+              value:
+                type: about:blank
+                title: Demasiadas solicitudes
+                status: 429
+                detail: Se superó el límite de solicitudes por minuto.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    InternalServerError:
+      description: Error interno del servicio.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            errorInterno:
+              value:
+                type: about:blank
+                title: Error interno
+                status: 500
+                detail: El servicio no pudo procesar la solicitud.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    ServiceUnavailable:
+      description: Servicio no disponible temporalmente (mantención o dependencia caída).
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            noDisponible:
+              value:
+                type: about:blank
+                title: Servicio no disponible
+                status: 503
+                detail: El servicio está en mantención. Reintente más tarde.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+  schemas:
+    Problem:
+      type: object
+      description: Detalle de error según RFC 9457 (`application/problem+json`). Admite miembros de extensión.
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          default: about:blank
+          description: URI que identifica el tipo de problema.
+        title:
+          type: string
+          description: Resumen legible del tipo de problema.
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+          description: Código HTTP.
+        detail:
+          type: string
+          description: Explicación específica de esta ocurrencia.
+        instance:
+          type: string
+          format: uri-reference
+          description: URI de la ocurrencia concreta.
+        correlationId:
+          type: string
+          description: 'Extensión: valor de `X-Correlation-Id`.'
+        errors:
+          type: array
+          description: 'Extensión: errores de validación por campo.'
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+            required:
+            - field
+            - message
+      required:
+      - title
+      - status
+      additionalProperties: true
+    Receiver:
+      type: object
+      description: Receptor del documento (RUT de facturación, M5-09).
+      properties:
+        taxId:
+          type: string
+          pattern: ^[0-9]{7,8}-[0-9Kk]$
+          description: RUT chileno con guion y dígito verificador.
+        businessName:
+          type: string
+          description: Razón social.
+        businessActivity:
+          type:
+          - string
+          - 'null'
+          description: Giro.
+        address:
+          type:
+          - string
+          - 'null'
+        commune:
+          type:
+          - string
+          - 'null'
+        city:
+          type:
+          - string
+          - 'null'
+        email:
+          type:
+          - string
+          - 'null'
+          format: email
+      required:
+      - taxId
+      - businessName
+    InvoiceLine:
+      type: object
+      properties:
+        lineNumber:
+          type: integer
+          minimum: 1
+        code:
+          type:
+          - string
+          - 'null'
+          description: Código del concepto de cobro.
+        description:
+          type: string
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+        unitPrice:
+          type: number
+          minimum: 0
+        exempt:
+          type: boolean
+        amount:
+          type: number
+          minimum: 0
+      required:
+      - lineNumber
+      - description
+      - quantity
+      - unitPrice
+      - exempt
+      - amount
+    Totals:
+      type: object
+      properties:
+        netAmount:
+          type: number
+          minimum: 0
+        exemptAmount:
+          type: number
+          minimum: 0
+        vatRate:
+          type: number
+          minimum: 0
+          description: Tasa de IVA en porcentaje (19 en Chile).
+        vatAmount:
+          type: number
+          minimum: 0
+        totalAmount:
+          type: number
+          minimum: 0
+      required:
+      - netAmount
+      - exemptAmount
+      - vatAmount
+      - totalAmount
+    DocumentReference:
+      type: object
+      description: Referencia del DTE (documento que anula, BL, booking).
+      properties:
+        referenceType:
+          type: string
+          description: 'Tipo de referencia: código SII o texto (BL, BOOKING).'
+        folio:
+          type: string
+        date:
+          type:
+          - string
+          - 'null'
+          format: date
+        reason:
+          type:
+          - string
+          - 'null'
+      required:
+      - referenceType
+      - folio
+    InvoiceIssueRequest:
+      type: object
+      properties:
+        documentType:
+          type: integer
+          enum:
+          - 33
+          - 34
+          - 39
+          - 41
+          - 61
+          - 110
+          description: 'Tipo de DTE del SII: 33 factura electrónica, 34 factura exenta, 39 boleta electrónica, 41 boleta exenta,
+            61 nota de crédito, 110 factura de exportación.'
+        externalReference:
+          type: string
+          description: Número de pago o de solicitud del portal.
+        issueDate:
+          type: string
+          format: date
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          description: Código ISO 4217 (CLP, BOB, USD, EUR).
+        exchangeRate:
+          type:
+          - number
+          - 'null'
+          description: Tipo de cambio aplicado (M5-05).
+        receiver:
+          $ref: '#/components/schemas/Receiver'
+        lines:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/InvoiceLine'
+        totals:
+          $ref: '#/components/schemas/Totals'
+        references:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentReference'
+      required:
+      - documentType
+      - externalReference
+      - issueDate
+      - currency
+      - receiver
+      - lines
+      - totals
+    Document:
+      type: object
+      properties:
+        folio:
+          type: string
+        documentType:
+          type: integer
+          enum:
+          - 33
+          - 34
+          - 39
+          - 41
+          - 61
+          - 110
+          description: 'Tipo de DTE del SII: 33 factura electrónica, 34 factura exenta, 39 boleta electrónica, 41 boleta exenta,
+            61 nota de crédito, 110 factura de exportación.'
+        externalReference:
+          type: string
+        status:
+          type: string
+          enum:
+          - RECEIVED
+          - ACCEPTED
+          - ACCEPTED_WITH_OBJECTIONS
+          - REJECTED
+          description: Estado del documento ante el SII.
+        siiTrackId:
+          type:
+          - string
+          - 'null'
+          description: Número de seguimiento del envío al SII.
+        issueDate:
+          type: string
+          format: date
+        totalAmount:
+          type: number
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          description: Código ISO 4217 (CLP, BOB, USD, EUR).
+        pdfUrl:
+          type:
+          - string
+          - 'null'
+          format: uri
+        xmlUrl:
+          type:
+          - string
+          - 'null'
+          format: uri
+      required:
+      - folio
+      - documentType
+      - externalReference
+      - status
+      - issueDate
+      - totalAmount
+      - currency
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: Clave de API. En el portal se guarda cifrada como secreto `DBNET_API_KEY` (NF-09).

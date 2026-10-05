@@ -24,7 +24,9 @@ public sealed class BancoChileWebhookCommandHandler(
         if (!webhookAuthenticator.WebhooksEnabled)
             return Result.Failure(new Error("Webhook.Disabled", "Payment webhooks are disabled."));
 
+        // Secreto compartido y firma HMAC-SHA256 del cuerpo crudo (X-Signature), ambos obligatorios.
         if (!webhookAuthenticator.IsValid("BancoChile", request.Secret) ||
+            !webhookAuthenticator.IsValidSignature("BancoChile", request.RawBody ?? string.Empty, request.Signature) ||
             string.IsNullOrWhiteSpace(request.TransactionId))
         {
             return Result.Failure(Error.Unauthorized);

@@ -3,7 +3,8 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "analytics": "1c298847-c502-4870-b08f-16310a230459"
+    "analytics": "1c298847-c502-4870-b08f-16310a230459",
+    "schematicCollections": ["angular-eslint"]
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -60,6 +61,9 @@
             ],
             "polyfills": [
               "zone.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "@messageformat/core"
             ]
           },
           "configurations": {
@@ -136,6 +140,12 @@
           "options": {
             "proxyConfig": "proxy.conf.json",
             "open": true
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }

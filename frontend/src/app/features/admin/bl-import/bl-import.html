@@ -1,14 +1,15 @@
 <div class="hl-page-header">
-  <h1>Carga de Bill of Lading</h1>
-  <p class="text-muted mb-0">Ingesta masiva con validación aduanera por fila</p>
+  <h1>{{ 'admin.blImport.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.blImport.subtitle' | transloco }}</p>
 </div>
 
 <div class="hl-card p-4 mb-4">
   <div class="row g-3 align-items-end mb-3">
     <div class="col-md-6">
-      <label class="form-label small fw-semibold">* Cliente</label>
-      <select class="form-select" [(ngModel)]="selectedClientId">
-        <option value="">Seleccione...</option>
+      <label for="bl-import-client" class="form-label small fw-semibold">{{ 'admin.blImport.client' | transloco }}</label>
+      <select id="bl-import-client" class="form-select" [(ngModel)]="selectedClientId" required
+              aria-describedby="bl-import-error" [attr.aria-invalid]="!!parseError() && !selectedClientId">
+        <option value="">{{ 'admin.blImport.select' | transloco }}</option>
         @for (c of clients(); track c.id) {
           <option [value]="c.id">{{ c.name }} ({{ c.taxId }})</option>
         }
@@ -16,35 +17,38 @@
     </div>
   </div>
 
-  <label class="form-label small fw-semibold">Filas de BL</label>
-  <p class="small text-muted mb-1">
-    Una fila por línea, campos separados por punto y coma (<code>;</code>) en este orden:
-  </p>
-  <p class="small text-muted mb-2">
+  <label for="bl-import-rows" class="form-label small fw-semibold">{{ 'admin.blImport.rows' | transloco }}</label>
+  <p id="bl-import-help" class="small text-muted mb-1" [innerHTML]="'admin.blImport.help' | transloco"></p>
+  <p id="bl-import-columns" class="small text-muted mb-2">
     <code>{{ columns.join(';') }}</code>
   </p>
-  <textarea class="form-control font-monospace" rows="8" [(ngModel)]="rawText"
-            placeholder="HLCUABC123;Import;CL;CNSHA;CLVAP;USD;Importadora Ltda;12.345.678-5;870323;15000;HLXU1234567;22G1"></textarea>
+  <textarea id="bl-import-rows" class="form-control font-monospace" rows="8" [(ngModel)]="rawText" required
+            aria-describedby="bl-import-help bl-import-columns bl-import-error"
+            [attr.aria-invalid]="!!parseError() && !!selectedClientId"
+            [placeholder]="'admin.blImport.rowsPlaceholder' | transloco"></textarea>
 
-  @if (parseError()) { <div class="alert alert-danger py-2 mt-3 mb-0">{{ parseError() }}</div> }
+  <div id="bl-import-error">
+    @if (parseError()) { <div class="alert alert-danger py-2 mt-3 mb-0">{{ parseError() }}</div> }
+  </div>
 
   <div class="d-flex gap-2 mt-3">
-    <button class="btn btn-outline-secondary" (click)="reset()">Limpiar</button>
-    <button class="btn btn-hl-orange" (click)="parse()">Previsualizar</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="reset()">{{ 'admin.blImport.clear' | transloco }}</button>
+    <button type="button" class="btn btn-hl-orange" (click)="parse()">{{ 'admin.blImport.preview' | transloco }}</button>
   </div>
 </div>
 
 @if (preview().length > 0 && !result()) {
   <div class="hl-card mb-4">
     <div class="p-3 border-bottom fw-semibold">
-      Previsualización ({{ preview().length }} filas)
+      {{ 'admin.blImport.previewTitle' | transloco: { count: preview().length } }}
     </div>
-    <div class="table-responsive">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.blImport.caption.preview' | transloco">
       <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.blImport.caption.preview' | transloco }}</caption>
         <thead>
           <tr>
-            <th>BL</th><th>País</th><th>POL</th><th>POD</th>
-            <th>Consignatario</th><th>RUT/NIT</th><th>HS</th><th>Peso</th><th>Contenedor</th>
+            <th scope="col">{{ 'admin.blImport.col.bl' | transloco }}</th><th scope="col">{{ 'admin.blImport.col.country' | transloco }}</th><th scope="col">{{ 'admin.blImport.col.pol' | transloco }}</th><th scope="col">{{ 'admin.blImport.col.pod' | transloco }}</th>
+            <th scope="col">{{ 'admin.blImport.col.consignee' | transloco }}</th><th scope="col">{{ 'admin.blImport.col.taxId' | transloco }}</th><th scope="col">{{ 'admin.blImport.col.hs' | transloco }}</th><th scope="col">{{ 'admin.blImport.col.weight' | transloco }}</th><th scope="col">{{ 'admin.blImport.col.container' | transloco }}</th>
           </tr>
         </thead>
         <tbody>
@@ -65,9 +69,9 @@
       </table>
     </div>
     <div class="p-3">
-      <button class="btn btn-hl-orange px-4" (click)="submit()" [disabled]="submitting()">
+      <button type="button" class="btn btn-hl-orange px-4" (click)="submit()" [disabled]="submitting()">
         @if (submitting()) { <span class="spinner-border spinner-border-sm me-2" role="status"></span> }
-        Importar {{ preview().length }} BL
+        {{ 'admin.blImport.import' | transloco: { count: preview().length } }}
       </button>
     </div>
   </div>
@@ -75,16 +79,17 @@
 
 @if (result(); as res) {
   <div class="hl-card mb-4">
-    <div class="p-3 border-bottom fw-semibold">Resultado de la importación</div>
+    <div class="p-3 border-bottom fw-semibold">{{ 'admin.blImport.resultTitle' | transloco }}</div>
     <div class="p-3">
       <div class="alert" [class.alert-success]="res.failed === 0" [class.alert-warning]="res.failed > 0">
-        {{ res.created }} creados · {{ res.failed }} rechazados
+        {{ 'admin.blImport.resultSummary' | transloco: { created: res.created, failed: res.failed } }}
       </div>
       @if (res.errors.length > 0) {
-        <div class="table-responsive">
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.blImport.caption.errors' | transloco">
           <table class="hl-table">
+            <caption class="visually-hidden">{{ 'admin.blImport.caption.errors' | transloco }}</caption>
             <thead>
-              <tr><th style="width: 80px;">Fila</th><th>BL</th><th>Errores</th></tr>
+              <tr><th scope="col" style="width: 80px;">{{ 'admin.blImport.errorsCol.row' | transloco }}</th><th scope="col">{{ 'admin.blImport.errorsCol.bl' | transloco }}</th><th scope="col">{{ 'admin.blImport.errorsCol.errors' | transloco }}</th></tr>
             </thead>
             <tbody>
               @for (e of res.errors; track $index) {
@@ -102,7 +107,7 @@
           </table>
         </div>
       }
-      <button class="btn btn-outline-secondary mt-3" (click)="reset()">Nueva carga</button>
+      <button type="button" class="btn btn-outline-secondary mt-3" (click)="reset()">{{ 'admin.blImport.newUpload' | transloco }}</button>
     </div>
   </div>
 }

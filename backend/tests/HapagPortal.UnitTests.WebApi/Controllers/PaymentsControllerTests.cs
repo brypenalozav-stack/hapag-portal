@@ -1,9 +1,11 @@
 namespace HapagPortal.UnitTests.WebApi.Controllers;
 
+using System.Text;
 using FluentAssertions;
 using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Payments.Commands.Cancel;
 using HapagPortal.Application.Payments.Commands.Confirm;
+using HapagPortal.Application.Payments.Commands.Webhooks;
 using HapagPortal.Application.Payments.Create;
 using HapagPortal.Application.Payments.Read.GetById;
 using HapagPortal.Application.Payments.Read.GetMyPayments;
@@ -115,5 +117,29 @@ public sealed class PaymentsControllerTests
 
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
         okResult.Value.Should().Be(dto);
+    }
+
+    [Fact]
+    public async Task BancoChileWebhook_ShouldPassRawBodySecretAndSignature()
+    {
+        const string rawBody = "{\"transactionId\":\"TX-1\",\"externalReference\":\"EXT-1\",\"status\":\"approved\",\"amount\":1190}";
+        var request = _controller.ControllerContext.HttpContext.Request;
+        request.Body = new MemoryStream(Encoding.UTF8.GetBytes(rawBody));
+        request.Body.Position = rawBody.Length; // el binding ya consumió el cuerpo
+        request.Headers["X-Webhook-Secret"] = "good-secret";
+        request.Headers["X-Signature"] = "abc123";
+
+        BancoChileWebhookCommand? sent = null;
+        _sender.Send(Arg.Do<BancoChileWebhookCommand>(c => sent = c), Arg.Any<CancellationToken>())
+            .Returns(Result.Success());
+
+        var result = await _controller.BancoChileWebhook(
+            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 1190m), CancellationToken.None);
+
+        result.Should().BeOfType<OkResult>();
+        sent.Should().NotBeNull();
+        sent!.Secret.Should().Be("good-secret");
+        sent.Signature.Should().Be("abc123");
+        sent.RawBody.Should().Be(rawBody);
     }
 }

@@ -1,0 +1,24 @@
+// Tokens de diseño Hapag-Lloyd (DC4, Fase 5a §2 del plan; Guía UI/a11y/i18n §1.1).
+// Solo variables Sass: este archivo no emite CSS. Es el único archivo del frontend con
+// valores hexadecimales (npm run check:hex). La lista es cerrada y coincide con el prototipo
+// (docs/prototipo/portal-2.0-prototipo.html): un color nuevo se agrega aquí y en el prototipo
+// en el mismo cambio.
+
+$hl-dark: #33424f;
+$hl-orange: #ff6600; // solo logotipo y acentos no textuales (2,94:1 sobre blanco)
+$hl-orange-700: #b84a00;
+$hl-green: #009840; // solo acentos no textuales (3,77:1 sobre blanco)
+$hl-green-700: #007a33;
+$hl-blue: #004d6c;
+$hl-light-gray: #f5f7fa;
+$hl-border: #e2e8f0; // separadores decorativos (1,23:1): no apto para bordes de campos
+$hl-body-color: #2d3748;
+$hl-white: #ffffff;
+
+// Tema oscuro
+$hl-dark-bg: #1a202c;
+$hl-dark-text: #e2e8f0;
+
+// Tonos semánticos
+$hl-surface-muted: #f8fafc;
+$hl-text-muted: #4a5568; // 7,53:1 sobre blanco; reemplaza a #718096 (4,02:1)

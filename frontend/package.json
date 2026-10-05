@@ -8,7 +8,14 @@
     "build:staging": "ng build --configuration staging",
     "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "lint": "ng lint",
+    "check:hex": "node scripts/check-hex.mjs",
+    "check:theme": "node scripts/check-bootstrap-theme.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "check:i18n-text": "node scripts/check-hardcoded-text.mjs",
+    "check:table-scope": "node scripts/check-table-scope.mjs",
+    "test:a11y": "playwright test"
   },
   "private": true,
   "packageManager": "npm@11.6.2",
@@ -19,6 +26,8 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@jsverse/transloco": "8.4.0",
+    "@jsverse/transloco-messageformat": "8.4.0",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
@@ -30,7 +39,13 @@
     "@angular/build": "^21.2.10",
     "@angular/cli": "^21.2.10",
     "@angular/compiler-cli": "^21.2.0",
+    "@axe-core/playwright": "4.13.0",
+    "@jsverse/transloco-keys-manager": "8.1.1",
+    "@playwright/test": "1.63.0",
+    "angular-eslint": "21.4.0",
+    "eslint": "10.12.0",
     "prettier": "^3.8.1",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "typescript-eslint": "8.59.2"
   }
 }

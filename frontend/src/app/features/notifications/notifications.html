@@ -1,12 +1,12 @@
 <div class="hl-page-header d-flex justify-content-between align-items-start">
   <div>
-    <h1>Notificaciones</h1>
-    <p class="text-muted mb-0">Alertas operativas dirigidas a ti o a tus roles</p>
+    <h1>{{ 'notifications.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'notifications.subtitle' | transloco }}</p>
   </div>
-  <button class="btn btn-outline-secondary" (click)="markAll()">Marcar todas como leídas</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="markAll()">{{ 'notifications.markAll' | transloco }}</button>
 </div>
 
-@if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+@if (error()) { <div class="alert alert-danger py-2" role="alert">{{ error() }}</div> }
 
 <div class="hl-card">
   @if (loading()) {
@@ -18,19 +18,19 @@
              [class.bg-light]="!n.isRead">
           <div>
             <div class="fw-semibold">
-              @if (!n.isRead) { <span class="badge bg-primary me-2">Nuevo</span> }
+              @if (!n.isRead) { <span class="badge bg-primary me-2">{{ 'notifications.new' | transloco }}</span> }
               {{ n.title }}
             </div>
             <div class="small text-muted">{{ n.body }}</div>
-            <div class="small text-muted mt-1">{{ n.createdAt | date: 'dd-MM-yyyy HH:mm' }}</div>
+            <div class="small text-muted mt-1">{{ n.createdAt | hlDate:'datetime' }}</div>
           </div>
           @if (!n.isRead) {
-            <button class="btn btn-sm btn-outline-secondary" (click)="markRead(n)">Marcar leída</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="markRead(n)">{{ 'notifications.markRead' | transloco }}</button>
           }
         </div>
       }
       @if (items().length === 0) {
-        <div class="text-center text-muted py-5">No tienes notificaciones.</div>
+        <div class="text-center text-muted py-5">{{ 'notifications.empty' | transloco }}</div>
       }
     </div>
   }

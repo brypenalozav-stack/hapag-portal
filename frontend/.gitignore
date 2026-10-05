@@ -29,6 +29,8 @@ desktop.ini
 ## Test / Coverage
 coverage/
 .nyc_output/
+test-results/
+playwright-report/
 
 ## Misc
 *.tgz

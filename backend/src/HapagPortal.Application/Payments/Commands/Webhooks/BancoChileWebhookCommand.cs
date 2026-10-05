@@ -7,4 +7,6 @@ public sealed record BancoChileWebhookCommand(
     string ExternalReference,
     string Status,
     decimal? Amount,
-    string? Secret = null) : ICommand;
+    string? Secret = null,
+    string? RawBody = null,
+    string? Signature = null) : ICommand;

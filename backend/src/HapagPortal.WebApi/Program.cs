@@ -5,6 +5,8 @@ using HapagPortal.Application;
 using HapagPortal.Infrastructure.DependencyInjection;
 using HapagPortal.Infrastructure.Persistence;
 using HapagPortal.WebApi.Middleware;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -114,6 +116,18 @@ builder.Services.AddCors(options =>
 
 // HttpContextAccessor is registered in Infrastructure layer
 
+// HTTPS detrás del proxy de Railway, que termina el TLS y reenvía X-Forwarded-For/Proto.
+// Se limpian las listas de proxies conocidos: se confía en cualquier proxy que envíe X-Forwarded-*,
+// aceptable porque el contenedor solo es accesible a través del proxy de Railway. Revisar si el
+// servicio pasa a estar expuesto directamente.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+builder.Services.Configure<HttpsRedirectionOptions>(options => options.HttpsPort = 443);
+
 var app = builder.Build();
 
 // Auto-apply pending migrations on startup
@@ -146,9 +160,30 @@ catch (Exception ex)
 }
 
 // Middleware pipeline
+app.UseForwardedHeaders();
+
+// HTTPS/HSTS fuera de Development; Security:EnforceHttps=false lo desactiva sin redesplegar.
+// /health queda fuera de la redirección para el chequeo del proxy.
+if (!app.Environment.IsDevelopment() && app.Configuration.GetValue("Security:EnforceHttps", true))
+{
+    app.UseHsts();
+    app.UseWhen(
+        context => !context.Request.Path.StartsWithSegments("/health"),
+        branch => branch.UseHttpsRedirection());
+}
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors();
+
+// Webhooks de pago: el cuerpo crudo se relee en el controlador para verificar la firma (X-Signature).
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api/v1/payments/webhook"))
+        context.Request.EnableBuffering();
+
+    await next(context);
+});
 
 if (app.Environment.IsDevelopment())
 {

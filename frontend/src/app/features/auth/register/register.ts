@@ -2,13 +2,15 @@ import { Component, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { VALIDATION, REDIRECT_DELAY_MS } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -16,6 +18,7 @@ export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
 
   form = this.fb.nonNullable.group(
@@ -32,6 +35,8 @@ export class RegisterComponent {
     },
     { validators: [this.passwordMatchValidator] },
   );
+
+  readonly minPasswordLength = VALIDATION.PASSWORD_MIN_LENGTH;
 
   loading = signal(false);
   error = signal('');
@@ -72,6 +77,7 @@ export class RegisterComponent {
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.announcer.announce(translate('common.form.invalid'), 'assertive');
       return;
     }
 
@@ -100,7 +106,7 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message ?? 'Error al registrar. Intente nuevamente.');
+        this.error.set(err.error?.message ?? translate('auth.register.error'));
       },
     });
   }

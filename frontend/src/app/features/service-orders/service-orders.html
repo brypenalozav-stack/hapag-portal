@@ -1,16 +1,16 @@
 <div class="hl-page-header d-flex justify-content-between align-items-start">
   <div>
-    <h1>Órdenes de Servicio (ODS)</h1>
-    <p class="text-muted mb-0">Solicite y consulte sus órdenes de servicio</p>
+    <h1>{{ 'serviceOrders.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'serviceOrders.subtitle' | transloco }}</p>
   </div>
-  <button class="btn btn-hl-orange" (click)="toggleForm()">
+  <button type="button" class="btn btn-hl-orange" (click)="toggleForm()" [attr.aria-expanded]="showForm()">
     @if (showForm()) {
-      Cancelar
+      {{ 'serviceOrders.cancel' | transloco }}
     } @else {
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
         <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
       </svg>
-      Nueva Orden
+      {{ 'serviceOrders.new' | transloco }}
     }
   </button>
 </div>
@@ -18,47 +18,59 @@
 <!-- Create Form -->
 @if (showForm()) {
   <div class="hl-card p-4 mb-4">
-    <h5 class="mb-3">Nueva Orden de Servicio</h5>
+    <h5 class="mb-3">{{ 'serviceOrders.form.title' | transloco }}</h5>
 
     @if (formError()) {
-      <div class="alert alert-danger py-2">{{ formError() }}</div>
+      <div class="alert alert-danger py-2" role="alert">{{ formError() }}</div>
     }
     @if (formSuccess()) {
-      <div class="alert alert-success py-2">{{ formSuccess() }}</div>
+      <div class="alert alert-success py-2" role="status">{{ formSuccess() }}</div>
     }
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="form-label fw-semibold">Número de BL</label>
-          <input type="text" class="form-control" formControlName="blNumber"
-                 placeholder="Ej: HLCUVAL250100123"
+          <label for="service-orders-bl-number" class="form-label fw-semibold">{{ 'serviceOrders.form.blNumber' | transloco }}</label>
+          <input required id="service-orders-bl-number" type="text" class="form-control" formControlName="blNumber"
+                 [placeholder]="'serviceOrders.form.blPlaceholder' | transloco"
+                 aria-describedby="service-orders-bl-number-error"
+                 [attr.aria-invalid]="form.controls.blNumber.touched && form.controls.blNumber.invalid"
                  [class.is-invalid]="form.controls.blNumber.touched && form.controls.blNumber.invalid" />
-          @if (form.controls.blNumber.touched && form.controls.blNumber.errors?.['required']) {
-            <div class="invalid-feedback">El número de BL es obligatorio.</div>
-          }
+          <div id="service-orders-bl-number-error" class="invalid-feedback">
+            @if (form.controls.blNumber.touched && form.controls.blNumber.errors?.['required']) {
+              {{ 'serviceOrders.form.blRequired' | transloco }}
+            }
+          </div>
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-semibold">Tipo de Servicio</label>
-          <select class="form-select" formControlName="type"
+          <label for="service-orders-type" class="form-label fw-semibold">{{ 'serviceOrders.form.type' | transloco }}</label>
+          <select required id="service-orders-type" class="form-select" formControlName="type"
+                  aria-describedby="service-orders-type-error"
+                  [attr.aria-invalid]="form.controls.type.touched && form.controls.type.invalid"
                   [class.is-invalid]="form.controls.type.touched && form.controls.type.invalid">
-            <option value="">Seleccione...</option>
+            <option value="">{{ 'serviceOrders.form.select' | transloco }}</option>
             @for (t of orderTypes; track t.value) {
-              <option [value]="t.value">{{ t.label }}</option>
+              <option [value]="t.value">{{ t.labelKey | transloco }}</option>
             }
           </select>
-          @if (form.controls.type.touched && form.controls.type.errors?.['required']) {
-            <div class="invalid-feedback">Seleccione un tipo de servicio.</div>
-          }
+          <div id="service-orders-type-error" class="invalid-feedback">
+            @if (form.controls.type.touched && form.controls.type.errors?.['required']) {
+              {{ 'serviceOrders.form.typeRequired' | transloco }}
+            }
+          </div>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">Descripción / Instrucciones</label>
-          <textarea class="form-control" formControlName="description" rows="3"
-                    placeholder="Detalle la solicitud..."
+          <label for="service-orders-description" class="form-label fw-semibold">{{ 'serviceOrders.form.description' | transloco }}</label>
+          <textarea required id="service-orders-description" class="form-control" formControlName="description" rows="3"
+                    [placeholder]="'serviceOrders.form.descriptionPlaceholder' | transloco"
+                    aria-describedby="service-orders-description-error"
+                    [attr.aria-invalid]="form.controls.description.touched && form.controls.description.invalid"
                     [class.is-invalid]="form.controls.description.touched && form.controls.description.invalid"></textarea>
-          @if (form.controls.description.touched && form.controls.description.errors?.['required']) {
-            <div class="invalid-feedback">La descripción es obligatoria.</div>
-          }
+          <div id="service-orders-description-error" class="invalid-feedback">
+            @if (form.controls.description.touched && form.controls.description.errors?.['required']) {
+              {{ 'serviceOrders.form.descriptionRequired' | transloco }}
+            }
+          </div>
         </div>
       </div>
 
@@ -66,7 +78,7 @@
         @if (submitting()) {
           <span class="spinner-border spinner-border-sm me-2" role="status"></span>
         }
-        Crear Orden
+        {{ 'serviceOrders.form.submit' | transloco }}
       </button>
     </form>
   </div>
@@ -76,26 +88,27 @@
 @if (loading()) {
   <app-loading-spinner />
 } @else if (error()) {
-  <div class="alert alert-danger">{{ error() }}</div>
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
 } @else if (orders().length === 0) {
-  <div class="hl-card p-5 text-center">
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#33424F" class="mb-3 opacity-25" viewBox="0 0 16 16">
+  <div class="hl-card p-5 text-center" role="status">
+    <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="mb-3 opacity-25 text-hl-dark" viewBox="0 0 16 16">
       <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
     </svg>
-    <p class="text-muted mb-0">No tiene órdenes de servicio registradas.</p>
+    <p class="text-muted mb-0">{{ 'serviceOrders.empty' | transloco }}</p>
   </div>
 } @else {
   <div class="hl-card">
-    <div class="table-responsive">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'serviceOrders.caption' | transloco">
       <table class="hl-table">
+        <caption class="visually-hidden">{{ 'serviceOrders.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th>N° Orden</th>
-            <th>BL</th>
-            <th>Tipo</th>
-            <th>Descripción</th>
-            <th>Fecha</th>
-            <th>Estado</th>
+            <th scope="col">{{ 'serviceOrders.col.number' | transloco }}</th>
+            <th scope="col">{{ 'serviceOrders.col.bl' | transloco }}</th>
+            <th scope="col">{{ 'serviceOrders.col.type' | transloco }}</th>
+            <th scope="col">{{ 'serviceOrders.col.description' | transloco }}</th>
+            <th scope="col">{{ 'serviceOrders.col.date' | transloco }}</th>
+            <th scope="col">{{ 'serviceOrders.col.status' | transloco }}</th>
           </tr>
         </thead>
         <tbody>
@@ -103,9 +116,11 @@
             <tr>
               <td class="fw-semibold">{{ order.orderNumber ?? order.id.substring(0, 8) }}</td>
               <td>{{ order.blNumber }}</td>
-              <td>{{ getTypeLabel(order.type) }}</td>
+              <td>
+                @if (typeKey(order.type); as key) { {{ key | transloco }} } @else { {{ order.type }} }
+              </td>
               <td class="text-truncate" style="max-width: 250px;">{{ order.description }}</td>
-              <td>{{ order.createdAt | date:'dd/MM/yyyy' }}</td>
+              <td>{{ order.createdAt | hlDate }}</td>
               <td><app-status-badge [status]="order.status" /></td>
             </tr>
           }

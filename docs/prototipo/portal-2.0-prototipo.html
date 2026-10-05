@@ -1,0 +1,1229 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Prototipo navegable del Portal 2.0 de Hapag-Lloyd Chile y Bolivia, con datos ficticios.">
+<title>Dashboard · Portal 2.0 (prototipo)</title>
+<script>
+  /* Tema e idioma antes del primer pintado: evita el destello del tema equivocado. */
+  (function () {
+    var root = document.documentElement;
+    var tema = 'auto';
+    var idioma = 'es';
+    try {
+      var t = window.localStorage.getItem('hl_theme');
+      if (t === 'light' || t === 'dark' || t === 'auto') { tema = t; }
+      if (window.localStorage.getItem('hl_lang') === 'en') { idioma = 'en'; }
+    } catch (e) { /* almacenamiento no disponible: se usan los valores por defecto */ }
+    var oscuro = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-bs-theme', tema === 'dark' || (tema === 'auto' && oscuro) ? 'dark' : 'light');
+    root.setAttribute('data-hl-theme-pref', tema);
+    root.lang = idioma;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Montserrat:wght@600;700&amp;display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" integrity="sha384-CK2SzKma4jA5H/MXDUU7i1TqZlCFaD4T01vtyDFvPlD97JQyS+IsSh1nI2EFbpyk" crossorigin="anonymous">
+<style>
+  /* ===== Tokens (lista cerrada, Fase 5a §2 del plan; Guía UI §1.1) ===== */
+  :root,
+  [data-bs-theme="light"] {
+    --hl-dark: #33424f;
+    --hl-orange: #ff6600;
+    --hl-orange-700: #b84a00;
+    --hl-green: #009840;
+    --hl-green-700: #007a33;
+    --hl-blue: #004d6c;
+    --hl-light-gray: #f5f7fa;
+    --hl-border: #e2e8f0;
+    --hl-body-color: #2d3748;
+    --hl-white: #ffffff;
+    --hl-dark-bg: #1a202c;
+    --hl-dark-text: #e2e8f0;
+    --hl-surface-muted: #f8fafc;
+    --hl-text-muted: #4a5568;
+    --hl-focus: #004d6c;
+
+    /* Bootstrap configurado con los tokens */
+    --bs-body-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --bs-body-bg: var(--hl-light-gray);
+    --bs-body-bg-rgb: 245, 247, 250;
+    --bs-body-color: var(--hl-body-color);
+    --bs-body-color-rgb: 45, 55, 72;
+    --bs-emphasis-color: var(--hl-dark);
+    --bs-emphasis-color-rgb: 51, 66, 79;
+    --bs-secondary-color: var(--hl-text-muted);
+    --bs-heading-color: var(--hl-dark);
+    --bs-link-color: var(--hl-orange-700);
+    --bs-link-color-rgb: 184, 74, 0;
+    --bs-link-hover-color: var(--hl-dark);
+    --bs-link-hover-color-rgb: 51, 66, 79;
+    --bs-border-color: var(--hl-border);
+    --bs-tertiary-bg: var(--hl-surface-muted);
+    --bs-primary: var(--hl-orange-700);
+    --bs-primary-rgb: 184, 74, 0;
+  }
+
+  /* Variante oscura (Guía UI §1.1, columna "Variante oscura") */
+  [data-bs-theme="dark"] {
+    color-scheme: dark;
+    --hl-light-gray: #1a202c;
+    --hl-border: #4a5568;
+    --hl-body-color: #e2e8f0;
+    --hl-surface-muted: #33424f;
+    --hl-text-muted: #e2e8f0;
+    --hl-focus: #ffffff;
+
+    --bs-body-bg: var(--hl-dark-bg);
+    --bs-body-bg-rgb: 26, 32, 44;
+    --bs-body-color: var(--hl-dark-text);
+    --bs-body-color-rgb: 226, 232, 240;
+    --bs-emphasis-color: var(--hl-white);
+    --bs-emphasis-color-rgb: 255, 255, 255;
+    --bs-secondary-color: var(--hl-dark-text);
+    --bs-heading-color: var(--hl-dark-text);
+    /* #b84a00 sobre #1a202c da 3,12:1: en oscuro los enlaces usan --hl-dark-text subrayado */
+    --bs-link-color: var(--hl-dark-text);
+    --bs-link-color-rgb: 226, 232, 240;
+    --bs-link-hover-color: var(--hl-white);
+    --bs-link-hover-color-rgb: 255, 255, 255;
+    --bs-border-color: var(--hl-border);
+    --bs-tertiary-bg: var(--hl-dark);
+  }
+
+  h1, h2, h3, .hl-brand, .hl-kpi { font-family: 'Montserrat', 'Inter', system-ui, sans-serif; font-weight: 600; }
+  h1 { font-size: calc(1.375rem + 1.2vw); }
+  h2 { font-size: 1.25rem; }
+  body { min-width: 0; overflow-wrap: anywhere; }
+  .hl-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* ===== Foco visible (2.4.7) y movimiento reducido ===== */
+  :focus-visible,
+  .btn:focus-visible,
+  .nav-link:focus-visible,
+  .form-control:focus,
+  .form-select:focus,
+  .form-check-input:focus-visible {
+    outline: 3px solid var(--hl-focus) !important;
+    outline-offset: 2px;
+    box-shadow: none !important;
+  }
+  [tabindex="-1"]:focus:not(:focus-visible) { outline: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* ===== Enlace para saltar al contenido ===== */
+  .hl-skip-link {
+    position: absolute;
+    left: 0.5rem;
+    top: -10rem;
+    z-index: 1080;
+    padding: 0.75rem 1rem;
+    background: var(--hl-white);
+    color: var(--hl-dark);
+    font-weight: 600;
+    border-radius: 0.375rem;
+  }
+  .hl-skip-link:focus { top: 0.5rem; color: var(--hl-dark); }
+  .hl-skip-link:focus-visible { outline-color: var(--hl-orange) !important; }
+
+  /* ===== Cabecera y navegación ===== */
+  .hl-navbar {
+    --hl-focus: var(--hl-white);
+    background: var(--hl-dark);
+    color: var(--hl-white);
+  }
+  .hl-brand { color: var(--hl-white); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 1.125rem; }
+  .hl-brand:hover, .hl-brand:focus { color: var(--hl-white); text-decoration: underline; }
+  .hl-brand__sub { font-family: 'Inter', system-ui, sans-serif; font-weight: 400; font-size: 0.875rem; }
+  .hl-logo__mark { fill: var(--hl-orange); flex: none; }
+  .hl-navbar__label { color: var(--hl-white); font-size: 0.875rem; margin: 0; }
+  .hl-toggle {
+    min-width: 2.75rem;
+    min-height: 2.25rem;
+    border: 1px solid var(--hl-white);
+    background: transparent;
+    color: var(--hl-white);
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+  }
+  .hl-toggle:first-child { border-radius: 0.375rem 0 0 0.375rem; }
+  .hl-toggle:last-child { border-radius: 0 0.375rem 0.375rem 0; }
+  .hl-toggle[aria-pressed="true"] { background: var(--hl-white); color: var(--hl-dark); }
+  .hl-theme-select { width: auto; min-height: 2.25rem; border-color: var(--hl-text-muted); }
+  .hl-nav { border-top: 1px solid var(--hl-text-muted); }
+  .hl-nav .nav { flex-wrap: wrap; }
+  .hl-nav .nav-link {
+    color: var(--hl-white);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 3px solid transparent;
+  }
+  .hl-nav .nav-link:hover { color: var(--hl-white); text-decoration: underline; }
+  .hl-nav .nav-link[aria-current="page"] { border-bottom-color: var(--hl-orange); font-weight: 600; }
+
+  /* ===== Componentes ===== */
+  .card {
+    --bs-card-bg: var(--hl-white);
+    --bs-card-border-color: var(--hl-border);
+    --bs-card-color: var(--bs-body-color);
+    --bs-card-border-radius: 0.75rem;
+  }
+  .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--bs-body-color);
+    --bs-table-border-color: var(--hl-border);
+    margin-bottom: 0;
+  }
+  .table thead th { --bs-table-bg: var(--hl-surface-muted); white-space: nowrap; }
+  .hl-table-nowrap th, .hl-table-nowrap td { white-space: nowrap; overflow-wrap: normal; }
+  .hl-cargo__bl { font-size: 0.875rem; }
+  @media (min-width: 768px) { .hl-btn-align { margin-top: 2rem; } }
+  .table-responsive { border-radius: 0.5rem; }
+  .form-control, .form-select, .form-check-input { border-color: var(--hl-text-muted); }
+  .form-control::placeholder { color: var(--hl-text-muted); opacity: 1; }
+  .form-text { color: var(--hl-text-muted); }
+
+  .btn-primary {
+    --bs-btn-color: var(--hl-white);
+    --bs-btn-bg: var(--hl-orange-700);
+    --bs-btn-border-color: var(--hl-orange-700);
+    --bs-btn-hover-color: var(--hl-white);
+    --bs-btn-hover-bg: var(--hl-blue);
+    --bs-btn-hover-border-color: var(--hl-blue);
+    --bs-btn-active-color: var(--hl-white);
+    --bs-btn-active-bg: var(--hl-blue);
+    --bs-btn-active-border-color: var(--hl-blue);
+    --bs-btn-disabled-color: var(--hl-white);
+    --bs-btn-disabled-bg: var(--hl-orange-700);
+    --bs-btn-disabled-border-color: var(--hl-orange-700);
+  }
+  .btn-outline-primary {
+    --bs-btn-color: var(--hl-orange-700);
+    --bs-btn-border-color: var(--hl-orange-700);
+    --bs-btn-hover-color: var(--hl-white);
+    --bs-btn-hover-bg: var(--hl-orange-700);
+    --bs-btn-hover-border-color: var(--hl-orange-700);
+    --bs-btn-active-color: var(--hl-white);
+    --bs-btn-active-bg: var(--hl-orange-700);
+    --bs-btn-active-border-color: var(--hl-orange-700);
+  }
+  [data-bs-theme="dark"] .btn-outline-primary {
+    --bs-btn-color: var(--hl-dark-text);
+    --bs-btn-border-color: var(--hl-dark-text);
+  }
+
+  .nav-tabs {
+    --bs-nav-tabs-border-color: var(--hl-text-muted);
+    --bs-nav-tabs-link-hover-border-color: var(--hl-text-muted) var(--hl-text-muted) var(--hl-text-muted);
+    --bs-nav-tabs-link-active-color: var(--bs-emphasis-color);
+    --bs-nav-tabs-link-active-bg: var(--bs-body-bg);
+    --bs-nav-tabs-link-active-border-color: var(--hl-text-muted) var(--hl-text-muted) var(--bs-body-bg);
+    --bs-nav-link-color: var(--bs-link-color);
+    --bs-nav-link-hover-color: var(--bs-link-hover-color);
+    flex-wrap: wrap;
+  }
+  .nav-tabs .nav-link { min-height: 2.75rem; display: inline-flex; align-items: center; gap: 0.375rem; }
+  .nav-tabs .nav-link.active { font-weight: 700; }
+
+  .hl-badge {
+    display: inline-block;
+    padding: 0.25em 0.6em;
+    border-radius: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--hl-white);
+    white-space: nowrap;
+  }
+  .hl-badge--info { background: var(--hl-blue); }
+  .hl-badge--success { background: var(--hl-green-700); }
+  .hl-badge--warning { background: var(--hl-orange-700); }
+  .hl-tab-count { background: var(--hl-dark); color: var(--hl-white); border-radius: 1rem; padding: 0 0.5rem; font-size: 0.8125rem; }
+
+  .hl-muted { color: var(--hl-text-muted); }
+  .hl-kpi { font-size: 2rem; line-height: 1.2; color: var(--bs-emphasis-color); }
+  .hl-kpi-icon { font-size: 1.5rem; color: var(--hl-green); }
+  .hl-dl dt { font-weight: 600; font-size: 0.875rem; color: var(--hl-text-muted); }
+  .hl-dl dd { margin-bottom: 0.75rem; }
+
+  .hl-state {
+    border: 1px dashed var(--hl-text-muted);
+    border-radius: 0.5rem;
+    padding: 1.25rem 1rem;
+    text-align: center;
+  }
+  .hl-state__icon { font-size: 2rem; display: block; margin-bottom: 0.25rem; }
+  .hl-state__title { font-weight: 700; margin-bottom: 0.25rem; }
+  .hl-result {
+    border-left: 4px solid var(--hl-green-700);
+    background: var(--hl-surface-muted);
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+  .hl-result__title { font-weight: 700; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+  .hl-confirm {
+    border: 2px solid var(--hl-text-muted);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    background: var(--hl-white);
+  }
+  [data-bs-theme="dark"] .card,
+  [data-bs-theme="dark"] .hl-confirm { --bs-card-bg: var(--hl-dark); background-color: var(--hl-dark); }
+
+  .hl-footer { border-top: 1px solid var(--hl-border); font-size: 0.875rem; }
+</style>
+</head>
+<body>
+<a class="hl-skip-link" href="#contenido-principal" data-i18n="skip">Saltar al contenido principal</a>
+
+<header class="hl-navbar">
+  <div class="container-xl d-flex flex-wrap align-items-center gap-2 py-2">
+    <a class="hl-brand" href="#/dashboard">
+      <svg class="hl-logo__mark" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M4 4h8v10h8V4h8v24h-8V18h-8v10H4z"/>
+      </svg>
+      <span>Hapag-Lloyd</span>
+      <span class="hl-brand__sub" data-i18n="brand.sub">Portal 2.0 · prototipo</span>
+    </a>
+    <div class="ms-auto d-flex flex-wrap align-items-center gap-3">
+      <div class="d-flex align-items-center gap-2">
+        <span id="hl-lang-label" class="hl-navbar__label" data-i18n="header.language">Idioma</span>
+        <div class="d-inline-flex" role="group" aria-labelledby="hl-lang-label">
+          <button type="button" class="hl-toggle" data-lang="es" lang="es" aria-label="Español (ES)" aria-pressed="true">ES</button>
+          <button type="button" class="hl-toggle" data-lang="en" lang="en" aria-label="English (EN)" aria-pressed="false">EN</button>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <label for="hl-theme" class="hl-navbar__label" data-i18n="header.theme">Tema</label>
+        <select id="hl-theme" class="form-select form-select-sm hl-theme-select">
+          <option value="auto" data-i18n="theme.auto">Según el sistema</option>
+          <option value="light" data-i18n="theme.light">Claro</option>
+          <option value="dark" data-i18n="theme.dark">Oscuro</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <nav class="hl-nav" aria-label="Principal" data-i18n-attr="aria-label=nav.label">
+    <div class="container-xl">
+      <ul class="nav">
+        <li class="nav-item"><a class="nav-link" href="#/dashboard" data-route="dashboard"><i class="bi bi-speedometer2" aria-hidden="true"></i><span data-i18n="nav.dashboard">Dashboard</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#/embarques" data-route="embarques"><i class="bi bi-box-seam" aria-hidden="true"></i><span data-i18n="nav.shipments">Embarques</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#/carro" data-route="carro"><i class="bi bi-cart3" aria-hidden="true"></i><span data-i18n="nav.cart">Carro de compra</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<main id="contenido-principal" class="container-xl py-4" tabindex="-1">
+  <noscript><p>Este prototipo necesita JavaScript.</p></noscript>
+  <section class="hl-screen" data-screen="dashboard" hidden></section>
+  <section class="hl-screen" data-screen="embarques" hidden></section>
+  <section class="hl-screen" data-screen="detalle-bl" hidden></section>
+  <section class="hl-screen" data-screen="carro" hidden></section>
+  <div id="hl-live-polite" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+  <div id="hl-live-assertive" class="visually-hidden" aria-live="assertive" aria-atomic="true"></div>
+</main>
+
+<footer class="hl-footer py-3">
+  <div class="container-xl">
+    <p class="mb-1" data-i18n="footer.text">Prototipo navegable con datos ficticios. No representa precios, plazos ni condiciones reales.</p>
+    <p class="mb-0" data-i18n="footer.version">Portal 2.0 v4 · Hapag-Lloyd Chile y Bolivia</p>
+  </div>
+</footer>
+
+<script type="application/json" id="hl-i18n">
+{
+  "es": {
+    "doc.title": "{{screen}} · Portal 2.0 (prototipo)",
+    "skip": "Saltar al contenido principal",
+    "brand.sub": "Portal 2.0 · prototipo",
+    "header.language": "Idioma",
+    "header.theme": "Tema",
+    "theme.auto": "Según el sistema",
+    "theme.light": "Claro",
+    "theme.dark": "Oscuro",
+    "lang.changed": "Idioma cambiado a español",
+    "nav.label": "Principal",
+    "nav.dashboard": "Dashboard",
+    "nav.shipments": "Embarques",
+    "nav.cart": "Carro de compra",
+    "footer.text": "Prototipo navegable con datos ficticios. No representa precios, plazos ni condiciones reales.",
+    "footer.version": "Portal 2.0 v4 · Hapag-Lloyd Chile y Bolivia",
+
+    "col.bl": "BL",
+    "col.type": "Tipo",
+    "col.vessel": "Nave / viaje",
+    "col.pod": "Puerto de descarga (POD)",
+    "col.eta": "ETA",
+    "col.freeDays": "Días libres",
+    "col.status": "Estado",
+    "col.customer": "Cliente (RUT)",
+    "col.concept": "Concepto",
+    "col.amount": "Monto",
+    "col.container": "Contenedor",
+    "col.containerType": "Tipo de contenedor",
+    "col.gateOut": "Gate Out",
+    "col.event": "Evento",
+    "col.date": "Fecha",
+    "col.location": "Lugar",
+    "freeDays.one": "{{n}} día",
+    "freeDays.other": "{{n}} días",
+
+    "type.imp": "Importación",
+    "type.exp": "Exportación",
+    "status.transito": "En tránsito",
+    "status.arribado": "Arribado",
+    "status.docs": "Documentos pendientes",
+    "charge.pending": "Pendiente",
+    "charge.exempt": "Exento",
+    "concept.localCharges": "Cargos locales",
+    "concept.demurrage": "Demurrage",
+    "concept.mhd": "MHD",
+    "concept.collectFreight": "Flete collect",
+    "concept.freightCert": "Certificado de flete",
+    "concept.gateIn": "Gate In",
+    "concept.eds": "EDS (servicio de depósito de equipos)",
+    "concept.warehouse": "Cambio de almacén",
+
+    "dash.title": "Dashboard",
+    "dash.welcome": "Cliente: {{name}} · RUT {{rut}}",
+    "dash.updated": "Última actualización: {{date}}",
+    "dash.activeBl": "BL activos",
+    "dash.activeBlDetail": "{{transit}} en tránsito y {{arrived}} arribados",
+    "dash.viewShipments": "Ver embarques",
+    "dash.toPay": "Por pagar",
+    "dash.toPayCaption": "Saldo por pagar por moneda",
+    "dash.toPayEmpty": "Sin saldos pendientes",
+    "dash.goCart": "Ir al carro de compra",
+    "dash.conditions": "Condiciones comerciales",
+    "dash.exempt": "Exento de Gate In y EDS (servicio de depósito de equipos)",
+    "dash.conditionsSource": "Fuente: Nexus, escenario de prueba del RUT {{rut}}.",
+    "dash.upcoming": "Próximos arribos",
+    "dash.upcomingCaption": "Próximos arribos, ordenados por ETA",
+
+    "list.title": "Embarques",
+    "list.intro": "Consulta tus BL (conocimientos de embarque) de importación y exportación.",
+    "list.searchRegion": "Búsqueda de embarques",
+    "list.searchLabel": "Número de BL",
+    "list.searchHelp": "Ejemplo: HLCU0000001. Deja el campo vacío para ver todos los embarques.",
+    "list.typeLabel": "Tipo de embarque",
+    "list.typeAll": "Todos",
+    "list.search": "Buscar",
+    "list.caption": "Embarques, ordenados por ETA de la más próxima a la más lejana",
+    "list.results.one": "{{n}} embarque encontrado",
+    "list.results.other": "{{n}} embarques encontrados",
+
+    "state.empty.title": "No hay datos",
+    "state.empty.list": "No hay embarques que coincidan con la búsqueda.",
+    "state.error.title": "Servicio temporalmente no disponible",
+    "state.error.tracking": "No pudimos obtener los eventos de tracking. Intenta nuevamente en unos segundos.",
+    "state.retry": "Reintentar",
+    "state.loading": "Cargando eventos de tracking…",
+    "state.loaded": "Eventos de tracking cargados.",
+
+    "detail.breadcrumb": "Ruta de navegación",
+    "detail.title": "BL {{bl}}",
+    "detail.notFound": "No encontramos el BL {{bl}}.",
+    "detail.back": "Volver a embarques",
+    "detail.summary": "Datos del embarque",
+    "detail.matchCode": "Match Code (MC)",
+    "detail.depot": "Depósito",
+    "detail.containers": "Contenedores",
+    "detail.containersCaption": "Contenedores del BL {{bl}}",
+    "detail.gateOutPending": "Pendiente",
+    "detail.charges": "Cargos",
+    "detail.chargesCaption": "Cargos del BL {{bl}}",
+    "detail.noCharges": "El BL {{bl}} no tiene cargos.",
+    "detail.exemptNote": "Exención vigente según Nexus para el RUT {{rut}}.",
+    "detail.goCart": "Ir al carro de compra",
+    "detail.tracking": "Eventos de tracking",
+    "detail.trackingCaption": "Eventos de tracking del BL {{bl}}",
+    "event.loaded": "Carga a bordo",
+    "event.departed": "Zarpe",
+    "event.arrived": "Arribo",
+    "event.discharged": "Descarga",
+
+    "cart.title": "Carro de compra",
+    "cart.intro": "El pago se hace por moneda: cada pago incluye solo los cargos de la moneda seleccionada.",
+    "cart.tabs": "Monedas del carro de compra",
+    "cart.items.one": "{{n}} cargo",
+    "cart.items.other": "{{n}} cargos",
+    "cart.caption": "Cargos por pagar en {{cur}}",
+    "cart.total": "Total",
+    "cart.rate": "Tipo de cambio referencial (Nexus): {{from}} = {{to}}",
+    "cart.pay": "Pagar {{amount}}",
+    "cart.confirmTitle": "Confirma el pago",
+    "cart.confirmText": "Vas a pagar {{amount}} por {{items}}.",
+    "cart.method": "Medio de pago",
+    "cart.methodTransfer": "Transferencia bancaria",
+    "cart.confirm": "Confirmar pago",
+    "cart.cancel": "Cancelar",
+    "cart.paidTitle": "Pago confirmado",
+    "cart.paidText": "Pagaste {{amount}} con {{method}}. Comprobante de pago {{receipt}}.",
+    "cart.announce": "Pago confirmado: {{amount}} con {{method}}. Comprobante de pago {{receipt}}.",
+    "cart.empty": "No tienes cargos pendientes en {{cur}}."
+  },
+  "en": {
+    "doc.title": "{{screen}} · Portal 2.0 (prototype)",
+    "skip": "Skip to main content",
+    "brand.sub": "Portal 2.0 · prototype",
+    "header.language": "Language",
+    "header.theme": "Theme",
+    "theme.auto": "System default",
+    "theme.light": "Light",
+    "theme.dark": "Dark",
+    "lang.changed": "Language changed to English",
+    "nav.label": "Main",
+    "nav.dashboard": "Dashboard",
+    "nav.shipments": "Shipments",
+    "nav.cart": "Cart",
+    "footer.text": "Clickable prototype with fictitious data. It does not represent actual prices, deadlines or terms.",
+    "footer.version": "Portal 2.0 v4 · Hapag-Lloyd Chile and Bolivia",
+
+    "col.bl": "BL",
+    "col.type": "Type",
+    "col.vessel": "Vessel / voyage",
+    "col.pod": "Port of discharge (POD)",
+    "col.eta": "ETA",
+    "col.freeDays": "Free time",
+    "col.status": "Status",
+    "col.customer": "Customer (Tax ID)",
+    "col.concept": "Charge",
+    "col.amount": "Amount",
+    "col.container": "Container",
+    "col.containerType": "Container type",
+    "col.gateOut": "Gate Out",
+    "col.event": "Event",
+    "col.date": "Date",
+    "col.location": "Location",
+    "freeDays.one": "{{n}} day",
+    "freeDays.other": "{{n}} days",
+
+    "type.imp": "Import",
+    "type.exp": "Export",
+    "status.transito": "In transit",
+    "status.arribado": "Arrived",
+    "status.docs": "Documents pending",
+    "charge.pending": "Pending",
+    "charge.exempt": "Exempt",
+    "concept.localCharges": "Local charges",
+    "concept.demurrage": "Demurrage",
+    "concept.mhd": "MHD",
+    "concept.collectFreight": "Collect freight",
+    "concept.freightCert": "Freight certificate",
+    "concept.gateIn": "Gate In",
+    "concept.eds": "EDS (equipment depot service)",
+    "concept.warehouse": "Warehouse change",
+
+    "dash.title": "Dashboard",
+    "dash.welcome": "Customer: {{name}} · Tax ID (RUT) {{rut}}",
+    "dash.updated": "Last updated: {{date}}",
+    "dash.activeBl": "Active BLs",
+    "dash.activeBlDetail": "{{transit}} in transit and {{arrived}} arrived",
+    "dash.viewShipments": "View shipments",
+    "dash.toPay": "Amount due",
+    "dash.toPayCaption": "Amount due by currency",
+    "dash.toPayEmpty": "No outstanding balance",
+    "dash.goCart": "Go to cart",
+    "dash.conditions": "Commercial terms",
+    "dash.exempt": "Exempt from Gate In and EDS (equipment depot service)",
+    "dash.conditionsSource": "Source: Nexus, test scenario for Tax ID {{rut}}.",
+    "dash.upcoming": "Upcoming arrivals",
+    "dash.upcomingCaption": "Upcoming arrivals, sorted by ETA",
+
+    "list.title": "Shipments",
+    "list.intro": "Look up your import and export BLs (bills of lading).",
+    "list.searchRegion": "Shipment search",
+    "list.searchLabel": "BL number",
+    "list.searchHelp": "Example: HLCU0000001. Leave the field blank to see all shipments.",
+    "list.typeLabel": "Shipment type",
+    "list.typeAll": "All",
+    "list.search": "Search",
+    "list.caption": "Shipments, sorted by ETA from earliest to latest",
+    "list.results.one": "{{n}} shipment found",
+    "list.results.other": "{{n}} shipments found",
+
+    "state.empty.title": "No data",
+    "state.empty.list": "No shipments match your search.",
+    "state.error.title": "Service temporarily unavailable",
+    "state.error.tracking": "We could not retrieve the tracking events. Please try again in a few seconds.",
+    "state.retry": "Retry",
+    "state.loading": "Loading tracking events…",
+    "state.loaded": "Tracking events loaded.",
+
+    "detail.breadcrumb": "Breadcrumb",
+    "detail.title": "BL {{bl}}",
+    "detail.notFound": "We could not find BL {{bl}}.",
+    "detail.back": "Back to shipments",
+    "detail.summary": "Shipment details",
+    "detail.matchCode": "Match Code (MC)",
+    "detail.depot": "Depot",
+    "detail.containers": "Containers",
+    "detail.containersCaption": "Containers on BL {{bl}}",
+    "detail.gateOutPending": "Pending",
+    "detail.charges": "Charges",
+    "detail.chargesCaption": "Charges on BL {{bl}}",
+    "detail.noCharges": "BL {{bl}} has no charges.",
+    "detail.exemptNote": "Exemption in force according to Nexus for Tax ID (RUT) {{rut}}.",
+    "detail.goCart": "Go to cart",
+    "detail.tracking": "Tracking events",
+    "detail.trackingCaption": "Tracking events for BL {{bl}}",
+    "event.loaded": "Loaded on board",
+    "event.departed": "Vessel departure",
+    "event.arrived": "Vessel arrival",
+    "event.discharged": "Discharged",
+
+    "cart.title": "Cart",
+    "cart.intro": "Payment is made per currency: each payment includes only the charges in the selected currency.",
+    "cart.tabs": "Cart currencies",
+    "cart.items.one": "{{n}} charge",
+    "cart.items.other": "{{n}} charges",
+    "cart.caption": "Charges due in {{cur}}",
+    "cart.total": "Total",
+    "cart.rate": "Reference exchange rate (Nexus): {{from}} = {{to}}",
+    "cart.pay": "Pay {{amount}}",
+    "cart.confirmTitle": "Confirm payment",
+    "cart.confirmText": "You are about to pay {{amount}} for {{items}}.",
+    "cart.method": "Payment method",
+    "cart.methodTransfer": "Bank transfer",
+    "cart.confirm": "Confirm payment",
+    "cart.cancel": "Cancel",
+    "cart.paidTitle": "Payment confirmed",
+    "cart.paidText": "You paid {{amount}} with {{method}}. Receipt {{receipt}}.",
+    "cart.announce": "Payment confirmed: {{amount}} with {{method}}. Receipt {{receipt}}.",
+    "cart.empty": "You have no charges due in {{cur}}."
+  }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script>
+(function () {
+  'use strict';
+
+  var root = document.documentElement;
+  var DICT = JSON.parse(document.getElementById('hl-i18n').textContent);
+  var lang = root.lang === 'en' ? 'en' : 'es';
+
+  /* ===== Almacenamiento (puede no estar disponible) ===== */
+  function leer(clave) {
+    try { return window.localStorage.getItem(clave); } catch (e) { return null; }
+  }
+  function guardar(clave, valor) {
+    try { window.localStorage.setItem(clave, valor); } catch (e) { /* sin persistencia */ }
+  }
+
+  /* ===== i18n ===== */
+  function t(clave, params) {
+    var s = DICT[lang][clave];
+    if (s === undefined) { s = DICT.es[clave]; }
+    if (s === undefined) { s = clave; }
+    if (params) {
+      s = s.replace(/\{\{(\w+)\}\}/g, function (m, n) { return params[n] !== undefined ? params[n] : ''; });
+    }
+    return s;
+  }
+  function tp(base, n, params) {
+    var cat = new Intl.PluralRules(lang === 'en' ? 'en' : 'es').select(n) === 'one' ? 'one' : 'other';
+    var p = { n: fmtNum(n) };
+    if (params) { Object.keys(params).forEach(function (k) { p[k] = params[k]; }); }
+    return t(base + '.' + cat, p);
+  }
+  /* Frase traducida con parámetros que ya son HTML seguro (sin concatenar claves) */
+  function tHtml(clave, paramsHtml) {
+    return t(clave).split(/(\{\{\w+\}\})/).map(function (seg) {
+      var m = /^\{\{(\w+)\}\}$/.exec(seg);
+      return m ? (paramsHtml[m[1]] || '') : esc(seg);
+    }).join('');
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* ===== Formatos Q8: es-CL dd-MM-yyyy, en dd MMM yyyy; 24 h; montos con código ISO ===== */
+  var cacheFmt = {};
+  function locale() { return lang === 'en' ? 'en' : 'es-CL'; }
+  function formateador(tipo, opciones) {
+    var clave = tipo + '|' + locale() + '|' + JSON.stringify(opciones);
+    if (!cacheFmt[clave]) {
+      cacheFmt[clave] = tipo === 'n' ? new Intl.NumberFormat(locale(), opciones) : new Intl.DateTimeFormat(locale(), opciones);
+    }
+    return cacheFmt[clave];
+  }
+  function fmtNum(n) { return formateador('n', {}).format(n); }
+  function fmtMoney(monto, moneda) {
+    var dec = moneda === 'CLP' ? 0 : 2;
+    return formateador('n', {
+      style: 'currency', currency: moneda, currencyDisplay: 'code',
+      minimumFractionDigits: dec, maximumFractionDigits: dec
+    }).format(monto);
+  }
+  function partes(fecha, opciones) {
+    var out = {};
+    formateador('d', opciones).formatToParts(fecha).forEach(function (p) { out[p.type] = p.value; });
+    return out;
+  }
+  function fmtDate(iso) {
+    var p = partes(new Date(iso + 'T12:00:00Z'), {
+      timeZone: 'UTC', day: '2-digit', month: lang === 'en' ? 'short' : '2-digit', year: 'numeric'
+    });
+    return lang === 'en' ? p.day + ' ' + p.month + ' ' + p.year : p.day + '-' + p.month + '-' + p.year;
+  }
+  function fmtDateTime(iso) {
+    var opciones = {
+      timeZone: 'America/Santiago', day: '2-digit', month: lang === 'en' ? 'short' : '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZoneName: 'short'
+    };
+    var p = partes(new Date(iso), opciones);
+    var fecha = lang === 'en' ? p.day + ' ' + p.month + ' ' + p.year : p.day + '-' + p.month + '-' + p.year;
+    return fecha + ' ' + p.hour + ':' + p.minute + ' ' + p.timeZoneName;
+  }
+  function timeTag(iso, texto) { return '<time datetime="' + esc(iso) + '" class="hl-num">' + esc(texto) + '</time>'; }
+
+  /* ===== Datos ficticios (escenarios Dummy de la Fase 6b) ===== */
+  var CLIENTE = { nombre: 'Importadora Andes SpA', rut: '76000001-1', mc: 'MC000101' };
+  var ACTUALIZADO = '2026-11-11T17:30:00Z';
+  var EMBARQUES = [
+    { bl: 'HLCU0000001', tipo: 'imp', nave: 'HL Atacama', viaje: '2645W', pod: 'San Antonio (CLSAI)', eta: '2026-11-14', dias: 7, estado: 'transito', rut: '76000001-1', mc: 'MC000101', deposito: 'SAAM' },
+    { bl: 'HLCU0000002', tipo: 'imp', nave: 'HL Patagonia', viaje: '2644E', pod: 'Valparaíso (CLVAP)', eta: '2026-11-08', dias: 10, estado: 'arribado', rut: '76000002-2', mc: 'MC000202', deposito: 'SITRANS' },
+    { bl: 'HLCU0000003', tipo: 'exp', nave: 'HL Andes', viaje: '2646N', pod: 'Rotterdam (NLRTM)', eta: '2026-12-02', dias: 14, estado: 'docs', rut: '76000003-3', mc: 'MC000303', deposito: 'SITRANS' },
+    { bl: 'HLCU0000004', tipo: 'imp', nave: 'HL Atacama', viaje: '2645W', pod: 'San Antonio (CLSAI)', eta: '2026-11-14', dias: 7, estado: 'transito', rut: '76000001-1', mc: 'MC000101', deposito: 'SAAM' },
+    { bl: 'HLCU0000005', tipo: 'imp', nave: 'HL Altiplano', viaje: '2643S', pod: 'Arica (CLARI)', eta: '2026-11-03', dias: 21, estado: 'arribado', rut: '76000004-4', mc: 'MC000404', deposito: 'TPA' },
+    { bl: 'HLCU0000006', tipo: 'exp', nave: 'HL Patagonia', viaje: '2647N', pod: 'Hamburg (DEHAM)', eta: '2026-12-09', dias: 14, estado: 'transito', rut: '76000002-2', mc: 'MC000202', deposito: 'SITRANS' }
+  ].sort(function (a, b) { return a.eta < b.eta ? -1 : a.eta > b.eta ? 1 : a.bl < b.bl ? -1 : 1; });
+  var CONTENEDORES = {
+    HLCU0000001: [{ num: 'HLXU1000011', tipo: "40' HC", gateOut: null }, { num: 'HLXU1000012', tipo: "40' HC", gateOut: null }],
+    HLCU0000002: [{ num: 'HLXU2000021', tipo: "20' DV", gateOut: '2026-11-09' }],
+    HLCU0000003: [{ num: 'HLXU3000031', tipo: "40' RF", gateOut: null }],
+    HLCU0000004: [{ num: 'HLXU4000041', tipo: "20' DV", gateOut: null }],
+    HLCU0000005: [{ num: 'HLXU5000051', tipo: "40' HC", gateOut: '2026-11-05' }],
+    HLCU0000006: [{ num: 'HLXU6000061', tipo: "40' DV", gateOut: null }]
+  };
+  var CARGOS = {
+    HLCU0000001: [
+      { concepto: 'localCharges', moneda: 'CLP', monto: 412500, estado: 'pending' },
+      { concepto: 'collectFreight', moneda: 'USD', monto: 1850, estado: 'pending' },
+      { concepto: 'gateIn', moneda: 'CLP', monto: 0, estado: 'exempt' },
+      { concepto: 'eds', moneda: 'CLP', monto: 0, estado: 'exempt' }
+    ],
+    HLCU0000004: [
+      { concepto: 'demurrage', moneda: 'CLP', monto: 1236000, estado: 'pending' },
+      { concepto: 'mhd', moneda: 'CLP', monto: 95000, estado: 'pending' },
+      { concepto: 'freightCert', moneda: 'USD', monto: 45.5, estado: 'pending' }
+    ],
+    HLCU0000005: [{ concepto: 'localCharges', moneda: 'BOB', monto: 2310.75, estado: 'pending' }]
+  };
+  var MONEDAS = ['CLP', 'USD', 'BOB', 'EUR'];
+  var TASAS = { USD: ['CLP', 950], BOB: ['BOB', 6.91], EUR: ['EUR', 0.92] };
+  var EVENTOS = [
+    { evento: 'loaded', fecha: '2026-10-20T14:10:00Z', lugar: 'Shanghai (CNSHA)' },
+    { evento: 'departed', fecha: '2026-10-21T03:45:00Z', lugar: 'Shanghai (CNSHA)' },
+    { evento: 'arrived', fecha: '2026-11-08T11:20:00Z', lugar: 'Valparaíso (CLVAP)' },
+    { evento: 'discharged', fecha: '2026-11-08T19:05:00Z', lugar: 'Valparaíso (CLVAP)' }
+  ];
+  var MEDIOS = [
+    { id: 'khipu', nombre: function () { return 'Khipu'; } },
+    { id: 'bancochile', nombre: function () { return 'Banco de Chile'; } },
+    { id: 'transfer', nombre: function () { return t('cart.methodTransfer'); } }
+  ];
+
+  var carro = {};
+  MONEDAS.forEach(function (m) { carro[m] = []; });
+  Object.keys(CARGOS).forEach(function (bl) {
+    CARGOS[bl].forEach(function (c) {
+      if (c.estado === 'pending') { carro[c.moneda].push({ bl: bl, concepto: c.concepto, monto: c.monto }); }
+    });
+  });
+
+  var estado = {
+    q: '',
+    tipo: 'all',
+    filtro: { q: '', tipo: 'all' },
+    tracking: { HLCU0000003: 'error' },
+    monedaActiva: 'CLP',
+    confirmando: null,
+    pagado: {},
+    secuencia: 124
+  };
+
+  /* ===== Utilidades de plantilla ===== */
+  function total(moneda) { return carro[moneda].reduce(function (s, i) { return s + i.monto; }, 0); }
+  function badgeEstado(e) {
+    var clase = e === 'arribado' ? 'success' : e === 'docs' ? 'warning' : 'info';
+    return '<span class="hl-badge hl-badge--' + clase + '">' + esc(t('status.' + e)) + '</span>';
+  }
+  function estadoVacio(texto) {
+    return '<div class="hl-state" role="status">' +
+      '<i class="bi bi-inbox hl-state__icon" aria-hidden="true"></i>' +
+      '<p class="hl-state__title">' + esc(t('state.empty.title')) + '</p>' +
+      '<p class="mb-0 hl-muted">' + esc(texto) + '</p></div>';
+  }
+  function tablaEnvuelta(idCaption, tabla) {
+    return '<div class="table-responsive" role="region" tabindex="0" aria-labelledby="' + idCaption + '">' + tabla + '</div>';
+  }
+  function filaEmbarque(b, cols) {
+    var celdas = {
+      bl: '<th scope="row"><a href="#/bl/' + esc(b.bl) + '" class="hl-num">' + esc(b.bl) + '</a></th>',
+      tipo: '<td>' + esc(t('type.' + b.tipo)) + '</td>',
+      nave: '<td>' + esc(b.nave + ' / ' + b.viaje) + '</td>',
+      pod: '<td>' + esc(b.pod) + '</td>',
+      eta: '<td>' + timeTag(b.eta, fmtDate(b.eta)) + '</td>',
+      dias: '<td class="hl-num">' + esc(tp('freeDays', b.dias)) + '</td>',
+      estado: '<td>' + badgeEstado(b.estado) + '</td>',
+      rut: '<td class="hl-num">' + esc(b.rut) + '</td>'
+    };
+    return '<tr>' + cols.map(function (c) { return celdas[c]; }).join('') + '</tr>';
+  }
+  var TITULOS_COL = {
+    bl: 'col.bl', tipo: 'col.type', nave: 'col.vessel', pod: 'col.pod', eta: 'col.eta',
+    dias: 'col.freeDays', estado: 'col.status', rut: 'col.customer'
+  };
+  function tablaEmbarques(idCaption, caption, filas, cols) {
+    var cab = cols.map(function (c) {
+      return '<th scope="col"' + (c === 'eta' ? ' aria-sort="ascending"' : '') + '>' + esc(t(TITULOS_COL[c])) + '</th>';
+    }).join('');
+    return tablaEnvuelta(idCaption,
+      '<table class="table align-middle hl-table-nowrap">' +
+      '<caption id="' + idCaption + '" class="visually-hidden">' + esc(caption) + '</caption>' +
+      '<thead><tr>' + cab + '</tr></thead><tbody>' +
+      filas.map(function (b) { return filaEmbarque(b, cols); }).join('') +
+      '</tbody></table>');
+  }
+
+  /* ===== Pantallas ===== */
+  function pantallaDashboard() {
+    var activos = EMBARQUES.length;
+    var transito = EMBARQUES.filter(function (b) { return b.estado === 'transito'; }).length;
+    var arribados = EMBARQUES.filter(function (b) { return b.estado === 'arribado'; }).length;
+    var saldos = MONEDAS.filter(function (m) { return total(m) > 0; });
+    var porPagar = saldos.length
+      ? '<ul class="list-unstyled mb-3" aria-label="' + esc(t('dash.toPayCaption')) + '">' +
+        saldos.map(function (m) { return '<li class="hl-num fs-5">' + esc(fmtMoney(total(m), m)) + '</li>'; }).join('') + '</ul>'
+      : '<p>' + esc(t('dash.toPayEmpty')) + '</p>';
+    var proximos = EMBARQUES.filter(function (b) { return b.tipo === 'imp'; }).slice(0, 4);
+    return '' +
+      '<h1 id="titulo-pantalla" tabindex="-1">' + esc(t('dash.title')) + '</h1>' +
+      '<p class="mb-1">' + esc(t('dash.welcome', { name: CLIENTE.nombre, rut: CLIENTE.rut })) + '</p>' +
+      '<p class="hl-muted">' + tHtml('dash.updated', { date: timeTag(ACTUALIZADO, fmtDateTime(ACTUALIZADO)) }) + '</p>' +
+      '<div class="row g-3 mb-4">' +
+        '<div class="col-12 col-md-6 col-lg-4"><div class="card h-100"><div class="card-body">' +
+          '<h2 class="d-flex align-items-center gap-2"><i class="bi bi-box-seam hl-kpi-icon" aria-hidden="true"></i>' + esc(t('dash.activeBl')) + '</h2>' +
+          '<p class="hl-kpi mb-1">' + esc(fmtNum(activos)) + '</p>' +
+          '<p class="hl-muted">' + esc(t('dash.activeBlDetail', { transit: fmtNum(transito), arrived: fmtNum(arribados) })) + '</p>' +
+          '<a href="#/embarques">' + esc(t('dash.viewShipments')) + '</a>' +
+        '</div></div></div>' +
+        '<div class="col-12 col-md-6 col-lg-4"><div class="card h-100"><div class="card-body">' +
+          '<h2 class="d-flex align-items-center gap-2"><i class="bi bi-cash-stack hl-kpi-icon" aria-hidden="true"></i>' + esc(t('dash.toPay')) + '</h2>' +
+          porPagar +
+          '<a href="#/carro">' + esc(t('dash.goCart')) + '</a>' +
+        '</div></div></div>' +
+        '<div class="col-12 col-lg-4"><div class="card h-100"><div class="card-body">' +
+          '<h2 class="d-flex align-items-center gap-2"><i class="bi bi-patch-check hl-kpi-icon" aria-hidden="true"></i>' + esc(t('dash.conditions')) + '</h2>' +
+          '<p class="mb-1"><span class="hl-badge hl-badge--success">' + esc(t('charge.exempt')) + '</span> ' + esc(t('dash.exempt')) + '</p>' +
+          '<p class="hl-muted mb-0">' + esc(t('dash.conditionsSource', { rut: CLIENTE.rut })) + '</p>' +
+        '</div></div></div>' +
+      '</div>' +
+      '<div class="card"><div class="card-body">' +
+        '<h2>' + esc(t('dash.upcoming')) + '</h2>' +
+        tablaEmbarques('cap-proximos', t('dash.upcomingCaption'), proximos, ['bl', 'nave', 'pod', 'eta', 'dias', 'estado']) +
+      '</div></div>';
+  }
+
+  function filtrados() {
+    var q = estado.filtro.q.trim().toUpperCase();
+    return EMBARQUES.filter(function (b) {
+      return (!q || b.bl.indexOf(q) !== -1) && (estado.filtro.tipo === 'all' || b.tipo === estado.filtro.tipo);
+    });
+  }
+  function resultadosEmbarques() {
+    var lista = filtrados();
+    var conteo = '<p class="hl-muted">' + esc(tp('list.results', lista.length)) + '</p>';
+    if (!lista.length) { return conteo + estadoVacio(t('state.empty.list')); }
+    return conteo + tablaEmbarques('cap-embarques', t('list.caption'), lista, ['bl', 'tipo', 'nave', 'pod', 'eta', 'dias', 'estado', 'rut']);
+  }
+  function pantallaEmbarques() {
+    var opcion = function (v, clave) {
+      return '<option value="' + v + '"' + (estado.tipo === v ? ' selected' : '') + '>' + esc(t(clave)) + '</option>';
+    };
+    return '' +
+      '<h1 id="titulo-pantalla" tabindex="-1">' + esc(t('list.title')) + '</h1>' +
+      '<p>' + esc(t('list.intro')) + '</p>' +
+      '<div class="card mb-3"><div class="card-body">' +
+        '<form id="form-busqueda" role="search" aria-label="' + esc(t('list.searchRegion')) + '" novalidate>' +
+          '<div class="row g-3 align-items-start">' +
+            '<div class="col-12 col-md-5">' +
+              '<label for="busqueda-bl" class="form-label">' + esc(t('list.searchLabel')) + '</label>' +
+              '<input id="busqueda-bl" name="q" type="search" class="form-control" autocomplete="off" spellcheck="false" ' +
+                'aria-describedby="busqueda-ayuda" value="' + esc(estado.q) + '">' +
+              '<div id="busqueda-ayuda" class="form-text">' + esc(t('list.searchHelp')) + '</div>' +
+            '</div>' +
+            '<div class="col-12 col-sm-6 col-md-4">' +
+              '<label for="busqueda-tipo" class="form-label">' + esc(t('list.typeLabel')) + '</label>' +
+              '<select id="busqueda-tipo" name="tipo" class="form-select">' +
+                opcion('all', 'list.typeAll') + opcion('imp', 'type.imp') + opcion('exp', 'type.exp') +
+              '</select>' +
+            '</div>' +
+            '<div class="col-12 col-sm-6 col-md-3">' +
+              '<button type="submit" class="btn btn-primary w-100 hl-btn-align"><i class="bi bi-search me-2" aria-hidden="true"></i>' + esc(t('list.search')) + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</form>' +
+      '</div></div>' +
+      '<div class="card"><div class="card-body" id="resultados-embarques">' + resultadosEmbarques() + '</div></div>';
+  }
+
+  function cuerpoTracking(bl) {
+    var st = estado.tracking[bl] || 'ok';
+    if (st === 'error') {
+      return '<div class="hl-state" role="alert">' +
+        '<i class="bi bi-exclamation-triangle hl-state__icon" aria-hidden="true"></i>' +
+        '<p class="hl-state__title">' + esc(t('state.error.title')) + '</p>' +
+        '<p class="hl-muted">' + esc(t('state.error.tracking')) + '</p>' +
+        '<button type="button" class="btn btn-primary" data-action="reintentar-tracking" data-bl="' + esc(bl) + '">' +
+          '<i class="bi bi-arrow-clockwise me-2" aria-hidden="true"></i>' + esc(t('state.retry')) + '</button></div>';
+    }
+    if (st === 'cargando') {
+      return '<div class="hl-state" role="status"><p class="mb-0">' + esc(t('state.loading')) + '</p></div>';
+    }
+    return tablaEnvuelta('cap-tracking',
+      '<table class="table align-middle">' +
+      '<caption id="cap-tracking" class="visually-hidden">' + esc(t('detail.trackingCaption', { bl: bl })) + '</caption>' +
+      '<thead><tr><th scope="col">' + esc(t('col.event')) + '</th><th scope="col">' + esc(t('col.date')) + '</th><th scope="col">' + esc(t('col.location')) + '</th></tr></thead><tbody>' +
+      EVENTOS.map(function (e) {
+        return '<tr><th scope="row">' + esc(t('event.' + e.evento)) + '</th><td>' + timeTag(e.fecha, fmtDateTime(e.fecha)) + '</td><td>' + esc(e.lugar) + '</td></tr>';
+      }).join('') + '</tbody></table>');
+  }
+
+  function pantallaDetalle(bl) {
+    var b = EMBARQUES.filter(function (x) { return x.bl === bl; })[0];
+    var migas = '<nav aria-label="' + esc(t('detail.breadcrumb')) + '"><ol class="breadcrumb">' +
+      '<li class="breadcrumb-item"><a href="#/embarques">' + esc(t('nav.shipments')) + '</a></li>' +
+      '<li class="breadcrumb-item active" aria-current="page">' + esc(bl) + '</li></ol></nav>';
+    if (!b) {
+      return migas + '<h1 id="titulo-pantalla" tabindex="-1">' + esc(t('detail.title', { bl: bl })) + '</h1>' +
+        estadoVacio(t('detail.notFound', { bl: bl })) +
+        '<p class="mt-3"><a href="#/embarques">' + esc(t('detail.back')) + '</a></p>';
+    }
+    var dato = function (clave, valor) {
+      return '<div class="col-12 col-sm-6 col-lg-4"><dt>' + esc(t(clave)) + '</dt><dd>' + valor + '</dd></div>';
+    };
+    var cont = CONTENEDORES[bl] || [];
+    var cargos = CARGOS[bl] || [];
+    var tablaCargos = cargos.length
+      ? tablaEnvuelta('cap-cargos',
+          '<table class="table align-middle"><caption id="cap-cargos" class="visually-hidden">' + esc(t('detail.chargesCaption', { bl: bl })) + '</caption>' +
+          '<thead><tr><th scope="col">' + esc(t('col.concept')) + '</th><th scope="col" class="text-end">' + esc(t('col.amount')) + '</th><th scope="col">' + esc(t('col.status')) + '</th></tr></thead><tbody>' +
+          cargos.map(function (c) {
+            var est = c.estado === 'exempt'
+              ? '<span class="hl-badge hl-badge--success">' + esc(t('charge.exempt')) + '</span>'
+              : '<span class="hl-badge hl-badge--warning">' + esc(t('charge.pending')) + '</span>';
+            return '<tr><th scope="row">' + esc(t('concept.' + c.concepto)) + '</th><td class="text-end hl-num">' + esc(fmtMoney(c.monto, c.moneda)) + '</td><td>' + est + '</td></tr>';
+          }).join('') + '</tbody></table>') +
+        (cargos.some(function (c) { return c.estado === 'exempt'; }) ? '<p class="hl-muted mt-2 mb-2">' + esc(t('detail.exemptNote', { rut: b.rut })) + '</p>' : '') +
+        '<a class="btn btn-outline-primary mt-2" href="#/carro">' + esc(t('detail.goCart')) + '</a>'
+      : estadoVacio(t('detail.noCharges', { bl: bl }));
+    return migas +
+      '<h1 id="titulo-pantalla" tabindex="-1">' + esc(t('detail.title', { bl: bl })) + '</h1>' +
+      '<div class="card mb-3"><div class="card-body">' +
+        '<h2>' + esc(t('detail.summary')) + '</h2>' +
+        '<dl class="row hl-dl mb-0">' +
+          dato('col.type', esc(t('type.' + b.tipo))) +
+          dato('col.vessel', esc(b.nave + ' / ' + b.viaje)) +
+          dato('col.pod', esc(b.pod)) +
+          dato('col.eta', timeTag(b.eta, fmtDate(b.eta))) +
+          dato('col.freeDays', esc(tp('freeDays', b.dias))) +
+          dato('detail.depot', esc(b.deposito)) +
+          dato('col.customer', '<span class="hl-num">' + esc(b.rut) + '</span>') +
+          dato('detail.matchCode', '<span class="hl-num">' + esc(b.mc) + '</span>') +
+          dato('col.status', badgeEstado(b.estado)) +
+        '</dl>' +
+      '</div></div>' +
+      '<div class="row g-3">' +
+        '<div class="col-12 col-lg-6"><div class="card h-100"><div class="card-body">' +
+          '<h2>' + esc(t('detail.containers')) + '</h2>' +
+          tablaEnvuelta('cap-contenedores',
+            '<table class="table align-middle hl-table-nowrap"><caption id="cap-contenedores" class="visually-hidden">' + esc(t('detail.containersCaption', { bl: bl })) + '</caption>' +
+            '<thead><tr><th scope="col">' + esc(t('col.container')) + '</th><th scope="col">' + esc(t('col.containerType')) + '</th><th scope="col">' + esc(t('col.gateOut')) + '</th></tr></thead><tbody>' +
+            cont.map(function (c) {
+              return '<tr><th scope="row" class="hl-num">' + esc(c.num) + '</th><td>' + esc(c.tipo) + '</td><td>' +
+                (c.gateOut ? timeTag(c.gateOut, fmtDate(c.gateOut)) : esc(t('detail.gateOutPending'))) + '</td></tr>';
+            }).join('') + '</tbody></table>') +
+        '</div></div></div>' +
+        '<div class="col-12 col-lg-6"><div class="card h-100"><div class="card-body">' +
+          '<h2>' + esc(t('detail.charges')) + '</h2>' + tablaCargos +
+        '</div></div></div>' +
+        '<div class="col-12"><div class="card"><div class="card-body">' +
+          '<h2 id="titulo-tracking" tabindex="-1">' + esc(t('detail.tracking')) + '</h2>' +
+          '<div id="cuerpo-tracking">' + cuerpoTracking(bl) + '</div>' +
+        '</div></div></div>' +
+      '</div>';
+  }
+
+  function nombreMedio(id) {
+    var m = MEDIOS.filter(function (x) { return x.id === id; })[0];
+    return m ? m.nombre() : id;
+  }
+  function panelMoneda(m) {
+    var items = carro[m];
+    var html = '';
+    var pago = estado.pagado[m];
+    if (pago) {
+      html += '<div class="hl-result mb-3">' +
+        '<p class="hl-result__title"><i class="bi bi-check-circle" aria-hidden="true"></i>' + esc(t('cart.paidTitle')) + '</p>' +
+        '<p class="mb-0">' + esc(t('cart.paidText', { amount: fmtMoney(pago.monto, m), method: nombreMedio(pago.medio), receipt: pago.comprobante })) + '</p></div>';
+    }
+    if (TASAS[m]) {
+      html += '<p class="hl-muted">' + esc(t('cart.rate', { from: fmtMoney(1, 'USD'), to: fmtMoney(TASAS[m][1], TASAS[m][0]) })) + '</p>';
+    }
+    if (!items.length) {
+      return html + estadoVacio(t('cart.empty', { cur: m }));
+    }
+    var idCap = 'cap-carro-' + m;
+    html += '<div class="card mb-3"><div class="card-body">' +
+      tablaEnvuelta(idCap,
+        '<table class="table align-middle"><caption id="' + idCap + '" class="visually-hidden">' + esc(t('cart.caption', { cur: m })) + '</caption>' +
+        '<thead><tr><th scope="col">' + esc(t('col.concept')) + '</th><th scope="col" class="text-end">' + esc(t('col.amount')) + '</th></tr></thead><tbody>' +
+        items.map(function (i) {
+          return '<tr><td><span class="d-block">' + esc(t('concept.' + i.concepto)) + '</span>' +
+            '<a href="#/bl/' + esc(i.bl) + '" class="hl-num hl-cargo__bl">' + esc(t('detail.title', { bl: i.bl })) + '</a></td>' +
+            '<td class="text-end hl-num">' + esc(fmtMoney(i.monto, m)) + '</td></tr>';
+        }).join('') +
+        '</tbody><tfoot><tr><th scope="row">' + esc(t('cart.total')) + '</th><td class="text-end hl-num fw-bold">' + esc(fmtMoney(total(m), m)) + '</td></tr></tfoot></table>') +
+      '</div></div>';
+    if (estado.confirmando === m) {
+      var idSel = 'medio-' + m;
+      html += '<section class="hl-confirm" aria-labelledby="confirmar-' + m + '">' +
+        '<h2 id="confirmar-' + m + '" tabindex="-1">' + esc(t('cart.confirmTitle')) + '</h2>' +
+        '<p>' + esc(t('cart.confirmText', { amount: fmtMoney(total(m), m), items: tp('cart.items', items.length) })) + '</p>' +
+        '<div class="mb-3" style="max-width: 22rem">' +
+          '<label for="' + idSel + '" class="form-label">' + esc(t('cart.method')) + '</label>' +
+          '<select id="' + idSel + '" class="form-select">' +
+            MEDIOS.map(function (x) { return '<option value="' + x.id + '">' + esc(x.nombre()) + '</option>'; }).join('') +
+          '</select>' +
+        '</div>' +
+        '<div class="d-flex flex-wrap gap-2">' +
+          '<button type="button" class="btn btn-primary" data-action="confirmar-pago" data-moneda="' + m + '">' + esc(t('cart.confirm')) + '</button>' +
+          '<button type="button" class="btn btn-outline-primary" data-action="cancelar-pago" data-moneda="' + m + '">' + esc(t('cart.cancel')) + '</button>' +
+        '</div></section>';
+    } else {
+      html += '<button type="button" class="btn btn-primary" data-action="pagar" data-moneda="' + m + '">' +
+        '<i class="bi bi-credit-card me-2" aria-hidden="true"></i>' + esc(t('cart.pay', { amount: fmtMoney(total(m), m) })) + '</button>';
+    }
+    return html;
+  }
+  function pantallaCarro() {
+    var tabs = MONEDAS.map(function (m) {
+      var activa = m === estado.monedaActiva;
+      return '<li class="nav-item" role="presentation">' +
+        '<button class="nav-link' + (activa ? ' active' : '') + '" id="tab-' + m + '" data-bs-toggle="tab" data-bs-target="#panel-' + m + '" data-moneda="' + m + '"' +
+        ' type="button" role="tab" aria-controls="panel-' + m + '" aria-selected="' + activa + '"' + (activa ? '' : ' tabindex="-1"') + '>' +
+        '<span>' + m + '</span><span class="hl-tab-count" aria-hidden="true">' + esc(fmtNum(carro[m].length)) + '</span>' +
+        '<span class="visually-hidden">, ' + esc(tp('cart.items', carro[m].length)) + '</span></button></li>';
+    }).join('');
+    var paneles = MONEDAS.map(function (m) {
+      var activa = m === estado.monedaActiva;
+      return '<div class="tab-pane fade' + (activa ? ' show active' : '') + '" id="panel-' + m + '" role="tabpanel" aria-labelledby="tab-' + m + '" tabindex="0">' +
+        panelMoneda(m) + '</div>';
+    }).join('');
+    return '' +
+      '<h1 id="titulo-pantalla" tabindex="-1">' + esc(t('cart.title')) + '</h1>' +
+      '<p>' + esc(t('cart.intro')) + '</p>' +
+      '<ul class="nav nav-tabs mb-3" role="tablist" aria-label="' + esc(t('cart.tabs')) + '">' + tabs + '</ul>' +
+      '<div class="tab-content">' + paneles + '</div>';
+  }
+
+  /* ===== Enrutador por hash ===== */
+  var PANTALLAS = {
+    dashboard: { titulo: function () { return t('dash.title'); }, render: pantallaDashboard },
+    embarques: { titulo: function () { return t('list.title'); }, render: pantallaEmbarques },
+    'detalle-bl': { titulo: function (r) { return t('detail.title', { bl: r.bl }); }, render: function (r) { return pantallaDetalle(r.bl); } },
+    carro: { titulo: function () { return t('cart.title'); }, render: pantallaCarro }
+  };
+  function interpretar(hash) {
+    var m;
+    if (!hash || hash === '#' || hash === '#/') { return { pantalla: 'dashboard' }; }
+    if (hash === '#/dashboard') { return { pantalla: 'dashboard' }; }
+    if (hash === '#/embarques') { return { pantalla: 'embarques' }; }
+    if (hash === '#/carro') { return { pantalla: 'carro' }; }
+    m = /^#\/bl\/([A-Za-z0-9]{1,20})$/.exec(hash);
+    if (m) { return { pantalla: 'detalle-bl', bl: m[1].toUpperCase() }; }
+    return null;
+  }
+  var ruta = interpretar(window.location.hash) || { pantalla: 'dashboard' };
+
+  function aplicarTextosFijos() {
+    document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
+    document.querySelectorAll('[data-i18n-attr]').forEach(function (el) {
+      el.getAttribute('data-i18n-attr').split(';').forEach(function (par) {
+        var kv = par.split('=');
+        el.setAttribute(kv[0].trim(), t(kv[1].trim()));
+      });
+    });
+    document.querySelectorAll('[data-lang]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === lang));
+    });
+  }
+  function activarPestanas() {
+    if (!window.bootstrap || !window.bootstrap.Tab) { return; }
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function (el) { window.bootstrap.Tab.getOrCreateInstance(el); });
+  }
+  function render() {
+    aplicarTextosFijos();
+    document.querySelectorAll('[data-route]').forEach(function (a) {
+      if (a.getAttribute('data-route') === ruta.pantalla) { a.setAttribute('aria-current', 'page'); } else { a.removeAttribute('aria-current'); }
+    });
+    var def = PANTALLAS[ruta.pantalla];
+    document.querySelectorAll('.hl-screen').forEach(function (s) {
+      var actual = s.getAttribute('data-screen') === ruta.pantalla;
+      s.hidden = !actual;
+      s.innerHTML = actual ? def.render(ruta) : '';
+    });
+    document.title = t('doc.title', { screen: def.titulo(ruta) });
+    activarPestanas();
+    root.setAttribute('data-hl-ready', '1');
+  }
+  function enfocar(selector) {
+    var el = document.querySelector(selector);
+    if (el) { el.focus(); }
+  }
+  function anunciar(texto) {
+    var vivo = document.getElementById('hl-live-polite');
+    vivo.textContent = '';
+    window.setTimeout(function () { vivo.textContent = texto; }, 100);
+  }
+
+  window.addEventListener('hashchange', function () {
+    var r = interpretar(window.location.hash);
+    if (!r) { return; }
+    ruta = r;
+    estado.confirmando = null;
+    render();
+    window.scrollTo(0, 0);
+    enfocar('#titulo-pantalla');
+  });
+
+  /* Enlace para saltar: no cambia el hash (el hash es la ruta) */
+  document.querySelector('.hl-skip-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    var main = document.getElementById('contenido-principal');
+    main.focus();
+    main.scrollIntoView();
+  });
+
+  /* ===== Idioma en caliente ===== */
+  document.querySelectorAll('[data-lang]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var nuevo = b.getAttribute('data-lang');
+      if (nuevo === lang) { return; }
+      lang = nuevo;
+      root.lang = nuevo;
+      guardar('hl_lang', nuevo);
+      render();
+      anunciar(t('lang.changed'));
+    });
+  });
+
+  /* ===== Tema ===== */
+  var selectorTema = document.getElementById('hl-theme');
+  var consultaOscuro = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function aplicarTema() {
+    var pref = root.getAttribute('data-hl-theme-pref') || 'auto';
+    var oscuro = pref === 'dark' || (pref === 'auto' && consultaOscuro && consultaOscuro.matches);
+    root.setAttribute('data-bs-theme', oscuro ? 'dark' : 'light');
+    selectorTema.value = pref;
+  }
+  selectorTema.addEventListener('change', function () {
+    var v = selectorTema.value;
+    if (v !== 'light' && v !== 'dark') { v = 'auto'; }
+    root.setAttribute('data-hl-theme-pref', v);
+    guardar('hl_theme', v);
+    aplicarTema();
+  });
+  if (consultaOscuro) {
+    var alCambiar = function () { aplicarTema(); };
+    if (consultaOscuro.addEventListener) { consultaOscuro.addEventListener('change', alCambiar); } else if (consultaOscuro.addListener) { consultaOscuro.addListener(alCambiar); }
+  }
+
+  /* ===== Acciones dentro de main ===== */
+  var main = document.getElementById('contenido-principal');
+  main.addEventListener('input', function (e) {
+    if (e.target.id === 'busqueda-bl') { estado.q = e.target.value; }
+  });
+  main.addEventListener('change', function (e) {
+    if (e.target.id === 'busqueda-tipo') { estado.tipo = e.target.value; }
+  });
+  main.addEventListener('submit', function (e) {
+    if (e.target.id !== 'form-busqueda') { return; }
+    e.preventDefault();
+    estado.filtro = { q: estado.q, tipo: estado.tipo };
+    document.getElementById('resultados-embarques').innerHTML = resultadosEmbarques();
+    anunciar(tp('list.results', filtrados().length));
+  });
+  document.addEventListener('shown.bs.tab', function (e) {
+    var m = e.target.getAttribute('data-moneda');
+    if (m) { estado.monedaActiva = m; }
+  });
+  main.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-action]');
+    if (!el) { return; }
+    var accion = el.getAttribute('data-action');
+    var m = el.getAttribute('data-moneda');
+    if (accion === 'reintentar-tracking') {
+      var bl = el.getAttribute('data-bl');
+      estado.tracking[bl] = 'cargando';
+      document.getElementById('cuerpo-tracking').innerHTML = cuerpoTracking(bl);
+      enfocar('#titulo-tracking');
+      window.setTimeout(function () {
+        estado.tracking[bl] = 'ok';
+        var cuerpo = document.getElementById('cuerpo-tracking');
+        if (cuerpo && ruta.pantalla === 'detalle-bl' && ruta.bl === bl) {
+          cuerpo.innerHTML = cuerpoTracking(bl);
+          anunciar(t('state.loaded'));
+        }
+      }, 600);
+    } else if (accion === 'pagar') {
+      estado.monedaActiva = m;
+      estado.confirmando = m;
+      render();
+      enfocar('#confirmar-' + m);
+    } else if (accion === 'cancelar-pago') {
+      estado.confirmando = null;
+      render();
+      enfocar('[data-action="pagar"][data-moneda="' + m + '"]');
+    } else if (accion === 'confirmar-pago') {
+      var medio = document.getElementById('medio-' + m).value;
+      var pago = {
+        monto: total(m),
+        medio: medio,
+        comprobante: 'HL-CL-2026-' + String(estado.secuencia++).padStart(6, '0')
+      };
+      estado.pagado[m] = pago;
+      carro[m] = [];
+      estado.confirmando = null;
+      render();
+      enfocar('#tab-' + m);
+      anunciar(t('cart.announce', { amount: fmtMoney(pago.monto, m), method: nombreMedio(medio), receipt: pago.comprobante }));
+    }
+  });
+
+  aplicarTema();
+  render();
+})();
+</script>
+</body>
+</html>

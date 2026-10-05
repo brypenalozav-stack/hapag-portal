@@ -1,0 +1,644 @@
+# CT-KHIPU – Khipu – creación y consulta de pagos
+# Contrato de integración en estado PROPUESTA (Fase 6a). Ver docs/integraciones/README.md.
+openapi: 3.1.0
+info:
+  title: Khipu – creación y consulta de pagos
+  version: 0.1.0
+  description: |
+    PROPUESTA – pendiente de validación con Finanzas – Fer
+
+    Reproduce la API pública v3 de Khipu para crear un pago y consultarlo. Las rutas y los nombres de campo
+    (`payment_id`, `notification_token`, `transaction_id`, `status`, …) son los que publica Khipu; este documento no
+    los redefine. Debe contrastarse con la documentación vigente de Khipu antes de pasar a Validado.
+
+    Autenticación: cabecera `x-api-key`. Las respuestas de error se describen con `Problem` (RFC 9457) para el
+    manejo uniforme en el portal y en el simulador; el formato exacto del cuerpo de error de Khipu se confirma en la
+    validación.
+
+    La notificación entrante llega a `POST /api/v1/payments/webhook/khipu` del portal; hoy se autentica con secreto
+    compartido (`X-Webhook-Secret`). En modo Real, la Fase 6c agrega la verificación del pago con este contrato.
+    Fichas: M5-01, M5-03, M7-02, NF-01, NF-04, NF-12. Tareas de Pendientes: 47–49 y 53.
+  x-contrato: CT-KHIPU
+  x-estado: PROPUESTA – pendiente de validación con Finanzas – Fer
+  x-responsable: Finanzas – Fer
+  x-puerto:
+  - IPaymentProvider("Khipu")
+  x-tareas-pendientes: 47–49, 53
+servers:
+- url: https://payment-api.khipu.com
+  description: API pública de Khipu.
+- url: http://localhost:5199/khipu
+  description: Simulador local (Fase 6c).
+security:
+- ApiKey: []
+tags:
+- name: Pagos
+paths:
+  /v3/payments:
+    parameters:
+    - $ref: '#/components/parameters/CorrelationId'
+    post:
+      operationId: createPayment
+      summary: Crear un pago
+      description: Crea un cobro en Khipu y devuelve las URL de pago (M5-01, M5-03). Ruta y campos según la API pública v3.
+      tags:
+      - Pagos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCreateRequest'
+            examples:
+              cargosLocales:
+                value:
+                  amount: 245000
+                  currency: CLP
+                  subject: Pago PAY-2026-000123 – BL HLCUSCL2609A1234
+                  transaction_id: PAY-2026-000123
+                  return_url: https://portal.example/pagos/PAY-2026-000123/retorno
+                  cancel_url: https://portal.example/pagos/PAY-2026-000123/cancelado
+                  notify_url: https://portal.example/api/v1/payments/webhook/khipu
+                  notify_api_version: '3.0'
+                  expires_date: '2026-10-21T14:00:00Z'
+                  fixed_payer_personal_identifier: 76000001-1
+      responses:
+        '200':
+          description: Pago creado.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentCreateResponse'
+              examples:
+                creado:
+                  value:
+                    payment_id: gqzdy6chjne9
+                    payment_url: https://khipu.com/payment/info/gqzdy6chjne9
+                    simplified_transfer_url: https://app.khipu.com/payment/simplified/gqzdy6chjne9
+                    transfer_url: https://khipu.com/payment/manual/gqzdy6chjne9
+                    app_url: khipu:///pos/gqzdy6chjne9
+                    ready_for_terminal: false
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    get:
+      operationId: getPaymentByNotificationToken
+      summary: Consultar un pago por notification_token
+      description: |-
+        Verificación de la notificación (Fase 6c, `VerifyNotificationAsync`): con el `notification_token` recibido, el portal obtiene el pago y compara `transaction_id`, `amount` y `status` antes de confirmar.
+
+        Esta consulta corresponde a `GET /payments?notification_token=` de la API pública de Khipu. Finanzas – Fer debe confirmar con la documentación vigente que la v3 la mantiene; si no, la verificación usa `GET /v3/payments/{id}` con el `payment_id` de la notificación.
+      tags:
+      - Pagos
+      parameters:
+      - name: notification_token
+        in: query
+        required: true
+        description: Token recibido en la notificación de Khipu.
+        schema:
+          type: string
+          minLength: 1
+        example: j8kPBHaPNy3PkCh2iqTYjXxGZnzW6vBzbZJzqDCe5
+      responses:
+        '200':
+          description: Pago asociado al token.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+              examples:
+                pagado:
+                  value:
+                    payment_id: gqzdy6chjne9
+                    payment_url: https://khipu.com/payment/info/gqzdy6chjne9
+                    simplified_transfer_url: https://app.khipu.com/payment/simplified/gqzdy6chjne9
+                    transfer_url: https://khipu.com/payment/manual/gqzdy6chjne9
+                    app_url: khipu:///pos/gqzdy6chjne9
+                    ready_for_terminal: false
+                    notification_token: j8kPBHaPNy3PkCh2iqTYjXxGZnzW6vBzbZJzqDCe5
+                    receiver_id: 985101
+                    conciliation_date: '2026-10-20T14:32:10Z'
+                    subject: Pago PAY-2026-000123 – BL HLCUSCL2609A1234
+                    amount: 245000
+                    currency: CLP
+                    status: done
+                    status_detail: normal
+                    body: Cargos locales de importación
+                    picture_url: ''
+                    receipt_url: https://khipu.com/payment/receipt/gqzdy6chjne9
+                    return_url: https://portal.example/pagos/PAY-2026-000123/retorno
+                    cancel_url: https://portal.example/pagos/PAY-2026-000123/cancelado
+                    notify_url: https://portal.example/api/v1/payments/webhook/khipu
+                    notify_api_version: '3.0'
+                    expires_date: '2026-10-21T14:00:00Z'
+                    attachment_urls: []
+                    bank: Banco de Chile
+                    bank_id: Bawdf
+                    payer_name: Importadora Ejemplo SpA
+                    payer_email: pagos@importadora.example
+                    personal_identifier: 76000001-1
+                    bank_account_number: 001234567890
+                    out_of_date_conciliation: false
+                    transaction_id: PAY-2026-000123
+                    custom: null
+                    responsible_user_email: null
+                    send_reminders: false
+                    send_email: false
+                    payment_method: simplified_transfer
+                    funds_source: debit
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /v3/payments/{id}:
+    parameters:
+    - $ref: '#/components/parameters/CorrelationId'
+    get:
+      operationId: getPaymentById
+      summary: Consultar un pago por identificador
+      description: Información completa del pago por `payment_id`.
+      tags:
+      - Pagos
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador del pago (`payment_id`).
+        schema:
+          type: string
+        example: gqzdy6chjne9
+      responses:
+        '200':
+          description: Información del pago.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+              examples:
+                pagado:
+                  value:
+                    payment_id: gqzdy6chjne9
+                    payment_url: https://khipu.com/payment/info/gqzdy6chjne9
+                    simplified_transfer_url: https://app.khipu.com/payment/simplified/gqzdy6chjne9
+                    transfer_url: https://khipu.com/payment/manual/gqzdy6chjne9
+                    app_url: khipu:///pos/gqzdy6chjne9
+                    ready_for_terminal: false
+                    notification_token: j8kPBHaPNy3PkCh2iqTYjXxGZnzW6vBzbZJzqDCe5
+                    receiver_id: 985101
+                    conciliation_date: '2026-10-20T14:32:10Z'
+                    subject: Pago PAY-2026-000123 – BL HLCUSCL2609A1234
+                    amount: 245000
+                    currency: CLP
+                    status: done
+                    status_detail: normal
+                    body: Cargos locales de importación
+                    picture_url: ''
+                    receipt_url: https://khipu.com/payment/receipt/gqzdy6chjne9
+                    return_url: https://portal.example/pagos/PAY-2026-000123/retorno
+                    cancel_url: https://portal.example/pagos/PAY-2026-000123/cancelado
+                    notify_url: https://portal.example/api/v1/payments/webhook/khipu
+                    notify_api_version: '3.0'
+                    expires_date: '2026-10-21T14:00:00Z'
+                    attachment_urls: []
+                    bank: Banco de Chile
+                    bank_id: Bawdf
+                    payer_name: Importadora Ejemplo SpA
+                    payer_email: pagos@importadora.example
+                    personal_identifier: 76000001-1
+                    bank_account_number: 001234567890
+                    out_of_date_conciliation: false
+                    transaction_id: PAY-2026-000123
+                    custom: null
+                    responsible_user_email: null
+                    send_reminders: false
+                    send_email: false
+                    payment_method: simplified_transfer
+                    funds_source: debit
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  parameters:
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: Identificador de correlación (NF-27). El portal lo envía en cada llamada; si falta, el servicio genera
+        uno y lo devuelve en la respuesta.
+      schema:
+        type: string
+        maxLength: 64
+      example: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+  headers:
+    CorrelationId:
+      description: Mismo valor recibido en la solicitud, o uno generado por el servicio.
+      schema:
+        type: string
+        maxLength: 64
+    RetryAfter:
+      description: Segundos que el cliente debe esperar antes de reintentar (RFC 9110 §10.2.3).
+      schema:
+        type: integer
+        minimum: 0
+  responses:
+    BadRequest:
+      description: 'Solicitud inválida: parámetro faltante o con formato incorrecto.'
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            parametroInvalido:
+              value:
+                type: about:blank
+                title: Solicitud inválida
+                status: 400
+                detail: Uno o más parámetros no cumplen el formato esperado.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+                errors:
+                - field: taxId
+                  message: Debe tener el formato 12345678-9.
+    NotFound:
+      description: El recurso solicitado no existe.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            noEncontrado:
+              value:
+                type: about:blank
+                title: Recurso no encontrado
+                status: 404
+                detail: No existe un recurso con el identificador indicado.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    TooManyRequests:
+      description: Se superó el límite de solicitudes. El cliente reintenta después de `Retry-After`.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            limite:
+              value:
+                type: about:blank
+                title: Demasiadas solicitudes
+                status: 429
+                detail: Se superó el límite de solicitudes por minuto.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    InternalServerError:
+      description: Error interno del servicio.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            errorInterno:
+              value:
+                type: about:blank
+                title: Error interno
+                status: 500
+                detail: El servicio no pudo procesar la solicitud.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    ServiceUnavailable:
+      description: Servicio no disponible temporalmente (mantención o dependencia caída).
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            noDisponible:
+              value:
+                type: about:blank
+                title: Servicio no disponible
+                status: 503
+                detail: El servicio está en mantención. Reintente más tarde.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+  schemas:
+    Problem:
+      type: object
+      description: Detalle de error según RFC 9457 (`application/problem+json`). Admite miembros de extensión.
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          default: about:blank
+          description: URI que identifica el tipo de problema.
+        title:
+          type: string
+          description: Resumen legible del tipo de problema.
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+          description: Código HTTP.
+        detail:
+          type: string
+          description: Explicación específica de esta ocurrencia.
+        instance:
+          type: string
+          format: uri-reference
+          description: URI de la ocurrencia concreta.
+        correlationId:
+          type: string
+          description: 'Extensión: valor de `X-Correlation-Id`.'
+        errors:
+          type: array
+          description: 'Extensión: errores de validación por campo.'
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+            required:
+            - field
+            - message
+      required:
+      - title
+      - status
+      additionalProperties: true
+    PaymentCreateRequest:
+      type: object
+      description: Cuerpo de creación de pago, con los nombres de campo de la API pública v3 de Khipu.
+      properties:
+        amount:
+          type: number
+          exclusiveMinimum: 0
+          description: Monto del cobro.
+        currency:
+          type: string
+          description: Moneda ISO 4217 (CLP, USD, …).
+        subject:
+          type: string
+          maxLength: 255
+          description: Motivo del cobro.
+        transaction_id:
+          type: string
+          maxLength: 255
+          description: Identificador propio del cobro. El portal envía `Payment.PaymentNumber`.
+        custom:
+          type: string
+          description: Datos propios que Khipu devuelve sin cambios.
+        body:
+          type: string
+          description: Descripción detallada del cobro.
+        bank_id:
+          type: string
+          description: Banco preseleccionado.
+        return_url:
+          type: string
+          format: uri
+          description: URL de retorno tras el pago.
+        cancel_url:
+          type: string
+          format: uri
+          description: URL de retorno si se cancela.
+        picture_url:
+          type: string
+          format: uri
+        notify_url:
+          type: string
+          format: uri
+          description: URL del portal que recibe la notificación del pago.
+        notify_api_version:
+          type: string
+          description: Versión de la API de notificación.
+        expires_date:
+          type: string
+          format: date-time
+          description: Vencimiento del cobro (ISO 8601).
+        send_email:
+          type: boolean
+        payer_name:
+          type: string
+        payer_email:
+          type: string
+          format: email
+        send_reminders:
+          type: boolean
+        responsible_user_email:
+          type: string
+          format: email
+        fixed_payer_personal_identifier:
+          type: string
+          description: RUT que debe usar el pagador.
+      required:
+      - amount
+      - currency
+      - subject
+    PaymentCreateResponse:
+      type: object
+      properties:
+        payment_id:
+          type: string
+          description: Identificador del pago en Khipu.
+        payment_url:
+          type: string
+          format: uri
+        simplified_transfer_url:
+          type: string
+          format: uri
+        transfer_url:
+          type: string
+          format: uri
+        app_url:
+          type: string
+        ready_for_terminal:
+          type: boolean
+      required:
+      - payment_id
+      - payment_url
+    PaymentResponse:
+      type: object
+      description: Información del pago, con los nombres de campo de la API pública de Khipu.
+      properties:
+        payment_id:
+          type: string
+        payment_url:
+          type: string
+          format: uri
+        simplified_transfer_url:
+          type: string
+          format: uri
+        transfer_url:
+          type: string
+          format: uri
+        app_url:
+          type: string
+        ready_for_terminal:
+          type: boolean
+        notification_token:
+          type: string
+          description: Token que Khipu entrega en la notificación.
+        receiver_id:
+          type: integer
+          description: Cuenta de cobro de Hapag-Lloyd (secreto KHIPU_RECEIVER_ID).
+        conciliation_date:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        subject:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - verifying
+          - done
+          description: 'Estado del pago: `pending`, `verifying` o `done`.'
+        status_detail:
+          type: string
+          enum:
+          - pending
+          - normal
+          - marked-paid-by-receiver
+          - rejected-by-payer
+          - marked-as-abuse
+          - reversed
+        body:
+          type: string
+        picture_url:
+          type: string
+        receipt_url:
+          type:
+          - string
+          - 'null'
+        return_url:
+          type: string
+        cancel_url:
+          type: string
+        notify_url:
+          type: string
+        notify_api_version:
+          type: string
+        expires_date:
+          type: string
+          format: date-time
+        attachment_urls:
+          type: array
+          items:
+            type: string
+        bank:
+          type:
+          - string
+          - 'null'
+        bank_id:
+          type:
+          - string
+          - 'null'
+        payer_name:
+          type:
+          - string
+          - 'null'
+        payer_email:
+          type:
+          - string
+          - 'null'
+        personal_identifier:
+          type:
+          - string
+          - 'null'
+          description: RUT del pagador (M7-02).
+        bank_account_number:
+          type:
+          - string
+          - 'null'
+        out_of_date_conciliation:
+          type: boolean
+        transaction_id:
+          type: string
+        custom:
+          type:
+          - string
+          - 'null'
+        responsible_user_email:
+          type:
+          - string
+          - 'null'
+        send_reminders:
+          type: boolean
+        send_email:
+          type: boolean
+        payment_method:
+          type:
+          - string
+          - 'null'
+        funds_source:
+          type:
+          - string
+          - 'null'
+      required:
+      - payment_id
+      - notification_token
+      - receiver_id
+      - subject
+      - amount
+      - currency
+      - status
+      - transaction_id
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: Clave de API. En el portal se guarda cifrada como secreto `KHIPU_SECRET` (NF-09).

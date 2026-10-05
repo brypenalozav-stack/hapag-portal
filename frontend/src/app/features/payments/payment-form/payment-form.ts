@@ -2,18 +2,21 @@ import { Component, inject, signal, OnInit, input, computed, DestroyRef } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { BillOfLadingService } from '../../../core/services/bl.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { BillOfLading } from '../../../core/models/bl.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
+import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
 import { TAX_RATES, REDIRECT_DELAY_MS } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-payment-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, DecimalPipe, LoadingSpinnerComponent],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, HlCurrencyPipe, HlNumberPipe, LoadingSpinnerComponent],
   templateUrl: './payment-form.html',
   styleUrl: './payment-form.scss',
 })
@@ -22,6 +25,7 @@ export class PaymentFormComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly paymentService = inject(PaymentService);
   private readonly blService = inject(BillOfLadingService);
+  private readonly announcer = inject(LiveAnnouncerService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -42,17 +46,35 @@ export class PaymentFormComponent implements OnInit {
   country = computed(() => this.auth.getCountry());
 
   paymentMethods = computed(() => {
+    const bankTransfer = {
+      value: 'BankTransfer',
+      labelKey: 'payments.form.methods.bankTransfer.label',
+      hintKey: 'payments.form.methods.bankTransfer.hint',
+    };
+    const creditLine = {
+      value: 'CreditLine',
+      labelKey: 'payments.form.methods.creditLine.label',
+      hintKey: 'payments.form.methods.creditLine.hint',
+    };
     if (this.country() === 'CL') {
       return [
-        { value: 'BankTransfer', label: 'Transferencia Bancaria' },
-        { value: 'CreditCard', label: 'Tarjeta de Credito' },
-        { value: 'CreditLine', label: 'Linea de Credito' },
+        bankTransfer,
+        {
+          value: 'CreditCard',
+          labelKey: 'payments.form.methods.creditCard.label',
+          hintKey: 'payments.form.methods.creditCard.hint',
+        },
+        creditLine,
       ];
     } else {
       return [
-        { value: 'BankTransfer', label: 'Transferencia Bancaria' },
-        { value: 'WebPay', label: 'Pago QR' },
-        { value: 'CreditLine', label: 'Linea de Credito' },
+        bankTransfer,
+        {
+          value: 'WebPay',
+          labelKey: 'payments.form.methods.qr.label',
+          hintKey: 'payments.form.methods.qr.hint',
+        },
+        creditLine,
       ];
     }
   });
@@ -86,7 +108,7 @@ export class PaymentFormComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar la informacion del BL.');
+        this.error.set(translate('payments.form.errors.loadBl'));
         this.loading.set(false);
       },
     });
@@ -95,6 +117,7 @@ export class PaymentFormComponent implements OnInit {
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.announcer.announce(translate('common.form.invalid'), 'assertive');
       return;
     }
 
@@ -114,11 +137,13 @@ export class PaymentFormComponent implements OnInit {
         next: () => {
           this.submitting.set(false);
           this.success.set(true);
+          this.announcer.announce(translate('payments.form.success.title'));
           setTimeout(() => this.router.navigate(['/payments']), REDIRECT_DELAY_MS);
         },
         error: (err) => {
           this.submitting.set(false);
-          this.error.set(err.error?.message ?? 'Error al procesar el pago.');
+          this.error.set(err.error?.message ?? translate('payments.form.errors.submit'));
+          this.announcer.announce(this.error(), 'assertive');
         },
       });
   }

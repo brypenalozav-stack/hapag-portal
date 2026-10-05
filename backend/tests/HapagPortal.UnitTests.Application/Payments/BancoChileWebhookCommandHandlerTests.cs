@@ -10,6 +10,8 @@ using NSubstitute;
 
 public sealed class BancoChileWebhookCommandHandlerTests
 {
+    private const string RawBody = "{\"transactionId\":\"TX-1\"}";
+
     private readonly MockApplicationDbContext _dbContext = new();
     private readonly IWebhookAuthenticator _auth = Substitute.For<IWebhookAuthenticator>();
     private readonly BancoChileWebhookCommandHandler _handler;
@@ -18,6 +20,7 @@ public sealed class BancoChileWebhookCommandHandlerTests
     {
         _auth.WebhooksEnabled.Returns(true);
         _auth.IsValid("BancoChile", "good-secret").Returns(true);
+        _auth.IsValidSignature("BancoChile", RawBody, "good-sig").Returns(true);
         _handler = new BancoChileWebhookCommandHandler(_dbContext, _auth);
     }
 
@@ -48,7 +51,7 @@ public sealed class BancoChileWebhookCommandHandlerTests
         var payment = AddPayment(PaymentStatus.Pending);
 
         var result = await _handler.Handle(
-            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 1190m, "wrong"), CancellationToken.None);
+            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 1190m, "wrong", RawBody, "good-sig"), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Error.Unauthorized");
@@ -61,7 +64,7 @@ public sealed class BancoChileWebhookCommandHandlerTests
         AddPayment(PaymentStatus.Pending);
 
         var result = await _handler.Handle(
-            new BancoChileWebhookCommand("", "EXT-1", "approved", 1190m, "good-secret"), CancellationToken.None);
+            new BancoChileWebhookCommand("", "EXT-1", "approved", 1190m, "good-secret", RawBody, "good-sig"), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Error.Unauthorized");
@@ -73,7 +76,7 @@ public sealed class BancoChileWebhookCommandHandlerTests
         var payment = AddPayment(PaymentStatus.Pending);
 
         var result = await _handler.Handle(
-            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 999m, "good-secret"), CancellationToken.None);
+            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 999m, "good-secret", RawBody, "good-sig"), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Payment.InvalidAmount");
@@ -87,7 +90,7 @@ public sealed class BancoChileWebhookCommandHandlerTests
         var payment = AddPayment(PaymentStatus.Pending);
 
         var result = await _handler.Handle(
-            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 1190m, "good-secret"), CancellationToken.None);
+            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 1190m, "good-secret", RawBody, "good-sig"), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         payment.Status.Should().Be(PaymentStatus.Confirmed);
@@ -100,9 +103,49 @@ public sealed class BancoChileWebhookCommandHandlerTests
         var payment = AddPayment(PaymentStatus.Cancelled);
 
         var result = await _handler.Handle(
-            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 1190m, "good-secret"), CancellationToken.None);
+            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 1190m, "good-secret", RawBody, "good-sig"), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         payment.Status.Should().Be(PaymentStatus.Cancelled);
+    }
+    [Fact]
+    public async Task InvalidSignature_ShouldReturnUnauthorizedAndNotConfirm()
+    {
+        var payment = AddPayment(PaymentStatus.Pending);
+
+        var result = await _handler.Handle(
+            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 1190m, "good-secret", RawBody, "bad-sig"),
+            CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Error.Unauthorized");
+        payment.Status.Should().Be(PaymentStatus.Pending);
+        payment.ConfirmedBy.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task MissingSignature_ShouldReturnUnauthorized()
+    {
+        var payment = AddPayment(PaymentStatus.Pending);
+
+        var result = await _handler.Handle(
+            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 1190m, "good-secret"), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Error.Unauthorized");
+        payment.Status.Should().Be(PaymentStatus.Pending);
+    }
+
+    [Fact]
+    public async Task SignatureOfOtherBody_ShouldReturnUnauthorized()
+    {
+        AddPayment(PaymentStatus.Pending);
+
+        var result = await _handler.Handle(
+            new BancoChileWebhookCommand("TX-1", "EXT-1", "approved", 1190m, "good-secret", "{\"otro\":1}", "good-sig"),
+            CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Error.Unauthorized");
     }
 }
