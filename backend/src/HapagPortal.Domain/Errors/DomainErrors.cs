@@ -141,4 +141,19 @@ public static class DomainErrors
         public static Error IncompleteBL(string reason) =>
             new("Customs.IncompleteBL", $"El B/L no está completo para transmitir: {reason}");
     }
+
+    public static class Integration
+    {
+        public static Error Unavailable(string system) =>
+            new("Integration.Unavailable", $"El sistema externo '{system}' no está disponible.");
+
+        public static Error Timeout(string system) =>
+            new("Integration.Timeout", $"El sistema externo '{system}' no respondió a tiempo.");
+
+        public static Error InvalidResponse(string system) =>
+            new("Integration.InvalidResponse", $"El sistema externo '{system}' devolvió una respuesta inválida.");
+
+        public static Error NotConfigured(string system) =>
+            new("Integration.NotConfigured", $"La integración con '{system}' no está configurada.");
+    }
 }

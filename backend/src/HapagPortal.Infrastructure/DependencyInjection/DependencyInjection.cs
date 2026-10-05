@@ -51,6 +51,8 @@ public static partial class DependencyInjectionExtensions
         services.AddScoped<INotificationPublisher, NotificationPublisher>();
         services.AddSingleton<IWebhookAuthenticator, WebhookAuthenticator>();
 
+        services.AddIntegrations(configuration);
+
         services.AddHttpContextAccessor();
 
         services.AddJwtAuthentication(configuration);

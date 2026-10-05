@@ -221,4 +221,38 @@ public sealed class DomainErrorsExtendedTests
         error.Code.Should().Be("WarehouseChange.NotFound");
         error.Message.Should().Contain(id.ToString());
     }
+
+    // --- Integration ---
+
+    [Fact]
+    public void Integration_Unavailable_ShouldContainSystem()
+    {
+        var error = DomainErrors.Integration.Unavailable("Nexus");
+        error.Code.Should().Be("Integration.Unavailable");
+        error.Message.Should().Contain("Nexus");
+    }
+
+    [Fact]
+    public void Integration_Timeout_ShouldContainSystem()
+    {
+        var error = DomainErrors.Integration.Timeout("Fis");
+        error.Code.Should().Be("Integration.Timeout");
+        error.Message.Should().Contain("Fis");
+    }
+
+    [Fact]
+    public void Integration_InvalidResponse_ShouldContainSystem()
+    {
+        var error = DomainErrors.Integration.InvalidResponse("Khipu");
+        error.Code.Should().Be("Integration.InvalidResponse");
+        error.Message.Should().Contain("Khipu");
+    }
+
+    [Fact]
+    public void Integration_NotConfigured_ShouldContainSystem()
+    {
+        var error = DomainErrors.Integration.NotConfigured("DbNet");
+        error.Code.Should().Be("Integration.NotConfigured");
+        error.Message.Should().Contain("DbNet");
+    }
 }
