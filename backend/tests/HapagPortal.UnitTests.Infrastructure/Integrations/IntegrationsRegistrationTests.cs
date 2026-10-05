@@ -12,6 +12,7 @@ using HapagPortal.Infrastructure.Integrations.Storage;
 using HapagPortal.Infrastructure.Integrations.Tracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 
 public sealed class IntegrationsRegistrationTests
 {
@@ -21,10 +22,19 @@ public sealed class IntegrationsRegistrationTests
 
         var services = new ServiceCollection();
         services.AddLogging();
+        services.AddSingleton(Substitute.For<ISecretResolver>());
         services.AddIntegrations(configuration);
 
         return services.BuildServiceProvider();
     }
+
+    private static Dictionary<string, string?> RealMode(params string[] systems) =>
+        systems.SelectMany(system => new[]
+            {
+                KeyValuePair.Create($"Integrations:{system}:Mode", (string?)"Real"),
+                KeyValuePair.Create($"Integrations:{system}:BaseUrl", (string?)$"http://localhost/{system.ToLowerInvariant()}"),
+            })
+            .ToDictionary(kv => kv.Key, kv => kv.Value);
 
     private static Action Register(string system, string mode) => () =>
         new ServiceCollection().AddIntegrations(
@@ -77,21 +87,87 @@ public sealed class IntegrationsRegistrationTests
         paymentProvider.VerifiesNotifications.Should().BeFalse();
     }
 
+    [Fact]
+    public void AddIntegrations_RealMode_ShouldRegisterRealClients()
+    {
+        using var provider = BuildProvider(RealMode("Nexus", "Fis", "DbNet", "Tracking"));
+
+        provider.GetRequiredService<IExemptionReader>().Should().BeOfType<HttpNexusClient>();
+        provider.GetRequiredService<ICreditConditionReader>().Should().BeOfType<HttpNexusClient>();
+        provider.GetRequiredService<IExchangeRateProvider>().Should().BeOfType<HttpNexusClient>();
+        provider.GetRequiredService<ITariffProvider>().Should().BeOfType<HttpNexusClient>();
+        provider.GetRequiredService<IShipmentSource>().Should().BeOfType<HttpShipmentSource>();
+        provider.GetRequiredService<IInvoiceProvider>().Should().BeOfType<HttpInvoiceProvider>();
+        provider.GetRequiredService<ITrackingProvider>().Should().BeOfType<HttpTrackingProvider>();
+
+        // Los sistemas sin Mode=Real siguen en Dummy.
+        provider.GetRequiredService<IDocumentSigner>().Should().BeOfType<DummyDocumentSigner>();
+        provider.GetRequiredService<IFileStorage>().Should().BeOfType<DummyFileStorage>();
+    }
+
+    [Theory]
+    [InlineData("Khipu", typeof(HttpKhipuPaymentProvider))]
+    [InlineData("BancoChile", typeof(HttpBancoChilePaymentProvider))]
+    public void AddIntegrations_RealMode_ShouldRegisterKeyedRealPaymentProvider(string key, Type expectedType)
+    {
+        using var provider = BuildProvider(RealMode(key));
+
+        var paymentProvider = provider.GetRequiredKeyedService<IPaymentProvider>(key);
+
+        paymentProvider.Should().BeOfType(expectedType);
+        paymentProvider.ProviderCode.Should().Be(key);
+        paymentProvider.VerifiesNotifications.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AddIntegrations_RealKhipu_ShouldKeepOtherPaymentProvidersDummy()
+    {
+        using var provider = BuildProvider(RealMode("Khipu"));
+
+        provider.GetRequiredKeyedService<IPaymentProvider>("BancoChile").Should().BeOfType<DummyPaymentProvider>();
+        provider.GetRequiredKeyedService<IPaymentProvider>("Santander").Should().BeOfType<DummyPaymentProvider>();
+        provider.GetRequiredKeyedService<IPaymentProvider>("Bci").Should().BeOfType<DummyPaymentProvider>();
+    }
+
+    [Theory]
+    [InlineData("Santander")]
+    [InlineData("Bci")]
+    [InlineData("Signature")]
+    [InlineData("Storage")]
+    public void AddIntegrations_RealModeWithoutAdapter_ShouldThrowFailFast(string system)
+    {
+        Register(system, "Real").Should().Throw<InvalidOperationException>()
+            .WithMessage($"Integrations:{system}:Mode=Real no tiene adaptador disponible");
+    }
+
     [Theory]
     [InlineData("Nexus")]
     [InlineData("Fis")]
     [InlineData("Khipu")]
     [InlineData("BancoChile")]
-    [InlineData("Santander")]
-    [InlineData("Bci")]
     [InlineData("DbNet")]
-    [InlineData("Signature")]
-    [InlineData("Storage")]
     [InlineData("Tracking")]
-    public void AddIntegrations_RealMode_ShouldThrowFailFast(string system)
+    public void AddIntegrations_RealModeWithoutBaseUrl_ShouldThrow(string system)
     {
         Register(system, "Real").Should().Throw<InvalidOperationException>()
-            .WithMessage($"Integrations:{system}:Mode=Real no tiene adaptador disponible");
+            .WithMessage($"Integrations:{system}:BaseUrl debe ser una URL absoluta*");
+    }
+
+    [Theory]
+    [InlineData("http://localhost/nexus")]
+    [InlineData("http://localhost/nexus/")]
+    public void AddIntegrations_RealMode_ShouldNormalizeBaseUrlWithTrailingSlash(string baseUrl)
+    {
+        using var provider = BuildProvider(new Dictionary<string, string?>
+        {
+            ["Integrations:Nexus:Mode"] = "Real",
+            ["Integrations:Nexus:BaseUrl"] = baseUrl,
+        });
+
+        var client = provider.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(HttpNexusClient));
+
+        client.BaseAddress.Should().Be(new Uri("http://localhost/nexus/"));
+        new Uri(client.BaseAddress!, "exemptions").AbsolutePath.Should().Be("/nexus/exemptions");
     }
 
     [Theory]

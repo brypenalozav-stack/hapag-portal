@@ -1,5 +1,6 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
+using System.Text;
 using Asp.Versioning;
 using HapagPortal.Application.Payments.Commands.Cancel;
 using HapagPortal.Application.Payments.Commands.Confirm;
@@ -101,10 +102,32 @@ public sealed class PaymentsController : ApiController
         CancellationToken cancellationToken)
     {
         var secret = Request.Headers["X-Webhook-Secret"].ToString();
-        var result = await Sender.Send(command with { Secret = secret }, cancellationToken);
+        var signature = Request.Headers["X-Signature"].ToString();
+        var rawBody = await ReadRawBodyAsync(cancellationToken);
+
+        var result = await Sender.Send(
+            command with { Secret = secret, RawBody = rawBody, Signature = signature },
+            cancellationToken);
 
         return result.IsSuccess
             ? Ok()
             : HandleFailure(result);
+    }
+
+    /// <summary>
+    /// Cuerpo crudo de la notificación, para verificar la firma sobre los bytes recibidos. Program.cs
+    /// habilita el buffering en /api/v1/payments/webhook, así el cuerpo se relee después del binding.
+    /// </summary>
+    private async Task<string> ReadRawBodyAsync(CancellationToken cancellationToken)
+    {
+        if (!Request.Body.CanSeek)
+            return string.Empty;
+
+        Request.Body.Position = 0;
+        using var reader = new StreamReader(Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
+        var rawBody = await reader.ReadToEndAsync(cancellationToken);
+        Request.Body.Position = 0;
+
+        return rawBody;
     }
 }

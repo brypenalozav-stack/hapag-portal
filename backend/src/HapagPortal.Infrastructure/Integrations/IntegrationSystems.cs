@@ -21,6 +21,12 @@ public static class IntegrationSystems
 
     public static readonly IReadOnlyList<string> All =
         [Nexus, Fis, Khipu, BancoChile, Santander, Bci, DbNet, Signature, Storage, Tracking];
+
+    /// <summary>
+    /// Sistemas con cliente Real (Fase 6c). El resto (Santander, Bci, Signature, Storage) solo tiene
+    /// adaptador Dummy y <c>Mode=Real</c> detiene el arranque.
+    /// </summary>
+    public static readonly IReadOnlyList<string> WithRealAdapter = [Nexus, Fis, Khipu, BancoChile, DbNet, Tracking];
 }
 
 /// <summary>Valores admitidos en <c>Integrations:&lt;Sistema&gt;:Mode</c>.</summary>

@@ -11,4 +11,10 @@ public interface IWebhookAuthenticator
 
     /// <summary>Compara en tiempo constante el secreto recibido con el configurado para el proveedor.</summary>
     bool IsValid(string provider, string? providedSecret);
+
+    /// <summary>
+    /// Verifica la firma <c>X-Signature</c>: HMAC-SHA256 del cuerpo crudo, en hexadecimal, con la clave
+    /// configurada para el proveedor. Fail-closed: sin clave, sin firma o con webhooks deshabilitados, rechaza.
+    /// </summary>
+    bool IsValidSignature(string provider, string rawBody, string? signature);
 }

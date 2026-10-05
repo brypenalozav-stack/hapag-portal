@@ -20,3 +20,10 @@ Cada fase que agrega una dependencia registra aquí el nombre, la **versión exa
 | python-docx | 1.2.0 | `scripts/requerimientos/requirements.txt` | MIT | 0 |
 | openpyxl | 3.1.5 | `scripts/requerimientos/requirements.txt` | MIT | 0 |
 | openapi-spec-validator | 0.9.0 | `docs/integraciones/requirements.txt` | Apache-2.0 | 6a |
+| Microsoft.Extensions.Http.Resilience | 9.10.0 | `HapagPortal.Infrastructure.csproj` | MIT | 6c |
+| Polly.Core, Polly.Extensions, Polly.RateLimiting (transitivas de Microsoft.Extensions.Http.Resilience) | 8.4.2 | `HapagPortal.Infrastructure` | BSD-3-Clause | 6c |
+| Microsoft.Extensions.Resilience, Microsoft.Extensions.Http.Diagnostics, Microsoft.Extensions.Telemetry (transitivas) | 9.10.0 | `HapagPortal.Infrastructure` | MIT | 6c |
+| System.Threading.RateLimiting (transitiva de Polly.RateLimiting) | 8.0.0 | `HapagPortal.Infrastructure` | MIT | 6c |
+| Microsoft.AspNetCore.Mvc.Testing (incluye Microsoft.AspNetCore.TestHost 9.0.20) | 9.0.20 | `backend/tests/HapagPortal.IntegrationTests` | MIT | 6c |
+| schemathesis | 4.29.3 | `docs/integraciones/requirements.txt` | MIT | 6c |
+| hypothesis (transitiva de schemathesis) | 6.168.4 | `docs/integraciones/requirements.txt` (vía schemathesis) | MPL-2.0 | 6c |
