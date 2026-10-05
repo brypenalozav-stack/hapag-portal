@@ -35,7 +35,7 @@ EVIDENCIA = {
     "M1-23": ("P", "AuditController.cs:15-23; SearchAuditQuery.cs:19-65 (sin escritor en ejecución)"),
     "M1-25": ("P", "NotificationsController.cs; NotificationPublisher.cs:17-51; navbar.html:33-40"),
     # M2
-    "M2-06": ("P", "bl-list.ts:34-73; bl-detail.ts:108-142; GetMyBLsQueryHandler (solo ClientId propio)"),
+    "M2-06": ("P", "bl-list.ts:34-73; bl-detail.ts:34-60; GetMyBLsQueryHandler (solo ClientId propio)"),
     "M2-07": ("P", "BillOfLading.ShipmentType mostrado como columna Tipo (bl-list.html:56)"),
     "M2-09": ("P", "GetBLByNumberQueryHandler.cs:26 (sin TATC)"),
     # M3 / M4
@@ -59,7 +59,7 @@ EVIDENCIA = {
     "M6-08": ("P", "service-orders.ts:38-46 (tipos RELEASE, DECONSOLIDATION)"),
     "M8-05": ("P", "frontend/src/app/app.routes.ts:118-164 (rutas admin/*)"),
     "M8-06": ("P", "PermissionResolver.cs:10-20; LoginCommandHandler.cs:55 (rol ADMIN/USER)"),
-    "M10-02": ("P", "FAQsController.cs; faq.ts:234-263 (FAQ por país, sin asistente)"),
+    "M10-02": ("P", "FAQsController.cs; faq.ts:34-63 (FAQ por país, sin asistente)"),
     # NF
     "NF-01": ("P", "Webhooks y recibo idempotentes; creación de pago sin clave de idempotencia"),
     "NF-02": ("P", "PaymentStatus.cs:5-10 (sin historial de transiciones)"),
