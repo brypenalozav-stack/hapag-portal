@@ -127,6 +127,27 @@ def remove_tc_fields(paragraph):
     return n
 
 
+# Elementos que en CT_Settings van DESPUÉS de w:updateFields (orden del esquema OOXML).
+_DESPUES_DE_UPDATE_FIELDS = [
+    "w:hdrShapeDefaults", "w:footnotePr", "w:endnotePr", "w:compat", "w:docVars", "w:rsids",
+    "m:mathPr", "w:attachedSchema", "w:themeFontLang", "w:clrSchemeMapping",
+    "w:doNotIncludeSubdocsInStats", "w:doNotAutoCompressPictures", "w:forceUpgrade", "w:captions",
+    "w:readModeInkLockDown", "w:smartTagType", "sl:schemaLibrary", "w:shapeDefaults",
+    "w:doNotEmbedSmartTags", "w:decimalSymbol", "w:listSeparator",
+]
+
+
+def _insertar_update_fields(settings_xml):
+    """Inserta <w:updateFields> respetando el orden del esquema, para que Word no pida reparar."""
+    elemento = '<w:updateFields w:val="true"/>'
+    posiciones = [settings_xml.find("<" + tag) for tag in _DESPUES_DE_UPDATE_FIELDS]
+    posiciones = [p for p in posiciones if p >= 0]
+    if posiciones:
+        p = min(posiciones)
+        return settings_xml[:p] + elemento + settings_xml[p:]
+    return settings_xml.replace("</w:settings>", elemento + "</w:settings>", 1)
+
+
 def set_update_fields_on_open(docx_path):
     """Agrega <w:updateFields w:val="true"/> a word/settings.xml, copiando el resto del paquete tal cual."""
     tmp_fd, tmp = tempfile.mkstemp(suffix=".docx")
@@ -137,7 +158,7 @@ def set_update_fields_on_open(docx_path):
             if item.filename == "word/settings.xml":
                 s = data.decode("utf-8")
                 if "w:updateFields" not in s:
-                    s = re.sub(r"(<w:settings[^>]*>)", r'\1<w:updateFields w:val="true"/>', s, count=1)
+                    s = _insertar_update_fields(s)
                 data = s.encode("utf-8")
             zout.writestr(item, data)
     shutil.move(tmp, docx_path)
@@ -209,13 +230,30 @@ def move_block(start_el, end_el, before_el):
         before_el.addprevious(el)
 
 
-def insert_ficha_after(anchor_el, ficha_id, titulo, fase, secciones, plantilla_doc):
+def insert_ficha_after(anchor_el, ficha_id, titulo, fase, secciones, plantilla_doc, modelos=None, num_id=None):
     """Inserta una ficha nueva después de anchor_el copiando el formato de una ficha existente.
 
     secciones: lista de (rotulo, [parrafos]) con rotulo en SITUACIÓN ACTUAL / REQUERIMIENTO /
     CRITERIOS DE ACEPTACIÓN / DEPENDENCIAS. Las viñetas de criterios usan 'List Paragraph'.
-    Devuelve el último elemento insertado.
+    Con `modelos` (ver modelos_ficha) los párrafos se clonan con el formato directo de la ficha
+    modelo y los criterios se numeran con `num_id`. Devuelve el último elemento insertado.
     """
+    if modelos is not None:
+        num = fase.split()[-1]
+        h = clonar_parrafo(modelos["h3"], [f"{ficha_id}     ", f"{titulo} ", "– FASE ", num])
+        anchor_el.addnext(h)
+        ultimo = h
+        for rotulo, parrafos in secciones:
+            nuevos = [clonar_parrafo(modelos["rotulo"], [rotulo])]
+            for x in parrafos:
+                if rotulo.startswith("CRITERIOS"):
+                    nuevos.append(clonar_parrafo(modelos["lista"], [x], num_id=num_id))
+                else:
+                    nuevos.append(clonar_parrafo(modelos["cuerpo"], [x]))
+            for el in nuevos:
+                ultimo.addnext(el)
+                ultimo = el
+        return ultimo
     modelo = next(p for p in iter_parrafos(plantilla_doc) if p.style.name == "Heading 3")
     h = copy.deepcopy(modelo._p)
     for t in h.iter(qn("w:t")):
@@ -234,3 +272,201 @@ def insert_ficha_after(anchor_el, ficha_id, titulo, fase, secciones, plantilla_d
             par.add_run(texto)
             ultimo = p
     return ultimo
+
+
+# ---------------------------------------------------------------- clonado con formato directo
+# La especificación aplica el formato como formato directo (pPr/rPr) y no solo por estilo,
+# por eso los párrafos nuevos se clonan desde un párrafo modelo del mismo tipo.
+
+ESTILOS_TITULO = ("Heading 1", "Heading 2", "Heading 3")
+ROTULOS = ("SITUACIÓN ACTUAL", "REQUERIMIENTO", "CRITERIOS DE ACEPTACIÓN", "DEPENDENCIAS")
+
+
+W14 = "http://schemas.microsoft.com/office/word/2010/wordml"
+
+
+def quitar_marcadores(el):
+    """Elimina bookmarkStart/bookmarkEnd (los _Toc no pueden duplicarse) y los w14:paraId/textId
+    copiados, que Word exige únicos; Word los regenera al guardar."""
+    for tag in ("w:bookmarkStart", "w:bookmarkEnd"):
+        for b in list(el.iter(qn(tag))):
+            b.getparent().remove(b)
+    for x in el.iter():
+        for attr in (f"{{{W14}}}paraId", f"{{{W14}}}textId"):
+            if attr in x.attrib:
+                del x.attrib[attr]
+    return el
+
+
+def _runs_texto(p_el):
+    """Runs directos del párrafo que contienen w:t."""
+    return [r for r in p_el.iterchildren(qn("w:r")) if r.find(qn("w:t")) is not None]
+
+
+def fijar_textos_runs(p_el, textos):
+    """Escribe textos[i] en el i-ésimo run con texto; elimina los runs de texto sobrantes."""
+    runs = _runs_texto(p_el)
+    if len(runs) < len(textos):
+        raise ValueError(f"el párrafo tiene {len(runs)} runs de texto y se pidieron {len(textos)}")
+    for r, texto in zip(runs, textos):
+        ts = r.findall(qn("w:t"))
+        ts[0].text = texto
+        ts[0].set(qn("xml:space"), "preserve")
+        for t in ts[1:]:
+            r.remove(t)
+    for r in runs[len(textos):]:
+        p_el.remove(r)
+
+
+def fijar_texto(paragraph, texto):
+    """Reemplaza el texto completo de un párrafo conservando el formato de su primer run."""
+    fijar_textos_runs(paragraph._p, [texto])
+
+
+def fijar_tc(p_el, texto):
+    """Reescribe el texto del (único) campo TC de un párrafo. Devuelve True si había campo."""
+    campos = _campos_tc(p_el)
+    for instr, _, nivel in campos:
+        instr[0].text = f' TC "{texto}" \\f P \\l {nivel} '
+        instr[0].set(qn("xml:space"), "preserve")
+        for extra in instr[1:]:
+            extra.text = ""
+    return bool(campos)
+
+
+def clonar_parrafo(modelo_el, textos, tc=None, num_id=None):
+    """Copia profunda de un párrafo modelo con nuevos textos de run (y campo TC / numId opcionales)."""
+    p = quitar_marcadores(copy.deepcopy(modelo_el))
+    for c in list(p.iter(qn("w:commentRangeStart"), qn("w:commentRangeEnd"), qn("w:commentReference"))):
+        c.getparent().remove(c)
+    fijar_textos_runs(p, textos)
+    if tc is not None:
+        fijar_tc(p, tc)
+    if num_id is not None:
+        nid = p.find(f"{qn('w:pPr')}/{qn('w:numPr')}/{qn('w:numId')}")
+        nid.set(qn("w:val"), str(num_id))
+    return p
+
+
+def nuevo_num_id(doc, abstract_id):
+    """Agrega a numbering.xml una lista nueva (reinicia en 1) sobre abstractNum `abstract_id`."""
+    numbering = doc.part.numbering_part.element
+    ids = [int(n.get(qn("w:numId"))) for n in numbering.iterchildren(qn("w:num"))]
+    nuevo = max(ids) + 1
+    num = OxmlElement("w:num")
+    num.set(qn("w:numId"), str(nuevo))
+    abs_ = OxmlElement("w:abstractNumId")
+    abs_.set(qn("w:val"), str(abstract_id))
+    num.append(abs_)
+    over = OxmlElement("w:lvlOverride")
+    over.set(qn("w:ilvl"), "0")
+    start = OxmlElement("w:startOverride")
+    start.set(qn("w:val"), "1")
+    over.append(start)
+    num.append(over)
+    numbering.append(num)
+    return nuevo
+
+
+def es_titulo(el):
+    if el.tag != qn("w:p"):
+        return False
+    st = el.find(f"{qn('w:pPr')}/{qn('w:pStyle')}")
+    return st is not None and st.get(qn("w:val")) in ("Heading1", "Heading2", "Heading3")
+
+
+def tiene_dibujo(el):
+    return el.tag == qn("w:p") and el.find(".//" + qn("w:drawing")) is not None
+
+
+def texto_el(el):
+    return "".join(t.text or "" for t in el.iter(qn("w:t")))
+
+
+def bloque_ficha(doc, ficha_id):
+    """(primer_el, ultimo_el) de una ficha: su Heading 3 y todo hasta antes del título siguiente."""
+    h = find_ficha(doc, ficha_id)
+    if h is None:
+        raise KeyError(ficha_id)
+    ultimo = h._p
+    el = ultimo.getnext()
+    while el is not None and el.tag in (qn("w:p"), qn("w:tbl")) and not es_titulo(el):
+        ultimo = el
+        el = el.getnext()
+    return h._p, ultimo
+
+
+def parrafos_seccion(doc, ficha_id, rotulo):
+    """(rotulo_el, [párrafos de contenido]) de una sección de ficha.
+
+    El contenido son los párrafos con texto que siguen al rótulo, hasta el siguiente rótulo,
+    título, tabla, imagen o párrafo vacío.
+    """
+    inicio, fin = bloque_ficha(doc, ficha_id)
+    el = inicio.getnext()
+    rotulo_el = None
+    while el is not None:
+        if el.tag == qn("w:p") and texto_el(el).strip() == rotulo:
+            rotulo_el = el
+            break
+        if el is fin:
+            break
+        el = el.getnext()
+    if rotulo_el is None:
+        raise KeyError(f"{ficha_id}: sin sección {rotulo}")
+    contenido = []
+    el = rotulo_el.getnext()
+    while (el is not None and el.tag == qn("w:p") and not es_titulo(el) and not tiene_dibujo(el)
+           and texto_el(el).strip() and texto_el(el).strip() not in ROTULOS):
+        contenido.append(el)
+        el = el.getnext()
+    return rotulo_el, contenido
+
+
+def reemplazar_seccion(doc, ficha_id, rotulo, textos):
+    """Reemplaza el contenido de una sección de ficha clonando el formato de su primer párrafo."""
+    rotulo_el, contenido = parrafos_seccion(doc, ficha_id, rotulo)
+    modelo = copy.deepcopy(contenido[0])
+    for el in contenido:
+        el.getparent().remove(el)
+    ultimo = rotulo_el
+    for texto in textos:
+        nuevo = clonar_parrafo(modelo, [texto])
+        ultimo.addnext(nuevo)
+        ultimo = nuevo
+    return ultimo
+
+
+def fijar_texto_celda(tc_el, texto):
+    """Deja una celda con un solo párrafo y un solo run con `texto`, conservando el formato del primero."""
+    ps = tc_el.findall(qn("w:p"))
+    con_texto = [p for p in ps if _runs_texto(p)] or ps
+    p = con_texto[0]
+    for otro in ps:
+        if otro is not p:
+            tc_el.remove(otro)
+    if _runs_texto(p):
+        fijar_textos_runs(p, [texto])
+    else:
+        Paragraph(p, None).add_run(texto)
+
+
+def agregar_fila(tbl_el, modelo_tr, textos, antes_de=None):
+    """Agrega una fila clonada de `modelo_tr` con los textos dados (al final o antes de `antes_de`)."""
+    tr = quitar_marcadores(copy.deepcopy(modelo_tr))
+    for tc, texto in zip(tr.findall(qn("w:tc")), textos):
+        fijar_texto_celda(tc, texto)
+    if antes_de is not None:
+        antes_de.addprevious(tr)
+    else:
+        tbl_el.append(tr)
+    return tr
+
+
+def texto_documento(doc):
+    """Todo el texto visible del cuerpo (incluye tablas e índice en caché), encabezados y pies."""
+    partes = ["".join(t.text or "" for t in p.iter(qn("w:t"))) for p in doc.element.body.iter(qn("w:p"))]
+    for s in doc.sections:
+        for hf in (s.header, s.footer, s.first_page_header, s.first_page_footer, s.even_page_header, s.even_page_footer):
+            partes += [p.text for p in hf.paragraphs]
+    return "\n".join(partes)
