@@ -19,3 +19,4 @@ Cada fase que agrega una dependencia registra aquí el nombre, la **versión exa
 |---|---|---|---|---|
 | python-docx | 1.2.0 | `scripts/requerimientos/requirements.txt` | MIT | 0 |
 | openpyxl | 3.1.5 | `scripts/requerimientos/requirements.txt` | MIT | 0 |
+| openapi-spec-validator | 0.9.0 | `docs/integraciones/requirements.txt` | Apache-2.0 | 6a |

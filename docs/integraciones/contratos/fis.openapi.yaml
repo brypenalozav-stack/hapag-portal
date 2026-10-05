@@ -1,0 +1,845 @@
+# CT-FIS – FIS / Data Lake – embarques
+# Contrato de integración en estado PROPUESTA (Fase 6a). Ver docs/integraciones/README.md.
+openapi: 3.1.0
+info:
+  title: FIS / Data Lake – embarques
+  version: 0.1.0
+  description: |
+    PROPUESTA – pendiente de validación con Macros/RPX – Diego (apoyo: Jorge)
+
+    Lectura de embarques desde FIS/Data Lake por API (decisión Q3: sin sincronización de bases de datos). Destino en el
+    portal: puerto `IShipmentSource` (decisión Q6). Mientras este contrato no se valide y se conmute a `Mode=Real`, la
+    entrada de datos sigue siendo el importador existente `POST bills-of-lading/import`.
+
+    Cada campo indica en su descripción la pantalla y el campo FIS de origen, según el catálogo de pantallas FIS
+    (D1040, I3000, S8100, S7230, D1000, I3100, E4842, H0020, V3100 y F3010). Las tareas 42–44 de Pendientes
+    («validar sincronización» de organizaciones, datos y documentos) se cumplen validando este contrato.
+  x-contrato: CT-FIS
+  x-estado: 'PROPUESTA – pendiente de validación con Macros/RPX – Diego (apoyo: Jorge)'
+  x-responsable: 'Macros/RPX – Diego (apoyo: Jorge)'
+  x-puerto:
+  - IShipmentSource
+  x-tareas-pendientes: 42–46
+servers:
+- url: '{baseUrl}'
+  description: URL base configurada en `Integrations:Fis:BaseUrl`. La URL productiva la entrega el responsable al validar
+    el contrato; por defecto apunta al simulador local (Fase 6c).
+  variables:
+    baseUrl:
+      default: http://localhost:5199/fis
+security:
+- ApiKey: []
+tags:
+- name: Embarques
+paths:
+  /shipments:
+    parameters:
+    - $ref: '#/components/parameters/CorrelationId'
+    get:
+      operationId: getShipmentsUpdatedSince
+      summary: Embarques modificados desde una fecha
+      description: Lista paginada de embarques creados o modificados desde `updatedSince` (UTC). El portal la consulta periódicamente
+        y pide el detalle por BL. Reemplaza la carga por `POST bills-of-lading/import` (Q6).
+      tags:
+      - Embarques
+      parameters:
+      - name: updatedSince
+        in: query
+        required: true
+        description: Fecha y hora UTC desde la cual se buscan cambios.
+        schema:
+          type: string
+          format: date-time
+        example: '2026-10-20T00:00:00Z'
+      - name: type
+        in: query
+        required: false
+        description: Tipo de operación.
+        schema:
+          type: string
+          enum:
+          - IMPORT
+          - EXPORT
+        example: IMPORT
+      - name: cursor
+        in: query
+        required: false
+        description: Cursor devuelto por la página anterior.
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        description: Tamaño de página.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 100
+      responses:
+        '200':
+          description: Página de embarques.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShipmentPage'
+              examples:
+                pagina:
+                  value:
+                    items:
+                    - blNumber: HLCUSCL2609A1234
+                      bookingNumber: '64018233'
+                      shipmentType: IMPORT
+                      vessel: SANTOS EXPRESS
+                      voyage: 2541W
+                      etd: '2026-09-28T18:00:00Z'
+                      eta: '2026-10-21T08:00:00Z'
+                      freeDays: 7
+                      depotImport: SAI-DEPOT-01
+                      depotExport: null
+                      matchCode: MC000101
+                      taxId: 76000001-1
+                      updatedAt: '2026-10-20T13:05:00Z'
+                    nextCursor: eyJvZmZzZXQiOjEwMH0
+                vacia:
+                  value:
+                    items: []
+                    nextCursor: null
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /shipments/{blNumber}:
+    parameters:
+    - $ref: '#/components/parameters/CorrelationId'
+    get:
+      operationId: getShipmentByBlNumber
+      summary: Detalle de un embarque por BL
+      description: Detalle del embarque con ruta, contenedores, partes, ingresos, nave y días libres (M2-06, M2-07, M3-03,
+        M3-18). 404 si el BL no existe en FIS.
+      tags:
+      - Embarques
+      parameters:
+      - name: blNumber
+        in: path
+        required: true
+        description: Número de BL.
+        schema:
+          type: string
+          minLength: 4
+          maxLength: 20
+          description: Número de BL.
+        example: HLCUSCL2609A1234
+      responses:
+        '200':
+          description: Detalle del embarque.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shipment'
+              examples:
+                importacion:
+                  value:
+                    blNumber: HLCUSCL2609A1234
+                    bookingNumber: '64018233'
+                    shipmentType: IMPORT
+                    vessel: SANTOS EXPRESS
+                    voyage: 2541W
+                    etd: '2026-09-28T18:00:00Z'
+                    eta: '2026-10-21T08:00:00Z'
+                    freeDays: 7
+                    depotImport: SAI-DEPOT-01
+                    depotExport: null
+                    matchCode: MC000101
+                    taxId: 76000001-1
+                    updatedAt: '2026-10-20T13:05:00Z'
+                    bookingType: FCL
+                    shipperOwned: false
+                    documentNumber: D-2609-001
+                    documentReference: HLCUSCL2609A1234
+                    documentReferenceType: BL
+                    dependencyId: null
+                    countryCodeExport: DE
+                    countryCodeImport: CL
+                    emissionDestinationImport: N
+                    route:
+                    - legId: '1'
+                      legType: SEA
+                      sequenceNumber: 1
+                      locationCode: DEHAM
+                      locationName: Hamburg
+                      countryCode: DE
+                      countryName: Germany
+                      terminal: CTA
+                      vesselName: SANTOS EXPRESS
+                      scheduleVoyage: 2541W
+                      dpVoyage: 2541W
+                      eta: null
+                      etd: '2026-09-28T18:00:00Z'
+                    - legId: '2'
+                      legType: SEA
+                      sequenceNumber: 2
+                      locationCode: CLSAI
+                      locationName: San Antonio
+                      countryCode: CL
+                      countryName: Chile
+                      terminal: STI
+                      vesselName: SANTOS EXPRESS
+                      scheduleVoyage: 2541W
+                      dpVoyage: 2541W
+                      eta: '2026-10-21T08:00:00Z'
+                      etd: null
+                    equipments:
+                    - equipmentNumber: HLBU1234567
+                      equipmentType: 45G1
+                      cargoLineNumber: 1
+                      itemLineNumber: 1
+                    parties:
+                    - function: CONSIGNEE
+                      partyFunctionSerialId: CN-1
+                      matchCode: MC000101
+                      name: Importadora Ejemplo SpA
+                      taxId: 76000001-1
+                      city: Santiago
+                      street: Av. Apoquindo 1234
+                      validity: '2027-12-31'
+                    revenues:
+                    - equipmentNumber: HLBU1234567
+                      revenueCode: THC
+                      revenueName: Terminal handling charge
+                      revenueState: INVOICED
+                      revenuePayState: OPEN
+                      revenueValue: 180
+                      revenueCurrency: USD
+                    vesselCall:
+                      vesselName: SANTOS EXPRESS
+                      imo: '9301234'
+                      ssy: AX2-SANTOS EXPRESS-2541W
+                      arrivalConfirmation: null
+                    freeTime:
+                      freeDays: 7
+                      from: '2026-10-21'
+                      to: '2026-10-27'
+                      periods:
+                      - period: 1
+                        from: '2026-10-28'
+                        to: '2026-11-03'
+                        days: 7
+                        amountPerDay: 35
+                        totalAmount: 245
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  parameters:
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: Identificador de correlación (NF-27). El portal lo envía en cada llamada; si falta, el servicio genera
+        uno y lo devuelve en la respuesta.
+      schema:
+        type: string
+        maxLength: 64
+      example: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+  headers:
+    CorrelationId:
+      description: Mismo valor recibido en la solicitud, o uno generado por el servicio.
+      schema:
+        type: string
+        maxLength: 64
+    RetryAfter:
+      description: Segundos que el cliente debe esperar antes de reintentar (RFC 9110 §10.2.3).
+      schema:
+        type: integer
+        minimum: 0
+  responses:
+    BadRequest:
+      description: 'Solicitud inválida: parámetro faltante o con formato incorrecto.'
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            parametroInvalido:
+              value:
+                type: about:blank
+                title: Solicitud inválida
+                status: 400
+                detail: Uno o más parámetros no cumplen el formato esperado.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+                errors:
+                - field: taxId
+                  message: Debe tener el formato 12345678-9.
+    NotFound:
+      description: El recurso solicitado no existe.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            noEncontrado:
+              value:
+                type: about:blank
+                title: Recurso no encontrado
+                status: 404
+                detail: No existe un recurso con el identificador indicado.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    TooManyRequests:
+      description: Se superó el límite de solicitudes. El cliente reintenta después de `Retry-After`.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            limite:
+              value:
+                type: about:blank
+                title: Demasiadas solicitudes
+                status: 429
+                detail: Se superó el límite de solicitudes por minuto.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    InternalServerError:
+      description: Error interno del servicio.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            errorInterno:
+              value:
+                type: about:blank
+                title: Error interno
+                status: 500
+                detail: El servicio no pudo procesar la solicitud.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    ServiceUnavailable:
+      description: Servicio no disponible temporalmente (mantención o dependencia caída).
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            noDisponible:
+              value:
+                type: about:blank
+                title: Servicio no disponible
+                status: 503
+                detail: El servicio está en mantención. Reintente más tarde.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+  schemas:
+    Problem:
+      type: object
+      description: Detalle de error según RFC 9457 (`application/problem+json`). Admite miembros de extensión.
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          default: about:blank
+          description: URI que identifica el tipo de problema.
+        title:
+          type: string
+          description: Resumen legible del tipo de problema.
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+          description: Código HTTP.
+        detail:
+          type: string
+          description: Explicación específica de esta ocurrencia.
+        instance:
+          type: string
+          format: uri-reference
+          description: URI de la ocurrencia concreta.
+        correlationId:
+          type: string
+          description: 'Extensión: valor de `X-Correlation-Id`.'
+        errors:
+          type: array
+          description: 'Extensión: errores de validación por campo.'
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+            required:
+            - field
+            - message
+      required:
+      - title
+      - status
+      additionalProperties: true
+    RouteLeg:
+      type: object
+      description: Tramo de la ruta del booking (FIS S8100 «Ruta»).
+      properties:
+        legId:
+          type: string
+          description: FIS S8100 `leg_id`.
+        legType:
+          type:
+          - string
+          - 'null'
+          description: FIS S8100 `leg_type`.
+        sequenceNumber:
+          type: integer
+          description: FIS S8100 `sequence_number`.
+        locationCode:
+          type: string
+          description: UN/LOCODE. FIS S8100 `location_code`.
+        locationName:
+          type:
+          - string
+          - 'null'
+          description: FIS S8100 `location_name`.
+        countryCode:
+          type:
+          - string
+          - 'null'
+          description: FIS S8100 `country_code`.
+        countryName:
+          type:
+          - string
+          - 'null'
+          description: FIS S8100 `country_name`.
+        terminal:
+          type:
+          - string
+          - 'null'
+          description: FIS S8100 `terminal`.
+        vesselName:
+          type:
+          - string
+          - 'null'
+          description: FIS S8100 `vessel_name`.
+        scheduleVoyage:
+          type:
+          - string
+          - 'null'
+          description: FIS S8100 `schedule_voyage`.
+        dpVoyage:
+          type:
+          - string
+          - 'null'
+          description: FIS S8100 `dp_voyage`.
+        eta:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        etd:
+          type:
+          - string
+          - 'null'
+          format: date-time
+      required:
+      - legId
+      - sequenceNumber
+      - locationCode
+    Equipment:
+      type: object
+      description: Contenedor del embarque (FIS S8100 «Equipments» y S7230).
+      properties:
+        equipmentNumber:
+          type: string
+          description: FIS S7230 `equipment_number`.
+        equipmentType:
+          type:
+          - string
+          - 'null'
+          description: Tipo ISO. FIS S7230 `equipment_type`.
+        cargoLineNumber:
+          type:
+          - integer
+          - 'null'
+          description: FIS S8100 `cargo_line_number`.
+        itemLineNumber:
+          type:
+          - integer
+          - 'null'
+          description: FIS S8100 `item_line_number`.
+      required:
+      - equipmentNumber
+    Party:
+      type: object
+      description: Parte del embarque con su Match Code (FIS H0020 y S8100 `party_function_serial_id`).
+      properties:
+        function:
+          type: string
+          description: Función de la parte (por ejemplo SHIPPER, CONSIGNEE, NOTIFY).
+        partyFunctionSerialId:
+          type:
+          - string
+          - 'null'
+          description: FIS S8100 `party_function_serial_id`.
+        matchCode:
+          type: string
+          description: FIS H0020 `matchcode`.
+        name:
+          type:
+          - string
+          - 'null'
+          description: Razón social. FIS H0020 `razon_social`.
+        taxId:
+          type:
+          - string
+          - 'null'
+          description: FIS H0020 `tax_id`.
+        city:
+          type:
+          - string
+          - 'null'
+          description: FIS H0020 `city`.
+        street:
+          type:
+          - string
+          - 'null'
+          description: FIS H0020 `street`.
+        validity:
+          type:
+          - string
+          - 'null'
+          description: Vigencia del Match Code. FIS H0020 `validity`.
+      required:
+      - function
+      - matchCode
+    Revenue:
+      type: object
+      description: Línea de ingreso del documento (FIS S7230 «Revenues»).
+      properties:
+        equipmentNumber:
+          type:
+          - string
+          - 'null'
+          description: FIS S7230 `equipment_number`.
+        revenueCode:
+          type: string
+          description: FIS S7230 `revenue_code`.
+        revenueName:
+          type:
+          - string
+          - 'null'
+          description: FIS S7230 `revenue_name`.
+        revenueState:
+          type:
+          - string
+          - 'null'
+          description: FIS S7230 `revenue_state`.
+        revenuePayState:
+          type:
+          - string
+          - 'null'
+          description: FIS S7230 `revenue_pay_state`.
+        revenueValue:
+          type: number
+          description: FIS S7230 `revenue_value`.
+        revenueCurrency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          description: FIS S7230 `revenue_currency`.
+      required:
+      - revenueCode
+      - revenueValue
+      - revenueCurrency
+    VesselCall:
+      type: object
+      description: Recalada de la nave (FIS V3100).
+      properties:
+        vesselName:
+          type: string
+          description: FIS V3100 `vessel_name`.
+        imo:
+          type:
+          - string
+          - 'null'
+          pattern: ^[0-9]{7}$
+          description: FIS V3100 `imo`.
+        ssy:
+          type:
+          - string
+          - 'null'
+          description: Servicio, nave y viaje. FIS V3100 `ssy`.
+        arrivalConfirmation:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: FIS V3100 `arrival_confirmation`.
+      required:
+      - vesselName
+    FreeTimePeriod:
+      type: object
+      description: Período de cobro posterior a los días libres (FIS F3010).
+      properties:
+        period:
+          type: integer
+          minimum: 1
+        from:
+          type:
+          - string
+          - 'null'
+          format: date
+        to:
+          type:
+          - string
+          - 'null'
+          format: date
+        days:
+          type:
+          - integer
+          - 'null'
+          description: FIS F3010 `days_period_<n>`.
+        amountPerDay:
+          type:
+          - number
+          - 'null'
+          description: FIS F3010 `amount_period_<n>`.
+        totalAmount:
+          type:
+          - number
+          - 'null'
+          description: FIS F3010 `total_amoun_period_<n>` (nombre de origen por confirmar).
+      required:
+      - period
+    FreeTime:
+      type: object
+      description: Días libres y períodos de demurrage (FIS F3010).
+      properties:
+        freeDays:
+          type: integer
+          minimum: 0
+          description: FIS F3010 `free_days`.
+        from:
+          type:
+          - string
+          - 'null'
+          format: date
+        to:
+          type:
+          - string
+          - 'null'
+          format: date
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/FreeTimePeriod'
+      required:
+      - freeDays
+    ShipmentSummary:
+      type: object
+      description: Datos principales del embarque. Corresponde a `ShipmentRecord` del puerto `IShipmentSource`.
+      properties:
+        blNumber:
+          type: string
+          minLength: 4
+          maxLength: 20
+          description: Número de BL.
+        bookingNumber:
+          type:
+          - string
+          - 'null'
+          description: FIS D1040/S8100 `booking_number`.
+        shipmentType:
+          type: string
+          enum:
+          - IMPORT
+          - EXPORT
+        vessel:
+          type:
+          - string
+          - 'null'
+          description: Nave del tramo principal.
+        voyage:
+          type:
+          - string
+          - 'null'
+          description: Viaje del tramo principal.
+        etd:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        eta:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        freeDays:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          description: FIS F3010 `free_days`.
+        depotImport:
+          type:
+          - string
+          - 'null'
+          description: FIS E4842 `depot_import`.
+        depotExport:
+          type:
+          - string
+          - 'null'
+          description: FIS E4842 `depot_export`.
+        matchCode:
+          type:
+          - string
+          - 'null'
+          description: Match Code del cliente. FIS H0020 `matchcode`.
+        taxId:
+          type:
+          - string
+          - 'null'
+          description: FIS H0020 `tax_id`.
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+      - blNumber
+      - shipmentType
+      - updatedAt
+    Shipment:
+      allOf:
+      - $ref: '#/components/schemas/ShipmentSummary'
+      - type: object
+        properties:
+          bookingType:
+            type:
+            - string
+            - 'null'
+            description: FIS S8100 `booking_type`.
+          shipperOwned:
+            type:
+            - boolean
+            - 'null'
+            description: Contenedor del embarcador (SOC). FIS S8100 `shipper_owned`.
+          documentNumber:
+            type:
+            - string
+            - 'null'
+            description: FIS I3000/S7230 `document_number`.
+          documentReference:
+            type:
+            - string
+            - 'null'
+            description: FIS D1000 `document_reference`.
+          documentReferenceType:
+            type:
+            - string
+            - 'null'
+            description: FIS D1000 `document_reference_type`.
+          dependencyId:
+            type:
+            - string
+            - 'null'
+            description: FIS D1000 `dependency_id`.
+          countryCodeExport:
+            type:
+            - string
+            - 'null'
+            description: FIS D1000 `country_code_export`.
+          countryCodeImport:
+            type:
+            - string
+            - 'null'
+            description: FIS D1000/I3000 `country_code_import`.
+          emissionDestinationImport:
+            type:
+            - string
+            - 'null'
+            description: Emisión en destino. FIS I3100 `emision_destino_import`.
+          route:
+            type: array
+            items:
+              $ref: '#/components/schemas/RouteLeg'
+          equipments:
+            type: array
+            items:
+              $ref: '#/components/schemas/Equipment'
+          parties:
+            type: array
+            items:
+              $ref: '#/components/schemas/Party'
+          revenues:
+            type: array
+            items:
+              $ref: '#/components/schemas/Revenue'
+          vesselCall:
+            oneOf:
+            - $ref: '#/components/schemas/VesselCall'
+            - type: 'null'
+          freeTime:
+            oneOf:
+            - $ref: '#/components/schemas/FreeTime'
+            - type: 'null'
+        required:
+        - route
+        - equipments
+        - parties
+        - revenues
+    ShipmentPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShipmentSummary'
+        nextCursor:
+          type:
+          - string
+          - 'null'
+          description: Cursor para la página siguiente; `null` al final.
+      required:
+      - items
+      - nextCursor
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: Clave de API. En el portal se guarda cifrada como secreto `FIS_API_KEY` (NF-09).

@@ -1,0 +1,390 @@
+# CT-TRACK – Seguimiento del embarque
+# Contrato de integración en estado PROPUESTA (Fase 6a). Ver docs/integraciones/README.md.
+openapi: 3.1.0
+info:
+  title: Seguimiento del embarque
+  version: 0.1.0
+  description: |
+    PROPUESTA – pendiente de validación con Customer Service – Cami/Mati
+
+    Consulta de hitos de seguimiento para mostrarlos en el detalle del embarque (M2-08, Fase 0). La fuente de los
+    eventos la confirma Customer Service con Hapag-Lloyd; no hay tarea asociada en Pendientes.
+  x-contrato: CT-TRACK
+  x-estado: PROPUESTA – pendiente de validación con Customer Service – Cami/Mati
+  x-responsable: Customer Service – Cami/Mati
+  x-puerto:
+  - ITrackingProvider
+  x-tareas-pendientes: sin tarea en Pendientes
+servers:
+- url: '{baseUrl}'
+  description: URL base configurada en `Integrations:Tracking:BaseUrl`. La URL productiva la entrega el responsable al validar
+    el contrato; por defecto apunta al simulador local (Fase 6c).
+  variables:
+    baseUrl:
+      default: http://localhost:5199/tracking
+security:
+- ApiKey: []
+tags:
+- name: Seguimiento
+paths:
+  /tracking/{reference}/events:
+    parameters:
+    - $ref: '#/components/parameters/CorrelationId'
+    get:
+      operationId: getTrackingEvents
+      summary: Hitos de seguimiento de un embarque
+      description: Hitos y ubicación del embarque para el detalle del BL o booking (M2-08). Lista vacía si aún no hay eventos.
+      tags:
+      - Seguimiento
+      parameters:
+      - name: reference
+        in: path
+        required: true
+        description: Número de BL, booking o contenedor.
+        schema:
+          type: string
+          minLength: 4
+        example: HLCUSCL2609A1234
+      - name: referenceType
+        in: query
+        required: false
+        description: Tipo de referencia.
+        schema:
+          type: string
+          enum:
+          - BL
+          - BOOKING
+          - CONTAINER
+          default: BL
+        example: BL
+      responses:
+        '200':
+          description: Hitos del embarque.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackingEvents'
+              examples:
+                enTransito:
+                  value:
+                    reference: HLCUSCL2609A1234
+                    referenceType: BL
+                    lastUpdatedAt: '2026-10-20T13:05:00Z'
+                    events:
+                    - eventId: e-0001
+                      eventType: TRANSPORT
+                      eventClassifier: ACT
+                      eventCode: DEPA
+                      description: Zarpe de la nave
+                      occurredAt: '2026-09-28T19:10:00Z'
+                      location:
+                        unLocode: DEHAM
+                        name: Hamburg
+                        countryCode: DE
+                        facility: CTA
+                      equipmentNumber: null
+                      vesselName: SANTOS EXPRESS
+                      voyage: 2541W
+                      transportMode: VESSEL
+                    - eventId: e-0002
+                      eventType: TRANSPORT
+                      eventClassifier: EST
+                      eventCode: ARRI
+                      description: Arribo estimado
+                      occurredAt: '2026-10-21T08:00:00Z'
+                      location:
+                        unLocode: CLSAI
+                        name: San Antonio
+                        countryCode: CL
+                        facility: STI
+                      equipmentNumber: null
+                      vesselName: SANTOS EXPRESS
+                      voyage: 2541W
+                      transportMode: VESSEL
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  parameters:
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: Identificador de correlación (NF-27). El portal lo envía en cada llamada; si falta, el servicio genera
+        uno y lo devuelve en la respuesta.
+      schema:
+        type: string
+        maxLength: 64
+      example: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+  headers:
+    CorrelationId:
+      description: Mismo valor recibido en la solicitud, o uno generado por el servicio.
+      schema:
+        type: string
+        maxLength: 64
+    RetryAfter:
+      description: Segundos que el cliente debe esperar antes de reintentar (RFC 9110 §10.2.3).
+      schema:
+        type: integer
+        minimum: 0
+  responses:
+    BadRequest:
+      description: 'Solicitud inválida: parámetro faltante o con formato incorrecto.'
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            parametroInvalido:
+              value:
+                type: about:blank
+                title: Solicitud inválida
+                status: 400
+                detail: Uno o más parámetros no cumplen el formato esperado.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+                errors:
+                - field: taxId
+                  message: Debe tener el formato 12345678-9.
+    NotFound:
+      description: El recurso solicitado no existe.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            noEncontrado:
+              value:
+                type: about:blank
+                title: Recurso no encontrado
+                status: 404
+                detail: No existe un recurso con el identificador indicado.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    TooManyRequests:
+      description: Se superó el límite de solicitudes. El cliente reintenta después de `Retry-After`.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            limite:
+              value:
+                type: about:blank
+                title: Demasiadas solicitudes
+                status: 429
+                detail: Se superó el límite de solicitudes por minuto.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    InternalServerError:
+      description: Error interno del servicio.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            errorInterno:
+              value:
+                type: about:blank
+                title: Error interno
+                status: 500
+                detail: El servicio no pudo procesar la solicitud.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    ServiceUnavailable:
+      description: Servicio no disponible temporalmente (mantención o dependencia caída).
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            noDisponible:
+              value:
+                type: about:blank
+                title: Servicio no disponible
+                status: 503
+                detail: El servicio está en mantención. Reintente más tarde.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+  schemas:
+    Problem:
+      type: object
+      description: Detalle de error según RFC 9457 (`application/problem+json`). Admite miembros de extensión.
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          default: about:blank
+          description: URI que identifica el tipo de problema.
+        title:
+          type: string
+          description: Resumen legible del tipo de problema.
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+          description: Código HTTP.
+        detail:
+          type: string
+          description: Explicación específica de esta ocurrencia.
+        instance:
+          type: string
+          format: uri-reference
+          description: URI de la ocurrencia concreta.
+        correlationId:
+          type: string
+          description: 'Extensión: valor de `X-Correlation-Id`.'
+        errors:
+          type: array
+          description: 'Extensión: errores de validación por campo.'
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+            required:
+            - field
+            - message
+      required:
+      - title
+      - status
+      additionalProperties: true
+    Location:
+      type: object
+      properties:
+        unLocode:
+          type:
+          - string
+          - 'null'
+          pattern: ^[A-Z]{2}[A-Z0-9]{3}$
+        name:
+          type: string
+        countryCode:
+          type:
+          - string
+          - 'null'
+        facility:
+          type:
+          - string
+          - 'null'
+          description: Terminal o depósito.
+      required:
+      - name
+    TrackingEvent:
+      type: object
+      description: Hito del embarque. Los códigos siguen la clasificación de eventos de seguimiento de la industria (DCSA).
+      properties:
+        eventId:
+          type: string
+        eventType:
+          type: string
+          enum:
+          - SHIPMENT
+          - TRANSPORT
+          - EQUIPMENT
+        eventClassifier:
+          type: string
+          enum:
+          - PLN
+          - EST
+          - ACT
+          description: Planificado, estimado o real.
+        eventCode:
+          type: string
+          description: Por ejemplo GTIN, LOAD, DEPA, ARRI, DISC, GTOT.
+        description:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+        location:
+          $ref: '#/components/schemas/Location'
+        equipmentNumber:
+          type:
+          - string
+          - 'null'
+        vesselName:
+          type:
+          - string
+          - 'null'
+        voyage:
+          type:
+          - string
+          - 'null'
+        transportMode:
+          type:
+          - string
+          - 'null'
+          enum:
+          - VESSEL
+          - TRUCK
+          - RAIL
+          - BARGE
+          - null
+      required:
+      - eventId
+      - eventType
+      - eventClassifier
+      - eventCode
+      - occurredAt
+      - location
+    TrackingEvents:
+      type: object
+      properties:
+        reference:
+          type: string
+        referenceType:
+          type: string
+          enum:
+          - BL
+          - BOOKING
+          - CONTAINER
+        lastUpdatedAt:
+          type: string
+          format: date-time
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrackingEvent'
+      required:
+      - reference
+      - referenceType
+      - lastUpdatedAt
+      - events
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: Clave de API. En el portal se guarda cifrada como secreto `TRACKING_API_KEY` (NF-09).
