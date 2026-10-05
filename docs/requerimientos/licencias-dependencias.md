@@ -9,7 +9,7 @@ Cada fase que agrega una dependencia registra aquí el nombre, la **versión exa
 | Dependencia | Versión | Dónde | Licencia | Estado |
 |---|---|---|---|---|
 | Mermaid | 11.16.1 | Incrustada en `docs/documentacion.html` | MIT | Se mantiene |
-| bpmn-js navigated-viewer | 17.11.1 | Incrustada en `docs/documentacion.html` | bpmn.io License (no OSI, exige marca de agua) | Se elimina en la Fase 7 (reemplazo por Mermaid) |
+| bpmn-js navigated-viewer | 17.11.1 | Incrustada en `docs/documentacion.html` | bpmn.io License (no OSI, exige marca de agua) | Eliminada (Fase 7): reemplazada por Mermaid por licencia bpmn.io no OSI |
 | MediatR | 12.4.1 | Backend | Apache-2.0 | No se actualiza a ≥ 13 (comercial) |
 | FluentAssertions | 7.2.0 | Pruebas backend | Apache-2.0 | No se actualiza a ≥ 8 (comercial) |
 
