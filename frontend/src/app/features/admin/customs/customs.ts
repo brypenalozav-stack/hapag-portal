@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { CustomsService } from '../../../core/services/customs.service';
 import { Manifest, Transmission } from '../../../core/models/customs.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
@@ -13,7 +14,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 @Component({
   selector: 'app-customs',
   standalone: true,
-  imports: [FormsModule, LoadingSpinnerComponent],
+  imports: [FormsModule, TranslocoPipe, LoadingSpinnerComponent],
   templateUrl: './customs.html',
   styles: [':host { display: block; }'],
 })
@@ -43,13 +44,13 @@ export class CustomsComponent implements OnInit {
     this.loading.set(true);
     this.service.getManifests().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (m) => { this.manifests.set(m); this.loading.set(false); },
-      error: () => { this.error.set('Error al cargar manifiestos.'); this.loading.set(false); },
+      error: () => { this.error.set(translate('admin.customs.errors.loadManifests')); this.loading.set(false); },
     });
   }
 
   createManifest(): void {
     if (!this.newManifest.vesselImo || !this.newManifest.voyage || this.newManifest.port.length !== 5) {
-      this.error.set('IMO, viaje y puerto (UN/LOCODE de 5 caracteres) son obligatorios.');
+      this.error.set(translate('admin.customs.errors.required'));
       return;
     }
     this.busy.set(true);
@@ -70,7 +71,7 @@ export class CustomsComponent implements OnInit {
     this.error.set('');
     this.service.getTransmissions(m.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (t) => this.transmissions.set(t),
-      error: () => this.error.set('Error al cargar transmisiones.'),
+      error: () => this.error.set(translate('admin.customs.errors.loadTransmissions')),
     });
   }
 
@@ -108,6 +109,15 @@ export class CustomsComponent implements OnInit {
     return t.status === 'Accepted';
   }
 
+  /** Clave de traducción de la dirección del manifiesto; null si no tiene texto (se muestra tal cual). */
+  directionKey(direction: string): string | null {
+    switch (direction) {
+      case 'Ingreso': return 'admin.customs.direction.inbound';
+      case 'Salida': return 'admin.customs.direction.outbound';
+      default: return null;
+    }
+  }
+
   statusClass(status: string): string {
     switch (status) {
       case 'Accepted': return 'bg-success';
@@ -128,6 +138,6 @@ export class CustomsComponent implements OnInit {
   }
 
   private msg(e: { error?: { detail?: string; title?: string } }): string {
-    return e.error?.detail ?? e.error?.title ?? 'Ocurrió un error en la operación.';
+    return e.error?.detail ?? e.error?.title ?? translate('admin.customs.errors.generic');
   }
 }

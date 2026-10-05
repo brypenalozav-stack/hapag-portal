@@ -2,13 +2,14 @@ import { Component, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
 import { VALIDATION, REDIRECT_DELAY_MS } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -32,6 +33,8 @@ export class RegisterComponent {
     },
     { validators: [this.passwordMatchValidator] },
   );
+
+  readonly minPasswordLength = VALIDATION.PASSWORD_MIN_LENGTH;
 
   loading = signal(false);
   error = signal('');
@@ -100,7 +103,7 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message ?? 'Error al registrar. Intente nuevamente.');
+        this.error.set(err.error?.message ?? translate('auth.register.error'));
       },
     });
   }

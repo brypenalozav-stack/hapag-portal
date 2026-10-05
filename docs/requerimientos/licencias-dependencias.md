@@ -44,3 +44,15 @@ Cada fase que agrega una dependencia registra aquí el nombre, la **versión exa
 | playwright, playwright-core (transitivas de @playwright/test) | 1.63.0 | `frontend/package-lock.json` | Apache-2.0 | 5a |
 | @axe-core/playwright | 4.13.0 | `frontend/package.json` (devDependencies) | MPL-2.0 | 5a |
 | axe-core (transitiva de @axe-core/playwright) | 4.13.0 | `frontend/package-lock.json` | MPL-2.0 | 5a |
+| @jsverse/transloco (peerDependencies: `@angular/core >=16`, acepta Angular 21) | 8.4.0 | `frontend/package.json` (dependencies) | MIT | 5b |
+| @jsverse/transloco-messageformat (plurales ICU, guía UI/a11y/i18n §5.5) | 8.4.0 | `frontend/package.json` (dependencies) | MIT | 5b |
+| @jsverse/transloco-utils (transitiva de @jsverse/transloco) | 8.4.0 | `frontend/package-lock.json` | MIT | 5b |
+| @jsverse/utils (peer de @jsverse/transloco-messageformat, instalada por npm) | 1.0.0-beta.5 | `frontend/package-lock.json` | MIT | 5b |
+| @messageformat/core (transitiva de @jsverse/transloco-messageformat) | 3.4.0 | `frontend/package-lock.json` | MIT | 5b |
+| @messageformat/parser, @messageformat/runtime, @messageformat/date-skeleton, @messageformat/number-skeleton (transitivas de @messageformat/core) | 5.1.1, 3.0.2, 1.1.0, 1.2.0 | `frontend/package-lock.json` | MIT | 5b |
+| make-plural (transitiva de @messageformat/core) | 7.5.0 | `frontend/package-lock.json` | Unicode-DFS-2016 | 5b |
+| moo (transitiva de @messageformat/parser) | 0.5.3 | `frontend/package-lock.json` | BSD-3-Clause | 5b |
+| safe-identifier (transitiva de @messageformat/core) | 0.4.2 | `frontend/package-lock.json` | ISC | 5b |
+| cosmiconfig 8.3.6 y sus transitivas (js-yaml 4.3.2, import-fresh, parse-json, etc.: MIT; argparse 2.0.1: Python-2.0), vía @jsverse/transloco-utils; solo Node, no entran al bundle | 8.3.6 | `frontend/package-lock.json` | MIT / Python-2.0 | 5b |
+| @jsverse/transloco-keys-manager | 8.1.1 | `frontend/package.json` (devDependencies) | MIT | 5b |
+| Transitivas de @jsverse/transloco-keys-manager (cheerio, glob, ora, chalk, cosmiconfig 9.0.2, @jsverse/angular-utils 1.0.0-beta.6, etc.: MIT; css-select, css-what, cheerio-select, entities: BSD-2-Clause; flat 6.0.1, ieee754: BSD-3-Clause) | según `package-lock.json` | `frontend/package-lock.json` (dev) | MIT / BSD-2-Clause / BSD-3-Clause | 5b |

@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { FAQService } from '../../core/services/faq.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FAQ } from '../../core/models/faq.model';
@@ -10,7 +11,7 @@ import { FILTER_ALL } from '../../core/constants/app.constants';
 @Component({
   selector: 'app-faq',
   standalone: true,
-  imports: [FormsModule, LoadingSpinnerComponent],
+  imports: [FormsModule, TranslocoPipe, LoadingSpinnerComponent],
   templateUrl: './faq.html',
   styleUrl: './faq.scss',
 })
@@ -56,7 +57,7 @@ export class FAQComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar las preguntas frecuentes.');
+        this.error.set(translate('faq.loadError'));
         this.loading.set(false);
       },
     });
@@ -66,15 +67,16 @@ export class FAQComponent implements OnInit {
     this.openFaqId.update((current) => (current === id ? null : id));
   }
 
-  getCategoryLabel(cat: string): string {
-    const labels: Record<string, string> = {
-      ALL: 'Todas',
-      GENERAL: 'General',
-      PAYMENTS: 'Pagos',
-      SHIPPING: 'Envíos',
-      DOCUMENTATION: 'Documentación',
-      DEMURRAGE: 'Demurrage',
+  /** Clave de traducción de la categoría; null si la categoría no tiene texto (se muestra tal cual). */
+  categoryKey(cat: string): string | null {
+    const keys: Record<string, string> = {
+      ALL: 'faq.categories.all',
+      GENERAL: 'faq.categories.general',
+      PAYMENTS: 'faq.categories.payments',
+      SHIPPING: 'faq.categories.shipping',
+      DOCUMENTATION: 'faq.categories.documentation',
+      DEMURRAGE: 'faq.categories.demurrage',
     };
-    return labels[cat] ?? cat;
+    return keys[cat] ?? null;
   }
 }

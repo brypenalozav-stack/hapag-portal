@@ -15,24 +15,36 @@ export const USUARIO_PRUEBA: Client = {
   createdAt: '2026-01-15T12:00:00Z',
 };
 
+export type Idioma = 'es' | 'en';
+
+/** Idiomas de la interfaz (Q8): las pruebas de pantallas se repiten en cada uno. */
+export const IDIOMAS: readonly Idioma[] = ['es', 'en'];
+
 export interface OpcionesSesion {
-  /** Idioma sembrado en `hl_lang` (lo usa la capa i18n de la Fase 5b). */
-  lang?: 'es' | 'en';
+  /** Idioma sembrado en `hl_lang` (lo lee LocaleService al arrancar). */
+  lang?: Idioma;
+}
+
+/** Siembra el idioma en localStorage (`hl_lang`) antes de que cargue la aplicación. */
+export async function sembrarIdioma(page: Page, lang: Idioma): Promise<void> {
+  await page.addInitScript((idioma) => {
+    localStorage.setItem('hl_lang', idioma);
+  }, lang);
 }
 
 /**
  * Siembra la sesión en localStorage antes de que cargue la aplicación, con las mismas claves
- * que usa AuthService (`hl_token`, `hl_user`).
+ * que usa AuthService (`hl_token`, `hl_user`) y, si se indica, el idioma (`hl_lang`).
  */
 export async function sembrarSesion(page: Page, opciones: OpcionesSesion = {}): Promise<void> {
   await page.addInitScript(
-    ({ usuario, lang }) => {
+    ({ usuario }) => {
       localStorage.setItem('hl_token', 'token-de-prueba');
       localStorage.setItem('hl_user', JSON.stringify(usuario));
-      if (lang) {
-        localStorage.setItem('hl_lang', lang);
-      }
     },
-    { usuario: USUARIO_PRUEBA, lang: opciones.lang },
+    { usuario: USUARIO_PRUEBA },
   );
+  if (opciones.lang) {
+    await sembrarIdioma(page, opciones.lang);
+  }
 }

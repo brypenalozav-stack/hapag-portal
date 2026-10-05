@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AdminUserService } from '../../../core/services/admin-user.service';
 import { AdminUser, RoleOption } from '../../../core/models/admin-user.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
@@ -8,7 +9,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, LoadingSpinnerComponent],
+  imports: [FormsModule, ReactiveFormsModule, TranslocoPipe, LoadingSpinnerComponent],
   templateUrl: './users.html',
   styles: [':host { display: block; }'],
 })
@@ -69,7 +70,7 @@ export class UsersComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar los usuarios.');
+        this.error.set(translate('admin.users.errors.load'));
         this.loading.set(false);
       },
     });
@@ -110,13 +111,13 @@ export class UsersComponent implements OnInit {
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.submitting.set(false);
-        this.formSuccess.set('Usuario creado exitosamente.');
+        this.formSuccess.set(translate('admin.users.created'));
         this.load();
         setTimeout(() => this.showForm.set(false), 1200);
       },
       error: (err) => {
         this.submitting.set(false);
-        this.formError.set(err.error?.detail ?? err.error?.title ?? 'Error al crear el usuario.');
+        this.formError.set(err.error?.detail ?? err.error?.title ?? translate('admin.users.errors.create'));
       },
     });
   }

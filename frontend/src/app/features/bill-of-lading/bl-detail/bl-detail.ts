@@ -1,17 +1,23 @@
 import { Component, inject, signal, OnInit, input, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { DecimalPipe, DatePipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { BillOfLadingService } from '../../../core/services/bl.service';
 import { BillOfLading, LocalCharge, DemurrageCharge } from '../../../core/models/bl.model';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { CountryBadgeComponent } from '../../../shared/components/country-badge/country-badge';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
+import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
+import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
 
 @Component({
   selector: 'app-bl-detail',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, DatePipe, StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent],
+  imports: [
+    RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe,
+    StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent,
+  ],
   templateUrl: './bl-detail.html',
   styleUrl: './bl-detail.scss',
 })
@@ -43,7 +49,7 @@ export class BLDetailComponent implements OnInit {
         this.loadDemurrage(bl.blNumber);
       },
       error: () => {
-        this.error.set('Error al cargar el BL.');
+        this.error.set(translate('bl.detail.errors.loadBl'));
         this.loading.set(false);
       },
     });
@@ -54,7 +60,7 @@ export class BLDetailComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (response) => this.charges.set(response.localCharges ?? []),
-      error: () => this.error.set('Error al cargar los cargos.'),
+      error: () => this.error.set(translate('bl.detail.errors.loadCharges')),
     });
   }
 
@@ -63,7 +69,7 @@ export class BLDetailComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (dem) => this.demurrage.set(dem),
-      error: () => this.error.set('Error al cargar demurrage.'),
+      error: () => this.error.set(translate('bl.detail.errors.loadDemurrage')),
     });
   }
 

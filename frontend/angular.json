@@ -61,6 +61,9 @@
             ],
             "polyfills": [
               "zone.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "@messageformat/core"
             ]
           },
           "configurations": {

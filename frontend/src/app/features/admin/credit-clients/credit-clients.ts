@@ -1,11 +1,12 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DecimalPipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ApiService } from '../../../core/services/api.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { CountryBadgeComponent } from '../../../shared/components/country-badge/country-badge';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { FILTER_ALL, API_ENDPOINTS } from '../../../core/constants/app.constants';
 
 interface CreditClient {
@@ -23,7 +24,10 @@ interface CreditClient {
 @Component({
   selector: 'app-credit-clients',
   standalone: true,
-  imports: [DecimalPipe, FormsModule, ReactiveFormsModule, StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent],
+  imports: [
+    FormsModule, ReactiveFormsModule, TranslocoPipe, HlCurrencyPipe,
+    StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent,
+  ],
   templateUrl: './credit-clients.html',
   styles: [':host { display: block; }'],
 })
@@ -71,7 +75,7 @@ export class CreditClientsComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar los clientes con crédito.');
+        this.error.set(translate('admin.creditClients.errors.load'));
         this.loading.set(false);
       },
     });
@@ -140,7 +144,7 @@ export class CreditClientsComponent implements OnInit {
 
     if (!editing && !raw.clientId.trim()) {
       this.submitting.set(false);
-      this.formError.set('Debe indicar el ID del cliente existente.');
+      this.formError.set(translate('admin.creditClients.errors.clientIdRequired'));
       return;
     }
 
@@ -159,7 +163,7 @@ export class CreditClientsComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.submitting.set(false);
-        this.formSuccess.set(editing ? 'Cliente actualizado exitosamente.' : 'Cliente creado exitosamente.');
+        this.formSuccess.set(translate(editing ? 'admin.creditClients.updated' : 'admin.creditClients.created'));
         this.loadClients();
         setTimeout(() => {
           this.showForm.set(false);
@@ -168,7 +172,7 @@ export class CreditClientsComponent implements OnInit {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.formError.set(err.error?.message ?? 'Error al guardar el cliente.');
+        this.formError.set(err.error?.message ?? translate('admin.creditClients.errors.save'));
       },
     });
   }

@@ -1,11 +1,11 @@
 <div class="hl-page-header">
-  <nav aria-label="breadcrumb">
+  <nav [attr.aria-label]="'payments.form.breadcrumbLabel' | transloco">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a routerLink="/payments" class="text-decoration-none">Pagos</a></li>
-      <li class="breadcrumb-item active">Nuevo Pago</li>
+      <li class="breadcrumb-item"><a routerLink="/payments" class="text-decoration-none">{{ 'payments.form.breadcrumbList' | transloco }}</a></li>
+      <li class="breadcrumb-item active">{{ 'payments.form.breadcrumbCurrent' | transloco }}</li>
     </ol>
   </nav>
-  <h1>Nuevo Pago</h1>
+  <h1>{{ 'payments.form.title' | transloco }}</h1>
 </div>
 
 @if (loading()) {
@@ -16,16 +16,16 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
       </svg>
-      <h4 class="text-hl-green">Pago Registrado Exitosamente</h4>
-      <p class="text-muted">Su pago ha sido registrado y está pendiente de confirmación.</p>
-      <p class="text-muted small">Redirigiendo a la lista de pagos...</p>
+      <h4 class="text-hl-green">{{ 'payments.form.success.title' | transloco }}</h4>
+      <p class="text-muted">{{ 'payments.form.success.message' | transloco }}</p>
+      <p class="text-muted small">{{ 'payments.form.success.redirect' | transloco }}</p>
     </div>
   } @else {
     <div class="row g-4">
       <!-- Payment Form -->
       <div class="col-lg-7">
         <div class="hl-card p-4">
-          <h5 class="mb-3">Datos del Pago</h5>
+          <h5 class="mb-3">{{ 'payments.form.dataTitle' | transloco }}</h5>
 
           @if (error()) {
             <div class="alert alert-danger py-2">{{ error() }}</div>
@@ -34,18 +34,18 @@
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <!-- Payment Type -->
             <div class="hl-form-group">
-              <label>Tipo de Pago</label>
+              <label>{{ 'payments.form.type' | transloco }}</label>
               <select class="form-select" formControlName="type"
                       [class.is-invalid]="form.controls.type.touched && form.controls.type.invalid">
-                <option value="Freight">Flete</option>
-                <option value="LocalCharges">Cargos Locales</option>
-                <option value="Demurrage">Demurrage</option>
+                <option value="Freight">{{ 'payments.form.typeOption.freight' | transloco }}</option>
+                <option value="LocalCharges">{{ 'payments.form.typeOption.localCharges' | transloco }}</option>
+                <option value="Demurrage">{{ 'payments.form.typeOption.demurrage' | transloco }}</option>
               </select>
             </div>
 
             <!-- Payment Method -->
             <div class="hl-form-group">
-              <label>Método de Pago</label>
+              <label>{{ 'payments.form.method' | transloco }}</label>
               <div class="d-flex flex-column gap-2">
                 @for (method of paymentMethods(); track method.value) {
                   <label class="payment-method-option" [class.selected]="form.controls.method.value === method.value">
@@ -53,28 +53,15 @@
                     <div class="d-flex align-items-center gap-3 p-3 border rounded-3">
                       <div class="method-radio" [class.active]="form.controls.method.value === method.value"></div>
                       <div>
-                        <div class="fw-semibold">{{ method.label }}</div>
-                        @switch (method.value) {
-                          @case ('BankTransfer') {
-                            <div class="small text-muted">Transferencia directa a cuenta Hapag-Lloyd</div>
-                          }
-                          @case ('CreditCard') {
-                            <div class="small text-muted">Visa, Mastercard, American Express</div>
-                          }
-                          @case ('CreditLine') {
-                            <div class="small text-muted">Cargo a su línea de crédito aprobada</div>
-                          }
-                          @case ('WebPay') {
-                            <div class="small text-muted">Pago mediante código QR</div>
-                          }
-                        }
+                        <div class="fw-semibold">{{ method.labelKey | transloco }}</div>
+                        <div class="small text-muted">{{ method.hintKey | transloco }}</div>
                       </div>
                     </div>
                   </label>
                 }
               </div>
               @if (form.controls.method.touched && form.controls.method.invalid) {
-                <div class="text-danger small mt-1">Seleccione un método de pago.</div>
+                <div class="text-danger small mt-1">{{ 'payments.form.methodRequired' | transloco }}</div>
               }
             </div>
 
@@ -82,7 +69,7 @@
               @if (submitting()) {
                 <span class="spinner-border spinner-border-sm me-2" role="status"></span>
               }
-              Confirmar Pago
+              {{ 'payments.form.submit' | transloco }}
             </button>
           </form>
         </div>
@@ -91,31 +78,31 @@
       <!-- Payment Summary -->
       <div class="col-lg-5">
         <div class="hl-card p-4">
-          <h5 class="mb-3">Resumen</h5>
+          <h5 class="mb-3">{{ 'payments.form.summary.title' | transloco }}</h5>
 
           @if (bl(); as bl) {
             <div class="mb-3 pb-3 border-bottom">
-              <div class="small text-muted">Bill of Lading</div>
+              <div class="small text-muted">{{ 'payments.form.summary.bl' | transloco }}</div>
               <div class="fw-semibold">{{ bl.blNumber }}</div>
             </div>
             <div class="mb-3 pb-3 border-bottom">
-              <div class="small text-muted">Nave / Viaje</div>
+              <div class="small text-muted">{{ 'payments.form.summary.vesselVoyage' | transloco }}</div>
               <div class="fw-semibold">{{ bl.vessel }} / {{ bl.voyage }}</div>
             </div>
           }
 
           <div class="d-flex justify-content-between mb-2">
-            <span class="text-muted">Subtotal</span>
-            <span class="fw-semibold">USD {{ amount() | number:'1.2-2' }}</span>
+            <span class="text-muted">{{ 'payments.form.summary.subtotal' | transloco }}</span>
+            <span class="fw-semibold">{{ amount() | hlCurrency: 'USD' }}</span>
           </div>
           <div class="d-flex justify-content-between mb-2">
-            <span class="text-muted">IVA ({{ taxRate() * 100 | number:'1.0-0' }}%)</span>
-            <span class="fw-semibold">USD {{ taxAmount() | number:'1.2-2' }}</span>
+            <span class="text-muted">{{ 'payments.form.summary.tax' | transloco: { rate: (taxRate() * 100 | hlNumber:'1.0-0') } }}</span>
+            <span class="fw-semibold">{{ taxAmount() | hlCurrency: 'USD' }}</span>
           </div>
           <hr>
           <div class="d-flex justify-content-between">
-            <span class="fw-bold fs-5">Total</span>
-            <span class="fw-bold fs-5 text-hl-orange">USD {{ totalAmount() | number:'1.2-2' }}</span>
+            <span class="fw-bold fs-5">{{ 'payments.form.summary.total' | transloco }}</span>
+            <span class="fw-bold fs-5 text-hl-orange">{{ totalAmount() | hlCurrency: 'USD' }}</span>
           </div>
         </div>
       </div>

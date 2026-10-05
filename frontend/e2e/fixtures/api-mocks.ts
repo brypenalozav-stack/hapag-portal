@@ -121,6 +121,26 @@ const PAGOS: Payment[] = [
     createdAt: '2026-10-01T09:45:00Z',
     details: [],
   },
+  {
+    // Monto en CLP (sin decimales, Q8) para la prueba de cambio de idioma.
+    id: 'p0000000-0000-4000-8000-000000000003',
+    paymentNumber: 'PAY-CL-2026-000125',
+    type: 'LocalCharges',
+    method: 'BankTransfer',
+    amount: 1037451,
+    taxAmount: 197116,
+    totalAmount: 1234567,
+    currency: 'CLP',
+    status: 'CONFIRMED',
+    blNumber: BL_PRUEBA.blNumber,
+    blId: BL_PRUEBA.id,
+    clientId: USUARIO_PRUEBA.id,
+    clientName: USUARIO_PRUEBA.name,
+    country: 'CL',
+    createdAt: '2026-10-02T15:20:00Z',
+    confirmedAt: '2026-10-02T15:22:00Z',
+    details: [],
+  },
 ];
 
 const NOTIFICACIONES: NotificationItem[] = [

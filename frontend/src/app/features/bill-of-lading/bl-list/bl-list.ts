@@ -2,18 +2,22 @@ import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DecimalPipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { BillOfLadingService } from '../../../core/services/bl.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { BillOfLading } from '../../../core/models/bl.model';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { CountryBadgeComponent } from '../../../shared/components/country-badge/country-badge';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 
 @Component({
   selector: 'app-bl-list',
   standalone: true,
-  imports: [RouterLink, FormsModule, DecimalPipe, StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent],
+  imports: [
+    RouterLink, FormsModule, TranslocoPipe, HlCurrencyPipe,
+    StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent,
+  ],
   templateUrl: './bl-list.html',
   styleUrl: './bl-list.scss',
 })
@@ -42,7 +46,7 @@ export class BLListComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar los BLs. Intente nuevamente.');
+        this.error.set(translate('bl.list.loadError'));
         this.loading.set(false);
       },
     });
@@ -66,7 +70,7 @@ export class BLListComponent implements OnInit {
       },
       error: () => {
         this.bls.set([]);
-        this.error.set('No se encontró el BL especificado.');
+        this.error.set(translate('bl.list.notFound'));
         this.loading.set(false);
       },
     });

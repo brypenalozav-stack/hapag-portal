@@ -1,23 +1,23 @@
 <div class="hl-page-header">
-  <h1>Cargos Locales</h1>
-  <p class="text-muted mb-0">Consulte y pague los cargos locales por número de BL</p>
+  <h1>{{ 'localCharges.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'localCharges.subtitle' | transloco }}</p>
 </div>
 
 <!-- Search form -->
 <div class="hl-card p-4 mb-4">
   <form (ngSubmit)="search()" class="row g-3 align-items-end">
     <div class="col-md-8 col-lg-6">
-      <label for="blNumber" class="form-label fw-semibold">Número de BL</label>
+      <label for="blNumber" class="form-label fw-semibold">{{ 'localCharges.blNumber' | transloco }}</label>
       <input type="text" class="form-control" id="blNumber"
              [(ngModel)]="searchBlNumber" name="blNumber"
-             placeholder="Ej: HLCUVAL250100123" />
+             [placeholder]="'localCharges.blPlaceholder' | transloco" />
     </div>
     <div class="col-auto">
       <button type="submit" class="btn btn-hl-orange px-4" [disabled]="!searchBlNumber.trim()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
           <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
         </svg>
-        Buscar
+        {{ 'localCharges.search' | transloco }}
       </button>
     </div>
   </form>
@@ -29,7 +29,7 @@
   <div class="alert alert-danger">{{ error() }}</div>
 } @else if (searched()) {
   <div class="mb-3">
-    <span class="text-muted">Resultados para BL:</span>
+    <span class="text-muted">{{ 'localCharges.resultsFor' | transloco }}</span>
     <span class="fw-bold ms-1">{{ activeBlNumber() }}</span>
   </div>
 
@@ -41,7 +41,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
               <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
             </svg>
-            <p class="text-muted mb-0">No hay cargos locales pendientes.</p>
+            <p class="text-muted mb-0">{{ 'localCharges.empty' | transloco }}</p>
           </div>
         } @else {
           <div class="table-responsive">
@@ -51,12 +51,12 @@
                   <th style="width: 40px;">
                     <input type="checkbox" class="form-check-input" [checked]="allSelected" (change)="toggleAll()" />
                   </th>
-                  <th>Código</th>
-                  <th>Descripción</th>
-                  <th>Monto</th>
-                  <th>Impuesto</th>
-                  <th>Total</th>
-                  <th>Estado</th>
+                  <th>{{ 'localCharges.col.code' | transloco }}</th>
+                  <th>{{ 'localCharges.col.description' | transloco }}</th>
+                  <th>{{ 'localCharges.col.amount' | transloco }}</th>
+                  <th>{{ 'localCharges.col.tax' | transloco }}</th>
+                  <th>{{ 'localCharges.col.total' | transloco }}</th>
+                  <th>{{ 'localCharges.col.status' | transloco }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -71,9 +71,9 @@
                     </td>
                     <td class="fw-semibold">{{ charge.chargeCode }}</td>
                     <td>{{ charge.description }}</td>
-                    <td>{{ charge.currency }} {{ charge.amount | number:'1.2-2' }}</td>
-                    <td>{{ charge.currency }} {{ charge.taxAmount | number:'1.2-2' }}</td>
-                    <td class="fw-semibold">{{ charge.currency }} {{ charge.totalAmount | number:'1.2-2' }}</td>
+                    <td>{{ charge.amount | hlCurrency: charge.currency }}</td>
+                    <td>{{ charge.taxAmount | hlCurrency: charge.currency }}</td>
+                    <td class="fw-semibold">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
                     <td><app-status-badge [status]="charge.status" /></td>
                   </tr>
                 }
@@ -86,32 +86,32 @@
 
     <div class="col-lg-4">
       <div class="hl-card p-4 sticky-top" style="top: calc(var(--navbar-height) + 1.5rem);">
-        <h5 class="mb-3">Resumen de Pago</h5>
+        <h5 class="mb-3">{{ 'localCharges.summary.title' | transloco }}</h5>
 
         <div class="mb-3">
-          <span class="small text-muted">Cargos seleccionados: </span>
+          <span class="small text-muted">{{ 'localCharges.summary.selected' | transloco }} </span>
           <span class="fw-semibold">{{ selectedCharges().length }}</span>
         </div>
 
         <div class="d-flex justify-content-between mb-2">
-          <span class="text-muted">Subtotal</span>
-          <span class="fw-semibold">USD {{ subtotal() | number:'1.2-2' }}</span>
+          <span class="text-muted">{{ 'localCharges.summary.subtotal' | transloco }}</span>
+          <span class="fw-semibold">{{ subtotal() | hlCurrency: 'USD' }}</span>
         </div>
         <div class="d-flex justify-content-between mb-2">
-          <span class="text-muted">IVA ({{ taxRate() * 100 | number:'1.0-0' }}%)</span>
-          <span class="fw-semibold">USD {{ taxAmount() | number:'1.2-2' }}</span>
+          <span class="text-muted">{{ 'localCharges.summary.tax' | transloco: { rate: (taxRate() * 100 | hlNumber:'1.0-0') } }}</span>
+          <span class="fw-semibold">{{ taxAmount() | hlCurrency: 'USD' }}</span>
         </div>
         <hr>
         <div class="d-flex justify-content-between mb-3">
-          <span class="fw-bold fs-5">Total</span>
-          <span class="fw-bold fs-5 text-hl-orange">USD {{ total() | number:'1.2-2' }}</span>
+          <span class="fw-bold fs-5">{{ 'localCharges.summary.total' | transloco }}</span>
+          <span class="fw-bold fs-5 text-hl-orange">{{ total() | hlCurrency: 'USD' }}</span>
         </div>
 
         <a [routerLink]="['/payments/new', charges()[0]?.blId ?? activeBlNumber()]"
            [queryParams]="{type: 'LOCAL_CHARGES'}"
            class="btn btn-hl-orange w-100 py-2"
            [class.disabled]="selectedCharges().length === 0">
-          Pagar Seleccionados
+          {{ 'localCharges.summary.paySelected' | transloco }}
         </a>
       </div>
     </div>
@@ -122,6 +122,6 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="mb-3 opacity-25 text-hl-dark" viewBox="0 0 16 16">
       <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
     </svg>
-    <p class="text-muted mb-0">Ingrese un número de BL para consultar los cargos locales.</p>
+    <p class="text-muted mb-0">{{ 'localCharges.initial' | transloco }}</p>
   </div>
 }

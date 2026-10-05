@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../core/services/auth.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { BillOfLadingService } from '../../core/services/bl.service';
@@ -9,7 +10,7 @@ import { CountryBadgeComponent } from '../../shared/components/country-badge/cou
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, CountryBadgeComponent],
+  imports: [RouterLink, TranslocoPipe, CountryBadgeComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })

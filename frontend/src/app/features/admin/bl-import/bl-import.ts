@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { BlImportService } from '../../../core/services/bl-import.service';
 import { ClientOption, ImportBillRow, ImportResult } from '../../../core/models/bl-import.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
@@ -14,7 +15,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 @Component({
   selector: 'app-bl-import',
   standalone: true,
-  imports: [FormsModule, LoadingSpinnerComponent],
+  imports: [FormsModule, TranslocoPipe, LoadingSpinnerComponent],
   templateUrl: './bl-import.html',
   styles: [':host { display: block; }'],
 })
@@ -42,7 +43,7 @@ export class BlImportComponent implements OnInit {
   ngOnInit(): void {
     this.service.getClients().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (c) => this.clients.set(c),
-      error: () => this.parseError.set('No se pudieron cargar los clientes.'),
+      error: () => this.parseError.set(translate('admin.blImport.errors.loadClients')),
     });
   }
 
@@ -51,13 +52,13 @@ export class BlImportComponent implements OnInit {
     this.result.set(null);
 
     if (!this.selectedClientId) {
-      this.parseError.set('Selecciona el cliente al que pertenecen los BL.');
+      this.parseError.set(translate('admin.blImport.errors.selectClient'));
       return;
     }
 
     const lines = this.rawText.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
     if (lines.length === 0) {
-      this.parseError.set('Pega al menos una fila de BL.');
+      this.parseError.set(translate('admin.blImport.errors.noRows'));
       return;
     }
 
@@ -85,7 +86,7 @@ export class BlImportComponent implements OnInit {
     }
 
     if (rows.length === 0) {
-      this.parseError.set('No se encontraron filas válidas para previsualizar.');
+      this.parseError.set(translate('admin.blImport.errors.noValidRows'));
       return;
     }
     this.preview.set(rows);
@@ -102,7 +103,7 @@ export class BlImportComponent implements OnInit {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.parseError.set(err.error?.detail ?? err.error?.title ?? 'Error al importar los BL.');
+        this.parseError.set(err.error?.detail ?? err.error?.title ?? translate('admin.blImport.errors.import'));
       },
     });
   }

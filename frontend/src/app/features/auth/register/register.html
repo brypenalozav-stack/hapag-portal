@@ -7,10 +7,10 @@
           <rect x="0" y="10" width="60" height="60" rx="6" class="hl-logo__mark"/>
           <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" class="hl-logo__initials">HL</text>
           <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" class="hl-logo__name">Hapag-Lloyd</text>
-          <text x="75" y="58" font-family="Inter, sans-serif" font-weight="300" font-size="11" fill="rgba(51,66,79,0.5)" letter-spacing="3">SHIPPING &amp; LOGISTICS</text>
+          <text x="75" y="58" font-family="Inter, sans-serif" font-weight="300" font-size="11" fill="rgba(51,66,79,0.5)" letter-spacing="3">{{ 'common.brand.tagline' | transloco }}</text>
         </svg>
-        <h1 class="register-title">Crear Cuenta</h1>
-        <p class="register-subtitle">Regístrese en el Portal Hapag-Lloyd</p>
+        <h1 class="register-title">{{ 'auth.register.title' | transloco }}</h1>
+        <p class="register-subtitle">{{ 'auth.register.subtitle' | transloco }}</p>
       </div>
 
       @if (success()) {
@@ -18,7 +18,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mb-2" viewBox="0 0 16 16">
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
           </svg>
-          <p class="mb-0"><strong>Registro exitoso.</strong> Redirigiendo al inicio de sesión...</p>
+          <p class="mb-0"><strong>{{ 'auth.register.successTitle' | transloco }}</strong> {{ 'auth.register.successRedirect' | transloco }}</p>
         </div>
       } @else {
         @if (error()) {
@@ -28,28 +28,28 @@
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <!-- Type selector -->
           <div class="hl-form-group">
-            <label>Tipo de Usuario</label>
+            <label>{{ 'auth.register.userType' | transloco }}</label>
             <div class="d-flex gap-2">
               <button type="button"
                       class="btn flex-fill"
                       [class.btn-hl-blue]="form.controls.type.value === 'CLIENT'"
                       [class.btn-outline-secondary]="form.controls.type.value !== 'CLIENT'"
                       (click)="form.controls.type.setValue('CLIENT'); onTypeChange()">
-                Cliente
+                {{ 'auth.register.typeClient' | transloco }}
               </button>
               <button type="button"
                       class="btn flex-fill"
                       [class.btn-hl-blue]="form.controls.type.value === 'AGENT'"
                       [class.btn-outline-secondary]="form.controls.type.value !== 'AGENT'"
                       (click)="form.controls.type.setValue('AGENT'); onTypeChange()">
-                Agente Aduanero
+                {{ 'auth.register.typeAgent' | transloco }}
               </button>
             </div>
           </div>
 
           <!-- Country selector -->
           <div class="hl-form-group">
-            <label>País</label>
+            <label>{{ 'auth.register.country' | transloco }}</label>
             <div class="d-flex gap-2">
               <button type="button"
                       class="btn flex-fill"
@@ -57,7 +57,7 @@
                       [class.btn-outline-secondary]="form.controls.country.value !== 'CL'"
                       (click)="form.controls.country.setValue('CL'); onCountryChange()">
                 <img src="flags/cl-20x14.svg" alt="" width="20" height="14" class="me-1" />
-                Chile
+                {{ 'common.country.cl' | transloco }}
               </button>
               <button type="button"
                       class="btn flex-fill"
@@ -65,7 +65,7 @@
                       [class.btn-outline-secondary]="form.controls.country.value !== 'BO'"
                       (click)="form.controls.country.setValue('BO'); onCountryChange()">
                 <img src="flags/bo-20x14.svg" alt="" width="20" height="14" class="me-1" />
-                Bolivia
+                {{ 'common.country.bo' | transloco }}
               </button>
             </div>
           </div>
@@ -73,11 +73,11 @@
           <div class="row">
             <div class="col-12">
               <div class="hl-form-group">
-                <label for="name">Nombre Completo / Razón Social</label>
+                <label for="name">{{ 'auth.register.name' | transloco }}</label>
                 <input type="text" id="name" class="form-control" formControlName="name"
                        [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid" />
                 @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
-                  <div class="invalid-feedback">El nombre es obligatorio.</div>
+                  <div class="invalid-feedback">{{ 'auth.register.nameRequired' | transloco }}</div>
                 }
               </div>
             </div>
@@ -86,49 +86,49 @@
           <div class="row">
             <div class="col-md-6">
               <div class="hl-form-group">
-                <label for="taxId">{{ form.controls.country.value === 'CL' ? 'RUT' : 'NIT' }}</label>
+                <label for="taxId">{{ (form.controls.country.value === 'CL' ? 'auth.register.taxIdCl' : 'auth.register.taxIdBo') | transloco }}</label>
                 <input type="text" id="taxId" class="form-control" formControlName="taxId"
                        [placeholder]="form.controls.country.value === 'CL' ? '12.345.678-9' : '1234567890'"
                        [class.is-invalid]="form.controls.taxId.touched && form.controls.taxId.invalid" />
                 @if (form.controls.taxId.touched && form.controls.taxId.errors?.['required']) {
-                  <div class="invalid-feedback">Este campo es obligatorio.</div>
+                  <div class="invalid-feedback">{{ 'auth.register.taxIdRequired' | transloco }}</div>
                 }
               </div>
             </div>
             <div class="col-md-6">
               <div class="hl-form-group">
-                <label for="phone">Teléfono</label>
+                <label for="phone">{{ 'auth.register.phone' | transloco }}</label>
                 <input type="tel" id="phone" class="form-control" formControlName="phone"
                        [placeholder]="form.controls.country.value === 'CL' ? '+56 9 1234 5678' : '+591 7 1234567'"
                        [class.is-invalid]="form.controls.phone.touched && form.controls.phone.invalid" />
                 @if (form.controls.phone.touched && form.controls.phone.errors?.['required']) {
-                  <div class="invalid-feedback">El teléfono es obligatorio.</div>
+                  <div class="invalid-feedback">{{ 'auth.register.phoneRequired' | transloco }}</div>
                 }
               </div>
             </div>
           </div>
 
           <div class="hl-form-group">
-            <label for="regEmail">Correo Electrónico</label>
+            <label for="regEmail">{{ 'auth.register.email' | transloco }}</label>
             <input type="email" id="regEmail" class="form-control" formControlName="email"
-                   placeholder="usuario@empresa.com"
+                   [placeholder]="'auth.register.emailPlaceholder' | transloco"
                    [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid" />
             @if (form.controls.email.touched && form.controls.email.errors?.['required']) {
-              <div class="invalid-feedback">El correo es obligatorio.</div>
+              <div class="invalid-feedback">{{ 'auth.register.emailRequired' | transloco }}</div>
             }
             @if (form.controls.email.touched && form.controls.email.errors?.['email']) {
-              <div class="invalid-feedback">Ingrese un correo válido.</div>
+              <div class="invalid-feedback">{{ 'auth.register.emailInvalid' | transloco }}</div>
             }
           </div>
 
           @if (form.controls.type.value === 'AGENT') {
             <div class="hl-form-group">
-              <label for="agentCode">Código de Agente</label>
+              <label for="agentCode">{{ 'auth.register.agentCode' | transloco }}</label>
               <input type="text" id="agentCode" class="form-control" formControlName="agentCode"
-                     placeholder="Código asignado por Hapag-Lloyd"
+                     [placeholder]="'auth.register.agentCodePlaceholder' | transloco"
                      [class.is-invalid]="form.controls.agentCode.touched && form.controls.agentCode.invalid" />
               @if (form.controls.agentCode.touched && form.controls.agentCode.errors?.['required']) {
-                <div class="invalid-feedback">El código de agente es obligatorio.</div>
+                <div class="invalid-feedback">{{ 'auth.register.agentCodeRequired' | transloco }}</div>
               }
             </div>
           }
@@ -136,29 +136,29 @@
           <div class="row">
             <div class="col-md-6">
               <div class="hl-form-group">
-                <label for="password">Contraseña</label>
+                <label for="password">{{ 'auth.register.password' | transloco }}</label>
                 <input type="password" id="password" class="form-control" formControlName="password"
-                       placeholder="Mínimo 8 caracteres"
+                       [placeholder]="'auth.register.passwordPlaceholder' | transloco: { min: minPasswordLength }"
                        [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid" />
                 @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
-                  <div class="invalid-feedback">La contraseña es obligatoria.</div>
+                  <div class="invalid-feedback">{{ 'auth.register.passwordRequired' | transloco }}</div>
                 }
                 @if (form.controls.password.touched && form.controls.password.errors?.['minlength']) {
-                  <div class="invalid-feedback">Mínimo 8 caracteres.</div>
+                  <div class="invalid-feedback">{{ 'auth.register.passwordMinLength' | transloco: { min: minPasswordLength } }}</div>
                 }
               </div>
             </div>
             <div class="col-md-6">
               <div class="hl-form-group">
-                <label for="confirmPassword">Confirmar Contraseña</label>
+                <label for="confirmPassword">{{ 'auth.register.confirmPassword' | transloco }}</label>
                 <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
-                       placeholder="Repita la contraseña"
+                       [placeholder]="'auth.register.confirmPasswordPlaceholder' | transloco"
                        [class.is-invalid]="form.controls.confirmPassword.touched && form.controls.confirmPassword.invalid" />
                 @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['required']) {
-                  <div class="invalid-feedback">Confirme la contraseña.</div>
+                  <div class="invalid-feedback">{{ 'auth.register.confirmPasswordRequired' | transloco }}</div>
                 }
                 @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['mismatch']) {
-                  <div class="invalid-feedback">Las contraseñas no coinciden.</div>
+                  <div class="invalid-feedback">{{ 'auth.register.passwordMismatch' | transloco }}</div>
                 }
               </div>
             </div>
@@ -168,13 +168,13 @@
             @if (loading()) {
               <span class="spinner-border spinner-border-sm me-2" role="status"></span>
             }
-            Crear Cuenta
+            {{ 'auth.register.submit' | transloco }}
           </button>
         </form>
 
         <div class="text-center mt-3">
           <a routerLink="/login" class="back-link">
-            ¿Ya tiene cuenta? <strong>Inicie sesión</strong>
+            {{ 'auth.register.hasAccount' | transloco }} <strong>{{ 'auth.register.loginLink' | transloco }}</strong>
           </a>
         </div>
       }

@@ -122,6 +122,12 @@ jobs:
       - name: Check hex colors (tokens)
         run: npm run check:hex
 
+      - name: Check i18n keys (es/en parity, ICU, used keys)
+        run: npm run check:i18n
+
+      - name: Check hardcoded template texts
+        run: npm run check:i18n-text
+
       - name: Build (production)
         run: npx ng build --configuration production
 

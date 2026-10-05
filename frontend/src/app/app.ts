@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from './core/services/auth.service';
 import { NavbarComponent } from './shared/components/navbar/navbar';
 import { SidebarComponent } from './shared/components/sidebar/sidebar';
@@ -7,7 +8,7 @@ import { SidebarComponent } from './shared/components/sidebar/sidebar';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, SidebarComponent],
+  imports: [RouterOutlet, TranslocoPipe, NavbarComponent, SidebarComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

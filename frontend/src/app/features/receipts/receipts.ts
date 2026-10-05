@@ -1,14 +1,16 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ReceiptService, Receipt } from '../../core/services/receipt.service';
 import { CountryBadgeComponent } from '../../shared/components/country-badge/country-badge';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
+import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
+import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 
 @Component({
   selector: 'app-receipts',
   standalone: true,
-  imports: [DatePipe, DecimalPipe, CountryBadgeComponent, LoadingSpinnerComponent],
+  imports: [TranslocoPipe, HlCurrencyPipe, HlDatePipe, CountryBadgeComponent, LoadingSpinnerComponent],
   templateUrl: './receipts.html',
   styleUrl: './receipts.scss',
 })
@@ -30,7 +32,7 @@ export class ReceiptsComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar los comprobantes.');
+        this.error.set(translate('receipts.loadError'));
         this.loading.set(false);
       },
     });

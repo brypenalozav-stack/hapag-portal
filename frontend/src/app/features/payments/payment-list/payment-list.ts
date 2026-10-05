@@ -2,17 +2,22 @@ import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DecimalPipe, DatePipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { PaymentService } from '../../../core/services/payment.service';
 import { Payment } from '../../../core/models/payment.model';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
+import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { FILTER_ALL } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-payment-list',
   standalone: true,
-  imports: [RouterLink, FormsModule, DecimalPipe, DatePipe, StatusBadgeComponent, LoadingSpinnerComponent],
+  imports: [
+    RouterLink, FormsModule, TranslocoPipe, HlCurrencyPipe, HlDatePipe,
+    StatusBadgeComponent, LoadingSpinnerComponent,
+  ],
   templateUrl: './payment-list.html',
   styleUrl: './payment-list.scss',
 })
@@ -42,7 +47,7 @@ export class PaymentListComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar los pagos.');
+        this.error.set(translate('payments.list.loadError'));
         this.loading.set(false);
       },
     });
@@ -62,36 +67,38 @@ export class PaymentListComponent implements OnInit {
     }
   }
 
-  getTypeLabel(type: string): string {
-    const labels: Record<string, string> = {
-      FREIGHT: 'Flete',
-      LOCAL_CHARGES: 'Cargos Locales',
-      DEMURRAGE: 'Demurrage',
-      Freight: 'Flete',
-      LocalCharges: 'Cargos Locales',
-      Demurrage: 'Demurrage',
-      Combined: 'Combinado',
+  /** Clave de traducción del tipo de pago; null si el código no tiene texto (se muestra tal cual). */
+  typeKey(type: string): string | null {
+    const keys: Record<string, string> = {
+      FREIGHT: 'payments.list.type.freight',
+      LOCAL_CHARGES: 'payments.list.type.localCharges',
+      DEMURRAGE: 'payments.list.type.demurrage',
+      Freight: 'payments.list.type.freight',
+      LocalCharges: 'payments.list.type.localCharges',
+      Demurrage: 'payments.list.type.demurrage',
+      Combined: 'payments.list.type.combined',
     };
-    return labels[type] ?? type;
+    return keys[type] ?? null;
   }
 
-  getMethodLabel(method: string): string {
-    const labels: Record<string, string> = {
-      BANK_TRANSFER: 'Transferencia',
-      CREDIT_CARD: 'Tarjeta de Crédito',
-      CREDIT_LINE: 'Línea de Crédito',
-      QR_PAYMENT: 'Pago QR',
-      BankTransfer: 'Transferencia',
-      CreditCard: 'Tarjeta de Crédito',
-      DebitCard: 'Tarjeta de Débito',
-      WebPay: 'WebPay',
-      Cash: 'Efectivo',
-      Check: 'Cheque',
-      Khipu: 'Khipu',
-      CreditLine: 'Línea de Crédito',
-      Deposit: 'Depósito',
-      BankDeposit: 'Depósito Bancario',
+  /** Clave de traducción del medio de pago; null si el código no tiene texto (se muestra tal cual). */
+  methodKey(method: string): string | null {
+    const keys: Record<string, string> = {
+      BANK_TRANSFER: 'payments.list.method.bankTransfer',
+      CREDIT_CARD: 'payments.list.method.creditCard',
+      CREDIT_LINE: 'payments.list.method.creditLine',
+      QR_PAYMENT: 'payments.list.method.qr',
+      BankTransfer: 'payments.list.method.bankTransfer',
+      CreditCard: 'payments.list.method.creditCard',
+      DebitCard: 'payments.list.method.debitCard',
+      WebPay: 'payments.list.method.webPay',
+      Cash: 'payments.list.method.cash',
+      Check: 'payments.list.method.check',
+      Khipu: 'payments.list.method.khipu',
+      CreditLine: 'payments.list.method.creditLine',
+      Deposit: 'payments.list.method.deposit',
+      BankDeposit: 'payments.list.method.bankDeposit',
     };
-    return labels[method] ?? method;
+    return keys[method] ?? null;
   }
 }

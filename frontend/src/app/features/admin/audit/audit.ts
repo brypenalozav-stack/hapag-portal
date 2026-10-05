@@ -1,16 +1,17 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuditService } from '../../../core/services/audit.service';
 import { AuditLogItem } from '../../../core/models/audit.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 
 /** Consulta de auditoría sobre el registro de escrituras (AuditLog) con filtros y detalle old/new. */
 @Component({
   selector: 'app-audit',
   standalone: true,
-  imports: [FormsModule, DatePipe, LoadingSpinnerComponent],
+  imports: [FormsModule, TranslocoPipe, HlDatePipe, LoadingSpinnerComponent],
   templateUrl: './audit.html',
   styles: [':host { display: block; }'],
 })
@@ -45,7 +46,7 @@ export class AuditComponent implements OnInit {
       pageSize: this.pageSize,
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => { this.items.set(res.items); this.total.set(res.total); this.loading.set(false); },
-      error: () => { this.error.set('Error al cargar la auditoría.'); this.loading.set(false); },
+      error: () => { this.error.set(translate('admin.audit.loadError')); this.loading.set(false); },
     });
   }
 

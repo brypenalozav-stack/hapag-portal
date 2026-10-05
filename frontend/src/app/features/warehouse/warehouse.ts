@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ApiService } from '../../core/services/api.service';
 import { BillOfLadingService } from '../../core/services/bl.service';
 import { API_ENDPOINTS } from '../../core/constants/app.constants';
@@ -10,11 +11,11 @@ import { API_ENDPOINTS } from '../../core/constants/app.constants';
 @Component({
   selector: 'app-warehouse',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe],
   template: `
     <div class="hl-page-header">
-      <h1>Solicitud de Cambio de Almacén</h1>
-      <p class="text-muted mb-0">Solicite el cambio de almacén para sus contenedores</p>
+      <h1>{{ 'warehouse.title' | transloco }}</h1>
+      <p class="text-muted mb-0">{{ 'warehouse.subtitle' | transloco }}</p>
     </div>
 
     @if (success()) {
@@ -22,9 +23,9 @@ import { API_ENDPOINTS } from '../../core/constants/app.constants';
         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
         </svg>
-        <h4 class="text-hl-green">Solicitud Enviada</h4>
-        <p class="text-muted">Su solicitud de cambio de almacén ha sido registrada. Recibirá una confirmación por correo.</p>
-        <a routerLink="/dashboard" class="btn btn-hl-blue mt-2">Volver al Dashboard</a>
+        <h4 class="text-hl-green">{{ 'warehouse.success.title' | transloco }}</h4>
+        <p class="text-muted">{{ 'warehouse.success.message' | transloco }}</p>
+        <a routerLink="/dashboard" class="btn btn-hl-blue mt-2">{{ 'warehouse.success.backToDashboard' | transloco }}</a>
       </div>
     } @else {
       <div class="row justify-content-center">
@@ -36,73 +37,73 @@ import { API_ENDPOINTS } from '../../core/constants/app.constants';
 
             <form [formGroup]="form" (ngSubmit)="onSubmit()">
               <div class="hl-form-group">
-                <label for="blNumber">Número de BL</label>
+                <label for="blNumber">{{ 'warehouse.blNumber' | transloco }}</label>
                 <input type="text" id="blNumber" class="form-control" formControlName="blNumber"
-                       placeholder="Ej: HLCU1234567890"
+                       [placeholder]="'warehouse.blPlaceholder' | transloco"
                        [class.is-invalid]="form.controls.blNumber.touched && form.controls.blNumber.invalid" />
                 @if (form.controls.blNumber.touched && form.controls.blNumber.errors?.['required']) {
-                  <div class="invalid-feedback">El número de BL es obligatorio.</div>
+                  <div class="invalid-feedback">{{ 'warehouse.blRequired' | transloco }}</div>
                 }
               </div>
 
               <div class="hl-form-group">
-                <label for="containerNumber">Número de Contenedor</label>
+                <label for="containerNumber">{{ 'warehouse.containerNumber' | transloco }}</label>
                 <input type="text" id="containerNumber" class="form-control" formControlName="containerNumber"
-                       placeholder="Ej: HLXU1234567"
+                       [placeholder]="'warehouse.containerPlaceholder' | transloco"
                        [class.is-invalid]="form.controls.containerNumber.touched && form.controls.containerNumber.invalid" />
                 @if (form.controls.containerNumber.touched && form.controls.containerNumber.errors?.['required']) {
-                  <div class="invalid-feedback">El número de contenedor es obligatorio.</div>
+                  <div class="invalid-feedback">{{ 'warehouse.containerRequired' | transloco }}</div>
                 }
               </div>
 
               <div class="row">
                 <div class="col-md-6">
                   <div class="hl-form-group">
-                    <label for="currentWarehouse">Almacén Actual</label>
+                    <label for="currentWarehouse">{{ 'warehouse.currentWarehouse' | transloco }}</label>
                     <input type="text" id="currentWarehouse" class="form-control" formControlName="currentWarehouse"
-                           placeholder="Nombre del almacén actual"
+                           [placeholder]="'warehouse.currentWarehousePlaceholder' | transloco"
                            [class.is-invalid]="form.controls.currentWarehouse.touched && form.controls.currentWarehouse.invalid" />
                     @if (form.controls.currentWarehouse.touched && form.controls.currentWarehouse.errors?.['required']) {
-                      <div class="invalid-feedback">Este campo es obligatorio.</div>
+                      <div class="invalid-feedback">{{ 'warehouse.fieldRequired' | transloco }}</div>
                     }
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="hl-form-group">
-                    <label for="requestedWarehouse">Almacén Solicitado</label>
+                    <label for="requestedWarehouse">{{ 'warehouse.requestedWarehouse' | transloco }}</label>
                     <input type="text" id="requestedWarehouse" class="form-control" formControlName="requestedWarehouse"
-                           placeholder="Nombre del almacén destino"
+                           [placeholder]="'warehouse.requestedWarehousePlaceholder' | transloco"
                            [class.is-invalid]="form.controls.requestedWarehouse.touched && form.controls.requestedWarehouse.invalid" />
                     @if (form.controls.requestedWarehouse.touched && form.controls.requestedWarehouse.errors?.['required']) {
-                      <div class="invalid-feedback">Este campo es obligatorio.</div>
+                      <div class="invalid-feedback">{{ 'warehouse.fieldRequired' | transloco }}</div>
                     }
                   </div>
                 </div>
               </div>
 
               <div class="hl-form-group">
-                <label for="reason">Motivo de la Solicitud</label>
+                <label for="reason">{{ 'warehouse.reason' | transloco }}</label>
                 <textarea id="reason" class="form-control" formControlName="reason" rows="3"
-                          placeholder="Describa el motivo del cambio de almacén"
+                          [placeholder]="'warehouse.reasonPlaceholder' | transloco"
                           [class.is-invalid]="form.controls.reason.touched && form.controls.reason.invalid"></textarea>
                 @if (form.controls.reason.touched && form.controls.reason.errors?.['required']) {
-                  <div class="invalid-feedback">El motivo es obligatorio.</div>
+                  <div class="invalid-feedback">{{ 'warehouse.reasonRequired' | transloco }}</div>
                 }
               </div>
 
               <div class="hl-form-group">
-                <label for="contactPhone">Teléfono de Contacto</label>
+                <label for="contactPhone">{{ 'warehouse.contactPhone' | transloco }}</label>
                 <input type="tel" id="contactPhone" class="form-control" formControlName="contactPhone"
-                       placeholder="Teléfono para coordinación" />
+                       [placeholder]="'warehouse.contactPhonePlaceholder' | transloco" />
               </div>
 
               <div class="hl-form-group">
-                <label for="amount">Monto</label>
+                <label for="amount">{{ 'warehouse.amount' | transloco }}</label>
                 <input type="number" id="amount" class="form-control" formControlName="amount" min="1"
-                       placeholder="Monto de la solicitud"
+                       [placeholder]="'warehouse.amountPlaceholder' | transloco"
                        [class.is-invalid]="form.controls.amount.touched && form.controls.amount.invalid" />
                 @if (form.controls.amount.touched && form.controls.amount.invalid) {
-                  <div class="invalid-feedback">Ingrese un monto válido.</div>
+                  <div class="invalid-feedback">{{ 'warehouse.amountInvalid' | transloco }}</div>
                 }
               </div>
 
@@ -110,7 +111,7 @@ import { API_ENDPOINTS } from '../../core/constants/app.constants';
                 @if (submitting()) {
                   <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                 }
-                Enviar Solicitud
+                {{ 'warehouse.submit' | transloco }}
               </button>
             </form>
           </div>
@@ -168,7 +169,7 @@ export class WarehouseComponent {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.error.set(err.error?.message ?? 'Error al enviar la solicitud.');
+        this.error.set(err.error?.message ?? translate('warehouse.submitError'));
       },
     });
   }

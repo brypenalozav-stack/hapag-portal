@@ -1,18 +1,19 @@
 import { Component, inject, signal, OnInit, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { FormsModule } from '@angular/forms';
 import { BillOfLadingService } from '../../core/services/bl.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DemurrageCharge } from '../../core/models/bl.model';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
+import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
 
 @Component({
   selector: 'app-demurrage',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, FormsModule, StatusBadgeComponent, LoadingSpinnerComponent],
+  imports: [RouterLink, FormsModule, TranslocoPipe, HlCurrencyPipe, StatusBadgeComponent, LoadingSpinnerComponent],
   templateUrl: './demurrage.html',
   styleUrl: './demurrage.scss',
 })
@@ -62,7 +63,7 @@ export class DemurrageComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar la información de demurrage. Verifique el número de BL.');
+        this.error.set(translate('demurrage.loadError'));
         this.loading.set(false);
       },
     });

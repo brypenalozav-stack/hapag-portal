@@ -1,15 +1,16 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DatePipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { NotificationService } from '../../core/services/notification.service';
 import { NotificationItem } from '../../core/models/notification.model';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
+import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 
 /** Centro de notificaciones del usuario: lista, marcar leída y marcar todas. */
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [DatePipe, LoadingSpinnerComponent],
+  imports: [TranslocoPipe, HlDatePipe, LoadingSpinnerComponent],
   templateUrl: './notifications.html',
   styles: [':host { display: block; }'],
 })
@@ -30,7 +31,7 @@ export class NotificationsComponent implements OnInit {
     this.error.set('');
     this.service.getMine().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (i) => { this.items.set(i); this.loading.set(false); },
-      error: () => { this.error.set('Error al cargar las notificaciones.'); this.loading.set(false); },
+      error: () => { this.error.set(translate('notifications.loadError')); this.loading.set(false); },
     });
   }
 

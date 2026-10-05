@@ -1,0 +1,909 @@
+{
+  "admin": {
+    "audit": {
+      "action": "Acción",
+      "actions": {
+        "all": "Todas",
+        "create": "Create",
+        "delete": "Delete",
+        "update": "Update"
+      },
+      "after": "Después",
+      "before": "Antes",
+      "col": {
+        "action": "Acción",
+        "date": "Fecha",
+        "entity": "Entidad",
+        "id": "ID",
+        "user": "Usuario"
+      },
+      "empty": "Sin registros de auditoría.",
+      "entity": "Entidad",
+      "entityPlaceholder": "BillOfLading, User…",
+      "hide": "Ocultar",
+      "loadError": "Error al cargar la auditoría.",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "search": "Buscar",
+      "showing": "Mostrando {{ shown }} de {{ total }} encontrados",
+      "subtitle": "Registro de cambios sobre las entidades del sistema",
+      "title": "Auditoría",
+      "user": "Usuario",
+      "userPlaceholder": "ID de usuario",
+      "viewChanges": "Ver cambios"
+    },
+    "blImport": {
+      "clear": "Limpiar",
+      "client": "* Cliente",
+      "col": {
+        "bl": "BL",
+        "consignee": "Consignatario",
+        "container": "Contenedor",
+        "country": "País",
+        "hs": "HS",
+        "pod": "POD",
+        "pol": "POL",
+        "taxId": "RUT/NIT",
+        "weight": "Peso"
+      },
+      "errors": {
+        "import": "Error al importar los BL.",
+        "loadClients": "No se pudieron cargar los clientes.",
+        "noRows": "Pega al menos una fila de BL.",
+        "noValidRows": "No se encontraron filas válidas para previsualizar.",
+        "selectClient": "Selecciona el cliente al que pertenecen los BL."
+      },
+      "errorsCol": {
+        "bl": "BL",
+        "errors": "Errores",
+        "row": "Fila"
+      },
+      "help": "Una fila por línea, campos separados por punto y coma (<code>;</code>) en este orden:",
+      "import": "Importar {count} BL",
+      "newUpload": "Nueva carga",
+      "preview": "Previsualizar",
+      "previewTitle": "Previsualización ({count, plural, one {# fila} other {# filas}})",
+      "resultSummary": "{created, plural, one {# creado} other {# creados}} · {failed, plural, one {# rechazado} other {# rechazados}}",
+      "resultTitle": "Resultado de la importación",
+      "rows": "Filas de BL",
+      "rowsPlaceholder": "HLCUABC123;Import;CL;CNSHA;CLVAP;USD;Importadora Ltda;12.345.678-5;870323;15000;HLXU1234567;22G1",
+      "select": "Seleccione...",
+      "subtitle": "Ingesta masiva con validación aduanera por fila",
+      "title": "Carga de Bill of Lading"
+    },
+    "creditClients": {
+      "col": {
+        "available": "Disponible",
+        "client": "Cliente",
+        "country": "País",
+        "creditLimit": "Límite Crédito",
+        "creditUsed": "Crédito Usado",
+        "status": "Estado",
+        "taxId": "RUT/NIT"
+      },
+      "created": "Cliente creado exitosamente.",
+      "edit": "Editar",
+      "empty": "No se encontraron clientes.",
+      "errors": {
+        "clientIdRequired": "Debe indicar el ID del cliente existente.",
+        "load": "Error al cargar los clientes con crédito.",
+        "save": "Error al guardar el cliente."
+      },
+      "filters": {
+        "all": "Todos",
+        "country": "País",
+        "search": "Buscar cliente",
+        "searchPlaceholder": "Nombre, RUT/NIT..."
+      },
+      "form": {
+        "cancel": "Cancelar",
+        "clientId": "ID del Cliente (UUID)",
+        "clientIdHelp": "El crédito se asocia a un cliente ya registrado.",
+        "clientIdPlaceholder": "UUID de un cliente existente",
+        "country": "País",
+        "create": "Crear Cliente",
+        "createTitle": "Nuevo Cliente con Crédito",
+        "creditLimit": "Límite de Crédito",
+        "creditLimitMin": "El límite debe ser mayor a 0.",
+        "currency": "Moneda",
+        "editTitle": "Editar Cliente",
+        "name": "Nombre / Razón Social",
+        "namePlaceholder": "Nombre del cliente",
+        "nameRequired": "El nombre es obligatorio.",
+        "taxId": "RUT / NIT",
+        "taxIdPlaceholder": "Ej: 76.123.456-7",
+        "taxIdRequired": "El RUT/NIT es obligatorio.",
+        "update": "Actualizar"
+      },
+      "new": "Nuevo Cliente",
+      "subtitle": "Administración de clientes con crédito aprobado",
+      "title": "Clientes con Línea de Crédito",
+      "updated": "Cliente actualizado exitosamente."
+    },
+    "customs": {
+      "amendment": {
+        "blId": "ID del B/L (opcional)",
+        "blIdPlaceholder": "Vacío = encabezado",
+        "reason": "Motivo",
+        "reasonPlaceholder": "Corrección de peso, etc.",
+        "send": "Enviar aclaración",
+        "title": "Aclaración al Manifiesto (Anexo 4)"
+      },
+      "direction": {
+        "inbound": "Ingreso",
+        "outbound": "Salida"
+      },
+      "errors": {
+        "generic": "Ocurrió un error en la operación.",
+        "loadManifests": "Error al cargar manifiestos.",
+        "loadTransmissions": "Error al cargar transmisiones.",
+        "required": "IMO, viaje y puerto (UN/LOCODE de 5 caracteres) son obligatorios."
+      },
+      "list": {
+        "empty": "Sin manifiestos.",
+        "title": "Manifiestos",
+        "txCount": "{count} tx"
+      },
+      "newManifest": {
+        "create": "Crear manifiesto",
+        "direction": "Dirección",
+        "port": "Puerto (UN/LOCODE)",
+        "portPlaceholder": "CLVAP",
+        "title": "Nuevo manifiesto",
+        "vesselImo": "IMO nave",
+        "voyage": "Viaje",
+        "voyagePlaceholder": "V123"
+      },
+      "selectPrompt": "Selecciona un manifiesto para ver y transmitir sus conocimientos.",
+      "subtitle": "Manifiesto marítimo en dos etapas: encabezado y conocimientos (B/L)",
+      "title": "Transmisión a Aduana",
+      "transmissions": {
+        "blId": "ID del B/L",
+        "blIdPlaceholder": "GUID del B/L",
+        "col": {
+          "ack": "Acuse",
+          "attempts": "Intentos",
+          "bl": "B/L",
+          "kind": "Tipo",
+          "stage": "Etapa",
+          "status": "Estado"
+        },
+        "empty": "Aún no hay transmisiones.",
+        "refresh": "Actualizar",
+        "retry": "Reintentar",
+        "title": "Transmisiones",
+        "transmitBl": "Transmitir B/L",
+        "transmitHeader": "Transmitir encabezado"
+      }
+    },
+    "deadlines": {
+      "col": {
+        "baseEvent": "Evento base",
+        "bl": "B/L",
+        "due": "Vence",
+        "rule": "Regla",
+        "severity": "Severidad",
+        "status": "Estado"
+      },
+      "empty": "No hay plazos para mostrar.",
+      "filter": {
+        "all": "Todos los estados",
+        "atRisk": "En riesgo",
+        "met": "Cumplidos",
+        "onTrack": "En plazo",
+        "overdue": "Vencidos"
+      },
+      "list": {
+        "title": "Plazos"
+      },
+      "loadError": "Error al cargar el tablero de plazos.",
+      "manifestOnly": "— (manifiesto)",
+      "rules": {
+        "both": "Ambas",
+        "col": {
+          "applies": "Aplica",
+          "baseEvent": "Evento base",
+          "certainty": "Certeza",
+          "code": "Código",
+          "name": "Nombre",
+          "offset": "Offset (h)",
+          "severity": "Severidad",
+          "source": "Fuente"
+        },
+        "title": "Reglas de plazo (configuración)"
+      },
+      "status": {
+        "atRisk": "En riesgo",
+        "met": "Cumplido",
+        "onTrack": "En plazo",
+        "overdue": "Vencido"
+      },
+      "subtitle": "Tablero de riesgo de plazos aduaneros",
+      "summary": {
+        "atRisk": "En riesgo",
+        "met": "Cumplidos",
+        "onTrack": "En plazo",
+        "overdue": "Vencidos"
+      },
+      "title": "Control de plazos",
+      "viewBoard": "Ver tablero",
+      "viewRules": "Ver reglas"
+    },
+    "demurrageExemptions": {
+      "active": "Activa",
+      "col": {
+        "actions": "Acciones",
+        "client": "Cliente",
+        "country": "País",
+        "reason": "Motivo",
+        "status": "Estado",
+        "taxId": "RUT / NIT"
+      },
+      "deactivate": "Desactivar",
+      "empty": "No se encontraron excepciones.",
+      "errors": {
+        "create": "Error al crear la excepción. Verifique los datos e intente nuevamente.",
+        "deactivate": "Error al desactivar la excepción.",
+        "load": "Error al cargar las excepciones de demurrage.",
+        "required": "Nombre del cliente, RUT/NIT y país son obligatorios."
+      },
+      "filters": {
+        "all": "Todos",
+        "country": "País",
+        "search": "Buscar",
+        "searchPlaceholder": "Cliente, RUT/NIT..."
+      },
+      "form": {
+        "cancel": "Cancelar",
+        "clientName": "Nombre del Cliente *",
+        "clientNamePlaceholder": "Ej: Importadora Demo SpA",
+        "country": "País *",
+        "create": "Crear Excepción",
+        "reason": "Motivo",
+        "reasonPlaceholder": "Ej: Acuerdo comercial",
+        "selectCountry": "Seleccionar",
+        "taxId": "RUT / NIT *",
+        "taxIdPlaceholder": "Ej: 76.123.456-7",
+        "title": "Nueva Excepción de Demurrage"
+      },
+      "inactive": "Inactiva",
+      "new": "Nueva Excepción",
+      "subtitle": "Gestión de exenciones de demurrage para clientes",
+      "title": "Excepciones de Demurrage"
+    },
+    "reports": {
+      "errors": {
+        "export": "Error al exportar el reporte.",
+        "load": "Error al cargar el reporte."
+      },
+      "exportCsv": "Exportar CSV",
+      "noData": "Sin datos para este reporte.",
+      "rowCount": "{count, plural, one {# fila} other {# filas}}",
+      "subtitle": "Reportes operativos y exportación",
+      "title": "Reportes",
+      "types": {
+        "overdueDeadlines": "Plazos vencidos / en riesgo",
+        "transmissions": "Transmisiones a Aduana"
+      }
+    },
+    "users": {
+      "col": {
+        "email": "Correo electrónico",
+        "fullName": "Nombre y apellido",
+        "id": "Identificador",
+        "roles": "Roles"
+      },
+      "created": "Usuario creado exitosamente.",
+      "empty": "No se encontraron usuarios.",
+      "errors": {
+        "create": "Error al crear el usuario.",
+        "load": "Error al cargar los usuarios."
+      },
+      "filters": {
+        "active": "Activo",
+        "all": "Todos",
+        "inactive": "Inactivo",
+        "roles": "Roles",
+        "search": "Buscar",
+        "searchPlaceholder": "Buscar nombre, apellido o correo electrónico",
+        "select": "Seleccione...",
+        "status": "Estado"
+      },
+      "form": {
+        "cancel": "Cancelar",
+        "displayId": "* Identificador",
+        "displayIdPlaceholder": "Identificador",
+        "email": "* Correo electrónico",
+        "emailPlaceholder": "Ingrese el correo electrónico",
+        "firstName": "* Nombre",
+        "firstNamePlaceholder": "Ingrese el nombre",
+        "lastName": "* Apellidos",
+        "lastNamePlaceholder": "Ingrese los apellidos",
+        "optional": "(Opcional)",
+        "phone": "Teléfono",
+        "phonePlaceholder": "+56 Ingrese el teléfono",
+        "role": "* Rol",
+        "submit": "Aceptar",
+        "title": "Nuevo Usuario"
+      },
+      "new": "Nuevo Usuario",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "showing": "Mostrando {{ shown }} de {{ total }} encontrados",
+      "subtitle": "Usuarios de la plataforma",
+      "table": {
+        "title": "Tabla de usuarios de la plataforma"
+      },
+      "title": "Búsqueda de usuarios"
+    }
+  },
+  "app": {
+    "footer": {
+      "copyright": "© 2025 Hapag-Lloyd AG. Todos los derechos reservados."
+    }
+  },
+  "auth": {
+    "forgotPassword": {
+      "backToLogin": "Volver al inicio de sesión",
+      "email": "Correo Electrónico",
+      "emailInvalid": "Ingrese un correo válido.",
+      "emailPlaceholder": "usuario@empresa.com",
+      "emailRequired": "El correo es obligatorio.",
+      "submit": "Enviar Instrucciones",
+      "subtitle": "Ingrese su correo para recibir instrucciones",
+      "success": "Se han enviado las instrucciones a su correo electrónico. Revise su bandeja de entrada.",
+      "title": "Recuperar Contraseña"
+    },
+    "login": {
+      "copyright": "© 2025 Hapag-Lloyd AG. Todos los derechos reservados.",
+      "email": "Correo Electrónico",
+      "emailInvalid": "Ingrese un correo válido.",
+      "emailPlaceholder": "usuario@empresa.com",
+      "emailRequired": "El correo es obligatorio.",
+      "error": "Error al iniciar sesión. Verifique sus credenciales.",
+      "forgotPassword": "¿Olvidó su contraseña?",
+      "noAccount": "¿No tiene cuenta?",
+      "password": "Contraseña",
+      "passwordMinLength": "Mínimo {{ min }} caracteres.",
+      "passwordPlaceholder": "Ingrese su contraseña",
+      "passwordRequired": "La contraseña es obligatoria.",
+      "registerLink": "Regístrese aquí",
+      "submit": "Iniciar Sesión",
+      "subtitle": "Chile / Bolivia",
+      "title": "Portal de Servicios"
+    },
+    "register": {
+      "agentCode": "Código de Agente",
+      "agentCodePlaceholder": "Código asignado por Hapag-Lloyd",
+      "agentCodeRequired": "El código de agente es obligatorio.",
+      "confirmPassword": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "Repita la contraseña",
+      "confirmPasswordRequired": "Confirme la contraseña.",
+      "country": "País",
+      "email": "Correo Electrónico",
+      "emailInvalid": "Ingrese un correo válido.",
+      "emailPlaceholder": "usuario@empresa.com",
+      "emailRequired": "El correo es obligatorio.",
+      "error": "Error al registrar. Intente nuevamente.",
+      "hasAccount": "¿Ya tiene cuenta?",
+      "loginLink": "Inicie sesión",
+      "name": "Nombre Completo / Razón Social",
+      "nameRequired": "El nombre es obligatorio.",
+      "password": "Contraseña",
+      "passwordMinLength": "Mínimo {{ min }} caracteres.",
+      "passwordMismatch": "Las contraseñas no coinciden.",
+      "passwordPlaceholder": "Mínimo {{ min }} caracteres",
+      "passwordRequired": "La contraseña es obligatoria.",
+      "phone": "Teléfono",
+      "phoneRequired": "El teléfono es obligatorio.",
+      "submit": "Crear Cuenta",
+      "subtitle": "Regístrese en el Portal Hapag-Lloyd",
+      "successRedirect": "Redirigiendo al inicio de sesión...",
+      "successTitle": "Registro exitoso.",
+      "taxIdBo": "NIT",
+      "taxIdCl": "RUT",
+      "taxIdRequired": "Este campo es obligatorio.",
+      "title": "Crear Cuenta",
+      "typeAgent": "Agente Aduanero",
+      "typeClient": "Cliente",
+      "userType": "Tipo de Usuario"
+    },
+    "resetPassword": {
+      "backToLogin": "Volver al inicio de sesión",
+      "confirmPassword": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "Repita la contraseña",
+      "confirmPasswordRequired": "Confirme la contraseña.",
+      "error": "Error al cambiar la contraseña. El enlace puede haber expirado.",
+      "invalidLink": "Enlace de recuperación inválido o expirado.",
+      "newPassword": "Nueva Contraseña",
+      "newPasswordPlaceholder": "Mínimo {{ min }} caracteres",
+      "passwordMinLength": "Mínimo {{ min }} caracteres.",
+      "passwordMismatch": "Las contraseñas no coinciden.",
+      "passwordRequired": "La contraseña es obligatoria.",
+      "submit": "Cambiar Contraseña",
+      "subtitle": "Ingrese su nueva contraseña",
+      "success": "Su contraseña ha sido actualizada exitosamente. Redirigiendo al inicio de sesión...",
+      "title": "Nueva Contraseña"
+    }
+  },
+  "bl": {
+    "detail": {
+      "actions": {
+        "payDemurrage": "Pagar Demurrage",
+        "payFreight": "Pagar Flete",
+        "payLocalCharges": "Pagar Cargos Locales",
+        "title": "Acciones",
+        "warehouseChange": "Solicitar Cambio Almacén"
+      },
+      "blNumber": "Número BL",
+      "breadcrumbLabel": "Ruta de navegación",
+      "breadcrumbList": "Consulta BL",
+      "client": "Cliente",
+      "containers": {
+        "col": {
+          "container": "Contenedor",
+          "description": "Descripción",
+          "packages": "Bultos",
+          "seal": "Sello",
+          "size": "Tamaño",
+          "type": "Tipo",
+          "weight": "Peso (kg)"
+        },
+        "title": "Contenedores ({{ count }})"
+      },
+      "country": "País",
+      "errors": {
+        "loadBl": "Error al cargar el BL.",
+        "loadCharges": "Error al cargar los cargos.",
+        "loadDemurrage": "Error al cargar demurrage."
+      },
+      "eta": "ETA",
+      "etd": "ETD",
+      "placeOfDelivery": "Lugar de Entrega",
+      "portOfDischarge": "Puerto de Descarga",
+      "portOfLoading": "Puerto de Carga",
+      "status": "Estado",
+      "summary": {
+        "chargesCount": "{count, plural, one {# cargo} other {# cargos}}",
+        "containersCount": "{count, plural, one {# contenedor} other {# contenedores}}",
+        "demurrage": "Demurrage",
+        "freight": "Flete",
+        "localCharges": "Cargos Locales"
+      },
+      "title": "BL",
+      "type": "Tipo",
+      "vessel": "Nave",
+      "voyage": "Viaje"
+    },
+    "list": {
+      "blNumber": "Número de BL",
+      "clearFilters": "Limpiar Filtros",
+      "col": {
+        "actions": "Acciones",
+        "blNumber": "Número BL",
+        "country": "País",
+        "freight": "Flete",
+        "status": "Estado",
+        "type": "Tipo",
+        "vessel": "Nave"
+      },
+      "empty": "No se encontraron Bills of Lading.",
+      "loadError": "Error al cargar los BLs. Intente nuevamente.",
+      "notFound": "No se encontró el BL especificado.",
+      "pay": "Pagar",
+      "search": "Buscar",
+      "searchPlaceholder": "Ej: HLCU1234567890",
+      "subtitle": "Busque y consulte sus BLs activos",
+      "title": "Consulta de Bill of Lading",
+      "viewDetail": "Ver Detalle"
+    }
+  },
+  "common": {
+    "brand": {
+      "tagline": "SHIPPING & LOGISTICS"
+    },
+    "country": {
+      "bo": "Bolivia",
+      "cl": "Chile"
+    }
+  },
+  "dashboard": {
+    "contact": {
+      "bo": {
+        "address": "Av. San Martín 1500, Santa Cruz",
+        "email": "bolivia@hapag-lloyd.com",
+        "phone": "+591 3 312 0000"
+      },
+      "cl": {
+        "address": "Av. El Bosque Norte 500, Las Condes",
+        "email": "chile@hapag-lloyd.com",
+        "phone": "+56 2 2630 1000"
+      },
+      "title": "Contacto"
+    },
+    "countryInfo": {
+      "bo": {
+        "office": "Santa Cruz, Bolivia",
+        "paymentMethods": "Transferencia, QR, Crédito",
+        "tax": "IVA 13%"
+      },
+      "cl": {
+        "office": "Santiago, Chile",
+        "paymentMethods": "Transferencia, Tarjeta, Crédito",
+        "tax": "IVA 19%"
+      },
+      "currency": "Moneda",
+      "office": "Oficina",
+      "paymentMethods": "Métodos de Pago",
+      "tax": "Impuesto",
+      "title": "Información del País"
+    },
+    "defaultUser": "Usuario",
+    "quickActions": {
+      "faq": "Preguntas Frecuentes",
+      "searchBl": "Consultar BL",
+      "title": "Acciones Rápidas",
+      "viewPayments": "Ver Pagos"
+    },
+    "stats": {
+      "activeBls": "BLs Activos",
+      "last30Days": "Últimos 30 días",
+      "pendingPayments": "Pagos Pendientes",
+      "recentActivity": "Actividad Reciente",
+      "viewBls": "Ver BLs",
+      "viewPayments": "Ver pagos"
+    },
+    "title": "Dashboard",
+    "welcome": "Bienvenido,"
+  },
+  "demurrage": {
+    "blNumber": "Número de BL",
+    "blPlaceholder": "Ej: HLCUVAL250100123",
+    "boNote": {
+      "text": "Algunos contenedores pueden estar exentos de demurrage según acuerdos comerciales vigentes.",
+      "title": "Nota para clientes de Bolivia:"
+    },
+    "col": {
+      "container": "Contenedor",
+      "dailyRate": "Tarifa Diaria",
+      "demurrageDays": "Días Demurrage",
+      "freeDays": "Días Libres",
+      "status": "Estado",
+      "total": "Total"
+    },
+    "empty": "No hay cargos de demurrage para este BL.",
+    "exempt": "EXENTO",
+    "exemptionReason": "Motivo de exención:",
+    "initial": "Ingrese un número de BL para consultar los cargos de demurrage.",
+    "loadError": "Error al cargar la información de demurrage. Verifique el número de BL.",
+    "pay": "Pagar Demurrage",
+    "resultsFor": "Resultados para BL:",
+    "search": "Buscar",
+    "subtitle": "Consulte los cargos de demurrage por número de BL",
+    "title": "Demurrage",
+    "total": "Total Demurrage"
+  },
+  "faq": {
+    "categories": {
+      "all": "Todas",
+      "demurrage": "Demurrage",
+      "documentation": "Documentación",
+      "general": "General",
+      "payments": "Pagos",
+      "shipping": "Envíos"
+    },
+    "category": "Categoría",
+    "contact": {
+      "email": "Email",
+      "emailAddress": "soporte@hapag-lloyd.com",
+      "phoneBo": "Teléfono Bolivia",
+      "phoneCl": "Teléfono Chile",
+      "text": "Contáctenos directamente y le ayudaremos con su consulta.",
+      "title": "¿No encontró lo que buscaba?"
+    },
+    "empty": "No se encontraron preguntas frecuentes.",
+    "loadError": "Error al cargar las preguntas frecuentes.",
+    "search": "Buscar",
+    "searchPlaceholder": "Buscar pregunta...",
+    "subtitle": "Encuentre respuestas a las consultas más comunes",
+    "title": "Preguntas Frecuentes"
+  },
+  "localCharges": {
+    "blNumber": "Número de BL",
+    "blPlaceholder": "Ej: HLCUVAL250100123",
+    "col": {
+      "amount": "Monto",
+      "code": "Código",
+      "description": "Descripción",
+      "status": "Estado",
+      "tax": "Impuesto",
+      "total": "Total"
+    },
+    "empty": "No hay cargos locales pendientes.",
+    "initial": "Ingrese un número de BL para consultar los cargos locales.",
+    "loadError": "Error al cargar los cargos locales. Verifique el número de BL.",
+    "resultsFor": "Resultados para BL:",
+    "search": "Buscar",
+    "subtitle": "Consulte y pague los cargos locales por número de BL",
+    "summary": {
+      "paySelected": "Pagar Seleccionados",
+      "selected": "Cargos seleccionados:",
+      "subtotal": "Subtotal",
+      "tax": "IVA ({{ rate }}%)",
+      "title": "Resumen de Pago",
+      "total": "Total"
+    },
+    "title": "Cargos Locales"
+  },
+  "notifications": {
+    "empty": "No tienes notificaciones.",
+    "loadError": "Error al cargar las notificaciones.",
+    "markAll": "Marcar todas como leídas",
+    "markRead": "Marcar leída",
+    "new": "Nuevo",
+    "subtitle": "Alertas operativas dirigidas a ti o a tus roles",
+    "title": "Notificaciones"
+  },
+  "payments": {
+    "form": {
+      "breadcrumbCurrent": "Nuevo Pago",
+      "breadcrumbLabel": "Ruta de navegación",
+      "breadcrumbList": "Pagos",
+      "dataTitle": "Datos del Pago",
+      "errors": {
+        "loadBl": "Error al cargar la informacion del BL.",
+        "submit": "Error al procesar el pago."
+      },
+      "method": "Método de Pago",
+      "methodRequired": "Seleccione un método de pago.",
+      "methods": {
+        "bankTransfer": {
+          "hint": "Transferencia directa a cuenta Hapag-Lloyd",
+          "label": "Transferencia Bancaria"
+        },
+        "creditCard": {
+          "hint": "Visa, Mastercard, American Express",
+          "label": "Tarjeta de Credito"
+        },
+        "creditLine": {
+          "hint": "Cargo a su línea de crédito aprobada",
+          "label": "Linea de Credito"
+        },
+        "qr": {
+          "hint": "Pago mediante código QR",
+          "label": "Pago QR"
+        }
+      },
+      "submit": "Confirmar Pago",
+      "success": {
+        "message": "Su pago ha sido registrado y está pendiente de confirmación.",
+        "redirect": "Redirigiendo a la lista de pagos...",
+        "title": "Pago Registrado Exitosamente"
+      },
+      "summary": {
+        "bl": "Bill of Lading",
+        "subtotal": "Subtotal",
+        "tax": "IVA ({{ rate }}%)",
+        "title": "Resumen",
+        "total": "Total",
+        "vesselVoyage": "Nave / Viaje"
+      },
+      "title": "Nuevo Pago",
+      "type": "Tipo de Pago",
+      "typeOption": {
+        "demurrage": "Demurrage",
+        "freight": "Flete",
+        "localCharges": "Cargos Locales"
+      }
+    },
+    "list": {
+      "col": {
+        "actions": "Acciones",
+        "amount": "Monto",
+        "bl": "BL",
+        "currency": "Moneda",
+        "date": "Fecha",
+        "method": "Metodo",
+        "number": "Numero",
+        "status": "Estado",
+        "type": "Tipo"
+      },
+      "empty": "No se encontraron pagos.",
+      "filter": {
+        "all": "Todos",
+        "confirmed": "Confirmados",
+        "failed": "Fallidos",
+        "pending": "Pendientes"
+      },
+      "filterBy": "Filtrar por estado:",
+      "loadError": "Error al cargar los pagos.",
+      "method": {
+        "bankDeposit": "Depósito Bancario",
+        "bankTransfer": "Transferencia",
+        "cash": "Efectivo",
+        "check": "Cheque",
+        "creditCard": "Tarjeta de Crédito",
+        "creditLine": "Línea de Crédito",
+        "debitCard": "Tarjeta de Débito",
+        "deposit": "Depósito",
+        "khipu": "Khipu",
+        "qr": "Pago QR",
+        "webPay": "WebPay"
+      },
+      "subtitle": "Historial y estado de sus pagos",
+      "title": "Pagos",
+      "type": {
+        "combined": "Combinado",
+        "demurrage": "Demurrage",
+        "freight": "Flete",
+        "localCharges": "Cargos Locales"
+      },
+      "viewReceipt": "Ver Recibo"
+    }
+  },
+  "profile": {
+    "accountType": "Tipo de Cuenta",
+    "cancel": "Cancelar",
+    "country": "País",
+    "edit": "Editar Perfil",
+    "email": "Correo Electrónico",
+    "error": "Error al actualizar el perfil.",
+    "name": "Nombre",
+    "nameReadonly": "El nombre no puede modificarse desde el portal.",
+    "phone": "Teléfono",
+    "phoneRequired": "El teléfono es obligatorio.",
+    "save": "Guardar",
+    "subtitle": "Consulte y actualice su información personal",
+    "success": "Perfil actualizado exitosamente.",
+    "taxId": "RUT / NIT",
+    "title": "Mi Perfil",
+    "type": {
+      "agent": "Agente",
+      "client": "Cliente"
+    }
+  },
+  "receipts": {
+    "col": {
+      "amount": "Monto",
+      "client": "Cliente",
+      "country": "País",
+      "date": "Fecha",
+      "paymentNumber": "N° Pago",
+      "receiptNumber": "N° Comprobante",
+      "tax": "Impuesto",
+      "total": "Total"
+    },
+    "empty": "No tiene comprobantes emitidos.",
+    "loadError": "Error al cargar los comprobantes.",
+    "subtitle": "Historial de comprobantes de pago emitidos",
+    "title": "Comprobantes"
+  },
+  "serviceOrders": {
+    "cancel": "Cancelar",
+    "col": {
+      "bl": "BL",
+      "date": "Fecha",
+      "description": "Descripción",
+      "number": "N° Orden",
+      "status": "Estado",
+      "type": "Tipo"
+    },
+    "createError": "Error al crear la orden de servicio.",
+    "created": "Orden {{ number }} creada exitosamente.",
+    "empty": "No tiene órdenes de servicio registradas.",
+    "form": {
+      "blNumber": "Número de BL",
+      "blPlaceholder": "Ej: HLCUVAL250100123",
+      "blRequired": "El número de BL es obligatorio.",
+      "description": "Descripción / Instrucciones",
+      "descriptionPlaceholder": "Detalle la solicitud...",
+      "descriptionRequired": "La descripción es obligatoria.",
+      "select": "Seleccione...",
+      "submit": "Crear Orden",
+      "title": "Nueva Orden de Servicio",
+      "type": "Tipo de Servicio",
+      "typeRequired": "Seleccione un tipo de servicio."
+    },
+    "loadError": "Error al cargar las órdenes de servicio.",
+    "new": "Nueva Orden",
+    "subtitle": "Solicite y consulte sus órdenes de servicio",
+    "title": "Órdenes de Servicio (ODS)",
+    "types": {
+      "consolidation": "Consolidación",
+      "deconsolidation": "Desconsolidación",
+      "fumigation": "Fumigación",
+      "inspection": "Inspección de Contenedor",
+      "other": "Otro",
+      "release": "Liberación de Carga",
+      "weighing": "Pesaje VGM"
+    }
+  },
+  "shared": {
+    "loadingSpinner": {
+      "label": "Cargando..."
+    },
+    "navbar": {
+      "language": {
+        "en": "English",
+        "es": "Español",
+        "label": "Idioma"
+      },
+      "login": "Iniciar Sesión",
+      "logout": "Cerrar Sesión",
+      "notifications": "Notificaciones",
+      "profile": "Mi Perfil",
+      "tagline": "PORTAL DE SERVICIOS"
+    },
+    "sidebar": {
+      "link": {
+        "audit": "Auditoría",
+        "bl": "Consulta BL",
+        "blImport": "Carga de BL",
+        "creditClients": "Clientes Crédito",
+        "customs": "Transmisión Aduana",
+        "dashboard": "Dashboard",
+        "deadlines": "Control de Plazos",
+        "demurrage": "Demurrage",
+        "demurrageExemptions": "Excepciones Demurrage",
+        "faq": "FAQ",
+        "localCharges": "Cargos Locales",
+        "payments": "Pagos",
+        "receipts": "Comprobantes",
+        "reports": "Reportes",
+        "serviceOrders": "Órdenes de Servicio",
+        "users": "Usuarios",
+        "warehouse": "Cambio Almacén"
+      },
+      "section": {
+        "administration": "Administración",
+        "charges": "Cargos",
+        "main": "Principal",
+        "operations": "Operaciones",
+        "services": "Servicios"
+      }
+    }
+  },
+  "status": {
+    "active": "Activo",
+    "closed": "Cerrado",
+    "confirmed": "Confirmado",
+    "exempt": "Exento",
+    "failed": "Fallido",
+    "hold": "Retenido",
+    "paid": "Pagado",
+    "pending": "Pendiente",
+    "processing": "Procesando",
+    "rejected": "Rechazado",
+    "released": "Liberado"
+  },
+  "warehouse": {
+    "amount": "Monto",
+    "amountInvalid": "Ingrese un monto válido.",
+    "amountPlaceholder": "Monto de la solicitud",
+    "blNumber": "Número de BL",
+    "blPlaceholder": "Ej: HLCU1234567890",
+    "blRequired": "El número de BL es obligatorio.",
+    "contactPhone": "Teléfono de Contacto",
+    "contactPhonePlaceholder": "Teléfono para coordinación",
+    "containerNumber": "Número de Contenedor",
+    "containerPlaceholder": "Ej: HLXU1234567",
+    "containerRequired": "El número de contenedor es obligatorio.",
+    "currentWarehouse": "Almacén Actual",
+    "currentWarehousePlaceholder": "Nombre del almacén actual",
+    "fieldRequired": "Este campo es obligatorio.",
+    "reason": "Motivo de la Solicitud",
+    "reasonPlaceholder": "Describa el motivo del cambio de almacén",
+    "reasonRequired": "El motivo es obligatorio.",
+    "requestedWarehouse": "Almacén Solicitado",
+    "requestedWarehousePlaceholder": "Nombre del almacén destino",
+    "submit": "Enviar Solicitud",
+    "submitError": "Error al enviar la solicitud.",
+    "subtitle": "Solicite el cambio de almacén para sus contenedores",
+    "success": {
+      "backToDashboard": "Volver al Dashboard",
+      "message": "Su solicitud de cambio de almacén ha sido registrada. Recibirá una confirmación por correo.",
+      "title": "Solicitud Enviada"
+    },
+    "title": "Solicitud de Cambio de Almacén"
+  }
+}

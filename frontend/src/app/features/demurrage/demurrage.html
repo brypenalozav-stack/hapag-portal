@@ -1,23 +1,23 @@
 <div class="hl-page-header">
-  <h1>Demurrage</h1>
-  <p class="text-muted mb-0">Consulte los cargos de demurrage por número de BL</p>
+  <h1>{{ 'demurrage.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'demurrage.subtitle' | transloco }}</p>
 </div>
 
 <!-- Search form -->
 <div class="hl-card p-4 mb-4">
   <form (ngSubmit)="search()" class="row g-3 align-items-end">
     <div class="col-md-8 col-lg-6">
-      <label for="blNumber" class="form-label fw-semibold">Número de BL</label>
+      <label for="blNumber" class="form-label fw-semibold">{{ 'demurrage.blNumber' | transloco }}</label>
       <input type="text" class="form-control" id="blNumber"
              [(ngModel)]="searchBlNumber" name="blNumber"
-             placeholder="Ej: HLCUVAL250100123" />
+             [placeholder]="'demurrage.blPlaceholder' | transloco" />
     </div>
     <div class="col-auto">
       <button type="submit" class="btn btn-hl-orange px-4" [disabled]="!searchBlNumber.trim()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
           <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
         </svg>
-        Buscar
+        {{ 'demurrage.search' | transloco }}
       </button>
     </div>
   </form>
@@ -35,13 +35,13 @@
         <path d="M8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
       </svg>
       <div>
-        <strong>Nota para clientes de Bolivia:</strong> Algunos contenedores pueden estar exentos de demurrage según acuerdos comerciales vigentes.
+        <strong>{{ 'demurrage.boNote.title' | transloco }}</strong> {{ 'demurrage.boNote.text' | transloco }}
       </div>
     </div>
   }
 
   <div class="mb-3">
-    <span class="text-muted">Resultados para BL:</span>
+    <span class="text-muted">{{ 'demurrage.resultsFor' | transloco }}</span>
     <span class="fw-bold ms-1">{{ activeBlNumber() }}</span>
   </div>
 
@@ -50,7 +50,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
       </svg>
-      <p class="text-muted mb-0">No hay cargos de demurrage para este BL.</p>
+      <p class="text-muted mb-0">{{ 'demurrage.empty' | transloco }}</p>
     </div>
   } @else {
     <div class="hl-card mb-4">
@@ -58,12 +58,12 @@
         <table class="hl-table">
           <thead>
             <tr>
-              <th>Contenedor</th>
-              <th>Días Libres</th>
-              <th>Días Demurrage</th>
-              <th>Tarifa Diaria</th>
-              <th>Total</th>
-              <th>Estado</th>
+              <th>{{ 'demurrage.col.container' | transloco }}</th>
+              <th>{{ 'demurrage.col.freeDays' | transloco }}</th>
+              <th>{{ 'demurrage.col.demurrageDays' | transloco }}</th>
+              <th>{{ 'demurrage.col.dailyRate' | transloco }}</th>
+              <th>{{ 'demurrage.col.total' | transloco }}</th>
+              <th>{{ 'demurrage.col.status' | transloco }}</th>
             </tr>
           </thead>
           <tbody>
@@ -76,15 +76,15 @@
                     {{ charge.demurrageDays }}
                   </span>
                 </td>
-                <td>{{ charge.currency }} {{ charge.dailyRate | number:'1.2-2' }}</td>
+                <td>{{ charge.dailyRate | hlCurrency: charge.currency }}</td>
                 <td class="fw-semibold">
                   @if (charge.isExempt) {
                     <span class="text-decoration-line-through text-muted me-2">
-                      {{ charge.currency }} {{ charge.totalAmount | number:'1.2-2' }}
+                      {{ charge.totalAmount | hlCurrency: charge.currency }}
                     </span>
-                    <span class="text-hl-green">EXENTO</span>
+                    <span class="text-hl-green">{{ 'demurrage.exempt' | transloco }}</span>
                   } @else {
-                    {{ charge.currency }} {{ charge.totalAmount | number:'1.2-2' }}
+                    {{ charge.totalAmount | hlCurrency: charge.currency }}
                   }
                 </td>
                 <td>
@@ -102,7 +102,7 @@
                       <path d="M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.118a1 1 0 0 0 .101.025 1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524z"/>
                       <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0"/>
                     </svg>
-                    Motivo de exención: {{ charge.exemptionReason }}
+                    {{ 'demurrage.exemptionReason' | transloco }} {{ charge.exemptionReason }}
                   </td>
                 </tr>
               }
@@ -117,14 +117,14 @@
       <div class="col-md-5 col-lg-4">
         <div class="hl-card p-4">
           <div class="d-flex justify-content-between mb-3">
-            <span class="fw-bold fs-5">Total Demurrage</span>
-            <span class="fw-bold fs-5 text-hl-orange">USD {{ totalDemurrage() | number:'1.2-2' }}</span>
+            <span class="fw-bold fs-5">{{ 'demurrage.total' | transloco }}</span>
+            <span class="fw-bold fs-5 text-hl-orange">{{ totalDemurrage() | hlCurrency: 'USD' }}</span>
           </div>
           @if (totalDemurrage() > 0) {
             <a [routerLink]="['/payments/new', charges()[0]?.blId ?? activeBlNumber()]"
                [queryParams]="{type: 'DEMURRAGE'}"
                class="btn btn-hl-orange w-100 py-2">
-              Pagar Demurrage
+              {{ 'demurrage.pay' | transloco }}
             </a>
           }
         </div>
@@ -137,6 +137,6 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="mb-3 opacity-25 text-hl-dark" viewBox="0 0 16 16">
       <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
     </svg>
-    <p class="text-muted mb-0">Ingrese un número de BL para consultar los cargos de demurrage.</p>
+    <p class="text-muted mb-0">{{ 'demurrage.initial' | transloco }}</p>
   </div>
 }

@@ -1,19 +1,24 @@
 import { Component, inject, signal, OnInit, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { FormsModule } from '@angular/forms';
 import { BillOfLadingService } from '../../core/services/bl.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LocalCharge } from '../../core/models/bl.model';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
+import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
+import { HlNumberPipe } from '../../shared/pipes/hl-number.pipe';
 import { TAX_RATES } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-local-charges',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, FormsModule, StatusBadgeComponent, LoadingSpinnerComponent],
+  imports: [
+    RouterLink, FormsModule, TranslocoPipe, HlCurrencyPipe, HlNumberPipe,
+    StatusBadgeComponent, LoadingSpinnerComponent,
+  ],
   templateUrl: './local-charges.html',
   styleUrl: './local-charges.scss',
 })
@@ -70,7 +75,7 @@ export class LocalChargesComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar los cargos locales. Verifique el número de BL.');
+        this.error.set(translate('localCharges.loadError'));
         this.loading.set(false);
       },
     });
