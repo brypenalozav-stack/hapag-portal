@@ -651,6 +651,20 @@ def tareas_nuevas(raci, fichas, cobertura):
                 tarea=f"Implementar {fid} {titulo} (sin código en hapag-portal)", dependencia="—", tipo="Desarrollo",
                 prioridad="Alta", comentario="Brecha N según Matriz_Fichas_Linea_Base_v4.xlsx.", ficha=fid,
                 contrato=contrato_ficha(fid), estado="Pending", resp=(responsable_brecha(fid), EQUIPO[1]))
+    # Fichas de Fase 1 con cobertura P o C también tienen trabajo: completar o verificar lo existente.
+    for fid, titulo, fase in fichas:
+        cob = cobertura.get(fid, ("N",))[0]
+        if fase_de(fase) != "1" or fid.startswith("M11") or cob == "N":
+            continue
+        if cob == "C":
+            tarea, comentario = (f"Verificar y mantener {fid} {titulo} (construido en hapag-portal)",
+                                 "Cobertura C según Matriz_Fichas_Linea_Base_v4.xlsx: validar criterios de aceptación.")
+        else:
+            tarea, comentario = (f"Completar {fid} {titulo} (cobertura parcial en hapag-portal)",
+                                 "Cobertura P según Matriz_Fichas_Linea_Base_v4.xlsx: ver brecha en Comparacion_v4.")
+        agregar(clave=f"completar-{fid}", modulo="Brechas de cobertura Fase 1", tarea=tarea, dependencia="—",
+                tipo="Desarrollo", prioridad="Media", comentario=comentario, ficha=fid,
+                contrato=contrato_ficha(fid), estado="Pending", resp=(responsable_brecha(fid), EQUIPO[1]))
     esperado = {119 + i: f"M11-0{i + 1}" for i in range(8)}
     esperado.update({129: "M2-10", 130: "M8-09"})
     for t in nuevas:
