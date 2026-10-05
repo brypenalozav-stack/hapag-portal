@@ -323,6 +323,7 @@ La fase:
 #### 0.0 Prerrequisito: LibreOffice
 - Pedir **aprobación explícita** al usuario antes de instalar: `winget install TheDocumentFoundation.LibreOffice` (MPL-2.0).
 - Sin aprobación no se ejecutan `render.py` ni los criterios de render. El resto de la fase puede avanzar.
+- **Resuelto 2026-10-05: el usuario rechazó la instalación.** No se crea `render.py` ni se instala pypdfium2. Todos los criterios de render del plan se reemplazan por la revisión manual abriendo el archivo en Word o Excel.
 - LibreOffice se usa **solo** para convertir a PDF y renderizar. Nunca guarda un `.docx` ni un `.xlsx`.
 
 #### 1. Herramientas Python (`scripts/requerimientos/`, nuevo)

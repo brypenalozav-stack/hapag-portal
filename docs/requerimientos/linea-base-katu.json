@@ -1,0 +1,49 @@
+{
+  "generado": "2026-10-05T12:51:10",
+  "commit_repo": "3c8e45b1ed4764df6e7188c8334e709ecd4a251d",
+  "carpeta": "C:\\Users\\klaze\\Desktop\\katu",
+  "archivos": [
+    {
+      "nombre": "Portal_2.0_Especificacion_Funcional_validada.docx",
+      "bytes": 2822173,
+      "modificado": "2026-10-05T11:13:04",
+      "sha256": "7d96a8cb72baa597cd14d67534c03360330919f3928e988e3549e32221adc9f9",
+      "tiene_v4": true
+    },
+    {
+      "nombre": "Portal_2.0_Especificacion_Funcional_validada(1).docx",
+      "bytes": 2822558,
+      "modificado": "2026-10-05T11:14:27",
+      "sha256": "88c14dfea29877cba53ca2c5148e7cab298682445bca4b8970982eb1968e01b7",
+      "tiene_v4": false
+    },
+    {
+      "nombre": "Portal_2_0_Pendientes.xlsx",
+      "bytes": 25834,
+      "modificado": "2026-10-05T11:14:23",
+      "sha256": "3f2bc08d59369db30a390a58f10eac9ba37450587edcfe852a2b8bd09bf596d8",
+      "tiene_v4": true
+    },
+    {
+      "nombre": "Funcionalidades NexusV2.xlsx",
+      "bytes": 10667,
+      "modificado": "2026-10-05T11:14:24",
+      "sha256": "dda901fa150cddeae543a661a86fecd8178fe8c1f12f9d29fd39e1c872236b79",
+      "tiene_v4": true
+    },
+    {
+      "nombre": "Gantt_Macros_Extraccion_QA.xlsx",
+      "bytes": 21238,
+      "modificado": "2026-10-05T11:14:25",
+      "sha256": "d43d80efa3631399076bc3cba4c509068c38eadf67c785d12b2cd3e5d4e1bd71",
+      "tiene_v4": false
+    },
+    {
+      "nombre": "Comparacion_POC_Requerimientos_Por_Fase.xlsx",
+      "bytes": 134039,
+      "modificado": "2026-10-05T11:14:28",
+      "sha256": "40e3246ac8a067b582f3c13c30440dceee9875601fa9cf923d9dd2135241038b",
+      "tiene_v4": true
+    }
+  ]
+}
