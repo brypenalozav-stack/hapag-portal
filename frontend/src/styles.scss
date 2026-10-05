@@ -1,42 +1,68 @@
-// Hapag-Lloyd custom variables
-$hl-dark: #33424f;
-$hl-orange: #ff6600;
-$hl-green: #009840;
-$hl-blue: #004d6c;
-$hl-light-gray: #f5f7fa;
-$hl-border: #e2e8f0;
+@use 'sass:color';
+@use 'styles/tokens' as t;
 
-// Bootstrap variable overrides
-$primary: $hl-orange;
-$secondary: $hl-dark;
-$success: $hl-green;
-$info: $hl-blue;
-$body-bg: $hl-light-gray;
-$body-color: #2d3748;
-$font-family-sans-serif: 'Inter', system-ui, -apple-system, sans-serif;
-$headings-font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
-$headings-font-weight: 600;
-$border-radius: 0.5rem;
-$border-radius-sm: 0.375rem;
-$border-radius-lg: 0.75rem;
-$card-border-radius: 0.75rem;
-$card-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-$input-border-color: $hl-border;
-$input-focus-border-color: $hl-orange;
-$input-focus-box-shadow: 0 0 0 0.2rem rgba($hl-orange, 0.15);
-
-@use 'bootstrap/scss/bootstrap';
+// Bootstrap configurado con los tokens (DC4). Los campos de formulario usan $hl-text-muted
+// como borde (7,53:1, WCAG 1.4.11); $hl-border (1,23:1) queda solo para separadores decorativos.
+// Campos y menús desplegables conservan la superficie blanca: por defecto Bootstrap usa
+// $body-bg, que ahora es $hl-light-gray.
+@use 'bootstrap/scss/bootstrap' with (
+  $primary: t.$hl-orange-700,
+  $secondary: t.$hl-dark,
+  $success: t.$hl-green-700,
+  $info: t.$hl-blue,
+  $body-bg: t.$hl-light-gray,
+  $body-color: t.$hl-body-color,
+  $font-family-sans-serif: ('Inter', system-ui, -apple-system, sans-serif),
+  $headings-font-family: ('Montserrat', 'Inter', system-ui, sans-serif),
+  $headings-font-weight: 600,
+  $border-radius: 0.5rem,
+  $border-radius-sm: 0.375rem,
+  $border-radius-lg: 0.75rem,
+  $card-border-radius: 0.75rem,
+  $card-box-shadow: 0 1px 3px rgba(t.$hl-dark, 0.08),
+  $input-bg: t.$hl-white,
+  $dropdown-bg: t.$hl-white,
+  $input-border-color: t.$hl-text-muted,
+  $form-check-input-border: var(--bs-border-width) solid t.$hl-text-muted,
+  $input-focus-border-color: t.$hl-orange-700,
+  $input-focus-box-shadow: 0 0 0 0.2rem rgba(t.$hl-orange-700, 0.15)
+);
 
 // CSS custom properties
 :root {
-  --hl-dark: #{$hl-dark};
-  --hl-orange: #{$hl-orange};
-  --hl-green: #{$hl-green};
-  --hl-blue: #{$hl-blue};
-  --hl-light-gray: #{$hl-light-gray};
-  --hl-border: #{$hl-border};
+  --hl-dark: #{t.$hl-dark};
+  --hl-orange: #{t.$hl-orange};
+  --hl-orange-700: #{t.$hl-orange-700};
+  --hl-green: #{t.$hl-green};
+  --hl-green-700: #{t.$hl-green-700};
+  --hl-blue: #{t.$hl-blue};
+  --hl-light-gray: #{t.$hl-light-gray};
+  --hl-border: #{t.$hl-border};
+  --hl-body-color: #{t.$hl-body-color};
+  --hl-white: #{t.$hl-white};
+  --hl-dark-bg: #{t.$hl-dark-bg};
+  --hl-dark-text: #{t.$hl-dark-text};
+  --hl-surface-muted: #{t.$hl-surface-muted};
+  --hl-text-muted: #{t.$hl-text-muted};
+  --hl-focus: #{t.$hl-blue};
   --sidebar-width: 260px;
   --navbar-height: 60px;
+}
+
+// Foco blanco sobre la barra de navegación y el menú lateral (fondo $hl-dark)
+.hl-navbar,
+.hl-sidebar {
+  --hl-focus: #{t.$hl-white};
+}
+
+// Variante oscura (Guía UI §1.1). El selector de tema queda para la tarea M11-07.
+[data-bs-theme="dark"] {
+  --hl-light-gray: #{t.$hl-dark-bg};
+  --hl-border: #{t.$hl-text-muted};
+  --hl-body-color: #{t.$hl-dark-text};
+  --hl-surface-muted: #{t.$hl-dark};
+  --hl-text-muted: #{t.$hl-dark-text};
+  --hl-focus: #{t.$hl-white};
 }
 
 // Typography
@@ -50,6 +76,19 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
 }
 
+// Logo (SVG en línea): colores desde los tokens
+.hl-logo__mark {
+  fill: var(--hl-orange);
+}
+
+.hl-logo__initials {
+  fill: var(--hl-white);
+}
+
+.hl-logo__name {
+  fill: var(--hl-dark);
+}
+
 // Navbar
 .hl-navbar {
   background-color: var(--hl-dark);
@@ -58,7 +97,7 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 1030;
 
   .navbar-brand {
-    color: #fff;
+    color: var(--hl-white);
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 1.1rem;
@@ -67,7 +106,11 @@ h1, h2, h3, h4, h5, h6 {
     gap: 0.75rem;
 
     &:hover {
-      color: #fff;
+      color: var(--hl-white);
+    }
+
+    .hl-logo__name {
+      fill: var(--hl-white);
     }
   }
 
@@ -78,7 +121,7 @@ h1, h2, h3, h4, h5, h6 {
     transition: color 0.2s;
 
     &:hover, &.active {
-      color: #fff;
+      color: var(--hl-white);
     }
   }
 
@@ -139,7 +182,7 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     &:hover {
-      color: #fff;
+      color: var(--hl-white);
       background-color: rgba(255, 255, 255, 0.06);
       border-left-color: var(--hl-green);
 
@@ -149,7 +192,7 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     &.active {
-      color: #fff;
+      color: var(--hl-white);
       background-color: rgba(255, 255, 255, 0.1);
       border-left-color: var(--hl-orange);
 
@@ -171,7 +214,7 @@ h1, h2, h3, h4, h5, h6 {
 
 // Cards
 .hl-card {
-  background: #fff;
+  background: var(--hl-white);
   border: 1px solid var(--hl-border);
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -216,7 +259,7 @@ h1, h2, h3, h4, h5, h6 {
 
   .stat-label {
     font-size: 0.8rem;
-    color: #718096;
+    color: var(--hl-text-muted);
     font-weight: 500;
   }
 }
@@ -229,7 +272,7 @@ h1, h2, h3, h4, h5, h6 {
 
   thead th {
     background-color: var(--hl-dark);
-    color: #fff;
+    color: var(--hl-white);
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -255,15 +298,15 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   tbody tr {
-    background-color: #fff;
+    background-color: var(--hl-white);
     transition: background-color 0.15s;
 
     &:nth-child(even) {
-      background-color: #f8fafc;
+      background-color: var(--hl-surface-muted);
     }
 
     &:hover {
-      background-color: #edf2f7;
+      background-color: var(--hl-border);
     }
   }
 }
@@ -272,43 +315,43 @@ h1, h2, h3, h4, h5, h6 {
 .btn-hl-orange {
   background-color: var(--hl-orange);
   border-color: var(--hl-orange);
-  color: #fff;
+  color: var(--hl-white);
   font-weight: 600;
 
   &:hover, &:focus {
-    background-color: #e65c00;
-    border-color: #e65c00;
-    color: #fff;
+    background-color: color.mix(black, t.$hl-orange, 10%);
+    border-color: color.mix(black, t.$hl-orange, 10%);
+    color: var(--hl-white);
   }
 
   &:active {
-    background-color: #cc5200;
+    background-color: color.mix(black, t.$hl-orange, 20%);
   }
 }
 
 .btn-hl-green {
   background-color: var(--hl-green);
   border-color: var(--hl-green);
-  color: #fff;
+  color: var(--hl-white);
   font-weight: 600;
 
   &:hover, &:focus {
-    background-color: #007a33;
-    border-color: #007a33;
-    color: #fff;
+    background-color: var(--hl-green-700);
+    border-color: var(--hl-green-700);
+    color: var(--hl-white);
   }
 }
 
 .btn-hl-blue {
   background-color: var(--hl-blue);
   border-color: var(--hl-blue);
-  color: #fff;
+  color: var(--hl-white);
   font-weight: 600;
 
   &:hover, &:focus {
-    background-color: #003a52;
-    border-color: #003a52;
-    color: #fff;
+    background-color: color.mix(black, t.$hl-blue, 25%);
+    border-color: color.mix(black, t.$hl-blue, 25%);
+    color: var(--hl-white);
   }
 }
 
@@ -323,28 +366,28 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.35em;
 
   &--pending {
-    background-color: #fef3cd;
-    color: #856404;
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
   }
 
   &--confirmed, &--paid {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
   }
 
   &--failed, &--rejected {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis);
   }
 
   &--processing {
-    background-color: #cce5ff;
-    color: #004085;
+    background-color: var(--bs-info-bg-subtle);
+    color: var(--bs-info-text-emphasis);
   }
 
   &--active {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
   }
 }
 
@@ -357,7 +400,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   padding: 0.2em 0.6em;
   border-radius: 0.375rem;
-  background-color: rgba(0, 77, 108, 0.1);
+  background-color: rgba(t.$hl-blue, 0.1);
   color: var(--hl-blue);
 }
 
@@ -373,13 +416,13 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .form-control, .form-select {
-    border-color: var(--hl-border);
+    border-color: var(--hl-text-muted);
     font-size: 0.9rem;
     padding: 0.6rem 0.85rem;
 
     &:focus {
-      border-color: var(--hl-orange);
-      box-shadow: 0 0 0 0.2rem rgba(255, 102, 0, 0.15);
+      border-color: var(--hl-orange-700);
+      box-shadow: 0 0 0 0.2rem rgba(t.$hl-orange-700, 0.15);
     }
   }
 
@@ -459,11 +502,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
+  background: var(--hl-border);
   border-radius: 3px;
 
   &:hover {
-    background: #a0aec0;
+    background: var(--hl-text-muted);
   }
 }
 
@@ -472,6 +515,8 @@ h1, h2, h3, h4, h5, h6 {
 .text-hl-green { color: var(--hl-green) !important; }
 .text-hl-blue { color: var(--hl-blue) !important; }
 .text-hl-dark { color: var(--hl-dark) !important; }
+.text-hl-muted { color: var(--hl-text-muted) !important; }
+.text-hl-border { color: var(--hl-border) !important; }
 .bg-hl-orange { background-color: var(--hl-orange) !important; }
 .bg-hl-green { background-color: var(--hl-green) !important; }
 .bg-hl-blue { background-color: var(--hl-blue) !important; }

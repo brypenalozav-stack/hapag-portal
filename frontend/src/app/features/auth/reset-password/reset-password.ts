@@ -15,9 +15,9 @@ import { VALIDATION, REDIRECT_DELAY_MS } from '../../../core/constants/app.const
         <div class="login-card">
           <div class="text-center mb-4">
             <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="max-width: 280px;">
-              <rect x="0" y="10" width="60" height="60" rx="6" fill="#FF6600"/>
-              <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" fill="#FFFFFF">HL</text>
-              <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" fill="#33424F">Hapag-Lloyd</text>
+              <rect x="0" y="10" width="60" height="60" rx="6" class="hl-logo__mark"/>
+              <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" class="hl-logo__initials">HL</text>
+              <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" class="hl-logo__name">Hapag-Lloyd</text>
               <text x="75" y="58" font-family="Inter, sans-serif" font-weight="300" font-size="11" fill="rgba(51,66,79,0.5)" letter-spacing="3">SHIPPING &amp; LOGISTICS</text>
             </svg>
             <h1 class="login-title">Nueva Contraseña</h1>

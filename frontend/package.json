@@ -8,7 +8,11 @@
     "build:staging": "ng build --configuration staging",
     "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "lint": "ng lint",
+    "check:hex": "node scripts/check-hex.mjs",
+    "check:theme": "node scripts/check-bootstrap-theme.mjs",
+    "test:a11y": "playwright test"
   },
   "private": true,
   "packageManager": "npm@11.6.2",
@@ -30,7 +34,12 @@
     "@angular/build": "^21.2.10",
     "@angular/cli": "^21.2.10",
     "@angular/compiler-cli": "^21.2.0",
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
+    "angular-eslint": "21.4.0",
+    "eslint": "10.12.0",
     "prettier": "^3.8.1",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "typescript-eslint": "8.59.2"
   }
 }

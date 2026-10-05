@@ -35,3 +35,12 @@ Cada fase que agrega una dependencia registra aquí el nombre, la **versión exa
 | playwright, playwright-core (transitivas de @playwright/test) | 1.63.0 | `scripts/requerimientos/prototipo/package-lock.json` | Apache-2.0 | 4 |
 | @axe-core/playwright | 4.13.0 | `scripts/requerimientos/prototipo/package.json` | MPL-2.0 | 4 |
 | axe-core (transitiva de @axe-core/playwright) | 4.13.0 | `scripts/requerimientos/prototipo/package-lock.json` | MPL-2.0 | 4 |
+| angular-eslint (fijado en 21.x: la 22 exige Angular 22) | 21.4.0 | `frontend/package.json` (devDependencies) | MIT | 5a |
+| @angular-eslint/builder, eslint-plugin, eslint-plugin-template, template-parser, schematics (transitivas de angular-eslint) | 21.4.0 | `frontend/package-lock.json` | MIT | 5a |
+| eslint | 10.12.0 | `frontend/package.json` (devDependencies) | MIT | 5a |
+| typescript-eslint | 8.59.2 | `frontend/package.json` (devDependencies) | MIT | 5a |
+| @typescript-eslint/parser, @typescript-eslint/eslint-plugin (transitivas de typescript-eslint) | 8.59.2 | `frontend/package-lock.json` | MIT | 5a |
+| @playwright/test | 1.63.0 | `frontend/package.json` (devDependencies) | Apache-2.0 | 5a |
+| playwright, playwright-core (transitivas de @playwright/test) | 1.63.0 | `frontend/package-lock.json` | Apache-2.0 | 5a |
+| @axe-core/playwright | 4.13.0 | `frontend/package.json` (devDependencies) | MPL-2.0 | 5a |
+| axe-core (transitiva de @axe-core/playwright) | 4.13.0 | `frontend/package-lock.json` | MPL-2.0 | 5a |

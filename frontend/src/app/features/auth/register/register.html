@@ -4,9 +4,9 @@
       <!-- Logo -->
       <div class="text-center mb-4">
         <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="max-width: 240px;">
-          <rect x="0" y="10" width="60" height="60" rx="6" fill="#FF6600"/>
-          <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" fill="#FFFFFF">HL</text>
-          <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" fill="#33424F">Hapag-Lloyd</text>
+          <rect x="0" y="10" width="60" height="60" rx="6" class="hl-logo__mark"/>
+          <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" class="hl-logo__initials">HL</text>
+          <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" class="hl-logo__name">Hapag-Lloyd</text>
           <text x="75" y="58" font-family="Inter, sans-serif" font-weight="300" font-size="11" fill="rgba(51,66,79,0.5)" letter-spacing="3">SHIPPING &amp; LOGISTICS</text>
         </svg>
         <h1 class="register-title">Crear Cuenta</h1>
@@ -56,10 +56,7 @@
                       [class.btn-hl-blue]="form.controls.country.value === 'CL'"
                       [class.btn-outline-secondary]="form.controls.country.value !== 'CL'"
                       (click)="form.controls.country.setValue('CL'); onCountryChange()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="14" viewBox="0 0 20 14" class="me-1">
-                  <rect width="20" height="7" fill="#fff"/><rect y="7" width="20" height="7" fill="#D52B1E"/>
-                  <rect width="6.66" height="7" fill="#0039A6"/>
-                </svg>
+                <img src="flags/cl-20x14.svg" alt="" width="20" height="14" class="me-1" />
                 Chile
               </button>
               <button type="button"
@@ -67,10 +64,7 @@
                       [class.btn-hl-blue]="form.controls.country.value === 'BO'"
                       [class.btn-outline-secondary]="form.controls.country.value !== 'BO'"
                       (click)="form.controls.country.setValue('BO'); onCountryChange()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="14" viewBox="0 0 20 14" class="me-1">
-                  <rect width="20" height="4.66" fill="#D52B1E"/><rect y="4.66" width="20" height="4.66" fill="#F9E300"/>
-                  <rect y="9.33" width="20" height="4.66" fill="#007934"/>
-                </svg>
+                <img src="flags/bo-20x14.svg" alt="" width="20" height="14" class="me-1" />
                 Bolivia
               </button>
             </div>
