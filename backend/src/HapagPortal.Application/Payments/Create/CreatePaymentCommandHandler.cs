@@ -12,7 +12,8 @@ using Microsoft.EntityFrameworkCore;
 public sealed class CreatePaymentCommandHandler(
     IApplicationDbContext dbContext,
     IPaymentGatewayService paymentGatewayService,
-    ICurrentUserService currentUserService)
+    ICurrentUserService currentUserService,
+    IShipmentAccessEvaluator accessEvaluator)
     : ICommandHandler<CreatePaymentCommand, PaymentResponseDto>
 {
     private const int TaxPercentageDivisor = 100;
@@ -62,20 +63,30 @@ public sealed class CreatePaymentCommandHandler(
             return Result<PaymentResponseDto>.Failure(
                 new Error("Error.Unauthorized", "User is not associated with a client."));
 
-        // Se filtra por cliente EN LA CONSULTA: nunca se carga un BL ajeno (BUG IDOR
-        // detectado en la revision del PR; mismo patron que CreateServiceOrder/WarehouseChange).
-        var bl = await dbContext.BillsOfLading
+        // Se filtra por accesos EN LA CONSULTA: nunca se carga un BL ajeno (BUG IDOR). El pago es
+        // de la propia organización: la visibilidad total del administrador (M8-06) no habilita pagar.
+        var scope = await accessEvaluator.GetScopeAsync(cancellationToken);
+        if (scope.IsAdmin)
+            scope = scope with { IsAdmin = false };
+
+        var bl = await accessEvaluator.FilterAccessible(dbContext.BillsOfLading, scope)
             .Include(b => b.Client)
             .Include(b => b.LocalCharges)
-            .FirstOrDefaultAsync(
-                b => b.Id == request.BlId && b.ClientId == clientId.Value,
-                cancellationToken);
+            .FirstOrDefaultAsync(b => b.Id == request.BlId, cancellationToken);
 
-        if (bl is null)
+        var permissions = bl is null
+            ? ShipmentPermissionSet.None
+            : await accessEvaluator.EvaluateAsync(scope, bl, cancellationToken);
+
+        if (bl is null || !permissions.Can(ShipmentActionCodes.ViewShipment))
             return Result<PaymentResponseDto>.Failure(
                 DomainErrors.BillOfLading.NotFound(request.BlId));
 
         var paymentType = PaymentTypeMap.GetValueOrDefault(request.Type, request.Type);
+
+        // Matriz de M1-11 por concepto y perfil del usuario (M1-02): sin ambos, no se paga.
+        if (!RequiredActions(paymentType).All(permissions.CanExecute))
+            return Result<PaymentResponseDto>.Failure(Error.Forbidden);
         var paymentMethod = PaymentMethodMap.GetValueOrDefault(request.Method, request.Method);
 
         // Determine currency from BL or country
@@ -216,6 +227,15 @@ public sealed class CreatePaymentCommandHandler(
                 payment.ConfirmedAt,
                 null));
     }
+
+    private static string[] RequiredActions(string paymentType) => paymentType switch
+    {
+        "Freight" => [ShipmentActionCodes.PayFreight],
+        "LocalCharges" => [ShipmentActionCodes.PayMandatoryLocalCharges],
+        "Demurrage" => [ShipmentActionCodes.PayImportDemurrage],
+        "Combined" => [ShipmentActionCodes.PayFreight, ShipmentActionCodes.PayMandatoryLocalCharges],
+        _ => [ShipmentActionCodes.PayMandatoryLocalCharges]
+    };
 
     private static bool IsElectronicPayment(string paymentMethod) =>
         paymentMethod is PaymentMethods.CreditCard or PaymentMethods.DebitCard

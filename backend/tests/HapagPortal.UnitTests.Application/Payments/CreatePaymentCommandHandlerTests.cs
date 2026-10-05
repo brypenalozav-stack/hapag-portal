@@ -11,14 +11,16 @@ public sealed class CreatePaymentCommandHandlerTests
 {
     private readonly MockApplicationDbContext _dbContext = new();
     private readonly IPaymentGatewayService _gateway = Substitute.For<IPaymentGatewayService>();
-    private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
+    private readonly ICurrentUserService _currentUser;
     private readonly CreatePaymentCommandHandler _handler;
-    private readonly Guid _clientId = Guid.NewGuid();
+    private readonly Guid _clientId;
 
     public CreatePaymentCommandHandlerTests()
     {
-        _currentUser.ClientId.Returns(_clientId);
-        _handler = new CreatePaymentCommandHandler(_dbContext, _gateway, _currentUser);
+        var client = AccessTestData.ClientContext(_dbContext);
+        _clientId = client.Organization.Id;
+        _currentUser = client.CurrentUser;
+        _handler = new CreatePaymentCommandHandler(_dbContext, _gateway, _currentUser, client.Evaluator);
     }
 
     private BillOfLading AddBL(Guid clientId) =>

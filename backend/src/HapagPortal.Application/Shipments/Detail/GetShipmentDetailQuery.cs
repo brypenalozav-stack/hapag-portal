@@ -1,0 +1,137 @@
+namespace HapagPortal.Application.Shipments.Detail;
+
+using FluentValidation;
+using HapagPortal.Application.Common.Dtos;
+using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Shipments.Common;
+using HapagPortal.Domain.Constants;
+using HapagPortal.Domain.Errors;
+using HapagPortal.Domain.Results;
+using Microsoft.EntityFrameworkCore;
+
+/// <summary>
+/// Detalle de un embarque con contenedores, cargos, demurrage y ODS, filtrado en el servidor según
+/// la matriz de M1-11 (M2-06). Un BL sin acceso responde NotFound, sin revelar su existencia.
+/// </summary>
+public sealed record GetShipmentDetailQuery(string BlNumber) : IQuery<ShipmentDetailDto>;
+
+public sealed class GetShipmentDetailQueryValidator : AbstractValidator<GetShipmentDetailQuery>
+{
+    public GetShipmentDetailQueryValidator()
+    {
+        RuleFor(x => x.BlNumber).NotEmpty().MaximumLength(50);
+    }
+}
+
+public sealed class GetShipmentDetailQueryHandler(
+    IApplicationDbContext dbContext,
+    IShipmentAccessEvaluator accessEvaluator)
+    : IQueryHandler<GetShipmentDetailQuery, ShipmentDetailDto>
+{
+    public async Task<Result<ShipmentDetailDto>> Handle(
+        GetShipmentDetailQuery request,
+        CancellationToken cancellationToken)
+    {
+        var scope = await accessEvaluator.GetScopeAsync(cancellationToken);
+        var blNumber = request.BlNumber.Trim();
+
+        var bl = await accessEvaluator.FilterAccessible(dbContext.BillsOfLading.AsNoTracking(), scope)
+            .Include(b => b.Containers)
+            .Include(b => b.LocalCharges)
+            .Include(b => b.DemurrageCharges)
+            .Include(b => b.Payments)
+            .FirstOrDefaultAsync(b => b.BLNumber == blNumber, cancellationToken);
+
+        var permissions = bl is null
+            ? ShipmentPermissionSet.None
+            : await accessEvaluator.EvaluateAsync(scope, bl, cancellationToken);
+
+        if (bl is null || !permissions.Can(ShipmentActionCodes.ViewShipment))
+            return Result<ShipmentDetailDto>.Failure(DomainErrors.BillOfLading.NotFoundByNumber(blNumber));
+
+        var freight = permissions.Can(ShipmentActionCodes.PayFreight)
+            ? new ShipmentFreightDto(
+                bl.FreightAmount,
+                bl.FreightCurrency,
+                bl.Payments.Any(p => p.PaymentType == "Freight" && p.Status == PaymentStatus.Confirmed) ? "PAID" : "PENDING")
+            : null;
+
+        var canSeeLocalCharges = permissions.Can(ShipmentActionCodes.PayMandatoryLocalCharges)
+            || permissions.Can(ShipmentActionCodes.PayOnDemandLocalCharges);
+
+        var localCharges = canSeeLocalCharges
+            ? bl.LocalCharges.Select(lc => new LocalChargeDto(
+                lc.Id,
+                bl.Id,
+                bl.BLNumber,
+                lc.ChargeType,
+                lc.Description,
+                lc.Amount,
+                lc.Currency,
+                lc.Status,
+                lc.IsTaxable,
+                lc.TaxRate,
+                lc.TaxAmount,
+                lc.TotalAmount,
+                bl.Country)).ToList()
+            : null;
+
+        var demurrage = permissions.Can(ShipmentActionCodes.PayImportDemurrage)
+            ? bl.DemurrageCharges.Select(dc => new DemurrageChargeDto(
+                dc.Id,
+                bl.Id,
+                bl.BLNumber,
+                dc.ContainerNumber,
+                dc.FreeDays,
+                dc.DemurrageDays,
+                dc.DailyRate,
+                dc.TotalAmount,
+                dc.Currency,
+                dc.StartDate,
+                dc.EndDate,
+                dc.Status,
+                dc.IsExempt,
+                dc.ExemptReason,
+                bl.Country)).ToList()
+            : null;
+
+        // ODS de la propia organización (CL-EXP-13, BO-EXP-09); el administrador ve todas.
+        var serviceOrdersQuery = dbContext.ServiceOrders.AsNoTracking().Where(so => so.BillOfLadingId == bl.Id);
+        if (!scope.IsAdmin)
+            serviceOrdersQuery = serviceOrdersQuery.Where(so => so.ClientId == scope.OrganizationId);
+
+        var serviceOrders = await serviceOrdersQuery
+            .OrderByDescending(so => so.RequestedAt)
+            .Select(so => new ShipmentServiceOrderDto(
+                so.Id, so.OrderNumber, so.OrderType, so.Status, so.RequestedAt, so.CompletedAt))
+            .ToListAsync(cancellationToken);
+
+        return Result<ShipmentDetailDto>.Success(new ShipmentDetailDto(
+            bl.Id,
+            bl.BLNumber,
+            bl.BookingNumber,
+            ShipmentOperations.Normalize(bl.ShipmentType),
+            bl.Status,
+            bl.Country,
+            bl.Vessel,
+            bl.Voyage,
+            bl.PortOfLoading,
+            bl.PortOfDischarge,
+            bl.PlaceOfDelivery,
+            bl.ETD,
+            bl.ETA,
+            bl.Shipper,
+            bl.Consignee,
+            permissions.Roles,
+            permissions.Roles.Count == 0 && permissions.IsAdmin ? ShipmentAccessSources.Admin : ShipmentAccessSources.Own,
+            permissions.AllowedActions,
+            permissions.CanOperate,
+            freight,
+            bl.Containers.Select(c => new BLContainerDto(
+                c.Id, c.ContainerNumber, c.ContainerType, c.SealNumber, c.Weight, c.Status)).ToList(),
+            localCharges,
+            demurrage,
+            serviceOrders));
+    }
+}

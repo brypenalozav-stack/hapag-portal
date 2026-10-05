@@ -4,11 +4,14 @@ using Asp.Versioning;
 using HapagPortal.Application.Auth.ConfirmEmail;
 using HapagPortal.Application.Auth.ForgotPassword;
 using HapagPortal.Application.Auth.Login;
+using HapagPortal.Application.Auth.Logout;
 using HapagPortal.Application.Auth.RefreshToken;
 using HapagPortal.Application.Auth.Register;
+using HapagPortal.Application.Auth.RequestMembership;
 using HapagPortal.Application.Auth.ResetPassword;
 using HapagPortal.WebApi.Abstractions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 [ApiVersion("1.0")]
 public sealed class AuthController : ApiController
@@ -22,6 +25,19 @@ public sealed class AuthController : ApiController
 
         return result.IsSuccess
             ? CreatedAtAction(nameof(Register), result.Value)
+            : HandleFailure(result);
+    }
+
+    /// <summary>Solicitud de un usuario nuevo para vincularse a una organización ya registrada (M1-08).</summary>
+    [HttpPost("register/join")]
+    public async Task<IActionResult> RequestMembership(
+        [FromBody] RequestOrganizationMembershipCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(command, cancellationToken);
+
+        return result.IsSuccess
+            ? Accepted(result.Value)
             : HandleFailure(result);
     }
 
@@ -82,6 +98,19 @@ public sealed class AuthController : ApiController
 
         return result.IsSuccess
             ? Ok()
+            : HandleFailure(result);
+    }
+
+    /// <summary>Cierre de sesión en el servidor (M1-10): revoca el refresh token. Idempotente.</summary>
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] LogoutCommand? command,
+        CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(command ?? new LogoutCommand(), cancellationToken);
+
+        return result.IsSuccess
+            ? NoContent()
             : HandleFailure(result);
     }
 }

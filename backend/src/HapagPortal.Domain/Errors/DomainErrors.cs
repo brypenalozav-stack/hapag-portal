@@ -80,6 +80,57 @@ public static class DomainErrors
 
         public static readonly Error Inactive =
             new("User.Inactive", "The user account is inactive.");
+
+        public static readonly Error PendingApproval =
+            new("User.PendingApproval", "The request to join the organization is pending approval.");
+
+        public static readonly Error MembershipRejected =
+            new("User.MembershipRejected", "The request to join the organization was rejected.");
+    }
+
+    public static class Organization
+    {
+        public static Error NotFound(Guid id) =>
+            new("Organization.NotFound", $"The organization with ID '{id}' was not found.");
+
+        public static readonly Error NotFoundByTaxId =
+            new("Organization.NotFound", "No registered organization matches the given tax ID and country.");
+
+        public static readonly Error NotOperational =
+            new("Organization.NotOperational", "The organization registration has not been approved yet.");
+
+        public static Error InvalidStatus(string status) =>
+            new("Organization.InvalidStatus", $"The organization is in status '{status}', which does not allow this step.");
+
+        public static Error MatchCodeExists(string matchCode) =>
+            new("Organization.MatchCodeExists", $"The Match Code '{matchCode}' is already assigned to another organization.");
+
+        public static readonly Error CountryNotAvailable =
+            new("Organization.CountryNotAvailable", "The organization does not operate in the selected country.");
+
+        public static readonly Error InvalidProfile =
+            new("Organization.InvalidProfile", "The profile is not an organization profile.");
+
+        public static readonly Error CannotChangeOwnAccount =
+            new("Organization.CannotChangeOwnAccount", "You cannot deactivate or change the profile of your own account.");
+
+        public static Error JoinRequestNotFound(Guid userId) =>
+            new("JoinRequest.NotFound", $"The join request for user '{userId}' was not found.");
+
+        public static Error DocumentNotFound(Guid id) =>
+            new("OrganizationDocument.NotFound", $"The document with ID '{id}' was not found.");
+    }
+
+    public static class ShipmentAccess
+    {
+        public static Error ActionNotFound(string code) =>
+            new("ShipmentAction.NotFound", $"The shipment action '{code}' was not found.");
+
+        public static readonly Error InvalidLevel =
+            new("ShipmentAccess.InvalidLevel", "The access level must be Allowed, Denied or OnGrant.");
+
+        public static readonly Error InvalidRole =
+            new("ShipmentAccess.InvalidRole", "The role is not a column of the access matrix.");
     }
 
     public static class ServiceOrder

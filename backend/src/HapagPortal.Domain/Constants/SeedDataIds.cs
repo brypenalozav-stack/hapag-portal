@@ -126,6 +126,24 @@ public static class SeedDataIds
     public static readonly Guid ServiceOrder02 = Guid.Parse("AAAAAAAA-0010-0010-0010-000000000002");
     public static readonly Guid ServiceOrder03 = Guid.Parse("AAAAAAAA-0010-0010-0010-000000000003");
 
+    // Fase 1 Ola A — organizaciones, usuarios y embarques de demostración
+    public static readonly Guid PacificTradingClient = Guid.Parse("C3D4E5F6-0003-0003-0003-000000000040");
+    public static readonly Guid PendingOrgClient = Guid.Parse("C3D4E5F6-0003-0003-0003-000000000050");
+    public static readonly Guid DemoViewerUserCL = Guid.Parse("D4E5F6A7-0004-0004-0004-000000000011");
+    public static readonly Guid DemoJoinRequestUserCL = Guid.Parse("D4E5F6A7-0004-0004-0004-000000000012");
+    public static readonly Guid PendingOrgUser = Guid.Parse("D4E5F6A7-0004-0004-0004-000000000050");
+    public static readonly Guid BL06 = Guid.Parse("11111111-0007-0007-0007-000000000006");
+    public static readonly Guid BL07 = Guid.Parse("11111111-0007-0007-0007-000000000007");
+    public static readonly Guid BL08 = Guid.Parse("11111111-0007-0007-0007-000000000008");
+    public static readonly Guid Container08 = Guid.Parse("22222222-0008-0008-0008-000000000008");
+    public static readonly Guid Container09 = Guid.Parse("22222222-0008-0008-0008-000000000009");
+    public static readonly Guid Container10 = Guid.Parse("22222222-0008-0008-0008-000000000010");
+    public static readonly Guid LocalCharge09 = Guid.Parse("33333333-0009-0009-0009-000000000009");
+    public static readonly Guid LocalCharge10 = Guid.Parse("33333333-0009-0009-0009-000000000010");
+    public static readonly Guid LocalCharge11 = Guid.Parse("33333333-0009-0009-0009-000000000011");
+    public static readonly Guid LocalCharge12 = Guid.Parse("33333333-0009-0009-0009-000000000012");
+    public static readonly Guid ServiceOrder04 = Guid.Parse("AAAAAAAA-0010-0010-0010-000000000004");
+
     // Audit Logs
     public static readonly Guid AuditLog01 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000001");
     public static readonly Guid AuditLog02 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000002");

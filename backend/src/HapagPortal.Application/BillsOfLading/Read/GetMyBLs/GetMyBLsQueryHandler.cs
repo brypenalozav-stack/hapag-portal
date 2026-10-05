@@ -9,7 +9,8 @@ using Microsoft.EntityFrameworkCore;
 
 public sealed class GetMyBLsQueryHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService currentUserService)
+    ICurrentUserService currentUserService,
+    IShipmentAccessEvaluator accessEvaluator)
     : IQueryHandler<GetMyBLsQuery, List<BillOfLadingResponseDto>>
 {
     public async Task<Result<List<BillOfLadingResponseDto>>> Handle(
@@ -31,12 +32,15 @@ public sealed class GetMyBLsQueryHandler(
         if (user.ClientId is null)
             return Result<List<BillOfLadingResponseDto>>.Success([]);
 
-        var entities = await dbContext.BillsOfLading
-            .AsNoTracking()
+        // Embarques propios de la organización: titular o con rol en el BL (M1-11, M2-06).
+        var scope = await accessEvaluator.GetScopeAsync(cancellationToken);
+        if (scope.IsAdmin)
+            scope = scope with { IsAdmin = false };
+
+        var entities = await accessEvaluator.FilterAccessible(dbContext.BillsOfLading.AsNoTracking(), scope)
             .Include(b => b.Containers)
             .Include(b => b.Client)
             .Include(b => b.Payments)
-            .Where(b => b.ClientId == user.ClientId.Value)
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync(cancellationToken);
 
@@ -65,7 +69,8 @@ public sealed class GetMyBLsQueryHandler(
                 c.ContainerType,
                 c.SealNumber,
                 c.Weight,
-                c.Status)).ToList())).ToList();
+                c.Status)).ToList(),
+            bl.BookingNumber)).ToList();
 
         return Result<List<BillOfLadingResponseDto>>.Success(bls);
     }

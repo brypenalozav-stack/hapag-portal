@@ -32,8 +32,17 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(5)
             .IsRequired();
 
+        builder.Property(e => e.MembershipStatus)
+            .HasMaxLength(20)
+            .IsRequired();
+
+        builder.Property(e => e.MembershipDecidedBy)
+            .HasMaxLength(256);
+
         builder.HasIndex(e => e.Email)
             .IsUnique();
+
+        builder.HasIndex(e => new { e.ClientId, e.MembershipStatus });
 
         builder.HasIndex(e => e.Username)
             .IsUnique();

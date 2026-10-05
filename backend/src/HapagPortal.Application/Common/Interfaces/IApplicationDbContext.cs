@@ -17,6 +17,10 @@ public interface IApplicationDbContext
     DbSet<BLContainer> BLContainers { get; }
     DbSet<BLParty> BLParties { get; }
     DbSet<BLCargoItem> BLCargoItems { get; }
+    DbSet<ShipmentRole> ShipmentRoles { get; }
+    DbSet<ShipmentAction> ShipmentActions { get; }
+    DbSet<ShipmentAccessRule> ShipmentAccessRules { get; }
+    DbSet<OrganizationDocument> OrganizationDocuments { get; }
     DbSet<CustomsManifest> CustomsManifests { get; }
     DbSet<CustomsTransmission> CustomsTransmissions { get; }
     DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents { get; }

@@ -359,6 +359,45 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             SealNumber = "SL-015678",
                             Status = "OnBoard",
                             Weight = 21300m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000008"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000006"),
+                            ContainerNumber = "HLXU2023001",
+                            ContainerType = "40RF",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-020301",
+                            Status = "GateIn",
+                            Weight = 26800m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000009"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000007"),
+                            ContainerNumber = "HLXU2023002",
+                            ContainerType = "20DV",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-020302",
+                            Status = "OnBoard",
+                            Weight = 17400m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000010"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000008"),
+                            ContainerNumber = "HLXU2023003",
+                            ContainerType = "20DV",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-020303",
+                            Status = "Empty",
+                            Weight = 16900m
                         });
                 });
 
@@ -439,6 +478,10 @@ namespace HapagPortal.DatabaseMigrations.Migrations
 
                     b.Property<string>("BLType")
                         .HasColumnType("text");
+
+                    b.Property<string>("BookingNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
@@ -552,6 +595,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.HasIndex("BLNumber")
                         .IsUnique();
 
+                    b.HasIndex("BookingNumber");
+
                     b.HasIndex("ClientId");
 
                     b.HasIndex("ParentBLId");
@@ -563,6 +608,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         {
                             Id = new Guid("11111111-0007-0007-0007-000000000001"),
                             BLNumber = "HLCUVAL250100123",
+                            BookingNumber = "HLCUBKG2501001",
                             ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
                             Consignee = "Importadora Demo SpA",
                             Country = "CL",
@@ -588,6 +634,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         {
                             Id = new Guid("11111111-0007-0007-0007-000000000002"),
                             BLNumber = "HLCUVAL250200456",
+                            BookingNumber = "HLCUBKG2502004",
                             ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
                             Consignee = "Importadora Demo SpA",
                             Country = "CL",
@@ -612,6 +659,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         {
                             Id = new Guid("11111111-0007-0007-0007-000000000003"),
                             BLNumber = "HLCUVAL250300789",
+                            BookingNumber = "HLCUBKG2503007",
                             ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000001"),
                             Consignee = "Hapag-Lloyd Administrador",
                             Country = "CL",
@@ -636,6 +684,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         {
                             Id = new Guid("11111111-0007-0007-0007-000000000004"),
                             BLNumber = "HLCUARI260100045",
+                            BookingNumber = "HLCUBKG2601045",
                             ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
                             Consignee = "Comercial Altiplano SRL",
                             Country = "BO",
@@ -660,6 +709,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         {
                             Id = new Guid("11111111-0007-0007-0007-000000000005"),
                             BLNumber = "HLCUIQQ260200078",
+                            BookingNumber = "HLCUBKG2602078",
                             ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
                             Consignee = "Comercial Altiplano SRL",
                             Country = "BO",
@@ -679,6 +729,81 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Status = "InTransit",
                             Vessel = "Guayaquil Express",
                             Voyage = "007W"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000006"),
+                            BLNumber = "HLCUSAI260300610",
+                            BookingNumber = "HLCUBKG2603061",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Consignee = "Fruit Import BV",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 10, 20, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FreightAmount = 3900m,
+                            FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            PlaceOfDelivery = "Rotterdam, Netherlands",
+                            PortOfDischarge = "Rotterdam (NLRTM)",
+                            PortOfLoading = "San Antonio (CLSAI)",
+                            ShipmentType = "Export",
+                            Shipper = "Importadora Demo SpA",
+                            Status = "Booked",
+                            Vessel = "Valparaiso Express",
+                            Voyage = "2610S"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000007"),
+                            BLNumber = "HLCUVAP260300720",
+                            BookingNumber = "HLCUBKG2603072",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000040"),
+                            Consignee = "Shanghai Wine Trading Ltd",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 12, 2, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 10, 28, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FreightAmount = 4100m,
+                            FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            PlaceOfDelivery = "Shanghai, China",
+                            PortOfDischarge = "Shanghai (CNSHA)",
+                            PortOfLoading = "Valparaiso (CLVAP)",
+                            ShipmentType = "Export",
+                            Shipper = "Importadora Demo SpA",
+                            Status = "Loaded",
+                            Vessel = "Santos Express",
+                            Voyage = "2611N"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000008"),
+                            BLNumber = "HLCUARI260300830",
+                            BookingNumber = "HLCUBKG2603083",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            Consignee = "Andes Foods SAC",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 11, 12, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 11, 5, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FreightAmount = 1450m,
+                            FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            PlaceOfDelivery = "Lima, Peru",
+                            PortOfDischarge = "Callao (PECLL)",
+                            PortOfLoading = "Arica (CLARI)",
+                            ShipmentType = "Export",
+                            Shipper = "Comercial Altiplano SRL",
+                            Status = "Booked",
+                            Vessel = "Antofagasta Express",
+                            Voyage = "2612S"
                         });
                 });
 
@@ -695,6 +820,20 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Property<string>("AgentCode")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ArCheckedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ArCheckedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ArReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("City")
                         .HasMaxLength(100)
@@ -736,6 +875,10 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Property<bool>("IsEmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("MatchCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -748,9 +891,31 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("OperatingCountries")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("OrganizationType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<string>("Phone")
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<string>("RegistrationStatus")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime?>("RejectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReviewNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("TaxId")
                         .IsRequired()
@@ -762,10 +927,23 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<DateTime?>("ValidatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ValidatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("MatchCode")
+                        .IsUnique()
+                        .HasFilter("\"MatchCode\" IS NOT NULL");
+
+                    b.HasIndex("RegistrationStatus");
 
                     b.HasIndex("TaxId", "Country")
                         .IsUnique();
@@ -776,6 +954,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         new
                         {
                             Id = new Guid("c3d4e5f6-0003-0003-0003-000000000001"),
+                            ApprovedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             ClientType = "Internal",
                             Country = "CL",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -784,7 +963,10 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             IsActive = true,
                             IsEmailConfirmed = true,
                             Name = "Hapag-Lloyd Administrador",
+                            OperatingCountries = "CL,BO",
+                            OrganizationType = "Internal",
                             Phone = "+56 2 2630 1700",
+                            RegistrationStatus = "Approved",
                             TaxId = "99999999-K",
                             TaxIdType = "RUT"
                         },
@@ -792,6 +974,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         {
                             Id = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
                             Address = "Av. Providencia 1234, Of. 501",
+                            ApprovedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             City = "Santiago",
                             ClientType = "Client",
                             Country = "CL",
@@ -800,8 +983,12 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Email = "demo@importadorademo.cl",
                             IsActive = true,
                             IsEmailConfirmed = true,
+                            MatchCode = "MC100010",
                             Name = "Importadora Demo SpA",
+                            OperatingCountries = "CL,BO",
+                            OrganizationType = "Customer",
                             Phone = "+56 2 2345 6789",
+                            RegistrationStatus = "Approved",
                             TaxId = "76.123.456-7",
                             TaxIdType = "RUT"
                         },
@@ -809,6 +996,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         {
                             Id = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
                             Address = "Calle Comercio 456",
+                            ApprovedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             City = "La Paz",
                             ClientType = "Client",
                             Country = "BO",
@@ -817,8 +1005,12 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Email = "demo@altiplano.bo",
                             IsActive = true,
                             IsEmailConfirmed = true,
+                            MatchCode = "MC100020",
                             Name = "Comercial Altiplano SRL",
+                            OperatingCountries = "BO",
+                            OrganizationType = "Customer",
                             Phone = "+591 2 211 5678",
+                            RegistrationStatus = "Approved",
                             TaxId = "1023456017",
                             TaxIdType = "NIT"
                         },
@@ -827,6 +1019,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Id = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
                             Address = "Blanco 1199, Of. 301",
                             AgentCode = "AGT-CL-001",
+                            ApprovedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             City = "Valparaíso",
                             ClientType = "Agent",
                             Country = "CL",
@@ -835,9 +1028,50 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Email = "agente@maritimpacifico.cl",
                             IsActive = true,
                             IsEmailConfirmed = true,
+                            MatchCode = "MC100030",
                             Name = "Agencia Marítima del Pacífico Ltda",
+                            OperatingCountries = "CL",
+                            OrganizationType = "CustomsAgency",
                             Phone = "+56 32 225 1000",
+                            RegistrationStatus = "Approved",
                             TaxId = "96.555.444-3",
+                            TaxIdType = "RUT"
+                        },
+                        new
+                        {
+                            Id = new Guid("c3d4e5f6-0003-0003-0003-000000000040"),
+                            ApprovedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ClientType = "Client",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "contacto@pacifictrading.cl",
+                            IsActive = true,
+                            IsEmailConfirmed = true,
+                            MatchCode = "MC100040",
+                            Name = "Pacific Trading Co.",
+                            OperatingCountries = "CL",
+                            OrganizationType = "Customer",
+                            RegistrationStatus = "Approved",
+                            TaxId = "77.888.999-0",
+                            TaxIdType = "RUT"
+                        },
+                        new
+                        {
+                            Id = new Guid("c3d4e5f6-0003-0003-0003-000000000050"),
+                            ClientType = "Client",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "registro@logisticaandina.cl",
+                            IsActive = true,
+                            IsEmailConfirmed = true,
+                            Name = "Logística Andina SpA",
+                            OperatingCountries = "CL",
+                            OrganizationType = "FreightForwarder",
+                            Phone = "+56 2 2999 1234",
+                            RegistrationStatus = "PendingValidation",
+                            TaxId = "76.555.111-2",
                             TaxIdType = "RUT"
                         });
                 });
@@ -2216,6 +2450,70 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TaxAmount = 89.70m,
                             TaxRate = 13m,
                             TotalAmount = 779.70m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000009"),
+                            Amount = 95000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000006"),
+                            ChargeType = "GateIn",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Gate In - 40RF (San Antonio)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 18050m,
+                            TaxRate = 19m,
+                            TotalAmount = 113050m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000010"),
+                            Amount = 45000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000006"),
+                            ChargeType = "BL_FEE",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "BL Documentation Fee (export)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 8550m,
+                            TaxRate = 19m,
+                            TotalAmount = 53550m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000011"),
+                            Amount = 150000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000007"),
+                            ChargeType = "THC",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Terminal Handling Charge - 20DV (export)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 28500m,
+                            TaxRate = 19m,
+                            TotalAmount = 178500m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000012"),
+                            Amount = 820m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000008"),
+                            ChargeType = "GateIn",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "BOB",
+                            Description = "Gate In - 20DV (Arica)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 106.60m,
+                            TaxRate = 13m,
+                            TotalAmount = 926.60m
                         });
                 });
 
@@ -2285,6 +2583,70 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Notifications", (string)null);
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.OrganizationDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<Guid?>("UploadedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("OrganizationDocuments", (string)null);
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.Payment", b =>
@@ -2820,6 +3182,48 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Id = new Guid("ef8b113d-8bdc-f78b-6796-2565876c88b0"),
                             Code = "notifications.view",
                             Description = "notifications.view"
+                        },
+                        new
+                        {
+                            Id = new Guid("208dfafe-5331-55c8-f20c-1fedbb16b3cb"),
+                            Code = "org.users.manage",
+                            Description = "org.users.manage"
+                        },
+                        new
+                        {
+                            Id = new Guid("d7f60fcb-88d4-54d3-54fb-d63def5c9613"),
+                            Code = "org.requests.approve",
+                            Description = "org.requests.approve"
+                        },
+                        new
+                        {
+                            Id = new Guid("2477f174-66b3-8275-4ef4-b84902cdbb81"),
+                            Code = "shipments.operate",
+                            Description = "shipments.operate"
+                        },
+                        new
+                        {
+                            Id = new Guid("579700e8-1338-3738-63e6-8e8b8b7cad71"),
+                            Code = "shipments.view-all",
+                            Description = "shipments.view-all"
+                        },
+                        new
+                        {
+                            Id = new Guid("59a9ccfd-f3a1-90b7-b694-bd9eafb81228"),
+                            Code = "organizations.review",
+                            Description = "organizations.review"
+                        },
+                        new
+                        {
+                            Id = new Guid("920581cb-9857-6ad8-3406-9f8f54fd25fc"),
+                            Code = "organizations.ar-check",
+                            Description = "organizations.ar-check"
+                        },
+                        new
+                        {
+                            Id = new Guid("c474e6b8-5abc-1ffc-bf2a-eeb14f3dd7a7"),
+                            Code = "access-matrix.manage",
+                            Description = "access-matrix.manage"
                         });
                 });
 
@@ -2943,6 +3347,33 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             IsSystem = true,
                             Name = "Super Administrador"
+                        },
+                        new
+                        {
+                            Id = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c"),
+                            Code = "OrgAdmin",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "Administrador de organización"
+                        },
+                        new
+                        {
+                            Id = new Guid("227e87c5-a8d9-51c6-e0e9-373dc6d2c60b"),
+                            Code = "OrgOperator",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "Operador de organización"
+                        },
+                        new
+                        {
+                            Id = new Guid("a084c0fb-db38-005b-3d5f-926ed28ed6df"),
+                            Code = "OrgViewer",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsSystem = true,
+                            Name = "Consulta de organización"
                         });
                 });
 
@@ -3063,6 +3494,30 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Id = new Guid("81956975-58a7-1ece-9090-1630d703b862"),
                             PermissionId = new Guid("6b761bce-b542-40c6-01cb-5d5b73bd1934"),
                             RoleId = new Guid("5193bc68-e496-eb84-a035-08fbf67789d7")
+                        },
+                        new
+                        {
+                            Id = new Guid("9aad4ae3-e43b-2fb4-92a5-bb181af7f9f4"),
+                            PermissionId = new Guid("208dfafe-5331-55c8-f20c-1fedbb16b3cb"),
+                            RoleId = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c")
+                        },
+                        new
+                        {
+                            Id = new Guid("f5904c22-d3b8-747e-062e-48c5d83ccc9d"),
+                            PermissionId = new Guid("d7f60fcb-88d4-54d3-54fb-d63def5c9613"),
+                            RoleId = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c")
+                        },
+                        new
+                        {
+                            Id = new Guid("bb9d489a-77a2-b2d6-c0f6-2df2ff63a1ff"),
+                            PermissionId = new Guid("2477f174-66b3-8275-4ef4-b84902cdbb81"),
+                            RoleId = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c")
+                        },
+                        new
+                        {
+                            Id = new Guid("5930f642-9936-0c5d-e985-2746431ae506"),
+                            PermissionId = new Guid("2477f174-66b3-8275-4ef4-b84902cdbb81"),
+                            RoleId = new Guid("227e87c5-a8d9-51c6-e0e9-373dc6d2c60b")
                         });
                 });
 
@@ -3240,6 +3695,3171 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             OrderType = "TransitDocumentation",
                             RequestedAt = new DateTime(2026, 4, 1, 9, 0, 0, 0, DateTimeKind.Utc),
                             Status = "Pending"
+                        },
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-0010-0010-0010-000000000004"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000006"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Description = "Recepción de contenedor reefer HLXU2023001 para exportación",
+                            OrderNumber = "SO-2026-00004",
+                            OrderType = "GateIn",
+                            RequestedAt = new DateTime(2026, 10, 15, 9, 0, 0, 0, DateTimeKind.Utc),
+                            Status = "Pending"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentAccessRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("OrganizationType")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid>("ShipmentActionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShipmentActionId", "Role", "OrganizationType")
+                        .IsUnique();
+
+                    b.ToTable("ShipmentAccessRules", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("abc072ab-4bc9-1c55-6482-33d34f31a9f1"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("3eac8579-97de-40ff-10b5-ba572613f061")
+                        },
+                        new
+                        {
+                            Id = new Guid("c50d5427-463b-3112-578d-f4443af0de0f"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("3eac8579-97de-40ff-10b5-ba572613f061")
+                        },
+                        new
+                        {
+                            Id = new Guid("6766088f-1bb3-bcbb-b05b-c8f71c1c2924"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("3eac8579-97de-40ff-10b5-ba572613f061")
+                        },
+                        new
+                        {
+                            Id = new Guid("de251b6a-681e-f468-c759-ba9e3a135a0c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("3eac8579-97de-40ff-10b5-ba572613f061")
+                        },
+                        new
+                        {
+                            Id = new Guid("b30a8f44-62dc-824b-0a29-5abe231960cf"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("3eac8579-97de-40ff-10b5-ba572613f061")
+                        },
+                        new
+                        {
+                            Id = new Guid("06469c53-5eba-efc9-7230-1fd645f76ffb"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("3eac8579-97de-40ff-10b5-ba572613f061")
+                        },
+                        new
+                        {
+                            Id = new Guid("1d631bb0-e662-507c-093e-3a1f944edaf2"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("6678139a-eb5f-24c3-d404-7ffcfbf1dde8")
+                        },
+                        new
+                        {
+                            Id = new Guid("0ee2c60a-5eca-e8b1-52dd-11e339055a41"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("6678139a-eb5f-24c3-d404-7ffcfbf1dde8")
+                        },
+                        new
+                        {
+                            Id = new Guid("2c38402f-99c3-d95c-eb1b-c8a31a911979"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("6678139a-eb5f-24c3-d404-7ffcfbf1dde8")
+                        },
+                        new
+                        {
+                            Id = new Guid("57d921ca-471a-7daa-4dc8-cdc7326f9916"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("6678139a-eb5f-24c3-d404-7ffcfbf1dde8")
+                        },
+                        new
+                        {
+                            Id = new Guid("fe48f4fa-7627-4176-7134-0cc98899776d"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("6678139a-eb5f-24c3-d404-7ffcfbf1dde8")
+                        },
+                        new
+                        {
+                            Id = new Guid("b6ebbb91-c28c-f156-2859-b065dccd4dca"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("6678139a-eb5f-24c3-d404-7ffcfbf1dde8")
+                        },
+                        new
+                        {
+                            Id = new Guid("9a4d5735-85ec-1b50-ce95-2d7c2d42ed82"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("81d22eff-dca4-0ac0-bf3a-4f3df458d908")
+                        },
+                        new
+                        {
+                            Id = new Guid("909211e6-5af5-5a5d-f1fd-a6adcc2c9202"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("81d22eff-dca4-0ac0-bf3a-4f3df458d908")
+                        },
+                        new
+                        {
+                            Id = new Guid("c141b448-7b07-b9ff-1419-f42969002eef"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("81d22eff-dca4-0ac0-bf3a-4f3df458d908")
+                        },
+                        new
+                        {
+                            Id = new Guid("42797c44-5ef1-636d-2b04-4b4126fb59bd"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("81d22eff-dca4-0ac0-bf3a-4f3df458d908")
+                        },
+                        new
+                        {
+                            Id = new Guid("bd154f5f-8d67-519e-570a-8112d5385e39"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("81d22eff-dca4-0ac0-bf3a-4f3df458d908")
+                        },
+                        new
+                        {
+                            Id = new Guid("29c910f8-86b9-0c9e-ea00-cbbb7d47cd89"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("81d22eff-dca4-0ac0-bf3a-4f3df458d908")
+                        },
+                        new
+                        {
+                            Id = new Guid("78ac3e40-5908-b351-4a8e-bd6a9ebd40d0"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("a6e130a7-a1ea-abd1-aa46-e6b5c5b63391")
+                        },
+                        new
+                        {
+                            Id = new Guid("6046e3eb-e5f8-fe89-4dab-66435ec03f34"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("a6e130a7-a1ea-abd1-aa46-e6b5c5b63391")
+                        },
+                        new
+                        {
+                            Id = new Guid("30d952cc-25ba-d6b4-d5b1-e5c88eaaf591"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("a6e130a7-a1ea-abd1-aa46-e6b5c5b63391")
+                        },
+                        new
+                        {
+                            Id = new Guid("6baa464d-0fde-c9b3-c91c-db76ee89e118"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("a6e130a7-a1ea-abd1-aa46-e6b5c5b63391")
+                        },
+                        new
+                        {
+                            Id = new Guid("4552373e-8b24-a588-560e-17eda0460137"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("a6e130a7-a1ea-abd1-aa46-e6b5c5b63391")
+                        },
+                        new
+                        {
+                            Id = new Guid("8c511f1d-9a17-aa9e-5b7b-6917943ca3ac"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("a6e130a7-a1ea-abd1-aa46-e6b5c5b63391")
+                        },
+                        new
+                        {
+                            Id = new Guid("daa5a48e-7faf-f440-00ed-d6f290ef53d6"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("0334bbd0-ffd8-1995-7db7-fdf3d95d6729")
+                        },
+                        new
+                        {
+                            Id = new Guid("1b4ecae0-51e4-b54b-4469-81f8e1ae8568"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("0334bbd0-ffd8-1995-7db7-fdf3d95d6729")
+                        },
+                        new
+                        {
+                            Id = new Guid("b130d10f-b64f-2e58-8365-81cc9fc40800"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("0334bbd0-ffd8-1995-7db7-fdf3d95d6729")
+                        },
+                        new
+                        {
+                            Id = new Guid("88805483-ef38-f504-0b87-9490722d88fe"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("0334bbd0-ffd8-1995-7db7-fdf3d95d6729")
+                        },
+                        new
+                        {
+                            Id = new Guid("e52c2c06-c8d4-1643-0c5a-142353c4ae09"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("0334bbd0-ffd8-1995-7db7-fdf3d95d6729")
+                        },
+                        new
+                        {
+                            Id = new Guid("0c0b2d4b-c674-7c51-6f8d-e54acf0cb89f"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("0334bbd0-ffd8-1995-7db7-fdf3d95d6729")
+                        },
+                        new
+                        {
+                            Id = new Guid("621d5ee2-ec4d-c1db-49cf-a49b3d72693d"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("cfd10f40-3f50-8ebf-fed3-ec080f6c29b5")
+                        },
+                        new
+                        {
+                            Id = new Guid("edb8d86b-9a08-b675-7f36-4325d664c9f9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("cfd10f40-3f50-8ebf-fed3-ec080f6c29b5")
+                        },
+                        new
+                        {
+                            Id = new Guid("4371663b-2c32-eb51-3231-cab8986972af"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("cfd10f40-3f50-8ebf-fed3-ec080f6c29b5")
+                        },
+                        new
+                        {
+                            Id = new Guid("79a0267e-3384-8876-7473-ab1f55fdbc83"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("cfd10f40-3f50-8ebf-fed3-ec080f6c29b5")
+                        },
+                        new
+                        {
+                            Id = new Guid("2f0163ce-15d4-e791-7cb9-5febfbf61145"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("cfd10f40-3f50-8ebf-fed3-ec080f6c29b5")
+                        },
+                        new
+                        {
+                            Id = new Guid("821d828e-6133-9e4e-a921-94b4c526ca27"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("cfd10f40-3f50-8ebf-fed3-ec080f6c29b5")
+                        },
+                        new
+                        {
+                            Id = new Guid("a96cf84e-2d74-c8d7-08a1-fac00d3a3e50"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("3ff1f234-1eda-6801-33a1-ce8538693d6e")
+                        },
+                        new
+                        {
+                            Id = new Guid("c120a136-1c7c-16c7-3ffc-1b4d687a9ad8"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("3ff1f234-1eda-6801-33a1-ce8538693d6e")
+                        },
+                        new
+                        {
+                            Id = new Guid("10777d2e-ff0f-dfe2-f5a8-cb1f7d92d4f3"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("3ff1f234-1eda-6801-33a1-ce8538693d6e")
+                        },
+                        new
+                        {
+                            Id = new Guid("4a2db5f4-b95a-dc7f-1af9-d527c01e4cec"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("3ff1f234-1eda-6801-33a1-ce8538693d6e")
+                        },
+                        new
+                        {
+                            Id = new Guid("a9f23aed-68a5-e6bd-966d-5009cdfc5d38"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("3ff1f234-1eda-6801-33a1-ce8538693d6e")
+                        },
+                        new
+                        {
+                            Id = new Guid("43205b4a-bc44-340e-779c-229bdfbad023"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("3ff1f234-1eda-6801-33a1-ce8538693d6e")
+                        },
+                        new
+                        {
+                            Id = new Guid("f5cb4db0-d3a1-3725-3473-fe15b924dba3"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("032cc54e-cbbe-5272-cab1-32a3bb291f82")
+                        },
+                        new
+                        {
+                            Id = new Guid("2b149e4a-a05c-1c2b-2ba2-c8141ef73e9c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("032cc54e-cbbe-5272-cab1-32a3bb291f82")
+                        },
+                        new
+                        {
+                            Id = new Guid("b117fe73-e202-0085-2977-0f10b6f8dc6b"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("032cc54e-cbbe-5272-cab1-32a3bb291f82")
+                        },
+                        new
+                        {
+                            Id = new Guid("0472449f-0179-c774-debc-2e4ccb57d8d1"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("032cc54e-cbbe-5272-cab1-32a3bb291f82")
+                        },
+                        new
+                        {
+                            Id = new Guid("4524e51e-00c0-978b-f8a4-1d0cc5f7fc56"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("032cc54e-cbbe-5272-cab1-32a3bb291f82")
+                        },
+                        new
+                        {
+                            Id = new Guid("20a66bc3-53e5-8e79-a5cd-4ce5856c32f5"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("032cc54e-cbbe-5272-cab1-32a3bb291f82")
+                        },
+                        new
+                        {
+                            Id = new Guid("9e615364-af15-4484-4ad7-029b05c0c717"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("07343dd5-fa12-c8e8-a80f-26f110926989")
+                        },
+                        new
+                        {
+                            Id = new Guid("47e25292-4619-bac0-0ece-379958f1524f"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("07343dd5-fa12-c8e8-a80f-26f110926989")
+                        },
+                        new
+                        {
+                            Id = new Guid("5f5e7f62-a9ef-f788-7d07-afabbadb0fad"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("07343dd5-fa12-c8e8-a80f-26f110926989")
+                        },
+                        new
+                        {
+                            Id = new Guid("94efb966-f5b2-29c8-4382-ded15360f3e9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("07343dd5-fa12-c8e8-a80f-26f110926989")
+                        },
+                        new
+                        {
+                            Id = new Guid("e6a7d610-7db4-1053-729a-a996c02bbae7"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("07343dd5-fa12-c8e8-a80f-26f110926989")
+                        },
+                        new
+                        {
+                            Id = new Guid("f08e09ec-8049-1256-1870-600628cf1a60"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("07343dd5-fa12-c8e8-a80f-26f110926989")
+                        },
+                        new
+                        {
+                            Id = new Guid("2aad96e9-dc7c-0e06-d42c-696a4150964a"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("4900513d-d3e1-f3e2-5b43-c0e000a389f0")
+                        },
+                        new
+                        {
+                            Id = new Guid("45987d46-1370-e066-5b82-5d4052a0fab1"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("4900513d-d3e1-f3e2-5b43-c0e000a389f0")
+                        },
+                        new
+                        {
+                            Id = new Guid("ec7b64b1-483f-47eb-f7eb-de0b24bdc782"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("4900513d-d3e1-f3e2-5b43-c0e000a389f0")
+                        },
+                        new
+                        {
+                            Id = new Guid("7c3379d3-9575-df91-4a5d-78621bd7c7ea"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("4900513d-d3e1-f3e2-5b43-c0e000a389f0")
+                        },
+                        new
+                        {
+                            Id = new Guid("43a61aeb-5499-b695-6d2e-d353a26e2807"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("4900513d-d3e1-f3e2-5b43-c0e000a389f0")
+                        },
+                        new
+                        {
+                            Id = new Guid("040ee41b-f92d-b018-afb7-a8a6bb53fdfb"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("4900513d-d3e1-f3e2-5b43-c0e000a389f0")
+                        },
+                        new
+                        {
+                            Id = new Guid("48a49c20-2f55-70e9-5a32-30420ff4f191"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("cbecbaf4-b71c-43d6-aae2-c344d6bf19ad")
+                        },
+                        new
+                        {
+                            Id = new Guid("67c9ec3a-5f77-cd99-4a80-89420ec9e32e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("cbecbaf4-b71c-43d6-aae2-c344d6bf19ad")
+                        },
+                        new
+                        {
+                            Id = new Guid("b456458b-9b60-bbd6-f93d-b46d00e54530"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("cbecbaf4-b71c-43d6-aae2-c344d6bf19ad")
+                        },
+                        new
+                        {
+                            Id = new Guid("3b3f547b-ae4b-f532-d938-15b23330aa7a"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("cbecbaf4-b71c-43d6-aae2-c344d6bf19ad")
+                        },
+                        new
+                        {
+                            Id = new Guid("febe8c1e-5992-1534-a39c-ed590f98418c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("cbecbaf4-b71c-43d6-aae2-c344d6bf19ad")
+                        },
+                        new
+                        {
+                            Id = new Guid("5e581018-b0aa-f5af-a276-04bce7c91ee2"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("cbecbaf4-b71c-43d6-aae2-c344d6bf19ad")
+                        },
+                        new
+                        {
+                            Id = new Guid("caf8c270-a9dd-ea27-05cf-946f86c3afa2"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("122ef33e-f8f5-fb84-25cb-5176d10c40dc")
+                        },
+                        new
+                        {
+                            Id = new Guid("94b2afd5-6b57-26e9-c1d8-7fa668b08cf1"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("122ef33e-f8f5-fb84-25cb-5176d10c40dc")
+                        },
+                        new
+                        {
+                            Id = new Guid("63ecfc33-601b-ad09-9d78-112aa1ef13f4"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("122ef33e-f8f5-fb84-25cb-5176d10c40dc")
+                        },
+                        new
+                        {
+                            Id = new Guid("40e1d283-26fc-e646-05f6-04daaa579f00"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("122ef33e-f8f5-fb84-25cb-5176d10c40dc")
+                        },
+                        new
+                        {
+                            Id = new Guid("bfbbb097-ad4d-b483-42ca-3cd4f4b4f33e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("122ef33e-f8f5-fb84-25cb-5176d10c40dc")
+                        },
+                        new
+                        {
+                            Id = new Guid("8242b4a9-657d-a34b-ab6f-2a07dbf4895c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("122ef33e-f8f5-fb84-25cb-5176d10c40dc")
+                        },
+                        new
+                        {
+                            Id = new Guid("896bb155-f937-acc3-8766-97e295937dad"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("ca92d241-6346-1541-212a-e1403a95cb9f")
+                        },
+                        new
+                        {
+                            Id = new Guid("6e918218-fcff-0616-7960-883141a8d6ca"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("ca92d241-6346-1541-212a-e1403a95cb9f")
+                        },
+                        new
+                        {
+                            Id = new Guid("aaf55402-dcf0-c382-bad0-7864e2e45c76"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("ca92d241-6346-1541-212a-e1403a95cb9f")
+                        },
+                        new
+                        {
+                            Id = new Guid("07a5e3b1-ac08-3d1d-7da0-50a78f5527f9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("ca92d241-6346-1541-212a-e1403a95cb9f")
+                        },
+                        new
+                        {
+                            Id = new Guid("0dba0bf2-e494-61db-33b1-be24cd21c0ef"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("ca92d241-6346-1541-212a-e1403a95cb9f")
+                        },
+                        new
+                        {
+                            Id = new Guid("69d37a7e-cc1f-500e-5768-e57b6fabb0dc"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("ca92d241-6346-1541-212a-e1403a95cb9f")
+                        },
+                        new
+                        {
+                            Id = new Guid("6c882143-7f2c-6b4c-22a3-1efd49850382"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("cc4c1544-f4f5-8f00-9bb1-8241a64e8d54")
+                        },
+                        new
+                        {
+                            Id = new Guid("4042f116-b438-28d4-0b36-efde4ca07061"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("cc4c1544-f4f5-8f00-9bb1-8241a64e8d54")
+                        },
+                        new
+                        {
+                            Id = new Guid("98bcc1b9-d949-c3f3-646e-368c32f3ded3"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("cc4c1544-f4f5-8f00-9bb1-8241a64e8d54")
+                        },
+                        new
+                        {
+                            Id = new Guid("f9c715ab-5fe7-8cc0-cd61-f45973771151"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("cc4c1544-f4f5-8f00-9bb1-8241a64e8d54")
+                        },
+                        new
+                        {
+                            Id = new Guid("ead4bb59-96b2-a7f7-0cb0-e1b86d186e0b"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("cc4c1544-f4f5-8f00-9bb1-8241a64e8d54")
+                        },
+                        new
+                        {
+                            Id = new Guid("010d51d4-8d8a-cdee-e387-383102425314"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("cc4c1544-f4f5-8f00-9bb1-8241a64e8d54")
+                        },
+                        new
+                        {
+                            Id = new Guid("3971f911-1710-2a19-a015-e642b88e4f9f"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("cc502303-816b-de21-d681-447330a0e8c9")
+                        },
+                        new
+                        {
+                            Id = new Guid("31180664-fea8-336a-07eb-b4cae5e5fc2f"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("cc502303-816b-de21-d681-447330a0e8c9")
+                        },
+                        new
+                        {
+                            Id = new Guid("8c4543b4-45e6-28c6-407e-d8203b677242"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("cc502303-816b-de21-d681-447330a0e8c9")
+                        },
+                        new
+                        {
+                            Id = new Guid("5d7a906f-0457-debf-16cc-8cc7d3591cc9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("cc502303-816b-de21-d681-447330a0e8c9")
+                        },
+                        new
+                        {
+                            Id = new Guid("ed906fdc-af9a-3f8b-978c-86c602fbccf9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("cc502303-816b-de21-d681-447330a0e8c9")
+                        },
+                        new
+                        {
+                            Id = new Guid("f700f67e-c7c1-2951-e930-b482ff2b6eed"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("cc502303-816b-de21-d681-447330a0e8c9")
+                        },
+                        new
+                        {
+                            Id = new Guid("ef578090-e366-8eed-a9a6-648604da07b0"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            OrganizationType = "FreightForwarder",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("cc502303-816b-de21-d681-447330a0e8c9")
+                        },
+                        new
+                        {
+                            Id = new Guid("dcc8ba2c-2edb-5dd3-d347-3febfaae31dd"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("e7eb07a5-bc20-230e-0e88-997310452f02")
+                        },
+                        new
+                        {
+                            Id = new Guid("34cb5bed-66c7-edad-f228-d31fe86bbb69"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("e7eb07a5-bc20-230e-0e88-997310452f02")
+                        },
+                        new
+                        {
+                            Id = new Guid("9a221b20-6552-1f28-c587-a9d3cbd156d0"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("e7eb07a5-bc20-230e-0e88-997310452f02")
+                        },
+                        new
+                        {
+                            Id = new Guid("dfa110eb-b551-ad55-b4bb-b66a15c62f0a"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("e7eb07a5-bc20-230e-0e88-997310452f02")
+                        },
+                        new
+                        {
+                            Id = new Guid("251753ba-5d1b-40ca-85a3-761ebb5997d5"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("e7eb07a5-bc20-230e-0e88-997310452f02")
+                        },
+                        new
+                        {
+                            Id = new Guid("d39f04a9-f04e-a4c7-e1fc-bacee5a3d6d2"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("e7eb07a5-bc20-230e-0e88-997310452f02")
+                        },
+                        new
+                        {
+                            Id = new Guid("ab19fe50-c320-938b-3771-ad86898eb672"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("c8157abe-83ae-64bb-ddbb-b4681e99c33f")
+                        },
+                        new
+                        {
+                            Id = new Guid("42a6b84b-21c5-5337-0557-d60952e56ddf"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("c8157abe-83ae-64bb-ddbb-b4681e99c33f")
+                        },
+                        new
+                        {
+                            Id = new Guid("4298ebf0-e400-92b8-4012-d5189a19c86c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("c8157abe-83ae-64bb-ddbb-b4681e99c33f")
+                        },
+                        new
+                        {
+                            Id = new Guid("0780de5d-f606-3521-8200-a7e75edb52d5"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("c8157abe-83ae-64bb-ddbb-b4681e99c33f")
+                        },
+                        new
+                        {
+                            Id = new Guid("3ba841d2-ab0f-ed1b-0312-336875569e29"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("c8157abe-83ae-64bb-ddbb-b4681e99c33f")
+                        },
+                        new
+                        {
+                            Id = new Guid("87b37bd6-2edc-d8f0-0e61-4f8f22d8f6d9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("c8157abe-83ae-64bb-ddbb-b4681e99c33f")
+                        },
+                        new
+                        {
+                            Id = new Guid("f6832259-179f-a8fb-8ffe-b6abc4c3a44e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("fe2d4e42-d3b0-aac5-9026-5f918c61aca6")
+                        },
+                        new
+                        {
+                            Id = new Guid("847ca6d5-fef3-d970-a9b4-6558953783f9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("fe2d4e42-d3b0-aac5-9026-5f918c61aca6")
+                        },
+                        new
+                        {
+                            Id = new Guid("eca7e100-5a9b-2cc8-59b7-e23ac0083c56"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("fe2d4e42-d3b0-aac5-9026-5f918c61aca6")
+                        },
+                        new
+                        {
+                            Id = new Guid("cfd48abf-7e89-405a-fa17-6ec0c7b9857a"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("fe2d4e42-d3b0-aac5-9026-5f918c61aca6")
+                        },
+                        new
+                        {
+                            Id = new Guid("4d076896-7c12-8639-7317-f190b7829b4e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("fe2d4e42-d3b0-aac5-9026-5f918c61aca6")
+                        },
+                        new
+                        {
+                            Id = new Guid("f40bcf95-a335-b13c-1a3a-6bc1870df8b9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "OnGrant",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("fe2d4e42-d3b0-aac5-9026-5f918c61aca6")
+                        },
+                        new
+                        {
+                            Id = new Guid("b0ca6dd6-a58e-35a3-5459-de9a19117992"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("7cc9c738-4673-e0c2-9a01-df7b48b28b7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("614d25ef-5223-81a4-348b-bcfdf2897acd"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("7cc9c738-4673-e0c2-9a01-df7b48b28b7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("1dbec5e1-7b9b-18ac-22a7-c282c6cdb245"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("7cc9c738-4673-e0c2-9a01-df7b48b28b7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("15322d9c-787e-cd71-4a5e-e61145250aa0"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("7cc9c738-4673-e0c2-9a01-df7b48b28b7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("647598ba-60d9-01d8-760c-24592ffc6c27"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("7cc9c738-4673-e0c2-9a01-df7b48b28b7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("9287fdb1-6268-b086-80bd-94119a7681fa"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("7cc9c738-4673-e0c2-9a01-df7b48b28b7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("6e60cc41-5c2d-5dd6-331b-2b9ddc3680ad"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("ac5533f1-b185-fe85-07a0-89a89adf382d")
+                        },
+                        new
+                        {
+                            Id = new Guid("372eedc2-342b-19ff-0b5c-92f6e03f2c5e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("ac5533f1-b185-fe85-07a0-89a89adf382d")
+                        },
+                        new
+                        {
+                            Id = new Guid("0afc2185-32f2-5fb2-74f4-5c12b1f165f2"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("ac5533f1-b185-fe85-07a0-89a89adf382d")
+                        },
+                        new
+                        {
+                            Id = new Guid("fb8f7c92-ff67-bb8b-de6a-41ebfe461a18"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("ac5533f1-b185-fe85-07a0-89a89adf382d")
+                        },
+                        new
+                        {
+                            Id = new Guid("c27e7f95-c695-de79-1a6c-77f83520649c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("ac5533f1-b185-fe85-07a0-89a89adf382d")
+                        },
+                        new
+                        {
+                            Id = new Guid("17f3977e-2817-3583-b9f6-a21229905b19"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("ac5533f1-b185-fe85-07a0-89a89adf382d")
+                        },
+                        new
+                        {
+                            Id = new Guid("d4c971c8-dc75-0e08-8eb3-6140558f93e4"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("bdcf5a98-4a99-386e-fe2f-1da80f99aa1e")
+                        },
+                        new
+                        {
+                            Id = new Guid("2e9526d1-5e70-86e0-2a71-6f259d29221a"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("bdcf5a98-4a99-386e-fe2f-1da80f99aa1e")
+                        },
+                        new
+                        {
+                            Id = new Guid("94089062-2d6a-1d10-48be-5750cbb89efc"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("bdcf5a98-4a99-386e-fe2f-1da80f99aa1e")
+                        },
+                        new
+                        {
+                            Id = new Guid("2e45c4f1-5b9c-a815-ea89-48ff72d0803e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("bdcf5a98-4a99-386e-fe2f-1da80f99aa1e")
+                        },
+                        new
+                        {
+                            Id = new Guid("1656005a-c180-e36b-5fb6-b37ee190f74b"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("bdcf5a98-4a99-386e-fe2f-1da80f99aa1e")
+                        },
+                        new
+                        {
+                            Id = new Guid("58e014aa-d2e9-f2da-7606-f775b608af9a"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("bdcf5a98-4a99-386e-fe2f-1da80f99aa1e")
+                        },
+                        new
+                        {
+                            Id = new Guid("48cdf5fe-df57-6259-5624-c70f64d51d56"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("5810f4b9-0e60-a000-5697-53177df94bb9")
+                        },
+                        new
+                        {
+                            Id = new Guid("8fac5dd6-bc91-bd85-02fb-d13cca171026"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("5810f4b9-0e60-a000-5697-53177df94bb9")
+                        },
+                        new
+                        {
+                            Id = new Guid("8362f856-f5cd-289b-00cd-d45c84a84780"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("5810f4b9-0e60-a000-5697-53177df94bb9")
+                        },
+                        new
+                        {
+                            Id = new Guid("56e99889-a543-6cd3-6923-a1d96b527705"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("5810f4b9-0e60-a000-5697-53177df94bb9")
+                        },
+                        new
+                        {
+                            Id = new Guid("bd92ab53-8c00-df93-d90d-fc31bd1c44c7"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("5810f4b9-0e60-a000-5697-53177df94bb9")
+                        },
+                        new
+                        {
+                            Id = new Guid("b55d88d9-efe7-43fd-bc11-279be867f93c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("5810f4b9-0e60-a000-5697-53177df94bb9")
+                        },
+                        new
+                        {
+                            Id = new Guid("66c7c7ed-0fb1-b53a-9a65-ab29dd47e2e8"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("2ac5eecb-38d8-6ec0-6d82-f03f854e976c")
+                        },
+                        new
+                        {
+                            Id = new Guid("71697283-91d4-1c52-b6db-3348c4690813"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("2ac5eecb-38d8-6ec0-6d82-f03f854e976c")
+                        },
+                        new
+                        {
+                            Id = new Guid("e29f23be-4fe7-e2d5-fab5-17f0d6ee3221"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("2ac5eecb-38d8-6ec0-6d82-f03f854e976c")
+                        },
+                        new
+                        {
+                            Id = new Guid("b496394a-7d2b-5faf-6700-edf0e478bc50"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("2ac5eecb-38d8-6ec0-6d82-f03f854e976c")
+                        },
+                        new
+                        {
+                            Id = new Guid("fc9814e8-e8cc-95ce-a023-248a48704c2c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("2ac5eecb-38d8-6ec0-6d82-f03f854e976c")
+                        },
+                        new
+                        {
+                            Id = new Guid("42e3b162-8199-d447-35cf-04f3ab6d1bb9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("2ac5eecb-38d8-6ec0-6d82-f03f854e976c")
+                        },
+                        new
+                        {
+                            Id = new Guid("b59380f8-1560-c3ad-9f59-8bb1c46b0f35"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("19ef0081-eb79-5a7c-e09c-62482731cd52")
+                        },
+                        new
+                        {
+                            Id = new Guid("99a492a0-de45-e49c-63c5-43089474bc33"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("19ef0081-eb79-5a7c-e09c-62482731cd52")
+                        },
+                        new
+                        {
+                            Id = new Guid("8ded4ee9-81c3-f5d0-8855-6dfd251ada29"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("19ef0081-eb79-5a7c-e09c-62482731cd52")
+                        },
+                        new
+                        {
+                            Id = new Guid("e2c15bd3-cd74-a740-c820-d98d7f2c1755"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("19ef0081-eb79-5a7c-e09c-62482731cd52")
+                        },
+                        new
+                        {
+                            Id = new Guid("f1109e2e-2cd5-3c56-7db7-22941a2771d6"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("19ef0081-eb79-5a7c-e09c-62482731cd52")
+                        },
+                        new
+                        {
+                            Id = new Guid("538ffd2c-4040-d01f-546d-6e6701b29d8f"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("19ef0081-eb79-5a7c-e09c-62482731cd52")
+                        },
+                        new
+                        {
+                            Id = new Guid("b697cbb0-6ce6-5558-9f99-f60d9c2bc6ec"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("e112508b-beea-c895-9061-da03cb427883")
+                        },
+                        new
+                        {
+                            Id = new Guid("4da9ce71-a545-4bd4-3ca3-aec28a330570"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("e112508b-beea-c895-9061-da03cb427883")
+                        },
+                        new
+                        {
+                            Id = new Guid("4cb06fb4-757a-ec71-7e15-a181930a458a"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("e112508b-beea-c895-9061-da03cb427883")
+                        },
+                        new
+                        {
+                            Id = new Guid("9574b879-7550-caf5-4571-430001fe7ccf"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("e112508b-beea-c895-9061-da03cb427883")
+                        },
+                        new
+                        {
+                            Id = new Guid("d9c3071a-b3cc-d307-9ae7-bf179e989491"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("e112508b-beea-c895-9061-da03cb427883")
+                        },
+                        new
+                        {
+                            Id = new Guid("6609d9e9-c604-2163-6458-89bd9bb93bd1"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("e112508b-beea-c895-9061-da03cb427883")
+                        },
+                        new
+                        {
+                            Id = new Guid("34ffd440-fb10-56d5-6c98-eb3cb9ff12f3"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("9119a3f4-394d-695c-5267-b7cd696f7ba6")
+                        },
+                        new
+                        {
+                            Id = new Guid("bc3d006a-fdc8-f595-0209-2dd959b3366a"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("9119a3f4-394d-695c-5267-b7cd696f7ba6")
+                        },
+                        new
+                        {
+                            Id = new Guid("64a91391-ce1e-501f-4bda-2ebba3452cc3"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("9119a3f4-394d-695c-5267-b7cd696f7ba6")
+                        },
+                        new
+                        {
+                            Id = new Guid("a3291c2f-76c6-efe4-0faf-b2008c4c43be"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("9119a3f4-394d-695c-5267-b7cd696f7ba6")
+                        },
+                        new
+                        {
+                            Id = new Guid("8c7a9390-a08d-3d82-7473-01ea6526ccf9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("9119a3f4-394d-695c-5267-b7cd696f7ba6")
+                        },
+                        new
+                        {
+                            Id = new Guid("5ddcc49d-e7e4-4361-8e23-784af9d09b59"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("9119a3f4-394d-695c-5267-b7cd696f7ba6")
+                        },
+                        new
+                        {
+                            Id = new Guid("baf7e271-30b8-8d8a-b3d0-0b2b1d212e7d"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("741f2950-8b45-5e2d-8065-fe163db727a6")
+                        },
+                        new
+                        {
+                            Id = new Guid("3a26cc23-eea8-5033-d004-1d0d9a65b7d0"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("741f2950-8b45-5e2d-8065-fe163db727a6")
+                        },
+                        new
+                        {
+                            Id = new Guid("74268720-8e17-8c02-727a-9ab210344516"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("741f2950-8b45-5e2d-8065-fe163db727a6")
+                        },
+                        new
+                        {
+                            Id = new Guid("36344a4a-6760-075e-efbd-ecb945d444dd"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("741f2950-8b45-5e2d-8065-fe163db727a6")
+                        },
+                        new
+                        {
+                            Id = new Guid("8825579f-fc7d-412c-bc32-74034b16b5de"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("741f2950-8b45-5e2d-8065-fe163db727a6")
+                        },
+                        new
+                        {
+                            Id = new Guid("db2d9016-197b-30b9-34ed-f61a6aa010c6"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("741f2950-8b45-5e2d-8065-fe163db727a6")
+                        },
+                        new
+                        {
+                            Id = new Guid("a0251783-0ed3-accb-407c-4bcc84d98acb"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("93f658d0-ee65-42f2-a3da-646f54feb2d6")
+                        },
+                        new
+                        {
+                            Id = new Guid("d1c40053-b297-3747-07fa-86cfa2eb4e46"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("93f658d0-ee65-42f2-a3da-646f54feb2d6")
+                        },
+                        new
+                        {
+                            Id = new Guid("ba142a8c-e51a-92ff-25a2-3baa3e567086"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("93f658d0-ee65-42f2-a3da-646f54feb2d6")
+                        },
+                        new
+                        {
+                            Id = new Guid("b1e422f0-7170-90a4-78ee-0b68f99be754"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("93f658d0-ee65-42f2-a3da-646f54feb2d6")
+                        },
+                        new
+                        {
+                            Id = new Guid("5f020f3a-d3a7-5134-b547-331572363e8e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("93f658d0-ee65-42f2-a3da-646f54feb2d6")
+                        },
+                        new
+                        {
+                            Id = new Guid("14bd1a99-3b3d-6563-f136-c5be8e6da3b4"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("93f658d0-ee65-42f2-a3da-646f54feb2d6")
+                        },
+                        new
+                        {
+                            Id = new Guid("ce4c2405-a127-ce82-7591-29e60d63c47e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("65dfa9ad-25d2-4a79-f36c-410bf77ddddc")
+                        },
+                        new
+                        {
+                            Id = new Guid("af249dea-7de3-74a2-1433-014fce1cce5b"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("65dfa9ad-25d2-4a79-f36c-410bf77ddddc")
+                        },
+                        new
+                        {
+                            Id = new Guid("2071e182-5129-175f-6d04-319ba61f6086"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("65dfa9ad-25d2-4a79-f36c-410bf77ddddc")
+                        },
+                        new
+                        {
+                            Id = new Guid("b470fe19-5297-c9cb-b037-39178256df53"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("65dfa9ad-25d2-4a79-f36c-410bf77ddddc")
+                        },
+                        new
+                        {
+                            Id = new Guid("bf0f554a-88fd-b0af-9528-f20d9652bde6"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("65dfa9ad-25d2-4a79-f36c-410bf77ddddc")
+                        },
+                        new
+                        {
+                            Id = new Guid("bd4d4477-d42d-01a8-35ef-48330dc161ba"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("65dfa9ad-25d2-4a79-f36c-410bf77ddddc")
+                        },
+                        new
+                        {
+                            Id = new Guid("06da8896-2839-fabf-39bb-f8615fb01826"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("95d43dff-917c-dd4d-eeb5-c49731913c7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("5479e129-31cc-3199-a790-25ab399cf5d3"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("95d43dff-917c-dd4d-eeb5-c49731913c7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("aff9c28f-9185-18a7-7b8f-41959210f1ea"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("95d43dff-917c-dd4d-eeb5-c49731913c7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("7795c572-e951-5f14-f881-cf2f07872b82"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("95d43dff-917c-dd4d-eeb5-c49731913c7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("24e69e40-eeab-54a8-3d4e-e857a93e17b1"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("95d43dff-917c-dd4d-eeb5-c49731913c7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("d6d69f1f-2b54-1101-8bc1-aa035746dac0"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("95d43dff-917c-dd4d-eeb5-c49731913c7c")
+                        },
+                        new
+                        {
+                            Id = new Guid("30928b02-6326-dc13-7a99-d91b7fdd5bc3"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("72baee95-6d9c-f671-270d-67a5ddbb42e5")
+                        },
+                        new
+                        {
+                            Id = new Guid("fa22d583-b3e9-dc80-c89c-7637781279c5"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("72baee95-6d9c-f671-270d-67a5ddbb42e5")
+                        },
+                        new
+                        {
+                            Id = new Guid("421a7754-907f-1236-c71e-4c236102c701"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("72baee95-6d9c-f671-270d-67a5ddbb42e5")
+                        },
+                        new
+                        {
+                            Id = new Guid("45c781d9-24f8-91c6-ac62-eaacff01f315"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("72baee95-6d9c-f671-270d-67a5ddbb42e5")
+                        },
+                        new
+                        {
+                            Id = new Guid("7c1d56bf-3a00-c127-68a5-6f3a6fc2727a"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("72baee95-6d9c-f671-270d-67a5ddbb42e5")
+                        },
+                        new
+                        {
+                            Id = new Guid("897dadab-8beb-2996-f9e0-4992031c4e12"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("72baee95-6d9c-f671-270d-67a5ddbb42e5")
+                        },
+                        new
+                        {
+                            Id = new Guid("940c605b-65d7-70e9-d0ec-154024f84808"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("1c3dd706-407f-2945-5b68-bea5dfd584e9")
+                        },
+                        new
+                        {
+                            Id = new Guid("f69dcfc4-e4a6-f436-b169-b9322daad293"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("1c3dd706-407f-2945-5b68-bea5dfd584e9")
+                        },
+                        new
+                        {
+                            Id = new Guid("4d50588c-b82a-0108-ffe9-91f76b427b52"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("1c3dd706-407f-2945-5b68-bea5dfd584e9")
+                        },
+                        new
+                        {
+                            Id = new Guid("3c4a641a-5e8b-3c23-3400-3738934dba37"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("1c3dd706-407f-2945-5b68-bea5dfd584e9")
+                        },
+                        new
+                        {
+                            Id = new Guid("d1985ab7-5eab-a949-b01a-5b6057cf2274"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("1c3dd706-407f-2945-5b68-bea5dfd584e9")
+                        },
+                        new
+                        {
+                            Id = new Guid("65daff7d-bee6-9eb0-6b14-73e6600829ad"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("1c3dd706-407f-2945-5b68-bea5dfd584e9")
+                        },
+                        new
+                        {
+                            Id = new Guid("c63962d0-bebe-bba3-bd58-72e8ff1ff20c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("ee5f4e49-e6b9-7f9e-ded2-c27c84a76dc0")
+                        },
+                        new
+                        {
+                            Id = new Guid("27b837d7-6166-08af-c723-3d57348607cd"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("ee5f4e49-e6b9-7f9e-ded2-c27c84a76dc0")
+                        },
+                        new
+                        {
+                            Id = new Guid("03889b31-de43-5ee6-6c2c-b20949ba0b68"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("ee5f4e49-e6b9-7f9e-ded2-c27c84a76dc0")
+                        },
+                        new
+                        {
+                            Id = new Guid("294c84c4-4b81-1937-48ca-586e5d535d69"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("ee5f4e49-e6b9-7f9e-ded2-c27c84a76dc0")
+                        },
+                        new
+                        {
+                            Id = new Guid("c638329f-82cc-c199-4452-fb571b1e365f"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("ee5f4e49-e6b9-7f9e-ded2-c27c84a76dc0")
+                        },
+                        new
+                        {
+                            Id = new Guid("027d8ece-d35e-1127-2684-ab43766cda78"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("ee5f4e49-e6b9-7f9e-ded2-c27c84a76dc0")
+                        },
+                        new
+                        {
+                            Id = new Guid("429c0335-4e9c-1cbd-4413-027708584384"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("a155eb78-8542-4978-a8dd-bd2b28929738")
+                        },
+                        new
+                        {
+                            Id = new Guid("bad28780-396c-e7e1-8307-031ef5265f06"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("a155eb78-8542-4978-a8dd-bd2b28929738")
+                        },
+                        new
+                        {
+                            Id = new Guid("c0cce1f2-bc75-ba23-f821-df85fa227bef"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("a155eb78-8542-4978-a8dd-bd2b28929738")
+                        },
+                        new
+                        {
+                            Id = new Guid("a2b4577d-6fd2-5bab-e6e2-5f2e5936462c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("a155eb78-8542-4978-a8dd-bd2b28929738")
+                        },
+                        new
+                        {
+                            Id = new Guid("4f708bb5-54b4-88cc-060d-1df522408281"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("a155eb78-8542-4978-a8dd-bd2b28929738")
+                        },
+                        new
+                        {
+                            Id = new Guid("32690a57-b1b1-c8a7-7f3f-e55b7511f6f9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("a155eb78-8542-4978-a8dd-bd2b28929738")
+                        },
+                        new
+                        {
+                            Id = new Guid("a603b74d-ed71-4582-028d-292d126b5ce8"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("557bba04-d0ce-91b0-c765-277b91222bf7")
+                        },
+                        new
+                        {
+                            Id = new Guid("b78b7f5a-800a-db8f-3f30-aa7ef4dbb34b"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("557bba04-d0ce-91b0-c765-277b91222bf7")
+                        },
+                        new
+                        {
+                            Id = new Guid("6d94fa6b-5851-b680-e57e-b76376d3712c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("557bba04-d0ce-91b0-c765-277b91222bf7")
+                        },
+                        new
+                        {
+                            Id = new Guid("b7b14efa-dcea-e412-85d4-8b72fbadc2cc"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("557bba04-d0ce-91b0-c765-277b91222bf7")
+                        },
+                        new
+                        {
+                            Id = new Guid("0abc8a0c-ba8a-a05f-180a-6597ea4301fb"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("557bba04-d0ce-91b0-c765-277b91222bf7")
+                        },
+                        new
+                        {
+                            Id = new Guid("da427540-6fc5-453a-337a-f95f7789891e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("557bba04-d0ce-91b0-c765-277b91222bf7")
+                        },
+                        new
+                        {
+                            Id = new Guid("590275eb-74e7-f6b0-6b77-16a2ea4df1be"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("a2d100d7-15e0-44de-45a3-3d732cef7332")
+                        },
+                        new
+                        {
+                            Id = new Guid("5156db2e-2806-e2e4-b3d5-6f28bd6926c2"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("a2d100d7-15e0-44de-45a3-3d732cef7332")
+                        },
+                        new
+                        {
+                            Id = new Guid("b2696b0d-e253-4de4-7fff-8fccc68320b2"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("a2d100d7-15e0-44de-45a3-3d732cef7332")
+                        },
+                        new
+                        {
+                            Id = new Guid("6ed3bea3-c94c-fbd1-ac02-f6b389e5fe51"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("a2d100d7-15e0-44de-45a3-3d732cef7332")
+                        },
+                        new
+                        {
+                            Id = new Guid("4649623b-1041-4904-b0de-1ef347361ced"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("a2d100d7-15e0-44de-45a3-3d732cef7332")
+                        },
+                        new
+                        {
+                            Id = new Guid("3aa44a80-9f63-6f75-4802-df51e75ac991"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("a2d100d7-15e0-44de-45a3-3d732cef7332")
+                        },
+                        new
+                        {
+                            Id = new Guid("3072d047-9ee7-d892-5ff6-4adf7ecd0b54"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            OrganizationType = "FreightForwarder",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("a2d100d7-15e0-44de-45a3-3d732cef7332")
+                        },
+                        new
+                        {
+                            Id = new Guid("32a1438b-8958-e589-80c6-17ef8fd1b20c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("160ab007-ea1a-063f-52dd-e10cf1dcd00b")
+                        },
+                        new
+                        {
+                            Id = new Guid("973c4872-c7ac-84f5-23b8-c359071d62d9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("160ab007-ea1a-063f-52dd-e10cf1dcd00b")
+                        },
+                        new
+                        {
+                            Id = new Guid("7daf3c02-9061-4ff6-2877-a1fa44fa4a65"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("160ab007-ea1a-063f-52dd-e10cf1dcd00b")
+                        },
+                        new
+                        {
+                            Id = new Guid("5224b44f-6397-ffb6-4824-172308024f03"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("160ab007-ea1a-063f-52dd-e10cf1dcd00b")
+                        },
+                        new
+                        {
+                            Id = new Guid("d46df13e-3333-6765-0a90-e3793343be54"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("160ab007-ea1a-063f-52dd-e10cf1dcd00b")
+                        },
+                        new
+                        {
+                            Id = new Guid("0d2c2750-0e0c-b7c7-5811-6bfa26c36d77"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("160ab007-ea1a-063f-52dd-e10cf1dcd00b")
+                        },
+                        new
+                        {
+                            Id = new Guid("d5fb8f14-501b-77c6-6532-dd5c707bcfb6"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("1145e12a-7014-9221-40ff-2d3754ffd29f")
+                        },
+                        new
+                        {
+                            Id = new Guid("9e77dd6e-ec7d-357e-9ec9-0f5872f40b6b"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("1145e12a-7014-9221-40ff-2d3754ffd29f")
+                        },
+                        new
+                        {
+                            Id = new Guid("46adbe3c-20ab-260a-f4c1-31a321e8591e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("1145e12a-7014-9221-40ff-2d3754ffd29f")
+                        },
+                        new
+                        {
+                            Id = new Guid("041b6896-937b-270e-a33a-f7493f2cadaf"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("1145e12a-7014-9221-40ff-2d3754ffd29f")
+                        },
+                        new
+                        {
+                            Id = new Guid("49cbf101-bc3d-5e3f-da09-58c328286f0e"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("1145e12a-7014-9221-40ff-2d3754ffd29f")
+                        },
+                        new
+                        {
+                            Id = new Guid("b24dec4a-cd0c-9106-0c12-f4bb68bd3cbb"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("1145e12a-7014-9221-40ff-2d3754ffd29f")
+                        },
+                        new
+                        {
+                            Id = new Guid("cb7965bb-3d07-6a52-ec63-2e6e798011a8"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("bd6cab83-dabc-1619-6d2c-e324cd7d01a1")
+                        },
+                        new
+                        {
+                            Id = new Guid("726b16f2-fa0d-1968-8e15-3023810576bb"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("bd6cab83-dabc-1619-6d2c-e324cd7d01a1")
+                        },
+                        new
+                        {
+                            Id = new Guid("e4eff5c6-31ee-5c3e-5a4a-31abe13b6b86"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("bd6cab83-dabc-1619-6d2c-e324cd7d01a1")
+                        },
+                        new
+                        {
+                            Id = new Guid("c55e11c1-445b-2ceb-fa9c-42fa7d32a375"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("bd6cab83-dabc-1619-6d2c-e324cd7d01a1")
+                        },
+                        new
+                        {
+                            Id = new Guid("74f6f58b-5ef0-2510-a464-821e48c21042"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("bd6cab83-dabc-1619-6d2c-e324cd7d01a1")
+                        },
+                        new
+                        {
+                            Id = new Guid("3e6f1f78-d711-7f8f-9fcb-7f22e222a15c"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("bd6cab83-dabc-1619-6d2c-e324cd7d01a1")
+                        },
+                        new
+                        {
+                            Id = new Guid("6c64e880-71dc-9acc-f65c-b83b10e15a29"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("947b0092-be0a-4670-bf9f-46eda7d14ab0")
+                        },
+                        new
+                        {
+                            Id = new Guid("8ee57936-9694-c99d-5e86-fb2a9e34fb05"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("947b0092-be0a-4670-bf9f-46eda7d14ab0")
+                        },
+                        new
+                        {
+                            Id = new Guid("e9d56994-87d7-dc46-902e-f0ba14c43496"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("947b0092-be0a-4670-bf9f-46eda7d14ab0")
+                        },
+                        new
+                        {
+                            Id = new Guid("b6a9e689-e0ca-2201-ec70-f04f9d2385ae"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("947b0092-be0a-4670-bf9f-46eda7d14ab0")
+                        },
+                        new
+                        {
+                            Id = new Guid("1a906fed-f454-454e-6318-19b31e95c00d"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("947b0092-be0a-4670-bf9f-46eda7d14ab0")
+                        },
+                        new
+                        {
+                            Id = new Guid("7fe2dc65-4508-baf6-14cf-051be7083497"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("947b0092-be0a-4670-bf9f-46eda7d14ab0")
+                        },
+                        new
+                        {
+                            Id = new Guid("95060891-2e57-1691-1406-a6ae53955e4f"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("f047ab5d-f553-96e9-9003-6fe15a0a5114")
+                        },
+                        new
+                        {
+                            Id = new Guid("9c642deb-1722-9fc9-4051-67860f8f3a94"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("f047ab5d-f553-96e9-9003-6fe15a0a5114")
+                        },
+                        new
+                        {
+                            Id = new Guid("5af0a6a1-44e1-c571-a3d4-e713a4c28c47"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("f047ab5d-f553-96e9-9003-6fe15a0a5114")
+                        },
+                        new
+                        {
+                            Id = new Guid("39ca777e-10d1-2692-40d0-20abdb4c1d1f"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("f047ab5d-f553-96e9-9003-6fe15a0a5114")
+                        },
+                        new
+                        {
+                            Id = new Guid("56477c5b-146d-5936-ab86-ce2947c28400"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("f047ab5d-f553-96e9-9003-6fe15a0a5114")
+                        },
+                        new
+                        {
+                            Id = new Guid("505eebc1-bd10-900f-0554-03d2cb6f4ce3"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Denied",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("f047ab5d-f553-96e9-9003-6fe15a0a5114")
+                        },
+                        new
+                        {
+                            Id = new Guid("8cfbd24a-af9a-c215-4cd1-4aaa0cde2533"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("5fa67043-8f48-599c-fded-6ea2b5ca1488")
+                        },
+                        new
+                        {
+                            Id = new Guid("e5fc0f1b-12f4-d1f7-737c-9a3781cb5b2a"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("5fa67043-8f48-599c-fded-6ea2b5ca1488")
+                        },
+                        new
+                        {
+                            Id = new Guid("1b67de2e-c9b3-2b49-b206-56b50045032d"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("5fa67043-8f48-599c-fded-6ea2b5ca1488")
+                        },
+                        new
+                        {
+                            Id = new Guid("7f6bb3c7-c81f-b439-e804-1caeefa025dd"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("5fa67043-8f48-599c-fded-6ea2b5ca1488")
+                        },
+                        new
+                        {
+                            Id = new Guid("d44353bb-5eac-b868-7861-6f5878860718"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("5fa67043-8f48-599c-fded-6ea2b5ca1488")
+                        },
+                        new
+                        {
+                            Id = new Guid("7e1c042b-476a-3c9e-1e7b-2c5df3c89348"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("5fa67043-8f48-599c-fded-6ea2b5ca1488")
+                        },
+                        new
+                        {
+                            Id = new Guid("957b2f32-5149-4b3f-d877-d9d63c8f84a1"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Customer",
+                            ShipmentActionId = new Guid("72c736f3-0830-08da-2ba1-aef0b2ec3e81")
+                        },
+                        new
+                        {
+                            Id = new Guid("5c43e351-0ef6-ed31-eede-a70f0d95e955"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Shipper",
+                            ShipmentActionId = new Guid("72c736f3-0830-08da-2ba1-aef0b2ec3e81")
+                        },
+                        new
+                        {
+                            Id = new Guid("d58ce3f5-9e33-fe8a-4981-65037d44af2d"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Consignee",
+                            ShipmentActionId = new Guid("72c736f3-0830-08da-2ba1-aef0b2ec3e81")
+                        },
+                        new
+                        {
+                            Id = new Guid("a952cb8b-e76f-478b-3944-8a20210a0021"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "ThirdParty",
+                            ShipmentActionId = new Guid("72c736f3-0830-08da-2ba1-aef0b2ec3e81")
+                        },
+                        new
+                        {
+                            Id = new Guid("d63cebae-75bb-a0a1-e8e2-a091564a59b9"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "CustomsAgency",
+                            ShipmentActionId = new Guid("72c736f3-0830-08da-2ba1-aef0b2ec3e81")
+                        },
+                        new
+                        {
+                            Id = new Guid("757e48dd-3e30-eb14-d402-d169df515eb8"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Level = "Allowed",
+                            Role = "Carrier",
+                            ShipmentActionId = new Guid("72c736f3-0830-08da-2ba1-aef0b2ec3e81")
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentAction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("ShipmentActions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3eac8579-97de-40ff-10b5-ba572613f061"),
+                            Category = "Information",
+                            Code = "shipment.view",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 10,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Ver listado y detalle de BL o booking",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("6678139a-eb5f-24c3-d404-7ffcfbf1dde8"),
+                            Category = "Information",
+                            Code = "release-requirements.view",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 20,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Consultar estado de los requisitos de liberación",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("81d22eff-dca4-0ac0-bf3a-4f3df458d908"),
+                            Category = "Information",
+                            Code = "tracking.view",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 30,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Ver el seguimiento del embarque",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("a6e130a7-a1ea-abd1-aa46-e6b5c5b63391"),
+                            Category = "Information",
+                            Code = "bl-issuance.view",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 40,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Consultar el estado de emisión del BL",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("0334bbd0-ffd8-1995-7db7-fdf3d95d6729"),
+                            Category = "Information",
+                            Code = "bl-copy-unvalued.request",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 50,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Solicitar copia de BL no valorada",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("cfd10f40-3f50-8ebf-fed3-ec080f6c29b5"),
+                            Category = "Information",
+                            Code = "bl-copy-valued.request",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 60,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Solicitar copia de BL valorada",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("3ff1f234-1eda-6801-33a1-ce8538693d6e"),
+                            Category = "Information",
+                            Code = "no-debt-certificate.download",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 70,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Descargar certificado de libre deuda",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("032cc54e-cbbe-5272-cab1-32a3bb291f82"),
+                            Category = "Information",
+                            Code = "tatc.download",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 80,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Descargar documento TATC",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("07343dd5-fa12-c8e8-a80f-26f110926989"),
+                            Category = "Information",
+                            Code = "freight.pay",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 90,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Visualizar y pagar montos de flete",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("4900513d-d3e1-f3e2-5b43-c0e000a389f0"),
+                            Category = "Information",
+                            Code = "local-charges-mandatory.pay",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 100,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Visualizar y pagar recargos locales mandatorios",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("cbecbaf4-b71c-43d6-aae2-c344d6bf19ad"),
+                            Category = "Information",
+                            Code = "local-charges-on-demand.pay",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 110,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Visualizar y pagar recargos locales on demand",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("122ef33e-f8f5-fb84-25cb-5176d10c40dc"),
+                            Category = "Information",
+                            Code = "release-letter.generate",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 120,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Generar y descargar carta de liberación y desconsolidado",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("ca92d241-6346-1541-212a-e1403a95cb9f"),
+                            Category = "Information",
+                            Code = "transshipment-certificate.generate",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 130,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Generar y descargar certificado de transbordo",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("cc4c1544-f4f5-8f00-9bb1-8241a64e8d54"),
+                            Category = "Information",
+                            Code = "freight-certificate.generate",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 140,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Generar y descargar certificado de flete",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("cc502303-816b-de21-d681-447330a0e8c9"),
+                            Category = "Information",
+                            Code = "responsibility-letter.generate",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 150,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Generar y descargar carta de responsabilidad",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("e7eb07a5-bc20-230e-0e88-997310452f02"),
+                            Category = "Information",
+                            Code = "import-demurrage.pay",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 160,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Consultar y pagar demurrage de importación",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("c8157abe-83ae-64bb-ddbb-b4681e99c33f"),
+                            Category = "Information",
+                            Code = "drop-off.request",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 170,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Solicitar y pagar Drop Off",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("fe2d4e42-d3b0-aac5-9026-5f918c61aca6"),
+                            Category = "Information",
+                            Code = "warehouse-change.request",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 180,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Solicitar cambio de almacén, individual o masivo",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("7cc9c738-4673-e0c2-9a01-df7b48b28b7c"),
+                            Category = "Information",
+                            Code = "account-statement.view",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 190,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Consultar el estado de cuenta en línea",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("ac5533f1-b185-fe85-07a0-89a89adf382d"),
+                            Category = "Information",
+                            Code = "invoices-billed.view",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 200,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Ver facturas como cliente facturado",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("bdcf5a98-4a99-386e-fe2f-1da80f99aa1e"),
+                            Category = "Information",
+                            Code = "invoices-payer.view",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 210,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Ver facturas como pagador distinto del facturado",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("5810f4b9-0e60-a000-5697-53177df94bb9"),
+                            Category = "Information",
+                            Code = "collect-receipt.download",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 220,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Visualizar y descargar comprobante Collect",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("2ac5eecb-38d8-6ec0-6d82-f03f854e976c"),
+                            Category = "Information",
+                            Code = "import-depot.view",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 230,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Ver depósito asignado en importación",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("19ef0081-eb79-5a7c-e09c-62482731cd52"),
+                            Category = "Information",
+                            Code = "export-depot.view",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 240,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Ver depósito asignado en exportación",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("e112508b-beea-c895-9061-da03cb427883"),
+                            Category = "Administration",
+                            Code = "access.grant",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 250,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Otorgar acceso a un BL o booking, individual o masivo",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("9119a3f4-394d-695c-5267-b7cd696f7ba6"),
+                            Category = "Administration",
+                            Code = "access.revoke",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 260,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Revocar un acceso ya otorgado",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("741f2950-8b45-5e2d-8065-fe163db727a6"),
+                            Category = "Administration",
+                            Code = "access-validity.set",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 270,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Definir la vigencia de un acceso",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("93f658d0-ee65-42f2-a3da-646f54feb2d6"),
+                            Category = "Administration",
+                            Code = "default-agents.configure",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 280,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Configurar agencia de aduanas o transportista por defecto",
+                            Scope = "Organization"
+                        },
+                        new
+                        {
+                            Id = new Guid("65dfa9ad-25d2-4a79-f36c-410bf77ddddc"),
+                            Category = "Administration",
+                            Code = "open-access.enable",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 290,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Activar el acceso abierto por número de BL",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("95d43dff-917c-dd4d-eeb5-c49731913c7c"),
+                            Category = "Administration",
+                            Code = "open-access.search",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 300,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Buscar un BL con acceso abierto por su número",
+                            Scope = "Organization"
+                        },
+                        new
+                        {
+                            Id = new Guid("72baee95-6d9c-f671-270d-67a5ddbb42e5"),
+                            Category = "Administration",
+                            Code = "open-access.self-associate",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 310,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Autoasociarse a un BL consultado con acceso abierto",
+                            Scope = "Organization"
+                        },
+                        new
+                        {
+                            Id = new Guid("1c3dd706-407f-2945-5b68-bea5dfd584e9"),
+                            Category = "Administration",
+                            Code = "third-party-query.notify",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 320,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Recibir notificación cuando un tercero consulta un BL",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("ee5f4e49-e6b9-7f9e-ded2-c27c84a76dc0"),
+                            Category = "Administration",
+                            Code = "access-audit.view",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 330,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Consultar la auditoría de accesos de un BL o booking",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("a155eb78-8542-4978-a8dd-bd2b28929738"),
+                            Category = "Administration",
+                            Code = "parent-company-visibility.enable",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 340,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Habilitar la visibilidad de los BL hacia la empresa matriz",
+                            Scope = "Organization"
+                        },
+                        new
+                        {
+                            Id = new Guid("557bba04-d0ce-91b0-c765-277b91222bf7"),
+                            Category = "Administration",
+                            Code = "data-visibility.extend",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 350,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Ampliar la visibilidad de un dato del BL a otro rol",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("a2d100d7-15e0-44de-45a3-3d732cef7332"),
+                            Category = "Administration",
+                            Code = "early-booking-access.grant",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 360,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Otorgar acceso anticipado por booking a un futuro shipper",
+                            Scope = "Shipment"
+                        },
+                        new
+                        {
+                            Id = new Guid("160ab007-ea1a-063f-52dd-e10cf1dcd00b"),
+                            Category = "Administration",
+                            Code = "organization-users.own",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 370,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Tener usuarios propios asociados a la organización",
+                            Scope = "Organization"
+                        },
+                        new
+                        {
+                            Id = new Guid("1145e12a-7014-9221-40ff-2d3754ffd29f"),
+                            Category = "Administration",
+                            Code = "join-requests.approve",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 380,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Revisar y aprobar solicitudes de registro a la organización",
+                            Scope = "Organization"
+                        },
+                        new
+                        {
+                            Id = new Guid("bd6cab83-dabc-1619-6d2c-e324cd7d01a1"),
+                            Category = "Administration",
+                            Code = "carrier.pre-create",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 390,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Pre-crear el perfil de un transportista sin cuenta",
+                            Scope = "Organization"
+                        },
+                        new
+                        {
+                            Id = new Guid("947b0092-be0a-4670-bf9f-46eda7d14ab0"),
+                            Category = "Administration",
+                            Code = "distribution-list.update",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 400,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Actualizar la lista de distribución de correos propia",
+                            Scope = "Organization"
+                        },
+                        new
+                        {
+                            Id = new Guid("f047ab5d-f553-96e9-9003-6fe15a0a5114"),
+                            Category = "Administration",
+                            Code = "administration-area.access",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 410,
+                            IsActive = true,
+                            Kind = "Operate",
+                            Name = "Acceder al área de administración del portal",
+                            Scope = "Organization"
+                        },
+                        new
+                        {
+                            Id = new Guid("5fa67043-8f48-599c-fded-6ea2b5ca1488"),
+                            Category = "Administration",
+                            Code = "assistant.use",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 420,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Utilizar el asistente del portal y ver los comunicados",
+                            Scope = "Organization"
+                        },
+                        new
+                        {
+                            Id = new Guid("72c736f3-0830-08da-2ba1-aef0b2ec3e81"),
+                            Category = "Administration",
+                            Code = "country.select",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 430,
+                            IsActive = true,
+                            Kind = "View",
+                            Name = "Seleccionar el país de operación y consultar la clasificación DG",
+                            Scope = "Organization"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("BillOfLadingId", "ClientId", "Role")
+                        .IsUnique();
+
+                    b.ToTable("ShipmentRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("b424feb8-e445-a6b5-5dd1-001214133c6a"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000001"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Consignee",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("49b4cece-2a9e-c46e-4156-6fc62587c5c5"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000002"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Consignee",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("30d59ecf-65b1-c621-f6ed-1efcf3d5b75d"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000004"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Consignee",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("79bda1ef-7050-21dd-b714-f13f9efba29d"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000005"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Consignee",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("920f9473-1eaa-e2fa-664c-630fda43dcb3"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000006"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Shipper",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("81adf541-7dc4-a75b-098f-d639ee7f15ab"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000007"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Shipper",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("b65a3c60-f2d7-5b2c-22d2-c24a2594c519"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000008"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Shipper",
+                            Source = "Seed"
                         });
                 });
 
@@ -3391,6 +7011,18 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("MembershipDecidedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MembershipDecidedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("MembershipStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -3430,13 +7062,13 @@ namespace HapagPortal.DatabaseMigrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
-
                     b.HasIndex("Email")
                         .IsUnique();
 
                     b.HasIndex("Username")
                         .IsUnique();
+
+                    b.HasIndex("ClientId", "MembershipStatus");
 
                     b.ToTable("Users", (string)null);
 
@@ -3451,6 +7083,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Email = "admin@hapag-lloyd.cl",
                             IsActive = true,
                             IsEmailConfirmed = false,
+                            MembershipStatus = "Active",
                             PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
                             UserType = "Admin",
                             Username = "admin@hapag-lloyd.cl"
@@ -3465,6 +7098,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Email = "demo@importadorademo.cl",
                             IsActive = true,
                             IsEmailConfirmed = false,
+                            MembershipStatus = "Active",
                             PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
                             UserType = "Client",
                             Username = "demo@importadorademo.cl"
@@ -3479,6 +7113,7 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Email = "demo@altiplano.bo",
                             IsActive = true,
                             IsEmailConfirmed = false,
+                            MembershipStatus = "Active",
                             PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
                             UserType = "Client",
                             Username = "demo@altiplano.bo"
@@ -3493,9 +7128,61 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Email = "agente@maritimpacifico.cl",
                             IsActive = true,
                             IsEmailConfirmed = false,
+                            MembershipStatus = "Active",
                             PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
                             UserType = "Agent",
                             Username = "agente@maritimpacifico.cl"
+                        },
+                        new
+                        {
+                            Id = new Guid("d4e5f6a7-0004-0004-0004-000000000011"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "consulta@importadorademo.cl",
+                            FirstName = "Carla",
+                            IsActive = true,
+                            IsEmailConfirmed = false,
+                            LastName = "Consulta",
+                            MembershipStatus = "Active",
+                            PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
+                            UserType = "Client",
+                            Username = "consulta@importadorademo.cl"
+                        },
+                        new
+                        {
+                            Id = new Guid("d4e5f6a7-0004-0004-0004-000000000012"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "solicitud@importadorademo.cl",
+                            FirstName = "Sergio",
+                            IsActive = true,
+                            IsEmailConfirmed = false,
+                            LastName = "Solicitante",
+                            MembershipStatus = "Pending",
+                            PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
+                            UserType = "Client",
+                            Username = "solicitud@importadorademo.cl"
+                        },
+                        new
+                        {
+                            Id = new Guid("d4e5f6a7-0004-0004-0004-000000000050"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000050"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "admin@logisticaandina.cl",
+                            FirstName = "Andrea",
+                            IsActive = true,
+                            IsEmailConfirmed = false,
+                            LastName = "Andina",
+                            MembershipStatus = "Active",
+                            PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
+                            UserType = "Client",
+                            Username = "admin@logisticaandina.cl"
                         });
                 });
 
@@ -3553,6 +7240,41 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             RoleId = new Guid("c2825776-5914-a3e3-0041-d2bface9e0b9"),
                             RoleName = "User",
                             UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000030")
+                        },
+                        new
+                        {
+                            Id = new Guid("3c47e0d2-5bc6-59f8-dc0c-12f7eb10e017"),
+                            RoleId = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c"),
+                            RoleName = "OrgAdmin",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        },
+                        new
+                        {
+                            Id = new Guid("a87fd524-45a0-5b06-c5bc-b848addc0849"),
+                            RoleId = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c"),
+                            RoleName = "OrgAdmin",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020")
+                        },
+                        new
+                        {
+                            Id = new Guid("1c70376e-431c-3994-dd5c-464e0f1405f9"),
+                            RoleId = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c"),
+                            RoleName = "OrgAdmin",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000030")
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8e776c-1c97-8168-2886-4ab337a4749e"),
+                            RoleId = new Guid("a084c0fb-db38-005b-3d5f-926ed28ed6df"),
+                            RoleName = "OrgViewer",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000011")
+                        },
+                        new
+                        {
+                            Id = new Guid("e2805dbb-3327-1b7d-aecd-7165a75c5d82"),
+                            RoleId = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c"),
+                            RoleName = "OrgAdmin",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000050")
                         });
                 });
 
@@ -3787,6 +7509,17 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("BillOfLading");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.OrganizationDocument", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.Client", "Client")
+                        .WithMany("Documents")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.Payment", b =>
                 {
                     b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
@@ -3855,6 +7588,36 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("Client");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentAccessRule", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ShipmentAction", "ShipmentAction")
+                        .WithMany("Rules")
+                        .HasForeignKey("ShipmentActionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ShipmentAction");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentRole", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
+                        .WithMany("ShipmentRoles")
+                        .HasForeignKey("BillOfLadingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HapagPortal.Domain.Entities.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BillOfLading");
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.User", b =>
                 {
                     b.HasOne("HapagPortal.Domain.Entities.Client", "Client")
@@ -3907,11 +7670,15 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("Parties");
 
                     b.Navigation("Payments");
+
+                    b.Navigation("ShipmentRoles");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.Client", b =>
                 {
                     b.Navigation("BillsOfLading");
+
+                    b.Navigation("Documents");
 
                     b.Navigation("Payments");
                 });
@@ -3939,6 +7706,11 @@ namespace HapagPortal.DatabaseMigrations.Migrations
             modelBuilder.Entity("HapagPortal.Domain.Entities.Role", b =>
                 {
                     b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentAction", b =>
+                {
+                    b.Navigation("Rules");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.User", b =>

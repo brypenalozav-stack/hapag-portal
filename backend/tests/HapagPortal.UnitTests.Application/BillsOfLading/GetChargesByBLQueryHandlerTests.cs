@@ -2,22 +2,21 @@ namespace HapagPortal.UnitTests.Application.BillsOfLading;
 
 using FluentAssertions;
 using HapagPortal.Application.BillsOfLading.Read.GetCharges;
-using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
-using NSubstitute;
 
 public sealed class GetChargesByBLQueryHandlerTests
 {
     private readonly MockApplicationDbContext _dbContext = new();
-    private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
-    private readonly Guid _clientId = Guid.NewGuid();
+    private readonly Guid _clientId;
     private readonly GetChargesByBLQueryHandler _handler;
 
     public GetChargesByBLQueryHandlerTests()
     {
-        _currentUser.ClientId.Returns(_clientId);
-        _handler = new GetChargesByBLQueryHandler(_dbContext, _currentUser);
+        var client = AccessTestData.ClientContext(_dbContext);
+        _clientId = client.Organization.Id;
+        _handler = new GetChargesByBLQueryHandler(_dbContext, client.Evaluator);
     }
 
     [Fact]
@@ -66,6 +65,14 @@ public sealed class GetChargesByBLQueryHandlerTests
         };
 
         _dbContext.BillsOfLadingList.Add(bl);
+        // Demurrage de importación: solo Consignee en la matriz base (M1-11).
+        _dbContext.ShipmentRoleList.Add(new ShipmentRole
+        {
+            BillOfLadingId = bl.Id,
+            ClientId = _clientId,
+            Role = ShipmentRoleCodes.Consignee,
+            Source = ShipmentRoleSources.Manual
+        });
 
         var query = new GetChargesByBLQuery("BL-001");
 

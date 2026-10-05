@@ -5,6 +5,7 @@ namespace HapagPortal.Domain.Entities;
 public sealed class BillOfLading : BaseAuditableEntity
 {
     public required string BLNumber { get; set; }
+    public string? BookingNumber { get; set; }
     public required string ShipmentType { get; set; }
     public string? Vessel { get; set; }
     public string? Voyage { get; set; }
@@ -40,4 +41,5 @@ public sealed class BillOfLading : BaseAuditableEntity
     public ICollection<LocalCharge> LocalCharges { get; set; } = [];
     public ICollection<DemurrageCharge> DemurrageCharges { get; set; } = [];
     public ICollection<Payment> Payments { get; set; } = [];
+    public ICollection<ShipmentRole> ShipmentRoles { get; set; } = [];
 }

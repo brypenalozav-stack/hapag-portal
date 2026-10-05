@@ -3,6 +3,7 @@ namespace HapagPortal.Application.Users.Update;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Users.Common;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
@@ -40,6 +41,18 @@ public sealed class UpdateUserCommandHandler(IApplicationDbContext dbContext)
             if (role is null)
                 return Result<UserListItemDto>.Failure(
                     new Error("Role.NotFound", $"Role '{request.RoleCode}' was not found."));
+
+            // M8-06: el perfil con visibilidad total solo se asigna a usuarios internos de Hapag-Lloyd.
+            if (RoleCodes.InternalAdministrators.Contains(role.Code) && user.ClientId is not null)
+            {
+                var isInternal = await dbContext.Clients.AnyAsync(
+                    c => c.Id == user.ClientId.Value && c.OrganizationType == OrganizationTypes.Internal,
+                    cancellationToken);
+
+                if (!isInternal)
+                    return Result<UserListItemDto>.Failure(
+                        new Error("User.AdminRoleInternalOnly", "The administrator role can only be assigned to internal users."));
+            }
 
             var userRoles = await dbContext.UserRoles
                 .Where(ur => ur.UserId == user.Id)

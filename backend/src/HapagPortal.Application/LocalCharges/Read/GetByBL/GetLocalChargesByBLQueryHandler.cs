@@ -3,27 +3,39 @@ namespace HapagPortal.Application.LocalCharges.Read.GetByBL;
 using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
 public sealed class GetLocalChargesByBLQueryHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService currentUserService)
+    IShipmentAccessEvaluator accessEvaluator)
     : IQueryHandler<GetLocalChargesByBLQuery, List<LocalChargeDto>>
 {
     public async Task<Result<List<LocalChargeDto>>> Handle(
         GetLocalChargesByBLQuery request,
         CancellationToken cancellationToken)
     {
-        var bl = await dbContext.BillsOfLading
-            .AsNoTracking()
+        var scope = await accessEvaluator.GetScopeAsync(cancellationToken);
+
+        var bl = await accessEvaluator.FilterAccessible(dbContext.BillsOfLading.AsNoTracking(), scope)
             .Include(b => b.LocalCharges)
             .FirstOrDefaultAsync(b => b.BLNumber == request.BLNumber, cancellationToken);
 
-        if (bl is null || bl.ClientId != currentUserService.ClientId)
+        var permissions = bl is null
+            ? ShipmentPermissionSet.None
+            : await accessEvaluator.EvaluateAsync(scope, bl, cancellationToken);
+
+        if (bl is null || !permissions.Can(ShipmentActionCodes.ViewShipment))
             return Result<List<LocalChargeDto>>.Failure(
                 DomainErrors.BillOfLading.NotFoundByNumber(request.BLNumber));
+
+        if (!permissions.Can(ShipmentActionCodes.PayMandatoryLocalCharges) &&
+            !permissions.Can(ShipmentActionCodes.PayOnDemandLocalCharges))
+        {
+            return Result<List<LocalChargeDto>>.Failure(Error.Forbidden);
+        }
 
         var charges = bl.LocalCharges?.Select(lc => new LocalChargeDto(
             lc.Id,

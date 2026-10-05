@@ -1,4 +1,5 @@
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Domain.Access;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<BLContainer> BLContainers => Set<BLContainer>();
     public DbSet<BLParty> BLParties => Set<BLParty>();
     public DbSet<BLCargoItem> BLCargoItems => Set<BLCargoItem>();
+    public DbSet<ShipmentRole> ShipmentRoles => Set<ShipmentRole>();
+    public DbSet<ShipmentAction> ShipmentActions => Set<ShipmentAction>();
+    public DbSet<ShipmentAccessRule> ShipmentAccessRules => Set<ShipmentAccessRule>();
+    public DbSet<OrganizationDocument> OrganizationDocuments => Set<OrganizationDocument>();
     public DbSet<CustomsManifest> CustomsManifests => Set<CustomsManifest>();
     public DbSet<CustomsTransmission> CustomsTransmissions => Set<CustomsTransmission>();
     public DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents => Set<CustomsTransmissionEvent>();
@@ -51,6 +56,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         SeedDemoData(modelBuilder);
         SeedRbac(modelBuilder);
         SeedDeadlineRules(modelBuilder);
+        SeedAccessMatrix(modelBuilder);
+        SeedOrganizationAccessDemo(modelBuilder);
     }
 
     /// <summary>
@@ -116,6 +123,9 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             (RoleCodes.CustomsAgent, "Agente de Aduana"),
             (RoleCodes.AdminBA, "Administrador BA"),
             (RoleCodes.SuperAdmin, "Super Administrador"),
+            (RoleCodes.OrgAdmin, "Administrador de organización"),
+            (RoleCodes.OrgOperator, "Operador de organización"),
+            (RoleCodes.OrgViewer, "Consulta de organización"),
         };
 
         modelBuilder.Entity<Role>().HasData(roles.Select(r => new Role
@@ -136,6 +146,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             "bl.upload", "bl.view",
             "customs.transmit", "customs.retry", "customs.view",
             "deadlines.view", "audit.view", "reports.view", "notifications.view",
+            // Fase 1 Ola A: perfiles de organización (M1-02) e internos (M8-04, M8-06, M1-11).
+            AccessPermissions.ManageOrganizationUsers, AccessPermissions.ApproveJoinRequests,
+            AccessPermissions.OperateShipments, AccessPermissions.ViewAllShipments,
+            AccessPermissions.ReviewOrganizations, AccessPermissions.CheckOrganizationsAr,
+            AccessPermissions.ManageAccessMatrix,
         };
 
         modelBuilder.Entity<Permission>().HasData(permissions.Select(p => new Permission
@@ -156,6 +171,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             (RoleCodes.Supervisor, "deadlines.view"), (RoleCodes.Supervisor, "audit.view"),
             (RoleCodes.Supervisor, "reports.view"), (RoleCodes.Supervisor, "notifications.view"),
             (RoleCodes.ExternalApi, "bl.upload"), (RoleCodes.ExternalApi, "customs.transmit"),
+            (RoleCodes.OrgAdmin, AccessPermissions.ManageOrganizationUsers),
+            (RoleCodes.OrgAdmin, AccessPermissions.ApproveJoinRequests),
+            (RoleCodes.OrgAdmin, AccessPermissions.OperateShipments),
+            (RoleCodes.OrgOperator, AccessPermissions.OperateShipments),
         };
 
         modelBuilder.Entity<RolePermission>().HasData(assignments.Select(a => new RolePermission
@@ -163,6 +182,292 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             Id = DeterministicGuid($"rp:{a.Role}:{a.Perm}"),
             RoleId = DeterministicGuid($"role:{a.Role}"),
             PermissionId = DeterministicGuid($"perm:{a.Perm}")
+        }));
+    }
+
+    /// <summary>
+    /// Matriz base de M1-11 como datos administrables (no hardcode): una acción por fila del documento
+    /// y una regla por rol, más las excepciones de Freight Forwarder.
+    /// </summary>
+    private static void SeedAccessMatrix(ModelBuilder modelBuilder)
+    {
+        var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        modelBuilder.Entity<ShipmentAction>().HasData(AccessMatrixBaseline.Actions.Select((a, index) => new ShipmentAction
+        {
+            Id = DeterministicGuid($"shipment-action:{a.Code}"),
+            Code = a.Code,
+            Name = a.Name,
+            Category = a.Category,
+            Kind = a.Kind,
+            Scope = a.Scope,
+            DisplayOrder = (index + 1) * 10,
+            IsActive = true,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
+
+        var rules = AccessMatrixBaseline.Actions.SelectMany(a =>
+            ShipmentRoleCodes.MatrixColumns
+                .Select((role, i) => (a.Code, Role: role, OrganizationType: (string?)null, Level: a.Levels[i]))
+                .Concat(a.Overrides.Select(o => (a.Code, o.Role, OrganizationType: (string?)o.OrganizationType, o.Level))));
+
+        modelBuilder.Entity<ShipmentAccessRule>().HasData(rules.Select(r => new ShipmentAccessRule
+        {
+            Id = DeterministicGuid($"shipment-rule:{r.Code}:{r.Role}:{r.OrganizationType ?? "*"}"),
+            ShipmentActionId = DeterministicGuid($"shipment-action:{r.Code}"),
+            Role = r.Role,
+            OrganizationType = r.OrganizationType,
+            Level = r.Level,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
+    }
+
+    /// <summary>
+    /// Datos de demostración de Fase 1 Ola A: perfiles de organización, una solicitud de vinculación
+    /// pendiente, una organización en validación (M8-04), roles por embarque y BL de exportación.
+    /// </summary>
+    private static void SeedOrganizationAccessDemo(ModelBuilder modelBuilder)
+    {
+        var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // BCrypt hash of "Admin123!" with work factor 12 (reused for all demo users)
+        const string demoPasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca";
+
+        // ── Organizaciones ────────────────────────────────────────────
+        modelBuilder.Entity<Client>().HasData(
+            // Cliente titular de un BL de exportación donde Importadora Demo solo es Shipper.
+            new Client
+            {
+                Id = SeedDataIds.PacificTradingClient,
+                Name = "Pacific Trading Co.",
+                TaxId = "77.888.999-0",
+                TaxIdType = "RUT",
+                Country = CountryCodes.Chile,
+                Email = "contacto@pacifictrading.cl",
+                ClientType = "Client",
+                OrganizationType = OrganizationTypes.Customer,
+                RegistrationStatus = OrganizationStatus.Approved,
+                MatchCode = "MC100040",
+                OperatingCountries = "CL",
+                ApprovedAt = now,
+                IsActive = true,
+                IsEmailConfirmed = true,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            // Registro nuevo pendiente de validación interna (bandeja de M8-04).
+            new Client
+            {
+                Id = SeedDataIds.PendingOrgClient,
+                Name = "Logística Andina SpA",
+                TaxId = "76.555.111-2",
+                TaxIdType = "RUT",
+                Country = CountryCodes.Chile,
+                Email = "registro@logisticaandina.cl",
+                Phone = "+56 2 2999 1234",
+                ClientType = "Client",
+                OrganizationType = OrganizationTypes.FreightForwarder,
+                RegistrationStatus = OrganizationStatus.PendingValidation,
+                OperatingCountries = "CL",
+                IsActive = true,
+                IsEmailConfirmed = true,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            });
+
+        // ── Usuarios y perfiles ───────────────────────────────────────
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = SeedDataIds.DemoViewerUserCL,
+                Username = "consulta@importadorademo.cl",
+                Email = "consulta@importadorademo.cl",
+                PasswordHash = demoPasswordHash,
+                UserType = "Client",
+                Country = CountryCodes.Chile,
+                FirstName = "Carla",
+                LastName = "Consulta",
+                IsActive = true,
+                MembershipStatus = MembershipStatus.Active,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            new User
+            {
+                Id = SeedDataIds.DemoJoinRequestUserCL,
+                Username = "solicitud@importadorademo.cl",
+                Email = "solicitud@importadorademo.cl",
+                PasswordHash = demoPasswordHash,
+                UserType = "Client",
+                Country = CountryCodes.Chile,
+                FirstName = "Sergio",
+                LastName = "Solicitante",
+                IsActive = true,
+                MembershipStatus = MembershipStatus.Pending,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            new User
+            {
+                Id = SeedDataIds.PendingOrgUser,
+                Username = "admin@logisticaandina.cl",
+                Email = "admin@logisticaandina.cl",
+                PasswordHash = demoPasswordHash,
+                UserType = "Client",
+                Country = CountryCodes.Chile,
+                FirstName = "Andrea",
+                LastName = "Andina",
+                IsActive = true,
+                MembershipStatus = MembershipStatus.Active,
+                ClientId = SeedDataIds.PendingOrgClient,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            });
+
+        var profiles = new (Guid UserId, string Profile)[]
+        {
+            (SeedDataIds.DemoUserCL, RoleCodes.OrgAdmin),
+            (SeedDataIds.DemoUserBO, RoleCodes.OrgAdmin),
+            (SeedDataIds.AgentUserCL, RoleCodes.OrgAdmin),
+            (SeedDataIds.DemoViewerUserCL, RoleCodes.OrgViewer),
+            (SeedDataIds.PendingOrgUser, RoleCodes.OrgAdmin),
+        };
+
+        modelBuilder.Entity<UserRole>().HasData(profiles.Select(p => new UserRole
+        {
+            Id = DeterministicGuid($"user-profile:{p.UserId}"),
+            UserId = p.UserId,
+            RoleName = p.Profile,
+            RoleId = DeterministicGuid($"role:{p.Profile}")
+        }));
+
+        // ── Embarques de exportación ──────────────────────────────────
+        modelBuilder.Entity<BillOfLading>().HasData(
+            // CL exportación: Importadora Demo es titular (Customer) y Shipper.
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL06,
+                BLNumber = "HLCUSAI260300610",
+                BookingNumber = "HLCUBKG2603061",
+                ShipmentType = "Export",
+                Vessel = "Valparaiso Express",
+                Voyage = "2610S",
+                PortOfLoading = "San Antonio (CLSAI)",
+                PortOfDischarge = "Rotterdam (NLRTM)",
+                PlaceOfDelivery = "Rotterdam, Netherlands",
+                ETD = new DateTime(2026, 10, 20, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 11, 25, 0, 0, 0, DateTimeKind.Utc),
+                Shipper = "Importadora Demo SpA",
+                Consignee = "Fruit Import BV",
+                FreightAmount = 3900m,
+                FreightCurrency = "USD",
+                Status = "Booked",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            // CL exportación: Pacific Trading es titular; Importadora Demo solo es Shipper (flete X (o)).
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL07,
+                BLNumber = "HLCUVAP260300720",
+                BookingNumber = "HLCUBKG2603072",
+                ShipmentType = "Export",
+                Vessel = "Santos Express",
+                Voyage = "2611N",
+                PortOfLoading = "Valparaiso (CLVAP)",
+                PortOfDischarge = "Shanghai (CNSHA)",
+                PlaceOfDelivery = "Shanghai, China",
+                ETD = new DateTime(2026, 10, 28, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 12, 2, 0, 0, 0, DateTimeKind.Utc),
+                Shipper = "Importadora Demo SpA",
+                Consignee = "Shanghai Wine Trading Ltd",
+                FreightAmount = 4100m,
+                FreightCurrency = "USD",
+                Status = "Loaded",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.PacificTradingClient,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            // BO exportación: Comercial Altiplano es titular y Shipper.
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL08,
+                BLNumber = "HLCUARI260300830",
+                BookingNumber = "HLCUBKG2603083",
+                ShipmentType = "Export",
+                Vessel = "Antofagasta Express",
+                Voyage = "2612S",
+                PortOfLoading = "Arica (CLARI)",
+                PortOfDischarge = "Callao (PECLL)",
+                PlaceOfDelivery = "Lima, Peru",
+                ETD = new DateTime(2026, 11, 5, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 11, 12, 0, 0, 0, DateTimeKind.Utc),
+                Shipper = "Comercial Altiplano SRL",
+                Consignee = "Andes Foods SAC",
+                FreightAmount = 1450m,
+                FreightCurrency = "USD",
+                Status = "Booked",
+                Country = CountryCodes.Bolivia,
+                ClientId = SeedDataIds.DemoClientBO,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            });
+
+        modelBuilder.Entity<BLContainer>().HasData(
+            new BLContainer { Id = SeedDataIds.Container08, ContainerNumber = "HLXU2023001", ContainerType = "40RF", SealNumber = "SL-020301", Weight = 26800m, Status = "GateIn", BillOfLadingId = SeedDataIds.BL06, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new BLContainer { Id = SeedDataIds.Container09, ContainerNumber = "HLXU2023002", ContainerType = "20DV", SealNumber = "SL-020302", Weight = 17400m, Status = "OnBoard", BillOfLadingId = SeedDataIds.BL07, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new BLContainer { Id = SeedDataIds.Container10, ContainerNumber = "HLXU2023003", ContainerType = "20DV", SealNumber = "SL-020303", Weight = 16900m, Status = "Empty", BillOfLadingId = SeedDataIds.BL08, CreatedAt = now, CreatedBy = "SYSTEM" });
+
+        modelBuilder.Entity<LocalCharge>().HasData(
+            new LocalCharge { Id = SeedDataIds.LocalCharge09, ChargeType = ChargeTypes.GateIn, Description = "Gate In - 40RF (San Antonio)", Amount = 95000m, Currency = "CLP", Status = "Pending", IsTaxable = true, TaxRate = 19m, TaxAmount = 18050m, TotalAmount = 113050m, BillOfLadingId = SeedDataIds.BL06, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge10, ChargeType = "BL_FEE", Description = "BL Documentation Fee (export)", Amount = 45000m, Currency = "CLP", Status = "Pending", IsTaxable = true, TaxRate = 19m, TaxAmount = 8550m, TotalAmount = 53550m, BillOfLadingId = SeedDataIds.BL06, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge11, ChargeType = "THC", Description = "Terminal Handling Charge - 20DV (export)", Amount = 150000m, Currency = "CLP", Status = "Pending", IsTaxable = true, TaxRate = 19m, TaxAmount = 28500m, TotalAmount = 178500m, BillOfLadingId = SeedDataIds.BL07, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge12, ChargeType = ChargeTypes.GateIn, Description = "Gate In - 20DV (Arica)", Amount = 820m, Currency = "BOB", Status = "Pending", IsTaxable = true, TaxRate = 13m, TaxAmount = 106.60m, TotalAmount = 926.60m, BillOfLadingId = SeedDataIds.BL08, CreatedAt = now, CreatedBy = "SYSTEM" });
+
+        // ODS de exportación visible en el detalle del embarque (CL-EXP-13).
+        modelBuilder.Entity<ServiceOrder>().HasData(new ServiceOrder
+        {
+            Id = SeedDataIds.ServiceOrder04,
+            OrderNumber = "SO-2026-00004",
+            OrderType = "GateIn",
+            Status = "Pending",
+            Description = "Recepción de contenedor reefer HLXU2023001 para exportación",
+            Country = CountryCodes.Chile,
+            RequestedAt = new DateTime(2026, 10, 15, 9, 0, 0, DateTimeKind.Utc),
+            BillOfLadingId = SeedDataIds.BL06,
+            ClientId = SeedDataIds.DemoClientCL,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        });
+
+        // ── Roles por embarque (además del titular, que es Customer) ──
+        var shipmentRoles = new (Guid BlId, Guid ClientId, string Role)[]
+        {
+            (SeedDataIds.BL01, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL02, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL04, SeedDataIds.DemoClientBO, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL05, SeedDataIds.DemoClientBO, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL06, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Shipper),
+            (SeedDataIds.BL07, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Shipper),
+            (SeedDataIds.BL08, SeedDataIds.DemoClientBO, ShipmentRoleCodes.Shipper),
+        };
+
+        modelBuilder.Entity<ShipmentRole>().HasData(shipmentRoles.Select(r => new ShipmentRole
+        {
+            Id = DeterministicGuid($"shipment-role:{r.BlId}:{r.ClientId}:{r.Role}"),
+            BillOfLadingId = r.BlId,
+            ClientId = r.ClientId,
+            Role = r.Role,
+            Source = ShipmentRoleSources.Seed,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
         }));
     }
 
@@ -254,6 +559,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             Email = "admin@hapag-lloyd.cl",
             Phone = "+56 2 2630 1700",
             ClientType = "Internal",
+            OrganizationType = OrganizationTypes.Internal,
+            RegistrationStatus = OrganizationStatus.Approved,
+            OperatingCountries = "CL,BO",
+            ApprovedAt = now,
             IsActive = true,
             IsEmailConfirmed = true,
             CreatedAt = now,
@@ -473,6 +782,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             Address = "Av. Providencia 1234, Of. 501",
             City = "Santiago",
             ClientType = "Client",
+            OrganizationType = OrganizationTypes.Customer,
+            RegistrationStatus = OrganizationStatus.Approved,
+            MatchCode = "MC100010",
+            OperatingCountries = "CL,BO",
+            ApprovedAt = now,
             IsActive = true,
             IsEmailConfirmed = true,
             CreatedAt = now,
@@ -514,6 +828,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             Address = "Calle Comercio 456",
             City = "La Paz",
             ClientType = "Client",
+            OrganizationType = OrganizationTypes.Customer,
+            RegistrationStatus = OrganizationStatus.Approved,
+            MatchCode = "MC100020",
+            OperatingCountries = "BO",
+            ApprovedAt = now,
             IsActive = true,
             IsEmailConfirmed = true,
             CreatedAt = now,
@@ -556,6 +875,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             City = "Valparaíso",
             ClientType = "Agent",
             AgentCode = "AGT-CL-001",
+            OrganizationType = OrganizationTypes.CustomsAgency,
+            RegistrationStatus = OrganizationStatus.Approved,
+            MatchCode = "MC100030",
+            OperatingCountries = "CL",
+            ApprovedAt = now,
             IsActive = true,
             IsEmailConfirmed = true,
             CreatedAt = now,
@@ -593,6 +917,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.BL01,
             BLNumber = "HLCUVAL250100123",
+            BookingNumber = "HLCUBKG2501001",
             ShipmentType = "Import",
             Vessel = "Hamburg Express",
             Voyage = "025E",
@@ -618,6 +943,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.BL02,
             BLNumber = "HLCUVAL250200456",
+            BookingNumber = "HLCUBKG2502004",
             ShipmentType = "Import",
             Vessel = "Berlin Express",
             Voyage = "031W",
@@ -642,6 +968,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.BL03,
             BLNumber = "HLCUVAL250300789",
+            BookingNumber = "HLCUBKG2503007",
             ShipmentType = "Import",
             Vessel = "Colombo Express",
             Voyage = "018E",
@@ -666,6 +993,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.BL04,
             BLNumber = "HLCUARI260100045",
+            BookingNumber = "HLCUBKG2601045",
             ShipmentType = "Import",
             Vessel = "Antofagasta Express",
             Voyage = "012E",
@@ -690,6 +1018,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             Id = SeedDataIds.BL05,
             BLNumber = "HLCUIQQ260200078",
+            BookingNumber = "HLCUBKG2602078",
             ShipmentType = "Import",
             Vessel = "Guayaquil Express",
             Voyage = "007W",

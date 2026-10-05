@@ -15,9 +15,10 @@ public sealed class ImportBillsOfLadingCommandHandler(IApplicationDbContext dbCo
         ImportBillsOfLadingCommand request,
         CancellationToken cancellationToken)
     {
-        var clientIds = await dbContext.Clients.AsNoTracking()
-            .Select(c => c.Id).ToListAsync(cancellationToken);
-        var existingClients = clientIds.ToHashSet();
+        var clients = await dbContext.Clients.AsNoTracking()
+            .Select(c => new { c.Id, c.TaxId, c.Country })
+            .ToListAsync(cancellationToken);
+        var existingClients = clients.Select(c => c.Id).ToHashSet();
 
         var errors = new List<ImportRowError>();
         var created = 0;
@@ -36,6 +37,7 @@ public sealed class ImportBillsOfLadingCommandHandler(IApplicationDbContext dbCo
             var bl = new BillOfLading
             {
                 BLNumber = row.BLNumber,
+                BookingNumber = string.IsNullOrWhiteSpace(row.BookingNumber) ? null : row.BookingNumber.Trim(),
                 ShipmentType = row.ShipmentType,
                 Country = row.Country,
                 PortOfLoading = row.PortOfLoading,
@@ -58,6 +60,23 @@ public sealed class ImportBillsOfLadingCommandHandler(IApplicationDbContext dbCo
                     TaxIdType = row.Country == CountryCodes.Chile ? "RUT" : "NIT",
                     CountryCode = row.Country
                 });
+
+                // Rol por embarque: el consignatario registrado en el portal ve el BL como Consignee.
+                var consignee = clients.FirstOrDefault(c =>
+                    c.Country == row.Country &&
+                    !string.IsNullOrWhiteSpace(row.ConsigneeTaxId) &&
+                    string.Equals(c.TaxId, row.ConsigneeTaxId.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                if (consignee is not null)
+                {
+                    dbContext.ShipmentRoles.Add(new ShipmentRole
+                    {
+                        BillOfLadingId = bl.Id,
+                        ClientId = consignee.Id,
+                        Role = ShipmentRoleCodes.Consignee,
+                        Source = ShipmentRoleSources.Import
+                    });
+                }
             }
 
             dbContext.BLCargoItems.Add(new BLCargoItem

@@ -4,6 +4,7 @@ using FluentAssertions;
 using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Auth.Register;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
 using NSubstitute;
@@ -43,7 +44,8 @@ public sealed class RegisterCommandHandlerTests
         result.Value.Country.Should().Be("CL");
         _dbContext.ClientList.Should().HaveCount(1);
         _dbContext.UserList.Should().HaveCount(1);
-        _dbContext.UserRoleList.Should().HaveCount(1);
+        // Rol heredado por tipo de usuario + perfil de administrador de la organización (M1-02).
+        _dbContext.UserRoleList.Select(r => r.RoleName).Should().BeEquivalentTo(["Client", RoleCodes.OrgAdmin]);
         _dbContext.SaveChangesCallCount.Should().Be(1);
         await _emailService.Received(1).SendEmailAsync(
             "test@example.com",
@@ -134,5 +136,58 @@ public sealed class RegisterCommandHandlerTests
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("User.EmailExists");
+    }
+
+    [Fact]
+    public async Task NewOrganization_ShouldBePendingValidationAndNotOperational()
+    {
+        _passwordHasher.Hash(Arg.Any<string>()).Returns("hashed");
+
+        var command = new RegisterCommand(
+            Name: "Forwarder Nuevo",
+            TaxId: "76.222.333-4",
+            Country: "CL",
+            Email: "ops@forwarder.cl",
+            Password: "Password1!",
+            ClientType: null!,
+            Phone: "+56 2 1111 2222",
+            AgentCode: null,
+            OrganizationType: OrganizationTypes.FreightForwarder,
+            ContactFirstName: "Ana",
+            ContactLastName: "Pérez");
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        var organization = _dbContext.ClientList.Single();
+        organization.OrganizationType.Should().Be(OrganizationTypes.FreightForwarder);
+        organization.RegistrationStatus.Should().Be(OrganizationStatus.PendingValidation);
+        organization.MatchCode.Should().BeNull();
+        organization.ClientType.Should().Be("Client");
+        var user = _dbContext.UserList.Single();
+        user.MembershipStatus.Should().Be(MembershipStatus.Active);
+        user.FirstName.Should().Be("Ana");
+        _dbContext.UserRoleList.Should().Contain(r => r.UserId == user.Id && r.RoleName == RoleCodes.OrgAdmin);
+    }
+
+    [Fact]
+    public async Task LegacyCustomsAgentClientType_ShouldMapToCustomsAgencyOrganization()
+    {
+        _passwordHasher.Hash(Arg.Any<string>()).Returns("hashed");
+
+        var command = new RegisterCommand(
+            Name: "Agencia",
+            TaxId: "1234567890",
+            Country: "BO",
+            Email: "agencia@test.bo",
+            Password: "Password1!",
+            ClientType: "CustomsAgent",
+            Phone: null,
+            AgentCode: null);
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        _dbContext.ClientList.Single().OrganizationType.Should().Be(OrganizationTypes.CustomsAgency);
     }
 }

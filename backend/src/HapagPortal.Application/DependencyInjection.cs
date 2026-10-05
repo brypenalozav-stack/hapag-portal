@@ -1,7 +1,9 @@
 namespace HapagPortal.Application;
 
 using FluentValidation;
+using HapagPortal.Application.Common.Access;
 using HapagPortal.Application.Common.Behaviors;
+using HapagPortal.Application.Common.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
@@ -11,6 +13,8 @@ public static class DependencyInjection
         var assembly = typeof(DependencyInjection).Assembly;
 
         services.AddValidatorsFromAssembly(assembly);
+
+        services.AddScoped<IShipmentAccessEvaluator, ShipmentAccessEvaluator>();
 
         services.AddMediatR(config =>
         {

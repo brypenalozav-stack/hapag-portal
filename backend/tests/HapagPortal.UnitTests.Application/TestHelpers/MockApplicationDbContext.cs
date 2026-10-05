@@ -18,6 +18,10 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<BLContainer> BLContainerList { get; } = [];
     public List<BLParty> BLPartyList { get; } = [];
     public List<BLCargoItem> BLCargoItemList { get; } = [];
+    public List<ShipmentRole> ShipmentRoleList { get; } = [];
+    public List<ShipmentAction> ShipmentActionList { get; } = [];
+    public List<ShipmentAccessRule> ShipmentAccessRuleList { get; } = [];
+    public List<OrganizationDocument> OrganizationDocumentList { get; } = [];
     public List<CustomsManifest> CustomsManifestList { get; } = [];
     public List<CustomsTransmission> CustomsTransmissionList { get; } = [];
     public List<CustomsTransmissionEvent> CustomsTransmissionEventList { get; } = [];
@@ -49,6 +53,10 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<BLContainer> BLContainers => MockDbSetHelper.CreateMockDbSet(BLContainerList);
     public DbSet<BLParty> BLParties => MockDbSetHelper.CreateMockDbSet(BLPartyList);
     public DbSet<BLCargoItem> BLCargoItems => MockDbSetHelper.CreateMockDbSet(BLCargoItemList);
+    public DbSet<ShipmentRole> ShipmentRoles => MockDbSetHelper.CreateMockDbSet(ShipmentRoleList);
+    public DbSet<ShipmentAction> ShipmentActions => MockDbSetHelper.CreateMockDbSet(ShipmentActionList);
+    public DbSet<ShipmentAccessRule> ShipmentAccessRules => MockDbSetHelper.CreateMockDbSet(ShipmentAccessRuleList);
+    public DbSet<OrganizationDocument> OrganizationDocuments => MockDbSetHelper.CreateMockDbSet(OrganizationDocumentList);
     public DbSet<CustomsManifest> CustomsManifests => MockDbSetHelper.CreateMockDbSet(CustomsManifestList);
     public DbSet<CustomsTransmission> CustomsTransmissions => MockDbSetHelper.CreateMockDbSet(CustomsTransmissionList);
     public DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents => MockDbSetHelper.CreateMockDbSet(CustomsTransmissionEventList);
