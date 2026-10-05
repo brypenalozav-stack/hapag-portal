@@ -49,8 +49,8 @@ El plan anterior dejó la base: especificación v4, contratos e integraciones co
 
 | Ola | Rama | Estado |
 |---|---|---|
-| A | `feature/fase1-ola-a-organizacion-acceso` | En curso |
-| B | — | Pendiente |
+| A | `feature/fase1-ola-a-organizacion-acceso` | Hecha: backend `7f6edda`, frontend `8830e6b` |
+| B | `feature/fase1-ola-b-accesos-terceros` | En curso |
 | C | — | Pendiente |
 | D | — | Pendiente |
 | E | — | Pendiente |
