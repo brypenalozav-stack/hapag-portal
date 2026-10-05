@@ -14,7 +14,7 @@
     </div>
     <div class="col-auto">
       <button type="submit" class="btn btn-hl-orange px-4" [disabled]="!searchBlNumber.trim()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
           <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
         </svg>
         {{ 'localCharges.search' | transloco }}
@@ -26,7 +26,7 @@
 @if (loading()) {
   <app-loading-spinner />
 } @else if (error()) {
-  <div class="alert alert-danger">{{ error() }}</div>
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
 } @else if (searched()) {
   <div class="mb-3">
     <span class="text-muted">{{ 'localCharges.resultsFor' | transloco }}</span>
@@ -37,26 +37,28 @@
     <div class="col-lg-8">
       <div class="hl-card">
         @if (pendingCharges().length === 0) {
-          <div class="p-5 text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
+          <div class="p-5 text-center" role="status">
+            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
               <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
             </svg>
             <p class="text-muted mb-0">{{ 'localCharges.empty' | transloco }}</p>
           </div>
         } @else {
-          <div class="table-responsive">
+          <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'localCharges.caption' | transloco">
             <table class="hl-table">
+              <caption class="visually-hidden">{{ 'localCharges.caption' | transloco }}</caption>
               <thead>
                 <tr>
-                  <th style="width: 40px;">
-                    <input type="checkbox" class="form-check-input" [checked]="allSelected" (change)="toggleAll()" />
+                  <th scope="col" style="width: 40px;">
+                    <input type="checkbox" class="form-check-input" [checked]="allSelected" (change)="toggleAll()"
+                           [attr.aria-label]="'localCharges.selectAll' | transloco" />
                   </th>
-                  <th>{{ 'localCharges.col.code' | transloco }}</th>
-                  <th>{{ 'localCharges.col.description' | transloco }}</th>
-                  <th>{{ 'localCharges.col.amount' | transloco }}</th>
-                  <th>{{ 'localCharges.col.tax' | transloco }}</th>
-                  <th>{{ 'localCharges.col.total' | transloco }}</th>
-                  <th>{{ 'localCharges.col.status' | transloco }}</th>
+                  <th scope="col">{{ 'localCharges.col.code' | transloco }}</th>
+                  <th scope="col">{{ 'localCharges.col.description' | transloco }}</th>
+                  <th scope="col">{{ 'localCharges.col.amount' | transloco }}</th>
+                  <th scope="col">{{ 'localCharges.col.tax' | transloco }}</th>
+                  <th scope="col">{{ 'localCharges.col.total' | transloco }}</th>
+                  <th scope="col">{{ 'localCharges.col.status' | transloco }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -66,7 +68,8 @@
                       @if (charge.status === 'Pending') {
                         <input type="checkbox" class="form-check-input"
                                [checked]="isSelected(charge.id)"
-                               (change)="toggleCharge(charge.id)" />
+                               (change)="toggleCharge(charge.id)"
+                               [attr.aria-label]="'localCharges.selectCharge' | transloco: { code: charge.chargeCode }" />
                       }
                     </td>
                     <td class="fw-semibold">{{ charge.chargeCode }}</td>
@@ -110,7 +113,9 @@
         <a [routerLink]="['/payments/new', charges()[0]?.blId ?? activeBlNumber()]"
            [queryParams]="{type: 'LOCAL_CHARGES'}"
            class="btn btn-hl-orange w-100 py-2"
-           [class.disabled]="selectedCharges().length === 0">
+           [class.disabled]="selectedCharges().length === 0"
+           [attr.aria-disabled]="selectedCharges().length === 0"
+           [attr.tabindex]="selectedCharges().length === 0 ? -1 : null">
           {{ 'localCharges.summary.paySelected' | transloco }}
         </a>
       </div>
@@ -119,7 +124,7 @@
 } @else {
   <!-- Initial state - no search yet -->
   <div class="hl-card p-5 text-center">
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="mb-3 opacity-25 text-hl-dark" viewBox="0 0 16 16">
+    <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="mb-3 opacity-25 text-hl-dark" viewBox="0 0 16 16">
       <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
     </svg>
     <p class="text-muted mb-0">{{ 'localCharges.initial' | transloco }}</p>

@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, Validati
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { VALIDATION, REDIRECT_DELAY_MS } from '../../../core/constants/app.constants';
 
 @Component({
@@ -17,6 +18,7 @@ export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
 
   form = this.fb.nonNullable.group(
@@ -75,6 +77,7 @@ export class RegisterComponent {
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.announcer.announce(translate('common.form.invalid'), 'assertive');
       return;
     }
 

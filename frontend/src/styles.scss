@@ -153,8 +153,8 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .sidebar-section-title {
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.7); // 6,02:1 sobre $hl-dark (WCAG 1.4.3)
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -311,33 +311,33 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Buttons
+// Buttons. Texto blanco sobre los tonos -700 (5,23:1 y 5,48:1): $hl-orange y $hl-green no alcanzan 4,5:1.
 .btn-hl-orange {
-  background-color: var(--hl-orange);
-  border-color: var(--hl-orange);
+  background-color: var(--hl-orange-700);
+  border-color: var(--hl-orange-700);
   color: var(--hl-white);
   font-weight: 600;
 
   &:hover, &:focus {
-    background-color: color.mix(black, t.$hl-orange, 10%);
-    border-color: color.mix(black, t.$hl-orange, 10%);
+    background-color: color.mix(black, t.$hl-orange-700, 10%);
+    border-color: color.mix(black, t.$hl-orange-700, 10%);
     color: var(--hl-white);
   }
 
   &:active {
-    background-color: color.mix(black, t.$hl-orange, 20%);
+    background-color: color.mix(black, t.$hl-orange-700, 20%);
   }
 }
 
 .btn-hl-green {
-  background-color: var(--hl-green);
-  border-color: var(--hl-green);
+  background-color: var(--hl-green-700);
+  border-color: var(--hl-green-700);
   color: var(--hl-white);
   font-weight: 600;
 
   &:hover, &:focus {
-    background-color: var(--hl-green-700);
-    border-color: var(--hl-green-700);
+    background-color: color.mix(black, t.$hl-green-700, 15%);
+    border-color: color.mix(black, t.$hl-green-700, 15%);
     color: var(--hl-white);
   }
 }
@@ -408,7 +408,8 @@ h1, h2, h3, h4, h5, h6 {
 .hl-form-group {
   margin-bottom: 1rem;
 
-  label {
+  label,
+  legend {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--hl-dark);
@@ -475,11 +476,15 @@ h1, h2, h3, h4, h5, h6 {
 
 // Responsive
 @media (max-width: 991.98px) {
+  // Cerrado, el menú lateral queda fuera de la pantalla y fuera del orden de foco (visibility).
   .hl-sidebar {
     transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.3s ease, visibility 0.3s;
 
     &.show {
       transform: translateX(0);
+      visibility: visible;
     }
   }
 
@@ -510,9 +515,9 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Utility
-.text-hl-orange { color: var(--hl-orange) !important; }
-.text-hl-green { color: var(--hl-green) !important; }
+// Utility. Texto con los tonos -700: $hl-orange (2,94:1) y $hl-green (3,77:1) no son aptos para texto.
+.text-hl-orange { color: var(--hl-orange-700) !important; }
+.text-hl-green { color: var(--hl-green-700) !important; }
 .text-hl-blue { color: var(--hl-blue) !important; }
 .text-hl-dark { color: var(--hl-dark) !important; }
 .text-hl-muted { color: var(--hl-text-muted) !important; }
@@ -522,3 +527,79 @@ h1, h2, h3, h4, h5, h6 {
 .bg-hl-blue { background-color: var(--hl-blue) !important; }
 .bg-hl-dark { background-color: var(--hl-dark) !important; }
 .bg-hl-light { background-color: var(--hl-light-gray) !important; }
+
+// ---------------------------------------------------------------------------
+// Accesibilidad (Fase 5c; guía UI/a11y/i18n §3.5)
+// ---------------------------------------------------------------------------
+
+// La barra superior fija no tapa el elemento enfocado al desplazarse (WCAG 2.4.11).
+html {
+  scroll-padding-top: calc(var(--navbar-height) + 0.5rem);
+}
+
+// Enlace para saltar al contenido (WCAG 2.4.1): primer elemento enfocable, visible solo con foco.
+.hl-skip-link {
+  --hl-focus: #{t.$hl-white};
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1100;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--hl-dark);
+  color: var(--hl-white);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 1rem));
+
+  &:focus {
+    color: var(--hl-white);
+    transform: translateY(0);
+  }
+}
+
+// Foco visible en todo elemento interactivo (WCAG 2.4.7). Se repiten los selectores de
+// Bootstrap que anulan el outline (.btn, campos, menús) para que el anillo sea el mismo.
+:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.form-check-input:focus-visible,
+.dropdown-item:focus-visible,
+.nav-link:focus-visible,
+.navbar-brand:focus-visible {
+  outline: 3px solid var(--hl-focus);
+  outline-offset: 2px;
+}
+
+// Botones de solo ícono: objetivo mínimo de 24×24 px (WCAG 2.5.8).
+.hl-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+// Estados vacío y error (NF-11, app-state-message)
+.hl-state-message {
+  svg {
+    color: var(--hl-text-muted);
+  }
+
+  &--error svg {
+    color: var(--bs-danger-text-emphasis);
+  }
+}
+
+// Reducción de movimiento (WCAG 2.3.3, guía §3.5)
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

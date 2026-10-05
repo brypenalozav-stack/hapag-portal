@@ -1,4 +1,4 @@
-import { Component, inject, output, OnInit } from '@angular/core';
+import { Component, inject, input, output, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
@@ -16,6 +16,8 @@ export class NavbarComponent implements OnInit {
   readonly auth = inject(AuthService);
   readonly notifications = inject(NotificationService);
   readonly locale = inject(LocaleService);
+  /** Estado del menú lateral móvil, para `aria-expanded` del botón de menú. */
+  sidebarOpen = input(false);
   toggleSidebar = output<void>();
 
   ngOnInit(): void {

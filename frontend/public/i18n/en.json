@@ -10,8 +10,10 @@
       },
       "after": "After",
       "before": "Before",
+      "caption": "Audit records",
       "col": {
         "action": "Action",
+        "changes": "Changes",
         "date": "Date",
         "entity": "Entity",
         "id": "ID",
@@ -33,6 +35,14 @@
       "viewChanges": "View changes"
     },
     "blImport": {
+      "announce": {
+        "finished": "Import finished: {created} created, {failed} rejected.",
+        "started": "Importing {count, plural, one {# row} other {# rows}}…"
+      },
+      "caption": {
+        "errors": "Rejected rows and their errors",
+        "preview": "Preview of the rows to import"
+      },
       "clear": "Clear",
       "client": "* Customer",
       "col": {
@@ -72,7 +82,9 @@
       "title": "Bill of Lading Upload"
     },
     "creditClients": {
+      "caption": "Credit customers",
       "col": {
+        "actions": "Actions",
         "available": "Available",
         "client": "Customer",
         "country": "Country",
@@ -160,8 +172,10 @@
       "transmissions": {
         "blId": "B/L ID",
         "blIdPlaceholder": "B/L GUID",
+        "caption": "Manifest transmissions",
         "col": {
           "ack": "Acknowledgment",
+          "actions": "Actions",
           "attempts": "Attempts",
           "bl": "B/L",
           "kind": "Type",
@@ -189,17 +203,20 @@
       "filter": {
         "all": "All statuses",
         "atRisk": "At risk",
+        "label": "Filter by status",
         "met": "Met",
         "onTrack": "On track",
         "overdue": "Overdue"
       },
       "list": {
+        "caption": "Tracked deadlines",
         "title": "Deadlines"
       },
       "loadError": "Could not load the deadline board.",
       "manifestOnly": "— (manifest)",
       "rules": {
         "both": "Both",
+        "caption": "Deadline rule catalog",
         "col": {
           "applies": "Applies to",
           "baseEvent": "Base event",
@@ -231,6 +248,7 @@
     },
     "demurrageExemptions": {
       "active": "Active",
+      "caption": "Demurrage exemptions",
       "col": {
         "actions": "Actions",
         "client": "Customer",
@@ -272,6 +290,7 @@
       "title": "Demurrage Exemptions"
     },
     "reports": {
+      "caption": "Report results",
       "errors": {
         "export": "Could not export the report.",
         "load": "Could not load the report."
@@ -287,6 +306,7 @@
       }
     },
     "users": {
+      "caption": "Internal users",
       "col": {
         "email": "Email",
         "fullName": "Full name",
@@ -340,7 +360,8 @@
   "app": {
     "footer": {
       "copyright": "© 2025 Hapag-Lloyd AG. All rights reserved."
-    }
+    },
+    "skipLink": "Skip to main content"
   },
   "auth": {
     "forgotPassword": {
@@ -440,6 +461,7 @@
       "breadcrumbList": "BL Inquiry",
       "client": "Customer",
       "containers": {
+        "caption": "BL containers",
         "col": {
           "container": "Container",
           "description": "Description",
@@ -449,6 +471,7 @@
           "type": "Type",
           "weight": "Weight (kg)"
         },
+        "empty": "This BL has no registered containers.",
         "title": "Containers ({{ count }})"
       },
       "country": "Country",
@@ -477,6 +500,7 @@
     },
     "list": {
       "blNumber": "BL Number",
+      "caption": "BL list",
       "clearFilters": "Clear Filters",
       "col": {
         "actions": "Actions",
@@ -505,6 +529,9 @@
     "country": {
       "bo": "Bolivia",
       "cl": "Chile"
+    },
+    "form": {
+      "invalid": "The form has errors. Check the highlighted fields."
     }
   },
   "dashboard": {
@@ -539,6 +566,7 @@
       "title": "Country Information"
     },
     "defaultUser": "User",
+    "empty": "There are no payments or BLs linked to your account yet.",
     "quickActions": {
       "faq": "FAQ",
       "searchBl": "Look Up BL",
@@ -563,6 +591,7 @@
       "text": "Some containers may be exempt from demurrage under current commercial agreements.",
       "title": "Note for customers in Bolivia:"
     },
+    "caption": "Demurrage by container",
     "col": {
       "container": "Container",
       "dailyRate": "Daily Rate",
@@ -611,6 +640,7 @@
   "localCharges": {
     "blNumber": "BL Number",
     "blPlaceholder": "e.g. HLCUVAL250100123",
+    "caption": "BL local charges",
     "col": {
       "amount": "Amount",
       "code": "Code",
@@ -624,6 +654,8 @@
     "loadError": "Could not load the local charges. Check the BL number.",
     "resultsFor": "Results for BL:",
     "search": "Search",
+    "selectAll": "Select all pending charges",
+    "selectCharge": "Select charge {{ code }}",
     "subtitle": "View and pay local charges by BL number",
     "summary": {
       "paySelected": "Pay Selected",
@@ -697,6 +729,7 @@
       }
     },
     "list": {
+      "caption": "Payment list",
       "col": {
         "actions": "Actions",
         "amount": "Amount",
@@ -763,6 +796,7 @@
     }
   },
   "receipts": {
+    "caption": "Receipt list",
     "col": {
       "amount": "Amount",
       "client": "Customer",
@@ -780,6 +814,7 @@
   },
   "serviceOrders": {
     "cancel": "Cancel",
+    "caption": "Service orders",
     "col": {
       "bl": "BL",
       "date": "Date",
@@ -823,6 +858,7 @@
       "label": "Loading..."
     },
     "navbar": {
+      "home": "Hapag-Lloyd, go to home",
       "language": {
         "en": "English",
         "es": "Español",
@@ -830,11 +866,14 @@
       },
       "login": "Log In",
       "logout": "Log Out",
-      "notifications": "Notifications",
+      "menu": "Navigation menu",
+      "notificationsCount": "{count, plural, =0 {Notifications} one {Notifications, # unread} other {Notifications, # unread}}",
       "profile": "My Profile",
-      "tagline": "SERVICE PORTAL"
+      "tagline": "SERVICE PORTAL",
+      "userMenu": "User menu: {{ name }}"
     },
     "sidebar": {
+      "label": "Main menu",
       "link": {
         "audit": "Audit",
         "bl": "BL Inquiry",
@@ -861,6 +900,11 @@
         "operations": "Operations",
         "services": "Services"
       }
+    },
+    "stateMessage": {
+      "empty": "No data",
+      "error": "Service temporarily unavailable",
+      "retry": "Retry"
     }
   },
   "status": {

@@ -128,6 +128,9 @@ jobs:
       - name: Check hardcoded template texts
         run: npm run check:i18n-text
 
+      - name: Check table header scope
+        run: npm run check:table-scope
+
       - name: Build (production)
         run: npx ng build --configuration production
 

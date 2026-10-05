@@ -36,20 +36,20 @@ interface CreateExemptionRequest {
     <div class="hl-card p-3 mb-4">
       <div class="row g-2 align-items-end">
         <div class="col-md-6">
-          <label class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.filters.search' | transloco }}</label>
-          <input type="text" class="form-control" [placeholder]="'admin.demurrageExemptions.filters.searchPlaceholder' | transloco" [(ngModel)]="searchTerm" />
+          <label for="demurrage-exemptions-search-term" class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.filters.search' | transloco }}</label>
+          <input id="demurrage-exemptions-search-term" type="text" class="form-control" [placeholder]="'admin.demurrageExemptions.filters.searchPlaceholder' | transloco" [(ngModel)]="searchTerm" />
         </div>
         <div class="col-md-3">
-          <label class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.filters.country' | transloco }}</label>
-          <select class="form-select" [(ngModel)]="countryFilter">
+          <label for="demurrage-exemptions-country-filter" class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.filters.country' | transloco }}</label>
+          <select id="demurrage-exemptions-country-filter" class="form-select" [(ngModel)]="countryFilter">
             <option value="ALL">{{ 'admin.demurrageExemptions.filters.all' | transloco }}</option>
             <option value="CL">{{ 'common.country.cl' | transloco }}</option>
             <option value="BO">{{ 'common.country.bo' | transloco }}</option>
           </select>
         </div>
         <div class="col-md-3 text-md-end">
-          <button class="btn btn-hl-orange" (click)="openCreateForm()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+          <button type="button" class="btn btn-hl-orange" (click)="openCreateForm()">
+            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
               <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
             </svg>
             {{ 'admin.demurrageExemptions.new' | transloco }}
@@ -59,7 +59,7 @@ interface CreateExemptionRequest {
     </div>
 
     @if (error()) {
-      <div class="alert alert-danger py-2 mb-3">{{ error() }}</div>
+      <div class="alert alert-danger py-2 mb-3" role="alert">{{ error() }}</div>
     }
 
     <!-- Create Form -->
@@ -67,41 +67,41 @@ interface CreateExemptionRequest {
       <div class="hl-card p-4 mb-4 border-start border-4 border-warning">
         <h5 class="mb-3">{{ 'admin.demurrageExemptions.form.title' | transloco }}</h5>
         @if (createError()) {
-          <div class="alert alert-danger py-2 mb-3">{{ createError() }}</div>
+          <div class="alert alert-danger py-2 mb-3" role="alert">{{ createError() }}</div>
         }
         <div class="row g-3">
           <div class="col-md-4">
-            <label class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.form.clientName' | transloco }}</label>
-            <input type="text" class="form-control" [(ngModel)]="newExemption.clientName"
+            <label for="demurrage-exemptions-new-exemption-client-name" class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.form.clientName' | transloco }}</label>
+            <input id="demurrage-exemptions-new-exemption-client-name" type="text" class="form-control" [(ngModel)]="newExemption.clientName"
                    [placeholder]="'admin.demurrageExemptions.form.clientNamePlaceholder' | transloco" />
           </div>
           <div class="col-md-3">
-            <label class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.form.taxId' | transloco }}</label>
-            <input type="text" class="form-control" [(ngModel)]="newExemption.taxId"
+            <label for="demurrage-exemptions-new-exemption-tax-id" class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.form.taxId' | transloco }}</label>
+            <input id="demurrage-exemptions-new-exemption-tax-id" type="text" class="form-control" [(ngModel)]="newExemption.taxId"
                    [placeholder]="'admin.demurrageExemptions.form.taxIdPlaceholder' | transloco" />
           </div>
           <div class="col-md-2">
-            <label class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.form.country' | transloco }}</label>
-            <select class="form-select" [(ngModel)]="newExemption.country">
+            <label for="demurrage-exemptions-new-exemption-country" class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.form.country' | transloco }}</label>
+            <select id="demurrage-exemptions-new-exemption-country" class="form-select" [(ngModel)]="newExemption.country">
               <option value="">{{ 'admin.demurrageExemptions.form.selectCountry' | transloco }}</option>
               <option value="CL">{{ 'common.country.cl' | transloco }}</option>
               <option value="BO">{{ 'common.country.bo' | transloco }}</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.form.reason' | transloco }}</label>
-            <input type="text" class="form-control" [(ngModel)]="newExemption.reason"
+            <label for="demurrage-exemptions-new-exemption-reason" class="form-label small fw-semibold">{{ 'admin.demurrageExemptions.form.reason' | transloco }}</label>
+            <input id="demurrage-exemptions-new-exemption-reason" type="text" class="form-control" [(ngModel)]="newExemption.reason"
                    [placeholder]="'admin.demurrageExemptions.form.reasonPlaceholder' | transloco" />
           </div>
         </div>
         <div class="d-flex gap-2 mt-3">
-          <button class="btn btn-hl-orange" (click)="createExemption()" [disabled]="creating()">
+          <button type="button" class="btn btn-hl-orange" (click)="createExemption()" [disabled]="creating()">
             @if (creating()) {
               <span class="spinner-border spinner-border-sm me-1"></span>
             }
             {{ 'admin.demurrageExemptions.form.create' | transloco }}
           </button>
-          <button class="btn btn-outline-secondary" (click)="cancelCreate()" [disabled]="creating()">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelCreate()" [disabled]="creating()">
             {{ 'admin.demurrageExemptions.form.cancel' | transloco }}
           </button>
         </div>
@@ -112,16 +112,17 @@ interface CreateExemptionRequest {
       <app-loading-spinner />
     } @else {
       <div class="hl-card">
-        <div class="table-responsive">
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.demurrageExemptions.caption' | transloco">
           <table class="hl-table">
+            <caption class="visually-hidden">{{ 'admin.demurrageExemptions.caption' | transloco }}</caption>
             <thead>
               <tr>
-                <th>{{ 'admin.demurrageExemptions.col.client' | transloco }}</th>
-                <th>{{ 'admin.demurrageExemptions.col.taxId' | transloco }}</th>
-                <th>{{ 'admin.demurrageExemptions.col.country' | transloco }}</th>
-                <th>{{ 'admin.demurrageExemptions.col.reason' | transloco }}</th>
-                <th>{{ 'admin.demurrageExemptions.col.status' | transloco }}</th>
-                <th>{{ 'admin.demurrageExemptions.col.actions' | transloco }}</th>
+                <th scope="col">{{ 'admin.demurrageExemptions.col.client' | transloco }}</th>
+                <th scope="col">{{ 'admin.demurrageExemptions.col.taxId' | transloco }}</th>
+                <th scope="col">{{ 'admin.demurrageExemptions.col.country' | transloco }}</th>
+                <th scope="col">{{ 'admin.demurrageExemptions.col.reason' | transloco }}</th>
+                <th scope="col">{{ 'admin.demurrageExemptions.col.status' | transloco }}</th>
+                <th scope="col">{{ 'admin.demurrageExemptions.col.actions' | transloco }}</th>
               </tr>
             </thead>
             <tbody>
@@ -140,7 +141,7 @@ interface CreateExemptionRequest {
                   </td>
                   <td>
                     @if (exemption.isActive) {
-                      <button class="btn btn-sm btn-outline-danger" (click)="deactivateExemption(exemption.id)"
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="deactivateExemption(exemption.id)"
                               [disabled]="deactivating()">
                         {{ 'admin.demurrageExemptions.deactivate' | transloco }}
                       </button>

@@ -2,6 +2,8 @@
   display: block;
 }
 
+// Opción de medio de pago: el radio real queda visually-hidden (sigue en el orden de foco) y el
+// recuadro muestra el estado. Bordes y marca con $hl-orange-700 y $hl-text-muted (WCAG 1.4.11).
 .payment-method-option {
   cursor: pointer;
 
@@ -11,8 +13,13 @@
 
   &.selected .border,
   &:hover .border {
-    border-color: var(--hl-orange) !important;
+    border-color: var(--hl-orange-700) !important;
     background-color: rgba(255, 102, 0, 0.03);
+  }
+
+  &:has(input:focus-visible) .border {
+    outline: 3px solid var(--hl-focus);
+    outline-offset: 2px;
   }
 }
 
@@ -20,13 +27,13 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid var(--hl-border);
+  border: 2px solid var(--hl-text-muted);
   flex-shrink: 0;
   position: relative;
   transition: all 0.2s;
 
   &.active {
-    border-color: var(--hl-orange);
+    border-color: var(--hl-orange-700);
 
     &::after {
       content: '';
@@ -36,7 +43,7 @@
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background-color: var(--hl-orange);
+      background-color: var(--hl-orange-700);
     }
   }
 }

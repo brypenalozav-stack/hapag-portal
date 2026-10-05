@@ -2,7 +2,7 @@
   <nav [attr.aria-label]="'payments.form.breadcrumbLabel' | transloco">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a routerLink="/payments" class="text-decoration-none">{{ 'payments.form.breadcrumbList' | transloco }}</a></li>
-      <li class="breadcrumb-item active">{{ 'payments.form.breadcrumbCurrent' | transloco }}</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ 'payments.form.breadcrumbCurrent' | transloco }}</li>
     </ol>
   </nav>
   <h1>{{ 'payments.form.title' | transloco }}</h1>
@@ -13,7 +13,7 @@
 } @else {
   @if (success()) {
     <div class="hl-card p-5 text-center">
-      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
       </svg>
       <h4 class="text-hl-green">{{ 'payments.form.success.title' | transloco }}</h4>
@@ -31,39 +31,44 @@
             <div class="alert alert-danger py-2">{{ error() }}</div>
           }
 
-          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
             <!-- Payment Type -->
             <div class="hl-form-group">
-              <label>{{ 'payments.form.type' | transloco }}</label>
-              <select class="form-select" formControlName="type"
-                      [class.is-invalid]="form.controls.type.touched && form.controls.type.invalid">
+              <label for="payment-type">{{ 'payments.form.type' | transloco }}</label>
+              <select id="payment-type" class="form-select" formControlName="type" required
+                      [class.is-invalid]="form.controls.type.touched && form.controls.type.invalid"
+                      [attr.aria-invalid]="form.controls.type.touched && form.controls.type.invalid">
                 <option value="Freight">{{ 'payments.form.typeOption.freight' | transloco }}</option>
                 <option value="LocalCharges">{{ 'payments.form.typeOption.localCharges' | transloco }}</option>
                 <option value="Demurrage">{{ 'payments.form.typeOption.demurrage' | transloco }}</option>
               </select>
             </div>
 
-            <!-- Payment Method -->
-            <div class="hl-form-group">
-              <label>{{ 'payments.form.method' | transloco }}</label>
+            <!-- Payment Method: grupo de radios con leyenda; el radio real queda visually-hidden -->
+            <fieldset class="hl-form-group">
+              <legend>{{ 'payments.form.method' | transloco }}</legend>
               <div class="d-flex flex-column gap-2">
                 @for (method of paymentMethods(); track method.value) {
                   <label class="payment-method-option" [class.selected]="form.controls.method.value === method.value">
-                    <input type="radio" [value]="method.value" formControlName="method" class="d-none" />
+                    <input type="radio" [value]="method.value" formControlName="method" class="visually-hidden"
+                           required [attr.aria-describedby]="'payment-method-hint-' + method.value + ' payment-method-error'"
+                           [attr.aria-invalid]="form.controls.method.touched && form.controls.method.invalid" />
                     <div class="d-flex align-items-center gap-3 p-3 border rounded-3">
                       <div class="method-radio" [class.active]="form.controls.method.value === method.value"></div>
                       <div>
                         <div class="fw-semibold">{{ method.labelKey | transloco }}</div>
-                        <div class="small text-muted">{{ method.hintKey | transloco }}</div>
+                        <div class="small text-muted" [id]="'payment-method-hint-' + method.value">{{ method.hintKey | transloco }}</div>
                       </div>
                     </div>
                   </label>
                 }
               </div>
-              @if (form.controls.method.touched && form.controls.method.invalid) {
-                <div class="text-danger small mt-1">{{ 'payments.form.methodRequired' | transloco }}</div>
-              }
-            </div>
+              <div id="payment-method-error" class="text-danger small mt-1">
+                @if (form.controls.method.touched && form.controls.method.invalid) {
+                  {{ 'payments.form.methodRequired' | transloco }}
+                }
+              </div>
+            </fieldset>
 
             <button type="submit" class="btn btn-hl-orange w-100 py-2 mt-3" [disabled]="submitting()">
               @if (submitting()) {

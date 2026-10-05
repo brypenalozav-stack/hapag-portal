@@ -3,12 +3,12 @@
     <h1>{{ 'admin.deadlines.title' | transloco }}</h1>
     <p class="text-muted mb-0">{{ 'admin.deadlines.subtitle' | transloco }}</p>
   </div>
-  <button class="btn btn-outline-secondary" (click)="showRules.set(!showRules())">
+  <button type="button" class="btn btn-outline-secondary" (click)="showRules.set(!showRules())">
     {{ (showRules() ? 'admin.deadlines.viewBoard' : 'admin.deadlines.viewRules') | transloco }}
   </button>
 </div>
 
-@if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+@if (error()) { <div class="alert alert-danger py-2" role="alert">{{ error() }}</div> }
 
 @if (!showRules()) {
   <!-- Resumen semáforo -->
@@ -42,7 +42,8 @@
   <div class="hl-card">
     <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
       <span class="fw-semibold">{{ 'admin.deadlines.list.title' | transloco }}</span>
-      <select class="form-select form-select-sm w-auto" [(ngModel)]="statusFilter" (ngModelChange)="load()">
+      <select class="form-select form-select-sm w-auto" [(ngModel)]="statusFilter" (ngModelChange)="load()"
+              [attr.aria-label]="'admin.deadlines.filter.label' | transloco">
         <option value="">{{ 'admin.deadlines.filter.all' | transloco }}</option>
         <option value="OnTrack">{{ 'admin.deadlines.filter.onTrack' | transloco }}</option>
         <option value="AtRisk">{{ 'admin.deadlines.filter.atRisk' | transloco }}</option>
@@ -53,12 +54,13 @@
     @if (loading()) {
       <app-loading-spinner />
     } @else {
-      <div class="table-responsive">
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.deadlines.list.caption' | transloco">
         <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.deadlines.list.caption' | transloco }}</caption>
           <thead>
             <tr>
-              <th>{{ 'admin.deadlines.col.rule' | transloco }}</th><th>{{ 'admin.deadlines.col.bl' | transloco }}</th><th>{{ 'admin.deadlines.col.severity' | transloco }}</th>
-              <th>{{ 'admin.deadlines.col.baseEvent' | transloco }}</th><th>{{ 'admin.deadlines.col.due' | transloco }}</th><th>{{ 'admin.deadlines.col.status' | transloco }}</th>
+              <th scope="col">{{ 'admin.deadlines.col.rule' | transloco }}</th><th scope="col">{{ 'admin.deadlines.col.bl' | transloco }}</th><th scope="col">{{ 'admin.deadlines.col.severity' | transloco }}</th>
+              <th scope="col">{{ 'admin.deadlines.col.baseEvent' | transloco }}</th><th scope="col">{{ 'admin.deadlines.col.due' | transloco }}</th><th scope="col">{{ 'admin.deadlines.col.status' | transloco }}</th>
             </tr>
           </thead>
           <tbody>
@@ -86,12 +88,13 @@
   <!-- Catálogo de reglas -->
   <div class="hl-card">
     <div class="p-3 border-bottom fw-semibold">{{ 'admin.deadlines.rules.title' | transloco }}</div>
-    <div class="table-responsive">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.deadlines.rules.caption' | transloco">
       <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.deadlines.rules.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th>{{ 'admin.deadlines.rules.col.code' | transloco }}</th><th>{{ 'admin.deadlines.rules.col.name' | transloco }}</th><th>{{ 'admin.deadlines.rules.col.baseEvent' | transloco }}</th><th>{{ 'admin.deadlines.rules.col.offset' | transloco }}</th>
-            <th>{{ 'admin.deadlines.rules.col.applies' | transloco }}</th><th>{{ 'admin.deadlines.rules.col.severity' | transloco }}</th><th>{{ 'admin.deadlines.rules.col.certainty' | transloco }}</th><th>{{ 'admin.deadlines.rules.col.source' | transloco }}</th>
+            <th scope="col">{{ 'admin.deadlines.rules.col.code' | transloco }}</th><th scope="col">{{ 'admin.deadlines.rules.col.name' | transloco }}</th><th scope="col">{{ 'admin.deadlines.rules.col.baseEvent' | transloco }}</th><th scope="col">{{ 'admin.deadlines.rules.col.offset' | transloco }}</th>
+            <th scope="col">{{ 'admin.deadlines.rules.col.applies' | transloco }}</th><th scope="col">{{ 'admin.deadlines.rules.col.severity' | transloco }}</th><th scope="col">{{ 'admin.deadlines.rules.col.certainty' | transloco }}</th><th scope="col">{{ 'admin.deadlines.rules.col.source' | transloco }}</th>
           </tr>
         </thead>
         <tbody>

@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { BlImportService } from '../../../core/services/bl-import.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { ClientOption, ImportBillRow, ImportResult } from '../../../core/models/bl-import.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 
@@ -21,6 +22,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 })
 export class BlImportComponent implements OnInit {
   private readonly service = inject(BlImportService);
+  private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
 
   // Orden de columnas esperado en el texto pegado.
@@ -53,12 +55,14 @@ export class BlImportComponent implements OnInit {
 
     if (!this.selectedClientId) {
       this.parseError.set(translate('admin.blImport.errors.selectClient'));
+      this.announcer.announce(this.parseError(), 'assertive');
       return;
     }
 
     const lines = this.rawText.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
     if (lines.length === 0) {
       this.parseError.set(translate('admin.blImport.errors.noRows'));
+      this.announcer.announce(this.parseError(), 'assertive');
       return;
     }
 
@@ -87,6 +91,7 @@ export class BlImportComponent implements OnInit {
 
     if (rows.length === 0) {
       this.parseError.set(translate('admin.blImport.errors.noValidRows'));
+      this.announcer.announce(this.parseError(), 'assertive');
       return;
     }
     this.preview.set(rows);
@@ -96,14 +101,19 @@ export class BlImportComponent implements OnInit {
     if (this.preview().length === 0) return;
     this.submitting.set(true);
     this.parseError.set('');
+    this.announcer.announce(translate('admin.blImport.announce.started', { count: this.preview().length }));
     this.service.import(this.preview()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.result.set(res);
         this.submitting.set(false);
+        this.announcer.announce(
+          translate('admin.blImport.announce.finished', { created: res.created, failed: res.failed }),
+        );
       },
       error: (err) => {
         this.submitting.set(false);
         this.parseError.set(err.error?.detail ?? err.error?.title ?? translate('admin.blImport.errors.import'));
+        this.announcer.announce(this.parseError(), 'assertive');
       },
     });
   }

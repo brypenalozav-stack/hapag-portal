@@ -1,8 +1,1 @@
-{
-  "login": ["color-contrast", "link-name"],
-  "dashboard": ["color-contrast", "link-name"],
-  "bl-list": ["color-contrast", "link-name"],
-  "bl-detail": ["color-contrast", "link-name"],
-  "payment-list": ["color-contrast", "link-name"],
-  "payment-form": ["color-contrast", "link-name", "select-name"]
-}
+{}

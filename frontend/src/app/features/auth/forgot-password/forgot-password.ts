@@ -14,7 +14,7 @@ import { AuthService } from '../../../core/services/auth.service';
       <div class="login-container">
         <div class="login-card">
           <div class="text-center mb-4">
-            <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="max-width: 280px;">
+            <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="max-width: 280px;" role="img" aria-label="Hapag-Lloyd">
               <rect x="0" y="10" width="60" height="60" rx="6" class="hl-logo__mark"/>
               <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" class="hl-logo__initials">HL</text>
               <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" class="hl-logo__name">Hapag-Lloyd</text>
@@ -25,7 +25,7 @@ import { AuthService } from '../../../core/services/auth.service';
           </div>
 
           @if (success()) {
-            <div class="alert alert-success">
+            <div class="alert alert-success" role="status">
               {{ 'auth.forgotPassword.success' | transloco }}
             </div>
             <div class="text-center mt-3">
@@ -33,21 +33,25 @@ import { AuthService } from '../../../core/services/auth.service';
             </div>
           } @else {
             @if (error()) {
-              <div class="alert alert-danger py-2">{{ error() }}</div>
+              <div class="alert alert-danger py-2" role="alert">{{ error() }}</div>
             }
 
-            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
               <div class="hl-form-group">
                 <label for="email">{{ 'auth.forgotPassword.email' | transloco }}</label>
-                <input type="email" id="email" class="form-control" formControlName="email"
+                <input type="email" id="email" class="form-control" formControlName="email" autocomplete="email" required
                        [placeholder]="'auth.forgotPassword.emailPlaceholder' | transloco"
+                       aria-describedby="email-error"
+                       [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
                        [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid" />
-                @if (form.controls.email.touched && form.controls.email.errors?.['required']) {
-                  <div class="invalid-feedback">{{ 'auth.forgotPassword.emailRequired' | transloco }}</div>
-                }
-                @if (form.controls.email.touched && form.controls.email.errors?.['email']) {
-                  <div class="invalid-feedback">{{ 'auth.forgotPassword.emailInvalid' | transloco }}</div>
-                }
+                <div id="email-error" class="invalid-feedback">
+                  @if (form.controls.email.touched && form.controls.email.errors?.['required']) {
+                    {{ 'auth.forgotPassword.emailRequired' | transloco }}
+                  }
+                  @if (form.controls.email.touched && form.controls.email.errors?.['email']) {
+                    {{ 'auth.forgotPassword.emailInvalid' | transloco }}
+                  }
+                </div>
               </div>
 
               <button type="submit" class="btn btn-hl-orange w-100 py-2 mt-2" [disabled]="loading()">

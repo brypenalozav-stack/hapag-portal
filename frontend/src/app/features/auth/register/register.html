@@ -3,7 +3,7 @@
     <div class="register-card">
       <!-- Logo -->
       <div class="text-center mb-4">
-        <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="max-width: 240px;">
+        <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="max-width: 240px;" role="img" aria-label="Hapag-Lloyd">
           <rect x="0" y="10" width="60" height="60" rx="6" class="hl-logo__mark"/>
           <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" class="hl-logo__initials">HL</text>
           <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" class="hl-logo__name">Hapag-Lloyd</text>
@@ -14,24 +14,25 @@
       </div>
 
       @if (success()) {
-        <div class="alert alert-success text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mb-2" viewBox="0 0 16 16">
+        <div class="alert alert-success text-center" role="status">
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mb-2" viewBox="0 0 16 16">
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
           </svg>
           <p class="mb-0"><strong>{{ 'auth.register.successTitle' | transloco }}</strong> {{ 'auth.register.successRedirect' | transloco }}</p>
         </div>
       } @else {
         @if (error()) {
-          <div class="alert alert-danger py-2">{{ error() }}</div>
+          <div class="alert alert-danger py-2" role="alert">{{ error() }}</div>
         }
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
           <!-- Type selector -->
-          <div class="hl-form-group">
-            <label>{{ 'auth.register.userType' | transloco }}</label>
+          <fieldset class="hl-form-group">
+            <legend>{{ 'auth.register.userType' | transloco }}</legend>
             <div class="d-flex gap-2">
               <button type="button"
                       class="btn flex-fill"
+                      [attr.aria-pressed]="form.controls.type.value === 'CLIENT'"
                       [class.btn-hl-blue]="form.controls.type.value === 'CLIENT'"
                       [class.btn-outline-secondary]="form.controls.type.value !== 'CLIENT'"
                       (click)="form.controls.type.setValue('CLIENT'); onTypeChange()">
@@ -39,20 +40,22 @@
               </button>
               <button type="button"
                       class="btn flex-fill"
+                      [attr.aria-pressed]="form.controls.type.value === 'AGENT'"
                       [class.btn-hl-blue]="form.controls.type.value === 'AGENT'"
                       [class.btn-outline-secondary]="form.controls.type.value !== 'AGENT'"
                       (click)="form.controls.type.setValue('AGENT'); onTypeChange()">
                 {{ 'auth.register.typeAgent' | transloco }}
               </button>
             </div>
-          </div>
+          </fieldset>
 
           <!-- Country selector -->
-          <div class="hl-form-group">
-            <label>{{ 'auth.register.country' | transloco }}</label>
+          <fieldset class="hl-form-group">
+            <legend>{{ 'auth.register.country' | transloco }}</legend>
             <div class="d-flex gap-2">
               <button type="button"
                       class="btn flex-fill"
+                      [attr.aria-pressed]="form.controls.country.value === 'CL'"
                       [class.btn-hl-blue]="form.controls.country.value === 'CL'"
                       [class.btn-outline-secondary]="form.controls.country.value !== 'CL'"
                       (click)="form.controls.country.setValue('CL'); onCountryChange()">
@@ -61,6 +64,7 @@
               </button>
               <button type="button"
                       class="btn flex-fill"
+                      [attr.aria-pressed]="form.controls.country.value === 'BO'"
                       [class.btn-hl-blue]="form.controls.country.value === 'BO'"
                       [class.btn-outline-secondary]="form.controls.country.value !== 'BO'"
                       (click)="form.controls.country.setValue('BO'); onCountryChange()">
@@ -68,17 +72,21 @@
                 {{ 'common.country.bo' | transloco }}
               </button>
             </div>
-          </div>
+          </fieldset>
 
           <div class="row">
             <div class="col-12">
               <div class="hl-form-group">
                 <label for="name">{{ 'auth.register.name' | transloco }}</label>
-                <input type="text" id="name" class="form-control" formControlName="name"
+                <input type="text" id="name" class="form-control" formControlName="name" autocomplete="organization" required
+                       aria-describedby="name-error"
+                       [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
                        [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid" />
-                @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
-                  <div class="invalid-feedback">{{ 'auth.register.nameRequired' | transloco }}</div>
-                }
+                <div id="name-error" class="invalid-feedback">
+                  @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
+                    {{ 'auth.register.nameRequired' | transloco }}
+                  }
+                </div>
               </div>
             </div>
           </div>
@@ -87,38 +95,50 @@
             <div class="col-md-6">
               <div class="hl-form-group">
                 <label for="taxId">{{ (form.controls.country.value === 'CL' ? 'auth.register.taxIdCl' : 'auth.register.taxIdBo') | transloco }}</label>
-                <input type="text" id="taxId" class="form-control" formControlName="taxId"
+                <input type="text" id="taxId" class="form-control" formControlName="taxId" autocomplete="off" required
                        [placeholder]="form.controls.country.value === 'CL' ? '12.345.678-9' : '1234567890'"
+                       aria-describedby="taxId-error"
+                       [attr.aria-invalid]="form.controls.taxId.touched && form.controls.taxId.invalid"
                        [class.is-invalid]="form.controls.taxId.touched && form.controls.taxId.invalid" />
-                @if (form.controls.taxId.touched && form.controls.taxId.errors?.['required']) {
-                  <div class="invalid-feedback">{{ 'auth.register.taxIdRequired' | transloco }}</div>
-                }
+                <div id="taxId-error" class="invalid-feedback">
+                  @if (form.controls.taxId.touched && form.controls.taxId.errors?.['required']) {
+                    {{ 'auth.register.taxIdRequired' | transloco }}
+                  }
+                </div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="hl-form-group">
                 <label for="phone">{{ 'auth.register.phone' | transloco }}</label>
-                <input type="tel" id="phone" class="form-control" formControlName="phone"
+                <input type="tel" id="phone" class="form-control" formControlName="phone" autocomplete="tel" required
                        [placeholder]="form.controls.country.value === 'CL' ? '+56 9 1234 5678' : '+591 7 1234567'"
+                       aria-describedby="phone-error"
+                       [attr.aria-invalid]="form.controls.phone.touched && form.controls.phone.invalid"
                        [class.is-invalid]="form.controls.phone.touched && form.controls.phone.invalid" />
-                @if (form.controls.phone.touched && form.controls.phone.errors?.['required']) {
-                  <div class="invalid-feedback">{{ 'auth.register.phoneRequired' | transloco }}</div>
-                }
+                <div id="phone-error" class="invalid-feedback">
+                  @if (form.controls.phone.touched && form.controls.phone.errors?.['required']) {
+                    {{ 'auth.register.phoneRequired' | transloco }}
+                  }
+                </div>
               </div>
             </div>
           </div>
 
           <div class="hl-form-group">
             <label for="regEmail">{{ 'auth.register.email' | transloco }}</label>
-            <input type="email" id="regEmail" class="form-control" formControlName="email"
+            <input type="email" id="regEmail" class="form-control" formControlName="email" autocomplete="email" required
                    [placeholder]="'auth.register.emailPlaceholder' | transloco"
+                   aria-describedby="regEmail-error"
+                   [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
                    [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid" />
-            @if (form.controls.email.touched && form.controls.email.errors?.['required']) {
-              <div class="invalid-feedback">{{ 'auth.register.emailRequired' | transloco }}</div>
-            }
-            @if (form.controls.email.touched && form.controls.email.errors?.['email']) {
-              <div class="invalid-feedback">{{ 'auth.register.emailInvalid' | transloco }}</div>
-            }
+            <div id="regEmail-error" class="invalid-feedback">
+              @if (form.controls.email.touched && form.controls.email.errors?.['required']) {
+                {{ 'auth.register.emailRequired' | transloco }}
+              }
+              @if (form.controls.email.touched && form.controls.email.errors?.['email']) {
+                {{ 'auth.register.emailInvalid' | transloco }}
+              }
+            </div>
           </div>
 
           @if (form.controls.type.value === 'AGENT') {
@@ -126,10 +146,14 @@
               <label for="agentCode">{{ 'auth.register.agentCode' | transloco }}</label>
               <input type="text" id="agentCode" class="form-control" formControlName="agentCode"
                      [placeholder]="'auth.register.agentCodePlaceholder' | transloco"
+                     aria-describedby="agentCode-error"
+                     [attr.aria-invalid]="form.controls.agentCode.touched && form.controls.agentCode.invalid"
                      [class.is-invalid]="form.controls.agentCode.touched && form.controls.agentCode.invalid" />
-              @if (form.controls.agentCode.touched && form.controls.agentCode.errors?.['required']) {
-                <div class="invalid-feedback">{{ 'auth.register.agentCodeRequired' | transloco }}</div>
-              }
+              <div id="agentCode-error" class="invalid-feedback">
+                @if (form.controls.agentCode.touched && form.controls.agentCode.errors?.['required']) {
+                  {{ 'auth.register.agentCodeRequired' | transloco }}
+                }
+              </div>
             </div>
           }
 
@@ -137,29 +161,37 @@
             <div class="col-md-6">
               <div class="hl-form-group">
                 <label for="password">{{ 'auth.register.password' | transloco }}</label>
-                <input type="password" id="password" class="form-control" formControlName="password"
+                <input type="password" id="password" class="form-control" formControlName="password" autocomplete="new-password" required
                        [placeholder]="'auth.register.passwordPlaceholder' | transloco: { min: minPasswordLength }"
+                       aria-describedby="password-error"
+                       [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
                        [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid" />
-                @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
-                  <div class="invalid-feedback">{{ 'auth.register.passwordRequired' | transloco }}</div>
-                }
-                @if (form.controls.password.touched && form.controls.password.errors?.['minlength']) {
-                  <div class="invalid-feedback">{{ 'auth.register.passwordMinLength' | transloco: { min: minPasswordLength } }}</div>
-                }
+                <div id="password-error" class="invalid-feedback">
+                  @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
+                    {{ 'auth.register.passwordRequired' | transloco }}
+                  }
+                  @if (form.controls.password.touched && form.controls.password.errors?.['minlength']) {
+                    {{ 'auth.register.passwordMinLength' | transloco: { min: minPasswordLength } }}
+                  }
+                </div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="hl-form-group">
                 <label for="confirmPassword">{{ 'auth.register.confirmPassword' | transloco }}</label>
-                <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
+                <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword" autocomplete="new-password" required
                        [placeholder]="'auth.register.confirmPasswordPlaceholder' | transloco"
+                       aria-describedby="confirmPassword-error"
+                       [attr.aria-invalid]="form.controls.confirmPassword.touched && form.controls.confirmPassword.invalid"
                        [class.is-invalid]="form.controls.confirmPassword.touched && form.controls.confirmPassword.invalid" />
-                @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['required']) {
-                  <div class="invalid-feedback">{{ 'auth.register.confirmPasswordRequired' | transloco }}</div>
-                }
-                @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['mismatch']) {
-                  <div class="invalid-feedback">{{ 'auth.register.passwordMismatch' | transloco }}</div>
-                }
+                <div id="confirmPassword-error" class="invalid-feedback">
+                  @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['required']) {
+                    {{ 'auth.register.confirmPasswordRequired' | transloco }}
+                  }
+                  @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['mismatch']) {
+                    {{ 'auth.register.passwordMismatch' | transloco }}
+                  }
+                </div>
               </div>
             </div>
           </div>

@@ -14,6 +14,7 @@
     "check:theme": "node scripts/check-bootstrap-theme.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:i18n-text": "node scripts/check-hardcoded-text.mjs",
+    "check:table-scope": "node scripts/check-table-scope.mjs",
     "test:a11y": "playwright test"
   },
   "private": true,

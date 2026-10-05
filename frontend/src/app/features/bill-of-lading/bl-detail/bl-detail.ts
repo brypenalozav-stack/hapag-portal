@@ -7,6 +7,7 @@ import { BillOfLading, LocalCharge, DemurrageCharge } from '../../../core/models
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { CountryBadgeComponent } from '../../../shared/components/country-badge/country-badge';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
@@ -16,7 +17,7 @@ import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
   standalone: true,
   imports: [
     RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe,
-    StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent,
+    StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
   ],
   templateUrl: './bl-detail.html',
   styleUrl: './bl-detail.scss',
@@ -32,13 +33,17 @@ export class BLDetailComponent implements OnInit {
   demurrage = signal<DemurrageCharge[]>([]);
   loading = signal(true);
   error = signal('');
+  /** NF-11: alguna consulta falló con HTTP 5xx o sin conexión. */
+  loadFailed = signal(false);
 
   ngOnInit(): void {
     this.loadBL();
   }
 
-  private loadBL(): void {
+  loadBL(): void {
     this.loading.set(true);
+    this.error.set('');
+    this.loadFailed.set(false);
     this.blService.getByNumber(this.blNumber()).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
@@ -48,8 +53,8 @@ export class BLDetailComponent implements OnInit {
         this.loadCharges(bl.blNumber);
         this.loadDemurrage(bl.blNumber);
       },
-      error: () => {
-        this.error.set(translate('bl.detail.errors.loadBl'));
+      error: (err) => {
+        this.onLoadError(err, 'bl.detail.errors.loadBl');
         this.loading.set(false);
       },
     });
@@ -60,7 +65,7 @@ export class BLDetailComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (response) => this.charges.set(response.localCharges ?? []),
-      error: () => this.error.set(translate('bl.detail.errors.loadCharges')),
+      error: (err) => this.onLoadError(err, 'bl.detail.errors.loadCharges'),
     });
   }
 
@@ -69,8 +74,17 @@ export class BLDetailComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (dem) => this.demurrage.set(dem),
-      error: () => this.error.set(translate('bl.detail.errors.loadDemurrage')),
+      error: (err) => this.onLoadError(err, 'bl.detail.errors.loadDemurrage'),
     });
+  }
+
+  /** HTTP 5xx o sin conexión: estado de error con Reintentar (NF-11); otro error: mensaje propio. */
+  private onLoadError(err: unknown, messageKey: string): void {
+    if (isServiceUnavailable(err)) {
+      this.loadFailed.set(true);
+    } else {
+      this.error.set(translate(messageKey));
+    }
   }
 
   get totalCharges(): number {

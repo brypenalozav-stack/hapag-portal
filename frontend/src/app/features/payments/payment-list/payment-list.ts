@@ -7,6 +7,7 @@ import { PaymentService } from '../../../core/services/payment.service';
 import { Payment } from '../../../core/models/payment.model';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { FILTER_ALL } from '../../../core/constants/app.constants';
@@ -16,7 +17,7 @@ import { FILTER_ALL } from '../../../core/constants/app.constants';
   standalone: true,
   imports: [
     RouterLink, FormsModule, TranslocoPipe, HlCurrencyPipe, HlDatePipe,
-    StatusBadgeComponent, LoadingSpinnerComponent,
+    StatusBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
   ],
   templateUrl: './payment-list.html',
   styleUrl: './payment-list.scss',
@@ -30,6 +31,8 @@ export class PaymentListComponent implements OnInit {
   loading = signal(false);
   error = signal('');
   statusFilter = signal(FILTER_ALL);
+  /** NF-11: la consulta falló con HTTP 5xx o sin conexión. */
+  loadFailed = signal(false);
 
   ngOnInit(): void {
     this.loadPayments();
@@ -38,6 +41,7 @@ export class PaymentListComponent implements OnInit {
   loadPayments(): void {
     this.loading.set(true);
     this.error.set('');
+    this.loadFailed.set(false);
     this.paymentService.getAll().pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
@@ -46,8 +50,12 @@ export class PaymentListComponent implements OnInit {
         this.applyFilter();
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set(translate('payments.list.loadError'));
+      error: (err) => {
+        if (isServiceUnavailable(err)) {
+          this.loadFailed.set(true);
+        } else {
+          this.error.set(translate('payments.list.loadError'));
+        }
         this.loading.set(false);
       },
     });

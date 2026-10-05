@@ -6,6 +6,7 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { BillOfLadingService } from '../../../core/services/bl.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { BillOfLading } from '../../../core/models/bl.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
@@ -24,6 +25,7 @@ export class PaymentFormComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly paymentService = inject(PaymentService);
   private readonly blService = inject(BillOfLadingService);
+  private readonly announcer = inject(LiveAnnouncerService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -115,6 +117,7 @@ export class PaymentFormComponent implements OnInit {
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.announcer.announce(translate('common.form.invalid'), 'assertive');
       return;
     }
 
@@ -134,11 +137,13 @@ export class PaymentFormComponent implements OnInit {
         next: () => {
           this.submitting.set(false);
           this.success.set(true);
+          this.announcer.announce(translate('payments.form.success.title'));
           setTimeout(() => this.router.navigate(['/payments']), REDIRECT_DELAY_MS);
         },
         error: (err) => {
           this.submitting.set(false);
           this.error.set(err.error?.message ?? translate('payments.form.errors.submit'));
+          this.announcer.announce(this.error(), 'assertive');
         },
       });
   }

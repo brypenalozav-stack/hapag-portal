@@ -3,23 +3,23 @@
     <h1>{{ 'admin.users.title' | transloco }}</h1>
     <p class="text-muted mb-0">{{ 'admin.users.subtitle' | transloco }}</p>
   </div>
-  <button class="btn btn-hl-orange" (click)="openForm()">{{ 'admin.users.new' | transloco }}</button>
+  <button type="button" class="btn btn-hl-orange" (click)="openForm()">{{ 'admin.users.new' | transloco }}</button>
 </div>
 
 <!-- Filtros -->
 <div class="hl-card p-3 mb-4">
   <div class="row g-3 align-items-end">
     <div class="col-md-4">
-      <label class="form-label small fw-semibold">{{ 'admin.users.filters.status' | transloco }}</label>
-      <select class="form-select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+      <label for="users-status-filter" class="form-label small fw-semibold">{{ 'admin.users.filters.status' | transloco }}</label>
+      <select id="users-status-filter" class="form-select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
         <option value="">{{ 'admin.users.filters.select' | transloco }}</option>
         <option value="true">{{ 'admin.users.filters.active' | transloco }}</option>
         <option value="false">{{ 'admin.users.filters.inactive' | transloco }}</option>
       </select>
     </div>
     <div class="col-md-4">
-      <label class="form-label small fw-semibold">{{ 'admin.users.filters.roles' | transloco }}</label>
-      <select class="form-select" [(ngModel)]="roleFilter" (ngModelChange)="onFilterChange()">
+      <label for="users-role-filter" class="form-label small fw-semibold">{{ 'admin.users.filters.roles' | transloco }}</label>
+      <select id="users-role-filter" class="form-select" [(ngModel)]="roleFilter" (ngModelChange)="onFilterChange()">
         <option value="">{{ 'admin.users.filters.all' | transloco }}</option>
         @for (r of roles(); track r.id) {
           <option [value]="r.code">{{ r.name }}</option>
@@ -27,8 +27,8 @@
       </select>
     </div>
     <div class="col-md-4">
-      <label class="form-label small fw-semibold">{{ 'admin.users.filters.search' | transloco }}</label>
-      <input type="text" class="form-control" [placeholder]="'admin.users.filters.searchPlaceholder' | transloco"
+      <label for="users-search-term" class="form-label small fw-semibold">{{ 'admin.users.filters.search' | transloco }}</label>
+      <input id="users-search-term" type="text" class="form-control" [placeholder]="'admin.users.filters.searchPlaceholder' | transloco"
              [(ngModel)]="searchTerm" (ngModelChange)="onFilterChange()" />
     </div>
   </div>
@@ -38,37 +38,41 @@
 @if (showForm()) {
   <div class="hl-card p-4 mb-4">
     <h5 class="mb-3">{{ 'admin.users.form.title' | transloco }}</h5>
-    @if (formError()) { <div class="alert alert-danger py-2">{{ formError() }}</div> }
-    @if (formSuccess()) { <div class="alert alert-success py-2">{{ formSuccess() }}</div> }
+    @if (formError()) { <div class="alert alert-danger py-2" role="alert">{{ formError() }}</div> }
+    @if (formSuccess()) { <div class="alert alert-success py-2" role="status">{{ formSuccess() }}</div> }
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="form-label fw-semibold">{{ 'admin.users.form.displayId' | transloco }}</label>
-          <input type="number" class="form-control" formControlName="displayId" [placeholder]="'admin.users.form.displayIdPlaceholder' | transloco" />
+          <label for="users-display-id" class="form-label fw-semibold">{{ 'admin.users.form.displayId' | transloco }}</label>
+          <input id="users-display-id" type="number" class="form-control" formControlName="displayId" [placeholder]="'admin.users.form.displayIdPlaceholder' | transloco" />
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-semibold">{{ 'admin.users.form.firstName' | transloco }}</label>
-          <input type="text" class="form-control" formControlName="firstName" [placeholder]="'admin.users.form.firstNamePlaceholder' | transloco"
+          <label for="users-first-name" class="form-label fw-semibold">{{ 'admin.users.form.firstName' | transloco }}</label>
+          <input required id="users-first-name" type="text" class="form-control" formControlName="firstName" [placeholder]="'admin.users.form.firstNamePlaceholder' | transloco"
+                 [attr.aria-invalid]="form.controls.firstName.touched && form.controls.firstName.invalid"
                  [class.is-invalid]="form.controls.firstName.touched && form.controls.firstName.invalid" />
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-semibold">{{ 'admin.users.form.lastName' | transloco }}</label>
-          <input type="text" class="form-control" formControlName="lastName" [placeholder]="'admin.users.form.lastNamePlaceholder' | transloco"
+          <label for="users-last-name" class="form-label fw-semibold">{{ 'admin.users.form.lastName' | transloco }}</label>
+          <input required id="users-last-name" type="text" class="form-control" formControlName="lastName" [placeholder]="'admin.users.form.lastNamePlaceholder' | transloco"
+                 [attr.aria-invalid]="form.controls.lastName.touched && form.controls.lastName.invalid"
                  [class.is-invalid]="form.controls.lastName.touched && form.controls.lastName.invalid" />
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-semibold">{{ 'admin.users.form.email' | transloco }}</label>
-          <input type="email" class="form-control" formControlName="email" [placeholder]="'admin.users.form.emailPlaceholder' | transloco"
+          <label for="users-email" class="form-label fw-semibold">{{ 'admin.users.form.email' | transloco }}</label>
+          <input required id="users-email" type="email" class="form-control" formControlName="email" [placeholder]="'admin.users.form.emailPlaceholder' | transloco"
+                 [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
                  [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid" />
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-semibold">{{ 'admin.users.form.phone' | transloco }} <span class="text-muted">{{ 'admin.users.form.optional' | transloco }}</span></label>
-          <input type="tel" class="form-control" formControlName="phone" [placeholder]="'admin.users.form.phonePlaceholder' | transloco" />
+          <label for="users-phone" class="form-label fw-semibold">{{ 'admin.users.form.phone' | transloco }} <span class="text-muted">{{ 'admin.users.form.optional' | transloco }}</span></label>
+          <input id="users-phone" type="tel" class="form-control" formControlName="phone" [placeholder]="'admin.users.form.phonePlaceholder' | transloco" />
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-semibold">{{ 'admin.users.form.role' | transloco }}</label>
-          <select class="form-select" formControlName="roleCode"
+          <label for="users-role-code" class="form-label fw-semibold">{{ 'admin.users.form.role' | transloco }}</label>
+          <select required id="users-role-code" class="form-select" formControlName="roleCode"
+                  [attr.aria-invalid]="form.controls.roleCode.touched && form.controls.roleCode.invalid"
                   [class.is-invalid]="form.controls.roleCode.touched && form.controls.roleCode.invalid">
             <option value="">{{ 'admin.users.filters.select' | transloco }}</option>
             @for (r of roles(); track r.id) {
@@ -91,18 +95,19 @@
 <!-- Tabla -->
 <div class="hl-card">
   <div class="p-3 border-bottom fw-semibold">{{ 'admin.users.table.title' | transloco }}</div>
-  @if (error()) { <div class="alert alert-danger py-2 m-3">{{ error() }}</div> }
+  @if (error()) { <div class="alert alert-danger py-2 m-3" role="alert">{{ error() }}</div> }
   @if (loading()) {
     <app-loading-spinner />
   } @else {
-    <div class="table-responsive">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.users.caption' | transloco">
       <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.users.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th style="width: 120px;">{{ 'admin.users.col.id' | transloco }}</th>
-            <th>{{ 'admin.users.col.fullName' | transloco }}</th>
-            <th>{{ 'admin.users.col.email' | transloco }}</th>
-            <th>{{ 'admin.users.col.roles' | transloco }}</th>
+            <th scope="col" style="width: 120px;">{{ 'admin.users.col.id' | transloco }}</th>
+            <th scope="col">{{ 'admin.users.col.fullName' | transloco }}</th>
+            <th scope="col">{{ 'admin.users.col.email' | transloco }}</th>
+            <th scope="col">{{ 'admin.users.col.roles' | transloco }}</th>
           </tr>
         </thead>
         <tbody>
@@ -127,9 +132,9 @@
     <div class="d-flex justify-content-between align-items-center p-3">
       <span class="small text-muted">{{ 'admin.users.showing' | transloco: { shown: users().length, total: total() } }}</span>
       <div class="btn-group">
-        <button class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">{{ 'admin.users.previous' | transloco }}</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">{{ 'admin.users.previous' | transloco }}</button>
         <span class="btn btn-sm btn-outline-secondary disabled">{{ page() }} / {{ totalPages }}</span>
-        <button class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">{{ 'admin.users.next' | transloco }}</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">{{ 'admin.users.next' | transloco }}</button>
       </div>
     </div>
   }

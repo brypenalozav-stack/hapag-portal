@@ -3,7 +3,7 @@
     <div class="login-card">
       <!-- Logo -->
       <div class="text-center mb-4">
-        <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="max-width: 280px;">
+        <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="max-width: 280px;" role="img" aria-label="Hapag-Lloyd">
           <rect x="0" y="10" width="60" height="60" rx="6" class="hl-logo__mark"/>
           <text x="30" y="52" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="28" class="hl-logo__initials">HL</text>
           <text x="75" y="38" font-family="Montserrat, sans-serif" font-weight="700" font-size="22" class="hl-logo__name">Hapag-Lloyd</text>
@@ -16,7 +16,7 @@
       <!-- Error message -->
       @if (error()) {
         <div class="alert alert-danger d-flex align-items-center gap-2 py-2" role="alert">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
             <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
           </svg>
           <span>{{ error() }}</span>
@@ -24,7 +24,7 @@
       }
 
       <!-- Form -->
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <div class="hl-form-group">
           <label for="email">{{ 'auth.login.email' | transloco }}</label>
           <input
@@ -32,15 +32,21 @@
             id="email"
             class="form-control"
             formControlName="email"
+            autocomplete="username"
+            required
+            aria-describedby="email-error"
+            [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
             [placeholder]="'auth.login.emailPlaceholder' | transloco"
             [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid"
           />
-          @if (form.controls.email.touched && form.controls.email.errors?.['required']) {
-            <div class="invalid-feedback">{{ 'auth.login.emailRequired' | transloco }}</div>
-          }
-          @if (form.controls.email.touched && form.controls.email.errors?.['email']) {
-            <div class="invalid-feedback">{{ 'auth.login.emailInvalid' | transloco }}</div>
-          }
+          <div id="email-error" class="invalid-feedback">
+            @if (form.controls.email.touched && form.controls.email.errors?.['required']) {
+              {{ 'auth.login.emailRequired' | transloco }}
+            }
+            @if (form.controls.email.touched && form.controls.email.errors?.['email']) {
+              {{ 'auth.login.emailInvalid' | transloco }}
+            }
+          </div>
         </div>
 
         <div class="hl-form-group">
@@ -50,15 +56,21 @@
             id="password"
             class="form-control"
             formControlName="password"
+            autocomplete="current-password"
+            required
+            aria-describedby="password-error"
+            [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
             [placeholder]="'auth.login.passwordPlaceholder' | transloco"
             [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid"
           />
-          @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
-            <div class="invalid-feedback">{{ 'auth.login.passwordRequired' | transloco }}</div>
-          }
-          @if (form.controls.password.touched && form.controls.password.errors?.['minlength']) {
-            <div class="invalid-feedback">{{ 'auth.login.passwordMinLength' | transloco: { min: minPasswordLength } }}</div>
-          }
+          <div id="password-error" class="invalid-feedback">
+            @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
+              {{ 'auth.login.passwordRequired' | transloco }}
+            }
+            @if (form.controls.password.touched && form.controls.password.errors?.['minlength']) {
+              {{ 'auth.login.passwordMinLength' | transloco: { min: minPasswordLength } }}
+            }
+          </div>
         </div>
 
         <button

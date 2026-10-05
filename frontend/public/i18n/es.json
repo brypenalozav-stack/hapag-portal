@@ -10,8 +10,10 @@
       },
       "after": "Después",
       "before": "Antes",
+      "caption": "Registros de auditoría",
       "col": {
         "action": "Acción",
+        "changes": "Cambios",
         "date": "Fecha",
         "entity": "Entidad",
         "id": "ID",
@@ -33,6 +35,14 @@
       "viewChanges": "Ver cambios"
     },
     "blImport": {
+      "announce": {
+        "finished": "Importación terminada: {created, plural, one {# creado} other {# creados}}, {failed, plural, one {# rechazado} other {# rechazados}}.",
+        "started": "Importando {count, plural, one {# fila} other {# filas}}…"
+      },
+      "caption": {
+        "errors": "Filas rechazadas y sus errores",
+        "preview": "Previsualización de las filas a importar"
+      },
       "clear": "Limpiar",
       "client": "* Cliente",
       "col": {
@@ -72,7 +82,9 @@
       "title": "Carga de Bill of Lading"
     },
     "creditClients": {
+      "caption": "Clientes con crédito",
       "col": {
+        "actions": "Acciones",
         "available": "Disponible",
         "client": "Cliente",
         "country": "País",
@@ -160,8 +172,10 @@
       "transmissions": {
         "blId": "ID del B/L",
         "blIdPlaceholder": "GUID del B/L",
+        "caption": "Transmisiones del manifiesto",
         "col": {
           "ack": "Acuse",
+          "actions": "Acciones",
           "attempts": "Intentos",
           "bl": "B/L",
           "kind": "Tipo",
@@ -189,17 +203,20 @@
       "filter": {
         "all": "Todos los estados",
         "atRisk": "En riesgo",
+        "label": "Filtrar por estado",
         "met": "Cumplidos",
         "onTrack": "En plazo",
         "overdue": "Vencidos"
       },
       "list": {
+        "caption": "Plazos en seguimiento",
         "title": "Plazos"
       },
       "loadError": "Error al cargar el tablero de plazos.",
       "manifestOnly": "— (manifiesto)",
       "rules": {
         "both": "Ambas",
+        "caption": "Catálogo de reglas de plazos",
         "col": {
           "applies": "Aplica",
           "baseEvent": "Evento base",
@@ -231,6 +248,7 @@
     },
     "demurrageExemptions": {
       "active": "Activa",
+      "caption": "Excepciones de demurrage",
       "col": {
         "actions": "Acciones",
         "client": "Cliente",
@@ -272,6 +290,7 @@
       "title": "Excepciones de Demurrage"
     },
     "reports": {
+      "caption": "Resultado del reporte",
       "errors": {
         "export": "Error al exportar el reporte.",
         "load": "Error al cargar el reporte."
@@ -287,6 +306,7 @@
       }
     },
     "users": {
+      "caption": "Usuarios internos",
       "col": {
         "email": "Correo electrónico",
         "fullName": "Nombre y apellido",
@@ -340,7 +360,8 @@
   "app": {
     "footer": {
       "copyright": "© 2025 Hapag-Lloyd AG. Todos los derechos reservados."
-    }
+    },
+    "skipLink": "Saltar al contenido principal"
   },
   "auth": {
     "forgotPassword": {
@@ -440,6 +461,7 @@
       "breadcrumbList": "Consulta BL",
       "client": "Cliente",
       "containers": {
+        "caption": "Contenedores del BL",
         "col": {
           "container": "Contenedor",
           "description": "Descripción",
@@ -449,6 +471,7 @@
           "type": "Tipo",
           "weight": "Peso (kg)"
         },
+        "empty": "Este BL no tiene contenedores registrados.",
         "title": "Contenedores ({{ count }})"
       },
       "country": "País",
@@ -477,6 +500,7 @@
     },
     "list": {
       "blNumber": "Número de BL",
+      "caption": "Listado de BL",
       "clearFilters": "Limpiar Filtros",
       "col": {
         "actions": "Acciones",
@@ -505,6 +529,9 @@
     "country": {
       "bo": "Bolivia",
       "cl": "Chile"
+    },
+    "form": {
+      "invalid": "El formulario tiene errores. Revise los campos marcados."
     }
   },
   "dashboard": {
@@ -539,6 +566,7 @@
       "title": "Información del País"
     },
     "defaultUser": "Usuario",
+    "empty": "Aún no hay pagos ni BL asociados a su cuenta.",
     "quickActions": {
       "faq": "Preguntas Frecuentes",
       "searchBl": "Consultar BL",
@@ -563,6 +591,7 @@
       "text": "Algunos contenedores pueden estar exentos de demurrage según acuerdos comerciales vigentes.",
       "title": "Nota para clientes de Bolivia:"
     },
+    "caption": "Demurrage por contenedor",
     "col": {
       "container": "Contenedor",
       "dailyRate": "Tarifa Diaria",
@@ -611,6 +640,7 @@
   "localCharges": {
     "blNumber": "Número de BL",
     "blPlaceholder": "Ej: HLCUVAL250100123",
+    "caption": "Cargos locales del BL",
     "col": {
       "amount": "Monto",
       "code": "Código",
@@ -624,6 +654,8 @@
     "loadError": "Error al cargar los cargos locales. Verifique el número de BL.",
     "resultsFor": "Resultados para BL:",
     "search": "Buscar",
+    "selectAll": "Seleccionar todos los cargos pendientes",
+    "selectCharge": "Seleccionar cargo {{ code }}",
     "subtitle": "Consulte y pague los cargos locales por número de BL",
     "summary": {
       "paySelected": "Pagar Seleccionados",
@@ -697,6 +729,7 @@
       }
     },
     "list": {
+      "caption": "Listado de pagos",
       "col": {
         "actions": "Acciones",
         "amount": "Monto",
@@ -763,6 +796,7 @@
     }
   },
   "receipts": {
+    "caption": "Listado de comprobantes de pago",
     "col": {
       "amount": "Monto",
       "client": "Cliente",
@@ -780,6 +814,7 @@
   },
   "serviceOrders": {
     "cancel": "Cancelar",
+    "caption": "Órdenes de servicio",
     "col": {
       "bl": "BL",
       "date": "Fecha",
@@ -823,6 +858,7 @@
       "label": "Cargando..."
     },
     "navbar": {
+      "home": "Hapag-Lloyd, ir al inicio",
       "language": {
         "en": "English",
         "es": "Español",
@@ -830,11 +866,14 @@
       },
       "login": "Iniciar Sesión",
       "logout": "Cerrar Sesión",
-      "notifications": "Notificaciones",
+      "menu": "Menú de navegación",
+      "notificationsCount": "{count, plural, =0 {Notificaciones} one {Notificaciones, # sin leer} other {Notificaciones, # sin leer}}",
       "profile": "Mi Perfil",
-      "tagline": "PORTAL DE SERVICIOS"
+      "tagline": "PORTAL DE SERVICIOS",
+      "userMenu": "Menú de usuario: {{ name }}"
     },
     "sidebar": {
+      "label": "Menú principal",
       "link": {
         "audit": "Auditoría",
         "bl": "Consulta BL",
@@ -861,6 +900,11 @@
         "operations": "Operaciones",
         "services": "Servicios"
       }
+    },
+    "stateMessage": {
+      "empty": "No hay datos",
+      "error": "Servicio temporalmente no disponible",
+      "retry": "Reintentar"
     }
   },
   "status": {

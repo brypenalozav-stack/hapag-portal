@@ -3,7 +3,7 @@
   <p class="text-muted mb-0">{{ 'admin.customs.subtitle' | transloco }}</p>
 </div>
 
-@if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+@if (error()) { <div class="alert alert-danger py-2" role="alert">{{ error() }}</div> }
 
 <div class="row g-4">
   <!-- Manifiestos -->
@@ -13,26 +13,26 @@
       <div class="p-3">
         <div class="row g-2">
           <div class="col-6">
-            <label class="form-label small fw-semibold">{{ 'admin.customs.newManifest.vesselImo' | transloco }}</label>
-            <input class="form-control" [(ngModel)]="newManifest.vesselImo" placeholder="9321483" />
+            <label for="customs-new-manifest-vessel-imo" class="form-label small fw-semibold">{{ 'admin.customs.newManifest.vesselImo' | transloco }}</label>
+            <input id="customs-new-manifest-vessel-imo" class="form-control" [(ngModel)]="newManifest.vesselImo" placeholder="9321483" />
           </div>
           <div class="col-6">
-            <label class="form-label small fw-semibold">{{ 'admin.customs.newManifest.voyage' | transloco }}</label>
-            <input class="form-control" [(ngModel)]="newManifest.voyage" [placeholder]="'admin.customs.newManifest.voyagePlaceholder' | transloco" />
+            <label for="customs-new-manifest-voyage" class="form-label small fw-semibold">{{ 'admin.customs.newManifest.voyage' | transloco }}</label>
+            <input id="customs-new-manifest-voyage" class="form-control" [(ngModel)]="newManifest.voyage" [placeholder]="'admin.customs.newManifest.voyagePlaceholder' | transloco" />
           </div>
           <div class="col-6">
-            <label class="form-label small fw-semibold">{{ 'admin.customs.newManifest.port' | transloco }}</label>
-            <input class="form-control" [(ngModel)]="newManifest.port" maxlength="5" [placeholder]="'admin.customs.newManifest.portPlaceholder' | transloco" />
+            <label for="customs-new-manifest-port" class="form-label small fw-semibold">{{ 'admin.customs.newManifest.port' | transloco }}</label>
+            <input id="customs-new-manifest-port" class="form-control" [(ngModel)]="newManifest.port" maxlength="5" [placeholder]="'admin.customs.newManifest.portPlaceholder' | transloco" />
           </div>
           <div class="col-6">
-            <label class="form-label small fw-semibold">{{ 'admin.customs.newManifest.direction' | transloco }}</label>
-            <select class="form-select" [(ngModel)]="newManifest.direction">
+            <label for="customs-new-manifest-direction" class="form-label small fw-semibold">{{ 'admin.customs.newManifest.direction' | transloco }}</label>
+            <select id="customs-new-manifest-direction" class="form-select" [(ngModel)]="newManifest.direction">
               <option value="Ingreso">{{ 'admin.customs.direction.inbound' | transloco }}</option>
               <option value="Salida">{{ 'admin.customs.direction.outbound' | transloco }}</option>
             </select>
           </div>
         </div>
-        <button class="btn btn-hl-orange mt-3" (click)="createManifest()" [disabled]="busy()">{{ 'admin.customs.newManifest.create' | transloco }}</button>
+        <button type="button" class="btn btn-hl-orange mt-3" (click)="createManifest()" [disabled]="busy()">{{ 'admin.customs.newManifest.create' | transloco }}</button>
       </div>
     </div>
 
@@ -43,8 +43,8 @@
       } @else {
         <div class="list-group list-group-flush">
           @for (m of manifests(); track m.id) {
-            <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                    [class.active]="selected()?.id === m.id" (click)="select(m)">
+            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                    [class.active]="selected()?.id === m.id" [attr.aria-pressed]="selected()?.id === m.id" (click)="select(m)">
               <span>
                 <span class="fw-semibold">{{ m.vesselImo }}</span> · {{ m.voyage }} · {{ m.port }}
                 <span class="badge bg-secondary ms-1">
@@ -68,29 +68,30 @@
       <div class="hl-card mb-4">
         <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
           <span class="fw-semibold">{{ 'admin.customs.transmissions.title' | transloco }} — {{ m.vesselImo }} / {{ m.voyage }}</span>
-          <button class="btn btn-sm btn-outline-secondary" (click)="refresh()">{{ 'admin.customs.transmissions.refresh' | transloco }}</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="refresh()">{{ 'admin.customs.transmissions.refresh' | transloco }}</button>
         </div>
         <div class="p-3 d-flex flex-wrap gap-2 align-items-end border-bottom">
-          <button class="btn btn-hl-orange btn-sm" (click)="transmitHeader()" [disabled]="busy()">
+          <button type="button" class="btn btn-hl-orange btn-sm" (click)="transmitHeader()" [disabled]="busy()">
             {{ 'admin.customs.transmissions.transmitHeader' | transloco }}
           </button>
           <div>
-            <label class="form-label small fw-semibold mb-1">{{ 'admin.customs.transmissions.blId' | transloco }}</label>
+            <label for="customs-bl-id" class="form-label small fw-semibold mb-1">{{ 'admin.customs.transmissions.blId' | transloco }}</label>
             <div class="input-group input-group-sm">
-              <input class="form-control" [(ngModel)]="blId" [placeholder]="'admin.customs.transmissions.blIdPlaceholder' | transloco" style="min-width: 260px;" />
-              <button class="btn btn-outline-primary" (click)="transmitBL()" [disabled]="busy() || !blId">
+              <input id="customs-bl-id" class="form-control" [(ngModel)]="blId" [placeholder]="'admin.customs.transmissions.blIdPlaceholder' | transloco" style="min-width: 260px;" />
+              <button type="button" class="btn btn-outline-primary" (click)="transmitBL()" [disabled]="busy() || !blId">
                 {{ 'admin.customs.transmissions.transmitBl' | transloco }}
               </button>
             </div>
           </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.customs.transmissions.caption' | transloco">
           <table class="hl-table">
+            <caption class="visually-hidden">{{ 'admin.customs.transmissions.caption' | transloco }}</caption>
             <thead>
               <tr>
-                <th>{{ 'admin.customs.transmissions.col.stage' | transloco }}</th><th>{{ 'admin.customs.transmissions.col.kind' | transloco }}</th><th>{{ 'admin.customs.transmissions.col.bl' | transloco }}</th><th>{{ 'admin.customs.transmissions.col.status' | transloco }}</th>
-                <th>{{ 'admin.customs.transmissions.col.attempts' | transloco }}</th><th>{{ 'admin.customs.transmissions.col.ack' | transloco }}</th><th></th>
+                <th scope="col">{{ 'admin.customs.transmissions.col.stage' | transloco }}</th><th scope="col">{{ 'admin.customs.transmissions.col.kind' | transloco }}</th><th scope="col">{{ 'admin.customs.transmissions.col.bl' | transloco }}</th><th scope="col">{{ 'admin.customs.transmissions.col.status' | transloco }}</th>
+                <th scope="col">{{ 'admin.customs.transmissions.col.attempts' | transloco }}</th><th scope="col">{{ 'admin.customs.transmissions.col.ack' | transloco }}</th><th scope="col"><span class="visually-hidden">{{ 'admin.customs.transmissions.col.actions' | transloco }}</span></th>
               </tr>
             </thead>
             <tbody>
@@ -104,7 +105,7 @@
                   <td class="small">{{ t.responseCode || '—' }} {{ t.responseMessage || '' }}</td>
                   <td>
                     @if (!isTerminal(t)) {
-                      <button class="btn btn-sm btn-outline-warning" (click)="retry(t)" [disabled]="busy()">
+                      <button type="button" class="btn btn-sm btn-outline-warning" (click)="retry(t)" [disabled]="busy()">
                         {{ 'admin.customs.transmissions.retry' | transloco }}
                       </button>
                     }
@@ -124,15 +125,15 @@
         <div class="p-3">
           <div class="row g-2">
             <div class="col-md-5">
-              <label class="form-label small fw-semibold">{{ 'admin.customs.amendment.blId' | transloco }}</label>
-              <input class="form-control" [(ngModel)]="amendBlId" [placeholder]="'admin.customs.amendment.blIdPlaceholder' | transloco" />
+              <label for="customs-amend-bl-id" class="form-label small fw-semibold">{{ 'admin.customs.amendment.blId' | transloco }}</label>
+              <input id="customs-amend-bl-id" class="form-control" [(ngModel)]="amendBlId" [placeholder]="'admin.customs.amendment.blIdPlaceholder' | transloco" />
             </div>
             <div class="col-md-7">
-              <label class="form-label small fw-semibold">{{ 'admin.customs.amendment.reason' | transloco }}</label>
-              <input class="form-control" [(ngModel)]="amendReason" [placeholder]="'admin.customs.amendment.reasonPlaceholder' | transloco" />
+              <label for="customs-amend-reason" class="form-label small fw-semibold">{{ 'admin.customs.amendment.reason' | transloco }}</label>
+              <input id="customs-amend-reason" class="form-control" [(ngModel)]="amendReason" [placeholder]="'admin.customs.amendment.reasonPlaceholder' | transloco" />
             </div>
           </div>
-          <button class="btn btn-outline-primary mt-3" (click)="amend()" [disabled]="busy() || !amendReason">
+          <button type="button" class="btn btn-outline-primary mt-3" (click)="amend()" [disabled]="busy() || !amendReason">
             {{ 'admin.customs.amendment.send' | transloco }}
           </button>
         </div>

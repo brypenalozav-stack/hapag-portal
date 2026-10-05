@@ -6,16 +6,16 @@
 <div class="hl-card p-3 mb-4">
   <div class="row g-3 align-items-end">
     <div class="col-md-3">
-      <label class="form-label small fw-semibold">{{ 'admin.audit.entity' | transloco }}</label>
-      <input class="form-control" [(ngModel)]="entityName" [placeholder]="'admin.audit.entityPlaceholder' | transloco" />
+      <label for="audit-entity-name" class="form-label small fw-semibold">{{ 'admin.audit.entity' | transloco }}</label>
+      <input id="audit-entity-name" class="form-control" [(ngModel)]="entityName" [placeholder]="'admin.audit.entityPlaceholder' | transloco" />
     </div>
     <div class="col-md-3">
-      <label class="form-label small fw-semibold">{{ 'admin.audit.user' | transloco }}</label>
-      <input class="form-control" [(ngModel)]="userId" [placeholder]="'admin.audit.userPlaceholder' | transloco" />
+      <label for="audit-user-id" class="form-label small fw-semibold">{{ 'admin.audit.user' | transloco }}</label>
+      <input id="audit-user-id" class="form-control" [(ngModel)]="userId" [placeholder]="'admin.audit.userPlaceholder' | transloco" />
     </div>
     <div class="col-md-3">
-      <label class="form-label small fw-semibold">{{ 'admin.audit.action' | transloco }}</label>
-      <select class="form-select" [(ngModel)]="action">
+      <label for="audit-action" class="form-label small fw-semibold">{{ 'admin.audit.action' | transloco }}</label>
+      <select id="audit-action" class="form-select" [(ngModel)]="action">
         <option value="">{{ 'admin.audit.actions.all' | transloco }}</option>
         <option value="Create">{{ 'admin.audit.actions.create' | transloco }}</option>
         <option value="Update">{{ 'admin.audit.actions.update' | transloco }}</option>
@@ -23,21 +23,22 @@
       </select>
     </div>
     <div class="col-md-3">
-      <button class="btn btn-hl-orange w-100" (click)="applyFilters()">{{ 'admin.audit.search' | transloco }}</button>
+      <button type="button" class="btn btn-hl-orange w-100" (click)="applyFilters()">{{ 'admin.audit.search' | transloco }}</button>
     </div>
   </div>
 </div>
 
 <div class="hl-card">
-  @if (error()) { <div class="alert alert-danger py-2 m-3">{{ error() }}</div> }
+  @if (error()) { <div class="alert alert-danger py-2 m-3" role="alert">{{ error() }}</div> }
   @if (loading()) {
     <app-loading-spinner />
   } @else {
-    <div class="table-responsive">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.audit.caption' | transloco">
       <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.audit.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th>{{ 'admin.audit.col.date' | transloco }}</th><th>{{ 'admin.audit.col.entity' | transloco }}</th><th>{{ 'admin.audit.col.id' | transloco }}</th><th>{{ 'admin.audit.col.action' | transloco }}</th><th>{{ 'admin.audit.col.user' | transloco }}</th><th></th>
+            <th scope="col">{{ 'admin.audit.col.date' | transloco }}</th><th scope="col">{{ 'admin.audit.col.entity' | transloco }}</th><th scope="col">{{ 'admin.audit.col.id' | transloco }}</th><th scope="col">{{ 'admin.audit.col.action' | transloco }}</th><th scope="col">{{ 'admin.audit.col.user' | transloco }}</th><th scope="col"><span class="visually-hidden">{{ 'admin.audit.col.changes' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
@@ -50,7 +51,8 @@
               <td>{{ a.userId || '—' }}</td>
               <td>
                 @if (a.oldValues || a.newValues) {
-                  <button class="btn btn-sm btn-outline-secondary" (click)="toggle(a.id)">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="toggle(a.id)"
+                          [attr.aria-expanded]="expanded() === a.id">
                     {{ (expanded() === a.id ? 'admin.audit.hide' : 'admin.audit.viewChanges') | transloco }}
                   </button>
                 }
@@ -82,9 +84,9 @@
     <div class="d-flex justify-content-between align-items-center p-3">
       <span class="small text-muted">{{ 'admin.audit.showing' | transloco: { shown: items().length, total: total() } }}</span>
       <div class="btn-group">
-        <button class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">{{ 'admin.audit.previous' | transloco }}</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">{{ 'admin.audit.previous' | transloco }}</button>
         <span class="btn btn-sm btn-outline-secondary disabled">{{ page() }} / {{ totalPages }}</span>
-        <button class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">{{ 'admin.audit.next' | transloco }}</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">{{ 'admin.audit.next' | transloco }}</button>
       </div>
     </div>
   }

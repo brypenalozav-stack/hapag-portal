@@ -19,8 +19,8 @@ import { API_ENDPOINTS } from '../../core/constants/app.constants';
     </div>
 
     @if (success()) {
-      <div class="hl-card p-5 text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
+      <div class="hl-card p-5 text-center" role="status">
+        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
         </svg>
         <h4 class="text-hl-green">{{ 'warehouse.success.title' | transloco }}</h4>
@@ -32,79 +32,103 @@ import { API_ENDPOINTS } from '../../core/constants/app.constants';
         <div class="col-lg-8">
           <div class="hl-card p-4">
             @if (error()) {
-              <div class="alert alert-danger py-2">{{ error() }}</div>
+              <div class="alert alert-danger py-2" role="alert">{{ error() }}</div>
             }
 
-            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
               <div class="hl-form-group">
                 <label for="blNumber">{{ 'warehouse.blNumber' | transloco }}</label>
-                <input type="text" id="blNumber" class="form-control" formControlName="blNumber"
+                <input required type="text" id="blNumber" class="form-control" formControlName="blNumber"
                        [placeholder]="'warehouse.blPlaceholder' | transloco"
+                       aria-describedby="blNumber-error"
+                       [attr.aria-invalid]="form.controls.blNumber.touched && form.controls.blNumber.invalid"
                        [class.is-invalid]="form.controls.blNumber.touched && form.controls.blNumber.invalid" />
-                @if (form.controls.blNumber.touched && form.controls.blNumber.errors?.['required']) {
-                  <div class="invalid-feedback">{{ 'warehouse.blRequired' | transloco }}</div>
-                }
+                <div id="blNumber-error" class="invalid-feedback">
+                  @if (form.controls.blNumber.touched && form.controls.blNumber.errors?.['required']) {
+                    {{ 'warehouse.blRequired' | transloco }}
+                  }
+                </div>
               </div>
 
               <div class="hl-form-group">
                 <label for="containerNumber">{{ 'warehouse.containerNumber' | transloco }}</label>
-                <input type="text" id="containerNumber" class="form-control" formControlName="containerNumber"
+                <input required type="text" id="containerNumber" class="form-control" formControlName="containerNumber"
                        [placeholder]="'warehouse.containerPlaceholder' | transloco"
+                       aria-describedby="containerNumber-error"
+                       [attr.aria-invalid]="form.controls.containerNumber.touched && form.controls.containerNumber.invalid"
                        [class.is-invalid]="form.controls.containerNumber.touched && form.controls.containerNumber.invalid" />
-                @if (form.controls.containerNumber.touched && form.controls.containerNumber.errors?.['required']) {
-                  <div class="invalid-feedback">{{ 'warehouse.containerRequired' | transloco }}</div>
-                }
+                <div id="containerNumber-error" class="invalid-feedback">
+                  @if (form.controls.containerNumber.touched && form.controls.containerNumber.errors?.['required']) {
+                    {{ 'warehouse.containerRequired' | transloco }}
+                  }
+                </div>
               </div>
 
               <div class="row">
                 <div class="col-md-6">
                   <div class="hl-form-group">
                     <label for="currentWarehouse">{{ 'warehouse.currentWarehouse' | transloco }}</label>
-                    <input type="text" id="currentWarehouse" class="form-control" formControlName="currentWarehouse"
+                    <input required type="text" id="currentWarehouse" class="form-control" formControlName="currentWarehouse"
                            [placeholder]="'warehouse.currentWarehousePlaceholder' | transloco"
+                           aria-describedby="currentWarehouse-error"
+                           [attr.aria-invalid]="form.controls.currentWarehouse.touched && form.controls.currentWarehouse.invalid"
                            [class.is-invalid]="form.controls.currentWarehouse.touched && form.controls.currentWarehouse.invalid" />
-                    @if (form.controls.currentWarehouse.touched && form.controls.currentWarehouse.errors?.['required']) {
-                      <div class="invalid-feedback">{{ 'warehouse.fieldRequired' | transloco }}</div>
-                    }
+                    <div id="currentWarehouse-error" class="invalid-feedback">
+                      @if (form.controls.currentWarehouse.touched && form.controls.currentWarehouse.errors?.['required']) {
+                        {{ 'warehouse.fieldRequired' | transloco }}
+                      }
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="hl-form-group">
                     <label for="requestedWarehouse">{{ 'warehouse.requestedWarehouse' | transloco }}</label>
-                    <input type="text" id="requestedWarehouse" class="form-control" formControlName="requestedWarehouse"
+                    <input required type="text" id="requestedWarehouse" class="form-control" formControlName="requestedWarehouse"
                            [placeholder]="'warehouse.requestedWarehousePlaceholder' | transloco"
+                           aria-describedby="requestedWarehouse-error"
+                           [attr.aria-invalid]="form.controls.requestedWarehouse.touched && form.controls.requestedWarehouse.invalid"
                            [class.is-invalid]="form.controls.requestedWarehouse.touched && form.controls.requestedWarehouse.invalid" />
-                    @if (form.controls.requestedWarehouse.touched && form.controls.requestedWarehouse.errors?.['required']) {
-                      <div class="invalid-feedback">{{ 'warehouse.fieldRequired' | transloco }}</div>
-                    }
+                    <div id="requestedWarehouse-error" class="invalid-feedback">
+                      @if (form.controls.requestedWarehouse.touched && form.controls.requestedWarehouse.errors?.['required']) {
+                        {{ 'warehouse.fieldRequired' | transloco }}
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div class="hl-form-group">
                 <label for="reason">{{ 'warehouse.reason' | transloco }}</label>
-                <textarea id="reason" class="form-control" formControlName="reason" rows="3"
+                <textarea required id="reason" class="form-control" formControlName="reason" rows="3"
                           [placeholder]="'warehouse.reasonPlaceholder' | transloco"
+                          aria-describedby="reason-error"
+                          [attr.aria-invalid]="form.controls.reason.touched && form.controls.reason.invalid"
                           [class.is-invalid]="form.controls.reason.touched && form.controls.reason.invalid"></textarea>
-                @if (form.controls.reason.touched && form.controls.reason.errors?.['required']) {
-                  <div class="invalid-feedback">{{ 'warehouse.reasonRequired' | transloco }}</div>
-                }
+                <div id="reason-error" class="invalid-feedback">
+                  @if (form.controls.reason.touched && form.controls.reason.errors?.['required']) {
+                    {{ 'warehouse.reasonRequired' | transloco }}
+                  }
+                </div>
               </div>
 
               <div class="hl-form-group">
                 <label for="contactPhone">{{ 'warehouse.contactPhone' | transloco }}</label>
-                <input type="tel" id="contactPhone" class="form-control" formControlName="contactPhone"
+                <input type="tel" id="contactPhone" class="form-control" formControlName="contactPhone" autocomplete="tel"
                        [placeholder]="'warehouse.contactPhonePlaceholder' | transloco" />
               </div>
 
               <div class="hl-form-group">
                 <label for="amount">{{ 'warehouse.amount' | transloco }}</label>
-                <input type="number" id="amount" class="form-control" formControlName="amount" min="1"
+                <input required type="number" id="amount" class="form-control" formControlName="amount" min="1"
                        [placeholder]="'warehouse.amountPlaceholder' | transloco"
+                       aria-describedby="amount-error"
+                       [attr.aria-invalid]="form.controls.amount.touched && form.controls.amount.invalid"
                        [class.is-invalid]="form.controls.amount.touched && form.controls.amount.invalid" />
-                @if (form.controls.amount.touched && form.controls.amount.invalid) {
-                  <div class="invalid-feedback">{{ 'warehouse.amountInvalid' | transloco }}</div>
-                }
+                <div id="amount-error" class="invalid-feedback">
+                  @if (form.controls.amount.touched && form.controls.amount.invalid) {
+                    {{ 'warehouse.amountInvalid' | transloco }}
+                  }
+                </div>
               </div>
 
               <button type="submit" class="btn btn-hl-orange w-100 py-2 mt-2" [disabled]="submitting()">

@@ -9,6 +9,7 @@ import { BillOfLading } from '../../../core/models/bl.model';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { CountryBadgeComponent } from '../../../shared/components/country-badge/country-badge';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 
 @Component({
@@ -16,7 +17,7 @@ import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
   standalone: true,
   imports: [
     RouterLink, FormsModule, TranslocoPipe, HlCurrencyPipe,
-    StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent,
+    StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
   ],
   templateUrl: './bl-list.html',
   styleUrl: './bl-list.scss',
@@ -30,6 +31,8 @@ export class BLListComponent implements OnInit {
   loading = signal(false);
   searchTerm = signal('');
   error = signal('');
+  /** NF-11: la última consulta falló con HTTP 5xx o sin conexión. */
+  loadFailed = signal(false);
 
   ngOnInit(): void {
     this.loadBLs();
@@ -38,6 +41,7 @@ export class BLListComponent implements OnInit {
   loadBLs(): void {
     this.loading.set(true);
     this.error.set('');
+    this.loadFailed.set(false);
     this.blService.getMyBLs().pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
@@ -45,8 +49,12 @@ export class BLListComponent implements OnInit {
         this.bls.set(data);
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set(translate('bl.list.loadError'));
+      error: (err) => {
+        if (isServiceUnavailable(err)) {
+          this.loadFailed.set(true);
+        } else {
+          this.error.set(translate('bl.list.loadError'));
+        }
         this.loading.set(false);
       },
     });
@@ -61,6 +69,7 @@ export class BLListComponent implements OnInit {
 
     this.loading.set(true);
     this.error.set('');
+    this.loadFailed.set(false);
     this.blService.getByNumber(term).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
@@ -68,11 +77,20 @@ export class BLListComponent implements OnInit {
         this.bls.set([bl]);
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
         this.bls.set([]);
-        this.error.set(translate('bl.list.notFound'));
+        if (isServiceUnavailable(err)) {
+          this.loadFailed.set(true);
+        } else {
+          this.error.set(translate('bl.list.notFound'));
+        }
         this.loading.set(false);
       },
     });
+  }
+
+  /** Reintentar (NF-11): repite la búsqueda en curso o el listado completo. */
+  retry(): void {
+    this.search();
   }
 }

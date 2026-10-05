@@ -40,7 +40,7 @@ const STATUS_LABEL_KEYS: Record<string, string> = {
   imports: [TranslocoPipe],
   template: `
     <span class="hl-badge" [class]="badgeClass()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8">
         <circle cx="4" cy="4" r="4" fill="currentColor"/>
       </svg>
       @if (labelKey(); as key) {
