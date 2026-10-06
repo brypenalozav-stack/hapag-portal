@@ -2,9 +2,11 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { InvoiceService } from '../../core/services/invoice.service';
 import { CartService } from '../../core/services/cart.service';
+import { AuthService } from '../../core/services/auth.service';
 import { LiveAnnouncerService } from '../../core/services/live-announcer.service';
 import {
   INVOICE_DOCUMENT_TYPES,
@@ -47,12 +49,14 @@ function emptyFilters(): InvoiceFilters {
  * BL o booking, razón social, RUT, monto, moneda y estado; filtra por BL, booking, fecha de emisión,
  * estado, moneda y tipo de documento; descarga el PDF y varias a la vez (solo con folio); agrega al carro
  * las habilitadas para pago e indica la fecha y hora de la última actualización.
+ * Fase 2, Ola H: enlace al estado de cuenta (M7-03); refacturación IAO desde las facturas chilenas elegibles (M3-11), con
+ * la factura reemplazada y la que la reemplaza vinculadas; factura cubierta por el recibo de un pago anticipado (M3-19).
  */
 @Component({
   selector: 'app-invoices',
   standalone: true,
   imports: [
-    FormsModule, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
+    FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
     AddToCartDialogComponent,
   ],
   templateUrl: './invoices.html',
@@ -61,6 +65,7 @@ function emptyFilters(): InvoiceFilters {
 export class InvoicesComponent implements OnInit {
   private readonly service = inject(InvoiceService);
   readonly cart = inject(CartService);
+  private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -163,6 +168,29 @@ export class InvoicesComponent implements OnInit {
 
   label(invoice: Invoice): string {
     return invoice.siiNumber ?? invoice.sourceNumber;
+  }
+
+  /**
+   * Refacturación IAO (M3-11): factura propia con folio SII y BL, no anulada ni reemplazada; el servidor confirma la
+   * elegibilidad (país, otra refacturación en curso) al cotizar.
+   */
+  canReinvoice(invoice: Invoice): boolean {
+    const list = this.list();
+    return !!list?.organization.isOwn && this.auth.canOperate() && !!invoice.siiNumber && !!invoice.blNumber
+      && (invoice.documentType === 'Invoice' || invoice.documentType === 'ExemptInvoice')
+      && invoice.status !== 'Cancelled' && invoice.status !== 'Superseded';
+  }
+
+  /** Lleva el foco a la fila de la factura relacionada. */
+  goToRow(invoice: Invoice): void {
+    const row = document.getElementById(`invoice-row-${invoice.id}`);
+    row?.scrollIntoView({ block: 'center' });
+    row?.focus();
+  }
+
+  /** Factura relacionada por la refacturación, si está en la página (para enlazarla). */
+  related(id: string | null | undefined): Invoice | null {
+    return id ? (this.list()?.items.find((i) => i.id === id) ?? null) : null;
   }
 
   downloadPdf(invoice: Invoice): void {

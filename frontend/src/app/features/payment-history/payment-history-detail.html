@@ -93,6 +93,11 @@
     </dl>
   </section>
 
+  <!-- Fase 2, Ola H: comprobante del depósito y su revisión por Finanzas (M5-06) -->
+  @if (p.slipNumber) {
+    <app-deposit-proofs [paymentId]="p.id" (changed)="load()" />
+  }
+
   <section class="hl-card mb-4" aria-labelledby="history-detail-items-title">
     <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
       <h2 id="history-detail-items-title" class="section-title">{{ 'paymentHistory.detailPage.items' | transloco }}</h2>

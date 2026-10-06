@@ -7,12 +7,9 @@ import { ServiceRequestService } from '../../../core/services/service-request.se
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { PagedResult } from '../../../core/models/admin-user.model';
-import { SERVICE_REQUEST_STATUSES, ServiceRequestSummary } from '../../../core/models/service-request.model';
-import {
-  SERVICE_DEFINITION_KEYS,
-  SERVICE_REQUEST_STATUS_CLASS,
-  SERVICE_REQUEST_STATUS_KEYS,
-} from '../../../core/i18n/labels';
+import { REINVOICING_DEFINITION_CODE } from '../../../core/models/reinvoicing.model';
+import { SERVICE_REQUEST_STATUSES, ServiceDefinitionOption, ServiceRequestSummary } from '../../../core/models/service-request.model';
+import { SERVICE_REQUEST_STATUS_CLASS, SERVICE_REQUEST_STATUS_KEYS } from '../../../core/i18n/labels';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
@@ -35,7 +32,8 @@ function emptyFilters(): RequestFilters {
 /**
  * Mis solicitudes de servicios on demand (M3-07 a M3-15): las de la organización como solicitante o mandante, con su
  * estado, embarque, servicio y monto; filtros por estado, servicio y BL o booking. Cada fila lleva al detalle con la
- * línea de tiempo (M3-12, M3-13: la solicitud queda registrada y es consultable).
+ * línea de tiempo (M3-12, M3-13: la solicitud queda registrada y es consultable). Fase 2, Ola H: los servicios del
+ * filtro son las definiciones activas que informa el servidor (incluida la refacturación IAO, que abre su propio flujo).
  */
 @Component({
   selector: 'app-service-request-list',
@@ -55,8 +53,8 @@ export class ServiceRequestListComponent implements OnInit {
 
   readonly statuses = SERVICE_REQUEST_STATUSES;
   readonly statusKeys = SERVICE_REQUEST_STATUS_KEYS;
-  readonly definitionKeys = SERVICE_DEFINITION_KEYS;
-  readonly definitionCodes = Object.keys(SERVICE_DEFINITION_KEYS);
+  /** Servicios del filtro (GET /service-requests/definitions); si no responde, el filtro queda sin opciones. */
+  definitions = signal<ServiceDefinitionOption[]>([]);
 
   filters: RequestFilters = emptyFilters();
   page = signal(1);
@@ -72,6 +70,10 @@ export class ServiceRequestListComponent implements OnInit {
 
   ngOnInit(): void {
     this.filters.blNumber = this.bl() ?? '';
+    this.service.definitions().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (definitions) => this.definitions.set(definitions),
+      error: () => this.definitions.set([]),
+    });
     this.search();
   }
 
@@ -96,6 +98,15 @@ export class ServiceRequestListComponent implements OnInit {
   clearFilters(): void {
     this.filters = emptyFilters();
     this.search();
+  }
+
+  definitionName(definition: ServiceDefinitionOption): string {
+    return localized(this.locale.lang(), definition.nameEs, definition.nameEn);
+  }
+
+  /** La refacturación IAO se sigue en su propia página (M3-11). */
+  detailLink(item: ServiceRequestSummary): string[] {
+    return item.definitionCode === REINVOICING_DEFINITION_CODE ? ['/reinvoicing', item.id] : ['/service-requests', item.id];
   }
 
   name(item: ServiceRequestSummary): string {

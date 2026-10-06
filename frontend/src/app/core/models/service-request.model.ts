@@ -180,6 +180,20 @@ export interface AvailableService {
   quoteErrorCode?: string | null;
 }
 
+/**
+ * Definición activa para los filtros (GET /service-requests/definitions, Fase 2, Ola H): `dedicatedFlow` = se pide por
+ * su flujo propio (refacturación IAO), no por el formulario genérico.
+ */
+export interface ServiceDefinitionOption {
+  code: string;
+  nameEs: string;
+  nameEn: string;
+  operations: ServiceOperation[];
+  countries: string[];
+  referenceType: ServiceReferenceType;
+  dedicatedFlow: boolean;
+}
+
 export interface ShipmentContainerOption {
   containerNumber: string;
   containerType: string;

@@ -105,7 +105,7 @@ export interface PaymentOperation {
   id: string;
   paymentId: string;
   paymentNumber: string;
-  jobType: 'Release' | 'Notify';
+  jobType: 'Release' | 'Notify' | 'Documents' | 'Reinvoicing';
   status: PaymentOperationStatus;
   attempts: number;
   maxAttempts: number;

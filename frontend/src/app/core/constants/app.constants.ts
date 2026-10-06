@@ -80,6 +80,9 @@ export const API_ENDPOINTS = {
   SERVICE_REQUESTS: 'service-requests',
   ADMIN_SERVICE_REQUESTS: 'admin/service-requests',
   SERVICE_DEFINITIONS: 'service-definitions',
+  // Fase 2, Ola H
+  ACCOUNT_STATEMENT: 'account-statement',
+  REINVOICING: 'reinvoicing',
 } as const;
 
 /**

@@ -59,6 +59,7 @@ import { OpcionesOlaD, SimulacionOlaD } from './ola-d-mocks';
 import { SimulacionOlaE } from './ola-e-mocks';
 import { SimulacionOlaF } from './ola-f-mocks';
 import { SimulacionOlaG } from './ola-g-mocks';
+import { SimulacionOlaH } from './ola-h-mocks';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
 export const BL_PRUEBA: BillOfLading = {
@@ -1742,6 +1743,8 @@ const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo
  * responde ola-f-mocks.ts, que además agrega al listado de embarques el estado de emisión y la publicación.
  * Fase 2, Ola G: servicios on demand, solicitudes, bandeja interna, mantenedor de definiciones e historial del cambio de
  * almacén los responde ola-g-mocks.ts, que registra en el carro de la Ola D los cargos que generan las solicitudes.
+ * Fase 2, Ola H: estado de cuenta, cierre por ítem con crédito, comprobantes de depósito, anticipos, conceptos imputables,
+ * refacturación IAO y los ajustes de la Ola G los responde ola-h-mocks.ts, que usa el carro y las facturas de la Ola D.
  */
 export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promise<void> {
   let consultasLote = 0;
@@ -1749,12 +1752,14 @@ export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promi
   const olaE = new SimulacionOlaE(olaD);
   const olaF = new SimulacionOlaF();
   const olaG = new SimulacionOlaG(olaD);
+  const olaH = new SimulacionOlaH(olaD, opciones);
   await page.route('**/api/v1/**', async (route: Route) => {
     const request = route.request();
     const url = new URL(request.url());
     const ruta = url.pathname.replace(/^.*\/api\/v1\//, '').replace(/\/$/, '');
     const metodo = request.method();
 
+    if (await olaH.responder(route, ruta, metodo, url)) return;
     if (await olaG.responder(route, ruta, metodo, url)) return;
     if (await olaF.responder(route, ruta, metodo, url)) return;
     if (await olaE.responder(route, ruta, metodo)) return;

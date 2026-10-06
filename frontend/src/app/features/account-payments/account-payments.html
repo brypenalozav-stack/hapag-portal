@@ -27,6 +27,13 @@
   @if (!canOperate()) {
     <div class="alert alert-info" role="note">{{ 'accountPayments.readOnly' | transloco }}</div>
   }
+  @if ((d.creditImputable?.length ?? 0) > 0) {
+    <!-- Fase 2, Ola H: la forma de pago por ítem (pagar ahora o imputar a crédito) está en el estado de cuenta (M5-10, M7-03) -->
+    <div class="alert alert-info" role="note" data-testid="account-payments-statement-note">
+      <p class="mb-2">{{ 'accountPayments.statementNote' | transloco }}</p>
+      <a routerLink="/account-statement" class="btn btn-sm btn-outline-secondary">{{ 'accountPayments.statementLink' | transloco }}</a>
+    </div>
+  }
 
   @if (d.items.length === 0) {
     <app-state-message kind="empty" [messageKey]="'accountPayments.empty'" />

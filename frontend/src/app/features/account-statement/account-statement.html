@@ -1,0 +1,504 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'accountStatement.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'accountStatement.subtitle' | transloco }}</p>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a routerLink="/invoices" class="btn btn-outline-secondary btn-sm">{{ 'accountStatement.links.invoices' | transloco }}</a>
+    <a routerLink="/payment-history" class="btn btn-outline-secondary btn-sm">{{ 'accountStatement.links.paymentHistory' | transloco }}</a>
+  </div>
+</div>
+
+<!-- Organización: la información no se mezcla entre organizaciones (M7-03) -->
+@if (organizations().length > 1) {
+  <div class="hl-card p-3 mb-3">
+    <label for="statement-organization" class="form-label small fw-semibold">{{ 'accountStatement.organization' | transloco }}</label>
+    <select id="statement-organization" class="form-select" name="organizationId" aria-describedby="statement-organization-help"
+            [(ngModel)]="organizationId" (ngModelChange)="onOrganization()">
+      @for (org of organizations(); track org.id) {
+        <option [value]="org.id">{{ 'accountStatement.organizationOption' | transloco: { name: org.name, taxId: org.taxId } }}</option>
+      }
+    </select>
+    <div id="statement-organization-help" class="form-text">{{ 'accountStatement.organizationHelp' | transloco }}</div>
+  </div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (statement(); as s) {
+  <p class="small text-muted" data-testid="statement-meta">
+    {{ 'accountStatement.meta' | transloco: { name: s.organization.name, taxId: s.organization.taxId, date: (s.asOf | hlDate: 'localDate') } }}
+    @if (s.lastUpdatedAt) {
+      <span class="d-block" data-testid="statement-last-updated">{{ 'accountStatement.lastUpdated' | transloco: { date: (s.lastUpdatedAt | hlDate: 'datetime' : s.timeZone) } }}</span>
+    }
+  </p>
+  @if (!s.conditionsAvailable) {
+    <div class="alert alert-warning" role="note" data-testid="statement-conditions-unavailable">{{ 'accountStatement.conditionsUnavailable' | transloco }}</div>
+  }
+
+  <!-- Saldo total, vencido, por vencer y crédito disponible (toda la cuenta, sin filtros) -->
+  <section class="mb-4" aria-labelledby="statement-summary-title">
+    <h2 id="statement-summary-title" class="section-title mb-3">{{ 'accountStatement.summary.title' | transloco }}</h2>
+    <div class="row g-3">
+      @for (sum of s.summary; track sum.currency) {
+        <div class="col-md-6 col-xl-4">
+          <div class="hl-card p-3 h-100" [attr.data-testid]="'statement-summary-' + sum.currency">
+            <h3 class="h6 fw-bold">{{ 'accountStatement.summary.currencyTitle' | transloco: { currency: sum.currency } }}</h3>
+            <dl class="mb-0 statement-dl">
+              <div class="statement-total">
+                <dt>{{ 'accountStatement.summary.total' | transloco }}</dt>
+                <dd class="hl-num">{{ sum.totalBalance | hlCurrency: sum.currency }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'accountStatement.summary.overdue' | transloco }}</dt>
+                <dd class="hl-num" data-testid="statement-overdue">{{ sum.overdue | hlCurrency: sum.currency }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'accountStatement.summary.dueSoon' | transloco: { days: s.dueSoonDays } }}</dt>
+                <dd class="hl-num">{{ sum.dueSoon | hlCurrency: sum.currency }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'accountStatement.summary.notYetDue' | transloco }}</dt>
+                <dd class="hl-num">{{ sum.notYetDue | hlCurrency: sum.currency }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'accountStatement.summary.uninvoiced' | transloco }}</dt>
+                <dd class="hl-num">{{ sum.uninvoiced | hlCurrency: sum.currency }}</dd>
+              </div>
+              @if (s.isCreditCustomer || sum.creditImputed > 0) {
+                <div>
+                  <dt>{{ 'accountStatement.summary.creditImputed' | transloco }}</dt>
+                  <dd class="hl-num">{{ sum.creditImputed | hlCurrency: sum.currency }}</dd>
+                </div>
+              }
+              <div>
+                <dt>{{ 'accountStatement.summary.advances' | transloco }}</dt>
+                <dd class="hl-num">{{ sum.advancesUnapplied | hlCurrency: sum.currency }}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <p class="small mb-0" role="status">{{ 'accountStatement.summary.empty' | transloco }}</p>
+        </div>
+      }
+      @if (s.isCreditCustomer && s.credit; as c) {
+        <!-- Crédito disponible según Nexus (M8-02) -->
+        <div class="col-md-6 col-xl-4">
+          <div class="hl-card p-3 h-100" data-testid="statement-credit">
+            <h3 class="h6 fw-bold">{{ 'accountStatement.credit.title' | transloco }}</h3>
+            <dl class="mb-0 statement-dl">
+              <div class="statement-total">
+                <dt>{{ 'accountStatement.credit.available' | transloco }}</dt>
+                <dd class="hl-num">
+                  @if (c.available !== null && c.available !== undefined && c.limitCurrency) {
+                    {{ c.available | hlCurrency: c.limitCurrency }}
+                  } @else {
+                    <span class="small fw-normal">{{ creditReason(c) }}</span>
+                  }
+                </dd>
+              </div>
+              @if (c.limit !== null && c.limit !== undefined && c.limitCurrency) {
+                <div>
+                  <dt>{{ 'accountStatement.credit.limit' | transloco }}</dt>
+                  <dd class="hl-num">{{ c.limit | hlCurrency: c.limitCurrency }}</dd>
+                </div>
+              }
+              @if (c.used !== null && c.used !== undefined && c.limitCurrency) {
+                <div>
+                  <dt>{{ 'accountStatement.credit.used' | transloco }}</dt>
+                  <dd class="hl-num">{{ c.used | hlCurrency: c.limitCurrency }}</dd>
+                </div>
+              }
+              <div>
+                <dt>{{ 'accountStatement.credit.terms' | transloco }}</dt>
+                <dd>{{ 'accountStatement.credit.days' | transloco: { days: c.creditDays ?? '—' } }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'accountStatement.credit.concepts' | transloco }}</dt>
+                <dd>
+                  @for (concept of c.concepts; track concept; let last = $last) {
+                    {{ concept | codeLabel: nexusConceptKeys }}@if (!last) {<span>, </span>}
+                  } @empty {
+                    <span>—</span>
+                  }
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Antigüedad de la deuda por tramos: tabla con barras decorativas (el monto va en la celda) -->
+  <section class="hl-card mb-4" aria-labelledby="statement-aging-title">
+    <div class="card-header p-3">
+      <h2 id="statement-aging-title" class="section-title">{{ 'accountStatement.aging.title' | transloco }}</h2>
+      <p class="small text-muted fw-normal mb-0">{{ 'accountStatement.aging.help' | transloco }}</p>
+    </div>
+    @if (s.aging.rows.length === 0) {
+      <p class="p-3 mb-0" role="status">{{ 'accountStatement.aging.empty' | transloco }}</p>
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'accountStatement.aging.caption' | transloco">
+        <table class="hl-table" data-testid="statement-aging">
+          <caption class="visually-hidden">{{ 'accountStatement.aging.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'accountStatement.aging.currency' | transloco }}</th>
+              @for (bucket of s.aging.buckets; track bucket.code) {
+                <th scope="col" class="text-end">{{ agingLabel(bucket) }}</th>
+              }
+              <th scope="col" class="text-end">{{ 'accountStatement.aging.total' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of s.aging.rows; track row.currency) {
+              <tr>
+                <th scope="row" class="fw-semibold">{{ row.currency }}</th>
+                @for (amount of row.amounts; track $index) {
+                  <td class="text-end">
+                    <span class="hl-num d-block">{{ amount | hlCurrency: row.currency }}</span>
+                    <span class="hl-bar statement-aging-bar" aria-hidden="true"><span class="hl-bar__fill" [style.width.%]="agingPercent(row, $index)"></span></span>
+                  </td>
+                }
+                <td class="text-end fw-bold hl-num">{{ row.total | hlCurrency: row.currency }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- Filtros: se aplican a las líneas y a los anticipos -->
+  <form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'accountStatement.filters.label' | transloco" (ngSubmit)="search()">
+    <div class="row g-2 align-items-end">
+      <div class="col-sm-6 col-lg-3">
+        <label for="statement-bl" class="form-label small fw-semibold">{{ 'accountStatement.filters.bl' | transloco }}</label>
+        <input id="statement-bl" type="text" class="form-control" name="blNumber" autocomplete="off" [(ngModel)]="filters.blNumber" />
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label for="statement-booking" class="form-label small fw-semibold">{{ 'accountStatement.filters.booking' | transloco }}</label>
+        <input id="statement-booking" type="text" class="form-control" name="bookingNumber" autocomplete="off" [(ngModel)]="filters.bookingNumber" />
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label for="statement-from" class="form-label small fw-semibold">{{ 'accountStatement.filters.from' | transloco }}</label>
+        <input id="statement-from" type="date" class="form-control" name="from" aria-describedby="statement-dates-help" [(ngModel)]="filters.from" />
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label for="statement-to" class="form-label small fw-semibold">{{ 'accountStatement.filters.to' | transloco }}</label>
+        <input id="statement-to" type="date" class="form-control" name="to" aria-describedby="statement-dates-help" [(ngModel)]="filters.to" />
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label for="statement-status" class="form-label small fw-semibold">{{ 'accountStatement.filters.status' | transloco }}</label>
+        <select id="statement-status" class="form-select" name="status" [(ngModel)]="filters.status">
+          <option value="">{{ 'accountStatement.filters.all' | transloco }}</option>
+          @for (st of statuses; track st) {
+            <option [value]="st">{{ st | codeLabel: statusKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label for="statement-currency" class="form-label small fw-semibold">{{ 'accountStatement.filters.currency' | transloco }}</label>
+        <select id="statement-currency" class="form-select" name="currency" [(ngModel)]="filters.currency">
+          <option value="">{{ 'accountStatement.filters.all' | transloco }}</option>
+          @for (c of currencies; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label for="statement-type" class="form-label small fw-semibold">{{ 'accountStatement.filters.documentType' | transloco }}</label>
+        <select id="statement-type" class="form-select" name="documentType" [(ngModel)]="filters.documentType">
+          <option value="">{{ 'accountStatement.filters.all' | transloco }}</option>
+          @for (t of documentTypes; track t) {
+            <option [value]="t">{{ t | codeLabel: documentTypeKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label for="statement-sort" class="form-label small fw-semibold">{{ 'accountStatement.filters.sort' | transloco }}</label>
+        <select id="statement-sort" class="form-select" name="sort" [(ngModel)]="filters.sort">
+          @for (o of sorts; track o) {
+            <option [value]="o">{{ o | codeLabel: sortKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label for="statement-direction" class="form-label small fw-semibold">{{ 'accountStatement.filters.direction' | transloco }}</label>
+        <select id="statement-direction" class="form-select" name="direction" [(ngModel)]="filters.direction">
+          <option value="asc">{{ 'accountStatement.filters.asc' | transloco }}</option>
+          <option value="desc">{{ 'accountStatement.filters.desc' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3 d-flex gap-2">
+        <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'accountStatement.filters.search' | transloco }}</button>
+        <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'accountStatement.filters.clear' | transloco }}</button>
+      </div>
+    </div>
+    <p id="statement-dates-help" class="form-text mb-0 mt-2">{{ 'accountStatement.filters.datesHelp' | transloco }}</p>
+  </form>
+
+  <!-- Exportación a planilla con los filtros aplicados -->
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="!!exporting()" (click)="export('xlsx')" data-testid="statement-export-xlsx">
+      @if (exporting() === 'xlsx') {
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+      }
+      {{ 'accountStatement.export.xlsx' | transloco }}
+    </button>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="!!exporting()" (click)="export('csv')" data-testid="statement-export-csv">
+      @if (exporting() === 'csv') {
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+      }
+      {{ 'accountStatement.export.csv' | transloco }}
+    </button>
+    <span class="small text-muted" data-testid="statement-count">{{ 'accountStatement.count' | transloco: { count: s.lines.length } }}</span>
+  </div>
+
+  @if (actionError()) {
+    <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+  }
+
+  <!-- Facturado, calculado no facturado e imputado a crédito, por separado -->
+  @for (group of groups(); track group.kind) {
+    <section class="hl-card mb-4" [attr.aria-labelledby]="'statement-group-' + group.kind" [attr.data-testid]="'statement-group-' + group.kind">
+      <div class="card-header p-3">
+        <h2 [id]="'statement-group-' + group.kind" class="section-title">{{ group.titleKey | transloco }}</h2>
+        <p class="small text-muted fw-normal mb-0">{{ group.helpKey | transloco }}</p>
+      </div>
+      @if (group.lines.length === 0) {
+        <p class="p-3 mb-0" role="status">{{ group.emptyKey | transloco }}</p>
+      } @else {
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="group.titleKey | transloco">
+          <table class="hl-table">
+            <caption class="visually-hidden">{{ group.titleKey | transloco }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">
+                  @if (canPay() && groupSelectable(group).length > 0) {
+                    <input class="form-check-input" type="checkbox" [id]="'statement-all-' + group.kind" [checked]="groupAllSelected(group)" (change)="toggleGroup(group, $event)"
+                           [attr.aria-label]="'accountStatement.lines.selectAll' | transloco: { group: (group.titleKey | transloco) }" />
+                  } @else {
+                    <span class="visually-hidden">{{ 'accountStatement.lines.col.select' | transloco }}</span>
+                  }
+                </th>
+                <th scope="col">{{ 'accountStatement.lines.col.document' | transloco }}</th>
+                <th scope="col" [attr.aria-sort]="ariaSort('reference')">{{ 'accountStatement.lines.col.reference' | transloco }}</th>
+                <th scope="col">{{ 'accountStatement.lines.col.party' | transloco }}</th>
+                <th scope="col" [attr.aria-sort]="ariaSort('issue')">{{ 'accountStatement.lines.col.date' | transloco }}</th>
+                <th scope="col" [attr.aria-sort]="ariaSort('due')">{{ 'accountStatement.lines.col.due' | transloco }}</th>
+                <th scope="col" class="text-end">{{ 'accountStatement.lines.col.amount' | transloco }}</th>
+                <th scope="col" class="text-end" [attr.aria-sort]="ariaSort('balance')">{{ 'accountStatement.lines.col.balance' | transloco }}</th>
+                <th scope="col">{{ 'accountStatement.lines.col.status' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of group.lines; track line.key) {
+                <tr [class.statement-due-soon]="line.dueSoon" [class.statement-overdue]="line.status === 'Overdue'" [attr.data-testid]="'statement-line-' + line.number">
+                  <td>
+                    @if (selectable(line)) {
+                      <input class="form-check-input" type="checkbox" [id]="'statement-select-' + line.key" [checked]="isSelected(line)" (change)="toggle(line, $event)"
+                             [attr.aria-label]="'accountStatement.lines.selectLabel' | transloco: { number: line.number, concept: concept(line), bl: line.blNumber ?? '—' }" />
+                    } @else if (line.inCart) {
+                      <span class="small">{{ 'accountStatement.lines.inCart' | transloco }}</span>
+                    } @else if (line.inPayment) {
+                      <span class="small">{{ 'accountStatement.lines.inPayment' | transloco }}</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="fw-semibold d-block">{{ line.number }}</span>
+                    <span class="small d-block">
+                      {{ line.documentType | codeLabel: documentTypeKeys }}
+                      @if (line.kind !== 'Invoiced') {
+                        <span>· {{ concept(line) }}</span>
+                      }
+                    </span>
+                    @if (line.siiNumber && line.sourceNumber) {
+                      <span class="small text-muted d-block">{{ 'accountStatement.lines.numbers' | transloco: { sii: line.siiNumber, source: line.sourceNumber } }}</span>
+                    }
+                    @if (line.description) {
+                      <span class="small text-muted d-block">{{ line.description }}</span>
+                    }
+                    @if (line.serviceRequestNumber) {
+                      <span class="small d-block">{{ 'accountStatement.lines.serviceRequest' | transloco: { number: line.serviceRequestNumber } }}</span>
+                    }
+                    @if (line.creditImputationNumber) {
+                      <span class="small d-block">{{ 'accountStatement.lines.creditImputation' | transloco: { number: line.creditImputationNumber } }}</span>
+                    }
+                    @if (line.coveredBy; as cov) {
+                      <!-- Factura emitida después de un anticipo: queda vinculada al pago (M7-03, M3-19) -->
+                      <span class="small d-block" data-testid="statement-covered-by">
+                        {{ 'accountStatement.lines.coveredBy' | transloco: { receipt: cov.receiptDocumentNumber ?? cov.receiptNumber ?? cov.paymentNumber, payment: cov.paymentNumber, date: (cov.settledAt | hlDate: 'date' : s.timeZone) } }}
+                      </span>
+                    }
+                  </td>
+                  <td>
+                    {{ line.blNumber ?? '—' }}
+                    @if (line.bookingNumber) {
+                      <span class="small text-muted d-block">{{ 'accountStatement.lines.booking' | transloco: { booking: line.bookingNumber } }}</span>
+                    }
+                  </td>
+                  <td class="small">
+                    @if (line.legalName) {
+                      <span class="d-block">{{ line.legalName }}</span>
+                    }
+                    <span class="d-block">{{ line.taxId ?? '—' }}</span>
+                  </td>
+                  <td>{{ (line.issueDate ?? line.referenceDate) | hlDate: 'localDate' }}</td>
+                  <td>
+                    @if (line.dueDate) {
+                      <span class="d-block">{{ line.dueDate | hlDate: 'localDate' }}</span>
+                      @if (line.daysOverdue) {
+                        <span class="small d-block">{{ 'accountStatement.lines.daysOverdue' | transloco: { days: line.daysOverdue } }}</span>
+                      }
+                    } @else {
+                      <span aria-hidden="true">—</span>
+                      <span class="visually-hidden">{{ 'accountStatement.lines.noDueDate' | transloco }}</span>
+                    }
+                  </td>
+                  <td class="text-end hl-num">{{ line.totalAmount | hlCurrency: line.currency }}</td>
+                  <td class="text-end hl-num fw-semibold">{{ line.balance | hlCurrency: line.currency }}</td>
+                  <td>
+                    <span class="hl-badge" [class]="statusClass(line)">{{ line.status | codeLabel: statusKeys }}</span>
+                    @if (line.dueSoon) {
+                      <span class="hl-badge hl-badge--pending mt-1" data-testid="statement-due-soon">{{ 'common.statementStatus.dueSoon' | transloco }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+
+  <!-- Pagos y anticipos aplicados: pagos anteriores a la factura y su cruce (M7-03, M3-19) -->
+  <section class="hl-card mb-4" aria-labelledby="statement-advances-title" data-testid="statement-advances">
+    <div class="card-header p-3">
+      <h2 id="statement-advances-title" class="section-title">{{ 'accountStatement.advances.title' | transloco }}</h2>
+      <p class="small text-muted fw-normal mb-0">{{ 'accountStatement.advances.help' | transloco }}</p>
+    </div>
+    @if (s.advances.length === 0) {
+      <p class="p-3 mb-0" role="status">{{ 'accountStatement.advances.empty' | transloco }}</p>
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'accountStatement.advances.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'accountStatement.advances.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'accountStatement.advances.col.payment' | transloco }}</th>
+              <th scope="col">{{ 'accountStatement.advances.col.concept' | transloco }}</th>
+              <th scope="col">{{ 'accountStatement.advances.col.reference' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'accountStatement.advances.col.amount' | transloco }}</th>
+              <th scope="col">{{ 'accountStatement.advances.col.date' | transloco }}</th>
+              <th scope="col">{{ 'accountStatement.advances.col.status' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (adv of s.advances; track adv.id) {
+              <tr>
+                <td>
+                  <span class="fw-semibold d-block">{{ adv.paymentNumber }}</span>
+                  @if (adv.receiptNumber) {
+                    <span class="small d-block">{{ 'accountStatement.advances.receipt' | transloco: { number: adv.receiptNumber } }}</span>
+                  }
+                  @if (adv.receiptDocumentNumber && adv.blNumber) {
+                    <a class="small d-block" [routerLink]="['/shipments', adv.blNumber, 'documents']">{{ 'accountStatement.advances.receiptDocument' | transloco: { number: adv.receiptDocumentNumber } }}</a>
+                  }
+                </td>
+                <td>{{ adv.conceptCode | codeLabel: conceptKeys }}</td>
+                <td>{{ adv.blNumber ?? adv.bookingNumber ?? '—' }}</td>
+                <td class="text-end hl-num">{{ adv.amount | hlCurrency: adv.currency }}</td>
+                <td>{{ adv.settledAt | hlDate: 'datetime' : s.timeZone }}</td>
+                <td>
+                  <span class="hl-badge" [class]="settlementStatusClass[adv.status] || 'hl-badge--pending'">{{ adv.status | codeLabel: settlementStatusKeys }}</span>
+                  @if (adv.matchedInvoiceNumber) {
+                    <span class="small d-block mt-1">{{ 'accountStatement.advances.matched' | transloco: { number: adv.matchedInvoiceNumber } }}</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- Resultado del cierre por ítem de un cliente con crédito (M5-10) -->
+  @if (checkoutResult(); as r) {
+    <section class="hl-card p-4 mb-4" aria-labelledby="statement-result-title" data-testid="statement-result">
+      <h2 #resultHeading id="statement-result-title" class="section-title mb-3" tabindex="-1">{{ 'accountStatement.result.title' | transloco }}</h2>
+      @for (imp of r.creditImputations; track imp.id) {
+        <div class="alert alert-success" data-testid="statement-result-credit">
+          <p class="fw-bold mb-1">{{ 'accountStatement.result.creditTitle' | transloco: { number: imp.number } }}</p>
+          <p class="mb-0">{{ 'accountStatement.result.creditText' | transloco: { count: imp.items.length, total: (imp.totalAmount | hlCurrency: imp.currency) } }}</p>
+        </div>
+      }
+      @if (r.payment; as p) {
+        <div class="alert alert-info" data-testid="statement-result-payment">
+          <p class="fw-bold mb-1">{{ 'accountStatement.result.paymentTitle' | transloco: { number: p.payment.paymentNumber } }}</p>
+          <p class="mb-2">{{ 'accountStatement.result.paymentText' | transloco: { total: (p.payment.totalAmount | hlCurrency: p.payment.currency) } }}</p>
+          <button type="button" class="btn btn-hl-orange btn-sm" (click)="continuePayment()">{{ 'accountStatement.result.continue' | transloco }}</button>
+        </div>
+      }
+    </section>
+  }
+
+  <!-- Pago de lo elegido: carro (sin crédito, M5-01) o forma de pago por ítem (con crédito, M5-10) -->
+  @if (!s.organization.isOwn) {
+    <p class="small" role="note">{{ 'accountStatement.pay.notOwn' | transloco }}</p>
+  } @else if (!canOperate()) {
+    <div class="alert alert-info" role="note">{{ 'accountStatement.pay.readOnly' | transloco }}</div>
+  } @else if (canPay()) {
+    @if (channel() === 'Account') {
+      <app-payment-block-banner [status]="block()" />
+      <app-statement-checkout [lines]="selectedLines()" [country]="s.country" [block]="block()" [canImpute]="s.actions.canImputeToCredit"
+                              (completed)="onCheckoutDone($event)" />
+    } @else {
+      <section class="hl-card p-4 mb-4" aria-labelledby="statement-cart-title" data-testid="statement-cart">
+        <h2 id="statement-cart-title" class="section-title mb-2">{{ 'accountStatement.cart.title' | transloco }}</h2>
+        <p class="small" aria-live="polite" data-testid="statement-selection">{{ 'accountStatement.cart.selection' | transloco: { count: selectedLines().length } }}</p>
+        @if (selectedTotals().length > 0) {
+          <ul class="small">
+            @for (t of selectedTotals(); track t.currency) {
+              <li>{{ t.total | hlCurrency: t.currency }}</li>
+            }
+          </ul>
+        }
+        <button type="button" class="btn btn-hl-orange" [disabled]="selectedLines().length === 0 || adding()" (click)="addToCart()" aria-describedby="statement-cart-help">
+          @if (adding()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'accountStatement.cart.add' | transloco: { count: selectedLines().length } }}
+        </button>
+        <p id="statement-cart-help" class="small text-muted mt-2 mb-0">{{ 'accountStatement.cart.help' | transloco }}</p>
+
+        @if (batchResult(); as b) {
+          <div class="border rounded p-3 mt-3" data-testid="statement-cart-result">
+            <h3 #batchHeading class="h6 fw-bold" tabindex="-1">{{ 'accountStatement.cart.resultTitle' | transloco: { count: b.addedCount } }}</h3>
+            @if (b.addedCount < b.results.length) {
+              <ul class="small">
+                @for (item of b.results; track $index) {
+                  @if (!item.added) {
+                    <li>{{ batchFailure(item.itemType, item.sourceId, item.errorCode) }}</li>
+                  }
+                }
+              </ul>
+            }
+            @if (b.addedCount > 0) {
+              <a routerLink="/cart" class="btn btn-sm btn-outline-secondary">{{ 'accountStatement.cart.goToCart' | transloco }}</a>
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+}

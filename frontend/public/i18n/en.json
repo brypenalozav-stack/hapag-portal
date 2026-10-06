@@ -51,8 +51,196 @@
     },
     "readOnly": "Your profile is read-only: you can see what is pending but cannot pay.",
     "retry": "Try again",
+    "statementLink": "Go to the statement of account",
+    "statementNote": "Some charges can be imputed to your credit line: choose the payment mode per item from the statement of account.",
     "subtitle": "For customers with credit terms: choose the pending charges and invoices and pay them in a single payment.",
     "title": "Pay from my account"
+  },
+  "accountStatement": {
+    "advances": {
+      "caption": "Payments and advances applied",
+      "col": {
+        "amount": "Amount",
+        "concept": "Concept",
+        "date": "Payment date",
+        "payment": "Payment",
+        "reference": "BL or booking",
+        "status": "Match"
+      },
+      "empty": "There are no advances with these filters.",
+      "help": "Payments made before the invoice and their match with the invoice issued later.",
+      "matched": "Invoice {{ number }}",
+      "receipt": "Receipt {{ number }}",
+      "receiptDocument": "Receipt {{ number }} in the shipment documents",
+      "title": "Payments and advances applied"
+    },
+    "aging": {
+      "caption": "Debt aging by currency and days-overdue bucket",
+      "currency": "Currency",
+      "current": "Not overdue",
+      "empty": "There are no open invoices.",
+      "help": "Open invoices by days overdue.",
+      "over": "{{ from }} days or more",
+      "range": "{{ from }} to {{ to }} days",
+      "title": "Debt aging",
+      "total": "Total"
+    },
+    "cart": {
+      "add": "{count, plural, =0 {Add to cart} one {Add # to cart} other {Add # to cart}}",
+      "added": "{count, plural, =0 {Nothing was added to the cart.} one {# document was added to the cart.} other {# documents were added to the cart.}}",
+      "error": "Could not add to the cart. Try again.",
+      "failure": "{{ item }}: {{ reason }}",
+      "goToCart": "Go to the cart and pay",
+      "help": "The selection is added to the cart and paid in a single transaction per currency.",
+      "itemError": "could not be added",
+      "resultTitle": "{count, plural, =0 {No document was added to the cart.} one {# document was added to the cart.} other {# documents were added to the cart.}}",
+      "selection": "{count, plural, =0 {No documents selected.} one {# document selected.} other {# documents selected.}}",
+      "title": "Pay the selection"
+    },
+    "checkout": {
+      "back": "Back",
+      "blocked": "Payments are suspended: {{ message }} You can impute to credit, but not pay now.",
+      "confirm": "Confirm",
+      "confirmCredit": "{count, plural, one {You will impute # item to your credit line.} other {You will impute # items to your credit line.}}",
+      "confirmPayNow": "{count, plural, one {You will pay # item now} other {You will pay # items now}} in {{ currency }} with {{ method }}.",
+      "confirmTitle": "Confirm the payment and the imputation",
+      "conversion": "Amounts in other currencies are converted to {{ currency }} with the Nexus exchange rate of the day.",
+      "credit": "Impute to credit",
+      "creditTotal": "{count, plural, =0 {To the credit line} one {To the credit line (# item)} other {To the credit line (# items)}}",
+      "currency": "Payment currency",
+      "currencyHelp": "Only the currencies enabled for all the items you pay now.",
+      "empty": "Select in the tables the charges or invoices you want to manage.",
+      "error": "It could not be completed. Try again.",
+      "help": "For each item choose whether you pay it now or impute it to your credit line. Concepts not enabled by Finance are paid now.",
+      "itemLegend": "{{ concept }} {{ number }} · BL {{ bl }} · {{ amount }}",
+      "method": "Payment method",
+      "methodOption": "{{ name }} ({{ kind }})",
+      "noCurrency": "The items you pay now have no payment currency in common: pay them separately.",
+      "noMethods": "There are no payment methods enabled for this currency.",
+      "nothing": "Nothing",
+      "payNow": "Pay now",
+      "payNowOnly": "Paid now: this concept cannot be imputed to credit.",
+      "payNowTotal": "{count, plural, =0 {Immediate payment} one {Immediate payment (# item)} other {Immediate payment (# items)}}",
+      "review": "{count, plural, =0 {Review} one {Review # item} other {Review # items}}",
+      "reviewHelp": "Before sending you will see a summary to confirm.",
+      "sending": "Sending…",
+      "title": "Pay now or impute to credit",
+      "uncertain": "We could not confirm whether the request was received. Retry: the same request is never registered twice."
+    },
+    "conditionsUnavailable": "Nexus did not answer: charges not yet invoiced are shown with the charge amount, without applying exemptions.",
+    "count": "{count, plural, =0 {No lines with these filters} one {# line} other {# lines}}",
+    "credit": {
+      "available": "Available",
+      "concepts": "Concepts with credit",
+      "days": "{{ days }} days",
+      "limit": "Credit limit",
+      "terms": "Credit terms",
+      "title": "Available credit",
+      "used": "Used"
+    },
+    "errors": {
+      "forbidden": "You do not have access to the statement of this organization.",
+      "load": "The statement of account could not be loaded."
+    },
+    "export": {
+      "csv": "Download CSV",
+      "done": "{{ name }} was downloaded.",
+      "error": "The spreadsheet could not be downloaded.",
+      "xlsx": "Download spreadsheet (xlsx)"
+    },
+    "filters": {
+      "all": "All",
+      "asc": "Ascending",
+      "bl": "BL",
+      "booking": "Booking",
+      "clear": "Clear",
+      "currency": "Currency",
+      "datesHelp": "Dates filter by invoice issue date, charge registration date or imputation date. The summary and aging always show the whole account.",
+      "desc": "Descending",
+      "direction": "Direction",
+      "documentType": "Document type",
+      "from": "From",
+      "label": "Statement of account filters",
+      "search": "Search",
+      "sort": "Sort by",
+      "status": "Status",
+      "to": "To"
+    },
+    "lastUpdated": "Invoices last updated: {{ date }}",
+    "lines": {
+      "booking": "Booking {{ booking }}",
+      "col": {
+        "amount": "Amount",
+        "balance": "Balance",
+        "date": "Date",
+        "document": "Document or charge",
+        "due": "Due date",
+        "party": "Legal name and tax ID",
+        "reference": "BL or booking",
+        "select": "Select",
+        "status": "Status"
+      },
+      "coveredBy": "Covered by receipt {{ receipt }} (payment {{ payment }} on {{ date }})",
+      "creditImputation": "Imputation {{ number }}",
+      "creditImputed": {
+        "empty": "There are no charges imputed to credit with these filters.",
+        "help": "Charges imputed to credit: they are an outstanding balance until their invoice arrives.",
+        "title": "Imputed to the credit line"
+      },
+      "daysOverdue": "{days, plural, one {Overdue by # day} other {Overdue by # days}}",
+      "inCart": "In the cart",
+      "inPayment": "In a payment in progress",
+      "invoiced": {
+        "empty": "There are no invoiced documents with these filters.",
+        "help": "Invoices and debit notes, open or covered by an advance.",
+        "title": "Invoiced documents"
+      },
+      "noDueDate": "No due date",
+      "numbers": "SII folio {{ sii }} · Source {{ source }}",
+      "selectAll": "Select all in {{ group }}",
+      "selectLabel": "Select {{ number }}, {{ concept }}, BL {{ bl }}",
+      "serviceRequest": "Request {{ number }}",
+      "uninvoiced": {
+        "empty": "There are no charges pending invoicing with these filters.",
+        "help": "Local, service, demurrage and freight charges with their real amount, pending invoicing.",
+        "title": "Calculated charges, not yet invoiced"
+      }
+    },
+    "links": {
+      "invoices": "View invoices",
+      "paymentHistory": "View payment history"
+    },
+    "meta": "{{ name }} ({{ taxId }}), as of {{ date }}.",
+    "organization": "Organization",
+    "organizationHelp": "The information of each organization is shown separately.",
+    "organizationOption": "{{ name }} ({{ taxId }})",
+    "pay": {
+      "notOwn": "You can only pay the statement of your own organization.",
+      "readOnly": "Your profile is read-only: you can view the statement, but not pay."
+    },
+    "result": {
+      "announce": "Checkout registered. Payment: {{ payment }}. Credit imputations: {{ imputations }}.",
+      "continue": "Continue to payment",
+      "creditText": "{count, plural, one {# item imputed} other {# items imputed}} to the credit line for {{ total }}. It remains an outstanding balance until its invoice arrives; the cargo is released just as with a payment.",
+      "creditTitle": "Imputation {{ number }} registered",
+      "paymentText": "What you chose to pay now adds up to {{ total }}. Continue to complete the payment.",
+      "paymentTitle": "Payment {{ number }} created",
+      "title": "Result"
+    },
+    "subtitle": "Your financial position: balances, due dates, debt aging, what is invoiced, what is pending invoicing and advances.",
+    "summary": {
+      "advances": "Unmatched advances",
+      "creditImputed": "Imputed to credit, not invoiced",
+      "currencyTitle": "Balance in {{ currency }}",
+      "dueSoon": "Due in the next {{ days }} days",
+      "empty": "The account has no balances.",
+      "notYetDue": "Invoiced, not yet due",
+      "overdue": "Overdue debt",
+      "title": "Account summary",
+      "total": "Total balance",
+      "uninvoiced": "Calculated, not invoiced"
+    },
+    "title": "Statement of account"
   },
   "admin": {
     "accessMatrix": {
@@ -345,6 +533,72 @@
       "subtitle": "Bulk upload with per-row customs validation",
       "title": "Bill of Lading Upload"
     },
+    "creditRules": {
+      "caption": "Concepts imputable to credit",
+      "col": {
+        "actions": "Actions",
+        "concept": "Concept",
+        "country": "Country",
+        "modified": "Last change",
+        "nexusConcept": "Nexus concept",
+        "notes": "Notes",
+        "status": "Status"
+      },
+      "disabledStatus": "Disabled",
+      "edit": "Edit",
+      "editLabel": "Edit the rule for {{ concept }} ({{ country }})",
+      "empty": "There are no rules.",
+      "enabled": "Enabled",
+      "errors": {
+        "load": "The rules could not be loaded.",
+        "remove": "The rule could not be removed."
+      },
+      "filters": {
+        "all": "All",
+        "country": "Country",
+        "includeDisabled": "Include disabled",
+        "label": "Rule filters",
+        "search": "Search"
+      },
+      "financeNote": "The initial rules are conservative and wait for Finance confirmation (M5-10): enable a concept only with that confirmation.",
+      "form": {
+        "cancel": "Cancel",
+        "concept": "Charge concept",
+        "conceptHelp": "Catalog concepts for the chosen country.",
+        "conceptPlaceholder": "Choose a concept",
+        "country": "Country",
+        "create": "Create rule",
+        "createTitle": "New rule",
+        "created": "The rule for {{ concept }} was created.",
+        "editTitle": "Edit the rule",
+        "enabled": "Enabled",
+        "errors": {
+          "concept": "Choose the charge concept.",
+          "nexusConcept": "Choose the Nexus credit concept.",
+          "submit": "The rule could not be saved.",
+          "summaryTitle": "Check the rule"
+        },
+        "nexusConcept": "Nexus credit concept",
+        "nexusHelp": "It must be in the customer credit terms to allow the imputation.",
+        "notes": "Notes",
+        "notesHelp": "For example, who in Finance confirmed the concept and when.",
+        "save": "Save changes",
+        "updated": "The rule for {{ concept }} was updated."
+      },
+      "history": "Change log",
+      "historyCaption": "Rule change log",
+      "historyClose": "Close",
+      "historyEmpty": "No changes recorded.",
+      "historyLabel": "View the change log of {{ concept }} ({{ country }})",
+      "historyTitle": "Change log of {{ concept }} ({{ country }})",
+      "modifiedBy": "{{ date }}, {{ user }}",
+      "new": "New rule",
+      "remove": "Remove",
+      "removeLabel": "Remove the rule for {{ concept }} ({{ country }})",
+      "removed": "The rule for {{ concept }} was removed.",
+      "subtitle": "Which charge concepts customers with credit terms can impute to their credit line, and to which Nexus credit concept.",
+      "title": "Concepts imputable to credit"
+    },
     "customs": {
       "amendment": {
         "blId": "B/L ID (optional)",
@@ -485,6 +739,63 @@
       "title": "Deadline Control",
       "viewBoard": "View board",
       "viewRules": "View rules"
+    },
+    "depositProofs": {
+      "bank": "Bank {{ bank }}, reference {{ reference }}",
+      "bls": "BL: {{ bls }}",
+      "caption": "Deposit proofs to review",
+      "col": {
+        "actions": "Actions",
+        "deposit": "Deposit details",
+        "payer": "Payer",
+        "payment": "Payment",
+        "proof": "Proof",
+        "status": "Status",
+        "total": "Total"
+      },
+      "depositAmount": "Amount {{ amount }}",
+      "depositDate": "Deposited on {{ date }}",
+      "downloadError": "The proof could not be downloaded.",
+      "downloadLabel": "View proof {{ name }} of payment {{ number }}",
+      "downloaded": "{{ name }} was downloaded.",
+      "empty": "There are no proofs in this status.",
+      "errors": {
+        "load": "The proofs could not be loaded."
+      },
+      "filters": {
+        "all": "All",
+        "country": "Country",
+        "label": "Proof filters",
+        "search": "Search",
+        "status": "Status"
+      },
+      "rejectionReason": "Reason: {{ reason }}",
+      "review": {
+        "back": "Back",
+        "bankReference": "Bank reference",
+        "decision": "Review result",
+        "depositAmount": "Amount reported",
+        "error": "The review could not be recorded.",
+        "notes": "Verification notes",
+        "notesHelp": "Optional. The bank reference goes to the reconciliation.",
+        "reason": "Rejection reason (required)",
+        "reasonHelp": "The customer will see this reason.",
+        "reasonRequired": "Enter the rejection reason: the customer will see it to upload a new proof.",
+        "reject": "Reject the proof",
+        "rejected": "Proof of payment {{ number }} rejected: the customer can upload a new one.",
+        "slip": "Payment slip",
+        "submit": "Record the review",
+        "title": "Review the proof of payment {{ number }}",
+        "total": "Payment total",
+        "verified": "Proof of payment {{ number }} verified: the payment is confirmed (receipt {{ receipt }}).",
+        "verify": "The deposit is in the bank: verify and confirm the payment"
+      },
+      "reviewButton": "Review",
+      "reviewLabel": "Review the proof of payment {{ number }}",
+      "slip": "Payment slip {{ number }}",
+      "subtitle": "Check the deposit against the proof and confirm the payment, or reject the proof with the reason.",
+      "title": "Deposit proofs",
+      "uploaded": "Sent on {{ date }} by {{ user }}"
     },
     "finance": {
       "cancel": {
@@ -1412,6 +1723,69 @@
         "titleLoading": "Review the request"
       }
     },
+    "settlements": {
+      "auto": {
+        "button": "Match automatically",
+        "done": "{{ matched }} of {{ open }} open advances were matched.",
+        "error": "The automatic matching could not be run.",
+        "help": "Matches open advances with invoices of the same BL, concept, currency and billed tax ID whose amounts add up to the total."
+      },
+      "billing": "Billed to {{ taxId }}",
+      "caption": "Advances and credit imputations",
+      "col": {
+        "actions": "Actions",
+        "amount": "Amount",
+        "charge": "Charge",
+        "date": "Payment date",
+        "kind": "Type",
+        "parties": "Payer and billing",
+        "payment": "Payment",
+        "status": "Match"
+      },
+      "empty": "There are no advances with these filters.",
+      "errors": {
+        "load": "The advances could not be loaded."
+      },
+      "filters": {
+        "all": "All",
+        "bl": "BL",
+        "country": "Country",
+        "from": "Paid from",
+        "kind": "Type",
+        "label": "Advance filters",
+        "search": "Search",
+        "status": "Status",
+        "to": "Paid to"
+      },
+      "manual": {
+        "back": "Back",
+        "button": "Match manually",
+        "buttonLabel": "Match payment {{ payment }}, {{ concept }} manually",
+        "done": "Advance of payment {{ payment }} matched with invoice {{ invoice }}.",
+        "errors": {
+          "invoiceFormat": "The invoice identifier has the 8-4-4-4-12 character format, for example 3fa85f64-5717-4562-b3fc-2c963f66afa6.",
+          "invoiceRequired": "Enter the invoice identifier.",
+          "submit": "The match could not be recorded.",
+          "summaryTitle": "Check the match"
+        },
+        "invoice": "Invoice identifier (required)",
+        "invoiceHelp": "The identifier of the invoice in the portal (M7-01).",
+        "note": "Note",
+        "noteHelp": "Required if the amounts differ: explain the difference.",
+        "submit": "Match",
+        "summary": "{{ concept }} of BL {{ bl }} for {{ amount }}, billable to {{ taxId }}.",
+        "title": "Manual match of payment {{ payment }}"
+      },
+      "matchNote": "Note: {{ note }}",
+      "matchedAt": "{{ date }}, {{ user }}",
+      "matchedInvoice": "Invoice {{ number }}",
+      "paid": "Paid {{ amount }}",
+      "payer": "Paid by {{ name }} ({{ taxId }})",
+      "receipt": "Receipt {{ number }}",
+      "receiptDocument": "Advance receipt {{ number }}",
+      "subtitle": "Payments released before their invoice and credit imputations, with the match to the invoice issued later.",
+      "title": "Advances and invoice matching"
+    },
     "tariffs": {
       "editor": {
         "amount": "Amount",
@@ -1869,6 +2243,11 @@
         "unavailable": "Nexus did not respond for this party."
       },
       "forbidden": "Your organization is not allowed to view the charges of this BL.",
+      "gateOutAdvance": {
+        "invoice": "When the invoice is issued, it will be linked to this receipt and the charge will not appear as pending again.",
+        "text": "The export invoice is issued after the vessel sails, but you can pay the Gate Out now. Once the payment is confirmed, the portal issues a receipt with the shipment, the units and the payer, available in the shipment documents.",
+        "title": "Gate Out advance payment"
+      },
       "ipoExcluded": "The IPO surcharge is not charged: the organization has credit terms in Nexus.",
       "letter": {
         "cannotIssue": "A user of your organization with an operating profile must generate the letter.",
@@ -2014,12 +2393,14 @@
       "matrixLate": "Late matrix submission",
       "mhd": "MHD",
       "opening": "Opening",
+      "reinvoicing": "IAO re-invoicing",
       "sealManagement": "Seal management",
       "thc": "THC",
       "thcRf": "THC reefer",
       "transitFee": "Transit fee",
       "transshipmentCert": "Transshipment certificate",
       "valuation": "Valuation",
+      "vatLoss": "VAT loss",
       "warehouseChange": "Warehouse change",
       "xom": "XOM (container administration)"
     },
@@ -2046,12 +2427,14 @@
       "warehouseChangeNotFound": "The warehouse change request does not exist."
     },
     "chargeOutcome": {
+      "creditImputed": "Imputed to credit",
       "exempt": "Exempt",
       "paid": "Paid",
       "partiallyExempt": "Partially exempt",
       "payable": "Payable"
     },
     "chargeStatus": {
+      "creditImputed": "Imputed to credit",
       "exempt": "Exempt",
       "invoiced": "Invoiced",
       "paid": "Paid",
@@ -2060,6 +2443,10 @@
     "country": {
       "bo": "Bolivia",
       "cl": "Chile"
+    },
+    "creditUnavailableReason": {
+      "exchangeRateUnavailable": "There is no exchange rate for today to calculate the available credit.",
+      "limitNotInformed": "Nexus does not report the credit limit: the available credit cannot be calculated."
     },
     "dataSource": {
       "fis": "FIS",
@@ -2072,6 +2459,11 @@
       "invoicedWithDebt": "Invoiced with outstanding debt",
       "noDemurrage": "No demurrage",
       "notCalculated": "Not yet calculated"
+    },
+    "depositProofStatus": {
+      "rejected": "Rejected",
+      "submitted": "Under review",
+      "verified": "Verified"
     },
     "documentErrors": {
       "blNotFound": "We could not find the BL or you do not have access to it.",
@@ -2116,7 +2508,8 @@
       "cancelled": "Cancelled",
       "overdue": "Overdue",
       "paid": "Paid",
-      "pending": "Pending"
+      "pending": "Pending",
+      "superseded": "Superseded"
     },
     "issuanceStatus": {
       "authorizedAtDestination": "Issuance authorized at destination",
@@ -2146,6 +2539,12 @@
       "active": "Active",
       "pending": "Pending",
       "rejected": "Rejected"
+    },
+    "nexusCreditConcept": {
+      "freight": "Freight",
+      "localCharges": "Local charges",
+      "mhd": "MHD",
+      "storage": "Storage"
     },
     "noDebtBlocker": {
       "advanceDemurrage": "Required advance demurrage not paid",
@@ -2196,9 +2595,14 @@
       "blocked": "Payments are temporarily suspended. You can still look up information.",
       "blockedWithMessage": "Payments are temporarily suspended: {{ message }}",
       "cartItemNotFound": "The item is no longer in the cart.",
+      "conceptNotFound": "The charge concept is not in the catalog.",
       "conditionsUnavailable": "Nexus is not available: the commercial conditions cannot be checked. Nothing was added or charged. Try again later.",
       "conflict": "Another payment request locked or changed these items at the same time. This request charged nothing: check the payment history and the cart.",
       "creditCustomer": "Your organization has credit terms: pay from \"Pay from my account\".",
+      "creditImputed": "The charge is already imputed to the credit line; it is paid with the invoice.",
+      "creditNotEligible": "The concept cannot be imputed to the credit line; pay it now.",
+      "creditRuleExists": "There is already a rule for that concept and country.",
+      "creditRuleNotFound": "The rule was not found.",
       "currencyNotAllowed": "The selected currency is not enabled for this charge. Choose another one from the list.",
       "duplicate": "The item is already in the cart.",
       "empty": "There are no items to pay in this currency.",
@@ -2223,12 +2627,20 @@
       "notPayable": "The item cannot be paid in the portal.",
       "operationNotRetryable": "The operation has already finished: there is nothing to retry.",
       "payDemurrageInvoice": "The demurrage line has already been invoiced: pay the invoice.",
+      "paymentDataRequired": "Choose the payment currency and method for the items you pay now.",
       "paymentNotFound": "We could not find the payment.",
       "pdfNotAvailable": "The invoice has no SII folio yet: the PDF is not available.",
+      "proofNotAwaited": "This payment is not waiting for a deposit proof.",
+      "proofNotFound": "The proof was not found.",
+      "proofNotPendingReview": "This proof was already reviewed.",
+      "proofPendingReview": "A proof is already under review. Wait for Finance to answer before sending another one.",
       "providerRequired": "An online method needs a registered payment platform.",
       "providerUnavailable": "The payment platform did not respond. Nothing was charged and the items are still in the cart: you can try again.",
       "receiptNotAvailable": "The receipt is not available yet.",
       "responsibilityLetterRequired": "The freight forwarder letter of indemnity is missing: this BL cannot be paid yet.",
+      "settlementAlreadyMatched": "The advance is already matched with an invoice.",
+      "settlementInvoiceNotMatchable": "The invoice cannot be matched with this advance (another BL, currency or tax ID, or already paid).",
+      "settlementNotFound": "The advance was not found.",
       "slipAlreadyIssued": "The payment slip has already been issued: you cannot cancel it in the portal.",
       "sourceUnavailable": "The information source did not respond. No change was saved: try again later.",
       "unavailable": "The service is not available right now. Try again later.",
@@ -2247,6 +2659,7 @@
     "paymentOperationJob": {
       "documents": "Document issuing",
       "notify": "Payer notice",
+      "reinvoicing": "Re-invoicing issuance",
       "release": "Service release"
     },
     "paymentOperationStatus": {
@@ -2257,6 +2670,7 @@
     "paymentOrigin": {
       "account": "Pay from my account",
       "cart": "Cart",
+      "creditLine": "Credit line",
       "legacy": "Per-BL payment (previous)"
     },
     "paymentStatus": {
@@ -2296,6 +2710,35 @@
       "missingReceipt": "Receipt missing",
       "missingTransactionReference": "Transaction reference missing",
       "notSettled": "Not settled"
+    },
+    "reinvoicingAcceptanceStatus": {
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "pending": "Acceptance pending"
+    },
+    "reinvoicingErrors": {
+      "acceptanceClosed": "The request no longer accepts answers.",
+      "acceptanceExpired": "The acceptance link expired. Ask the requester of the re-invoicing to resend it.",
+      "acceptanceNotFound": "The link is not valid or no longer current. Check that you copied it completely or ask for a new one.",
+      "acceptanceNotPending": "The charge was already answered.",
+      "acceptorTaxIdRequired": "Enter the tax ID of the new legal entity.",
+      "alreadyRequested": "The invoice already has a re-invoicing in progress.",
+      "approvalRequired": "Attach the new legal entity approval before submitting.",
+      "billingDataRequired": "Complete the billing data of the new legal entity.",
+      "exchangeRateNotFound": "There is no exchange rate for today to convert the VAT loss.",
+      "forbidden": "You do not have permission for this operation.",
+      "invoiceNotEligible": "The invoice cannot be re-invoiced (it must be Chilean, with an SII folio and a BL, your own and current).",
+      "invoiceNotFound": "The invoice was not found.",
+      "invoiceNotIssued": "The new invoice has not been issued yet.",
+      "notEditable": "The request was already submitted and cannot be changed.",
+      "notFound": "The re-invoicing was not found.",
+      "sameTaxId": "The new legal entity tax ID must differ from the invoiced one.",
+      "sourceUnavailable": "The invoicing system did not answer. Try again later.",
+      "tariffChanged": "The charge changed since you reviewed it. Check the total and accept it again.",
+      "tariffNotAccepted": "Accept the charge before submitting.",
+      "tariffNotInForce": "There is no re-invoicing tariff in force.",
+      "unavailable": "The service is not available right now. Try again in a few minutes.",
+      "unknownFileField": "The attachment does not belong to this request."
     },
     "relatedDocumentKind": {
       "invoice": "Invoice",
@@ -2343,17 +2786,6 @@
       "afterDeparture": "After departure",
       "always": "Always",
       "beforeDeparture": "Before departure"
-    },
-    "serviceDefinition": {
-      "blCorrection": "BL correction or clarification",
-      "blHouseTransmission": "House BL transmission",
-      "dropOff": "Drop Off SCL",
-      "earlyArrival": "Early arrival",
-      "gateInReturn": "Gate In for returned export units",
-      "lateArrival": "Late Arrival",
-      "matrixLate": "Late matrix submission",
-      "sealManagement": "Seal management",
-      "xom": "Container administration (XOM)"
     },
     "serviceFieldType": {
       "containers": "BL containers",
@@ -2419,6 +2851,7 @@
       "unavailable": "The service is not available right now. Please try again in a few minutes.",
       "unknownAction": "The access matrix action does not exist or is not active.",
       "unknownFileField": "The file does not belong to a form field.",
+      "useDedicatedFlow": "This service is requested through its own flow (IAO re-invoicing, from the invoice).",
       "warehouseChangeNotFound": "We could not find the warehouse change."
     },
     "serviceRequestStatus": {
@@ -2461,6 +2894,14 @@
       "notOverdue": "It is still within the deadline: the charge only applies after it.",
       "tariffNotInForce": "There is no tariff in force for the service."
     },
+    "settlementKind": {
+      "advance": "Advance",
+      "creditImputation": "Credit imputation"
+    },
+    "settlementStatus": {
+      "matched": "Matched with invoice",
+      "open": "Not matched"
+    },
     "shipmentDocumentOrigin": {
       "payment": "Issued when the payment was confirmed",
       "request": "Requested in the portal",
@@ -2475,6 +2916,7 @@
       "blCopyNonValued": "Non-valued BL copy",
       "blCopyValued": "Valued BL copy",
       "collectReceipt": "Collect receipt",
+      "gateOutAdvanceReceipt": "Gate Out advance payment receipt",
       "gateOutCoupon": "Gate Out pick-up voucher",
       "noDebtCertificate": "CLD (debt clearance certificate)",
       "responsibilityLetter": "Letter of indemnity",
@@ -2498,6 +2940,34 @@
       "inTransit": "In transit",
       "onBoard": "On board",
       "released": "Released"
+    },
+    "statementDocumentType": {
+      "debitNote": "Debit note",
+      "demurrage": "Demurrage",
+      "exemptInvoice": "Exempt invoice",
+      "freight": "Freight",
+      "invoice": "Invoice",
+      "localCharge": "Local charge",
+      "serviceCharge": "Service charge"
+    },
+    "statementLineKind": {
+      "creditImputed": "Imputed to credit",
+      "invoiced": "Invoiced",
+      "uninvoiced": "Calculated, not invoiced"
+    },
+    "statementSort": {
+      "amount": "Balance",
+      "blNumber": "BL",
+      "dueDate": "Due date (overdue first)",
+      "issueDate": "Issue date"
+    },
+    "statementStatus": {
+      "covered": "Covered by advance",
+      "creditImputed": "Imputed to credit",
+      "dueSoon": "Due soon",
+      "overdue": "Overdue",
+      "pending": "Pending",
+      "uninvoiced": "Not invoiced"
     },
     "tariffTierMode": {
       "flat": "Tier value",
@@ -2733,6 +3203,10 @@
         "description": "Pay charges and invoices with your organization's credit terms.",
         "title": "Pay from my account"
       },
+      "accountStatement": {
+        "description": "Balances, due dates, debt aging and paying several invoices at once.",
+        "title": "View my statement of account"
+      },
       "dangerousGoods": {
         "description": "Check the class and UN number of a cargo.",
         "title": "Search dangerous goods"
@@ -2918,6 +3392,64 @@
     },
     "subtitle": "Check the demurrage status of a BL and the action that applies.",
     "title": "Demurrage"
+  },
+  "depositProofs": {
+    "amount": "Amount: {{ amount }}",
+    "awaiting": "The payment slip is waiting for the deposit proof. Attach it once you have deposited.",
+    "bank": "Bank: {{ bank }}",
+    "caption": "Deposit proofs sent and their review",
+    "col": {
+      "deposit": "Deposit details",
+      "file": "File",
+      "review": "Finance review",
+      "status": "Status",
+      "uploaded": "Sent"
+    },
+    "date": "Date: {{ date }}",
+    "downloadError": "The proof could not be downloaded.",
+    "downloadLabel": "Download proof {{ name }}",
+    "downloaded": "{{ name }} was downloaded.",
+    "errors": {
+      "load": "The deposit proofs could not be loaded."
+    },
+    "form": {
+      "amount": "Amount deposited ({{ currency }})",
+      "amountHelp": "Payment total: {{ total }}.",
+      "bank": "Bank",
+      "date": "Deposit date",
+      "done": "Proof {{ name }} was sent.",
+      "errors": {
+        "amount": "Enter the amount in numbers, for example 119000 or 1250.50.",
+        "fileRequired": "Choose the proof file.",
+        "fileSize": "The proof exceeds 10 MB.",
+        "fileType": "The proof must be a PDF, PNG or JPEG.",
+        "submit": "The proof could not be sent. Try again.",
+        "summaryTitle": "Check the proof"
+      },
+      "file": "Proof (required)",
+      "fileHelp": "PDF, PNG or JPEG up to 10 MB.",
+      "notes": "Notes for Finance",
+      "reference": "Transaction number or reference",
+      "referenceHelp": "Helps Finance find the deposit in the bank statement.",
+      "submit": "Send proof",
+      "title": "Attach the proof",
+      "titleAgain": "Attach a new proof"
+    },
+    "help": "Attach the deposit proof so Finance can confirm the payment when the funds arrive.",
+    "noData": "No deposit details",
+    "pendingReview": "Pending",
+    "reference": "Reference: {{ reference }}",
+    "rejected": {
+      "again": "The payment is still pending: attach a new proof.",
+      "reason": "Reason: {{ reason }}",
+      "title": "Finance rejected the proof"
+    },
+    "rejectionReason": "Rejection reason: {{ reason }}",
+    "reviewNotes": "Notes: {{ notes }}",
+    "reviewedBy": "{{ date }}, {{ user }}",
+    "submitted": "Proof sent on {{ date }}: Finance will review it when the funds arrive.",
+    "title": "Deposit proof",
+    "verified": "Finance verified the deposit on {{ date }}: the payment is confirmed."
   },
   "documents": {
     "blCopy": {
@@ -3127,6 +3659,8 @@
       "taxId": "Tax ID"
     },
     "count": "{count, plural, one {# invoice} other {# invoices}}",
+    "coveredBy": "Covered by receipt {{ receipt }} (payment {{ payment }})",
+    "coveredByDocuments": "View the receipt in the shipment documents",
     "download": {
       "error": "The download failed.",
       "pdf": "PDF",
@@ -3171,9 +3705,16 @@
       "done": "Invoices refreshed: {{ checked }} checked, {{ updated }} changed.",
       "error": "The invoices could not be refreshed."
     },
+    "reinvoice": "Re-invoice",
+    "reinvoiceLabel": "Re-invoice invoice {{ number }} to another legal entity",
     "selectDisabledLabel": "Invoice {{ number }} has no SII folio: it cannot be downloaded",
     "selectLabel": "Select invoice {{ number }} for download",
+    "statementLink": "View statement of account",
     "subtitle": "Local invoices of the organizations you have access to, kept separate from each other.",
+    "supersededBy": "Superseded by invoice {{ number }}",
+    "supersededByOther": "Superseded by an IAO re-invoicing invoice",
+    "supersedes": "Supersedes invoice {{ number }}",
+    "supersedesOther": "Supersedes an earlier invoice (IAO re-invoicing)",
     "title": "Invoices"
   },
   "notifications": {
@@ -3190,7 +3731,13 @@
       "accessRevoked": "Shipment access revoked",
       "accessRevokedByCascade": "Access revoked by cascade",
       "accessUpdated": "Shipment access changed",
+      "creditImputationRegistered": "Charges imputed to the credit line",
+      "depositProofRejected": "Deposit proof rejected",
+      "depositProofSubmitted": "Deposit proof to verify",
       "documentIssued": "Shipment document issued",
+      "invoiceReissued": "Invoice reissued to the new legal entity",
+      "reinvoicingAccepted": "Re-invoicing accepted by the new legal entity",
+      "reinvoicingDeclined": "Re-invoicing declined by the new legal entity",
       "serviceRequestApproved": "Service request approved",
       "serviceRequestCancelled": "Service request cancelled",
       "serviceRequestCompleted": "Service request completed",
@@ -3467,6 +4014,7 @@
       "title": "Payment confirmed"
     },
     "documents": {
+      "advanceReceipt": "If the shipment is an export without an invoice yet, the Gate Out advance payment receipt is also issued; the later invoice will be linked to that receipt.",
       "link": "View the documents of BL {{ bl }}",
       "text": "This payment issues shipment documents (transshipment certificate or Gate Out pick-up voucher). They are generated within seconds, saved in the BL documents, and the transshipment certificate is sent by email.",
       "title": "Shipment documents"
@@ -3540,6 +4088,188 @@
     "type": {
       "agent": "Customs Broker",
       "client": "Customer"
+    }
+  },
+  "reinvoicing": {
+    "acceptance": {
+      "accept": "I accept the charge for a total of {{ total }} and the issuance of the invoice in our name",
+      "acceptedText": "Thank you. We recorded your acceptance on {{ date }}. The invoice will be issued once the payment is confirmed.",
+      "acceptedTitle": "Charge accepted",
+      "answer": "Answer (required)",
+      "decline": "I decline the charge",
+      "declinedText": "We recorded your decline on {{ date }}. The invoice will not be issued in your name.",
+      "declinedTitle": "Charge declined",
+      "errors": {
+        "answer": "Choose whether you accept or decline the charge.",
+        "name": "Enter your name.",
+        "submit": "The answer could not be recorded. Try again.",
+        "summaryTitle": "Check your answer",
+        "taxId": "Enter the company tax ID."
+      },
+      "expires": "You can answer until {{ date }}.",
+      "fee": "Re-invoicing (VAT included)",
+      "formHelp": "Answer on behalf of {{ name }} ({{ taxId }}).",
+      "formTitle": "Your answer",
+      "loadError": "The request could not be loaded.",
+      "name": "Your name (required)",
+      "newEntity": "It will be billed to",
+      "original": "Original invoice",
+      "originalTotal": "Original total: {{ total }}",
+      "reason": "Comment",
+      "reasonHelp": "Optional. If you decline, tell us why.",
+      "record": "Your answer is recorded with the date, time and address you answer from.",
+      "result": {
+        "accepted": "Acceptance of request {{ number }} recorded.",
+        "declined": "Decline of request {{ number }} recorded."
+      },
+      "submit": "Send answer",
+      "subtitle": "A company asked to re-invoice a Hapag-Lloyd invoice in your name. To issue the new invoice we need you to accept the charge.",
+      "summaryTitle": "Request {{ number }}",
+      "taxId": "Company tax ID (required)",
+      "taxIdHelp": "The tax ID of the legal entity to be billed, for example 77.888.999-1.",
+      "title": "Re-invoicing charge acceptance",
+      "total": "Total charge",
+      "vatLoss": "VAT loss"
+    },
+    "backToInvoices": "Back to invoices",
+    "breadcrumbInvoices": "Invoices",
+    "breadcrumbLabel": "Breadcrumb",
+    "breadcrumbRequests": "My requests",
+    "detail": {
+      "acceptance": {
+        "accepted": "Accepted by {{ name }} ({{ taxId }}) on {{ date }}.",
+        "declineReason": "Reason: {{ reason }}",
+        "declined": "The new legal entity declined the charge on {{ date }}.",
+        "declinedHelp": "The new invoice will not be issued.",
+        "expires": "The link expires on {{ date }}.",
+        "pending": "Acceptance was requested from {{ email }} on {{ date }}.",
+        "pendingHelp": "The new invoice is issued only when the new legal entity accepts the charge and the payment is confirmed.",
+        "resend": "Resend the acceptance link",
+        "resendError": "The link could not be resent.",
+        "resent": "A new link was sent to {{ email }}; the previous one no longer works.",
+        "title": "Acceptance by the new legal entity",
+        "waitingIssue": "The new invoice is being issued.",
+        "waitingPayment": "Payment is pending: the invoice is issued once it is confirmed."
+      },
+      "acceptor": "Accepts the charge",
+      "approval": {
+        "done": "{{ name }} was attached.",
+        "downloadError": "The approval could not be downloaded.",
+        "downloadLabel": "Download approval {{ name }}",
+        "downloaded": "{{ name }} was downloaded.",
+        "errors": {
+          "fileRequired": "Choose the approval file.",
+          "fileSize": "The approval exceeds 10 MB.",
+          "fileType": "The approval must be a PDF, PNG or JPEG.",
+          "submit": "The approval could not be attached. Try again."
+        },
+        "file": "Approval file",
+        "help": "PDF, PNG or JPEG up to 10 MB, signed by the new legal entity.",
+        "title": "Approval of the new legal entity (required)",
+        "upload": "Attach the approval",
+        "uploaded": "{{ size }}, sent on {{ date }}"
+      },
+      "bl": "BL",
+      "breadcrumb": "Re-invoicing",
+      "cancelled": "The re-invoicing was cancelled: the new invoice will not be issued.",
+      "fee": "Re-invoicing (VAT included)",
+      "issued": {
+        "link": "View invoices",
+        "text": "Issued on {{ date }} to the new legal entity. Invoice {{ original }} was superseded.",
+        "title": "Invoice {{ number }} issued"
+      },
+      "loadError": "The re-invoicing could not be loaded.",
+      "newEntity": "New legal entity",
+      "notFound": "The re-invoicing was not found or you do not have access to it.",
+      "original": "Original invoice",
+      "payment": {
+        "added": "The charges of re-invoicing {{ number }} were added to the cart.",
+        "help": "The re-invoicing and the VAT loss are paid together.",
+        "title": "Re-invoicing payment"
+      },
+      "submit": {
+        "accept": "I accept the re-invoicing and VAT loss charges for a total of {{ total }}.",
+        "button": "Submit the re-invoicing",
+        "done": "Re-invoicing {{ number }} submitted. The acceptance link was sent to {{ email }}.",
+        "errors": {
+          "accept": "Accept the charge to submit.",
+          "approval": "Attach the approval of the new legal entity.",
+          "submit": "The re-invoicing could not be submitted. Try again.",
+          "summaryTitle": "It cannot be submitted yet"
+        },
+        "help": "Attach the approval of the new legal entity and accept the charge. On submission the two charges are generated and the acceptance link is sent.",
+        "title": "Approval and submission"
+      },
+      "summaryTitle": "Re-invoicing status",
+      "timeline": "Timeline",
+      "title": "Re-invoicing {{ number }}",
+      "titleLoading": "Re-invoicing",
+      "total": "Total charge",
+      "updated": "Last change",
+      "vatLoss": "VAT loss"
+    },
+    "new": {
+      "acceptorEmail": "Email of who will accept the charge",
+      "acceptorHelp": "Optional: the person at the new legal entity who will accept the charge.",
+      "activity": "Line of business",
+      "address": "Address (required)",
+      "billingHelp": "The new invoice will be issued to this data, only once the new legal entity accepts the charge and it is paid.",
+      "billingTitle": "Billing data of the new legal entity",
+      "breadcrumb": "Re-invoice",
+      "created": "Re-invoicing {{ number }} was created.",
+      "email": "Billing email (required)",
+      "emailHelp": "Unless you enter another one, the link to accept the charge is sent here.",
+      "errors": {
+        "acceptorFormat": "Enter a valid email for who will accept the charge.",
+        "address": "Enter the address.",
+        "email": "Enter the billing email.",
+        "emailFormat": "Enter a valid billing email, for example billing@company.com.",
+        "name": "Enter the legal name.",
+        "sameTaxId": "The tax ID of the new legal entity must differ from the invoiced tax ID.",
+        "server": "Check this data: the system did not accept it.",
+        "submit": "The re-invoicing could not be created. Try again.",
+        "summaryTitle": "Check the data of the new legal entity",
+        "taxId": "Enter the tax ID of the new legal entity."
+      },
+      "ineligibleTitle": "This invoice cannot be re-invoiced",
+      "loadError": "The re-invoicing charge could not be calculated.",
+      "name": "Legal name (required)",
+      "noInvoice": "Choose the invoice to re-invoice from the invoice list.",
+      "quoteTitle": "Estimated charge to re-invoice invoice {{ number }}",
+      "reason": "Reason for the re-invoicing",
+      "submit": "Save and continue",
+      "subtitle": "Re-invoice an invoice to another legal entity: the re-invoicing and the VAT loss are charged in the same module.",
+      "taxId": "Tax ID of the new legal entity (required)",
+      "taxIdHelp": "With check digit, for example 77.888.999-1. It must differ from the invoiced tax ID.",
+      "title": "IAO re-invoicing"
+    },
+    "quote": {
+      "billedTo": "Billed to",
+      "caption": "Re-invoicing and VAT loss charges",
+      "col": {
+        "concept": "Concept",
+        "net": "Net",
+        "tax": "VAT",
+        "total": "Total"
+      },
+      "exchangeRate": "VAT loss converted with the Nexus exchange rate of the day: 1 {{ from }} = {{ rate }} {{ to }}.",
+      "exempt": "The invoice is exempt: there is no VAT loss.",
+      "invoice": "Invoice",
+      "invoiceTax": "Invoice VAT",
+      "invoiceTotal": "Invoice total",
+      "party": "{{ name }} ({{ taxId }})",
+      "quotedAt": "Calculated on {{ date }}.",
+      "source": "Source number {{ number }}",
+      "total": "Total to pay"
+    },
+    "readOnly": "Your profile is read-only: you can view the re-invoicing, but not change it.",
+    "steps": {
+      "billing": "New legal entity",
+      "issued": "Invoice issued",
+      "item": "Step {{ number }}: {{ name }}",
+      "label": "Re-invoicing steps",
+      "payAccept": "Payment and acceptance",
+      "submit": "Approval and submission"
     }
   },
   "serviceOrders": {
@@ -3659,6 +4389,7 @@
       "quote": {
         "title": "Service value"
       },
+      "reinvoicingLink": "This is an IAO re-invoicing: see the new legal entity acceptance and the issuance on its page.",
       "summary": {
         "bl": "BL",
         "booking": "Booking",
@@ -4093,18 +4824,21 @@
       "link": {
         "accessMatrix": "Access matrix",
         "accountPayments": "Pay from my account",
+        "accountStatement": "Statement of account",
         "adminOrganizations": "Organizations",
         "assistantKnowledge": "Knowledge base",
         "assistantMailboxes": "Assistant mailboxes",
         "audit": "Audit",
         "blImport": "BL Upload",
         "cart": "Cart",
+        "creditImputationRules": "Credit imputation",
         "customs": "Customs Transmission",
         "dangerousGoods": "Dangerous goods",
         "dangerousGoodsImport": "Dangerous goods base",
         "dashboard": "Dashboard",
         "deadlines": "Deadline Control",
         "demurrage": "Demurrage",
+        "depositProofs": "Deposit proofs",
         "faq": "FAQ",
         "internalRules": "Charge rules",
         "invoices": "Invoices",
@@ -4121,6 +4855,7 @@
         "serviceOrders": "Service Orders",
         "serviceRequestQueue": "Service requests",
         "serviceRequests": "My requests",
+        "settlements": "Advances and matching",
         "shipments": "Shipments",
         "tariffs": "Tariffs",
         "tatc": "Request TATC",

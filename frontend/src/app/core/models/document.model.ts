@@ -14,7 +14,9 @@ export type ShipmentDocumentType =
   | 'BlCopyValued'
   | 'BlCopyNonValued'
   | 'ResponsibilityLetter'
-  | 'NoDebtCertificate';
+  | 'NoDebtCertificate'
+  // Fase 2, Ola H: recibo del pago anticipado de Gate Out de exportación (M3-19).
+  | 'GateOutAdvanceReceipt';
 
 /** Estado del documento: una carta más nueva deja la anterior reemplazada. */
 export type ShipmentDocumentStatus = 'Issued' | 'Superseded' | 'Revoked';

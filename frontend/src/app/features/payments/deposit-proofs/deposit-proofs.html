@@ -1,0 +1,179 @@
+<section class="hl-card mb-4" aria-labelledby="deposit-proofs-title" data-testid="deposit-proofs">
+  <div class="card-header p-3">
+    <h2 id="deposit-proofs-title" class="section-title">{{ 'depositProofs.title' | transloco }}</h2>
+    <p class="small text-muted fw-normal mb-0">{{ 'depositProofs.help' | transloco }}</p>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (error()) {
+    <div class="alert alert-danger m-3" role="alert">{{ error() }}</div>
+  } @else if (data(); as d) {
+    <div class="p-3 pb-0">
+      <!-- Estado de la revisión del último comprobante -->
+      @if (latest(); as last) {
+        @switch (last.status) {
+          @case ('Rejected') {
+            <div class="alert alert-danger" data-testid="deposit-proof-rejected">
+              <p class="fw-bold mb-1">{{ 'depositProofs.rejected.title' | transloco }}</p>
+              <p class="mb-1 proof-pre-line">{{ 'depositProofs.rejected.reason' | transloco: { reason: last.rejectionReason ?? '—' } }}</p>
+              @if (d.canUpload) {
+                <p class="mb-0">{{ 'depositProofs.rejected.again' | transloco }}</p>
+              }
+            </div>
+          }
+          @case ('Submitted') {
+            <div class="alert alert-info" data-testid="deposit-proof-submitted">
+              {{ 'depositProofs.submitted' | transloco: { date: (last.uploadedAt | hlDate: 'datetime') } }}
+            </div>
+          }
+          @case ('Verified') {
+            <div class="alert alert-success" data-testid="deposit-proof-verified">
+              {{ 'depositProofs.verified' | transloco: { date: (last.reviewedAt | hlDate: 'datetime') } }}
+            </div>
+          }
+        }
+      } @else if (d.awaitingProof) {
+        <div class="alert alert-info" data-testid="deposit-proof-awaiting">{{ 'depositProofs.awaiting' | transloco }}</div>
+      }
+      @if (actionError()) {
+        <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+      }
+    </div>
+
+    @if (d.proofs.length > 0) {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'depositProofs.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'depositProofs.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'depositProofs.col.uploaded' | transloco }}</th>
+              <th scope="col">{{ 'depositProofs.col.file' | transloco }}</th>
+              <th scope="col">{{ 'depositProofs.col.deposit' | transloco }}</th>
+              <th scope="col">{{ 'depositProofs.col.status' | transloco }}</th>
+              <th scope="col">{{ 'depositProofs.col.review' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (proof of d.proofs; track proof.id) {
+              <tr [attr.data-testid]="'deposit-proof-' + proof.status">
+                <td>
+                  <span class="d-block">{{ proof.uploadedAt | hlDate: 'datetime' }}</span>
+                  <span class="small text-muted text-break">{{ proof.uploadedBy }}</span>
+                </td>
+                <td>
+                  <button type="button" class="btn btn-link btn-sm p-0 text-break text-start" [disabled]="downloading() === proof.id" (click)="download(proof)"
+                          [attr.aria-label]="'depositProofs.downloadLabel' | transloco: { name: proof.fileName }">{{ proof.fileName }}</button>
+                  <span class="small text-muted d-block">{{ size(proof) }}</span>
+                </td>
+                <td class="small">
+                  @if (proof.bankName) {
+                    <span class="d-block">{{ 'depositProofs.bank' | transloco: { bank: proof.bankName } }}</span>
+                  }
+                  @if (proof.bankReference) {
+                    <span class="d-block">{{ 'depositProofs.reference' | transloco: { reference: proof.bankReference } }}</span>
+                  }
+                  @if (proof.depositDate) {
+                    <span class="d-block">{{ 'depositProofs.date' | transloco: { date: (proof.depositDate | hlDate: 'localDate') } }}</span>
+                  }
+                  @if (proof.depositAmount !== null && proof.depositAmount !== undefined) {
+                    <span class="d-block">{{ 'depositProofs.amount' | transloco: { amount: (proof.depositAmount | hlCurrency: d.payment.payment.currency) } }}</span>
+                  }
+                  @if (!proof.bankName && !proof.bankReference && !proof.depositDate && (proof.depositAmount === null || proof.depositAmount === undefined)) {
+                    <span aria-hidden="true">—</span>
+                    <span class="visually-hidden">{{ 'depositProofs.noData' | transloco }}</span>
+                  }
+                </td>
+                <td><span class="hl-badge" [class]="statusClass[proof.status] || 'hl-badge--processing'">{{ proof.status | codeLabel: statusKeys }}</span></td>
+                <td class="small">
+                  @if (proof.reviewedAt) {
+                    <span class="d-block">{{ 'depositProofs.reviewedBy' | transloco: { date: (proof.reviewedAt | hlDate: 'datetime'), user: proof.reviewedBy ?? '—' } }}</span>
+                  }
+                  @if (proof.rejectionReason) {
+                    <span class="d-block proof-pre-line">{{ 'depositProofs.rejectionReason' | transloco: { reason: proof.rejectionReason } }}</span>
+                  }
+                  @if (proof.reviewNotes) {
+                    <span class="d-block proof-pre-line">{{ 'depositProofs.reviewNotes' | transloco: { notes: proof.reviewNotes } }}</span>
+                  }
+                  @if (!proof.reviewedAt) {
+                    {{ 'depositProofs.pendingReview' | transloco }}
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (d.canUpload) {
+      <!-- Adjuntar el comprobante (o uno nuevo tras un rechazo) -->
+      <form class="p-3 border-top" novalidate aria-labelledby="deposit-proof-form-title" (submit)="upload($event)" data-testid="deposit-proof-form">
+        <h3 id="deposit-proof-form-title" class="h6 fw-bold">{{ (latest()?.status === 'Rejected' ? 'depositProofs.form.titleAgain' : 'depositProofs.form.title') | transloco }}</h3>
+        @if (errors().length > 0) {
+          <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="deposit-proof-errors-title" data-testid="deposit-proof-errors">
+            <h4 id="deposit-proof-errors-title" class="h6 fw-bold">{{ 'depositProofs.form.errors.summaryTitle' | transloco }}</h4>
+            <ul class="mb-0">
+              @for (e of errors(); track e.fieldId) {
+                <li><a class="alert-link" [href]="'#' + e.fieldId" (click)="focusField($event, e.fieldId)">{{ e.key | transloco }}</a></li>
+              }
+            </ul>
+          </div>
+        }
+        @if (uploadError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ uploadError() }}</div>
+        }
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label for="proof-file" class="form-label small fw-semibold">{{ 'depositProofs.form.file' | transloco }}</label>
+            <input id="proof-file" type="file" class="form-control" required [accept]="fileAccept" (change)="onFile($event)"
+                   [attr.aria-invalid]="hasError('proof-file')" aria-describedby="proof-file-help proof-file-error" />
+            <div id="proof-file-help" class="form-text">{{ 'depositProofs.form.fileHelp' | transloco }}</div>
+            <span id="proof-file-error" class="hl-field-error">
+              @if (errorKey('proof-file'); as k) {
+                {{ k | transloco }}
+              }
+            </span>
+          </div>
+          <div class="col-md-6">
+            <label for="proof-bank" class="form-label small fw-semibold">{{ 'depositProofs.form.bank' | transloco }}</label>
+            <input id="proof-bank" type="text" class="form-control" name="bankName" autocomplete="off" [maxlength]="maxText" [(ngModel)]="form.bankName" />
+          </div>
+          <div class="col-md-4">
+            <label for="proof-reference" class="form-label small fw-semibold">{{ 'depositProofs.form.reference' | transloco }}</label>
+            <input id="proof-reference" type="text" class="form-control" name="bankReference" autocomplete="off" aria-describedby="proof-reference-help"
+                   [maxlength]="maxText" [(ngModel)]="form.bankReference" />
+            <div id="proof-reference-help" class="form-text">{{ 'depositProofs.form.referenceHelp' | transloco }}</div>
+          </div>
+          <div class="col-md-4">
+            <label for="proof-date" class="form-label small fw-semibold">{{ 'depositProofs.form.date' | transloco }}</label>
+            <input id="proof-date" type="date" class="form-control" name="depositDate" [(ngModel)]="form.depositDate" />
+          </div>
+          <div class="col-md-4">
+            <label for="proof-amount" class="form-label small fw-semibold">{{ 'depositProofs.form.amount' | transloco: { currency: d.payment.payment.currency } }}</label>
+            <input id="proof-amount" type="text" inputmode="decimal" class="form-control" name="depositAmount" autocomplete="off"
+                   [attr.aria-invalid]="hasError('proof-amount')" aria-describedby="proof-amount-help proof-amount-error" [(ngModel)]="form.depositAmount" />
+            <div id="proof-amount-help" class="form-text">{{ 'depositProofs.form.amountHelp' | transloco: { total: (d.payment.payment.totalAmount | hlCurrency: d.payment.payment.currency) } }}</div>
+            <span id="proof-amount-error" class="hl-field-error">
+              @if (errorKey('proof-amount'); as k) {
+                {{ k | transloco }}
+              }
+            </span>
+          </div>
+          <div class="col-12">
+            <label for="proof-notes" class="form-label small fw-semibold">{{ 'depositProofs.form.notes' | transloco }}</label>
+            <textarea id="proof-notes" class="form-control" rows="2" name="notes" [maxlength]="maxNotes" [(ngModel)]="form.notes"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-hl-orange" [disabled]="uploading()" data-testid="deposit-proof-submit">
+          @if (uploading()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'depositProofs.form.submit' | transloco }}
+        </button>
+      </form>
+    }
+  }
+</section>

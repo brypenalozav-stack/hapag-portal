@@ -51,8 +51,196 @@
     },
     "readOnly": "Su perfil es de consulta: puede ver los pendientes, pero no pagar.",
     "retry": "Reintentar",
+    "statementLink": "Ir al estado de cuenta",
+    "statementNote": "Algunos cargos se pueden imputar a su línea de crédito: elija la forma de pago por ítem desde el estado de cuenta.",
     "subtitle": "Para clientes con condición de crédito: elija los cargos y facturas pendientes y páguelos en un solo pago.",
     "title": "Pagar desde mi cuenta"
+  },
+  "accountStatement": {
+    "advances": {
+      "caption": "Pagos y anticipos aplicados",
+      "col": {
+        "amount": "Monto",
+        "concept": "Concepto",
+        "date": "Fecha del pago",
+        "payment": "Pago",
+        "reference": "BL o booking",
+        "status": "Cruce"
+      },
+      "empty": "No hay anticipos con estos filtros.",
+      "help": "Pagos hechos antes de la factura y su cruce con la factura emitida después.",
+      "matched": "Factura {{ number }}",
+      "receipt": "Comprobante {{ number }}",
+      "receiptDocument": "Recibo {{ number }} en los documentos del embarque",
+      "title": "Pagos y anticipos aplicados"
+    },
+    "aging": {
+      "caption": "Antigüedad de la deuda por moneda y tramo de días vencidos",
+      "currency": "Moneda",
+      "current": "No vencido",
+      "empty": "No hay facturas abiertas.",
+      "help": "Facturas abiertas por días vencidos.",
+      "over": "{{ from }} días o más",
+      "range": "{{ from }} a {{ to }} días",
+      "title": "Antigüedad de la deuda",
+      "total": "Total"
+    },
+    "cart": {
+      "add": "{count, plural, =0 {Agregar al carro} one {Agregar # al carro} other {Agregar # al carro}}",
+      "added": "{count, plural, =0 {No se agregó nada al carro.} one {Se agregó # documento al carro.} other {Se agregaron # documentos al carro.}}",
+      "error": "No se pudo agregar al carro. Intente nuevamente.",
+      "failure": "{{ item }}: {{ reason }}",
+      "goToCart": "Ir al carro y pagar",
+      "help": "Lo elegido se agrega al carro de compra y se paga en una sola transacción por moneda.",
+      "itemError": "no se pudo agregar",
+      "resultTitle": "{count, plural, =0 {No se agregó ningún documento al carro.} one {Se agregó # documento al carro.} other {Se agregaron # documentos al carro.}}",
+      "selection": "{count, plural, =0 {No hay documentos elegidos.} one {# documento elegido.} other {# documentos elegidos.}}",
+      "title": "Pagar lo elegido"
+    },
+    "checkout": {
+      "back": "Volver",
+      "blocked": "Los pagos están suspendidos: {{ message }} Puede imputar a crédito, pero no pagar ahora.",
+      "confirm": "Confirmar",
+      "confirmCredit": "{count, plural, one {Imputará # ítem a su línea de crédito.} other {Imputará # ítems a su línea de crédito.}}",
+      "confirmPayNow": "{count, plural, one {Pagará ahora # ítem} other {Pagará ahora # ítems}} en {{ currency }} con {{ method }}.",
+      "confirmTitle": "Confirme el pago y la imputación",
+      "conversion": "Los montos en otras monedas se convierten a {{ currency }} con el tipo de cambio de Nexus del día.",
+      "credit": "Imputar a crédito",
+      "creditTotal": "{count, plural, =0 {A la línea de crédito} one {A la línea de crédito (# ítem)} other {A la línea de crédito (# ítems)}}",
+      "currency": "Moneda de pago",
+      "currencyHelp": "Solo las monedas habilitadas para todos los ítems que paga ahora.",
+      "empty": "Elija en las tablas los cargos o facturas que quiere gestionar.",
+      "error": "No se pudo completar. Intente nuevamente.",
+      "help": "Para cada ítem elija si lo paga ahora o lo imputa a su línea de crédito. Los conceptos que Finanzas no habilitó se pagan ahora.",
+      "itemLegend": "{{ concept }} {{ number }} · BL {{ bl }} · {{ amount }}",
+      "method": "Medio de pago",
+      "methodOption": "{{ name }} ({{ kind }})",
+      "noCurrency": "Los ítems que paga ahora no tienen una moneda de pago en común: páguelos por separado.",
+      "noMethods": "No hay medios de pago habilitados para esta moneda.",
+      "nothing": "Nada",
+      "payNow": "Pagar ahora",
+      "payNowOnly": "Se paga ahora: este concepto no se puede imputar a crédito.",
+      "payNowTotal": "{count, plural, =0 {Pago inmediato} one {Pago inmediato (# ítem)} other {Pago inmediato (# ítems)}}",
+      "review": "{count, plural, =0 {Revisar} one {Revisar # ítem} other {Revisar # ítems}}",
+      "reviewHelp": "Antes de enviar verá un resumen para confirmar.",
+      "sending": "Enviando…",
+      "title": "Pagar ahora o imputar a crédito",
+      "uncertain": "No pudimos confirmar si la solicitud se recibió. Reintente: la misma solicitud nunca se registra dos veces."
+    },
+    "conditionsUnavailable": "Nexus no respondió: los cargos aún no facturados se muestran con el monto del cargo, sin aplicar exenciones.",
+    "count": "{count, plural, =0 {Sin líneas con estos filtros} one {# línea} other {# líneas}}",
+    "credit": {
+      "available": "Disponible",
+      "concepts": "Conceptos con crédito",
+      "days": "{{ days }} días",
+      "limit": "Cupo de crédito",
+      "terms": "Condición de crédito",
+      "title": "Crédito disponible",
+      "used": "Usado"
+    },
+    "errors": {
+      "forbidden": "No tiene acceso al estado de cuenta de esta organización.",
+      "load": "No se pudo cargar el estado de cuenta."
+    },
+    "export": {
+      "csv": "Descargar CSV",
+      "done": "Se descargó {{ name }}.",
+      "error": "No se pudo descargar la planilla.",
+      "xlsx": "Descargar planilla (xlsx)"
+    },
+    "filters": {
+      "all": "Todos",
+      "asc": "Ascendente",
+      "bl": "BL",
+      "booking": "Booking",
+      "clear": "Limpiar",
+      "currency": "Moneda",
+      "datesHelp": "Las fechas filtran por emisión de la factura, registro del cargo o fecha de la imputación. El resumen y la antigüedad siempre muestran toda la cuenta.",
+      "desc": "Descendente",
+      "direction": "Sentido",
+      "documentType": "Tipo de documento",
+      "from": "Desde",
+      "label": "Filtros del estado de cuenta",
+      "search": "Buscar",
+      "sort": "Ordenar por",
+      "status": "Estado",
+      "to": "Hasta"
+    },
+    "lastUpdated": "Última actualización de las facturas: {{ date }}",
+    "lines": {
+      "booking": "Booking {{ booking }}",
+      "col": {
+        "amount": "Monto",
+        "balance": "Saldo",
+        "date": "Fecha",
+        "document": "Documento o cargo",
+        "due": "Vencimiento",
+        "party": "Razón social y RUT",
+        "reference": "BL o booking",
+        "select": "Elegir",
+        "status": "Estado"
+      },
+      "coveredBy": "Cubierta por el recibo {{ receipt }} (pago {{ payment }} del {{ date }})",
+      "creditImputation": "Imputación {{ number }}",
+      "creditImputed": {
+        "empty": "No hay cargos imputados a crédito con estos filtros.",
+        "help": "Cargos imputados a crédito: son saldo pendiente hasta que llegue su factura.",
+        "title": "Imputados a la línea de crédito"
+      },
+      "daysOverdue": "{days, plural, one {Vencida hace # día} other {Vencida hace # días}}",
+      "inCart": "En el carro",
+      "inPayment": "En un pago en curso",
+      "invoiced": {
+        "empty": "No hay documentos facturados con estos filtros.",
+        "help": "Facturas y notas de débito abiertas o cubiertas por un anticipo.",
+        "title": "Documentos facturados"
+      },
+      "noDueDate": "Sin vencimiento",
+      "numbers": "Folio SII {{ sii }} · Origen {{ source }}",
+      "selectAll": "Elegir todos en {{ group }}",
+      "selectLabel": "Elegir {{ number }}, {{ concept }}, BL {{ bl }}",
+      "serviceRequest": "Solicitud {{ number }}",
+      "uninvoiced": {
+        "empty": "No hay cargos pendientes de facturación con estos filtros.",
+        "help": "Cargos locales, de servicios, demurrage y fletes con su monto real, pendientes de facturación.",
+        "title": "Cargos calculados, aún no facturados"
+      }
+    },
+    "links": {
+      "invoices": "Ver facturas",
+      "paymentHistory": "Ver historial de pagos"
+    },
+    "meta": "{{ name }} ({{ taxId }}), al {{ date }}.",
+    "organization": "Organización",
+    "organizationHelp": "La información de cada organización se muestra por separado.",
+    "organizationOption": "{{ name }} ({{ taxId }})",
+    "pay": {
+      "notOwn": "Solo puede pagar el estado de cuenta de su propia organización.",
+      "readOnly": "Su perfil es de consulta: puede ver el estado de cuenta, pero no pagar."
+    },
+    "result": {
+      "announce": "Cierre registrado. Pago: {{ payment }}. Imputaciones a crédito: {{ imputations }}.",
+      "continue": "Continuar al pago",
+      "creditText": "{count, plural, one {# ítem imputado} other {# ítems imputados}} a la línea de crédito por {{ total }}. Queda como saldo pendiente hasta que llegue su factura; la carga se libera igual que con un pago.",
+      "creditTitle": "Imputación {{ number }} registrada",
+      "paymentText": "Lo que eligió pagar ahora suma {{ total }}. Continúe para completar el pago.",
+      "paymentTitle": "Pago {{ number }} creado",
+      "title": "Resultado"
+    },
+    "subtitle": "Su posición financiera: saldos, vencimientos, antigüedad de la deuda, lo facturado, lo pendiente de facturar y los anticipos.",
+    "summary": {
+      "advances": "Anticipos sin cruzar",
+      "creditImputed": "Imputado a crédito, sin facturar",
+      "currencyTitle": "Saldo en {{ currency }}",
+      "dueSoon": "Por vencer en {{ days }} días",
+      "empty": "La cuenta no tiene saldos.",
+      "notYetDue": "Facturado por vencer",
+      "overdue": "Deuda vencida",
+      "title": "Resumen de la cuenta",
+      "total": "Saldo total",
+      "uninvoiced": "Calculado, no facturado"
+    },
+    "title": "Estado de cuenta"
   },
   "admin": {
     "accessMatrix": {
@@ -345,6 +533,72 @@
       "subtitle": "Ingesta masiva con validación aduanera por fila",
       "title": "Carga de Bill of Lading"
     },
+    "creditRules": {
+      "caption": "Conceptos imputables a crédito",
+      "col": {
+        "actions": "Acciones",
+        "concept": "Concepto",
+        "country": "País",
+        "modified": "Último cambio",
+        "nexusConcept": "Concepto de Nexus",
+        "notes": "Notas",
+        "status": "Estado"
+      },
+      "disabledStatus": "Deshabilitada",
+      "edit": "Editar",
+      "editLabel": "Editar la regla de {{ concept }} ({{ country }})",
+      "empty": "No hay reglas.",
+      "enabled": "Habilitada",
+      "errors": {
+        "load": "No se pudieron cargar las reglas.",
+        "remove": "No se pudo dar de baja la regla."
+      },
+      "filters": {
+        "all": "Todos",
+        "country": "País",
+        "includeDisabled": "Incluir deshabilitadas",
+        "label": "Filtros de reglas",
+        "search": "Buscar"
+      },
+      "financeNote": "Las reglas iniciales son conservadoras y esperan la confirmación de Finanzas (M5-10): habilite un concepto solo con esa confirmación.",
+      "form": {
+        "cancel": "Cancelar",
+        "concept": "Concepto de cobro",
+        "conceptHelp": "Conceptos del catálogo para el país elegido.",
+        "conceptPlaceholder": "Elija un concepto",
+        "country": "País",
+        "create": "Crear regla",
+        "createTitle": "Nueva regla",
+        "created": "Se creó la regla de {{ concept }}.",
+        "editTitle": "Editar la regla",
+        "enabled": "Habilitada",
+        "errors": {
+          "concept": "Elija el concepto de cobro.",
+          "nexusConcept": "Elija el concepto de crédito de Nexus.",
+          "submit": "No se pudo guardar la regla.",
+          "summaryTitle": "Revise la regla"
+        },
+        "nexusConcept": "Concepto de crédito de Nexus",
+        "nexusHelp": "Debe estar en la condición de crédito del cliente para poder imputar.",
+        "notes": "Notas",
+        "notesHelp": "Por ejemplo, quién de Finanzas confirmó el concepto y cuándo.",
+        "save": "Guardar cambios",
+        "updated": "Se actualizó la regla de {{ concept }}."
+      },
+      "history": "Registro de cambios",
+      "historyCaption": "Registro de cambios de la regla",
+      "historyClose": "Cerrar",
+      "historyEmpty": "Sin cambios registrados.",
+      "historyLabel": "Ver el registro de cambios de {{ concept }} ({{ country }})",
+      "historyTitle": "Registro de cambios de {{ concept }} ({{ country }})",
+      "modifiedBy": "{{ date }}, {{ user }}",
+      "new": "Nueva regla",
+      "remove": "Dar de baja",
+      "removeLabel": "Dar de baja la regla de {{ concept }} ({{ country }})",
+      "removed": "Se dio de baja la regla de {{ concept }}.",
+      "subtitle": "Qué conceptos de cobro pueden imputar a su línea de crédito los clientes con condición de crédito, y a qué concepto de crédito de Nexus.",
+      "title": "Conceptos imputables a crédito"
+    },
     "customs": {
       "amendment": {
         "blId": "ID del B/L (opcional)",
@@ -485,6 +739,63 @@
       "title": "Control de plazos",
       "viewBoard": "Ver tablero",
       "viewRules": "Ver reglas"
+    },
+    "depositProofs": {
+      "bank": "Banco {{ bank }}, referencia {{ reference }}",
+      "bls": "BL: {{ bls }}",
+      "caption": "Comprobantes de depósito por revisar",
+      "col": {
+        "actions": "Acciones",
+        "deposit": "Datos del depósito",
+        "payer": "Pagador",
+        "payment": "Pago",
+        "proof": "Comprobante",
+        "status": "Estado",
+        "total": "Total"
+      },
+      "depositAmount": "Monto {{ amount }}",
+      "depositDate": "Depositado el {{ date }}",
+      "downloadError": "No se pudo descargar el comprobante.",
+      "downloadLabel": "Ver el comprobante {{ name }} del pago {{ number }}",
+      "downloaded": "Se descargó {{ name }}.",
+      "empty": "No hay comprobantes en este estado.",
+      "errors": {
+        "load": "No se pudieron cargar los comprobantes."
+      },
+      "filters": {
+        "all": "Todos",
+        "country": "País",
+        "label": "Filtros de comprobantes",
+        "search": "Buscar",
+        "status": "Estado"
+      },
+      "rejectionReason": "Motivo: {{ reason }}",
+      "review": {
+        "back": "Volver",
+        "bankReference": "Referencia bancaria",
+        "decision": "Resultado de la revisión",
+        "depositAmount": "Monto informado",
+        "error": "No se pudo registrar la revisión.",
+        "notes": "Notas de la verificación",
+        "notesHelp": "Opcional. La referencia bancaria pasa a la conciliación.",
+        "reason": "Motivo del rechazo (obligatorio)",
+        "reasonHelp": "El cliente verá este motivo.",
+        "reasonRequired": "Ingrese el motivo del rechazo: el cliente lo verá para subir un comprobante nuevo.",
+        "reject": "Rechazar el comprobante",
+        "rejected": "Comprobante del pago {{ number }} rechazado: el cliente puede subir uno nuevo.",
+        "slip": "Boleta",
+        "submit": "Registrar la revisión",
+        "title": "Revisar el comprobante del pago {{ number }}",
+        "total": "Total del pago",
+        "verified": "Comprobante del pago {{ number }} verificado: el pago quedó confirmado (comprobante {{ receipt }}).",
+        "verify": "El abono está en el banco: verificar y confirmar el pago"
+      },
+      "reviewButton": "Revisar",
+      "reviewLabel": "Revisar el comprobante del pago {{ number }}",
+      "slip": "Boleta {{ number }}",
+      "subtitle": "Verifique el abono contra el comprobante y confirme el pago, o rechace el comprobante con el motivo.",
+      "title": "Comprobantes de depósito",
+      "uploaded": "Enviado el {{ date }} por {{ user }}"
     },
     "finance": {
       "cancel": {
@@ -1412,6 +1723,69 @@
         "titleLoading": "Revisar la solicitud"
       }
     },
+    "settlements": {
+      "auto": {
+        "button": "Cruzar automáticamente",
+        "done": "Se cruzaron {{ matched }} de {{ open }} anticipos abiertos.",
+        "error": "No se pudo ejecutar el cruce automático.",
+        "help": "Cruza los anticipos abiertos con las facturas del mismo BL, concepto, moneda y RUT facturado cuyos montos suman el total."
+      },
+      "billing": "Factura a {{ taxId }}",
+      "caption": "Anticipos e imputaciones a crédito",
+      "col": {
+        "actions": "Acciones",
+        "amount": "Monto",
+        "charge": "Cargo",
+        "date": "Fecha del pago",
+        "kind": "Tipo",
+        "parties": "Pagador y facturación",
+        "payment": "Pago",
+        "status": "Cruce"
+      },
+      "empty": "No hay anticipos con estos filtros.",
+      "errors": {
+        "load": "No se pudieron cargar los anticipos."
+      },
+      "filters": {
+        "all": "Todos",
+        "bl": "BL",
+        "country": "País",
+        "from": "Pagado desde",
+        "kind": "Tipo",
+        "label": "Filtros de anticipos",
+        "search": "Buscar",
+        "status": "Estado",
+        "to": "Pagado hasta"
+      },
+      "manual": {
+        "back": "Volver",
+        "button": "Cruzar manualmente",
+        "buttonLabel": "Cruzar manualmente el pago {{ payment }}, {{ concept }}",
+        "done": "Anticipo del pago {{ payment }} cruzado con la factura {{ invoice }}.",
+        "errors": {
+          "invoiceFormat": "El identificador de la factura tiene el formato 8-4-4-4-12 caracteres, por ejemplo 3fa85f64-5717-4562-b3fc-2c963f66afa6.",
+          "invoiceRequired": "Ingrese el identificador de la factura.",
+          "submit": "No se pudo registrar el cruce.",
+          "summaryTitle": "Revise el cruce"
+        },
+        "invoice": "Identificador de la factura (obligatorio)",
+        "invoiceHelp": "El identificador de la factura en el portal (M7-01).",
+        "note": "Nota",
+        "noteHelp": "Obligatoria si los montos no coinciden: explique la diferencia.",
+        "submit": "Cruzar",
+        "summary": "{{ concept }} del BL {{ bl }} por {{ amount }}, facturable a {{ taxId }}.",
+        "title": "Cruce manual del pago {{ payment }}"
+      },
+      "matchNote": "Nota: {{ note }}",
+      "matchedAt": "{{ date }}, {{ user }}",
+      "matchedInvoice": "Factura {{ number }}",
+      "paid": "Pagado {{ amount }}",
+      "payer": "Pagó {{ name }} ({{ taxId }})",
+      "receipt": "Comprobante {{ number }}",
+      "receiptDocument": "Recibo {{ number }}",
+      "subtitle": "Pagos liberados antes de su factura e imputaciones a crédito, con el cruce con la factura emitida después.",
+      "title": "Anticipos y cruces con facturas"
+    },
     "tariffs": {
       "editor": {
         "amount": "Monto",
@@ -1869,6 +2243,11 @@
         "unavailable": "Nexus no respondió para esta figura."
       },
       "forbidden": "Su organización no tiene permiso para consultar los cargos de este BL.",
+      "gateOutAdvance": {
+        "invoice": "Cuando se emita la factura, quedará vinculada a este recibo y el cargo no volverá a aparecer como pendiente.",
+        "text": "La factura de exportación se emite después del zarpe, pero puede pagar el Gate Out ahora. Al confirmarse el pago, el portal emite un recibo con el embarque, las unidades y el pagador, que queda en los documentos del embarque.",
+        "title": "Pago anticipado de Gate Out"
+      },
       "ipoExcluded": "El recargo IPO no se cobra: la organización tiene condición de crédito en Nexus.",
       "letter": {
         "cannotIssue": "Un usuario de su organización con un perfil que opera debe generar la carta.",
@@ -2014,12 +2393,14 @@
       "matrixLate": "Matriz fuera de plazo",
       "mhd": "MHD",
       "opening": "Apertura",
+      "reinvoicing": "Refacturación IAO",
       "sealManagement": "Gestión de sellos",
       "thc": "THC",
       "thcRf": "THC reefer",
       "transitFee": "Tránsito",
       "transshipmentCert": "Certificado de transbordo",
       "valuation": "Valorización",
+      "vatLoss": "Pérdida de IVA",
       "warehouseChange": "Cambio de almacén",
       "xom": "XOM (administración de contenedor)"
     },
@@ -2046,12 +2427,14 @@
       "warehouseChangeNotFound": "La solicitud de cambio de almacén no existe."
     },
     "chargeOutcome": {
+      "creditImputed": "Imputado a crédito",
       "exempt": "Exento",
       "paid": "Pagado",
       "partiallyExempt": "Exento parcial",
       "payable": "A pagar"
     },
     "chargeStatus": {
+      "creditImputed": "Imputado a crédito",
       "exempt": "Exento",
       "invoiced": "Facturado",
       "paid": "Pagado",
@@ -2060,6 +2443,10 @@
     "country": {
       "bo": "Bolivia",
       "cl": "Chile"
+    },
+    "creditUnavailableReason": {
+      "exchangeRateUnavailable": "No hay tipo de cambio del día para calcular el disponible.",
+      "limitNotInformed": "Nexus no informa el cupo de crédito: el disponible no se puede calcular."
     },
     "dataSource": {
       "fis": "FIS",
@@ -2072,6 +2459,11 @@
       "invoicedWithDebt": "Facturado con deuda vigente",
       "noDemurrage": "Sin demurrage",
       "notCalculated": "Aún no calculado"
+    },
+    "depositProofStatus": {
+      "rejected": "Rechazado",
+      "submitted": "En revisión",
+      "verified": "Verificado"
     },
     "documentErrors": {
       "blNotFound": "No encontramos el BL o no tiene acceso a él.",
@@ -2116,7 +2508,8 @@
       "cancelled": "Anulada",
       "overdue": "Vencida",
       "paid": "Pagada",
-      "pending": "Pendiente"
+      "pending": "Pendiente",
+      "superseded": "Reemplazada"
     },
     "issuanceStatus": {
       "authorizedAtDestination": "Emisión autorizada en destino",
@@ -2146,6 +2539,12 @@
       "active": "Activo",
       "pending": "Pendiente",
       "rejected": "Rechazado"
+    },
+    "nexusCreditConcept": {
+      "freight": "Flete",
+      "localCharges": "Cargos locales",
+      "mhd": "MHD",
+      "storage": "Almacenaje"
     },
     "noDebtBlocker": {
       "advanceDemurrage": "Demoras anticipadas obligatorias sin pagar",
@@ -2196,9 +2595,14 @@
       "blocked": "Los pagos están suspendidos temporalmente. Puede seguir consultando.",
       "blockedWithMessage": "Los pagos están suspendidos temporalmente: {{ message }}",
       "cartItemNotFound": "El ítem ya no está en el carro.",
+      "conceptNotFound": "El concepto de cobro no existe en el catálogo.",
       "conditionsUnavailable": "Nexus no está disponible: no se pueden validar las condiciones comerciales. No se agregó ni se cobró nada. Intente más tarde.",
       "conflict": "Otra solicitud de pago bloqueó o cambió estos ítems al mismo tiempo. Esta solicitud no cobró nada: revise el historial de pagos y el carro.",
       "creditCustomer": "Su organización tiene condición de crédito: pague desde \"Pagar desde mi cuenta\".",
+      "creditImputed": "El cargo ya está imputado a la línea de crédito; se paga con la factura.",
+      "creditNotEligible": "El concepto no se puede imputar a la línea de crédito; páguelo ahora.",
+      "creditRuleExists": "Ya hay una regla para ese concepto y país.",
+      "creditRuleNotFound": "No se encontró la regla.",
       "currencyNotAllowed": "La moneda elegida no está habilitada para este concepto. Elija otra de la lista.",
       "duplicate": "El ítem ya está en el carro.",
       "empty": "No hay ítems por pagar en esta moneda.",
@@ -2223,12 +2627,20 @@
       "notPayable": "El ítem no se puede pagar en el portal.",
       "operationNotRetryable": "La operación ya terminó: no hay nada que reintentar.",
       "payDemurrageInvoice": "La línea de demurrage ya está facturada: pague la factura.",
+      "paymentDataRequired": "Elija la moneda y el medio de pago de los ítems que paga ahora.",
       "paymentNotFound": "No encontramos el pago.",
       "pdfNotAvailable": "La factura aún no tiene folio SII: el PDF no está disponible.",
+      "proofNotAwaited": "Este pago no espera un comprobante de depósito.",
+      "proofNotFound": "No se encontró el comprobante.",
+      "proofNotPendingReview": "Este comprobante ya fue revisado.",
+      "proofPendingReview": "Ya hay un comprobante en revisión. Espere la respuesta de Finanzas antes de enviar otro.",
       "providerRequired": "Un medio en línea necesita una plataforma de pago registrada.",
       "providerUnavailable": "La plataforma de pago no respondió. No se realizó ningún cobro y los ítems siguen en el carro: puede reintentar.",
       "receiptNotAvailable": "El comprobante aún no está disponible.",
       "responsibilityLetterRequired": "Falta la carta de responsabilidad del freight forwarder: no se puede pagar este BL todavía.",
+      "settlementAlreadyMatched": "El anticipo ya está cruzado con una factura.",
+      "settlementInvoiceNotMatchable": "La factura no se puede cruzar con este anticipo (otro BL, moneda o RUT, o ya pagada).",
+      "settlementNotFound": "No se encontró el anticipo.",
       "slipAlreadyIssued": "La boleta ya fue emitida: no puede anularla desde el portal.",
       "sourceUnavailable": "La fuente de información no respondió. No se guardó ningún cambio: intente más tarde.",
       "unavailable": "El servicio no está disponible en este momento. Intente más tarde.",
@@ -2247,6 +2659,7 @@
     "paymentOperationJob": {
       "documents": "Emisión de documentos",
       "notify": "Aviso al pagador",
+      "reinvoicing": "Emisión de la refacturación",
       "release": "Liberación del servicio"
     },
     "paymentOperationStatus": {
@@ -2257,6 +2670,7 @@
     "paymentOrigin": {
       "account": "Pago desde mi cuenta",
       "cart": "Carro de compra",
+      "creditLine": "Línea de crédito",
       "legacy": "Pago por BL (anterior)"
     },
     "paymentStatus": {
@@ -2296,6 +2710,35 @@
       "missingReceipt": "Falta el comprobante",
       "missingTransactionReference": "Falta la referencia de la transacción",
       "notSettled": "Sin abono confirmado"
+    },
+    "reinvoicingAcceptanceStatus": {
+      "accepted": "Aceptada",
+      "declined": "Rechazada",
+      "pending": "Aceptación pendiente"
+    },
+    "reinvoicingErrors": {
+      "acceptanceClosed": "La solicitud ya no admite respuestas.",
+      "acceptanceExpired": "El enlace de aceptación venció. Pida a quien solicitó la refacturación que lo reenvíe.",
+      "acceptanceNotFound": "El enlace no es válido o ya no está vigente. Verifique que lo copió completo o pida uno nuevo.",
+      "acceptanceNotPending": "El cobro ya fue respondido.",
+      "acceptorTaxIdRequired": "Ingrese el RUT de la nueva razón social.",
+      "alreadyRequested": "La factura ya tiene una refacturación en curso.",
+      "approvalRequired": "Adjunte la aprobación de la nueva razón social antes de enviar.",
+      "billingDataRequired": "Complete los datos de facturación de la nueva razón social.",
+      "exchangeRateNotFound": "No hay tipo de cambio del día para convertir la pérdida de IVA.",
+      "forbidden": "No tiene permiso para esta operación.",
+      "invoiceNotEligible": "La factura no se puede refacturar (debe ser chilena, con folio SII y BL, propia y vigente).",
+      "invoiceNotFound": "No se encontró la factura.",
+      "invoiceNotIssued": "La factura nueva aún no se emite.",
+      "notEditable": "La solicitud ya fue enviada y no se puede modificar.",
+      "notFound": "No se encontró la refacturación.",
+      "sameTaxId": "El RUT de la nueva razón social debe ser distinto del facturado.",
+      "sourceUnavailable": "El sistema de facturación no respondió. Intente más tarde.",
+      "tariffChanged": "El cobro cambió desde que lo revisó. Revise el total y vuelva a aceptarlo.",
+      "tariffNotAccepted": "Acepte el cobro antes de enviar.",
+      "tariffNotInForce": "No hay tarifa vigente de refacturación.",
+      "unavailable": "El servicio no está disponible en este momento. Intente nuevamente en unos minutos.",
+      "unknownFileField": "El adjunto no corresponde a esta solicitud."
     },
     "relatedDocumentKind": {
       "invoice": "Factura",
@@ -2343,17 +2786,6 @@
       "afterDeparture": "Después del zarpe",
       "always": "Siempre",
       "beforeDeparture": "Antes del zarpe"
-    },
-    "serviceDefinition": {
-      "blCorrection": "Corrección o aclaración de BL",
-      "blHouseTransmission": "Transmisión de BL hijo",
-      "dropOff": "Drop Off SCL",
-      "earlyArrival": "Early",
-      "gateInReturn": "Gate In por devolución de unidades",
-      "lateArrival": "Late Arrival",
-      "matrixLate": "Matriz fuera de plazo",
-      "sealManagement": "Gestión de sellos",
-      "xom": "Administración de contenedor (XOM)"
     },
     "serviceFieldType": {
       "containers": "Contenedores del BL",
@@ -2419,6 +2851,7 @@
       "unavailable": "El servicio no está disponible en este momento. Intente de nuevo en unos minutos.",
       "unknownAction": "La acción de la matriz de accesos no existe o no está activa.",
       "unknownFileField": "El archivo no corresponde a un campo del formulario.",
+      "useDedicatedFlow": "Este servicio se solicita desde su propio flujo (refacturación IAO, desde la factura).",
       "warehouseChangeNotFound": "No encontramos el cambio de almacén."
     },
     "serviceRequestStatus": {
@@ -2461,6 +2894,14 @@
       "notOverdue": "Todavía está dentro de plazo: el cobro aplica solo fuera de plazo.",
       "tariffNotInForce": "No hay tarifa vigente para el servicio."
     },
+    "settlementKind": {
+      "advance": "Anticipo",
+      "creditImputation": "Imputación a crédito"
+    },
+    "settlementStatus": {
+      "matched": "Cruzado con factura",
+      "open": "Sin cruzar"
+    },
     "shipmentDocumentOrigin": {
       "payment": "Emitido al confirmarse el pago",
       "request": "Solicitado en el portal",
@@ -2475,6 +2916,7 @@
       "blCopyNonValued": "Copia del BL no valorada",
       "blCopyValued": "Copia del BL valorada",
       "collectReceipt": "Comprobante Collect",
+      "gateOutAdvanceReceipt": "Recibo de pago anticipado de Gate Out",
       "gateOutCoupon": "Cupón de retiro de Gate Out",
       "noDebtCertificate": "CLD (certificado de libre deuda)",
       "responsibilityLetter": "Carta de responsabilidad",
@@ -2498,6 +2940,34 @@
       "inTransit": "En tránsito",
       "onBoard": "A bordo",
       "released": "Liberado"
+    },
+    "statementDocumentType": {
+      "debitNote": "Nota de débito",
+      "demurrage": "Demurrage",
+      "exemptInvoice": "Factura exenta",
+      "freight": "Flete",
+      "invoice": "Factura",
+      "localCharge": "Cargo local",
+      "serviceCharge": "Cargo de servicio"
+    },
+    "statementLineKind": {
+      "creditImputed": "Imputado a crédito",
+      "invoiced": "Facturado",
+      "uninvoiced": "Calculado, no facturado"
+    },
+    "statementSort": {
+      "amount": "Saldo",
+      "blNumber": "BL",
+      "dueDate": "Vencimiento (vencidos primero)",
+      "issueDate": "Fecha de emisión"
+    },
+    "statementStatus": {
+      "covered": "Cubierto por anticipo",
+      "creditImputed": "Imputado a crédito",
+      "dueSoon": "Por vencer",
+      "overdue": "Vencido",
+      "pending": "Pendiente",
+      "uninvoiced": "No facturado"
     },
     "tariffTierMode": {
       "flat": "Valor del tramo",
@@ -2733,6 +3203,10 @@
         "description": "Pague cargos y facturas con la condición de crédito de su organización.",
         "title": "Pagar desde mi cuenta"
       },
+      "accountStatement": {
+        "description": "Saldos, vencimientos, antigüedad de la deuda y pago de varias facturas a la vez.",
+        "title": "Ver mi estado de cuenta"
+      },
       "dangerousGoods": {
         "description": "Consulte la clase y el número ONU de una carga.",
         "title": "Buscar mercancías peligrosas"
@@ -2918,6 +3392,64 @@
     },
     "subtitle": "Consulte el estado del demurrage de un BL y la acción que corresponde.",
     "title": "Demurrage"
+  },
+  "depositProofs": {
+    "amount": "Monto: {{ amount }}",
+    "awaiting": "La boleta espera el comprobante del depósito. Adjúntelo cuando haya depositado.",
+    "bank": "Banco: {{ bank }}",
+    "caption": "Comprobantes de depósito enviados y su revisión",
+    "col": {
+      "deposit": "Datos del depósito",
+      "file": "Archivo",
+      "review": "Revisión de Finanzas",
+      "status": "Estado",
+      "uploaded": "Enviado"
+    },
+    "date": "Fecha: {{ date }}",
+    "downloadError": "No se pudo descargar el comprobante.",
+    "downloadLabel": "Descargar el comprobante {{ name }}",
+    "downloaded": "Se descargó {{ name }}.",
+    "errors": {
+      "load": "No se pudieron cargar los comprobantes del depósito."
+    },
+    "form": {
+      "amount": "Monto depositado ({{ currency }})",
+      "amountHelp": "Total del pago: {{ total }}.",
+      "bank": "Banco",
+      "date": "Fecha del depósito",
+      "done": "Se envió el comprobante {{ name }}.",
+      "errors": {
+        "amount": "Ingrese el monto con números, por ejemplo 119000 o 1250.50.",
+        "fileRequired": "Elija el archivo del comprobante.",
+        "fileSize": "El comprobante supera los 10 MB.",
+        "fileType": "El comprobante debe ser PDF, PNG o JPEG.",
+        "submit": "No se pudo enviar el comprobante. Intente nuevamente.",
+        "summaryTitle": "Revise el comprobante"
+      },
+      "file": "Comprobante (obligatorio)",
+      "fileHelp": "PDF, PNG o JPEG de hasta 10 MB.",
+      "notes": "Notas para Finanzas",
+      "reference": "Número de operación o referencia",
+      "referenceHelp": "Ayuda a Finanzas a encontrar el abono en la cartola.",
+      "submit": "Enviar comprobante",
+      "title": "Adjuntar el comprobante",
+      "titleAgain": "Adjuntar un comprobante nuevo"
+    },
+    "help": "Adjunte el comprobante del depósito para que Finanzas confirme el pago al recibir el abono.",
+    "noData": "Sin datos del depósito",
+    "pendingReview": "Pendiente",
+    "reference": "Referencia: {{ reference }}",
+    "rejected": {
+      "again": "El pago sigue pendiente: adjunte un comprobante nuevo.",
+      "reason": "Motivo: {{ reason }}",
+      "title": "Finanzas rechazó el comprobante"
+    },
+    "rejectionReason": "Motivo del rechazo: {{ reason }}",
+    "reviewNotes": "Notas: {{ notes }}",
+    "reviewedBy": "{{ date }}, {{ user }}",
+    "submitted": "Comprobante enviado el {{ date }}: Finanzas lo revisará al recibir el abono.",
+    "title": "Comprobante de depósito",
+    "verified": "Finanzas verificó el abono el {{ date }}: el pago está confirmado."
   },
   "documents": {
     "blCopy": {
@@ -3127,6 +3659,8 @@
       "taxId": "RUT"
     },
     "count": "{count, plural, one {# factura} other {# facturas}}",
+    "coveredBy": "Cubierta por el recibo {{ receipt }} (pago {{ payment }})",
+    "coveredByDocuments": "Ver el recibo en los documentos del embarque",
     "download": {
       "error": "No se pudo descargar.",
       "pdf": "PDF",
@@ -3171,9 +3705,16 @@
       "done": "Facturas actualizadas: {{ checked }} revisadas, {{ updated }} con cambios.",
       "error": "No se pudieron actualizar las facturas."
     },
+    "reinvoice": "Refacturar",
+    "reinvoiceLabel": "Refacturar la factura {{ number }} a otra razón social",
     "selectDisabledLabel": "La factura {{ number }} no tiene folio SII: no se puede descargar",
     "selectLabel": "Elegir la factura {{ number }} para descargar",
+    "statementLink": "Ver estado de cuenta",
     "subtitle": "Facturas locales de las organizaciones a las que tiene acceso, sin mezclarlas entre sí.",
+    "supersededBy": "Reemplazada por la factura {{ number }}",
+    "supersededByOther": "Reemplazada por una factura de refacturación IAO",
+    "supersedes": "Reemplaza a la factura {{ number }}",
+    "supersedesOther": "Reemplaza a una factura anterior (refacturación IAO)",
     "title": "Facturas"
   },
   "notifications": {
@@ -3190,7 +3731,13 @@
       "accessRevoked": "Acceso a embarques revocado",
       "accessRevokedByCascade": "Acceso revocado en cadena",
       "accessUpdated": "Acceso a embarques modificado",
+      "creditImputationRegistered": "Cargos imputados a la línea de crédito",
+      "depositProofRejected": "Comprobante de depósito rechazado",
+      "depositProofSubmitted": "Comprobante de depósito por verificar",
       "documentIssued": "Documento del embarque emitido",
+      "invoiceReissued": "Factura reemitida a la nueva razón social",
+      "reinvoicingAccepted": "Refacturación aceptada por la nueva razón social",
+      "reinvoicingDeclined": "Refacturación rechazada por la nueva razón social",
       "serviceRequestApproved": "Solicitud de servicio aprobada",
       "serviceRequestCancelled": "Solicitud de servicio anulada",
       "serviceRequestCompleted": "Solicitud de servicio completada",
@@ -3467,6 +4014,7 @@
       "title": "Pago confirmado"
     },
     "documents": {
+      "advanceReceipt": "Si el embarque es de exportación y aún no tiene factura, también se emite el recibo del pago anticipado del Gate Out; la factura posterior quedará vinculada a ese recibo.",
       "link": "Ver los documentos del BL {{ bl }}",
       "text": "Este pago emite documentos del embarque (certificado de transbordo o cupón de retiro de Gate Out). Se generan en unos segundos, quedan en los documentos del BL y el certificado de transbordo se envía por correo.",
       "title": "Documentos del embarque"
@@ -3540,6 +4088,188 @@
     "type": {
       "agent": "Agente",
       "client": "Cliente"
+    }
+  },
+  "reinvoicing": {
+    "acceptance": {
+      "accept": "Acepto el cobro por un total de {{ total }} y la emisión de la factura a nuestro nombre",
+      "acceptedText": "Gracias. Registramos su aceptación el {{ date }}. La factura se emitirá cuando el pago esté confirmado.",
+      "acceptedTitle": "Cobro aceptado",
+      "answer": "Respuesta (obligatoria)",
+      "decline": "Rechazo el cobro",
+      "declinedText": "Registramos su rechazo el {{ date }}. La factura no se emitirá a su nombre.",
+      "declinedTitle": "Cobro rechazado",
+      "errors": {
+        "answer": "Elija si acepta o rechaza el cobro.",
+        "name": "Ingrese su nombre.",
+        "submit": "No se pudo registrar la respuesta. Intente nuevamente.",
+        "summaryTitle": "Revise su respuesta",
+        "taxId": "Ingrese el RUT de la empresa."
+      },
+      "expires": "Puede responder hasta el {{ date }}.",
+      "fee": "Refacturación (con IVA)",
+      "formHelp": "Responda en nombre de {{ name }} ({{ taxId }}).",
+      "formTitle": "Su respuesta",
+      "loadError": "No se pudo cargar la solicitud.",
+      "name": "Su nombre (obligatorio)",
+      "newEntity": "Se facturará a",
+      "original": "Factura original",
+      "originalTotal": "Total original: {{ total }}",
+      "reason": "Comentario",
+      "reasonHelp": "Opcional. Si rechaza, cuéntenos el motivo.",
+      "record": "Su respuesta queda registrada con la fecha, la hora y la dirección desde la que responde.",
+      "result": {
+        "accepted": "Aceptación de la solicitud {{ number }} registrada.",
+        "declined": "Rechazo de la solicitud {{ number }} registrado."
+      },
+      "submit": "Enviar respuesta",
+      "subtitle": "Una empresa pidió refacturar a su nombre una factura de Hapag-Lloyd. Para emitir la factura nueva necesitamos que acepte el cobro.",
+      "summaryTitle": "Solicitud {{ number }}",
+      "taxId": "RUT de la empresa (obligatorio)",
+      "taxIdHelp": "El RUT de la razón social a la que se facturará, por ejemplo 77.888.999-1.",
+      "title": "Aceptación de cobro por refacturación",
+      "total": "Total del cobro",
+      "vatLoss": "Pérdida de IVA"
+    },
+    "backToInvoices": "Volver a las facturas",
+    "breadcrumbInvoices": "Facturas",
+    "breadcrumbLabel": "Ruta de navegación",
+    "breadcrumbRequests": "Mis solicitudes",
+    "detail": {
+      "acceptance": {
+        "accepted": "Aceptado por {{ name }} ({{ taxId }}) el {{ date }}.",
+        "declineReason": "Motivo: {{ reason }}",
+        "declined": "La nueva razón social rechazó el cobro el {{ date }}.",
+        "declinedHelp": "La factura nueva no se emitirá.",
+        "expires": "El enlace vence el {{ date }}.",
+        "pending": "Se pidió la aceptación a {{ email }} el {{ date }}.",
+        "pendingHelp": "La factura nueva se emite solo cuando la nueva razón social acepta el cobro y el pago está confirmado.",
+        "resend": "Reenviar el enlace de aceptación",
+        "resendError": "No se pudo reenviar el enlace.",
+        "resent": "Se envió un enlace nuevo a {{ email }}; el anterior ya no funciona.",
+        "title": "Aceptación de la nueva razón social",
+        "waitingIssue": "La factura nueva se está emitiendo.",
+        "waitingPayment": "Falta el pago: la factura se emite al confirmarse."
+      },
+      "acceptor": "Acepta el cobro",
+      "approval": {
+        "done": "Se adjuntó {{ name }}.",
+        "downloadError": "No se pudo descargar la aprobación.",
+        "downloadLabel": "Descargar la aprobación {{ name }}",
+        "downloaded": "Se descargó {{ name }}.",
+        "errors": {
+          "fileRequired": "Elija el archivo de la aprobación.",
+          "fileSize": "La aprobación supera los 10 MB.",
+          "fileType": "La aprobación debe ser PDF, PNG o JPEG.",
+          "submit": "No se pudo adjuntar la aprobación. Intente nuevamente."
+        },
+        "file": "Archivo de la aprobación",
+        "help": "PDF, PNG o JPEG de hasta 10 MB, firmado por la nueva razón social.",
+        "title": "Aprobación de la nueva razón social (obligatoria)",
+        "upload": "Adjuntar la aprobación",
+        "uploaded": "{{ size }}, enviado el {{ date }}"
+      },
+      "bl": "BL",
+      "breadcrumb": "Refacturación",
+      "cancelled": "La refacturación fue anulada: no se emitirá la factura nueva.",
+      "fee": "Refacturación (con IVA)",
+      "issued": {
+        "link": "Ver facturas",
+        "text": "Emitida el {{ date }} a la nueva razón social. La factura {{ original }} quedó reemplazada.",
+        "title": "Factura {{ number }} emitida"
+      },
+      "loadError": "No se pudo cargar la refacturación.",
+      "newEntity": "Nueva razón social",
+      "notFound": "No se encontró la refacturación o no tiene acceso a ella.",
+      "original": "Factura original",
+      "payment": {
+        "added": "Los cargos de la refacturación {{ number }} se agregaron al carro.",
+        "help": "La refacturación y la pérdida de IVA se pagan juntas.",
+        "title": "Pago de la refacturación"
+      },
+      "submit": {
+        "accept": "Acepto el cobro de la refacturación y de la pérdida de IVA por un total de {{ total }}.",
+        "button": "Enviar la refacturación",
+        "done": "Refacturación {{ number }} enviada. Se envió el enlace de aceptación a {{ email }}.",
+        "errors": {
+          "accept": "Acepte el cobro para enviar.",
+          "approval": "Adjunte la aprobación de la nueva razón social.",
+          "submit": "No se pudo enviar la refacturación. Intente nuevamente.",
+          "summaryTitle": "No se puede enviar todavía"
+        },
+        "help": "Adjunte la aprobación de la nueva razón social y acepte el cobro. Al enviar se generan los dos cargos y se envía el enlace de aceptación.",
+        "title": "Aprobación y envío"
+      },
+      "summaryTitle": "Estado de la refacturación",
+      "timeline": "Línea de tiempo",
+      "title": "Refacturación {{ number }}",
+      "titleLoading": "Refacturación",
+      "total": "Total del cobro",
+      "updated": "Último cambio",
+      "vatLoss": "Pérdida de IVA"
+    },
+    "new": {
+      "acceptorEmail": "Correo de quien aceptará el cobro",
+      "acceptorHelp": "Opcional: la persona de la nueva razón social que aceptará el cobro.",
+      "activity": "Giro",
+      "address": "Dirección (obligatoria)",
+      "billingHelp": "La factura nueva se emitirá a estos datos, solo cuando la nueva razón social acepte el cobro y esté pagado.",
+      "billingTitle": "Datos de facturación de la nueva razón social",
+      "breadcrumb": "Refacturar",
+      "created": "Se creó la refacturación {{ number }}.",
+      "email": "Correo de facturación (obligatorio)",
+      "emailHelp": "Si no indica otro, aquí se envía el enlace para aceptar el cobro.",
+      "errors": {
+        "acceptorFormat": "Ingrese un correo válido para quien aceptará el cobro.",
+        "address": "Ingrese la dirección.",
+        "email": "Ingrese el correo de facturación.",
+        "emailFormat": "Ingrese un correo de facturación válido, por ejemplo facturacion@empresa.cl.",
+        "name": "Ingrese la razón social.",
+        "sameTaxId": "El RUT de la nueva razón social debe ser distinto del RUT facturado.",
+        "server": "Revise este dato: el sistema no lo aceptó.",
+        "submit": "No se pudo crear la refacturación. Intente nuevamente.",
+        "summaryTitle": "Revise los datos de la nueva razón social",
+        "taxId": "Ingrese el RUT de la nueva razón social."
+      },
+      "ineligibleTitle": "Esta factura no se puede refacturar",
+      "loadError": "No se pudo calcular el cobro de la refacturación.",
+      "name": "Razón social (obligatoria)",
+      "noInvoice": "Elija la factura a refacturar desde el listado de facturas.",
+      "quoteTitle": "Cobro estimado para refacturar la factura {{ number }}",
+      "reason": "Motivo de la refacturación",
+      "submit": "Guardar y continuar",
+      "subtitle": "Refacture una factura a otra razón social: se cobra la refacturación y la pérdida de IVA en el mismo módulo.",
+      "taxId": "RUT de la nueva razón social (obligatorio)",
+      "taxIdHelp": "Con dígito verificador, por ejemplo 77.888.999-1. Debe ser distinto del RUT facturado.",
+      "title": "Refacturación IAO"
+    },
+    "quote": {
+      "billedTo": "Facturada a",
+      "caption": "Cobro de la refacturación y de la pérdida de IVA",
+      "col": {
+        "concept": "Concepto",
+        "net": "Neto",
+        "tax": "IVA",
+        "total": "Total"
+      },
+      "exchangeRate": "Pérdida de IVA convertida con el tipo de cambio de Nexus del día: 1 {{ from }} = {{ rate }} {{ to }}.",
+      "exempt": "La factura es exenta: no hay pérdida de IVA.",
+      "invoice": "Factura",
+      "invoiceTax": "IVA de la factura",
+      "invoiceTotal": "Total de la factura",
+      "party": "{{ name }} ({{ taxId }})",
+      "quotedAt": "Calculado el {{ date }}.",
+      "source": "Número de origen {{ number }}",
+      "total": "Total a pagar"
+    },
+    "readOnly": "Su perfil es de consulta: puede ver la refacturación, pero no modificarla.",
+    "steps": {
+      "billing": "Nueva razón social",
+      "issued": "Factura emitida",
+      "item": "Paso {{ number }}: {{ name }}",
+      "label": "Pasos de la refacturación",
+      "payAccept": "Pago y aceptación",
+      "submit": "Aprobación y envío"
     }
   },
   "serviceOrders": {
@@ -3659,6 +4389,7 @@
       "quote": {
         "title": "Valor del servicio"
       },
+      "reinvoicingLink": "Esta es una refacturación IAO: vea la aceptación de la nueva razón social y la emisión en su página.",
       "summary": {
         "bl": "BL",
         "booking": "Booking",
@@ -4093,18 +4824,21 @@
       "link": {
         "accessMatrix": "Matriz de accesos",
         "accountPayments": "Pagar desde mi cuenta",
+        "accountStatement": "Estado de cuenta",
         "adminOrganizations": "Organizaciones",
         "assistantKnowledge": "Base de conocimiento",
         "assistantMailboxes": "Casillas del asistente",
         "audit": "Auditoría",
         "blImport": "Carga de BL",
         "cart": "Carro de compra",
+        "creditImputationRules": "Imputación a crédito",
         "customs": "Transmisión Aduana",
         "dangerousGoods": "Mercancías peligrosas",
         "dangerousGoodsImport": "Base de mercancías peligrosas",
         "dashboard": "Dashboard",
         "deadlines": "Control de Plazos",
         "demurrage": "Demurrage",
+        "depositProofs": "Comprobantes de depósito",
         "faq": "FAQ",
         "internalRules": "Reglas de cobro",
         "invoices": "Facturas",
@@ -4121,6 +4855,7 @@
         "serviceOrders": "Órdenes de Servicio",
         "serviceRequestQueue": "Solicitudes de servicio",
         "serviceRequests": "Mis solicitudes",
+        "settlements": "Anticipos y cruces",
         "shipments": "Embarques",
         "tariffs": "Tarifas",
         "tatc": "Solicitar TATC",

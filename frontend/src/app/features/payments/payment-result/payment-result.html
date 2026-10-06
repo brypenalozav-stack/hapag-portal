@@ -38,6 +38,9 @@
           <div class="mt-3" data-testid="payment-result-documents">
             <h3 class="h6 fw-bold">{{ 'paymentResult.documents.title' | transloco }}</h3>
             <p class="small mb-2">{{ 'paymentResult.documents.text' | transloco }}</p>
+            @if (hasGateOut()) {
+              <p class="small mb-2" data-testid="payment-result-advance-receipt">{{ 'paymentResult.documents.advanceReceipt' | transloco }}</p>
+            }
             <ul class="mb-0">
               @for (bl of documentBls(); track bl) {
                 <li><a [routerLink]="['/shipments', bl, 'documents']">{{ 'paymentResult.documents.link' | transloco: { bl: bl } }}</a></li>
@@ -113,6 +116,11 @@
       <p class="small mt-3 mb-0" role="note" data-testid="payment-result-cancel-denied">{{ d.cancelDeniedReason | codeLabel: deniedKeys }}</p>
     }
   </section>
+
+  <!-- Fase 2, Ola H: comprobante del depósito y su revisión por Finanzas (M5-06) -->
+  @if (p.slipNumber) {
+    <app-deposit-proofs [paymentId]="p.id" (changed)="load()" />
+  }
 
   <!-- Detalle: un ítem por servicio pagado (M5-01) -->
   <section class="hl-card mb-4" aria-labelledby="payment-result-items-title">

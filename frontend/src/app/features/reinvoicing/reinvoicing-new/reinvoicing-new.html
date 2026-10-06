@@ -1,0 +1,194 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'reinvoicing.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/invoices">{{ 'reinvoicing.breadcrumbInvoices' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ 'reinvoicing.new.breadcrumb' | transloco }}</li>
+    </ol>
+  </nav>
+  <h1>{{ 'reinvoicing.new.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'reinvoicing.new.subtitle' | transloco }}</p>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  <a routerLink="/invoices" class="btn btn-outline-secondary">{{ 'reinvoicing.backToInvoices' | transloco }}</a>
+} @else if (quote(); as q) {
+  <app-reinvoicing-steps current="billing" />
+
+  <!-- Factura original y cobro estimado: refacturación y pérdida de IVA, en el mismo módulo (M3-11) -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="reinvoicing-quote-title" data-testid="reinvoicing-quote">
+    <h2 id="reinvoicing-quote-title" class="section-title mb-3">{{ 'reinvoicing.new.quoteTitle' | transloco: { number: invoiceNumber(q) } }}</h2>
+    <dl class="row g-3 mb-3">
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'reinvoicing.quote.invoice' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">
+          {{ invoiceNumber(q) }}
+          <span class="d-block small fw-normal">{{ 'reinvoicing.quote.source' | transloco: { number: q.sourceNumber } }}</span>
+        </dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'reinvoicing.quote.billedTo' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ 'reinvoicing.quote.party' | transloco: { name: q.legalName, taxId: q.taxId } }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'reinvoicing.quote.invoiceTotal' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ q.invoiceTotal | hlCurrency: q.invoiceCurrency }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'reinvoicing.quote.invoiceTax' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ q.invoiceTaxAmount | hlCurrency: q.invoiceCurrency }}</dd>
+      </div>
+    </dl>
+
+    @if (!q.eligible) {
+      <div class="alert alert-warning mb-0" role="alert" data-testid="reinvoicing-ineligible">
+        <p class="fw-bold mb-1">{{ 'reinvoicing.new.ineligibleTitle' | transloco }}</p>
+        <p class="mb-2">{{ reason(q.ineligibleReason) }}</p>
+        <a routerLink="/invoices" class="btn btn-sm btn-outline-secondary">{{ 'reinvoicing.backToInvoices' | transloco }}</a>
+      </div>
+    } @else {
+      <div class="table-responsive mb-2" tabindex="0" role="region" [attr.aria-label]="'reinvoicing.quote.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'reinvoicing.quote.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'reinvoicing.quote.col.concept' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'reinvoicing.quote.col.net' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'reinvoicing.quote.col.tax' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'reinvoicing.quote.col.total' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (q.fee; as fee) {
+              <tr>
+                <th scope="row" class="fw-semibold">{{ fee.conceptCode | codeLabel: conceptKeys }}</th>
+                <td class="text-end hl-num">{{ fee.amount | hlCurrency: fee.currency }}</td>
+                <td class="text-end hl-num">{{ fee.taxAmount | hlCurrency: fee.currency }}</td>
+                <td class="text-end hl-num">{{ fee.totalAmount | hlCurrency: fee.currency }}</td>
+              </tr>
+            }
+            @if (q.vatLoss; as loss) {
+              <tr>
+                <th scope="row" class="fw-semibold">{{ loss.conceptCode | codeLabel: conceptKeys }}</th>
+                <td class="text-end hl-num">{{ loss.amount | hlCurrency: loss.currency }}</td>
+                <td class="text-end hl-num">{{ loss.taxAmount | hlCurrency: loss.currency }}</td>
+                <td class="text-end hl-num">{{ loss.totalAmount | hlCurrency: loss.currency }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row" colspan="3">{{ 'reinvoicing.quote.total' | transloco }}</th>
+              <td class="text-end fw-bold hl-num" data-testid="reinvoicing-quote-total">{{ q.totalAmount | hlCurrency: (q.currency ?? q.invoiceCurrency) }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      @if (!q.vatLoss) {
+        <p class="small mb-1">{{ 'reinvoicing.quote.exempt' | transloco }}</p>
+      }
+      @if (q.exchangeRate && q.currency && q.currency !== q.invoiceCurrency) {
+        <p class="small mb-1">{{ 'reinvoicing.quote.exchangeRate' | transloco: { rate: (q.exchangeRate | hlNumber: '1.2-6'), from: q.invoiceCurrency, to: q.currency } }}</p>
+      }
+      <p class="small text-muted mb-0">{{ 'reinvoicing.quote.quotedAt' | transloco: { date: (q.quotedAt | hlDate: 'datetime' : q.timeZone) } }}</p>
+    }
+  </section>
+
+  @if (q.eligible) {
+    @if (!auth.canOperate()) {
+      <div class="alert alert-info" role="note">{{ 'reinvoicing.readOnly' | transloco }}</div>
+    } @else {
+      <!-- Datos de facturación de la nueva razón social (M3-11) -->
+      <form class="hl-card p-4 mb-4" novalidate aria-labelledby="reinvoicing-billing-title" (submit)="submit($event)" data-testid="reinvoicing-form">
+        <h2 id="reinvoicing-billing-title" class="section-title mb-2">{{ 'reinvoicing.new.billingTitle' | transloco }}</h2>
+        <p class="small text-muted">{{ 'reinvoicing.new.billingHelp' | transloco }}</p>
+        @if (errors().length > 0) {
+          <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="reinvoicing-errors-title" data-testid="reinvoicing-errors">
+            <h3 id="reinvoicing-errors-title" class="h6 fw-bold">{{ 'reinvoicing.new.errors.summaryTitle' | transloco }}</h3>
+            <ul class="mb-0">
+              @for (e of errors(); track e.fieldId) {
+                <li><a class="alert-link" [href]="'#' + e.fieldId" (click)="focusField($event, e.fieldId)">{{ e.key | transloco }}</a></li>
+              }
+            </ul>
+          </div>
+        }
+        @if (saveError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+        }
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label for="reinvoicing-tax-id" class="form-label small fw-semibold">{{ 'reinvoicing.new.taxId' | transloco }}</label>
+            <input id="reinvoicing-tax-id" type="text" class="form-control" required maxlength="20" autocomplete="off" name="taxId"
+                   aria-describedby="reinvoicing-tax-id-help reinvoicing-tax-id-error" [attr.aria-invalid]="hasError('reinvoicing-tax-id')" [(ngModel)]="form.taxId" />
+            <div id="reinvoicing-tax-id-help" class="form-text">{{ 'reinvoicing.new.taxIdHelp' | transloco }}</div>
+            <span id="reinvoicing-tax-id-error" class="hl-field-error">
+              @if (errorKey('reinvoicing-tax-id'); as k) {
+                {{ k | transloco }}
+              }
+            </span>
+          </div>
+          <div class="col-md-8">
+            <label for="reinvoicing-name" class="form-label small fw-semibold">{{ 'reinvoicing.new.name' | transloco }}</label>
+            <input id="reinvoicing-name" type="text" class="form-control" required maxlength="200" autocomplete="organization" name="name"
+                   aria-describedby="reinvoicing-name-error" [attr.aria-invalid]="hasError('reinvoicing-name')" [(ngModel)]="form.name" />
+            <span id="reinvoicing-name-error" class="hl-field-error">
+              @if (errorKey('reinvoicing-name'); as k) {
+                {{ k | transloco }}
+              }
+            </span>
+          </div>
+          <div class="col-md-8">
+            <label for="reinvoicing-address" class="form-label small fw-semibold">{{ 'reinvoicing.new.address' | transloco }}</label>
+            <input id="reinvoicing-address" type="text" class="form-control" required maxlength="300" autocomplete="street-address" name="address"
+                   aria-describedby="reinvoicing-address-error" [attr.aria-invalid]="hasError('reinvoicing-address')" [(ngModel)]="form.address" />
+            <span id="reinvoicing-address-error" class="hl-field-error">
+              @if (errorKey('reinvoicing-address'); as k) {
+                {{ k | transloco }}
+              }
+            </span>
+          </div>
+          <div class="col-md-4">
+            <label for="reinvoicing-activity" class="form-label small fw-semibold">{{ 'reinvoicing.new.activity' | transloco }}</label>
+            <input id="reinvoicing-activity" type="text" class="form-control" maxlength="200" autocomplete="off" name="activity" [(ngModel)]="form.activity" />
+          </div>
+          <div class="col-md-6">
+            <label for="reinvoicing-email" class="form-label small fw-semibold">{{ 'reinvoicing.new.email' | transloco }}</label>
+            <input id="reinvoicing-email" type="email" class="form-control" required maxlength="256" autocomplete="email" name="email"
+                   aria-describedby="reinvoicing-email-help reinvoicing-email-error" [attr.aria-invalid]="hasError('reinvoicing-email')" [(ngModel)]="form.email" />
+            <div id="reinvoicing-email-help" class="form-text">{{ 'reinvoicing.new.emailHelp' | transloco }}</div>
+            <span id="reinvoicing-email-error" class="hl-field-error">
+              @if (errorKey('reinvoicing-email'); as k) {
+                {{ k | transloco }}
+              }
+            </span>
+          </div>
+          <div class="col-md-6">
+            <label for="reinvoicing-acceptor" class="form-label small fw-semibold">{{ 'reinvoicing.new.acceptorEmail' | transloco }}</label>
+            <input id="reinvoicing-acceptor" type="email" class="form-control" maxlength="256" autocomplete="off" name="acceptorEmail"
+                   aria-describedby="reinvoicing-acceptor-help reinvoicing-acceptor-error" [attr.aria-invalid]="hasError('reinvoicing-acceptor')" [(ngModel)]="form.acceptorEmail" />
+            <div id="reinvoicing-acceptor-help" class="form-text">{{ 'reinvoicing.new.acceptorHelp' | transloco }}</div>
+            <span id="reinvoicing-acceptor-error" class="hl-field-error">
+              @if (errorKey('reinvoicing-acceptor'); as k) {
+                {{ k | transloco }}
+              }
+            </span>
+          </div>
+          <div class="col-12">
+            <label for="reinvoicing-reason" class="form-label small fw-semibold">{{ 'reinvoicing.new.reason' | transloco }}</label>
+            <textarea id="reinvoicing-reason" class="form-control" rows="2" maxlength="1000" name="reason" [(ngModel)]="form.reason"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-hl-orange" [disabled]="saving()" data-testid="reinvoicing-create">
+          @if (saving()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'reinvoicing.new.submit' | transloco }}
+        </button>
+      </form>
+    }
+  }
+}

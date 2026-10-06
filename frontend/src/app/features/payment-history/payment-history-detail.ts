@@ -21,16 +21,21 @@ import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../shared/pipes/hl-number.pipe';
 import { paymentErrorMessage } from '../../shared/payment-errors';
 import { saveBlob } from '../../shared/save-blob';
+import { DepositProofsComponent } from '../payments/deposit-proofs/deposit-proofs';
 
 /**
  * Detalle de un pago del historial (M7-02): comprobante o boleta, pagador (RUT que pagó) separado de cada
  * RUT de facturación, mandante si se pagó bajo mandato (NF-14), quién lo ejecutó, medio, moneda y cada
- * documento o concepto incluido con su monto original y el tipo de cambio aplicado (M5-05).
+ * documento o concepto incluido con su monto original y el tipo de cambio aplicado (M5-05). Fase 2, Ola H: en un pago con
+ * boleta de depósito, el comprobante del abono y su revisión por Finanzas (M5-06).
  */
 @Component({
   selector: 'app-payment-history-detail',
   standalone: true,
-  imports: [RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [
+    RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, LoadingSpinnerComponent, StateMessageComponent,
+    DepositProofsComponent,
+  ],
   templateUrl: './payment-history-detail.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -58,7 +63,8 @@ export class PaymentHistoryDetailComponent implements OnInit {
   }
 
   load(): void {
-    this.loading.set(true);
+    // Tras adjuntar un comprobante se vuelve a leer sin ocultar la página (el estado del pago puede cambiar).
+    this.loading.set(this.payment() === null);
     this.loadFailed.set(false);
     this.error.set('');
     this.service.getById(this.id()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({

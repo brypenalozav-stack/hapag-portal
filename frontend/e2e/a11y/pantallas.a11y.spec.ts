@@ -42,6 +42,8 @@ import {
   SOLICITUD,
   idDefinicion,
 } from '../fixtures/ola-g-mocks';
+import { ITEM } from '../fixtures/ola-d-mocks';
+import { PAGO_DEPOSITO, REFACTURACION, REFACTURACION_BORRADOR, TOKEN_ACEPTACION } from '../fixtures/ola-h-mocks';
 import { IDIOMAS, Idioma, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin, sembrarTema } from '../fixtures/session';
 
 /**
@@ -80,6 +82,11 @@ import { IDIOMAS, Idioma, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin
  * tramo y la de Drop Off con aceptación de tarifa, mis solicitudes, detalle con línea de tiempo y documento de salida,
  * detalle pendiente de pago con la anulación, historial del cambio de almacén y su trazabilidad, bandeja interna y
  * revisión, y el mantenedor de definiciones (listado, editor con un campo de selección e historial, y errores).
+ * Fase 2, Ola H (tema claro y oscuro): estado de cuenta sin crédito con documentos elegidos y con crédito, filtros con la
+ * antigüedad, cierre por ítem con crédito en la confirmación, comprobante de depósito rechazado y la carga con errores,
+ * bandeja de Finanzas en la revisión, anticipos con el cruce manual, refacturación IAO (cotización con errores, factura no
+ * elegible, borrador con errores, seguimiento), página pública de aceptación (errores y enlace no válido) y el mantenedor
+ * de conceptos imputables a crédito (historial y formulario con errores).
  */
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -371,6 +378,166 @@ const PANTALLAS_OLA_G: { id: string; ruta: string; sesion: Sesion; preparar?: (p
   },
 ];
 
+/** Elige líneas del estado de cuenta por su número (columna de selección). */
+function elegirLineas(...numeros: string[]): (page: Page) => Promise<void> {
+  return async (page) => {
+    for (const numero of numeros) await page.getByTestId(`statement-line-${numero}`).locator('input[type="checkbox"]').check();
+  };
+}
+
+/** Pantallas de la Ola H que se revisan en tema claro y oscuro (M11-07). */
+const PANTALLAS_OLA_H: { id: string; ruta: string; sesion: Sesion; opciones?: OpcionesOlaD; preparar?: (page: Page) => Promise<void> }[] = [
+  {
+    id: 'statement-cart-selection',
+    ruta: '/account-statement',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('statement-aging')).toBeVisible();
+      await elegirLineas('100245', '100310')(page);
+      await expect(page.getByTestId('statement-selection')).toBeVisible();
+    },
+  },
+  {
+    id: 'statement-filters-due-soon',
+    ruta: '/account-statement',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.locator('#statement-status').selectOption('DueSoon');
+      await page.locator('form[role="search"] button[type="submit"]').click();
+      await expect(page.getByTestId('statement-due-soon')).toHaveCount(1);
+    },
+  },
+  {
+    id: 'statement-credit',
+    ruta: '/account-statement',
+    sesion: 'cliente',
+    opciones: { credito: true },
+    preparar: async (page) => {
+      await expect(page.getByTestId('statement-credit')).toBeVisible();
+      await expect(page.getByTestId('statement-group-CreditImputed')).toBeVisible();
+    },
+  },
+  {
+    id: 'statement-credit-checkout',
+    ruta: '/account-statement',
+    sesion: 'cliente',
+    opciones: { credito: true },
+    preparar: async (page) => {
+      await elegirLineas('THC', 'GATE_OUT', 'DEMURRAGE')(page);
+      await page.getByTestId('checkout-item-GATE_OUT').getByRole('radio').nth(1).check();
+      await page.getByTestId('statement-checkout').locator('input[name="statement-checkout-method"]').first().check();
+      await page.getByTestId('statement-checkout').locator('button.btn-hl-orange').click();
+      await expect(page.locator('#statement-checkout-confirm-title')).toBeFocused();
+    },
+  },
+  {
+    id: 'deposit-proof-rejected',
+    ruta: `/payments/${PAGO_DEPOSITO.RECHAZADO}/result`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('deposit-proof-rejected')).toBeVisible();
+      await expect(page.getByTestId('deposit-proof-form')).toBeVisible();
+    },
+  },
+  {
+    id: 'deposit-proof-upload-errors',
+    ruta: `/payment-history/${PAGO_DEPOSITO.SIN_COMPROBANTE}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.locator('#proof-amount').fill('abc');
+      await page.getByTestId('deposit-proof-submit').click();
+      await expect(page.getByTestId('deposit-proof-errors')).toBeFocused();
+    },
+  },
+  {
+    id: 'admin-deposit-proofs-review',
+    ruta: '/admin/payments/deposit-proofs',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.locator('main table tbody tr').first().locator('button').last().click();
+      await expect(page.locator('#proof-review-title')).toBeFocused();
+      await page.locator('#proof-decision-reject').check();
+      await page.getByTestId('proof-review-submit').click();
+      await expect(page.locator('#proof-review-reason')).toBeFocused();
+    },
+  },
+  {
+    id: 'admin-settlements-manual',
+    ruta: '/admin/payments/settlements',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.locator('main table tbody tr').first().locator('button').click();
+      await expect(page.locator('#settlement-manual-title')).toBeFocused();
+      await page.locator('form:has(#settlement-invoice) button[type="submit"]').click();
+      await expect(page.locator('form:has(#settlement-invoice) .alert-danger').first()).toBeFocused();
+    },
+  },
+  {
+    id: 'reinvoicing-new-errors',
+    ruta: `/reinvoicing/new?invoiceId=${ITEM.FACTURA_VENCIDA}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('reinvoicing-quote')).toBeVisible();
+      await page.getByTestId('reinvoicing-create').click();
+      await expect(page.getByTestId('reinvoicing-errors')).toBeFocused();
+    },
+  },
+  {
+    id: 'reinvoicing-new-ineligible',
+    ruta: `/reinvoicing/new?invoiceId=${ITEM.FACTURA_PAGADA}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('reinvoicing-ineligible')).toBeVisible();
+    },
+  },
+  {
+    id: 'reinvoicing-draft-errors',
+    ruta: `/reinvoicing/${REFACTURACION_BORRADOR}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId('reinvoicing-submit').click();
+      await expect(page.getByTestId('reinvoicing-submit-errors')).toBeFocused();
+    },
+  },
+  {
+    id: 'reinvoicing-status-pending',
+    ruta: `/reinvoicing/${REFACTURACION}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('reinvoicing-acceptance')).toBeVisible();
+      await expect(page.getByTestId('service-payment')).toBeVisible();
+    },
+  },
+  {
+    id: 'reinvoicing-acceptance-errors',
+    ruta: `/reinvoicing/acceptance/${TOKEN_ACEPTACION}`,
+    sesion: 'ninguna',
+    preparar: async (page) => {
+      await page.getByTestId('acceptance-submit').click();
+      await expect(page.getByTestId('acceptance-errors')).toBeFocused();
+    },
+  },
+  {
+    id: 'reinvoicing-acceptance-invalid',
+    ruta: '/reinvoicing/acceptance/ENLACE-NO-VALIDO',
+    sesion: 'ninguna',
+    preparar: async (page) => {
+      await expect(page.getByTestId('acceptance-error')).toBeVisible();
+    },
+  },
+  { id: 'admin-credit-rules-history', ruta: '/admin/credit-imputation-rules', sesion: 'admin', preparar: abrirHistorial('#credit-rule-history-title', 1) },
+  {
+    id: 'admin-credit-rules-form',
+    ruta: '/admin/credit-imputation-rules',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.locator('.hl-page-header button').click();
+      await page.locator('form:has(#credit-rule-nexus) button[type="submit"]').click();
+      await expect(page.locator('form:has(#credit-rule-nexus) .alert-danger').first()).toBeFocused();
+    },
+  },
+];
+
 const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opciones?: OpcionesOlaD; preparar?: (page: Page) => Promise<void> }[] = [
   { id: 'login', ruta: '/login', sesion: 'ninguna' },
   { id: 'register', ruta: '/register', sesion: 'ninguna' },
@@ -567,6 +734,9 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opcion
   // Fase 2, Ola G, en tema claro y oscuro (M11-07)
   ...PANTALLAS_OLA_G,
   ...PANTALLAS_OLA_G.map((p) => ({ ...p, id: `${p.id}-dark`, tema: 'dark' as const })),
+  // Fase 2, Ola H, en tema claro y oscuro (M11-07)
+  ...PANTALLAS_OLA_H,
+  ...PANTALLAS_OLA_H.map((p) => ({ ...p, id: `${p.id}-dark`, tema: 'dark' as const })),
 ];
 
 async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opciones?: OpcionesOlaD, tema: Tema = 'light'): Promise<void> {

@@ -3,12 +3,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { AdminServiceRequestService } from '../../../core/services/service-request.service';
+import { AdminServiceRequestService, ServiceRequestService } from '../../../core/services/service-request.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { PagedResult } from '../../../core/models/admin-user.model';
-import { SERVICE_REQUEST_STATUSES, ServiceRequestSummary } from '../../../core/models/service-request.model';
+import { SERVICE_REQUEST_STATUSES, ServiceDefinitionOption, ServiceRequestSummary } from '../../../core/models/service-request.model';
 import {
-  SERVICE_DEFINITION_KEYS,
   SERVICE_REQUEST_STATUS_CLASS,
   SERVICE_REQUEST_STATUS_KEYS,
   SERVICE_TEAM_KEYS,
@@ -38,6 +37,7 @@ function emptyFilters(): QueueFilters {
  * Bandeja interna de solicitudes de servicios on demand (permiso `service-requests.process`): por defecto, lo que hay
  * que atender (pendiente de aprobación del equipo ED y en curso con Customer Service), del cambio de estado más
  * antiguo al más reciente; filtros por estado, equipo, servicio, país y BL o booking. Los borradores no se listan.
+ * Fase 2, Ola H: los servicios del filtro son las definiciones activas que informa el servidor.
  */
 @Component({
   selector: 'app-service-request-queue',
@@ -48,6 +48,7 @@ function emptyFilters(): QueueFilters {
 })
 export class ServiceRequestQueueComponent implements OnInit {
   private readonly service = inject(AdminServiceRequestService);
+  private readonly clientService = inject(ServiceRequestService);
   private readonly locale = inject(LocaleService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -55,8 +56,8 @@ export class ServiceRequestQueueComponent implements OnInit {
   readonly statusKeys = SERVICE_REQUEST_STATUS_KEYS;
   readonly teamKeys = SERVICE_TEAM_KEYS;
   readonly teams = ['ED', 'CustomerService'];
-  readonly definitionKeys = SERVICE_DEFINITION_KEYS;
-  readonly definitionCodes = Object.keys(SERVICE_DEFINITION_KEYS);
+  /** Servicios del filtro (GET /service-requests/definitions); si no responde, el filtro queda sin opciones. */
+  definitions = signal<ServiceDefinitionOption[]>([]);
 
   filters: QueueFilters = emptyFilters();
   page = signal(1);
@@ -73,6 +74,10 @@ export class ServiceRequestQueueComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.clientService.definitions().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (definitions) => this.definitions.set(definitions),
+      error: () => this.definitions.set([]),
+    });
     this.search();
   }
 
@@ -98,6 +103,10 @@ export class ServiceRequestQueueComponent implements OnInit {
   clearFilters(): void {
     this.filters = emptyFilters();
     this.search();
+  }
+
+  definitionName(definition: ServiceDefinitionOption): string {
+    return localized(this.locale.lang(), definition.nameEs, definition.nameEn);
   }
 
   name(item: ServiceRequestSummary): string {

@@ -23,8 +23,8 @@
       <label for="requests-service" class="form-label small fw-semibold">{{ 'serviceRequests.list.filters.service' | transloco }}</label>
       <select id="requests-service" class="form-select" name="definitionCode" [(ngModel)]="filters.definitionCode">
         <option value="">{{ 'serviceRequests.list.filters.allServices' | transloco }}</option>
-        @for (code of definitionCodes; track code) {
-          <option [value]="code">{{ code | codeLabel: definitionKeys }}</option>
+        @for (definition of definitions(); track definition.code) {
+          <option [value]="definition.code">{{ definitionName(definition) }}</option>
         }
       </select>
     </div>
@@ -89,7 +89,7 @@
                 <td>{{ item.createdAt | hlDate: 'datetime' }}</td>
                 <td>{{ item.statusChangedAt | hlDate: 'datetime' }}</td>
                 <td>
-                  <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/service-requests', item.id]"
+                  <a class="btn btn-sm btn-outline-secondary" [routerLink]="detailLink(item)"
                      [attr.aria-label]="'serviceRequests.list.viewLabel' | transloco: { number: item.requestNumber }">
                     {{ 'serviceRequests.list.view' | transloco }}
                   </a>

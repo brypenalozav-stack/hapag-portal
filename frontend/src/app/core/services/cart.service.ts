@@ -4,6 +4,7 @@ import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { ChargesService } from './charges.service';
 import { API_ENDPOINTS } from '../constants/app.constants';
+import { CartBatchItem, CartBatchResult } from '../models/account-statement.model';
 import {
   AddCartItemRequest,
   Cart,
@@ -100,6 +101,14 @@ export class CartService {
 
   addItem(request: AddCartItemRequest): Observable<Cart> {
     return this.api.post<Cart>(`${BASE}/items`, request).pipe(tap((cart) => this.state.set(cart)));
+  }
+
+  /**
+   * Agrega varios ítems de una vez (estado de cuenta, M7-03): cada uno se valida como en `addItem`; sin RUT se usa el
+   * propio (en facturas, el facturado). Los que fallan se informan sin bloquear al resto.
+   */
+  addItems(items: CartBatchItem[]): Observable<CartBatchResult> {
+    return this.api.post<CartBatchResult>(`${BASE}/items/batch`, { items }).pipe(tap((result) => this.state.set(result.cart)));
   }
 
   /** Convierte el ítem a otra moneda habilitada con el tipo de cambio del día (M5-08, M5-05). */

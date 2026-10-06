@@ -8,6 +8,7 @@ import {
   AvailableServices,
   CreateServiceRequest,
   QuoteServiceRequest,
+  ServiceDefinitionOption,
   ServiceQuote,
   ServiceReference,
   ServiceRequestAttachment,
@@ -48,6 +49,14 @@ function filters(f: AdminServiceRequestFilters): Record<string, string | number>
 @Injectable({ providedIn: 'root' })
 export class ServiceRequestService {
   private readonly api = inject(ApiService);
+
+  /** Definiciones activas en orden de presentación, para los filtros (cualquier usuario autenticado). */
+  definitions(options: { country?: string; operation?: string } = {}): Observable<ServiceDefinitionOption[]> {
+    return this.api.get<ServiceDefinitionOption[]>(`${BASE}/definitions`, {
+      ...(options.country ? { country: options.country } : {}),
+      ...(options.operation ? { operation: options.operation } : {}),
+    });
+  }
 
   getAvailable(ref: ServiceReference, includeUnavailable = false): Observable<AvailableServices> {
     return this.api.get<AvailableServices>(`${BASE}/available`, { ...reference(ref), includeUnavailable });

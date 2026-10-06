@@ -81,6 +81,32 @@ export const routes: Routes = [
     loadComponent: () => import('./features/invoices/invoices').then((m) => m.InvoicesComponent),
     canActivate: [authGuard],
   },
+  // Fase 2, Ola H: estado de cuenta en línea con pago por carro o forma de pago por ítem con crédito (M7-03, M5-10).
+  {
+    path: 'account-statement',
+    loadComponent: () =>
+      import('./features/account-statement/account-statement').then((m) => m.AccountStatementComponent),
+    canActivate: [authGuard],
+  },
+  // Fase 2, Ola H: refacturación IAO con pérdida de IVA (M3-11). La aceptación de la nueva razón social es pública: se
+  // abre desde el enlace de un solo uso enviado a su correo, sin sesión.
+  {
+    path: 'reinvoicing/new',
+    loadComponent: () =>
+      import('./features/reinvoicing/reinvoicing-new/reinvoicing-new').then((m) => m.ReinvoicingNewComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reinvoicing/acceptance/:token',
+    loadComponent: () =>
+      import('./features/reinvoicing/reinvoicing-acceptance/reinvoicing-acceptance').then((m) => m.ReinvoicingAcceptanceComponent),
+  },
+  {
+    path: 'reinvoicing/:id',
+    loadComponent: () =>
+      import('./features/reinvoicing/reinvoicing-detail/reinvoicing-detail').then((m) => m.ReinvoicingDetailComponent),
+    canActivate: [authGuard],
+  },
   {
     path: 'payment-history',
     loadComponent: () =>
@@ -329,6 +355,26 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/payment-config/payments-finance').then((m) => m.PaymentsFinanceComponent),
     canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PAYMENTS_FINANCE)],
+  },
+  // Fase 2, Ola H: comprobantes de depósito por verificar (M5-06), anticipos y su cruce con las facturas (M7-03, M3-19,
+  // NF-04) y conceptos imputables a la línea de crédito con su registro de cambios (M5-10, NF-15).
+  {
+    path: 'admin/payments/deposit-proofs',
+    loadComponent: () =>
+      import('./features/admin/payment-config/deposit-proof-queue').then((m) => m.DepositProofQueueComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PAYMENTS_FINANCE)],
+  },
+  {
+    path: 'admin/payments/settlements',
+    loadComponent: () =>
+      import('./features/admin/payment-config/settlements').then((m) => m.SettlementsComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PAYMENTS_FINANCE)],
+  },
+  {
+    path: 'admin/credit-imputation-rules',
+    loadComponent: () =>
+      import('./features/admin/payment-config/credit-imputation-rules').then((m) => m.CreditImputationRulesComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
   },
   // Ola F: reglas de publicación por DIFU (M2-01), base de conocimiento y casillas del asistente (M10-02) y
   // carga de la base de referencia de mercancías peligrosas (M10-06), con registro de cambios (NF-15).

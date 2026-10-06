@@ -27,8 +27,8 @@
       <label for="queue-service" class="form-label small fw-semibold">{{ 'admin.serviceRequests.queue.filters.service' | transloco }}</label>
       <select id="queue-service" class="form-select" name="definitionCode" [(ngModel)]="filters.definitionCode">
         <option value="">{{ 'admin.serviceRequests.queue.filters.allServices' | transloco }}</option>
-        @for (code of definitionCodes; track code) {
-          <option [value]="code">{{ code | codeLabel: definitionKeys }}</option>
+        @for (definition of definitions(); track definition.code) {
+          <option [value]="definition.code">{{ definitionName(definition) }}</option>
         }
       </select>
     </div>

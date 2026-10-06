@@ -55,7 +55,7 @@ function blId(bl: string): string {
 // Dashboard (M1-05)
 // ---------------------------------------------------------------------------
 
-function dashboard(url: URL): Dashboard {
+export function dashboard(url: URL): Dashboard {
   const operacion = url.searchParams.get('operation');
   const pais = url.searchParams.get('country');
   return {

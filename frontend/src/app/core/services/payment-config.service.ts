@@ -4,6 +4,15 @@ import { ApiService } from './api.service';
 import { API_ENDPOINTS } from '../constants/app.constants';
 import { PaymentMethod, PaymentStatusDetail } from '../models/cart.model';
 import {
+  ChargeSettlement,
+  CreditImputationRule,
+  CreditImputationRuleRequest,
+  CreditImputationRuleSnapshot,
+  SettlementMatchResult,
+  SettlementSearch,
+} from '../models/account-statement.model';
+import { DepositProofQueueItem, DepositProofReviewResult } from '../models/deposit-proof.model';
+import {
   MaintainerChange,
   PaymentBlockWindow,
   PaymentBlockWindowRequest,
@@ -71,6 +80,32 @@ export class PaymentConfigService {
     return this.api.get<MaintainerChange<PaymentMethodSnapshot>[]>(`${CONFIG}/methods/${id}/history`);
   }
 
+  // Conceptos imputables a la línea de crédito (Fase 2, Ola H, M5-10)
+  getCreditImputationRules(country: string, includeDisabled: boolean): Observable<CreditImputationRule[]> {
+    return this.api.get<CreditImputationRule[]>(`${CONFIG}/credit-imputation`, { ...(country ? { country } : {}), includeDisabled });
+  }
+
+  createCreditImputationRule(body: CreditImputationRuleRequest): Observable<CreditImputationRule> {
+    return this.api.post<CreditImputationRule>(`${CONFIG}/credit-imputation`, body);
+  }
+
+  updateCreditImputationRule(id: string, body: CreditImputationRuleRequest): Observable<CreditImputationRule> {
+    return this.api.put<CreditImputationRule>(`${CONFIG}/credit-imputation/${id}`, {
+      nexusCreditConcept: body.nexusCreditConcept,
+      isEnabled: body.isEnabled,
+      notes: body.notes,
+    });
+  }
+
+  /** Baja lógica: el registro de cambios se conserva. */
+  deleteCreditImputationRule(id: string): Observable<void> {
+    return this.api.delete<void>(`${CONFIG}/credit-imputation/${id}`);
+  }
+
+  getCreditImputationRuleHistory(id: string): Observable<MaintainerChange<CreditImputationRuleSnapshot>[]> {
+    return this.api.get<MaintainerChange<CreditImputationRuleSnapshot>[]>(`${CONFIG}/credit-imputation/${id}/history`);
+  }
+
   // Ventanas de bloqueo (M8-07)
   getBlockWindows(country: string, includeCancelled: boolean): Observable<PaymentBlockWindow[]> {
     return this.api.get<PaymentBlockWindow[]>(BLOCKS, { country, includeCancelled });
@@ -105,6 +140,43 @@ export class PaymentConfigService {
   /** Anulación por Finanzas (boleta emitida o pago en curso) con motivo obligatorio. */
   cancelPayment(paymentId: string, reason: string): Observable<PaymentStatusDetail> {
     return this.api.post<PaymentStatusDetail>(`${FINANCE}/${paymentId}/cancel`, { reason });
+  }
+
+  // Comprobantes de depósito por verificar (Fase 2, Ola H, M5-06)
+  getDepositProofQueue(status: string, country: string): Observable<DepositProofQueueItem[]> {
+    return this.api.get<DepositProofQueueItem[]>(`${FINANCE}/deposit-proofs`, {
+      ...(status ? { status } : {}),
+      ...(country ? { country } : {}),
+    });
+  }
+
+  /** Verifica el abono: el pago se confirma por la vía de siempre (comprobante, liberación y aviso). */
+  verifyDepositProof(proofId: string, notes: string | null): Observable<DepositProofReviewResult> {
+    return this.api.post<DepositProofReviewResult>(`${FINANCE}/deposit-proofs/${proofId}/verify`, notes ? { notes } : {});
+  }
+
+  /** Rechaza con motivo: el pago sigue a la espera de un comprobante nuevo. */
+  rejectDepositProof(proofId: string, reason: string): Observable<DepositProofReviewResult> {
+    return this.api.post<DepositProofReviewResult>(`${FINANCE}/deposit-proofs/${proofId}/reject`, { reason });
+  }
+
+  // Anticipos e imputaciones a crédito con su cruce con las facturas (Fase 2, Ola H, M7-03, M3-19, NF-04)
+  getSettlements(filters: SettlementSearch): Observable<ChargeSettlement[]> {
+    const params: Record<string, string> = {};
+    for (const [key, value] of Object.entries(filters)) {
+      if (typeof value === 'string' && value.trim()) params[key] = value.trim();
+    }
+    return this.api.get<ChargeSettlement[]>(`${FINANCE}/settlements`, params);
+  }
+
+  /** Cruce automático de los anticipos abiertos con las facturas que los incluyen. */
+  matchSettlements(): Observable<SettlementMatchResult> {
+    return this.api.post<SettlementMatchResult>(`${FINANCE}/settlements/match`, {});
+  }
+
+  /** Cruce manual con una factura (las diferencias de monto se aceptan con una nota). */
+  matchSettlement(id: string, invoiceId: string, note: string | null): Observable<ChargeSettlement> {
+    return this.api.post<ChargeSettlement>(`${FINANCE}/settlements/${id}/match`, { invoiceId, note });
   }
 
   getReconciliation(filters: ReconciliationSearch): Observable<PaymentReconciliation[]> {

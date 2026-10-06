@@ -23,6 +23,7 @@ import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { DepositProofsComponent } from '../deposit-proofs/deposit-proofs';
 
 /** Intervalo entre consultas del estado mientras la plataforma no confirma. */
 export const PAYMENT_POLL_INTERVAL_MS = 3000;
@@ -36,11 +37,15 @@ export const PAYMENT_POLL_MAX = 40;
  * mover el foco. Cada estado dice con certeza si hubo cobro. El depósito permite emitir la boleta; una
  * vez emitida, el cliente ya no puede anularla (M5-02): solo Finanzas. Ola E: si el pago confirmado emite
  * documentos (certificado de transbordo M6-01, cupón de retiro M6-03), enlaza al repositorio de cada BL (M6-09).
+ * Fase 2, Ola H: en un depósito con boleta, el cliente adjunta el comprobante del abono y ve su revisión (M5-06); el
+ * Gate Out de exportación pagado antes de la factura emite además el recibo del pago anticipado (M3-19).
  */
 @Component({
   selector: 'app-payment-result',
   standalone: true,
-  imports: [RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [
+    RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, DepositProofsComponent,
+  ],
   templateUrl: './payment-result.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -87,6 +92,9 @@ export class PaymentResultComponent implements OnInit {
       .map((i) => i.blNumber as string);
     return [...new Set(bls)];
   });
+
+  /** Incluye Gate Out: si el embarque es de exportación sin factura, también se emite el recibo del anticipo (M3-19). */
+  hasGateOut = computed(() => (this.data()?.payment.items ?? []).some((i) => i.conceptCode === 'GATE_OUT'));
 
   /** Esperando a la plataforma: se sigue consultando. */
   waiting = computed(() => {

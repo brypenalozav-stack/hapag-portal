@@ -38,6 +38,7 @@ const OUTCOME_CLASS: Record<string, string> = {
   Paid: 'hl-badge--confirmed',
   PartiallyExempt: 'hl-badge--processing',
   Payable: 'hl-badge--pending',
+  CreditImputed: 'hl-badge--processing',
 };
 
 /** Resultado de "Aplicar reglas" que se muestra sobre la tabla. */
@@ -59,6 +60,8 @@ interface ApplyOutcome {
  * - si Nexus no responde, no se presentan los cargos como definitivos (NF-11).
  * "Agregar al carro" (Ola D) valida el cargo en el servidor y pide el RUT de facturación y la moneda de
  * pago (M5-01, M5-09, M5-04); los clientes con crédito pagan desde su cuenta (M5-07).
+ * Fase 2, Ola H: un cargo imputado a la línea de crédito no se paga ahora (M5-10); en exportación, la agencia de aduanas ve
+ * cómo funciona el pago anticipado del Gate Out: recibo al pagar y vínculo con la factura emitida tras el zarpe (M3-19).
  */
 @Component({
   selector: 'app-charges-panel',
@@ -112,6 +115,16 @@ export class ChargesPanelComponent {
   canIssueLetter = computed(() => {
     const org = this.auth.organization();
     return this.auth.canOperate() && !!org && org.organizationType !== 'Internal';
+  });
+
+  /**
+   * Pago anticipado del Gate Out (M3-19): exportación con Gate Out por pagar, vista por una agencia de aduanas. El servidor
+   * emite el recibo (`RGO-`) al liberar el pago y lo cruza con la factura posterior.
+   */
+  gateOutAdvance = computed(() => {
+    const d = this.data();
+    return !!d && d.shipmentType.toUpperCase() === 'EXPORT' && this.auth.organization()?.organizationType === 'CustomsAgency'
+      && d.charges.some((c) => c.conceptCode === 'GATE_OUT' && c.status === 'Pending' && c.payableTotal > 0);
   });
 
   private readonly outcomeHeading = viewChild<ElementRef<HTMLElement>>('outcomeHeading');

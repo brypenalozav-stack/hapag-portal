@@ -152,6 +152,12 @@ export class DashboardComponent {
     }
     list.push(
       { route: '/invoices', titleKey: 'dashboard.services.invoices.title', descriptionKey: 'dashboard.services.invoices.description', icon: ICON.invoice },
+    );
+    // Fase 2, Ola H: estado de cuenta de la organización (M7-03).
+    if (!this.auth.isInternal()) {
+      list.push({ route: '/account-statement', titleKey: 'dashboard.services.accountStatement.title', descriptionKey: 'dashboard.services.accountStatement.description', icon: ICON.pay });
+    }
+    list.push(
       { route: '/warehouse', titleKey: 'dashboard.services.warehouse.title', descriptionKey: 'dashboard.services.warehouse.description', icon: ICON.warehouse },
       { route: '/demurrage', titleKey: 'dashboard.services.demurrage.title', descriptionKey: 'dashboard.services.demurrage.description', icon: ICON.clock },
       { route: '/tatc', titleKey: 'dashboard.services.tatc.title', descriptionKey: 'dashboard.services.tatc.description', icon: ICON.check },

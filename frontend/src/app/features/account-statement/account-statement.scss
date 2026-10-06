@@ -1,0 +1,71 @@
+:host {
+  display: block;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+// Resumen: concepto a la izquierda y monto a la derecha; el saldo total destaca.
+.statement-dl {
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid var(--hl-border);
+  }
+
+  > div:last-child {
+    border-bottom: 0;
+  }
+
+  dt {
+    font-weight: 400;
+    font-size: 0.875rem;
+    color: var(--hl-text-muted);
+  }
+
+  dd {
+    margin-bottom: 0;
+    font-weight: 600;
+    text-align: end;
+  }
+
+  .statement-total dd {
+    font-size: 1.25rem;
+    color: var(--hl-emphasis);
+  }
+}
+
+// Barra decorativa de la antigüedad: el monto está en la celda.
+.statement-aging-bar {
+  margin-top: 0.25rem;
+  min-width: 4rem;
+}
+
+// Documentos próximos a vencer y vencidos: además de la insignia con texto, un borde que no transmite información solo.
+.statement-due-soon > td:first-child {
+  box-shadow: inset 0.25rem 0 0 var(--bs-warning);
+}
+
+.statement-overdue > td:first-child {
+  box-shadow: inset 0.25rem 0 0 var(--bs-danger);
+}
+
+// Barra decorativa (mismo diseño que el dashboard; los estilos del dashboard están encapsulados en su componente).
+.hl-bar {
+  display: block;
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--hl-surface-muted);
+  overflow: hidden;
+}
+
+.hl-bar__fill {
+  display: block;
+  height: 100%;
+  background-color: var(--hl-green);
+}
