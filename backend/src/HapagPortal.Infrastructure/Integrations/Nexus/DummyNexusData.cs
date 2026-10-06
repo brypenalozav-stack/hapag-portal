@@ -17,6 +17,10 @@ public static class DummyNexusData
 
     public const string Source = "DUMMY";
 
+    /// <summary>Cupo de crédito simulado de <c>76000002-2</c> (extensión propuesta de CT-NEXUS, M7-03).</summary>
+    public const decimal CreditLimit = 5_000_000m;
+    public const string CreditLimitCurrency = "CLP";
+
     /// <summary>Inicio de vigencia de todas las condiciones simuladas.</summary>
     public static readonly DateOnly ValidFrom = new(2026, 1, 1);
 

@@ -270,6 +270,10 @@ public sealed class CompleteServiceRequestCommandHandler(
                 a => a.ServiceRequestId == serviceRequest.Id && a.FieldKey == ServiceRequestAttachmentFields.Output, cancellationToken))
             return Result<ServiceRequestDetailDto>.Failure(DomainErrors.ServiceRequest.OutputDocumentRequired);
 
+        // M3-11: la refacturación se completa sola al emitir la nueva factura (pago y aceptación).
+        if (serviceRequest.DefinitionCode == ServiceDefinitionCodes.IaoReinvoicing)
+            return Result<ServiceRequestDetailDto>.Failure(DomainErrors.Reinvoicing.InvoiceNotIssued);
+
         var completed = ServiceRequestWorkflow.Transition(
             dbContext, serviceRequest, ServiceRequestStatus.Completed, ServiceActor.Internal(currentUserService), request.Notes, DateTime.UtcNow);
         if (completed.IsFailure)

@@ -125,6 +125,9 @@ public static class DashboardTargets
     public const string TatcBatch = "TatcBatch";
     public const string BlCopy = "BlCopy";
     public const string ResponsibilityLetter = "ResponsibilityLetter";
+
+    /// <summary>Solicitud de servicio on demand (Ola G): <c>Id</c> de la solicitud.</summary>
+    public const string ServiceRequest = "ServiceRequest";
 }
 
 /// <summary>
@@ -482,7 +485,8 @@ public sealed class GetDashboardQueryHandler(
 
     /// <summary>
     /// Gestiones de la propia organización en curso y las terminadas en los últimos días: cambios de almacén y
-    /// solicitudes masivas, copias de BL y cartas solicitadas, órdenes de servicio y solicitudes masivas de TATC.
+    /// solicitudes masivas, copias de BL y cartas solicitadas, órdenes de servicio, solicitudes masivas de TATC y
+    /// solicitudes de servicios on demand (Ola G; en curso mientras no terminen, incluidos los borradores).
     /// </summary>
     private async Task<DashboardRequestsDto> RequestsAsync(AccessScope scope, DateTime now, CancellationToken cancellationToken)
     {
@@ -546,6 +550,16 @@ public sealed class GetDashboardQueryHandler(
         items.AddRange(tatcBatches.Select(b => new DashboardRequestDto(
             DashboardTargets.TatcBatch, b.Id, $"{b.LocationCode} {b.AcceptedItems}/{b.TotalItems}", null, b.Status, false,
             b.CreatedAt, b.CompletedAt, new DashboardTargetDto(DashboardTargets.TatcBatch, null, b.Id))));
+
+        var serviceRequests = await dbContext.ServiceRequests.AsNoTracking()
+            .Where(r => r.OrganizationId == organizationId
+                && (!ServiceRequestStatus.Terminal.Contains(r.Status) || r.CreatedAt >= since || r.StatusChangedAt >= since))
+            .ToListAsync(cancellationToken);
+        items.AddRange(serviceRequests.Select(r => new DashboardRequestDto(
+            DashboardTargets.ServiceRequest, r.Id, r.RequestNumber, r.BlNumber, r.Status,
+            !ServiceRequestStatus.Terminal.Contains(r.Status), r.CreatedAt,
+            r.CompletedAt ?? r.RejectedAt ?? r.CancelledAt,
+            new DashboardTargetDto(DashboardTargets.ServiceRequest, r.BlNumber, r.Id))));
 
         var ordered = items
             .OrderByDescending(i => i.InProgress)

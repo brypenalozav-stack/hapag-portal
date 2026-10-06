@@ -50,7 +50,9 @@ public static class ServiceRequestPaymentRelease
             var charges = await dbContext.LocalCharges
                 .Where(c => linked.Contains(c.Id))
                 .ToListAsync(cancellationToken);
-            if (charges.Count < linked.Count || charges.Any(c => c.Status is not (ChargeStatus.Paid or ChargeStatus.Exempt)))
+            // Imputado a crédito (M5-10) libera igual que pagado.
+            if (charges.Count < linked.Count
+                || charges.Any(c => c.Status is not (ChargeStatus.Paid or ChargeStatus.Exempt or ChargeStatus.CreditImputed)))
                 continue;
 
             var definition = await dbContext.ServiceDefinitions.AsNoTracking()
@@ -65,7 +67,12 @@ public static class ServiceRequestPaymentRelease
 
             request.PaymentId = payment.Id;
 
-            var fulfilled = ServiceRequestWorkflow.Fulfill(dbContext, request, definition, ServiceActor.System, null, now);
+            // M3-11: la refacturación queda en curso hasta emitir la nueva factura (paso Reinvoicing), que exige
+            // además la aceptación del cobro por la nueva razón social.
+            var fulfilled = request.DefinitionCode == ServiceDefinitionCodes.IaoReinvoicing
+                ? ServiceRequestWorkflow.Transition(dbContext, request, ServiceRequestStatus.InProgress, ServiceActor.System,
+                    "Pendiente de la emisión de la nueva factura (requiere la aceptación de la nueva razón social).", now)
+                : ServiceRequestWorkflow.Fulfill(dbContext, request, definition, ServiceActor.System, null, now);
             if (fulfilled.IsFailure)
                 throw new InvalidOperationException(fulfilled.Error.Message);
 

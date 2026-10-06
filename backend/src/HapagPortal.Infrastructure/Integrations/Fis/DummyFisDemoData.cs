@@ -53,6 +53,12 @@ public static class DummyFisDemoData
             "PECLL", "PELIM", null, null, "BL", null, BlIssuanceSourceStatuses.Issued, Utc(2026, 9, 28, 6), "CLSAI"),
         new("HLCUARI260901720", "HLCUBKG2609172", "EXPORT", "Antofagasta Express", "2609S", Utc(2026, 9, 30), Utc(2026, 10, 7), null, null, null, null, null,
             "PECLL", "PELIM", null, null, "SWB", null, BlIssuanceSourceStatuses.Issued, Utc(2026, 9, 30, 8), "CLARI"),
+        // Fase 2 Ola H: exportación zarpada con Gate Out pagado por anticipado (M3-19) e importación del cliente con
+        // crédito (estado de cuenta M7-03, imputación a crédito M5-10).
+        new("HLCUSAI260701810", "HLCUBKG2607181", "EXPORT", "Valparaiso Express", "2610N", Utc(2026, 10, 3), Utc(2026, 10, 12), null, null, null, null, null,
+            "PECLL", "PELIM", null, null, "BL", null, BlIssuanceSourceStatuses.Issued, Utc(2026, 10, 3, 6), "CLSAI"),
+        new("HLCUVAP260601930", "HLCUBKG2606193", "IMPORT", "Santos Express", "2610N", Utc(2026, 9, 5), Utc(2026, 9, 28), null, null, null, null, null,
+            "CLVAP", "CLVAP", null, null, "BL", null, BlIssuanceSourceStatuses.Issued, Utc(2026, 9, 6, 10), "BRSSZ"),
     ];
 
     public static ShipmentRecord? Find(string? blNumber) =>

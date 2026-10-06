@@ -25,6 +25,14 @@ public static class NotificationTypes
     // Documentos del embarque (M6-01, M6-03, M6-04)
     public const string DocumentIssued = "DocumentIssued";
 
+    // Finanzas (Fase 2 Ola H): comprobante de depósito (M5-06), imputación a crédito (M5-10) y refacturación IAO (M3-11).
+    public const string DepositProofSubmitted = "DepositProofSubmitted";
+    public const string DepositProofRejected = "DepositProofRejected";
+    public const string CreditImputationRegistered = "CreditImputationRegistered";
+    public const string ReinvoicingAccepted = "ReinvoicingAccepted";
+    public const string ReinvoicingDeclined = "ReinvoicingDeclined";
+    public const string InvoiceReissued = "InvoiceReissued";
+
     // Solicitudes de servicios on demand (M2-03, M2-04, M3-07 a M3-15), a los administradores de la organización.
     public const string ServiceRequestPendingApproval = "ServiceRequestPendingApproval";
     public const string ServiceRequestApproved = "ServiceRequestApproved";

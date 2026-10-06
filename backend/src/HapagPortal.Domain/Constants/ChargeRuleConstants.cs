@@ -7,6 +7,9 @@ public static class ChargeOutcomes
     public const string PartiallyExempt = "PartiallyExempt";
     public const string Exempt = "Exempt";
     public const string Paid = "Paid";
+
+    /// <summary>Imputado a la línea de crédito (M5-10): no se paga ahora, queda en el estado de cuenta.</summary>
+    public const string CreditImputed = "CreditImputed";
 }
 
 /// <summary>Acción disponible sobre un cargo o sobre el demurrage de un BL (M3-18).</summary>
@@ -168,6 +171,9 @@ public static class MaintainerNames
 
     // Fase 2 Ola G: definiciones de servicios on demand (M2-03, M2-04).
     public const string ServiceDefinition = "ServiceDefinition";
+
+    // Fase 2 Ola H: conceptos elegibles para imputar a la línea de crédito (M5-10).
+    public const string CreditImputationRule = "CreditImputationRule";
 }
 
 public static class MaintainerActions

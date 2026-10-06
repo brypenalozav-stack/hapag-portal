@@ -161,6 +161,8 @@ public sealed class PayableItemResolver(
 
         if (charge.Status == ChargeStatus.Paid)
             return Result<ResolvedPayableItem>.Failure(DomainErrors.Cart.AlreadyPaid);
+        if (charge.Status == ChargeStatus.CreditImputed)
+            return Result<ResolvedPayableItem>.Failure(DomainErrors.Cart.CreditImputed);
 
         decimal amount, tax, total;
 

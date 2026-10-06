@@ -78,6 +78,10 @@ public interface IApplicationDbContext
     DbSet<ServiceRequestEvent> ServiceRequestEvents { get; }
     DbSet<ServiceRequestAttachment> ServiceRequestAttachments { get; }
     DbSet<ServiceRequestCharge> ServiceRequestCharges { get; }
+    DbSet<ChargeSettlement> ChargeSettlements { get; }
+    DbSet<DepositProof> DepositProofs { get; }
+    DbSet<CreditImputationRule> CreditImputationRules { get; }
+    DbSet<InvoiceReissue> InvoiceReissues { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

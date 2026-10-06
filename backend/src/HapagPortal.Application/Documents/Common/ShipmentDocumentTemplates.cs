@@ -69,6 +69,7 @@ public static class ShipmentDocumentTemplates
         ShipmentDocumentTypes.BlCopyNonValued => $"copia-bl-no-valorada-{number}.pdf",
         ShipmentDocumentTypes.ResponsibilityLetter => $"carta-responsabilidad-{number}.pdf",
         ShipmentDocumentTypes.NoDebtCertificate => $"certificado-libre-deuda-{number}.pdf",
+        ShipmentDocumentTypes.GateOutAdvanceReceipt => $"recibo-anticipo-gate-out-{number}.pdf",
         _ => $"{number}.pdf"
     };
 
@@ -116,6 +117,53 @@ public static class ShipmentDocumentTemplates
                 [
                     "El cupón es válido para las unidades indicadas y solo una vez por unidad.",
                     "El depósito puede verificar la emisión con el código de verificación impreso al pie."
+                ])
+            ],
+            signatureNote: null);
+    }
+
+    /// <summary>
+    /// Recibo del pago anticipado de Gate Out (M3-19): en exportación la factura se emite tras el zarpe, por lo que
+    /// el pago de la agencia de aduanas (u otro pagador) queda respaldado con este recibo, que identifica el
+    /// embarque, las unidades y el pagador. La factura posterior se presenta vinculada a él.
+    /// </summary>
+    public static PdfDocumentModel GateOutAdvanceReceipt(
+        ShipmentDocumentData data,
+        DocumentHeader header,
+        string payerName,
+        string? payerTaxId,
+        string paymentNumber,
+        string? receiptNumber,
+        string? method,
+        PaymentDetail detail,
+        DateTime? paidAt)
+    {
+        var bl = data.BillOfLading;
+
+        return Model(
+            "Recibo de pago anticipado - Gate Out",
+            "Pago recibido antes de la emisión de la factura",
+            data,
+            header,
+            [
+                new PdfSection("Pagador", [new("Razón social", payerName), new("RUT / NIT", payerTaxId)]),
+                new PdfSection("Pago",
+                [
+                    new("Concepto", detail.Description ?? detail.ConceptType),
+                    new("Monto del cargo", $"{Money(detail.OriginalAmount ?? detail.Amount + detail.TaxAmount)} {detail.OriginalCurrency ?? detail.Currency}"),
+                    new("Monto pagado", $"{Money(detail.Amount + detail.TaxAmount)} {detail.Currency}"),
+                    new("Tipo de cambio", detail.ExchangeRate is null ? null : detail.ExchangeRate.Value.ToString("0.######", CultureInfo.InvariantCulture)),
+                    new("RUT de facturación", detail.BillingTaxId is null ? null : $"{detail.BillingName} ({detail.BillingTaxId})"),
+                    new("Pago", paymentNumber),
+                    new("Comprobante de pago", receiptNumber),
+                    new("Medio de pago", method),
+                    new("Fecha de pago", paidAt is null ? null : LocalDateTime(bl.Country, paidAt.Value))
+                ]),
+                Units(data.Containers),
+                new PdfSection("Vinculación con la factura", Paragraphs:
+                [
+                    "La factura del Gate Out se emite después del zarpe de la nave y se vincula a este recibo.",
+                    "El cargo pagado con este recibo no vuelve a cobrarse al cliente."
                 ])
             ],
             signatureNote: null);

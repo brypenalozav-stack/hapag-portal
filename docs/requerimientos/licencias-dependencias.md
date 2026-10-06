@@ -72,3 +72,7 @@ Sin paquetes nuevos en el backend: la caché corta del TATC usa `Microsoft.Exten
 | Modelo por defecto `phi3.5` (Phi-3.5-mini) | etiqueta `phi3.5` de Ollama | Infraestructura del ambiente | MIT | Ola F |
 
 Otro modelo solo puede configurarse si su licencia está aprobada por la OSI (por ejemplo Apache-2.0 o MIT); modelos con licencias comunitarias no OSI no se usan. La base de referencia DG (M10-06) siembra una muestra con números ONU, nombres y clases de la lista de las Recomendaciones de la ONU; no reproduce texto del Código IMDG. La lista completa se carga por la importación CSV desde la fuente que Hapag-Lloyd valide con su licencia.
+
+### Ola H (Fase 2): finanzas
+
+Sin paquetes nuevos en el backend. La exportación del estado de cuenta a planilla (M7-03) genera XLSX (Office Open XML mínimo) con `System.IO.Compression` de la biblioteca base de .NET (MIT) y CSV RFC 4180 en UTF-8 con BOM, sin ClosedXML, EPPlus ni NPOI.

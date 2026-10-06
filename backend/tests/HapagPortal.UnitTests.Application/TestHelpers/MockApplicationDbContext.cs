@@ -79,6 +79,10 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<ServiceRequestEvent> ServiceRequestEventList { get; } = [];
     public List<ServiceRequestAttachment> ServiceRequestAttachmentList { get; } = [];
     public List<ServiceRequestCharge> ServiceRequestChargeList { get; } = [];
+    public List<ChargeSettlement> ChargeSettlementList { get; } = [];
+    public List<DepositProof> DepositProofList { get; } = [];
+    public List<CreditImputationRule> CreditImputationRuleList { get; } = [];
+    public List<InvoiceReissue> InvoiceReissueList { get; } = [];
 
     public DbSet<Client> Clients => MockDbSetHelper.CreateMockDbSet(ClientList);
     public DbSet<User> Users => MockDbSetHelper.CreateMockDbSet(UserList);
@@ -153,6 +157,10 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<ServiceRequestEvent> ServiceRequestEvents => MockDbSetHelper.CreateMockDbSet(ServiceRequestEventList);
     public DbSet<ServiceRequestAttachment> ServiceRequestAttachments => MockDbSetHelper.CreateMockDbSet(ServiceRequestAttachmentList);
     public DbSet<ServiceRequestCharge> ServiceRequestCharges => MockDbSetHelper.CreateMockDbSet(ServiceRequestChargeList);
+    public DbSet<ChargeSettlement> ChargeSettlements => MockDbSetHelper.CreateMockDbSet(ChargeSettlementList);
+    public DbSet<DepositProof> DepositProofs => MockDbSetHelper.CreateMockDbSet(DepositProofList);
+    public DbSet<CreditImputationRule> CreditImputationRules => MockDbSetHelper.CreateMockDbSet(CreditImputationRuleList);
+    public DbSet<InvoiceReissue> InvoiceReissues => MockDbSetHelper.CreateMockDbSet(InvoiceReissueList);
 
     public int SaveChangesCallCount { get; private set; }
 

@@ -101,7 +101,9 @@ public sealed class PaymentsSeedTests : IDisposable
         payments.Single(p => p.Id == SeedDataIds.Payment11).Status.Should().Be(PaymentStatus.PendingVerification);
         payments.Single(p => p.Id == SeedDataIds.Payment12).FailureReason.Should().Be(PaymentFailureReasons.ProviderUnavailable);
 
-        var legacy = await _context.Payments.Where(p => !ids.Contains(p.Id)).ToListAsync();
+        // Ola H: anticipo, imputación a crédito y Gate Out anticipado (FinanceSeedTests).
+        var olaH = new[] { SeedDataIds.Payment15, SeedDataIds.Payment16, SeedDataIds.Payment17 };
+        var legacy = await _context.Payments.Where(p => !ids.Contains(p.Id) && !olaH.Contains(p.Id)).ToListAsync();
         legacy.Should().OnlyContain(p => p.Origin == PaymentOrigins.Legacy);
     }
 

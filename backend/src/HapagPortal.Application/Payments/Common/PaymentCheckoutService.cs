@@ -229,6 +229,85 @@ public sealed class PaymentCheckoutService(
         return Result<CheckoutResultDto>.Success(await ResultAsync(payment, replayed: false, cancellationToken));
     }
 
+    /// <summary>
+    /// Imputación a la línea de crédito (M5-10) de cargos de una misma moneda: transacción sin cobro ni
+    /// conversión, confirmada en el acto y liberada por la cola como un pago (NF-03). No usa plataforma ni
+    /// medio de pago y no la afecta el bloqueo de pagos (M8-07). La clave de idempotencia es la de la solicitud.
+    /// </summary>
+    public async Task<Payment> CreateCreditImputationAsync(
+        PayerContext payer,
+        string country,
+        string currency,
+        IReadOnlyList<CheckoutLine> lines,
+        string idempotencyKey,
+        string fingerprint,
+        CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+        var actor = PaymentActor.From(currentUserService);
+        var organization = payer.Organization;
+        var number = PaymentLifecycle.NewNumber(DocumentPrefixes.CreditImputation, now);
+
+        var payment = new Payment
+        {
+            PaymentNumber = number,
+            PaymentType = PaymentOrigins.CreditLine,
+            PaymentMethod = PaymentMethodCodes.CreditLine,
+            PaymentMethodCode = PaymentMethodCodes.CreditLine,
+            Currency = currency,
+            Status = PaymentStatus.Pending,
+            Country = country,
+            PaymentDate = now,
+            ClientId = organization.Id,
+            Origin = PaymentOrigins.CreditLine,
+            IdempotencyKey = idempotencyKey.Trim(),
+            RequestFingerprint = fingerprint,
+            CreatedByUserId = currentUserService.UserId,
+            ExternalReference = number,
+            PayerTaxId = TaxIdNormalizer.Normalize(organization.TaxId),
+            PayerName = organization.Name
+        };
+
+        var details = lines.Select(line => new PaymentDetail
+        {
+            PaymentId = payment.Id,
+            ConceptType = line.Item.ConceptCode,
+            Description = line.Item.Description,
+            Amount = line.Item.Amount,
+            TaxAmount = line.Item.TaxAmount,
+            Currency = currency,
+            ItemType = line.Item.ItemType,
+            SourceId = line.Item.SourceId,
+            BillOfLadingId = line.Item.BillOfLading?.Id,
+            BlNumber = line.Item.BillOfLading?.BLNumber,
+            BookingNumber = line.Item.BillOfLading?.BookingNumber,
+            BillingTaxId = line.BillingTaxId,
+            BillingName = line.BillingName,
+            OriginalAmount = line.Item.TotalAmount,
+            OriginalCurrency = line.Item.Currency,
+            OnBehalfOfClientId = line.Item.OnBehalfOfClientId,
+            AccessGrantId = line.Item.AccessGrantId
+        }).ToList();
+
+        payment.Amount = details.Sum(d => d.Amount);
+        payment.TaxAmount = details.Sum(d => d.TaxAmount);
+        payment.TotalAmount = payment.Amount + payment.TaxAmount;
+        var blIds = details.Select(d => d.BillOfLadingId).Distinct().ToList();
+        payment.BillOfLadingId = blIds.Count == 1 ? blIds[0] : null;
+
+        dbContext.Payments.Add(payment);
+        foreach (var detail in details)
+            dbContext.PaymentDetails.Add(detail);
+
+        PaymentLifecycle.Created(dbContext, payment, actor, now);
+        var confirmed = PaymentLifecycle.ConfirmCreditImputation(dbContext, payment, actor, now);
+        if (confirmed.IsFailure)
+            throw new InvalidOperationException(confirmed.Error.Message);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return payment;
+    }
+
     private async Task<Result<PaymentInitiation>> InitiateAsync(
         PaymentMethodConfig method,
         Payment payment,

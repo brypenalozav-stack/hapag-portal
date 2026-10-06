@@ -257,6 +257,33 @@ public static class SeedDataIds
     public static readonly Guid LocalChargeCorrectionBL02 = Guid.Parse("33333333-0009-0009-0009-000000000028");
     public static readonly Guid LocalChargeBlHouseBL16 = Guid.Parse("33333333-0009-0009-0009-000000000029");
 
+    // Fase 2 Ola H — estado de cuenta (M7-03), forma de pago por ítem (M5-10), comprobante de depósito (M5-06),
+    // refacturación IAO (M3-11) y pago anticipado de Gate Out (M3-19)
+    public static readonly Guid BL18 = Guid.Parse("11111111-0007-0007-0007-000000000018");
+    public static readonly Guid BL19 = Guid.Parse("11111111-0007-0007-0007-000000000019");
+    public static readonly Guid Container23 = Guid.Parse("22222222-0008-0008-0008-000000000023");
+    public static readonly Guid Container24 = Guid.Parse("22222222-0008-0008-0008-000000000024");
+    public static readonly Guid LocalChargeBlFeeBL19 = Guid.Parse("33333333-0009-0009-0009-000000000030");
+    public static readonly Guid LocalChargeIspsBL19 = Guid.Parse("33333333-0009-0009-0009-000000000031");
+    public static readonly Guid LocalChargeThcBL19 = Guid.Parse("33333333-0009-0009-0009-000000000032");
+    public static readonly Guid LocalChargeGateOutBL19 = Guid.Parse("33333333-0009-0009-0009-000000000033");
+    public static readonly Guid LocalChargeGateOutBL18 = Guid.Parse("33333333-0009-0009-0009-000000000034");
+    public static readonly Guid LocalChargeReinvoicingBL01 = Guid.Parse("33333333-0009-0009-0009-000000000035");
+    public static readonly Guid LocalChargeVatLossBL01 = Guid.Parse("33333333-0009-0009-0009-000000000036");
+    public static readonly Guid Payment15 = Guid.Parse("55555555-000B-000B-000B-000000000015");
+    public static readonly Guid Payment16 = Guid.Parse("55555555-000B-000B-000B-000000000016");
+    public static readonly Guid Payment17 = Guid.Parse("55555555-000B-000B-000B-000000000017");
+    public static readonly Guid InvoiceCreditOverdue01 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000011");
+    public static readonly Guid InvoiceCreditOverdue02 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000012");
+    public static readonly Guid InvoiceCreditDueSoon = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000013");
+    public static readonly Guid InvoiceGateOutBL18 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000014");
+    public static readonly Guid DocumentGateOutAdvanceBL18 = Guid.Parse("FFFFFFFF-0018-0018-0018-000000000005");
+    public static readonly Guid ServiceDefinitionIao = Guid.Parse("FFFFFFFF-0022-0022-0022-000000000001");
+    public static readonly Guid ServiceRequestIaoPending = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000009");
+    public static readonly Guid InvoiceReissueIaoPending = Guid.Parse("FFFFFFFF-0023-0023-0023-000000000001");
+    public static readonly Guid DepositProofRejected = Guid.Parse("FFFFFFFF-0024-0024-0024-000000000001");
+    public static readonly Guid DepositProofSubmitted = Guid.Parse("FFFFFFFF-0024-0024-0024-000000000002");
+
     // Audit Logs
     public static readonly Guid AuditLog01 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000001");
     public static readonly Guid AuditLog02 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000002");

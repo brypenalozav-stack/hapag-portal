@@ -107,6 +107,9 @@ public static class DomainErrors
         public static readonly Error AlreadyPaid =
             new("Cart.AlreadyPaid", "The item was already paid.");
 
+        public static readonly Error CreditImputed =
+            new("Cart.CreditImputed", "The item was imputed to the credit line and is no longer pending payment.");
+
         public static readonly Error ItemInPayment =
             new("Cart.ItemInPayment", "The item is included in a payment in progress.");
 
@@ -156,6 +159,101 @@ public static class DomainErrors
 
         public static readonly Error MixedCountries =
             new("AccountPayment.MixedCountries", "All the items of one payment must belong to the same country.");
+
+        public static readonly Error CreditNotEligible =
+            new("AccountPayment.CreditNotEligible", "The item cannot be imputed to the credit line: its concept is not eligible or not covered by your credit condition.");
+
+        public static readonly Error PaymentDataRequired =
+            new("AccountPayment.PaymentDataRequired", "Indicate the payment currency and method for the items paid now.");
+    }
+
+    /// <summary>Conceptos imputables a la línea de crédito (M5-10, mantenedor NF-15).</summary>
+    public static class CreditImputationRule
+    {
+        public static Error NotFound(Guid id) =>
+            new("CreditImputationRule.NotFound", $"The credit imputation rule '{id}' was not found.");
+
+        public static readonly Error AlreadyExists =
+            new("CreditImputationRule.AlreadyExists", "There is already a rule for the concept in the country.");
+    }
+
+    /// <summary>Comprobante de depósito bancario y su verificación por Finanzas (M5-06).</summary>
+    public static class DepositProof
+    {
+        public static Error NotFound(Guid id) =>
+            new("DepositProof.NotFound", $"The deposit proof '{id}' was not found.");
+
+        public static readonly Error PaymentNotAwaitingProof =
+            new("DepositProof.PaymentNotAwaitingProof", "Only deposit payments pending or awaiting verification accept a deposit proof.");
+
+        public static readonly Error PendingReview =
+            new("DepositProof.PendingReview", "The payment already has a deposit proof waiting for Finance; wait for its review.");
+
+        public static readonly Error NotPendingReview =
+            new("DepositProof.NotPendingReview", "The deposit proof was already reviewed.");
+
+        public static readonly Error ContentNotFound =
+            new("DepositProofContent.NotFound", "The file of the deposit proof is not available.");
+    }
+
+    /// <summary>Anticipos e imputaciones a crédito y su cruce con las facturas (M7-03, M3-19, NF-04).</summary>
+    public static class Settlement
+    {
+        public static Error NotFound(Guid id) =>
+            new("Settlement.NotFound", $"The settlement '{id}' was not found.");
+
+        public static readonly Error AlreadyMatched =
+            new("Settlement.AlreadyMatched", "The settlement is already matched to an invoice.");
+
+        public static readonly Error InvoiceNotMatchable =
+            new("Settlement.InvoiceNotMatchable", "The invoice cannot be matched: it must be an invoice (not a credit note) of the same shipment and currency, not cancelled or superseded.");
+    }
+
+    /// <summary>Estado de cuenta en línea (M7-03).</summary>
+    public static class Statement
+    {
+        public static readonly Error Unavailable =
+            new("Statement.Unavailable", "The account statement is not available for your profile.");
+    }
+
+    /// <summary>Refacturación IAO con pérdida de IVA (M3-11).</summary>
+    public static class Reinvoicing
+    {
+        public static Error NotFound(Guid id) =>
+            new("Reinvoicing.NotFound", $"The re-invoicing request '{id}' was not found.");
+
+        public static readonly Error InvoiceNotEligible =
+            new("Reinvoicing.InvoiceNotEligible", "Only issued invoices (with tax folio) of a Chilean shipment that are not cancelled or already re-invoiced can be re-invoiced.");
+
+        public static readonly Error SameTaxId =
+            new("Reinvoicing.SameTaxId", "The new legal entity must have a tax ID different from the invoiced one.");
+
+        public static readonly Error AlreadyRequested =
+            new("Reinvoicing.AlreadyRequested", "The invoice already has a re-invoicing request in progress.");
+
+        public static readonly Error ApprovalRequired =
+            new("Reinvoicing.ApprovalRequired", "Attach the approval of the new legal entity before sending the request.");
+
+        public static readonly Error UseDedicatedFlow =
+            new("Reinvoicing.UseDedicatedFlow", "The re-invoicing is requested from the invoice (/reinvoicing), not from the shipment services.");
+
+        public static readonly Error AcceptanceNotFound =
+            new("ReinvoicingAcceptance.NotFound", "The acceptance link is not valid.");
+
+        public static readonly Error AcceptanceExpired =
+            new("Reinvoicing.AcceptanceExpired", "The acceptance link expired. Ask the requester to send it again.");
+
+        public static readonly Error AcceptanceClosed =
+            new("Reinvoicing.AcceptanceClosed", "The charge was already accepted or declined.");
+
+        public static readonly Error AcceptorTaxIdRequired =
+            new("Reinvoicing.AcceptorTaxIdRequired", "The name and tax ID of the person accepting are required.");
+
+        public static readonly Error AcceptanceNotPending =
+            new("Reinvoicing.AcceptanceNotPending", "The acceptance can only be sent again while it is pending.");
+
+        public static readonly Error InvoiceNotIssued =
+            new("Reinvoicing.InvoiceNotIssued", "The new invoice is issued automatically after payment and acceptance; the request cannot be completed manually before.");
     }
 
     public static class PaymentMethodConfig

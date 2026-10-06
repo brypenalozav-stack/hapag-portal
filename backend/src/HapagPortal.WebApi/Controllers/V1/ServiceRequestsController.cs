@@ -29,6 +29,14 @@ public sealed class ServiceRequestsController : ApiController
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 
+    /// <summary>Servicios activos (código, nombres ES/EN, operaciones y países) para los filtros del cliente.</summary>
+    [HttpGet("definitions")]
+    public async Task<IActionResult> GetDefinitions([FromQuery] string? country, [FromQuery] string? operation, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetServiceCatalogQuery(country, operation), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
     [HttpPost("quote")]
     public async Task<IActionResult> Quote([FromBody] QuoteServiceRequestBody request, CancellationToken cancellationToken)
     {

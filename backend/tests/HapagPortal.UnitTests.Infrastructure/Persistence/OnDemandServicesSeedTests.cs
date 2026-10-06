@@ -71,8 +71,9 @@ public sealed class OnDemandServicesSeedTests : IDisposable
         var resolver = new TariffResolver(_context, new DummyTariffProvider(NullLogger<DummyTariffProvider>.Instance));
         var date = new DateOnly(2026, 10, 6);
 
-        definitions.Should().HaveCount(11);
-        definitions.Count(d => d.IsActive).Should().Be(9);
+        // Ola H suma la refacturación IAO (M3-11), activa.
+        definitions.Should().HaveCount(12);
+        definitions.Count(d => d.IsActive).Should().Be(10);
         definitions.Where(d => !d.IsActive).Select(d => d.Code)
             .Should().BeEquivalentTo([ServiceDefinitionCodes.Opening, ServiceDefinitionCodes.Valuation]);
 
@@ -105,7 +106,9 @@ public sealed class OnDemandServicesSeedTests : IDisposable
         requests.Select(r => r.Status).Should().BeEquivalentTo([
             ServiceRequestStatus.PendingApproval, ServiceRequestStatus.PendingPayment, ServiceRequestStatus.InProgress,
             ServiceRequestStatus.Completed, ServiceRequestStatus.Rejected, ServiceRequestStatus.Cancelled,
-            ServiceRequestStatus.Completed, ServiceRequestStatus.Draft]);
+            ServiceRequestStatus.Completed, ServiceRequestStatus.Draft,
+            // Ola H: refacturación IAO pendiente de pago y de aceptación (M3-11).
+            ServiceRequestStatus.PendingPayment]);
 
         foreach (var request in requests)
         {
@@ -119,7 +122,7 @@ public sealed class OnDemandServicesSeedTests : IDisposable
         foreach (var link in links)
             charges.Should().Contain(c => c.Id == link.LocalChargeId);
 
-        var pendingPayment = requests.Single(r => r.Status == ServiceRequestStatus.PendingPayment);
+        var pendingPayment = requests.Single(r => r.Id == SeedDataIds.ServiceRequestSealsPendingPayment);
         charges.Single(c => c.Id == links.Single(l => l.ServiceRequestId == pendingPayment.Id).LocalChargeId)
             .TotalAmount.Should().Be(pendingPayment.TotalAmount);
         requests.Single(r => r.Id == SeedDataIds.ServiceRequestXomExempt).IsExempt.Should().BeTrue();

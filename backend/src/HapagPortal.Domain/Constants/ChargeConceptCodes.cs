@@ -38,6 +38,10 @@ public static class ChargeConceptCodes
     public const string Opening = "OPENING";
     public const string Valuation = "VALUATION";
 
+    // Refacturación IAO (M3-11, Fase 2 Ola H): cargo por refacturar y pérdida de IVA de la factura original.
+    public const string Reinvoicing = "REINVOICING";
+    public const string VatLoss = "VAT_LOSS";
+
     // Recargos de origen ya presentes en los datos (semilla e importación).
     public const string Thc = "THC";
     public const string ThcReefer = "THC_RF";
@@ -78,4 +82,10 @@ public static class ChargeStatus
     public const string Pending = "Pending";
     public const string Paid = "Paid";
     public const string Exempt = "Exempt";
+
+    /// <summary>
+    /// Imputado a la línea de crédito del cliente (M5-10, Ola H): la carga se libera sin pago inmediato y el
+    /// monto queda como saldo pendiente en el estado de cuenta (M7-03) hasta su facturación.
+    /// </summary>
+    public const string CreditImputed = "CreditImputed";
 }

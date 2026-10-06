@@ -229,6 +229,7 @@ public sealed class GetAvailableServicesQueryHandler(
                 .ThenBy(d => d.Code)
                 .ToListAsync(cancellationToken))
             .Where(d => ServiceCatalogEvaluator.Applies(d, bl, permissions))
+            .Where(d => !ServiceDefinitionCodes.DedicatedFlow.Contains(d.Code))
             .ToList();
 
         var services = new List<AvailableServiceDto>();
@@ -315,6 +316,8 @@ public sealed class QuoteServiceRequestQueryHandler(
             .FirstOrDefaultAsync(d => d.Code == code && d.IsActive, cancellationToken);
         if (definition is null || !ServiceCatalogEvaluator.Applies(definition, context.BillOfLading, context.Permissions))
             return Result<ServiceQuoteDto>.Failure(DomainErrors.ServiceDefinition.NotFoundByCode(code));
+        if (ServiceDefinitionCodes.DedicatedFlow.Contains(definition.Code))
+            return Result<ServiceQuoteDto>.Failure(DomainErrors.Reinvoicing.UseDedicatedFlow);
 
         var input = await workflow.ValidateInputAsync(definition, context.BillOfLading, null, request.InputValuesJson, requireComplete: false, cancellationToken);
         if (input.IsFailure)
@@ -352,6 +355,8 @@ public sealed class CreateServiceRequestCommandHandler(
             .FirstOrDefaultAsync(d => d.Code == code && d.IsActive, cancellationToken);
         if (definition is null || !ServiceCatalogEvaluator.Applies(definition, context.BillOfLading, context.Permissions))
             return Result<ServiceRequestDetailDto>.Failure(DomainErrors.ServiceDefinition.NotFoundByCode(code));
+        if (ServiceDefinitionCodes.DedicatedFlow.Contains(definition.Code))
+            return Result<ServiceRequestDetailDto>.Failure(DomainErrors.Reinvoicing.UseDedicatedFlow);
 
         // M1-11: solicitar exige la acción de la definición y un perfil que opere; M1-18: asociarse antes.
         if (!context.Permissions.CanExecute(definition.ActionCode))
@@ -432,6 +437,8 @@ public sealed class UpdateServiceRequestCommandHandler(
             return Result<ServiceRequestDetailDto>.Failure(own.Error);
 
         var serviceRequest = own.Value.Request;
+        if (ServiceDefinitionCodes.DedicatedFlow.Contains(serviceRequest.DefinitionCode))
+            return Result<ServiceRequestDetailDto>.Failure(DomainErrors.Reinvoicing.UseDedicatedFlow);
         if (serviceRequest.Status != ServiceRequestStatus.Draft)
             return Result<ServiceRequestDetailDto>.Failure(DomainErrors.ServiceRequest.NotEditable);
 
@@ -484,6 +491,9 @@ public sealed class SubmitServiceRequestCommandHandler(
             return Result<ServiceRequestDetailDto>.Failure(own.Error);
 
         var serviceRequest = own.Value.Request;
+        if (ServiceDefinitionCodes.DedicatedFlow.Contains(serviceRequest.DefinitionCode))
+            return Result<ServiceRequestDetailDto>.Failure(DomainErrors.Reinvoicing.UseDedicatedFlow);
+
         var context = await ServiceShipmentLoader.LoadByIdAsync(dbContext, accessEvaluator, serviceRequest.BillOfLadingId, cancellationToken);
         if (context.IsFailure)
             return Result<ServiceRequestDetailDto>.Failure(context.Error);
@@ -707,5 +717,65 @@ public sealed class GetServiceRequestQueryHandler(
         var clientView = own.Value.Request.OrganizationId == own.Value.Scope.OrganizationId && own.Value.Scope.CanOperate;
         return Result<ServiceRequestDetailDto>.Success(
             await ServiceRequestViews.DetailAsync(dbContext, own.Value.Request, clientView, cancellationToken));
+    }
+}
+
+/// <summary>
+/// Servicio on demand activo para filtros del cliente (Ola G): código, nombres ES/EN, operaciones y países. No
+/// expone la configuración interna (tarifas, equipos, formulario). <c>DedicatedFlow</c>: se solicita por un flujo
+/// propio (la refacturación IAO, desde la factura).
+/// </summary>
+public sealed record ServiceCatalogItemDto(
+    string Code,
+    string NameEs,
+    string NameEn,
+    IReadOnlyList<string> Operations,
+    IReadOnlyList<string> Countries,
+    string ReferenceType,
+    bool DedicatedFlow);
+
+/// <summary>Definiciones activas (opcionalmente de un país y una operación) para cualquier usuario autenticado.</summary>
+public sealed record GetServiceCatalogQuery(string? Country = null, string? Operation = null) : IQuery<IReadOnlyList<ServiceCatalogItemDto>>;
+
+public sealed class GetServiceCatalogQueryValidator : AbstractValidator<GetServiceCatalogQuery>
+{
+    public GetServiceCatalogQueryValidator()
+    {
+        RuleFor(x => x.Country)
+            .Must(c => c is null || CountryCodes.ValidCountries.Contains(c.Trim().ToUpperInvariant()))
+            .WithMessage("Country must be CL or BO.");
+        RuleFor(x => x.Operation)
+            .Must(o => o is null || ServiceOperations.All.Contains(o.Trim().ToUpperInvariant()))
+            .WithMessage("Operation must be IMPORT or EXPORT.");
+    }
+}
+
+public sealed class GetServiceCatalogQueryHandler(IApplicationDbContext dbContext)
+    : IQueryHandler<GetServiceCatalogQuery, IReadOnlyList<ServiceCatalogItemDto>>
+{
+    public async Task<Result<IReadOnlyList<ServiceCatalogItemDto>>> Handle(GetServiceCatalogQuery request, CancellationToken cancellationToken)
+    {
+        var country = request.Country?.Trim().ToUpperInvariant();
+        var operation = request.Operation?.Trim().ToUpperInvariant();
+
+        var definitions = await dbContext.ServiceDefinitions.AsNoTracking()
+            .Where(d => d.IsActive)
+            .OrderBy(d => d.DisplayOrder)
+            .ThenBy(d => d.Code)
+            .ToListAsync(cancellationToken);
+
+        IReadOnlyList<ServiceCatalogItemDto> items = definitions
+            .Select(d => new ServiceCatalogItemDto(
+                d.Code,
+                d.NameEs,
+                d.NameEn,
+                ServiceCatalogEvaluator.Csv(d.Operations),
+                ServiceCatalogEvaluator.Csv(d.Countries),
+                d.ReferenceType,
+                ServiceDefinitionCodes.DedicatedFlow.Contains(d.Code)))
+            .Where(d => (country is null || d.Countries.Contains(country)) && (operation is null || d.Operations.Contains(operation)))
+            .ToList();
+
+        return Result<IReadOnlyList<ServiceCatalogItemDto>>.Success(items);
     }
 }

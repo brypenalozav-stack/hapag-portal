@@ -204,4 +204,13 @@ public static class ServiceDefinitionCodes
     public const string GateInReturn = "GATE_IN_RETURN";
     public const string Opening = "OPENING";
     public const string Valuation = "VALUATION";
+
+    /// <summary>
+    /// Refacturación IAO con pérdida de IVA (M3-11, Ola H). Se solicita desde una factura (<c>/reinvoicing</c>),
+    /// no desde el listado de servicios del BL.
+    /// </summary>
+    public const string IaoReinvoicing = "IAO_REINVOICING";
+
+    /// <summary>Definiciones que se solicitan por un flujo propio y no por <c>/service-requests</c>.</summary>
+    public static readonly string[] DedicatedFlow = [IaoReinvoicing];
 }

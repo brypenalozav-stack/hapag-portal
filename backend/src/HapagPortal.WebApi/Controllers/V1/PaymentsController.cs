@@ -5,6 +5,7 @@ using Asp.Versioning;
 using HapagPortal.Application.Payments.Commands.Cancel;
 using HapagPortal.Application.Payments.Commands.Confirm;
 using HapagPortal.Application.Payments.Commands.Webhooks;
+using HapagPortal.Application.Payments.DepositProofs;
 using HapagPortal.Application.Payments.Lifecycle;
 using HapagPortal.Application.Payments.Read.GetById;
 using HapagPortal.Application.Payments.Read.GetMyPayments;
@@ -64,6 +65,49 @@ public sealed class PaymentsController : ApiController
 
         return result.IsSuccess
             ? Ok(result.Value)
+            : HandleFailure(result);
+    }
+
+    /// <summary>Comprobantes de depósito del pago con su revisión (M5-06).</summary>
+    [HttpGet("{id:guid}/deposit-proofs")]
+    public async Task<IActionResult> GetDepositProofs(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetDepositProofsQuery(id), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>
+    /// Adjunta el comprobante del depósito (multipart: <c>file</c> y, opcionales, <c>bankName</c>, <c>bankReference</c>,
+    /// <c>depositDate</c>, <c>depositAmount</c>, <c>notes</c>). PDF, PNG o JPEG hasta 10 MB (M5-06).
+    /// </summary>
+    [HttpPost("{id:guid}/deposit-proofs")]
+    [RequestSizeLimit(UploadDepositProofCommandValidator.MaxSizeBytes + 1024 * 1024)]
+    public async Task<IActionResult> UploadDepositProof(
+        Guid id,
+        IFormFile file,
+        [FromForm] string? bankName,
+        [FromForm] string? bankReference,
+        [FromForm] DateOnly? depositDate,
+        [FromForm] decimal? depositAmount,
+        [FromForm] string? notes,
+        CancellationToken cancellationToken)
+    {
+        using var buffer = new MemoryStream();
+        await file.CopyToAsync(buffer, cancellationToken);
+
+        var result = await Sender.Send(
+            new UploadDepositProofCommand(id, file.FileName, file.ContentType, buffer.ToArray(), bankName, bankReference, depositDate,
+                depositAmount, notes),
+            cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    [HttpGet("{id:guid}/deposit-proofs/{proofId:guid}/file")]
+    public async Task<IActionResult> DownloadDepositProof(Guid id, Guid proofId, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetDepositProofFileQuery(id, proofId), cancellationToken);
+        return result.IsSuccess
+            ? File(result.Value.Content, result.Value.ContentType, result.Value.FileName)
             : HandleFailure(result);
     }
 

@@ -34,6 +34,39 @@ public static class PortalPdfs
             payment.PayerTaxId ?? (payer is null ? null : TaxIdNormalizer.Normalize(payer.TaxId))));
     }
 
+    /// <summary>
+    /// Comprobante de depósito de los datos de demostración, que no tienen archivo (M5-06): resume los datos del
+    /// abono informados para que la bandeja de Finanzas se pueda probar de punta a punta.
+    /// </summary>
+    public static PdfDocumentModel DepositProofSample(Payment payment, DepositProof proof, string issuer) => new(
+        "Comprobante de depósito (muestra)",
+        "Documento de demostración: el cliente no adjuntó un archivo real",
+        issuer,
+        payment.Country == Domain.Constants.CountryCodes.Bolivia
+            ? "Agente de Hapag-Lloyd AG - Operación Bolivia"
+            : "Agente de Hapag-Lloyd AG - Operación Chile",
+        payment.SlipNumber ?? payment.PaymentNumber,
+        proof.UploadedAt,
+        Domain.Charges.BusinessCalendar.TimeZoneId(payment.Country),
+        [
+            new("Pago", payment.PaymentNumber),
+            new("Boleta", payment.SlipNumber),
+            new("Moneda", payment.Currency)
+        ],
+        [
+            new PdfSection("Abono informado",
+            [
+                new("Banco", proof.BankName),
+                new("N° de operación", proof.BankReference),
+                new("Fecha del depósito", proof.DepositDate?.ToString("dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture)),
+                new("Monto", proof.DepositAmount is null ? null : $"{ShipmentDocumentTemplates.Money(proof.DepositAmount.Value)} {payment.Currency}"),
+                new("Observaciones", proof.Notes)
+            ])
+        ],
+        null,
+        null,
+        "Muestra generada por el Portal de Clientes de Hapag-Lloyd.");
+
     public static async Task<byte[]> ServiceOrderAsync(
         IApplicationDbContext dbContext,
         IPdfDocumentRenderer renderer,

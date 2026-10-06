@@ -1,6 +1,7 @@
 namespace HapagPortal.Application;
 
 using FluentValidation;
+using HapagPortal.Application.AccountStatement;
 using HapagPortal.Application.Assistant;
 using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Access;
@@ -10,6 +11,7 @@ using HapagPortal.Application.Documents.PostPayment;
 using HapagPortal.Application.ExchangeRates.Common;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.PostProcessing;
+using HapagPortal.Application.Reinvoicing;
 using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.Application.ServiceRequests.PostPayment;
 using HapagPortal.Application.Shipments.Issuance;
@@ -64,6 +66,11 @@ public static class DependencyInjection
         services.AddScoped<ServiceCatalogEvaluator>();
         services.AddScoped<ServiceRequestWorkflow>();
         services.AddScoped<IPaymentPostStep, NotifyServiceRequestsStep>();
+
+        // Fase 2 Ola H: estado de cuenta (M7-03) y emisión de la refacturación IAO tras el pago y la aceptación (M3-11).
+        services.AddScoped<AccountStatementBuilder>();
+        services.AddScoped<ReinvoicingService>();
+        services.AddScoped<IPaymentPostStep, ReinvoicingIssueStep>();
 
         services.AddMediatR(config =>
         {

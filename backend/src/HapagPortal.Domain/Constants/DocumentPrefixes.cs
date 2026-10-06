@@ -12,6 +12,9 @@ public static class DocumentPrefixes
     /// <summary>Boleta para el pago por depósito bancario (M5-02, M5-03).</summary>
     public const string DepositSlip = "BDP-";
 
+    /// <summary>Imputación de cargos a la línea de crédito (M5-10, Ola H).</summary>
+    public const string CreditImputation = "CRI-";
+
     // Documentos del embarque (M6-01 a M6-07, Ola E).
     public const string TransshipmentCertificate = "CTB-";
     public const string GateOutCoupon = "CGO-";
@@ -19,6 +22,9 @@ public static class DocumentPrefixes
     public const string BlCopy = "CBL-";
     public const string ResponsibilityLetter = "CRE-";
     public const string NoDebtCertificate = "CLD-";
+
+    /// <summary>Recibo del pago anticipado de Gate Out antes de la factura (M3-19, Ola H).</summary>
+    public const string GateOutAdvanceReceipt = "RGO-";
 
     public static string ForDocument(string documentType) => documentType switch
     {
@@ -28,6 +34,7 @@ public static class DocumentPrefixes
         ShipmentDocumentTypes.BlCopyValued or ShipmentDocumentTypes.BlCopyNonValued => BlCopy,
         ShipmentDocumentTypes.ResponsibilityLetter => ResponsibilityLetter,
         ShipmentDocumentTypes.NoDebtCertificate => NoDebtCertificate,
+        ShipmentDocumentTypes.GateOutAdvanceReceipt => GateOutAdvanceReceipt,
         _ => throw new ArgumentOutOfRangeException(nameof(documentType), documentType, "Unknown document type.")
     };
 }

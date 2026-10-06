@@ -73,6 +73,21 @@ public sealed class MigraDocPdfRendererTests
                 "ffww@globalforwarding.cl", null, "Muebles", "Sin observaciones", ResponsibilityLetterTerms.Version, IssuedAt)),
         ShipmentDocumentTypes.NoDebtCertificate =>
             ShipmentDocumentTemplates.NoDebtCertificate(Data(country: CountryCodes.Bolivia), Header("CLD-1"), "Comercial Altiplano SRL", "1023456017"),
+        ShipmentDocumentTypes.GateOutAdvanceReceipt => ShipmentDocumentTemplates.GateOutAdvanceReceipt(
+            data, Header("RGO-1"), "Agencia Marítima del Pacífico Ltda", "96555444-3", "PAY-1", "RCP-1", "KHIPU",
+            new PaymentDetail
+            {
+                ConceptType = ChargeConceptCodes.GateOut,
+                Description = "Gate Out - 40HC",
+                Amount = 60000m,
+                TaxAmount = 11400m,
+                Currency = "CLP",
+                OriginalAmount = 71400m,
+                OriginalCurrency = "CLP",
+                BillingTaxId = "76123456-7",
+                BillingName = "Importadora Demo SpA"
+            },
+            IssuedAt),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
 

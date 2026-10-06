@@ -1146,6 +1146,32 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             SealNumber = "SL-015679",
                             Status = "Discharged",
                             Weight = 14900m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000023"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            ContainerNumber = "HLXU3071801",
+                            ContainerType = "40HC",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-071801",
+                            Status = "OnBoard",
+                            Weight = 24800m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000024"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ContainerNumber = "HLXU3061901",
+                            ContainerType = "20DV",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-061901",
+                            Status = "Discharged",
+                            Weight = 17600m
                         });
                 });
 
@@ -1921,6 +1947,68 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TransportDocumentType = "SWB",
                             Vessel = "Antofagasta Express",
                             Voyage = "2609S"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000018"),
+                            BLNumber = "HLCUSAI260701810",
+                            BookingNumber = "HLCUBKG2607181",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Consignee = "Lima Foods SAC",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 10, 12, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 10, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "PELIM",
+                            FreightAmount = 1900m,
+                            FreightCurrency = "USD",
+                            FreightPaidAt = new DateTime(2026, 9, 29, 15, 0, 0, 0, DateTimeKind.Utc),
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 10, 3, 6, 0, 0, 0, DateTimeKind.Utc),
+                            PlaceOfDelivery = "Lima, Peru",
+                            PortOfDischarge = "Callao (PECLL)",
+                            PortOfDischargeCode = "PECLL",
+                            PortOfLoading = "San Antonio (CLSAI)",
+                            ShipmentType = "Export",
+                            Shipper = "Importadora Demo SpA",
+                            Status = "Departed",
+                            TransportDocumentType = "BL",
+                            Vessel = "Valparaiso Express",
+                            Voyage = "2610N"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BLNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            Consignee = "Distribuidora Andes Crédito SpA",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 9, 28, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 9, 5, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLVAP",
+                            FreightAmount = 2400m,
+                            FreightCurrency = "USD",
+                            FreightPaidAt = new DateTime(2026, 9, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 9, 6, 10, 0, 0, 0, DateTimeKind.Utc),
+                            PlaceOfDelivery = "Santiago, Chile",
+                            PortOfDischarge = "Valparaiso (CLVAP)",
+                            PortOfDischargeCode = "CLVAP",
+                            PortOfLoading = "Santos (BRSSZ)",
+                            ShipmentType = "Import",
+                            Shipper = "Santos Coffee Exporters Ltda",
+                            Status = "Arrived",
+                            TransportDocumentType = "BL",
+                            Vessel = "Santos Express",
+                            Voyage = "2610N"
                         });
                 });
 
@@ -2702,6 +2790,269 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Name = "Valorización",
                             NexusExemptible = false,
                             NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("923fac6f-9222-dbf9-90ea-4f267bafce41"),
+                            Category = "Service",
+                            Code = "REINVOICING",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 310,
+                            IsActive = true,
+                            Name = "Refacturación IAO",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("51c3d02a-634f-2135-64c7-0c59a15165fb"),
+                            Category = "Service",
+                            Code = "VAT_LOSS",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 320,
+                            IsActive = true,
+                            Name = "Pérdida de IVA",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ChargeSettlement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<Guid?>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BillingName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("BillingTaxId")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("BlNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BookingNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ConceptCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ItemType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("MatchNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("MatchedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MatchedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("MatchedInvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("OnBehalfOfOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("PaidAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("PaidCurrency")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("PayerName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("PayerOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PayerTaxId")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("PaymentDetailId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PaymentNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("ReceiptDocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReceiptNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("SettledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MatchedInvoiceId");
+
+                    b.HasIndex("PayerOrganizationId");
+
+                    b.HasIndex("PaymentDetailId")
+                        .IsUnique();
+
+                    b.HasIndex("ItemType", "SourceId");
+
+                    b.HasIndex("BillOfLadingId", "ConceptCode", "Status");
+
+                    b.ToTable("ChargeSettlements", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3302d5bd-8631-c56a-7b09-37d0629b2c35"),
+                            Amount = 53550m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BillingName = "Distribuidora Andes Crédito SpA",
+                            BillingTaxId = "76000002-2",
+                            BlNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            ConceptCode = "BL_FEE",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            Currency = "CLP",
+                            Description = "BL Documentation Fee (import)",
+                            ItemType = "LocalCharge",
+                            Kind = "Advance",
+                            PaidAmount = 53550m,
+                            PaidCurrency = "CLP",
+                            PayerName = "Distribuidora Andes Crédito SpA",
+                            PayerOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            PayerTaxId = "76000002-2",
+                            PaymentDetailId = new Guid("db2bf9c7-ceb5-f5a2-e768-8501f7664a50"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000015"),
+                            PaymentNumber = "PAY-20261002-A1C2E3F4",
+                            ReceiptNumber = "RCP-20261002-B5D6E7F8",
+                            SettledAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000030"),
+                            Status = "Open"
+                        },
+                        new
+                        {
+                            Id = new Guid("8b700f9d-0925-04e9-55c9-7eefbc8e15fc"),
+                            Amount = 29750m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BillingName = "Distribuidora Andes Crédito SpA",
+                            BillingTaxId = "76000002-2",
+                            BlNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            ConceptCode = "ISPS",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            Currency = "CLP",
+                            Description = "ISPS",
+                            ItemType = "LocalCharge",
+                            Kind = "CreditImputation",
+                            PaidAmount = 29750m,
+                            PaidCurrency = "CLP",
+                            PayerName = "Distribuidora Andes Crédito SpA",
+                            PayerOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            PayerTaxId = "76000002-2",
+                            PaymentDetailId = new Guid("aab31ddd-35ff-069a-d97b-e746504c1cf4"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000016"),
+                            PaymentNumber = "CRI-20261003-C9D8E7F6",
+                            SettledAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000031"),
+                            Status = "Open"
+                        },
+                        new
+                        {
+                            Id = new Guid("1f978f39-3168-a413-0edc-19582df4a4e7"),
+                            Amount = 71400m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            BillingName = "Agencia Marítima del Pacífico Ltda",
+                            BillingTaxId = "96555444-3",
+                            BlNumber = "HLCUSAI260701810",
+                            BookingNumber = "HLCUBKG2607181",
+                            ConceptCode = "GATE_OUT",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            Currency = "CLP",
+                            Description = "Gate Out - 40HC (San Antonio)",
+                            ItemType = "LocalCharge",
+                            Kind = "Advance",
+                            MatchedAt = new DateTime(2026, 10, 4, 12, 0, 0, 0, DateTimeKind.Utc),
+                            MatchedBy = "INVOICE_REFRESH",
+                            MatchedInvoiceId = new Guid("ffffffff-0017-0017-0017-000000000014"),
+                            PaidAmount = 71400m,
+                            PaidCurrency = "CLP",
+                            PayerName = "Agencia Marítima del Pacífico Ltda",
+                            PayerOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            PayerTaxId = "96555444-3",
+                            PaymentDetailId = new Guid("0745ba3a-34ac-c833-5db6-bf116971a424"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            PaymentNumber = "PAY-20261001-D4E5F6A7",
+                            ReceiptDocumentId = new Guid("ffffffff-0018-0018-0018-000000000005"),
+                            ReceiptNumber = "RCP-20261001-E8F9A0B1",
+                            SettledAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000034"),
+                            Status = "Matched"
                         });
                 });
 
@@ -3062,6 +3413,26 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsUnique();
 
                     b.ToTable("ConfigurationSettings", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11f1dde1-1820-e7fe-1e07-4aa557ecd21c"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Key = "Statement.AgingBuckets",
+                            Scope = "Global",
+                            Value = "30,60,90"
+                        },
+                        new
+                        {
+                            Id = new Guid("faff8f22-0d64-9389-8e15-d248dd2301b5"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Key = "Statement.DueSoonDays",
+                            Scope = "Global",
+                            Value = "7"
+                        });
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.CreditClient", b =>
@@ -3175,6 +3546,111 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreditLimit = 100000000m,
                             CreditStatus = "Suspended",
                             ExpiresAt = new DateTime(2025, 12, 31, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CreditImputationRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConceptCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NexusCreditConcept")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Country", "ConceptCode")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.ToTable("CreditImputationRules", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3a4b4010-b87c-a88e-d52a-b2d36a834765"),
+                            ConceptCode = "THC",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsEnabled = true,
+                            NexusCreditConcept = "LOCAL_CHARGES",
+                            Notes = "Propuesta conservadora (recargos locales de Chile) pendiente de confirmación de Finanzas (M5-10)."
+                        },
+                        new
+                        {
+                            Id = new Guid("893a8a68-2509-dfec-e30f-9131e821fc5e"),
+                            ConceptCode = "ISPS",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsEnabled = true,
+                            NexusCreditConcept = "LOCAL_CHARGES",
+                            Notes = "Propuesta conservadora (recargos locales de Chile) pendiente de confirmación de Finanzas (M5-10)."
+                        },
+                        new
+                        {
+                            Id = new Guid("5b866cc3-d88e-fc09-72a4-460533ba92bd"),
+                            ConceptCode = "BL_FEE",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsEnabled = true,
+                            NexusCreditConcept = "LOCAL_CHARGES",
+                            Notes = "Propuesta conservadora (recargos locales de Chile) pendiente de confirmación de Finanzas (M5-10)."
+                        },
+                        new
+                        {
+                            Id = new Guid("0016cb8a-acd8-7248-7612-82d73aa4d31f"),
+                            ConceptCode = "GATE_OUT",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsEnabled = true,
+                            NexusCreditConcept = "LOCAL_CHARGES",
+                            Notes = "Propuesta conservadora (recargos locales de Chile) pendiente de confirmación de Finanzas (M5-10)."
                         });
                 });
 
@@ -3390,6 +3866,12 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<Guid?>("SupersededByInvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SupersedesInvoiceId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("SyncedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -3409,6 +3891,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BillOfLadingId");
+
+                    b.HasIndex("SupersededByInvoiceId");
 
                     b.HasIndex("OrganizationId", "IssueDate");
 
@@ -3688,6 +4172,117 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TaxAmount = 0m,
                             TaxId = "76000002-2",
                             TotalAmount = 380m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0017-0017-0017-000000000011"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000011"),
+                            BlNumber = "HLCUVAP260401130",
+                            BookingNumber = "HLCUBKG2604113",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            DocumentType = "Invoice",
+                            DueDate = new DateOnly(2026, 7, 1),
+                            IsPayable = true,
+                            IssueDate = new DateOnly(2026, 6, 1),
+                            LegalName = "Distribuidora Andes Crédito SpA",
+                            NetAmount = 80000m,
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            SiiNumber = "100120",
+                            SiiStatus = "ACCEPTED",
+                            Source = "DUMMY",
+                            SourceNumber = "HL-CL-2026-003410",
+                            Status = "Pending",
+                            SyncedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 15200m,
+                            TaxId = "76000002-2",
+                            TotalAmount = 95200m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0017-0017-0017-000000000012"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000011"),
+                            BlNumber = "HLCUVAP260401130",
+                            BookingNumber = "HLCUBKG2604113",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            DocumentType = "Invoice",
+                            DueDate = new DateOnly(2026, 8, 3),
+                            IsPayable = true,
+                            IssueDate = new DateOnly(2026, 7, 20),
+                            LegalName = "Distribuidora Andes Crédito SpA",
+                            NetAmount = 150000m,
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            SiiNumber = "100190",
+                            SiiStatus = "ACCEPTED",
+                            Source = "DUMMY",
+                            SourceNumber = "HL-CL-2026-003702",
+                            Status = "Pending",
+                            SyncedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 28500m,
+                            TaxId = "76000002-2",
+                            TotalAmount = 178500m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0017-0017-0017-000000000013"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BlNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            DocumentType = "Invoice",
+                            DueDate = new DateOnly(2026, 10, 10),
+                            IsPayable = true,
+                            IssueDate = new DateOnly(2026, 9, 10),
+                            LegalName = "Distribuidora Andes Crédito SpA",
+                            NetAmount = 45000m,
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            SiiNumber = "100310",
+                            SiiStatus = "ACCEPTED",
+                            Source = "DUMMY",
+                            SourceNumber = "HL-CL-2026-004720",
+                            Status = "Pending",
+                            SyncedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 8550m,
+                            TaxId = "76000002-2",
+                            TotalAmount = 53550m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0017-0017-0017-000000000014"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            BlNumber = "HLCUSAI260701810",
+                            BookingNumber = "HLCUBKG2607181",
+                            ConceptCode = "GATE_OUT",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            DocumentType = "Invoice",
+                            DueDate = new DateOnly(2026, 11, 3),
+                            IsPayable = false,
+                            IssueDate = new DateOnly(2026, 10, 4),
+                            LegalName = "Agencia Marítima del Pacífico Ltda",
+                            NetAmount = 60000m,
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            PaidAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            SiiNumber = "100318",
+                            SiiStatus = "ACCEPTED",
+                            Source = "DUMMY",
+                            SourceNumber = "HL-CL-2026-004790",
+                            Status = "Paid",
+                            SyncedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 11400m,
+                            TaxId = "96555444-3",
+                            TotalAmount = 71400m
                         });
                 });
 
@@ -5061,6 +5656,136 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.DepositProof", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BankName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BankReference")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("ContentHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal?>("DepositAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateOnly?>("DepositDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ReviewNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("StorageKey")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UploadedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("UploadedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentId", "UploadedAt");
+
+                    b.HasIndex("Status", "UploadedAt");
+
+                    b.ToTable("DepositProofs", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0024-0024-0024-000000000001"),
+                            BankName = "Banco de Chile",
+                            ContentType = "image/jpeg",
+                            DepositAmount = 53550m,
+                            DepositDate = new DateOnly(2026, 10, 3),
+                            FileName = "comprobante-deposito-borroso.jpg",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000011"),
+                            RejectionReason = "La imagen no permite leer el número de operación ni el monto abonado.",
+                            ReviewedAt = new DateTime(2026, 10, 4, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ReviewedBy = "admin@hapag-lloyd.cl",
+                            ReviewedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            SizeBytes = 0L,
+                            Status = "Rejected",
+                            UploadedAt = new DateTime(2026, 10, 3, 18, 0, 0, 0, DateTimeKind.Utc),
+                            UploadedBy = "demo@importadorademo.cl",
+                            UploadedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0024-0024-0024-000000000002"),
+                            BankName = "Banco de Chile",
+                            BankReference = "OP-55821473",
+                            ContentType = "application/pdf",
+                            DepositAmount = 53550m,
+                            DepositDate = new DateOnly(2026, 10, 3),
+                            FileName = "comprobante-deposito-BDP-20261003-5C7D9E1F.pdf",
+                            Notes = "Depósito en efectivo, sucursal Las Condes.",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000011"),
+                            SizeBytes = 0L,
+                            Status = "Submitted",
+                            UploadedAt = new DateTime(2026, 10, 4, 15, 10, 0, 0, DateTimeKind.Utc),
+                            UploadedBy = "demo@importadorademo.cl",
+                            UploadedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        });
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.ExchangeRateRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5470,6 +6195,139 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             RuleType = "AdvanceDemurrageRequired",
                             TaxId = "1023456017",
                             ValidFrom = new DateOnly(2026, 1, 1)
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.InvoiceReissue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AcceptanceExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("AcceptanceRequestedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AcceptanceStatus")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("AcceptanceTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AcceptedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("AcceptedByTaxId")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("AcceptedFromAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("AcceptorEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Currency")
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("DeclineReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("DeclinedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("ExchangeRate")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)");
+
+                    b.Property<decimal>("FeeAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<decimal>("FeeTaxAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime?>("IssuedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("NewInvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OriginalInvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OriginalLegalName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("OriginalSiiNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("OriginalSourceNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("OriginalTaxId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("ServiceRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("VatLossAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AcceptanceTokenHash")
+                        .IsUnique()
+                        .HasFilter("\"AcceptanceTokenHash\" IS NOT NULL");
+
+                    b.HasIndex("OriginalInvoiceId");
+
+                    b.HasIndex("ServiceRequestId")
+                        .IsUnique();
+
+                    b.ToTable("InvoiceReissues", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0023-0023-0023-000000000001"),
+                            AcceptanceExpiresAt = new DateTime(2026, 10, 31, 3, 0, 0, 0, DateTimeKind.Utc),
+                            AcceptanceRequestedAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            AcceptanceStatus = "Pending",
+                            AcceptanceTokenHash = "3b238dd0c85c32dc19e44d7fe5588e575b17b19b569c99505e23329dafdb2bfe",
+                            AcceptorEmail = "facturacion@comercialaustral.cl",
+                            Currency = "CLP",
+                            FeeAmount = 25000m,
+                            FeeTaxAmount = 4750m,
+                            OriginalInvoiceId = new Guid("ffffffff-0017-0017-0017-000000000002"),
+                            OriginalLegalName = "Importadora Demo SpA",
+                            OriginalSiiNumber = "100198",
+                            OriginalSourceNumber = "HL-CL-2026-003987",
+                            OriginalTaxId = "76123456-7",
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            VatLossAmount = 22800m
                         });
                 });
 
@@ -6407,6 +7265,118 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TaxAmount = 0m,
                             TaxRate = 0m,
                             TotalAmount = 120m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000030"),
+                            Amount = 45000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ChargeType = "BL_FEE",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "BL Documentation Fee (import)",
+                            IsTaxable = true,
+                            Status = "Paid",
+                            TaxAmount = 8550m,
+                            TaxRate = 19m,
+                            TotalAmount = 53550m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000031"),
+                            Amount = 25000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ChargeType = "ISPS",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "ISPS",
+                            IsTaxable = true,
+                            Status = "CreditImputed",
+                            TaxAmount = 4750m,
+                            TaxRate = 19m,
+                            TotalAmount = 29750m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000032"),
+                            Amount = 185000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ChargeType = "THC",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Terminal Handling Charge - 20DV (Valparaíso)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 35150m,
+                            TaxRate = 19m,
+                            TotalAmount = 220150m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000033"),
+                            Amount = 60000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ChargeType = "GATE_OUT",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Gate Out - 20DV (Valparaíso)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 11400m,
+                            TaxRate = 19m,
+                            TotalAmount = 71400m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000034"),
+                            Amount = 60000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            ChargeType = "GATE_OUT",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Gate Out - 40HC (San Antonio)",
+                            IsTaxable = true,
+                            Status = "Paid",
+                            TaxAmount = 11400m,
+                            TaxRate = 19m,
+                            TotalAmount = 71400m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000035"),
+                            Amount = 25000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000001"),
+                            ChargeType = "REINVOICING",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Refacturación de la factura 100198 (SRV-20261005-5E1A0009)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 4750m,
+                            TaxRate = 19m,
+                            TotalAmount = 29750m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000036"),
+                            Amount = 22800m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000001"),
+                            ChargeType = "VAT_LOSS",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Pérdida de IVA de la factura 100198 (SRV-20261005-5E1A0009)",
+                            IsTaxable = false,
+                            Status = "Pending",
+                            TaxAmount = 0m,
+                            TaxRate = 0m,
+                            TotalAmount = 22800m
                         });
                 });
 
@@ -7354,6 +8324,66 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             EntityId = new Guid("5d3115fa-f98b-ad3c-43e1-390bdb3261c3"),
                             Maintainer = "ServiceDefinition",
                             NewValue = "{\"code\":\"VALUATION\",\"nameEs\":\"Valorizaci\\u00F3n\",\"nameEn\":\"Valuation\",\"descriptionEs\":\"Homologaci\\u00F3n de CL-IMP-06 con el modelo est\\u00E1ndar: cargo del sistema de origen con reglas de Nexus. Inactiva: hoy se paga como recargo local.\",\"descriptionEn\":\"CL-IMP-06 mapped to the standard model: source-system charge with Nexus rules. Inactive: currently paid as a local charge.\",\"operations\":\"IMPORT\",\"countries\":\"CL\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":false,\"allowMultiplePerBl\":false,\"inputSchemaJson\":\"[]\",\"billingDataRequired\":false,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"SourceCharge\",\"chargeConceptCode\":\"VALUATION\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":true,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-mandatory.pay\",\"displayOrder\":110,\"isActive\":false}"
+                        },
+                        new
+                        {
+                            Id = new Guid("218d2183-e252-8852-de39-cd0104d6a085"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("c7f2abc0-29ae-1d0b-d957-ea4707a567b0"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"REINVOICING\",\"code\":null,\"country\":\"CL\",\"currency\":\"CLP\",\"containerType\":null,\"description\":\"Refacturaci\\u00F3n IAO por factura (M3-11)\",\"amount\":25000,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("89c5b237-f1a2-5a8e-335a-e2855cd4e5bb"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("ffffffff-0022-0022-0022-000000000001"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"IAO_REINVOICING\",\"nameEs\":\"Refacturaci\\u00F3n IAO y p\\u00E9rdida de IVA\",\"nameEn\":\"IAO re-invoicing and VAT loss\",\"descriptionEs\":\"Refacturaci\\u00F3n de una factura emitida a una nueva raz\\u00F3n social: el cliente registra los nuevos datos de facturaci\\u00F3n y adjunta la aprobaci\\u00F3n de la nueva raz\\u00F3n social; se cobran juntos la refacturaci\\u00F3n y la p\\u00E9rdida de IVA, y la factura se emite solo con la aceptaci\\u00F3n del cobro por la nueva raz\\u00F3n social (M3-11, CL-EXP-11, CL-IMP-09). Se solicita desde la factura.\",\"descriptionEn\":\"Re-invoicing of an issued invoice to a new legal entity: the customer enters the new billing data and attaches the new entity\\u0027s approval; the re-invoicing fee and the VAT loss are paid together, and the invoice is issued only after the new legal entity accepts the charge (M3-11). Requested from the invoice.\",\"operations\":\"IMPORT,EXPORT\",\"countries\":\"CL\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":false,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022newCompanyApproval\\u0022,\\u0022labelEs\\u0022:\\u0022Aprobaci\\\\u00F3n de la nueva raz\\\\u00F3n social\\u0022,\\u0022labelEn\\u0022:\\u0022Approval of the new legal entity\\u0022,\\u0022type\\u0022:\\u0022file\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022reason\\u0022,\\u0022labelEs\\u0022:\\u0022Motivo de la refacturaci\\\\u00F3n\\u0022,\\u0022labelEn\\u0022:\\u0022Reason for the re-invoicing\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:1000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":true,\"tariffAcceptanceRequired\":true,\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"REINVOICING\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":true,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-on-demand.pay\",\"displayOrder\":120,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("e09a7df1-2e24-226b-f05d-131b4282f10b"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("3a4b4010-b87c-a88e-d52a-b2d36a834765"),
+                            Maintainer = "CreditImputationRule",
+                            NewValue = "{\"country\":\"CL\",\"conceptCode\":\"THC\",\"nexusCreditConcept\":\"LOCAL_CHARGES\",\"isEnabled\":true,\"notes\":\"Propuesta conservadora (recargos locales de Chile) pendiente de confirmaci\\u00F3n de Finanzas (M5-10).\"}"
+                        },
+                        new
+                        {
+                            Id = new Guid("b7fe99ef-e1c5-2eba-49b5-12812d0cc83a"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("893a8a68-2509-dfec-e30f-9131e821fc5e"),
+                            Maintainer = "CreditImputationRule",
+                            NewValue = "{\"country\":\"CL\",\"conceptCode\":\"ISPS\",\"nexusCreditConcept\":\"LOCAL_CHARGES\",\"isEnabled\":true,\"notes\":\"Propuesta conservadora (recargos locales de Chile) pendiente de confirmaci\\u00F3n de Finanzas (M5-10).\"}"
+                        },
+                        new
+                        {
+                            Id = new Guid("2d9f6544-3c95-8cf5-f6dd-e808cedd59ce"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("5b866cc3-d88e-fc09-72a4-460533ba92bd"),
+                            Maintainer = "CreditImputationRule",
+                            NewValue = "{\"country\":\"CL\",\"conceptCode\":\"BL_FEE\",\"nexusCreditConcept\":\"LOCAL_CHARGES\",\"isEnabled\":true,\"notes\":\"Propuesta conservadora (recargos locales de Chile) pendiente de confirmaci\\u00F3n de Finanzas (M5-10).\"}"
+                        },
+                        new
+                        {
+                            Id = new Guid("afa9137e-bf2b-5690-fe33-0cb261464598"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("0016cb8a-acd8-7248-7612-82d73aa4d31f"),
+                            Maintainer = "CreditImputationRule",
+                            NewValue = "{\"country\":\"CL\",\"conceptCode\":\"GATE_OUT\",\"nexusCreditConcept\":\"LOCAL_CHARGES\",\"isEnabled\":true,\"notes\":\"Propuesta conservadora (recargos locales de Chile) pendiente de confirmaci\\u00F3n de Finanzas (M5-10).\"}"
                         });
                 });
 
@@ -8100,6 +9130,95 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             StatusChangedAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
                             TaxAmount = 8550m,
                             TotalAmount = 177490m
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-000b-000b-000b-000000000015"),
+                            Amount = 45000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            ConfirmedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            ConfirmedBy = "BANCOCHILE_WEBHOOK",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 2, 12, 58, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "d4e5f6a7-0004-0004-0004-000000000060",
+                            CreatedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000060"),
+                            Currency = "CLP",
+                            ExternalReference = "PAY-20261002-A1C2E3F4",
+                            Origin = "Account",
+                            PayerName = "Distribuidora Andes Crédito SpA",
+                            PayerTaxId = "76000002-2",
+                            PaymentDate = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            PaymentMethod = "BANK_BUTTON_BCH",
+                            PaymentMethodCode = "BANK_BUTTON_BCH",
+                            PaymentNumber = "PAY-20261002-A1C2E3F4",
+                            PaymentType = "Account",
+                            ProviderKey = "BancoChile",
+                            ProviderReference = "DUMMY-BANCOCHILE-PAY-20261002-A1C2E3F4",
+                            ProviderTransactionId = "BCH-TXN-55100877",
+                            ReceiptNumber = "RCP-20261002-B5D6E7F8",
+                            Status = "Confirmed",
+                            StatusChangedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 8550m,
+                            TotalAmount = 53550m
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-000b-000b-000b-000000000016"),
+                            Amount = 25000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            ConfirmedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            ConfirmedBy = "credito@distribuidoraandes.cl",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "d4e5f6a7-0004-0004-0004-000000000060",
+                            CreatedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000060"),
+                            Currency = "CLP",
+                            ExternalReference = "CRI-20261003-C9D8E7F6",
+                            Origin = "CreditLine",
+                            PayerName = "Distribuidora Andes Crédito SpA",
+                            PayerTaxId = "76000002-2",
+                            PaymentDate = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            PaymentMethod = "CREDIT_LINE",
+                            PaymentMethodCode = "CREDIT_LINE",
+                            PaymentNumber = "CRI-20261003-C9D8E7F6",
+                            PaymentType = "CreditLine",
+                            Status = "Confirmed",
+                            StatusChangedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 4750m,
+                            TotalAmount = 29750m
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-000b-000b-000b-000000000017"),
+                            Amount = 60000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            ConfirmedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            ConfirmedBy = "KHIPU_WEBHOOK",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 13, 57, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "d4e5f6a7-0004-0004-0004-000000000030",
+                            CreatedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000030"),
+                            Currency = "CLP",
+                            ExternalReference = "PAY-20261001-D4E5F6A7",
+                            Origin = "Cart",
+                            PayerName = "Agencia Marítima del Pacífico Ltda",
+                            PayerTaxId = "96555444-3",
+                            PaymentDate = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            PaymentMethod = "KHIPU",
+                            PaymentMethodCode = "KHIPU",
+                            PaymentNumber = "PAY-20261001-D4E5F6A7",
+                            PaymentType = "Cart",
+                            ProviderKey = "Khipu",
+                            ProviderReference = "DUMMY-KHIPU-PAY-20261001-D4E5F6A7",
+                            ProviderTransactionId = "KHP-TXN-8813901",
+                            ReceiptNumber = "RCP-20261001-E8F9A0B1",
+                            Status = "Confirmed",
+                            StatusChangedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 11400m,
+                            TotalAmount = 71400m
                         });
                 });
 
@@ -8790,6 +9909,66 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ReleasedAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
                             SourceId = new Guid("33333333-0009-0009-0009-000000000029"),
                             TaxAmount = 0m
+                        },
+                        new
+                        {
+                            Id = new Guid("db2bf9c7-ceb5-f5a2-e768-8501f7664a50"),
+                            Amount = 45000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BillingName = "Distribuidora Andes Crédito SpA",
+                            BillingTaxId = "76000002-2",
+                            BlNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            ConceptType = "BL_FEE",
+                            Currency = "CLP",
+                            Description = "BL Documentation Fee (import)",
+                            ItemType = "LocalCharge",
+                            OriginalAmount = 53550m,
+                            OriginalCurrency = "CLP",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000015"),
+                            ReleasedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000030"),
+                            TaxAmount = 8550m
+                        },
+                        new
+                        {
+                            Id = new Guid("aab31ddd-35ff-069a-d97b-e746504c1cf4"),
+                            Amount = 25000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BillingName = "Distribuidora Andes Crédito SpA",
+                            BillingTaxId = "76000002-2",
+                            BlNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            ConceptType = "ISPS",
+                            Currency = "CLP",
+                            Description = "ISPS",
+                            ItemType = "LocalCharge",
+                            OriginalAmount = 29750m,
+                            OriginalCurrency = "CLP",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000016"),
+                            ReleasedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000031"),
+                            TaxAmount = 4750m
+                        },
+                        new
+                        {
+                            Id = new Guid("0745ba3a-34ac-c833-5db6-bf116971a424"),
+                            Amount = 60000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            BillingName = "Agencia Marítima del Pacífico Ltda",
+                            BillingTaxId = "96555444-3",
+                            BlNumber = "HLCUSAI260701810",
+                            BookingNumber = "HLCUBKG2607181",
+                            ConceptType = "GATE_OUT",
+                            Currency = "CLP",
+                            Description = "Gate Out - 40HC (San Antonio)",
+                            ItemType = "LocalCharge",
+                            OriginalAmount = 71400m,
+                            OriginalCurrency = "CLP",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            ReleasedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000034"),
+                            TaxAmount = 11400m
                         });
                 });
 
@@ -9228,6 +10407,82 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ChangedBy = "KHIPU_WEBHOOK",
                             FromStatus = "Processing",
                             PaymentId = new Guid("55555555-000b-000b-000b-000000000014"),
+                            ToStatus = "Confirmed"
+                        },
+                        new
+                        {
+                            Id = new Guid("a6d6c0cc-1fac-a63b-8645-66bc1026ac62"),
+                            ChangedAt = new DateTime(2026, 10, 2, 12, 58, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "credito@distribuidoraandes.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000060"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000015"),
+                            ToStatus = "Pending"
+                        },
+                        new
+                        {
+                            Id = new Guid("0e2ffe61-7b7a-16d8-e1f5-2abef222143b"),
+                            ChangedAt = new DateTime(2026, 10, 2, 12, 58, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            FromStatus = "Pending",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000015"),
+                            Reason = "Initiated in BancoChile",
+                            ToStatus = "Processing"
+                        },
+                        new
+                        {
+                            Id = new Guid("3104f716-436d-9983-05a7-5c405ba0da9c"),
+                            ChangedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "BANCOCHILE_WEBHOOK",
+                            FromStatus = "Processing",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000015"),
+                            ToStatus = "Confirmed"
+                        },
+                        new
+                        {
+                            Id = new Guid("50ab39f7-389c-6890-6be1-b75d01f3f8db"),
+                            ChangedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "credito@distribuidoraandes.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000060"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000016"),
+                            ToStatus = "Pending"
+                        },
+                        new
+                        {
+                            Id = new Guid("1af9cc34-5b6c-90f4-9ca9-19f7778bdc57"),
+                            ChangedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "credito@distribuidoraandes.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000060"),
+                            FromStatus = "Pending",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000016"),
+                            Reason = "Imputed to the credit line (M5-10)",
+                            ToStatus = "Confirmed"
+                        },
+                        new
+                        {
+                            Id = new Guid("37ca6d78-0244-c1a5-6957-90caa071b341"),
+                            ChangedAt = new DateTime(2026, 10, 1, 13, 57, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "agente@maritimpacifico.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000030"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            ToStatus = "Pending"
+                        },
+                        new
+                        {
+                            Id = new Guid("a6a9cbb7-07b5-921b-cd4e-2115cf99b383"),
+                            ChangedAt = new DateTime(2026, 10, 1, 13, 57, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            FromStatus = "Pending",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            Reason = "Initiated in Khipu",
+                            ToStatus = "Processing"
+                        },
+                        new
+                        {
+                            Id = new Guid("9528ce39-c13b-df80-2b2d-4c89e9bed794"),
+                            ChangedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "KHIPU_WEBHOOK",
+                            FromStatus = "Processing",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
                             ToStatus = "Confirmed"
                         });
                 });
@@ -10320,6 +11575,40 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TariffAcceptanceRequired = false,
                             Taxable = true,
                             TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0022-0022-0022-000000000001"),
+                            ActionCode = "local-charges-on-demand.pay",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "Always",
+                            BillingDataRequired = true,
+                            ChargeConceptCode = "REINVOICING",
+                            Code = "IAO_REINVOICING",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Re-invoicing of an issued invoice to a new legal entity: the customer enters the new billing data and attaches the new entity's approval; the re-invoicing fee and the VAT loss are paid together, and the invoice is issued only after the new legal entity accepts the charge (M3-11). Requested from the invoice.",
+                            DescriptionEs = "Refacturación de una factura emitida a una nueva razón social: el cliente registra los nuevos datos de facturación y adjunta la aprobación de la nueva razón social; se cobran juntos la refacturación y la pérdida de IVA, y la factura se emite solo con la aceptación del cobro por la nueva razón social (M3-11, CL-EXP-11, CL-IMP-09). Se solicita desde la factura.",
+                            DisplayOrder = 120,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "None",
+                            InputSchemaJson = "[{\"key\":\"newCompanyApproval\",\"labelEs\":\"Aprobaci\\u00F3n de la nueva raz\\u00F3n social\",\"labelEn\":\"Approval of the new legal entity\",\"type\":\"file\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"reason\",\"labelEs\":\"Motivo de la refacturaci\\u00F3n\",\"labelEn\":\"Reason for the re-invoicing\",\"type\":\"textarea\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":1000,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "IAO re-invoicing and VAT loss",
+                            NameEs = "Refacturación IAO y pérdida de IVA",
+                            Operations = "IMPORT,EXPORT",
+                            PricingMode = "Tariff",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "BL",
+                            RequiresContainers = false,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = true,
+                            Taxable = true,
+                            TimingRule = "None"
                         });
                 });
 
@@ -11006,6 +12295,46 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TaxAmount = 0m,
                             TimelineSequence = 1,
                             TotalAmount = 0m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            Amount = 47800m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000001"),
+                            BillingActivity = "Comercio al por mayor",
+                            BillingAddress = "Av. Libertad 1405, Viña del Mar",
+                            BillingEmail = "facturacion@comercialaustral.cl",
+                            BillingName = "Comercial Austral SpA",
+                            BillingTaxId = "77888999-1",
+                            BlNumber = "HLCUVAL250100123",
+                            BookingNumber = "HLCUBKG2501001",
+                            ChargeConceptCode = "REINVOICING",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 15, 40, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            Currency = "CLP",
+                            DefinitionCode = "IAO_REINVOICING",
+                            DefinitionId = new Guid("ffffffff-0022-0022-0022-000000000001"),
+                            InputValuesJson = "{\"invoiceNumber\":\"100198\",\"reason\":\"La mercancía fue vendida a Comercial Austral SpA antes del retiro; la factura debe emitirse a su nombre.\"}",
+                            IsExempt = false,
+                            Operation = "IMPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            PricingDetailJson = "{\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"REINVOICING\",\"requiresPayment\":true,\"amount\":47800,\"taxAmount\":4750,\"totalAmount\":52550,\"currency\":\"CLP\",\"taxRate\":19,\"quantity\":1,\"tierUnit\":null,\"measuredUnits\":null,\"timing\":\"NotApplicable\",\"milestoneAt\":null,\"milestoneSource\":null,\"tariffId\":\"c7f2abc0-29ae-1d0b-d957-ea4707a567b0\",\"tariffCode\":null,\"tariffSource\":\"PORTAL\",\"isExempt\":false,\"exemptionReference\":null,\"excludedContainers\":[],\"lines\":[{\"containerNumber\":null,\"containerType\":null,\"amount\":25000,\"tariffCode\":null,\"breakdown\":[]},{\"containerNumber\":null,\"containerType\":null,\"amount\":22800,\"tariffCode\":\"VAT_LOSS\",\"breakdown\":[]}],\"sourceCharges\":[],\"timeZone\":\"America/Santiago\",\"quotedAt\":\"2026-10-05T16:00:00Z\"}",
+                            Quantity = 1,
+                            QuotedAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            RequestNumber = "SRV-20261005-5E1A0009",
+                            RequestedByEmail = "demo@importadorademo.cl",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "PendingPayment",
+                            StatusChangedAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            SubmittedAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            TariffAcceptedAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            TariffId = new Guid("c7f2abc0-29ae-1d0b-d957-ea4707a567b0"),
+                            TariffSource = "PORTAL",
+                            TaxAmount = 4750m,
+                            TimelineSequence = 4,
+                            Timing = "NotApplicable",
+                            TotalAmount = 52550m
                         });
                 });
 
@@ -11057,6 +12386,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.HasIndex("ServiceRequestId", "FieldKey");
 
                     b.ToTable("ServiceRequestAttachments", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("754b238a-70ca-d8d1-1d67-0d0da9be0fb5"),
+                            ContentType = "application/pdf",
+                            FieldKey = "newCompanyApproval",
+                            FileName = "aprobacion-comercial-austral.pdf",
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            SizeBytes = 48213L,
+                            StorageKey = "seed/service-requests/aprobacion-comercial-austral.pdf",
+                            UploadedAt = new DateTime(2026, 10, 5, 15, 50, 0, 0, DateTimeKind.Utc),
+                            UploadedBy = "demo@importadorademo.cl",
+                            UploadedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        });
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceRequestCharge", b =>
@@ -11104,6 +12448,20 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Generated = true,
                             LocalChargeId = new Guid("33333333-0009-0009-0009-000000000029"),
                             ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000004")
+                        },
+                        new
+                        {
+                            Id = new Guid("d4adb761-1298-f523-3999-af07756bdf9c"),
+                            Generated = true,
+                            LocalChargeId = new Guid("33333333-0009-0009-0009-000000000035"),
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009")
+                        },
+                        new
+                        {
+                            Id = new Guid("4809a14d-d8fc-9a8a-b0b6-14a1930f0b38"),
+                            Generated = true,
+                            LocalChargeId = new Guid("33333333-0009-0009-0009-000000000036"),
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009")
                         });
                 });
 
@@ -11471,6 +12829,54 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Sequence = 1,
                             ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000008"),
                             ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("8bf5b0b1-b37c-7ad0-ae50-f7427180845c"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Notes = "Refacturación de la factura 100198.",
+                            OccurredAt = new DateTime(2026, 10, 5, 15, 40, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("85d9e28f-8b9f-a6ab-6658-bf2b79378585"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            FromStatus = "Draft",
+                            OccurredAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            ToStatus = "Submitted"
+                        },
+                        new
+                        {
+                            Id = new Guid("2037c661-6f62-04e0-5e7a-cc8bc21a8e33"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Submitted",
+                            Notes = "Total 52550 CLP. La factura se emite con el pago y la aceptación de la nueva razón social.",
+                            OccurredAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 3,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            ToStatus = "PendingPayment"
+                        },
+                        new
+                        {
+                            Id = new Guid("837acaa2-8b35-7e99-4adf-08cb72018d26"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "PendingPayment",
+                            Notes = "Enlace de aceptación enviado a facturacion@comercialaustral.cl.",
+                            OccurredAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 4,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            ToStatus = "PendingPayment"
                         });
                 });
 
@@ -14819,6 +16225,32 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TermsAcceptedAt = new DateTime(2026, 10, 2, 14, 0, 0, 0, DateTimeKind.Utc),
                             TermsVersion = "CARTA-RESP-2026-10",
                             VerificationCode = "94E7-43DA-1F4E-8AA7"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0018-0018-0018-000000000005"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            BlNumber = "HLCUSAI260701810",
+                            BookingNumber = "HLCUBKG2607181",
+                            ContainerNumbers = "HLXU3071801",
+                            ContentType = "application/pdf",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DocumentNumber = "RGO-20261001-1A2B3C4D",
+                            DocumentType = "GateOutAdvanceReceipt",
+                            FileName = "recibo-anticipo-gate-out-RGO-20261001-1A2B3C4D.pdf",
+                            GenerationKey = "GateOutAdvanceReceipt:0745ba3a-34ac-c833-5db6-bf116971a424",
+                            IssuedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            IssuedForOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            Origin = "Seed",
+                            PaymentDetailId = new Guid("0745ba3a-34ac-c833-5db6-bf116971a424"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            RetainUntil = new DateTime(2036, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            SizeBytes = 0L,
+                            Status = "Issued",
+                            TemplateJson = "{\"title\":\"Recibo de pago anticipado - Gate Out\",\"subtitle\":\"Pago recibido antes de la emisi\\u00F3n de la factura\",\"issuer\":\"Hapag-Lloyd Chile SpA\",\"issuerDetail\":\"Agente de Hapag-Lloyd AG - Operaci\\u00F3n Chile\",\"documentNumber\":\"RGO-20261001-1A2B3C4D\",\"issuedAt\":\"2026-10-01T14:00:00Z\",\"timeZoneId\":\"America/Santiago\",\"references\":[{\"label\":\"BL\",\"value\":\"HLCUSAI260701810\"},{\"label\":\"Booking\",\"value\":\"HLCUBKG2607181\"},{\"label\":\"Operaci\\u00F3n\",\"value\":\"Exportaci\\u00F3n\"},{\"label\":\"Pa\\u00EDs\",\"value\":\"CL\"},{\"label\":\"Nave / viaje\",\"value\":\"Valparaiso Express / 2610N\"},{\"label\":\"Ruta\",\"value\":\"San Antonio (CLSAI) - Callao (PECLL)\"}],\"sections\":[{\"heading\":\"Pagador\",\"fields\":[{\"label\":\"Raz\\u00F3n social\",\"value\":\"Agencia Mar\\u00EDtima del Pac\\u00EDfico Ltda\"},{\"label\":\"RUT / NIT\",\"value\":\"96555444-3\"}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Pago\",\"fields\":[{\"label\":\"Concepto\",\"value\":\"Gate Out - 40HC (San Antonio)\"},{\"label\":\"Monto del cargo\",\"value\":\"71.400,00 CLP\"},{\"label\":\"Monto pagado\",\"value\":\"71.400,00 CLP\"},{\"label\":\"Tipo de cambio\",\"value\":null},{\"label\":\"RUT de facturaci\\u00F3n\",\"value\":\"Agencia Mar\\u00EDtima del Pac\\u00EDfico Ltda (96555444-3)\"},{\"label\":\"Pago\",\"value\":\"PAY-20261001-D4E5F6A7\"},{\"label\":\"Comprobante de pago\",\"value\":\"RCP-20261001-E8F9A0B1\"},{\"label\":\"Medio de pago\",\"value\":\"KHIPU\"},{\"label\":\"Fecha de pago\",\"value\":\"01-10-2026 11:00 (America/Santiago)\"}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Unidades\",\"fields\":null,\"table\":{\"headers\":[\"Contenedor\",\"Tipo\",\"Sello\",\"Peso (kg)\",\"Estado\"],\"rows\":[[\"HLXU3071801\",\"40HC\",\"SL-071801\",\"24.800,00\",\"OnBoard\"]],\"numericColumns\":[3]},\"paragraphs\":null},{\"heading\":\"Vinculaci\\u00F3n con la factura\",\"fields\":null,\"table\":null,\"paragraphs\":[\"La factura del Gate Out se emite despu\\u00E9s del zarpe de la nave y se vincula a este recibo.\",\"El cargo pagado con este recibo no vuelve a cobrarse al cliente.\"]}],\"verificationCode\":\"CBA5-6DA7-95A4-8C6B\",\"signatureNote\":null,\"footer\":\"Documento emitido por el Portal de Clientes de Hapag-Lloyd. Verifique su emisi\\u00F3n con el c\\u00F3digo indicado.\"}",
+                            VerificationCode = "CBA5-6DA7-95A4-8C6B"
                         });
                 });
 
@@ -14911,6 +16343,15 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000070"),
                             ShipmentDocumentId = new Guid("ffffffff-0018-0018-0018-000000000004"),
                             UserEmail = "ffww@globalforwarding.cl"
+                        },
+                        new
+                        {
+                            Id = new Guid("c016e13b-8056-1abc-4c0a-b0294e037fbd"),
+                            Channel = "System",
+                            EventType = "Issued",
+                            OccurredAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            ShipmentDocumentId = new Guid("ffffffff-0018-0018-0018-000000000005")
                         });
                 });
 
@@ -15222,6 +16663,36 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "SYSTEM",
                             Role = "Shipper",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("7d6585a0-7050-e8d6-4d34-3c0389d1eef6"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Shipper",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("5055f8f3-4141-5a05-5c15-fa5d8e322379"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "CustomsAgency",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("1b202914-40c5-8096-4927-353dddf8200a"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Consignee",
                             Source = "Seed"
                         });
                 });
@@ -15647,6 +17118,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             IsActive = true,
                             TierMode = "Flat",
                             TierUnit = "CalendarDays",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("c7f2abc0-29ae-1d0b-d957-ea4707a567b0"),
+                            Amount = 25000m,
+                            ConceptCode = "REINVOICING",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Refacturación IAO por factura (M3-11)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
                             ValidFrom = new DateOnly(2026, 10, 1)
                         });
                 });
@@ -17080,6 +18566,28 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsRequired();
 
                     b.Navigation("BillOfLading");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.DepositProof", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Payment");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.InvoiceReissue", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ServiceRequest", "ServiceRequest")
+                        .WithMany()
+                        .HasForeignKey("ServiceRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceRequest");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.LocalCharge", b =>

@@ -255,6 +255,7 @@ public sealed class ShipmentDocumentService(
         ShipmentDocumentTypes.BlCopyNonValued => "la copia no valorada del BL",
         ShipmentDocumentTypes.ResponsibilityLetter => "la carta de responsabilidad",
         ShipmentDocumentTypes.NoDebtCertificate => "el certificado de libre deuda",
+        ShipmentDocumentTypes.GateOutAdvanceReceipt => "el recibo del pago anticipado de Gate Out",
         _ => "el documento"
     };
 
