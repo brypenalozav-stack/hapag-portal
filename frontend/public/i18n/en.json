@@ -1310,8 +1310,10 @@
       "forbidden": "Your organization is not allowed to view the charges of this BL.",
       "ipoExcluded": "The IPO surcharge is not charged: the organization has credit terms in Nexus.",
       "letter": {
-        "comingSoon": "Generating the letter will be available in the portal soon.",
+        "cannotIssue": "A user of your organization with an operating profile must generate the letter.",
         "generate": "Generate letter of indemnity",
+        "help": "The letter is issued at no cost. Once issued, it is downloaded, saved in the shipment documents and the block on this BL is lifted.",
+        "issued": "Letter of indemnity {{ number }} issued and downloaded. The block on this BL was lifted.",
         "text": "Nexus reports that your organization is an authorized freight forwarder (FFWW): the letter of indemnity is required and blocks the process until it is provided. Letter status: {{ status }}.",
         "title": "Letter of indemnity required"
       },
@@ -1448,6 +1450,7 @@
       "thc": "THC",
       "thcRf": "THC reefer",
       "transitFee": "Transit fee",
+      "transshipmentCert": "Transshipment certificate",
       "warehouseChange": "Warehouse change"
     },
     "chargeErrors": {
@@ -1500,6 +1503,22 @@
       "noDemurrage": "No demurrage",
       "notCalculated": "Not yet calculated"
     },
+    "documentErrors": {
+      "blNotFound": "We could not find the BL or you do not have access to it.",
+      "conditionsUnavailable": "Nexus is not available: the request could not be validated. Try again later.",
+      "contentNotFound": "The document file is not available. Contact Customer Service.",
+      "debtPending": "The shipment has pending debt: the CLD was not issued. Check the details and pay what is pending.",
+      "forbidden": "Your role or profile does not allow this action on this shipment.",
+      "noDebtNotApplicable": "The CLD is only issued for Bolivia imports.",
+      "noRecipient": "Your organization has no registered email to send the document to. Register it in My organization.",
+      "notAvailable": "This document is not available for this country's operation.",
+      "notFound": "We could not find the document or you do not have access to it.",
+      "sourceUnavailable": "The information source did not respond. Nothing was issued: try again later.",
+      "tariffNotInForce": "There is no tariff in force for this service. Contact Customer Service.",
+      "termsNotAccepted": "You must accept the terms of the letter of indemnity.",
+      "termsVersionMismatch": "The terms of the letter changed. Read them again and accept them to issue the letter.",
+      "unavailable": "The service is not available right now. Try again later."
+    },
     "documentType": {
       "creditAuthorization": "Credit check authorization",
       "other": "Other",
@@ -1538,6 +1557,13 @@
       "active": "Active",
       "pending": "Pending",
       "rejected": "Rejected"
+    },
+    "noDebtBlocker": {
+      "advanceDemurrage": "Required advance demurrage not paid",
+      "pendingCharges": "Pending local charges",
+      "pendingDemurrage": "Pending demurrage",
+      "pendingFreight": "Pending collect freight",
+      "pendingInvoices": "Pending or overdue invoices"
     },
     "operation": {
       "export": "Export",
@@ -1626,6 +1652,7 @@
       "online": "Online"
     },
     "paymentOperationJob": {
+      "documents": "Document issuing",
       "notify": "Payer notice",
       "release": "Service release"
     },
@@ -1653,10 +1680,33 @@
       "missingTransactionReference": "Transaction reference missing",
       "notSettled": "Not settled"
     },
+    "relatedDocumentKind": {
+      "invoice": "Invoice",
+      "receipt": "Receipt"
+    },
     "requirementStatus": {
       "fulfilled": "fulfilled",
       "missing": "missing",
       "pending": "under review"
+    },
+    "shipmentDocumentOrigin": {
+      "payment": "Issued when the payment was confirmed",
+      "request": "Requested in the portal",
+      "seed": "Demo document"
+    },
+    "shipmentDocumentStatus": {
+      "issued": "Issued",
+      "revoked": "Revoked",
+      "superseded": "Superseded by a newer one"
+    },
+    "shipmentDocumentType": {
+      "blCopyNonValued": "Non-valued BL copy",
+      "blCopyValued": "Valued BL copy",
+      "collectReceipt": "Collect receipt",
+      "gateOutCoupon": "Gate Out pick-up voucher",
+      "noDebtCertificate": "CLD (debt clearance certificate)",
+      "responsibilityLetter": "Letter of indemnity",
+      "transshipmentCertificate": "Transshipment certificate"
     },
     "shipmentRole": {
       "carrier": "Haulier",
@@ -1876,6 +1926,167 @@
     "subtitle": "Check the demurrage status of a BL and the action that applies.",
     "title": "Demurrage"
   },
+  "documents": {
+    "blCopy": {
+      "cancel": "Cancel",
+      "close": "Close",
+      "errors": {
+        "submit": "The copy could not be issued. Try again.",
+        "versionRequired": "Choose the copy version."
+      },
+      "result": {
+        "done": "Done",
+        "download": "Download {{ number }}",
+        "registered": "Copy {{ number }} issued.",
+        "repository": "It was saved in the shipment documents, where you can download it again.",
+        "sent": "Copy {{ number }} issued and sent to {{ emails }}.",
+        "title": "Copy issued"
+      },
+      "sendEmail": "Also send it to my organization's registered email",
+      "sendEmailHelp": "The copy is always saved in the shipment documents.",
+      "submit": "Request copy",
+      "title": "BL copy {{ bl }}",
+      "version": {
+        "help": "Only the versions your role allows on this BL are shown.",
+        "legend": "Copy version (required)",
+        "nonValued": "Non-valued",
+        "nonValuedHelp": "Without commercial values.",
+        "onlyNonValued": "Your role on this BL only allows the non-valued copy.",
+        "valued": "Valued",
+        "valuedHelp": "Includes the freight and the BL charges: amounts, taxes and status."
+      }
+    },
+    "letter": {
+      "accept": "I accept the terms of the letter, version {{ version }} (required)",
+      "acceptHelp": "Your acceptance is logged with your user, date and time.",
+      "cancel": "Cancel",
+      "close": "Close",
+      "errors": {
+        "emailInvalid": "Enter a valid email, for example name@company.com.",
+        "emailRequired": "Enter the contact email.",
+        "nameRequired": "Enter the signatory name.",
+        "positionRequired": "Enter the signatory position.",
+        "submit": "The letter could not be issued. Try again.",
+        "summaryTitle": "Check the following fields",
+        "taxIdRequired": "Enter the signatory tax ID or ID document, for example 12.345.678-5.",
+        "termsRequired": "Accept the terms of the letter."
+      },
+      "fields": {
+        "cargoDescription": "Cargo description (optional)",
+        "contactEmail": "Contact email (required)",
+        "contactPhone": "Contact phone (optional)",
+        "observations": "Remarks (optional)",
+        "signatoryName": "Signatory name (required)",
+        "signatoryPosition": "Signatory position (required)",
+        "signatoryTaxId": "Signatory tax ID or ID document (required)",
+        "signatoryTaxIdHelp": "For example, 12.345.678-5."
+      },
+      "help": "Enter the signatory's details and accept the terms. The letter is issued as a PDF at no cost and saved in the shipment documents.",
+      "retryTerms": "Load the terms again",
+      "signatory": "Signatory",
+      "submit": "Issue and download the letter",
+      "termsError": "The terms of the letter could not be loaded.",
+      "termsTitle": "{{ title }} (version {{ version }})",
+      "title": "Letter of indemnity for BL {{ bl }}"
+    },
+    "noDebt": {
+      "amounts": "Pending amount:",
+      "blockedText": "The shipment has the following pending items. Pay them and come back to this section.",
+      "blockedTitle": "The CLD cannot be issued",
+      "eligible": "The shipment has no pending debt: you can issue the CLD.",
+      "evaluatedAt": "Checked on {{ date }}.",
+      "help": "For Bolivia imports. It is issued with an electronic signature only if the shipment has no pending debt and, when the account requires it, the advance demurrage is paid.",
+      "issue": "Issue CLD",
+      "issueError": "The CLD could not be issued. Try again.",
+      "link": {
+        "advanceDemurrage": "Request and pay the advance demurrage of BL {{ bl }}",
+        "cart": "Go to the cart",
+        "charges": "Pay the local charges of BL {{ bl }}",
+        "demurrage": "View and pay the demurrage of BL {{ bl }}",
+        "freight": "Pay the freight of BL {{ bl }}",
+        "invoices": "View and pay the invoices"
+      },
+      "loadError": "The shipment debt could not be checked.",
+      "references": "References: {{ references }}",
+      "title": "CLD (debt clearance certificate)"
+    },
+    "page": {
+      "breadcrumbCurrent": "Documents",
+      "breadcrumbLabel": "Breadcrumb",
+      "breadcrumbList": "Shipments",
+      "title": "Documents of BL {{ bl }}"
+    },
+    "related": {
+      "caption": "Receipts and invoices of BL {{ bl }}",
+      "col": {
+        "action": "Action",
+        "description": "Details",
+        "issuedAt": "Issued",
+        "kind": "Type",
+        "number": "Number"
+      },
+      "download": "Download",
+      "downloadLabel": "Download {{ kind }} {{ number }}",
+      "empty": "There are no receipts or invoices for this BL.",
+      "title": "Receipts and invoices"
+    },
+    "section": {
+      "booking": "Booking {{ booking }}",
+      "caption": "Documents of BL {{ bl }}",
+      "col": {
+        "actions": "Actions",
+        "bl": "BL",
+        "issuedAt": "Issued",
+        "number": "Number",
+        "signature": "Signature and delivery",
+        "status": "Status",
+        "type": "Type"
+      },
+      "containers": "Units: {{ containers }}",
+      "copyIssued": "BL copy {{ number }} saved in the shipment documents.",
+      "delivered": "Sent to {{ emails }} on {{ date }}",
+      "download": "Download",
+      "downloadError": "The document could not be downloaded. Try again.",
+      "downloadLabel": "Download {{ type }} {{ number }}",
+      "downloaded": "{{ number }} was downloaded.",
+      "empty": "No documents have been issued for this shipment yet.",
+      "help": "Documents issued for this shipment according to your permissions. Every download and delivery is logged.",
+      "issueLetter": "Generate letter of indemnity",
+      "letterBlocks": "Letter of indemnity required for freight forwarders (FFWW). Status: {{ status }}. While it is missing, the charges of this BL cannot be paid.",
+      "letterFulfilled": "Letter of indemnity required for freight forwarders (FFWW). Status: {{ status }}.",
+      "letterIssued": "Letter of indemnity {{ number }} issued and downloaded. It was saved in the shipment documents.",
+      "loadError": "The shipment documents could not be loaded.",
+      "noDebtIssued": "CLD {{ number }} issued with an electronic signature and downloaded. It was saved in the shipment documents.",
+      "notFound": "We could not find BL {{ bl }} or you do not have access to its documents.",
+      "requestCopy": "Request BL copy",
+      "resend": "Resend by email",
+      "resendError": "The document could not be resent. Try again.",
+      "resendLabel": "Resend {{ number }} to your organization's registered email",
+      "resent": "{{ number }} was sent to {{ emails }}.",
+      "signature": {
+        "notRequired": "No electronic signature",
+        "onFirstDownload": "Electronically signed: it is signed on its first download",
+        "signed": "Electronically signed on {{ date }} ({{ provider }})"
+      },
+      "title": "Documents",
+      "unavailable": "The shipment documents are not available right now.",
+      "validUntil": "Valid until {{ date }}",
+      "verificationCode": "Verification code {{ code }}"
+    },
+    "transshipment": {
+      "accountPayments": "Pay from my account",
+      "addToCart": "Add the certificate to the cart",
+      "charge": "Service charge: {{ total }}, including VAT of {{ tax }}.",
+      "created": "The transshipment certificate charge was created. Add it to the cart to pay it.",
+      "error": "The transshipment certificate could not be requested. Try again.",
+      "goToCart": "Go to the cart",
+      "help": "Requesting it creates the service charge, which is paid with the cart. Once the payment is confirmed, the certificate is issued with an electronic signature, saved in the shipment documents and sent by email: for imports, to UMAR and your organization; for exports, to your organization.",
+      "inCart": "The charge is in the cart.",
+      "paid": "The transshipment certificate is already paid: it is in the shipment documents.",
+      "request": "Request transshipment certificate",
+      "title": "Transshipment certificate"
+    }
+  },
   "faq": {
     "categories": {
       "all": "All",
@@ -1985,7 +2196,8 @@
       "accessGranted": "Shipment access granted",
       "accessRevoked": "Shipment access revoked",
       "accessRevokedByCascade": "Access revoked by cascade",
-      "accessUpdated": "Shipment access changed"
+      "accessUpdated": "Shipment access changed",
+      "documentIssued": "Shipment document issued"
     }
   },
   "organization": {
@@ -2252,6 +2464,11 @@
       "releasePending": "The release of the paid services is being processed.",
       "text": "{{ total }} was charged. Receipt {{ receipt }}.",
       "title": "Payment confirmed"
+    },
+    "documents": {
+      "link": "View the documents of BL {{ bl }}",
+      "text": "This payment issues shipment documents (transshipment certificate or Gate Out pick-up voucher). They are generated within seconds, saved in the BL documents, and the transshipment certificate is sent by email.",
+      "title": "Shipment documents"
     },
     "failed": {
       "generic": "The payment failed.",

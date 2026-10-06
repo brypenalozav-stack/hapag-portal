@@ -1,0 +1,57 @@
+<div class="border rounded p-3 mb-3" role="group" aria-labelledby="no-debt-title" data-testid="no-debt-panel">
+  <h3 id="no-debt-title" class="h6 fw-bold">{{ 'documents.noDebt.title' | transloco }}</h3>
+  <p class="small text-muted">{{ 'documents.noDebt.help' | transloco }}</p>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (error()) {
+    <div class="alert alert-danger py-2 mb-0" role="alert">{{ error() }}</div>
+  } @else if (data(); as d) {
+    @if (issueError()) {
+      <div class="alert alert-danger py-2" role="alert" data-testid="no-debt-error">{{ issueError() }}</div>
+    }
+    @if (d.eligible) {
+      <p class="mb-2" data-testid="no-debt-eligible">{{ 'documents.noDebt.eligible' | transloco }}</p>
+      @if (d.canRequest) {
+        <button type="button" class="btn btn-hl-orange" [disabled]="issuing()" (click)="issue()">
+          @if (issuing()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'documents.noDebt.issue' | transloco }}
+        </button>
+      }
+    } @else {
+      <!-- Deuda pendiente: el CLD no se emite hasta pagar lo que se indica (M6-07, M3-16) -->
+      <div class="alert alert-warning mb-2" role="note" aria-labelledby="no-debt-blocked-title" data-testid="no-debt-blocked">
+        <h4 #blockedHeading id="no-debt-blocked-title" class="h6 fw-bold" tabindex="-1">{{ 'documents.noDebt.blockedTitle' | transloco }}</h4>
+        <p class="mb-2">{{ 'documents.noDebt.blockedText' | transloco }}</p>
+        <ul class="mb-0">
+          @for (blocker of d.blockers; track blocker.code) {
+            @let target = link(blocker.code);
+            <li class="mb-1" [attr.data-testid]="'no-debt-blocker-' + blocker.code">
+              <span class="fw-semibold">{{ blocker.code | codeLabel: blockerKeys }}</span>
+              @if (blocker.references.length > 0) {
+                <span class="d-block small">{{ 'documents.noDebt.references' | transloco: { references: references(blocker) } }}</span>
+              }
+              @if (blocker.amounts.length > 0) {
+                <span class="d-block small">
+                  {{ 'documents.noDebt.amounts' | transloco }}
+                  @for (amount of blocker.amounts; track amount.currency; let last = $last) {
+                    <span class="fw-semibold">{{ amount.total | hlCurrency: amount.currency }}</span>@if (!last) {<span>, </span>}
+                  }
+                </span>
+              }
+              <a class="small" [routerLink]="target.route">{{ target.key | transloco: { bl: blNumber() } }}</a>
+            </li>
+          }
+        </ul>
+      </div>
+      <p class="small mb-0"><a routerLink="/cart">{{ 'documents.noDebt.link.cart' | transloco }}</a></p>
+    }
+    <p class="small text-muted mb-0 mt-2">
+      {{ 'documents.noDebt.evaluatedAt' | transloco: { date: (d.evaluatedAt | hlDate: 'datetime' : timeZone()) } }}
+    </p>
+  }
+</div>

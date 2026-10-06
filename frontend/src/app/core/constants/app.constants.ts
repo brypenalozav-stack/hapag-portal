@@ -68,6 +68,8 @@ export const API_ENDPOINTS = {
   PAYMENT_CONFIG: 'payment-config',
   PAYMENT_BLOCKS: 'payment-blocks',
   ADMIN_PAYMENTS: 'admin/payments',
+  // Fase 1, Ola E
+  DOCUMENTS: 'documents',
 } as const;
 
 /**

@@ -508,6 +508,8 @@ export class SimulacionOlaD {
   private readonly porClave = new Map<string, CheckoutResult>();
   private readonly pagos: Record<string, PaymentStatusDetail> = pagosFijos();
   private readonly consultas = new Map<string, number>();
+  /** Ítems que se pueden validar y agregar; otras olas registran los suyos (Ola E: certificado de transbordo). */
+  private readonly pagables: Record<string, PayableItem> = { ...PAGABLES };
 
   constructor(private readonly opciones: OpcionesOlaD = {}) {
     this.cierresSinRespuesta = opciones.cierresSinRespuesta ?? 0;
@@ -566,6 +568,12 @@ export class SimulacionOlaD {
     };
   }
 
+  /** Registra un ítem pagable creado por otra simulación (p. ej. el cargo del certificado de transbordo). */
+  agregarPagable(datos: Partial<PayableItem> & Pick<PayableItem, 'itemType' | 'sourceId' | 'conceptCode' | 'totalAmount'>): void {
+    const item = pagable(datos);
+    this.pagables[`${item.itemType}:${item.sourceId}`] = item;
+  }
+
   /** Responde la ruta si es de la Ola D; devuelve false si no le corresponde. */
   async responder(route: Route, ruta: string, metodoHttp: string, url: URL): Promise<boolean> {
     const request = route.request();
@@ -593,8 +601,8 @@ export class SimulacionOlaD {
         await problema(route, 400, 'Cart.CreditCustomer', 'Customers with credit pay from the account payment view.');
       } else if (this.opciones.nexusCaido) {
         await problema(route, 400, 'ChargeRules.ConditionsUnavailable', 'Nexus did not answer.');
-      } else if (PAGABLES[clave]) {
-        await json(route, 200, PAGABLES[clave]);
+      } else if (this.pagables[clave]) {
+        await json(route, 200, this.pagables[clave]);
       } else {
         await problema(route, 404, 'PayableItem.NotFound', 'The item to pay was not found.');
       }
@@ -602,7 +610,7 @@ export class SimulacionOlaD {
     }
     if (ruta === 'cart/items' && metodoHttp === 'POST') {
       const body = cuerpo(request) as { itemType: string; sourceId?: string; reference?: string; billingTaxId: string; paymentCurrency?: string };
-      const item = PAGABLES[`${body.itemType}:${body.sourceId ?? body.reference}`];
+      const item = this.pagables[`${body.itemType}:${body.sourceId ?? body.reference}`];
       const billing = item?.billingOptions.find((o) => o.taxId === body.billingTaxId.replace(/\./g, ''));
       const currency = body.paymentCurrency ?? item?.defaultPaymentCurrency;
       if (!item) {
@@ -626,7 +634,7 @@ export class SimulacionOlaD {
       if (!actual) {
         await problema(route, 404, 'CartItem.NotFound', 'Not found.');
       } else {
-        const item = PAGABLES[`${actual.itemType}:${actual.sourceId}`] ?? Object.values(PAGABLES).find((p) => p.sourceId === actual.sourceId);
+        const item = this.pagables[`${actual.itemType}:${actual.sourceId}`] ?? Object.values(this.pagables).find((p) => p.sourceId === actual.sourceId);
         const billing = item?.billingOptions.find((o) => o.taxId === actual.billingTaxId) ?? FACTURACION_PROPIA;
         if (item) this.items = this.items.map((i) => (i.id === actual.id ? itemCarro(item, billing, currency, actual.id) : i));
         await json(route, 200, this.carro());

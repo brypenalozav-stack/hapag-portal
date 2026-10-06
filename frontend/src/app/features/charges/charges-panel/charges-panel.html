@@ -33,6 +33,12 @@
         @if (applyError()) {
           <div class="alert alert-danger py-2" role="alert">{{ applyError() }}</div>
         }
+        @if (letterResult()) {
+          <div class="alert alert-success py-2" data-testid="charges-letter-issued">{{ letterResult() }}</div>
+        }
+        @if (letterError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ letterError() }}</div>
+        }
 
         <!-- Carta de responsabilidad obligatoria para FFWW (M4-04): bloquea el avance -->
         @for (req of blockingRequirements(); track req.code) {
@@ -40,10 +46,15 @@
             <div class="alert alert-warning" role="note" aria-labelledby="charges-letter-title">
               <h3 id="charges-letter-title" class="h6 fw-bold">{{ 'charges.panel.letter.title' | transloco }}</h3>
               <p class="mb-2">{{ 'charges.panel.letter.text' | transloco: { status: (req.status | codeLabel: requirementStatusKeys) } }}</p>
-              <button type="button" class="btn btn-sm btn-outline-secondary" disabled aria-describedby="charges-letter-help">
-                {{ 'charges.panel.letter.generate' | transloco }}
-              </button>
-              <p id="charges-letter-help" class="small mb-0 mt-1">{{ 'charges.panel.letter.comingSoon' | transloco }}</p>
+              @if (canIssueLetter()) {
+                <!-- Formulario de la carta (M6-06): sin cobro; emitida, levanta el bloqueo de este BL -->
+                <button type="button" class="btn btn-sm btn-hl-orange" aria-describedby="charges-letter-help" data-testid="charges-letter-generate" (click)="openLetter($event)">
+                  {{ 'charges.panel.letter.generate' | transloco }}
+                </button>
+                <p id="charges-letter-help" class="small mb-0 mt-1">{{ 'charges.panel.letter.help' | transloco }}</p>
+              } @else {
+                <p class="small mb-0">{{ 'charges.panel.letter.cannotIssue' | transloco }}</p>
+              }
             </div>
           }
         }
@@ -215,4 +226,7 @@
 
 @if (addTargets(); as targets) {
   <app-add-to-cart-dialog [targets]="targets" (closed)="onAddClosed()" />
+}
+@if (letterOpen()) {
+  <app-responsibility-letter-dialog [blNumber]="blNumber()" (closed)="onLetterClosed($event)" />
 }

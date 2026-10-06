@@ -180,7 +180,7 @@
 
   <!-- Cargos locales con las reglas de Nexus (Ola C, GET /charges/{bl}): solo si la matriz los habilita -->
   @if (s.localCharges !== null) {
-    <app-charges-panel [blNumber]="s.blNumber" />
+    <app-charges-panel [blNumber]="s.blNumber" (letterIssued)="onLetterIssued()" />
   }
 
   <!-- Demurrage: solo si la matriz lo habilita para el rol -->
@@ -263,6 +263,9 @@
       }
     </section>
   }
+
+  <!-- Repositorio documental del embarque y solicitudes de documentos (M6-01 a M6-09) -->
+  <app-shipment-documents [blNumber]="s.blNumber" [canOperate]="s.canOperate" (changed)="onDocumentsChanged()" />
 
   <!-- Accesos del BL: quién tiene acceso, otorgar y ampliaciones (M1-12, M1-16) -->
   @if (showAccessSection()) {

@@ -1,12 +1,15 @@
-import { Component, DestroyRef, ElementRef, Injector, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ChargesService } from '../../../core/services/charges.service';
 import { CartService } from '../../../core/services/cart.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { DocumentService } from '../../../core/services/document.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { ProcessRequirement, RuledCharge, ShipmentCharges } from '../../../core/models/charges.model';
+import { ShipmentDocument } from '../../../core/models/document.model';
 import { apiErrorKey } from '../../../core/http/api-error';
 import {
   CHARGE_BLOCKED_REASON_KEYS,
@@ -25,6 +28,9 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { AddToCartDialogComponent, AddToCartTarget } from '../../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
+import { documentErrorMessage } from '../../../shared/document-errors';
+import { saveBlob } from '../../../shared/save-blob';
+import { ResponsibilityLetterDialogComponent } from '../../documents/responsibility-letter-dialog/responsibility-letter-dialog';
 
 /** Color del resultado de las reglas con las variantes de .hl-badge. */
 const OUTCOME_CLASS: Record<string, string> = {
@@ -47,7 +53,8 @@ interface ApplyOutcome {
  *   trazabilidad a Nexus (M4-01, M4-02, M3-01); "Aplicar reglas" completa el proceso sin carro
  *   cuando todo queda exento (M4-02);
  * - el IPO de un cliente con crédito no llega del servidor y no se muestra (M4-03, M8-02);
- * - la carta de responsabilidad FFWW bloquea el avance (M4-04, M8-03; su generación es la Ola E);
+ * - la carta de responsabilidad FFWW bloquea el avance (M4-04, M8-03); "Generar carta" abre el formulario
+ *   de la carta (M6-06, Ola E) y, emitida, se descarga y se vuelven a leer los cargos, sin el bloqueo;
  * - el monto en moneda local con el tipo de cambio de Nexus (M5-05);
  * - si Nexus no responde, no se presentan los cargos como definitivos (NF-11).
  * "Agregar al carro" (Ola D) valida el cargo en el servidor y pide el RUT de facturación y la moneda de
@@ -58,7 +65,7 @@ interface ApplyOutcome {
   standalone: true,
   imports: [
     RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe,
-    LoadingSpinnerComponent, StateMessageComponent, AddToCartDialogComponent,
+    LoadingSpinnerComponent, StateMessageComponent, AddToCartDialogComponent, ResponsibilityLetterDialogComponent,
   ],
   templateUrl: './charges-panel.html',
   styleUrl: './charges-panel.scss',
@@ -66,11 +73,15 @@ interface ApplyOutcome {
 export class ChargesPanelComponent {
   private readonly service = inject(ChargesService);
   readonly cart = inject(CartService);
+  private readonly auth = inject(AuthService);
+  private readonly documents = inject(DocumentService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
   blNumber = input.required<string>();
+  /** Se emite con la carta de responsabilidad emitida desde el aviso de M4-04 (para actualizar el repositorio). */
+  letterIssued = output<ShipmentDocument>();
 
   readonly conceptKeys = CHARGE_CONCEPT_KEYS;
   readonly outcomeKeys = CHARGE_OUTCOME_KEYS;
@@ -90,6 +101,18 @@ export class ChargesPanelComponent {
   applyOutcome = signal<ApplyOutcome | null>(null);
   /** Cargo que se está agregando al carro (diálogo con RUT de facturación y moneda). */
   addTargets = signal<AddToCartTarget[] | null>(null);
+  /** Formulario de la carta de responsabilidad abierto (M6-06). */
+  letterOpen = signal(false);
+  letterError = signal('');
+  /** Carta recién emitida (se muestra sobre los cargos ya sin el bloqueo). */
+  letterResult = signal('');
+  private letterOpener: HTMLElement | null = null;
+
+  /** Generar la carta: perfil que opera de una organización cliente; el servidor valida el rol FFWW (M1-11). */
+  canIssueLetter = computed(() => {
+    const org = this.auth.organization();
+    return this.auth.canOperate() && !!org && org.organizationType !== 'Internal';
+  });
 
   private readonly outcomeHeading = viewChild<ElementRef<HTMLElement>>('outcomeHeading');
 
@@ -176,6 +199,38 @@ export class ChargesPanelComponent {
         this.announcer.announce(message, 'assertive');
       },
     });
+  }
+
+  openLetter(event: Event): void {
+    this.letterOpener = event.currentTarget as HTMLElement;
+    this.letterError.set('');
+    this.letterResult.set('');
+    this.letterOpen.set(true);
+  }
+
+  /**
+   * Carta emitida (M6-06): se descarga y se vuelven a leer los cargos; con la carta vigente el servidor
+   * levanta el bloqueo de M4-04 y el aviso desaparece.
+   */
+  onLetterClosed(letter: ShipmentDocument | null): void {
+    this.letterOpen.set(false);
+    if (!letter) {
+      setTimeout(() => this.letterOpener?.focus());
+      return;
+    }
+    const message = translate('charges.panel.letter.issued', { number: letter.documentNumber });
+    this.documents.download(this.blNumber(), letter.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (blob) => saveBlob(blob, letter.fileName),
+      error: (err) => {
+        const error = documentErrorMessage(err, 'documents.section.downloadError');
+        this.letterError.set(error);
+        this.announcer.announce(error, 'assertive');
+      },
+    });
+    this.letterResult.set(message);
+    this.announcer.announce(message);
+    this.load();
+    this.letterIssued.emit(letter);
   }
 
   /** Abre el diálogo para agregar el cargo al carro (M5-01, M5-09). */

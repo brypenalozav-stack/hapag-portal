@@ -21,7 +21,7 @@ import { sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
  *   sin pasar por el carro, con la trazabilidad a la condición de Nexus.
  * (Agregar al carro y pagar se prueban con el carro real de la Ola D en ola-d.spec.ts.)
  * - M4-03 / M8-02: el IPO no aparece para un pagador con crédito.
- * - M4-04 / M8-03: la carta de responsabilidad FFWW bloquea las acciones.
+ * - M4-04 / M8-03: la carta de responsabilidad FFWW bloquea las acciones (su emisión, en ola-e.spec.ts).
  * - NF-11: con Nexus caído no se muestran cargos como definitivos.
  * - M3-18: con factura emitida no hay calculadora; sin cálculo, la calculadora envía la vista previa.
  * - M3-16 / M5-05: demoras anticipadas de Bolivia con el CLD bloqueado y el tipo de cambio.
@@ -95,7 +95,8 @@ test('la carta de responsabilidad FFWW faltante bloquea las acciones (M4-04, M8-
   const aviso = page.getByRole('note').filter({ hasText: 'Carta de responsabilidad obligatoria' });
   await expect(aviso).toBeVisible();
   await expect(aviso).toContainText('Estado de la carta: falta.');
-  await expect(aviso.getByRole('button', { name: 'Generar carta de responsabilidad' })).toBeDisabled();
+  // Ola E: la carta se genera desde el aviso (M6-06); el flujo completo se prueba en ola-e.spec.ts.
+  await expect(aviso.getByRole('button', { name: 'Generar carta de responsabilidad' })).toBeEnabled();
 
   await expect(page.getByRole('button', { name: /Agregar .* al carro/ })).toHaveCount(0);
   await expect(page.getByRole('link', { name: /^Pagar / })).toHaveCount(0);

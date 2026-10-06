@@ -56,6 +56,7 @@ import type {
 } from '../../src/app/core/models/tariff.model';
 import { ORGANIZACION_PRUEBA, USUARIO_PRUEBA } from './session';
 import { OpcionesOlaD, SimulacionOlaD } from './ola-d-mocks';
+import { SimulacionOlaE } from './ola-e-mocks';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
 export const BL_PRUEBA: BillOfLading = {
@@ -1732,16 +1733,21 @@ const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo
  * Ola D: el carro, los pagos, las facturas y la configuración de pagos los responde una simulación con
  * estado por página (ola-d-mocks.ts); `opciones` activa el crédito (M5-07), el bloqueo de pagos (M8-07)
  * o cierres sin respuesta (NF-01).
+ * Ola E: los documentos del embarque los responde otra simulación con estado (ola-e-mocks.ts), que agrega
+ * al carro de la Ola D el cargo del certificado de transbordo y levanta el bloqueo FFWW de los cargos al
+ * emitirse la carta de responsabilidad.
  */
 export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promise<void> {
   let consultasLote = 0;
   const olaD = new SimulacionOlaD(opciones);
+  const olaE = new SimulacionOlaE(olaD);
   await page.route('**/api/v1/**', async (route: Route) => {
     const request = route.request();
     const url = new URL(request.url());
     const ruta = url.pathname.replace(/^.*\/api\/v1\//, '').replace(/\/$/, '');
     const metodo = request.method();
 
+    if (await olaE.responder(route, ruta, metodo)) return;
     if (await olaD.responder(route, ruta, metodo, url)) return;
 
     if (metodo !== 'GET') {
@@ -1770,7 +1776,7 @@ export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promi
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(cuerpo),
+      body: JSON.stringify(olaE.ajustar(ruta, cuerpo)),
     });
   });
 }

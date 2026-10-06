@@ -41,6 +41,13 @@ export const routes: Routes = [
       import('./features/shipments/shipment-detail/shipment-detail').then((m) => m.ShipmentDetailComponent),
     canActivate: [authGuard],
   },
+  // Ola E: repositorio documental del embarque en su propia página (M6-09), para enlaces directos.
+  {
+    path: 'shipments/:blNumber/documents',
+    loadComponent: () =>
+      import('./features/documents/shipment-documents-page').then((m) => m.ShipmentDocumentsPageComponent),
+    canActivate: [authGuard],
+  },
   { path: 'bills-of-lading', redirectTo: '/shipments', pathMatch: 'full' },
   { path: 'bills-of-lading/:blNumber', redirectTo: '/shipments/:blNumber' },
   {

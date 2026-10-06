@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -27,6 +27,7 @@ import { ShipmentAccessComponent } from '../../access/shipment-access/shipment-a
 import { GRANT_ERRORS } from '../../access/shared/access-errors';
 import { ChargesPanelComponent } from '../../charges/charges-panel/charges-panel';
 import { AddToCartDialogComponent, AddToCartTarget } from '../../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
+import { ShipmentDocumentsComponent } from '../../documents/shipment-documents/shipment-documents';
 
 /** Orígenes del acceso con los que se muestra la sección "Accesos" del BL. */
 const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
@@ -40,6 +41,8 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
  * sección "Accesos" del BL (M1-12, M1-16). Ola C: los cargos locales se muestran con las reglas de
  * Nexus aplicadas (exenciones, IPO por crédito, carta FFWW) y la acción que corresponde a cada uno.
  * Ola D: el flete pendiente se paga desde el carro (M5-01), con el RUT de facturación elegido al agregarlo.
+ * Ola E: sección "Documentos" con el repositorio del embarque y las solicitudes de documentos (M6-01 a
+ * M6-09); la carta de responsabilidad emitida desde los cargos o desde los documentos actualiza ambas.
  */
 @Component({
   selector: 'app-shipment-detail',
@@ -48,6 +51,7 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
     RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, CodeLabelPipe,
     StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
     AccessSourceBadgeComponent, ShipmentAccessComponent, ChargesPanelComponent, AddToCartDialogComponent,
+    ShipmentDocumentsComponent,
   ],
   templateUrl: './shipment-detail.html',
   styleUrl: './shipment-detail.scss',
@@ -71,6 +75,9 @@ export class ShipmentDetailComponent implements OnInit {
   loadFailed = signal(false);
 
   addTargets = signal<AddToCartTarget[] | null>(null);
+
+  private readonly chargesPanel = viewChild(ChargesPanelComponent);
+  private readonly documentsSection = viewChild(ShipmentDocumentsComponent);
   associating = signal(false);
   associateError = signal('');
 
@@ -114,6 +121,16 @@ export class ShipmentDetailComponent implements OnInit {
 
   onAddClosed(): void {
     this.addTargets.set(null);
+  }
+
+  /** Carta emitida desde los cargos (M4-04): el repositorio la muestra. */
+  onLetterIssued(): void {
+    this.documentsSection()?.load();
+  }
+
+  /** Carta emitida desde los documentos (M6-06): los cargos se vuelven a leer sin el bloqueo. */
+  onDocumentsChanged(): void {
+    this.chargesPanel()?.load();
   }
 
   /** Autoasociación (M1-18): el BL queda guardado en el listado de la organización. */

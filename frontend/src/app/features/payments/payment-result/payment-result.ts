@@ -7,6 +7,7 @@ import { PaymentService } from '../../../core/services/payment.service';
 import { CartService } from '../../../core/services/cart.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { FINAL_PAYMENT_STATUSES, PaymentStatusDetail } from '../../../core/models/cart.model';
+import { DOCUMENT_ISSUING_CONCEPTS } from '../../../core/models/document.model';
 import {
   CANCEL_DENIED_REASON_KEYS,
   CHARGE_CONCEPT_KEYS,
@@ -33,7 +34,8 @@ export const PAYMENT_POLL_MAX = 40;
  * (`/payments/:id/result?ref=`) y aquí llega también el depósito con boleta. Consulta el estado único
  * del pago hasta que la plataforma confirme o rechace, y anuncia cada cambio en la región polite sin
  * mover el foco. Cada estado dice con certeza si hubo cobro. El depósito permite emitir la boleta; una
- * vez emitida, el cliente ya no puede anularla (M5-02): solo Finanzas.
+ * vez emitida, el cliente ya no puede anularla (M5-02): solo Finanzas. Ola E: si el pago confirmado emite
+ * documentos (certificado de transbordo M6-01, cupón de retiro M6-03), enlaza al repositorio de cada BL (M6-09).
  */
 @Component({
   selector: 'app-payment-result',
@@ -76,6 +78,15 @@ export class PaymentResultComponent implements OnInit {
   private readonly slipHeading = viewChild<ElementRef<HTMLElement>>('slipHeading');
 
   statusClass = computed(() => PAYMENT_STATUS_CLASS[this.data()?.payment.status ?? ''] ?? 'hl-badge--pending');
+
+  /** BL con ítems pagados que emiten un documento al liberarse (M6-01, M6-03). */
+  documentBls = computed(() => {
+    const items = this.data()?.payment.items ?? [];
+    const bls = items
+      .filter((i) => DOCUMENT_ISSUING_CONCEPTS.includes(i.conceptCode) && !!i.blNumber)
+      .map((i) => i.blNumber as string);
+    return [...new Set(bls)];
+  });
 
   /** Esperando a la plataforma: se sigue consultando. */
   waiting = computed(() => {

@@ -1,0 +1,69 @@
+<dialog #dialog class="hl-dialog" aria-labelledby="bl-copy-title" (close)="onClosed()">
+  <div class="hl-dialog__header">
+    <h2 id="bl-copy-title" class="h5 fw-bold mb-0">{{ 'documents.blCopy.title' | transloco: { bl: blNumber() } }}</h2>
+    <button type="button" class="btn btn-sm btn-outline-secondary hl-icon-btn" [attr.aria-label]="'documents.blCopy.close' | transloco" (click)="close()">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+      </svg>
+    </button>
+  </div>
+
+  @if (result(); as r) {
+    <!-- Copia emitida: registrada en el repositorio y enviada al correo registrado (M6-05, M6-09) -->
+    <div class="hl-dialog__body">
+      <h3 #resultHeading class="h6 fw-bold" tabindex="-1">{{ 'documents.blCopy.result.title' | transloco }}</h3>
+      <p class="mb-2" data-testid="bl-copy-result">{{ resultText(r) }}</p>
+      <p class="small text-muted mb-0">{{ 'documents.blCopy.result.repository' | transloco }}</p>
+      @if (downloadError()) {
+        <div class="alert alert-danger py-2 mt-2 mb-0" role="alert">{{ downloadError() }}</div>
+      }
+    </div>
+    <div class="hl-dialog__footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="download()">
+        {{ 'documents.blCopy.result.download' | transloco: { number: r.document.documentNumber } }}
+      </button>
+      <button type="button" class="btn btn-hl-orange" (click)="close()">{{ 'documents.blCopy.result.done' | transloco }}</button>
+    </div>
+  } @else {
+    <form id="bl-copy-form" novalidate (submit)="submit($event)">
+      <div class="hl-dialog__body">
+        @if (submitError()) {
+          <div class="alert alert-danger py-2" role="alert" data-testid="bl-copy-error">{{ submitError() }}</div>
+        }
+
+        <!-- Versión de la copia: solo las que la matriz de M1-11 habilita al rol del usuario -->
+        <fieldset class="mb-3" aria-describedby="bl-copy-version-help">
+          <legend class="form-label small fw-semibold mb-1">{{ 'documents.blCopy.version.legend' | transloco }}</legend>
+          @for (v of versions(); track v) {
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="bl-copy-version" [id]="'bl-copy-' + v" [value]="v" required
+                     [checked]="version() === v" [attr.aria-describedby]="'bl-copy-' + v + '-help'" (change)="onVersion(v)" />
+              <label class="form-check-label" [for]="'bl-copy-' + v">{{ versionKeys[v].name | transloco }}</label>
+              <div [id]="'bl-copy-' + v + '-help'" class="form-text mt-0">{{ versionKeys[v].help | transloco }}</div>
+            </div>
+          }
+          <div id="bl-copy-version-help" class="form-text">
+            {{ (canRequestValued() ? 'documents.blCopy.version.help' : 'documents.blCopy.version.onlyNonValued') | transloco }}
+          </div>
+        </fieldset>
+
+        <!-- Entrega por correo al correo registrado de la organización (M6-05) -->
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="bl-copy-send-email" [checked]="sendEmail()"
+                 aria-describedby="bl-copy-send-email-help" (change)="onSendEmail($event)" />
+          <label class="form-check-label" for="bl-copy-send-email">{{ 'documents.blCopy.sendEmail' | transloco }}</label>
+        </div>
+        <div id="bl-copy-send-email-help" class="form-text">{{ 'documents.blCopy.sendEmailHelp' | transloco }}</div>
+      </div>
+      <div class="hl-dialog__footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()">{{ 'documents.blCopy.cancel' | transloco }}</button>
+        <button type="submit" class="btn btn-hl-orange" [disabled]="submitting()">
+          @if (submitting()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'documents.blCopy.submit' | transloco }}
+        </button>
+      </div>
+    </form>
+  }
+</dialog>

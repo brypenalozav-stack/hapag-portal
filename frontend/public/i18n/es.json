@@ -1310,8 +1310,10 @@
       "forbidden": "Su organización no tiene permiso para consultar los cargos de este BL.",
       "ipoExcluded": "El recargo IPO no se cobra: la organización tiene condición de crédito en Nexus.",
       "letter": {
-        "comingSoon": "La generación de la carta estará disponible próximamente en el portal.",
+        "cannotIssue": "Un usuario de su organización con un perfil que opera debe generar la carta.",
         "generate": "Generar carta de responsabilidad",
+        "help": "La carta se emite sin costo. Al emitirla se descarga, queda en los documentos del embarque y se levanta el bloqueo de este BL.",
+        "issued": "Carta de responsabilidad {{ number }} emitida y descargada. El bloqueo de este BL se levantó.",
         "text": "Nexus informa que su organización es un freight forwarder (FFWW) autorizado: la carta de responsabilidad es obligatoria y bloquea el avance del proceso mientras no esté presente. Estado de la carta: {{ status }}.",
         "title": "Carta de responsabilidad obligatoria"
       },
@@ -1448,6 +1450,7 @@
       "thc": "THC",
       "thcRf": "THC reefer",
       "transitFee": "Tránsito",
+      "transshipmentCert": "Certificado de transbordo",
       "warehouseChange": "Cambio de almacén"
     },
     "chargeErrors": {
@@ -1500,6 +1503,22 @@
       "noDemurrage": "Sin demurrage",
       "notCalculated": "Aún no calculado"
     },
+    "documentErrors": {
+      "blNotFound": "No encontramos el BL o no tiene acceso a él.",
+      "conditionsUnavailable": "Nexus no está disponible: no se pudo validar la solicitud. Intente más tarde.",
+      "contentNotFound": "El archivo del documento no está disponible. Contacte a Customer Service.",
+      "debtPending": "El embarque registra deuda pendiente: el CLD no se emitió. Revise el detalle y pague lo pendiente.",
+      "forbidden": "Su rol o su perfil no permiten esta acción sobre este embarque.",
+      "noDebtNotApplicable": "El CLD solo se emite para importaciones de Bolivia.",
+      "noRecipient": "Su organización no tiene un correo registrado al cual enviar el documento. Regístrelo en Mi organización.",
+      "notAvailable": "Este documento no está disponible para la operación de este país.",
+      "notFound": "No encontramos el documento o no tiene acceso a él.",
+      "sourceUnavailable": "La fuente de información no respondió. No se emitió nada: intente más tarde.",
+      "tariffNotInForce": "No hay una tarifa vigente para este servicio. Contacte a Customer Service.",
+      "termsNotAccepted": "Debe aceptar los términos de la carta de responsabilidad.",
+      "termsVersionMismatch": "Los términos de la carta cambiaron. Léalos de nuevo y acéptelos para emitir la carta.",
+      "unavailable": "El servicio no está disponible en este momento. Intente más tarde."
+    },
     "documentType": {
       "creditAuthorization": "Autorización de validación crediticia",
       "other": "Otro",
@@ -1538,6 +1557,13 @@
       "active": "Activo",
       "pending": "Pendiente",
       "rejected": "Rechazado"
+    },
+    "noDebtBlocker": {
+      "advanceDemurrage": "Demoras anticipadas obligatorias sin pagar",
+      "pendingCharges": "Cargos locales pendientes",
+      "pendingDemurrage": "Demurrage pendiente",
+      "pendingFreight": "Flete collect pendiente",
+      "pendingInvoices": "Facturas pendientes o vencidas"
     },
     "operation": {
       "export": "Exportación",
@@ -1626,6 +1652,7 @@
       "online": "En línea"
     },
     "paymentOperationJob": {
+      "documents": "Emisión de documentos",
       "notify": "Aviso al pagador",
       "release": "Liberación del servicio"
     },
@@ -1653,10 +1680,33 @@
       "missingTransactionReference": "Falta la referencia de la transacción",
       "notSettled": "Sin abono confirmado"
     },
+    "relatedDocumentKind": {
+      "invoice": "Factura",
+      "receipt": "Comprobante de pago"
+    },
     "requirementStatus": {
       "fulfilled": "cumplido",
       "missing": "falta",
       "pending": "en revisión"
+    },
+    "shipmentDocumentOrigin": {
+      "payment": "Emitido al confirmarse el pago",
+      "request": "Solicitado en el portal",
+      "seed": "Documento de demostración"
+    },
+    "shipmentDocumentStatus": {
+      "issued": "Emitido",
+      "revoked": "Anulado",
+      "superseded": "Reemplazado por uno más nuevo"
+    },
+    "shipmentDocumentType": {
+      "blCopyNonValued": "Copia del BL no valorada",
+      "blCopyValued": "Copia del BL valorada",
+      "collectReceipt": "Comprobante Collect",
+      "gateOutCoupon": "Cupón de retiro de Gate Out",
+      "noDebtCertificate": "CLD (certificado de libre deuda)",
+      "responsibilityLetter": "Carta de responsabilidad",
+      "transshipmentCertificate": "Certificado de transbordo"
     },
     "shipmentRole": {
       "carrier": "Transportista",
@@ -1876,6 +1926,167 @@
     "subtitle": "Consulte el estado del demurrage de un BL y la acción que corresponde.",
     "title": "Demurrage"
   },
+  "documents": {
+    "blCopy": {
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "errors": {
+        "submit": "No se pudo emitir la copia. Intente nuevamente.",
+        "versionRequired": "Elija la versión de la copia."
+      },
+      "result": {
+        "done": "Listo",
+        "download": "Descargar {{ number }}",
+        "registered": "Copia {{ number }} emitida.",
+        "repository": "Quedó registrada en los documentos del embarque, donde puede volver a descargarla.",
+        "sent": "Copia {{ number }} emitida y enviada a {{ emails }}.",
+        "title": "Copia emitida"
+      },
+      "sendEmail": "Enviar también al correo registrado de mi organización",
+      "sendEmailHelp": "La copia queda siempre registrada en los documentos del embarque.",
+      "submit": "Solicitar copia",
+      "title": "Copia del BL {{ bl }}",
+      "version": {
+        "help": "Solo se muestran las versiones que su rol permite sobre este BL.",
+        "legend": "Versión de la copia (obligatorio)",
+        "nonValued": "No valorada",
+        "nonValuedHelp": "Sin valores comerciales.",
+        "onlyNonValued": "Su rol en este BL solo permite la copia no valorada.",
+        "valued": "Valorada",
+        "valuedHelp": "Incluye el flete y los cargos del BL: montos, impuestos y estado."
+      }
+    },
+    "letter": {
+      "accept": "Acepto los términos de la carta, versión {{ version }} (obligatorio)",
+      "acceptHelp": "La aceptación queda registrada con su usuario, la fecha y la hora.",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "errors": {
+        "emailInvalid": "Ingrese un correo válido, por ejemplo nombre@empresa.cl.",
+        "emailRequired": "Ingrese el correo de contacto.",
+        "nameRequired": "Ingrese el nombre del firmante.",
+        "positionRequired": "Ingrese el cargo del firmante.",
+        "submit": "No se pudo emitir la carta. Intente nuevamente.",
+        "summaryTitle": "Revise los siguientes campos",
+        "taxIdRequired": "Ingrese el RUT o documento del firmante, por ejemplo 12.345.678-5.",
+        "termsRequired": "Acepte los términos de la carta."
+      },
+      "fields": {
+        "cargoDescription": "Descripción de la carga (opcional)",
+        "contactEmail": "Correo de contacto (obligatorio)",
+        "contactPhone": "Teléfono de contacto (opcional)",
+        "observations": "Observaciones (opcional)",
+        "signatoryName": "Nombre del firmante (obligatorio)",
+        "signatoryPosition": "Cargo del firmante (obligatorio)",
+        "signatoryTaxId": "RUT o documento del firmante (obligatorio)",
+        "signatoryTaxIdHelp": "Por ejemplo, 12.345.678-5."
+      },
+      "help": "Complete los datos de quien firma y acepte los términos. La carta se emite en PDF sin costo y queda en los documentos del embarque.",
+      "retryTerms": "Cargar de nuevo los términos",
+      "signatory": "Firmante",
+      "submit": "Emitir y descargar la carta",
+      "termsError": "No se pudieron cargar los términos de la carta.",
+      "termsTitle": "{{ title }} (versión {{ version }})",
+      "title": "Carta de responsabilidad del BL {{ bl }}"
+    },
+    "noDebt": {
+      "amounts": "Monto pendiente:",
+      "blockedText": "El embarque registra lo siguiente pendiente. Páguelo y vuelva a esta sección.",
+      "blockedTitle": "No se puede emitir el CLD",
+      "eligible": "El embarque no registra deuda pendiente: puede emitir el CLD.",
+      "evaluatedAt": "Verificado el {{ date }}.",
+      "help": "Para importaciones de Bolivia. Se emite con firma electrónica solo si el embarque no registra deuda pendiente y, cuando la cuenta lo exige, con las demoras anticipadas pagadas.",
+      "issue": "Emitir CLD",
+      "issueError": "No se pudo emitir el CLD. Intente nuevamente.",
+      "link": {
+        "advanceDemurrage": "Solicitar y pagar las demoras anticipadas del BL {{ bl }}",
+        "cart": "Ir al carro de compra",
+        "charges": "Pagar los cargos locales del BL {{ bl }}",
+        "demurrage": "Ver y pagar el demurrage del BL {{ bl }}",
+        "freight": "Pagar el flete del BL {{ bl }}",
+        "invoices": "Ver y pagar las facturas"
+      },
+      "loadError": "No se pudo verificar la deuda del embarque.",
+      "references": "Referencias: {{ references }}",
+      "title": "CLD (certificado de libre deuda)"
+    },
+    "page": {
+      "breadcrumbCurrent": "Documentos",
+      "breadcrumbLabel": "Ruta de navegación",
+      "breadcrumbList": "Embarques",
+      "title": "Documentos del BL {{ bl }}"
+    },
+    "related": {
+      "caption": "Comprobantes de pago y facturas del BL {{ bl }}",
+      "col": {
+        "action": "Acción",
+        "description": "Detalle",
+        "issuedAt": "Emisión",
+        "kind": "Tipo",
+        "number": "Número"
+      },
+      "download": "Descargar",
+      "downloadLabel": "Descargar {{ kind }} {{ number }}",
+      "empty": "No hay comprobantes de pago ni facturas de este BL.",
+      "title": "Comprobantes de pago y facturas"
+    },
+    "section": {
+      "booking": "Booking {{ booking }}",
+      "caption": "Documentos del BL {{ bl }}",
+      "col": {
+        "actions": "Acciones",
+        "bl": "BL",
+        "issuedAt": "Emisión",
+        "number": "Número",
+        "signature": "Firma y envío",
+        "status": "Estado",
+        "type": "Tipo"
+      },
+      "containers": "Unidades: {{ containers }}",
+      "copyIssued": "Copia del BL {{ number }} registrada en los documentos del embarque.",
+      "delivered": "Enviado a {{ emails }} el {{ date }}",
+      "download": "Descargar",
+      "downloadError": "No se pudo descargar el documento. Intente nuevamente.",
+      "downloadLabel": "Descargar {{ type }} {{ number }}",
+      "downloaded": "Se descargó {{ number }}.",
+      "empty": "Aún no hay documentos emitidos para este embarque.",
+      "help": "Documentos emitidos para este embarque según sus permisos. Cada descarga y cada envío quedan registrados.",
+      "issueLetter": "Generar carta de responsabilidad",
+      "letterBlocks": "Carta de responsabilidad obligatoria para freight forwarders (FFWW). Estado: {{ status }}. Mientras falte, los cargos de este BL no se pueden pagar.",
+      "letterFulfilled": "Carta de responsabilidad obligatoria para freight forwarders (FFWW). Estado: {{ status }}.",
+      "letterIssued": "Carta de responsabilidad {{ number }} emitida y descargada. Quedó en los documentos del embarque.",
+      "loadError": "No se pudieron cargar los documentos del embarque.",
+      "noDebtIssued": "CLD {{ number }} emitido con firma electrónica y descargado. Quedó en los documentos del embarque.",
+      "notFound": "No encontramos el BL {{ bl }} o no tiene acceso a sus documentos.",
+      "requestCopy": "Solicitar copia del BL",
+      "resend": "Reenviar por correo",
+      "resendError": "No se pudo reenviar el documento. Intente nuevamente.",
+      "resendLabel": "Reenviar {{ number }} al correo registrado de su organización",
+      "resent": "{{ number }} se envió a {{ emails }}.",
+      "signature": {
+        "notRequired": "Sin firma electrónica",
+        "onFirstDownload": "Con firma electrónica: se firma al descargarlo por primera vez",
+        "signed": "Firmado electrónicamente el {{ date }} ({{ provider }})"
+      },
+      "title": "Documentos",
+      "unavailable": "Los documentos del embarque no están disponibles en este momento.",
+      "validUntil": "Vigente hasta el {{ date }}",
+      "verificationCode": "Código de verificación {{ code }}"
+    },
+    "transshipment": {
+      "accountPayments": "Pagar desde mi cuenta",
+      "addToCart": "Agregar el certificado al carro",
+      "charge": "Cargo del servicio: {{ total }}, IVA de {{ tax }} incluido.",
+      "created": "Se generó el cargo del certificado de transbordo. Agréguelo al carro para pagarlo.",
+      "error": "No se pudo solicitar el certificado de transbordo. Intente nuevamente.",
+      "goToCart": "Ir al carro",
+      "help": "Al solicitarlo se genera el cargo del servicio, que se paga con el carro de compra. Confirmado el pago, el certificado se emite con firma electrónica, queda en los documentos del embarque y se envía por correo: en importación, a UMAR y a su organización; en exportación, a su organización.",
+      "inCart": "El cargo está en el carro de compra.",
+      "paid": "El certificado de transbordo ya está pagado: está en los documentos del embarque.",
+      "request": "Solicitar certificado de transbordo",
+      "title": "Certificado de transbordo"
+    }
+  },
   "faq": {
     "categories": {
       "all": "Todas",
@@ -1985,7 +2196,8 @@
       "accessGranted": "Acceso a embarques otorgado",
       "accessRevoked": "Acceso a embarques revocado",
       "accessRevokedByCascade": "Acceso revocado en cadena",
-      "accessUpdated": "Acceso a embarques modificado"
+      "accessUpdated": "Acceso a embarques modificado",
+      "documentIssued": "Documento del embarque emitido"
     }
   },
   "organization": {
@@ -2252,6 +2464,11 @@
       "releasePending": "La liberación de los servicios pagados se está procesando.",
       "text": "Se cobró {{ total }}. Comprobante {{ receipt }}.",
       "title": "Pago confirmado"
+    },
+    "documents": {
+      "link": "Ver los documentos del BL {{ bl }}",
+      "text": "Este pago emite documentos del embarque (certificado de transbordo o cupón de retiro de Gate Out). Se generan en unos segundos, quedan en los documentos del BL y el certificado de transbordo se envía por correo.",
+      "title": "Documentos del embarque"
     },
     "failed": {
       "generic": "El pago falló.",

@@ -134,6 +134,7 @@ export const NOTIFICATION_TYPE_KEYS: Record<string, string> = {
   AccessRevoked: 'notifications.type.accessRevoked',
   AccessExpired: 'notifications.type.accessExpired',
   AccessRevokedByCascade: 'notifications.type.accessRevokedByCascade',
+  DocumentIssued: 'notifications.type.documentIssued',
 };
 
 /** Texto corto del nivel (O, X, X (o)) y su descripción (lectura de las matrices de M1-11). */
@@ -218,6 +219,7 @@ export const CHARGE_CONCEPT_KEYS: Record<string, string> = {
   LATE_ARRIVAL: 'common.chargeConcept.lateArrival',
   FREIGHT: 'common.chargeConcept.freight',
   INVOICE: 'common.chargeConcept.invoice',
+  TRANSSHIPMENT_CERT: 'common.chargeConcept.transshipmentCert',
 };
 
 /** Resultado de las reglas sobre un cargo (M4-01 a M4-03). */
@@ -458,6 +460,7 @@ export const PAYMENT_OPERATION_STATUS_KEYS: Record<string, string> = {
 export const PAYMENT_OPERATION_JOB_KEYS: Record<string, string> = {
   Release: 'common.paymentOperationJob.release',
   Notify: 'common.paymentOperationJob.notify',
+  Documents: 'common.paymentOperationJob.documents',
 };
 
 /** Estado de conciliación de un pago (NF-04). */
@@ -517,4 +520,73 @@ export const PAYMENT_ERRORS: Record<string, string> = {
   'Payment.InvalidTransition': 'common.paymentErrors.invalidTransition',
   'Payment.NotDeposit': 'common.paymentErrors.notDeposit',
   'Invoice.NotFound': 'common.paymentErrors.invoiceNotFound',
+};
+
+// ---------------------------------------------------------------------------
+// Fase 1, Ola E: documentos del embarque y repositorio documental (M6-01, M6-03 a M6-07, M6-09).
+// ---------------------------------------------------------------------------
+
+/** Tipo de documento del repositorio (términos del glosario). */
+export const SHIPMENT_DOCUMENT_TYPE_KEYS: Record<string, string> = {
+  TransshipmentCertificate: 'common.shipmentDocumentType.transshipmentCertificate',
+  GateOutCoupon: 'common.shipmentDocumentType.gateOutCoupon',
+  CollectReceipt: 'common.shipmentDocumentType.collectReceipt',
+  BlCopyValued: 'common.shipmentDocumentType.blCopyValued',
+  BlCopyNonValued: 'common.shipmentDocumentType.blCopyNonValued',
+  ResponsibilityLetter: 'common.shipmentDocumentType.responsibilityLetter',
+  NoDebtCertificate: 'common.shipmentDocumentType.noDebtCertificate',
+};
+
+export const SHIPMENT_DOCUMENT_STATUS_KEYS: Record<string, string> = {
+  Issued: 'common.shipmentDocumentStatus.issued',
+  Superseded: 'common.shipmentDocumentStatus.superseded',
+  Revoked: 'common.shipmentDocumentStatus.revoked',
+};
+
+/** Variante de .hl-badge por estado del documento (el texto acompaña siempre al color). */
+export const SHIPMENT_DOCUMENT_STATUS_CLASS: Record<string, string> = {
+  Issued: 'hl-badge--confirmed',
+  Superseded: 'hl-badge--processing',
+  Revoked: 'hl-badge--failed',
+};
+
+export const SHIPMENT_DOCUMENT_ORIGIN_KEYS: Record<string, string> = {
+  Payment: 'common.shipmentDocumentOrigin.payment',
+  Request: 'common.shipmentDocumentOrigin.request',
+  Seed: 'common.shipmentDocumentOrigin.seed',
+};
+
+/** Comprobante de pago (M7-02) o factura (M7-01) publicados en el repositorio. */
+export const RELATED_DOCUMENT_KIND_KEYS: Record<string, string> = {
+  Receipt: 'common.relatedDocumentKind.receipt',
+  Invoice: 'common.relatedDocumentKind.invoice',
+};
+
+/** Motivo que impide el certificado de libre deuda (M6-07, M3-16). */
+export const NO_DEBT_BLOCKER_KEYS: Record<string, string> = {
+  PENDING_CHARGES: 'common.noDebtBlocker.pendingCharges',
+  PENDING_DEMURRAGE: 'common.noDebtBlocker.pendingDemurrage',
+  PENDING_INVOICES: 'common.noDebtBlocker.pendingInvoices',
+  PENDING_FREIGHT: 'common.noDebtBlocker.pendingFreight',
+  ADVANCE_DEMURRAGE: 'common.noDebtBlocker.advanceDemurrage',
+};
+
+/**
+ * Códigos de error del backend de la Ola E → claves Transloco. Los textos del servidor vienen en
+ * inglés y no se muestran tal cual.
+ */
+export const DOCUMENT_ERRORS: Record<string, string> = {
+  'BillOfLading.NotFound': 'common.documentErrors.blNotFound',
+  'ShipmentDocument.NotFound': 'common.documentErrors.notFound',
+  'ShipmentDocumentContent.NotFound': 'common.documentErrors.contentNotFound',
+  'ShipmentDocument.NoRecipient': 'common.documentErrors.noRecipient',
+  'ShipmentDocument.NotAvailable': 'common.documentErrors.notAvailable',
+  'ResponsibilityLetter.TermsNotAccepted': 'common.documentErrors.termsNotAccepted',
+  'ResponsibilityLetter.TermsVersionMismatch': 'common.documentErrors.termsVersionMismatch',
+  'NoDebtCertificate.NotApplicable': 'common.documentErrors.noDebtNotApplicable',
+  'NoDebtCertificate.DebtPending': 'common.documentErrors.debtPending',
+  'Tariff.NotInForce': 'common.documentErrors.tariffNotInForce',
+  'ChargeRules.ConditionsUnavailable': 'common.documentErrors.conditionsUnavailable',
+  'Integration.Unavailable': 'common.documentErrors.sourceUnavailable',
+  'Error.Forbidden': 'common.documentErrors.forbidden',
 };

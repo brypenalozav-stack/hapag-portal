@@ -22,6 +22,15 @@ import {
   simularApi,
 } from '../fixtures/api-mocks';
 import { OpcionesOlaD, PAGO } from '../fixtures/ola-d-mocks';
+import {
+  BL_CARTA,
+  BL_CLD_BLOQUEADO,
+  BL_CLD_EMITIBLE,
+  BL_DOCUMENTOS,
+  BL_DOCUMENTOS_CAIDO,
+  BL_SOLO_SHIPPER,
+  PAGO_CON_DOCUMENTOS,
+} from '../fixtures/ola-e-mocks';
 import { IDIOMAS, Idioma, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
 
 /**
@@ -45,6 +54,10 @@ import { IDIOMAS, Idioma, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } fro
  * los pagos bloqueados, estados del resultado del pago, pago desde la cuenta (crédito), facturas,
  * historial de pagos y su detalle y, con sesión interna, los mantenedores de monedas, medios y bloqueos
  * de pago y las herramientas de Finanzas. El listado de pagos y el pago por BL anteriores se retiraron.
+ * Fase 1, Ola E: documentos del embarque (M6-09) con documentos, vacío y con el repositorio caído (NF-11),
+ * diálogo de la copia del BL (M6-05), formulario de la carta de responsabilidad con errores (M6-06), CLD
+ * bloqueado y emitible (M6-07), solicitud del certificado de transbordo con el diálogo del carro (M6-01) y
+ * el resultado de un pago que emite documentos.
  */
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -230,6 +243,56 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion; opciones?: Opciones
   },
   { id: 'admin-payment-blocks', ruta: '/admin/payment-blocks', sesion: 'admin', preparar: abrirHistorial('#block-history-title', 2) },
   { id: 'admin-payments-finance', ruta: '/admin/payments-finance', sesion: 'admin' },
+  // Ola E
+  { id: 'documents', ruta: `/shipments/${BL_DOCUMENTOS}/documents`, sesion: 'cliente' },
+  { id: 'documents-empty', ruta: `/shipments/${BL_SOLO_SHIPPER}/documents`, sesion: 'cliente' },
+  { id: 'documents-error', ruta: `/shipments/${BL_DOCUMENTOS_CAIDO}/documents`, sesion: 'cliente' },
+  {
+    id: 'documents-bl-copy-dialog',
+    ruta: `/shipments/${BL_DOCUMENTOS}/documents`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId('documents-request-copy').click();
+      await expect(page.locator('#bl-copy-valued')).toBeVisible();
+    },
+  },
+  {
+    id: 'documents-letter-form',
+    ruta: `/charges/${BL_CARTA}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId('charges-letter-generate').click();
+      await expect(page.getByTestId('letter-terms')).toBeVisible();
+      await page.locator('#letter-form button[type="submit"]').click();
+      await expect(page.locator('#letter-form .alert-danger')).toBeFocused();
+    },
+  },
+  {
+    id: 'documents-cld-blocked',
+    ruta: `/shipments/${BL_CLD_BLOQUEADO}/documents`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('no-debt-blocked')).toBeVisible();
+    },
+  },
+  {
+    id: 'documents-cld-eligible',
+    ruta: `/shipments/${BL_CLD_EMITIBLE}/documents`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('no-debt-eligible')).toBeVisible();
+    },
+  },
+  {
+    id: 'documents-transshipment-request',
+    ruta: `/shipments/${BL_DOCUMENTOS}/documents`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId('transshipment-request').click();
+      await expect(page.locator('#add-to-cart-billing')).toBeVisible();
+    },
+  },
+  { id: 'payment-result-documents', ruta: `/payments/${PAGO_CON_DOCUMENTOS}/result`, sesion: 'cliente' },
 ];
 
 async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opciones?: OpcionesOlaD): Promise<void> {

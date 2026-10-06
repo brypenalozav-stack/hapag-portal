@@ -33,6 +33,18 @@
           }
         </div>
         <a [routerLink]="['/payment-history', p.id]" class="btn btn-outline-secondary">{{ 'paymentResult.viewReceipt' | transloco }}</a>
+        <!-- Documentos que emite el pago: se publican en el repositorio del embarque (M6-01, M6-03, M6-09) -->
+        @if (documentBls().length > 0) {
+          <div class="mt-3" data-testid="payment-result-documents">
+            <h3 class="h6 fw-bold">{{ 'paymentResult.documents.title' | transloco }}</h3>
+            <p class="small mb-2">{{ 'paymentResult.documents.text' | transloco }}</p>
+            <ul class="mb-0">
+              @for (bl of documentBls(); track bl) {
+                <li><a [routerLink]="['/shipments', bl, 'documents']">{{ 'paymentResult.documents.link' | transloco: { bl: bl } }}</a></li>
+              }
+            </ul>
+          </div>
+        }
       }
       @case ('Failed') {
         <div class="alert alert-danger" data-testid="payment-result-message">
