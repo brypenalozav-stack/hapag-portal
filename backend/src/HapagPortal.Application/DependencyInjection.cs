@@ -10,6 +10,8 @@ using HapagPortal.Application.Documents.PostPayment;
 using HapagPortal.Application.ExchangeRates.Common;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.PostProcessing;
+using HapagPortal.Application.ServiceRequests.Common;
+using HapagPortal.Application.ServiceRequests.PostPayment;
 using HapagPortal.Application.Shipments.Issuance;
 using HapagPortal.Application.ShoppingCart;
 using HapagPortal.Application.Tariffs.Common;
@@ -56,6 +58,12 @@ public static class DependencyInjection
         services.AddSingleton<RulesAssistantEngine>();
         services.AddScoped<AssistantDataRetriever>();
         services.AddScoped<AssistantResponder>();
+
+        // Fase 2 Ola G: modelo estándar de servicios on demand (M2-03, M2-04) y avance de sus solicitudes
+        // por la liberación del pago (aviso en la cola recuperable, NF-03).
+        services.AddScoped<ServiceCatalogEvaluator>();
+        services.AddScoped<ServiceRequestWorkflow>();
+        services.AddScoped<IPaymentPostStep, NotifyServiceRequestsStep>();
 
         services.AddMediatR(config =>
         {

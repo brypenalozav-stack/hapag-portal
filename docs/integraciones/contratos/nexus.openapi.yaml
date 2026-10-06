@@ -512,7 +512,9 @@ components:
           - GATE_IN
           - EDS
           - GATE_OUT
-          description: Concepto exento. Nexus hoy administra Gate In y EDS; Gate Out queda previsto.
+          - XOM
+          description: Concepto exento. Nexus hoy administra Gate In y EDS; Gate Out queda previsto. XOM (administración
+            de contenedor de Bolivia, M3-10) es una propuesta de la Fase 2 (Ola G) para leer las excepciones del cargo.
         amount:
           type:
           - number

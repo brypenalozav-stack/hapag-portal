@@ -34,6 +34,15 @@ public sealed class DummyExemptionReaderTests
     }
 
     [Fact]
+    public async Task GetExemptionsAsync_XomExemptTaxId_ShouldReturnTheXomException()
+    {
+        var result = await _reader.GetExemptionsAsync("1029384756", null, At);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().ContainSingle(e => e.Concept == "XOM" && e.Amount == null);
+    }
+
+    [Fact]
     public async Task GetExemptionsAsync_BeforeValidity_ShouldReturnEmptyList()
     {
         var result = await _reader.GetExemptionsAsync("76000001-1", null, new DateOnly(2025, 12, 31));

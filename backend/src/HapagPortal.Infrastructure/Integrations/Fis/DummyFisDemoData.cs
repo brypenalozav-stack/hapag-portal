@@ -48,6 +48,11 @@ public static class DummyFisDemoData
             "CLSAI", "CLANF", null, null, "BL", null, BlIssuanceSourceStatuses.Issued, Utc(2026, 9, 2, 12), "CNSHA"),
         new("HLCUSAI260601520", "HLCUBKG2606152", "IMPORT", "Lima Express", "2612E", Utc(2026, 9, 1), Utc(2026, 10, 3), null, null, null, null, null,
             "CLSAI", "CLPUQ", "PUQ-DIFU-0915", "CLPUQ", "SWB", null, BlIssuanceSourceStatuses.Issued, Utc(2026, 9, 2, 12), "CNSHA"),
+        // Fase 2 Ola G: exportaciones ya zarpadas de Chile y Bolivia (servicios on demand de exportación, M2-04).
+        new("HLCUSAI260901610", "HLCUBKG2609161", "EXPORT", "Cartagena Express", "2609S", Utc(2026, 9, 28), Utc(2026, 10, 10), null, null, null, null, null,
+            "PECLL", "PELIM", null, null, "BL", null, BlIssuanceSourceStatuses.Issued, Utc(2026, 9, 28, 6), "CLSAI"),
+        new("HLCUARI260901720", "HLCUBKG2609172", "EXPORT", "Antofagasta Express", "2609S", Utc(2026, 9, 30), Utc(2026, 10, 7), null, null, null, null, null,
+            "PECLL", "PELIM", null, null, "SWB", null, BlIssuanceSourceStatuses.Issued, Utc(2026, 9, 30, 8), "CLARI"),
     ];
 
     public static ShipmentRecord? Find(string? blNumber) =>

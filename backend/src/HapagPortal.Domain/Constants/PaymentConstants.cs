@@ -99,6 +99,9 @@ public static class PaymentOutboxJobTypes
     public const string Release = "Release";
     public const string Notify = "Notify";
     public const string Documents = "Documents";
+
+    /// <summary>Aviso del avance de las solicitudes de servicio pagadas (Ola G), encolado por la liberación.</summary>
+    public const string ServiceRequests = "ServiceRequests";
 }
 
 /// <summary>

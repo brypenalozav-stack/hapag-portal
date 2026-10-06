@@ -234,6 +234,29 @@ public static class SeedDataIds
     public static readonly Guid PublicationRuleAntofagasta = Guid.Parse("FFFFFFFF-0019-0019-0019-000000000001");
     public static readonly Guid PublicationRulePuntaArenas = Guid.Parse("FFFFFFFF-0019-0019-0019-000000000002");
 
+    // Fase 2 Ola G — servicios on demand (M2-03, M2-04, M3-07 a M3-15) e historial de cambio de almacén (M3-06)
+    public static readonly Guid BL16 = Guid.Parse("11111111-0007-0007-0007-000000000016");
+    public static readonly Guid BL17 = Guid.Parse("11111111-0007-0007-0007-000000000017");
+    public static readonly Guid Container19 = Guid.Parse("22222222-0008-0008-0008-000000000019");
+    public static readonly Guid Container20 = Guid.Parse("22222222-0008-0008-0008-000000000020");
+    public static readonly Guid Container21 = Guid.Parse("22222222-0008-0008-0008-000000000021");
+    public static readonly Guid Container22 = Guid.Parse("22222222-0008-0008-0008-000000000022");
+    public static readonly Guid WarehouseChange03 = Guid.Parse("99999999-000F-000F-000F-000000000003");
+    public static readonly Guid WarehouseChange04 = Guid.Parse("99999999-000F-000F-000F-000000000004");
+    public static readonly Guid WarehouseChangeBatch01 = Guid.Parse("99999999-0020-0020-0020-000000000001");
+    public static readonly Guid Payment14 = Guid.Parse("55555555-000B-000B-000B-000000000014");
+    public static readonly Guid ServiceRequestDropOffPending = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000001");
+    public static readonly Guid ServiceRequestSealsPendingPayment = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000002");
+    public static readonly Guid ServiceRequestCorrectionInProgress = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000003");
+    public static readonly Guid ServiceRequestBlHouseCompleted = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000004");
+    public static readonly Guid ServiceRequestDropOffRejected = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000005");
+    public static readonly Guid ServiceRequestLateArrivalCancelled = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000006");
+    public static readonly Guid ServiceRequestXomExempt = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000007");
+    public static readonly Guid ServiceRequestMatrixDraft = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000008");
+    public static readonly Guid LocalChargeSealsBL06 = Guid.Parse("33333333-0009-0009-0009-000000000027");
+    public static readonly Guid LocalChargeCorrectionBL02 = Guid.Parse("33333333-0009-0009-0009-000000000028");
+    public static readonly Guid LocalChargeBlHouseBL16 = Guid.Parse("33333333-0009-0009-0009-000000000029");
+
     // Audit Logs
     public static readonly Guid AuditLog01 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000001");
     public static readonly Guid AuditLog02 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000002");

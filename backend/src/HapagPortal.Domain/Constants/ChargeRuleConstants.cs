@@ -165,6 +165,9 @@ public static class MaintainerNames
     public const string KnowledgeArticle = "KnowledgeArticle";
     public const string AssistantMailbox = "AssistantMailbox";
     public const string DangerousGood = "DangerousGood";
+
+    // Fase 2 Ola G: definiciones de servicios on demand (M2-03, M2-04).
+    public const string ServiceDefinition = "ServiceDefinition";
 }
 
 public static class MaintainerActions

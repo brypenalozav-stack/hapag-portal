@@ -74,6 +74,11 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<DangerousGood> DangerousGoodList { get; } = [];
     public List<TatcBatch> TatcBatchList { get; } = [];
     public List<TatcBatchItem> TatcBatchItemList { get; } = [];
+    public List<ServiceDefinition> ServiceDefinitionList { get; } = [];
+    public List<ServiceRequest> ServiceRequestList { get; } = [];
+    public List<ServiceRequestEvent> ServiceRequestEventList { get; } = [];
+    public List<ServiceRequestAttachment> ServiceRequestAttachmentList { get; } = [];
+    public List<ServiceRequestCharge> ServiceRequestChargeList { get; } = [];
 
     public DbSet<Client> Clients => MockDbSetHelper.CreateMockDbSet(ClientList);
     public DbSet<User> Users => MockDbSetHelper.CreateMockDbSet(UserList);
@@ -143,6 +148,11 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<DangerousGood> DangerousGoods => MockDbSetHelper.CreateMockDbSet(DangerousGoodList);
     public DbSet<TatcBatch> TatcBatches => MockDbSetHelper.CreateMockDbSet(TatcBatchList);
     public DbSet<TatcBatchItem> TatcBatchItems => MockDbSetHelper.CreateMockDbSet(TatcBatchItemList);
+    public DbSet<ServiceDefinition> ServiceDefinitions => MockDbSetHelper.CreateMockDbSet(ServiceDefinitionList);
+    public DbSet<ServiceRequest> ServiceRequests => MockDbSetHelper.CreateMockDbSet(ServiceRequestList);
+    public DbSet<ServiceRequestEvent> ServiceRequestEvents => MockDbSetHelper.CreateMockDbSet(ServiceRequestEventList);
+    public DbSet<ServiceRequestAttachment> ServiceRequestAttachments => MockDbSetHelper.CreateMockDbSet(ServiceRequestAttachmentList);
+    public DbSet<ServiceRequestCharge> ServiceRequestCharges => MockDbSetHelper.CreateMockDbSet(ServiceRequestChargeList);
 
     public int SaveChangesCallCount { get; private set; }
 

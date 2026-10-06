@@ -11,6 +11,9 @@ public static class SimulatorData
     public const string ExemptTaxId = "76000001-1";
     public const string CreditTaxId = "76000002-2";
     public const string FreightForwarderTaxId = "76000003-3";
+
+    /// <summary>Cuenta de Bolivia exceptuada del cargo XOM (Ola G, M3-10).</summary>
+    public const string XomExemptTaxId = "1029384756";
     public const string NexusSource = "DUMMY";
     public static readonly DateOnly ValidFrom = new(2026, 1, 1);
     public static readonly DateOnly TariffValidFrom = new(2026, 10, 1);

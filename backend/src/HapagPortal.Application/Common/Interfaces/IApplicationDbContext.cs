@@ -73,6 +73,11 @@ public interface IApplicationDbContext
     DbSet<DangerousGood> DangerousGoods { get; }
     DbSet<TatcBatch> TatcBatches { get; }
     DbSet<TatcBatchItem> TatcBatchItems { get; }
+    DbSet<ServiceDefinition> ServiceDefinitions { get; }
+    DbSet<ServiceRequest> ServiceRequests { get; }
+    DbSet<ServiceRequestEvent> ServiceRequestEvents { get; }
+    DbSet<ServiceRequestAttachment> ServiceRequestAttachments { get; }
+    DbSet<ServiceRequestCharge> ServiceRequestCharges { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

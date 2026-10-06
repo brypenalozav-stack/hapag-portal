@@ -37,12 +37,16 @@ public static class NexusEndpoints
         if (errors.Any)
             return SimulatorHttp.BadRequest(context, errors);
 
-        IReadOnlyList<Exemption> items = SimulatorData.IsTaxId(taxId, SimulatorData.ExemptTaxId) && at >= SimulatorData.ValidFrom
-            ? [
-                new Exemption("GATE_IN", null, null, null, SimulatorData.ValidFrom, null),
-                new Exemption("EDS", null, null, null, SimulatorData.ValidFrom, null),
-            ]
-            : [];
+        IReadOnlyList<Exemption> items = at < SimulatorData.ValidFrom
+            ? []
+            : SimulatorData.IsTaxId(taxId, SimulatorData.ExemptTaxId)
+                ? [
+                    new Exemption("GATE_IN", null, null, null, SimulatorData.ValidFrom, null),
+                    new Exemption("EDS", null, null, null, SimulatorData.ValidFrom, null),
+                ]
+                : SimulatorData.IsTaxId(taxId, SimulatorData.XomExemptTaxId)
+                    ? [new Exemption("XOM", null, null, null, SimulatorData.ValidFrom, null)]
+                    : [];
 
         return Results.Json(new ExemptionList(taxId!, matchCode, at, items));
     }

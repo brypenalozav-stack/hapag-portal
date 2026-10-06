@@ -6,6 +6,9 @@ public static class DocumentPrefixes
     public const string Receipt = "RCP-";
     public const string ServiceOrder = "ODS-";
 
+    /// <summary>Solicitud de servicio on demand (M2-03, M2-04).</summary>
+    public const string ServiceRequest = "SRV-";
+
     /// <summary>Boleta para el pago por depósito bancario (M5-02, M5-03).</summary>
     public const string DepositSlip = "BDP-";
 

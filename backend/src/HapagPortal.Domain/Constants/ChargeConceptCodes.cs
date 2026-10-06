@@ -24,6 +24,20 @@ public static class ChargeConceptCodes
     // Servicio pagado que emite el certificado de transbordo al confirmarse el pago (M6-01, Ola E).
     public const string TransshipmentCertificate = "TRANSSHIPMENT_CERT";
 
+    // Servicios on demand de Fase 2 (Ola G, M2-03/M2-04): su tarifa vive en el mantenedor (M8-01) y la
+    // solicitud la define una ServiceDefinition.
+    public const string SealManagement = "SEAL_MANAGEMENT";
+    public const string EarlyArrival = "EARLY_ARRIVAL";
+    public const string DropOff = "DROP_OFF";
+    public const string ContainerAdministrationXom = "XOM";
+    public const string BlCorrection = "BL_CORRECTION";
+    public const string BlHouseTransmission = "BL_HOUSE_TRANSMISSION";
+    public const string MatrixLate = "MATRIX_LATE";
+
+    // Cargos locales vigentes de importación tomados como referencia del modelo estándar (CL-IMP-05/06).
+    public const string Opening = "OPENING";
+    public const string Valuation = "VALUATION";
+
     // Recargos de origen ya presentes en los datos (semilla e importación).
     public const string Thc = "THC";
     public const string ThcReefer = "THC_RF";

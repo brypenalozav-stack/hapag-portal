@@ -2,6 +2,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
 using HapagPortal.Application.WarehouseChanges.Bulk;
+using HapagPortal.Application.WarehouseChanges.History;
 using HapagPortal.Application.WarehouseChanges.Read.GetById;
 using HapagPortal.Application.WarehouseChanges.Read.GetMyChanges;
 using HapagPortal.Application.WarehouseChanges.Requests;
@@ -29,6 +30,34 @@ public sealed class WarehouseChangesController : ApiController
         return result.IsSuccess
             ? Ok(result.Value)
             : HandleFailure(result);
+    }
+
+    /// <summary>
+    /// Historial de cambios de almacén (M3-06): fecha, estado, embarque y razón social y RUT de quien pagó; filtrable
+    /// por BL o booking para reconstruir la trazabilidad desde el embarque. Incluye los creados por solicitudes masivas.
+    /// </summary>
+    [HttpGet("history")]
+    public async Task<IActionResult> GetHistory(
+        [FromQuery] string? blNumber,
+        [FromQuery] string? status,
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? to,
+        [FromQuery] Guid? organizationId,
+        CancellationToken cancellationToken,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var result = await Sender.Send(
+            new GetWarehouseChangeHistoryQuery(blNumber, status, from, to, organizationId, page, pageSize), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Línea de tiempo de una solicitud: creación, derecho gratuito, estados del pago y liberación (M3-06).</summary>
+    [HttpGet("history/{id:guid}")]
+    public async Task<IActionResult> GetTrace(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetWarehouseChangeTraceQuery(id), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 
     [HttpGet("{id:guid}")]

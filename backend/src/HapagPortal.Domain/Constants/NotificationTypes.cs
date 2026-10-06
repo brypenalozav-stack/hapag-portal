@@ -24,4 +24,28 @@ public static class NotificationTypes
 
     // Documentos del embarque (M6-01, M6-03, M6-04)
     public const string DocumentIssued = "DocumentIssued";
+
+    // Solicitudes de servicios on demand (M2-03, M2-04, M3-07 a M3-15), a los administradores de la organización.
+    public const string ServiceRequestPendingApproval = "ServiceRequestPendingApproval";
+    public const string ServiceRequestApproved = "ServiceRequestApproved";
+    public const string ServiceRequestRejected = "ServiceRequestRejected";
+    public const string ServiceRequestPendingPayment = "ServiceRequestPendingPayment";
+    public const string ServiceRequestPaid = "ServiceRequestPaid";
+    public const string ServiceRequestInProgress = "ServiceRequestInProgress";
+    public const string ServiceRequestCompleted = "ServiceRequestCompleted";
+    public const string ServiceRequestCancelled = "ServiceRequestCancelled";
+
+    /// <summary>Tipo de notificación del estado al que llegó una solicitud (nulo si no se notifica).</summary>
+    public static string? ForServiceRequestStatus(string status) => status switch
+    {
+        ServiceRequestStatus.PendingApproval => ServiceRequestPendingApproval,
+        ServiceRequestStatus.Approved => ServiceRequestApproved,
+        ServiceRequestStatus.Rejected => ServiceRequestRejected,
+        ServiceRequestStatus.PendingPayment => ServiceRequestPendingPayment,
+        ServiceRequestStatus.Paid => ServiceRequestPaid,
+        ServiceRequestStatus.InProgress => ServiceRequestInProgress,
+        ServiceRequestStatus.Completed => ServiceRequestCompleted,
+        ServiceRequestStatus.Cancelled => ServiceRequestCancelled,
+        _ => null
+    };
 }

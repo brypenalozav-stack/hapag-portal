@@ -3,6 +3,7 @@ namespace HapagPortal.Application.Payments.PostProcessing;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Documents.PostPayment;
 using HapagPortal.Application.Payments.Common;
+using HapagPortal.Application.ServiceRequests.PostPayment;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,8 @@ public interface IPaymentPostStep
 /// o factura y, con ella, las líneas de demurrage facturadas) con la misma lógica para cualquier cliente,
 /// también el de crédito (M5-07). Una fuente inexistente detiene el paso para resolución interna. Si algún
 /// ítem liberado emite un documento (M6-01, M6-03, M6-04), encola una sola vez el paso <c>Documents</c>.
+/// Los recargos que cobran una solicitud de servicio on demand (Ola G) hacen avanzar la solicitud y encolan
+/// una vez el aviso <c>ServiceRequests</c>.
 /// </summary>
 public sealed class ReleasePaymentItemsStep(IApplicationDbContext dbContext) : IPaymentPostStep
 {
@@ -30,6 +33,8 @@ public sealed class ReleasePaymentItemsStep(IApplicationDbContext dbContext) : I
 
     public async Task ExecuteAsync(Payment payment, IReadOnlyList<PaymentDetail> details, DateTime now, CancellationToken cancellationToken)
     {
+        var paidCharges = new List<Guid>();
+
         foreach (var detail in details.Where(d => d.ReleasedAt is null && d.ItemType is not null && d.SourceId is not null))
         {
             var id = detail.SourceId!.Value;
@@ -41,6 +46,7 @@ public sealed class ReleasePaymentItemsStep(IApplicationDbContext dbContext) : I
                     var charge = await dbContext.LocalCharges.FirstOrDefaultAsync(c => c.Id == id, cancellationToken)
                         ?? throw Missing(detail);
                     charge.Status = ChargeStatus.Paid;
+                    paidCharges.Add(charge.Id);
                     break;
                 }
 
@@ -97,6 +103,14 @@ public sealed class ReleasePaymentItemsStep(IApplicationDbContext dbContext) : I
             }
 
             detail.ReleasedAt = now;
+        }
+
+        var advanced = await ServiceRequestPaymentRelease.AdvanceAsync(dbContext, paidCharges, payment, now, cancellationToken);
+        if (advanced.Count > 0
+            && !await dbContext.PaymentOutboxMessages.AnyAsync(
+                m => m.PaymentId == payment.Id && m.JobType == PaymentOutboxJobTypes.ServiceRequests, cancellationToken))
+        {
+            PaymentLifecycle.Enqueue(dbContext, payment.Id, PaymentOutboxJobTypes.ServiceRequests, now);
         }
 
         if (await PaymentDocumentRules.IssuesDocumentsAsync(dbContext, details, cancellationToken)

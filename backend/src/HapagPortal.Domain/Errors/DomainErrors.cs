@@ -597,6 +597,80 @@ public static class DomainErrors
             new("AssistantSession.NoRecipient", "There is no e-mail address to send the conversation transcript to.");
     }
 
+    /// <summary>Definiciones de servicios on demand (M2-03, M2-04).</summary>
+    public static class ServiceDefinition
+    {
+        public static Error NotFound(Guid id) =>
+            new("ServiceDefinition.NotFound", $"The service definition with ID '{id}' was not found.");
+
+        public static Error NotFoundByCode(string code) =>
+            new("ServiceDefinition.NotFound", $"The service '{code}' was not found.");
+
+        public static readonly Error AlreadyExists =
+            new("ServiceDefinition.AlreadyExists", "A service definition with the same code already exists.");
+
+        public static Error UnknownAction(string code) =>
+            new("ServiceDefinition.UnknownAction", $"The action '{code}' is not an active action of the access matrix.");
+
+        public static Error InvalidSchema(string reason) =>
+            new("ServiceDefinition.InvalidSchema", reason);
+
+        public static Error Invalid(string reason) =>
+            new("ServiceDefinition.Invalid", reason);
+    }
+
+    /// <summary>Solicitudes de servicios on demand (M2-03, M2-04, M3-07 a M3-15).</summary>
+    public static class ServiceRequest
+    {
+        public static Error NotFound(Guid id) =>
+            new("ServiceRequest.NotFound", $"The service request with ID '{id}' was not found.");
+
+        public static Error NotAvailable(string reasons) =>
+            new("ServiceRequest.NotAvailable", $"The service cannot be requested for this shipment: {reasons}.");
+
+        public static Error InvalidTransition(string from, string to) =>
+            new("ServiceRequest.InvalidTransition", $"The service request cannot change from '{from}' to '{to}'.");
+
+        public static readonly Error NotEditable =
+            new("ServiceRequest.NotEditable", "Only draft service requests can be changed.");
+
+        public static readonly Error BillingDataRequired =
+            new("ServiceRequest.BillingDataRequired", "The billing data (tax ID, legal name, address and e-mail) is required before requesting the service.");
+
+        public static readonly Error BillingTaxIdNotAllowed =
+            new("ServiceRequest.BillingTaxIdNotAllowed", "The billing tax ID must be your organization's or a principal's whose access on the shipment allows the service.");
+
+        public static readonly Error TariffNotAccepted =
+            new("ServiceRequest.TariffNotAccepted", "The tariff of the service must be accepted before sending the request.");
+
+        public static Error TariffChanged(decimal total, string currency) =>
+            new("ServiceRequest.TariffChanged", $"The tariff changed since it was shown: the current total is {total:0.##} {currency}. Accept it again.");
+
+        public static readonly Error ContainersRequired =
+            new("ServiceRequest.ContainersRequired", "Select at least one container of the shipment.");
+
+        public static readonly Error MeasureRequired =
+            new("ServiceRequest.MeasureRequired", "The value that determines the tariff tier is required.");
+
+        public static readonly Error NoSourceCharge =
+            new("ServiceRequest.NoSourceCharge", "The source system has no pending charge of this service for the shipment.");
+
+        public static readonly Error PaymentInProgress =
+            new("ServiceRequest.PaymentInProgress", "The charge of the request is included in a payment in progress and cannot be cancelled.");
+
+        public static readonly Error OutputDocumentRequired =
+            new("ServiceRequest.OutputDocumentRequired", "Attach the output document before completing the request.");
+
+        public static readonly Error NotAssignedToTeam =
+            new("ServiceRequest.NotAssignedToTeam", "The service request is not waiting for an internal team.");
+
+        public static Error AttachmentNotFound(Guid id) =>
+            new("ServiceRequestAttachment.NotFound", $"The attachment '{id}' was not found.");
+
+        public static readonly Error UnknownFileField =
+            new("ServiceRequest.UnknownFileField", "The field is not a file field of the service form.");
+    }
+
     /// <summary>Base de referencia de mercancías peligrosas (M10-06).</summary>
     public static class DangerousGood
     {
