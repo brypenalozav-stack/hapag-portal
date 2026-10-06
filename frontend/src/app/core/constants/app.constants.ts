@@ -48,13 +48,18 @@ export const API_ENDPOINTS = {
   CONFIG_CURRENCIES: 'config/currencies',
   CONFIG_PAYMENT_METHODS: 'config/payment-methods',
   CLIENTS_ME: 'clients/me',
-  ADMIN_CREDIT_CLIENTS: 'admin/credit-clients',
-  ADMIN_DEMURRAGE_EXEMPTIONS: 'admin/demurrage-exemptions',
   SHIPMENTS: 'shipments',
   ORGANIZATIONS_ME: 'organizations/me',
   ADMIN_ORGANIZATIONS: 'admin/organizations',
   ACCESS_MATRIX: 'access-matrix',
   ACCESS: 'access',
+  // Fase 1, Ola C
+  CHARGES: 'charges',
+  DEMURRAGE: 'demurrage',
+  EXCHANGE_RATES: 'exchange-rates',
+  COMMERCIAL_CONDITIONS: 'organizations/me/commercial-conditions',
+  TARIFFS: 'tariffs',
+  INTERNAL_CHARGE_RULES: 'internal-charge-rules',
 } as const;
 
 /**
@@ -74,4 +79,6 @@ export const PERMISSIONS = {
   MANAGE_ACCESS_MATRIX: 'access-matrix.manage',
   /** Otorgar, editar y revocar accesos a terceros, defaults, acceso abierto y ampliaciones (M1-12 a M1-24). */
   MANAGE_THIRD_PARTY_ACCESS: 'org.access.manage',
+  /** Mantenedores internos: tarifas (M8-01) y reglas internas de cobro (M3-04, M3-16). */
+  MANAGE_MAINTAINERS: 'maintainers.manage',
 } as const;

@@ -6,7 +6,6 @@ using HapagPortal.Application.BillsOfLading.Read.GetByNumber;
 using HapagPortal.Application.BillsOfLading.Read.GetMyBLs;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Demurrage.Read.GetByBL;
-using HapagPortal.Application.LocalCharges.Read.GetByContainer;
 using HapagPortal.Application.Payments.Create;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
@@ -89,24 +88,6 @@ public sealed class ShipmentPermissionEnforcementTests
             .Handle(new GetDemurrageByBLQuery("BL-FOREIGN"), CancellationToken.None);
 
         result.Error.Code.Should().Be("BillOfLading.NotFound");
-    }
-
-    [Fact]
-    public async Task LocalChargesByContainer_ShouldExcludeOtherOrganizationsBls()
-    {
-        var own = AccessTestData.AddBl(_db, _org.Id, "BL-OWN");
-        var foreign = AccessTestData.AddBl(_db, AccessTestData.AddOrganization(_db).Id, "BL-FOREIGN");
-        foreach (var bl in new[] { own, foreign })
-        {
-            _db.BLContainerList.Add(new BLContainer { ContainerNumber = "HLXU0000001", ContainerType = "40HC", Status = "x", BillOfLadingId = bl.Id });
-            _db.LocalChargeList.Add(new LocalCharge { ChargeType = "THC", Currency = "CLP", Status = "Pending", BillOfLadingId = bl.Id, BillOfLading = bl });
-        }
-
-        var result = await new GetLocalChargesByContainerQueryHandler(_db, _evaluator)
-            .Handle(new GetLocalChargesByContainerQuery("HLXU0000001"), CancellationToken.None);
-
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Should().ContainSingle(c => c.BlId == own.Id);
     }
 
     [Fact]

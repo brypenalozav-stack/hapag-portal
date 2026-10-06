@@ -11,12 +11,19 @@ using HapagPortal.WebApi.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+/// <summary>
+/// Mantenedores heredados de clientes con crédito y exenciones de demurrage. Desde la Ola C el portal
+/// lee el crédito, las exenciones y los FFWW desde Nexus (M8-02, M8-03, M4-01) sin listado paralelo, y
+/// la interfaz de estos mantenedores se retiró: los endpoints quedan marcados como obsoletos (las
+/// tablas se conservan) hasta que se decida eliminarlos.
+/// </summary>
 [ApiVersion("1.0")]
 [Authorize(Roles = "Admin")]
 [Route("api/v{version:apiVersion}/admin")]
 public sealed class AdminController : ApiController
 {
     [HttpGet("credit-clients")]
+    [Obsolete("Fase 1, Ola C (M8-02): la condición de crédito se lee de Nexus. Mantenedor heredado sin interfaz; no se usa en los cobros.")]
     public async Task<IActionResult> GetCreditClients(CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetAllCreditClientsQuery(), cancellationToken);
@@ -24,6 +31,7 @@ public sealed class AdminController : ApiController
     }
 
     [HttpPost("credit-clients")]
+    [Obsolete("Fase 1, Ola C (M8-02): la condición de crédito se lee de Nexus. Mantenedor heredado sin interfaz; no se usa en los cobros.")]
     public async Task<IActionResult> CreateCreditClient(
         [FromBody] CreateCreditClientCommand command,
         CancellationToken cancellationToken)
@@ -33,6 +41,7 @@ public sealed class AdminController : ApiController
     }
 
     [HttpPut("credit-clients/{id:guid}")]
+    [Obsolete("Fase 1, Ola C (M8-02): la condición de crédito se lee de Nexus. Mantenedor heredado sin interfaz; no se usa en los cobros.")]
     public async Task<IActionResult> UpdateCreditClient(
         Guid id,
         [FromBody] UpdateCreditClientCommand command,
@@ -44,6 +53,7 @@ public sealed class AdminController : ApiController
     }
 
     [HttpGet("demurrage-exemptions")]
+    [Obsolete("Fase 1, Ola C (M8-02, M4-01): las exenciones se leen de Nexus. Mantenedor heredado sin interfaz; no se usa en los cobros.")]
     public async Task<IActionResult> GetDemurrageExemptions(CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetAllDemurrageExemptionsQuery(), cancellationToken);
@@ -51,6 +61,7 @@ public sealed class AdminController : ApiController
     }
 
     [HttpPost("demurrage-exemptions")]
+    [Obsolete("Fase 1, Ola C (M8-02, M4-01): las exenciones se leen de Nexus. Mantenedor heredado sin interfaz; no se usa en los cobros.")]
     public async Task<IActionResult> CreateDemurrageExemption(
         [FromBody] CreateDemurrageExemptionCommand command,
         CancellationToken cancellationToken)
@@ -60,6 +71,7 @@ public sealed class AdminController : ApiController
     }
 
     [HttpDelete("demurrage-exemptions/{id:guid}")]
+    [Obsolete("Fase 1, Ola C (M8-02, M4-01): las exenciones se leen de Nexus. Mantenedor heredado sin interfaz; no se usa en los cobros.")]
     public async Task<IActionResult> DeactivateDemurrageExemption(
         Guid id,
         CancellationToken cancellationToken)

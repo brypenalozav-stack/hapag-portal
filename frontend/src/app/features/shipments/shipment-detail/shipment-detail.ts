@@ -24,6 +24,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { AccessSourceBadgeComponent } from '../../../shared/components/access-source-badge/access-source-badge';
 import { ShipmentAccessComponent } from '../../access/shipment-access/shipment-access';
 import { GRANT_ERRORS } from '../../access/shared/access-errors';
+import { ChargesPanelComponent } from '../../charges/charges-panel/charges-panel';
 
 /** Orígenes del acceso con los que se muestra la sección "Accesos" del BL. */
 const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
@@ -34,7 +35,8 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
  * la acción está en `allowedActions` y el perfil puede operar (`canOperate`). En exportación
  * muestra las órdenes de servicio generadas (CL-EXP-13, BO-EXP-09). Ola B: origen del acceso,
  * autoasociación a un BL visto por acceso abierto (M1-18) con el aviso previo al pago, y la
- * sección "Accesos" del BL (M1-12, M1-16).
+ * sección "Accesos" del BL (M1-12, M1-16). Ola C: los cargos locales se muestran con las reglas de
+ * Nexus aplicadas (exenciones, IPO por crédito, carta FFWW) y la acción que corresponde a cada uno.
  */
 @Component({
   selector: 'app-shipment-detail',
@@ -42,7 +44,7 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
   imports: [
     RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, CodeLabelPipe,
     StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
-    AccessSourceBadgeComponent, ShipmentAccessComponent,
+    AccessSourceBadgeComponent, ShipmentAccessComponent, ChargesPanelComponent,
   ],
   templateUrl: './shipment-detail.html',
   styleUrl: './shipment-detail.scss',
@@ -85,11 +87,6 @@ export class ShipmentDetailComponent implements OnInit {
 
   /** Pagar flete: la matriz lo permite para el rol y el perfil del usuario opera. */
   canPayFreight = computed(() => this.allowed().has(SHIPMENT_ACTIONS.PAY_FREIGHT));
-  canPayLocalCharges = computed(
-    () =>
-      this.allowed().has(SHIPMENT_ACTIONS.PAY_MANDATORY_LOCAL_CHARGES) ||
-      this.allowed().has(SHIPMENT_ACTIONS.PAY_ON_DEMAND_LOCAL_CHARGES),
-  );
   canPayDemurrage = computed(() => this.allowed().has(SHIPMENT_ACTIONS.PAY_IMPORT_DEMURRAGE));
   canRequestWarehouseChange = computed(() => this.allowed().has(SHIPMENT_ACTIONS.REQUEST_WAREHOUSE_CHANGE));
 

@@ -195,3 +195,160 @@ export const ACCESS_ACTION_KEYS: Record<string, string> = {
   'assistant.use': 'admin.accessMatrix.action.useAssistant',
   'country.select': 'admin.accessMatrix.action.selectCountry',
 };
+
+// ---------------------------------------------------------------------------
+// Fase 1, Ola C: cargos con reglas de Nexus, demurrage, cambio de almacén y mantenedores.
+// ---------------------------------------------------------------------------
+
+/** Concepto de cobro del catálogo (las siglas de la industria no se traducen). */
+export const CHARGE_CONCEPT_KEYS: Record<string, string> = {
+  GATE_IN: 'common.chargeConcept.gateIn',
+  EDS: 'common.chargeConcept.eds',
+  GATE_OUT: 'common.chargeConcept.gateOut',
+  IPO: 'common.chargeConcept.ipo',
+  THC: 'common.chargeConcept.thc',
+  THC_RF: 'common.chargeConcept.thcRf',
+  BL_FEE: 'common.chargeConcept.blFee',
+  ISPS: 'common.chargeConcept.isps',
+  TRANSIT_FEE: 'common.chargeConcept.transitFee',
+  MHD: 'common.chargeConcept.mhd',
+  DEMURRAGE: 'common.chargeConcept.demurrage',
+  ADVANCE_DEMURRAGE_BO: 'common.chargeConcept.advanceDemurrageBo',
+  WAREHOUSE_CHANGE: 'common.chargeConcept.warehouseChange',
+  LATE_ARRIVAL: 'common.chargeConcept.lateArrival',
+};
+
+/** Resultado de las reglas sobre un cargo (M4-01 a M4-03). */
+export const CHARGE_OUTCOME_KEYS: Record<string, string> = {
+  Payable: 'common.chargeOutcome.payable',
+  PartiallyExempt: 'common.chargeOutcome.partiallyExempt',
+  Exempt: 'common.chargeOutcome.exempt',
+  Paid: 'common.chargeOutcome.paid',
+};
+
+/** Motivo por el que una acción no está disponible. */
+export const CHARGE_BLOCKED_REASON_KEYS: Record<string, string> = {
+  NO_PERMISSION: 'common.chargeBlockedReason.noPermission',
+  ASSOCIATION_REQUIRED: 'common.chargeBlockedReason.associationRequired',
+  RULES_UNAVAILABLE: 'common.chargeBlockedReason.rulesUnavailable',
+};
+
+/** Figura consultada en Nexus (M4-01). */
+export const EXEMPTION_PARTY_KEYS: Record<string, string> = {
+  MasterConsignee: 'common.exemptionParty.masterConsignee',
+  FinalClient: 'common.exemptionParty.finalClient',
+};
+
+/** Origen de un dato: Nexus, el portal (mantenedores), FIS o la tarifa. */
+export const DATA_SOURCE_KEYS: Record<string, string> = {
+  NEXUS: 'common.dataSource.nexus',
+  PORTAL: 'common.dataSource.portal',
+  FIS: 'common.dataSource.fis',
+  TARIFF: 'common.dataSource.tariff',
+};
+
+/** Estado del demurrage del BL (M3-18). */
+export const DEMURRAGE_STATE_KEYS: Record<string, string> = {
+  InvoicedWithDebt: 'common.demurrageState.invoicedWithDebt',
+  CalculatedUnpaid: 'common.demurrageState.calculatedUnpaid',
+  NotCalculated: 'common.demurrageState.notCalculated',
+  NoDemurrage: 'common.demurrageState.noDemurrage',
+};
+
+/** Estado de una línea de demurrage o de un cargo. */
+export const CHARGE_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.chargeStatus.pending',
+  Invoiced: 'common.chargeStatus.invoiced',
+  Paid: 'common.chargeStatus.paid',
+  Exempt: 'common.chargeStatus.exempt',
+};
+
+/** Estado de las demoras anticipadas de Bolivia (M3-16). */
+export const ADVANCE_DEMURRAGE_STATUS_KEYS: Record<string, string> = {
+  NotRequired: 'common.advanceDemurrageStatus.notRequired',
+  NotRequested: 'common.advanceDemurrageStatus.notRequested',
+  Pending: 'common.advanceDemurrageStatus.pending',
+  Paid: 'common.advanceDemurrageStatus.paid',
+};
+
+/** Estado de un requisito del proceso (carta FFWW, demoras anticipadas). */
+export const REQUIREMENT_STATUS_KEYS: Record<string, string> = {
+  Missing: 'common.requirementStatus.missing',
+  Pending: 'common.requirementStatus.pending',
+  Fulfilled: 'common.requirementStatus.fulfilled',
+};
+
+/** Estado de una solicitud de cambio de almacén (M3-04). */
+export const WAREHOUSE_CHANGE_STATUS_KEYS: Record<string, string> = {
+  Completed: 'common.warehouseChangeStatus.completed',
+  Pending: 'common.warehouseChangeStatus.pending',
+  Cancelled: 'common.warehouseChangeStatus.cancelled',
+};
+
+/** Estado de la solicitud masiva y de cada línea (M3-05). */
+export const WAREHOUSE_BATCH_STATUS_KEYS: Record<string, string> = {
+  Queued: 'common.warehouseBatchStatus.queued',
+  Processing: 'common.warehouseBatchStatus.processing',
+  Completed: 'common.warehouseBatchStatus.completed',
+  CompletedWithErrors: 'common.warehouseBatchStatus.completedWithErrors',
+};
+
+export const WAREHOUSE_BATCH_ITEM_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.warehouseBatchItemStatus.pending',
+  Succeeded: 'common.warehouseBatchItemStatus.succeeded',
+  Failed: 'common.warehouseBatchItemStatus.failed',
+};
+
+/** Unidad y modo de los tramos de una tarifa (M8-01). */
+export const TARIFF_TIER_UNIT_KEYS: Record<string, string> = {
+  None: 'common.tariffTierUnit.none',
+  Hours: 'common.tariffTierUnit.hours',
+  CalendarDays: 'common.tariffTierUnit.calendarDays',
+  BusinessDays: 'common.tariffTierUnit.businessDays',
+  Units: 'common.tariffTierUnit.units',
+};
+
+export const TARIFF_TIER_MODE_KEYS: Record<string, string> = {
+  Flat: 'common.tariffTierMode.flat',
+  PerUnit: 'common.tariffTierMode.perUnit',
+};
+
+/** Tipo de regla interna de cobro (M3-04, M3-16). */
+export const INTERNAL_RULE_TYPE_KEYS: Record<string, string> = {
+  FreeWarehouseChange: 'common.internalRuleType.freeWarehouseChange',
+  AdvanceDemurrageRequired: 'common.internalRuleType.advanceDemurrageRequired',
+};
+
+/** Acción registrada en el historial de un mantenedor (NF-15). */
+export const MAINTAINER_ACTION_KEYS: Record<string, string> = {
+  Created: 'common.maintainerAction.created',
+  Updated: 'common.maintainerAction.updated',
+  Deactivated: 'common.maintainerAction.deactivated',
+};
+
+/**
+ * Códigos de error del backend de la Ola C (ProblemDetails `title`) → claves Transloco. Los textos
+ * del servidor vienen en inglés y no se muestran tal cual.
+ */
+export const CHARGE_ERRORS: Record<string, string> = {
+  'BillOfLading.NotFound': 'common.chargeErrors.blNotFound',
+  'ChargeRules.ConditionsUnavailable': 'common.chargeErrors.conditionsUnavailable',
+  'ChargeRules.NoChargesToApply': 'common.chargeErrors.noChargesToApply',
+  'Demurrage.InvoiceExists': 'common.chargeErrors.invoiceExists',
+  'Demurrage.NotImport': 'common.chargeErrors.notImport',
+  'Demurrage.NotArrived': 'common.chargeErrors.notArrived',
+  'Demurrage.AdvanceNotRequired': 'common.chargeErrors.advanceNotRequired',
+  'Tariff.NotInForce': 'common.chargeErrors.tariffNotInForce',
+  'Tariff.NotFound': 'common.chargeErrors.tariffNotFound',
+  'Tariff.InvalidTiers': 'common.chargeErrors.invalidTiers',
+  'Tariff.Overlaps': 'common.chargeErrors.tariffOverlaps',
+  'ChargeConcept.NotFound': 'common.chargeErrors.conceptNotFound',
+  'InternalChargeRule.NotFound': 'common.chargeErrors.ruleNotFound',
+  'InternalChargeRule.MissingIdentifier': 'common.chargeErrors.ruleMissingIdentifier',
+  'WarehouseChange.SameWarehouse': 'common.chargeErrors.sameWarehouse',
+  'WarehouseChange.ContainerNotFound': 'common.chargeErrors.containerNotFound',
+  'WarehouseChange.NotFound': 'common.chargeErrors.warehouseChangeNotFound',
+  'ExchangeRate.NotFound': 'common.chargeErrors.exchangeRateNotFound',
+  'ExchangeRate.NotApproved': 'common.chargeErrors.exchangeRateNotApproved',
+  'Error.Forbidden': 'common.chargeErrors.forbidden',
+};

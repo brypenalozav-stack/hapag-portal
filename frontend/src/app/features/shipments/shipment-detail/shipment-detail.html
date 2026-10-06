@@ -174,47 +174,9 @@
     }
   </section>
 
-  <!-- Cargos locales: solo si la matriz los habilita -->
-  @if (s.localCharges; as charges) {
-    <section class="hl-card mb-4" aria-labelledby="shipment-charges-title">
-      <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <h2 id="shipment-charges-title" class="section-title">{{ 'shipments.detail.localCharges.title' | transloco }}</h2>
-        @if (canPayLocalCharges() && charges.length > 0) {
-          <a [routerLink]="['/local-charges', s.blNumber]" class="btn btn-sm btn-hl-orange">{{ 'shipments.detail.localCharges.pay' | transloco }}</a>
-        }
-      </div>
-      @if (charges.length > 0) {
-        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'shipments.detail.localCharges.caption' | transloco">
-          <table class="hl-table">
-            <caption class="visually-hidden">{{ 'shipments.detail.localCharges.caption' | transloco }}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{{ 'shipments.detail.localCharges.col.code' | transloco }}</th>
-                <th scope="col">{{ 'shipments.detail.localCharges.col.description' | transloco }}</th>
-                <th scope="col" class="text-end">{{ 'shipments.detail.localCharges.col.amount' | transloco }}</th>
-                <th scope="col" class="text-end">{{ 'shipments.detail.localCharges.col.tax' | transloco }}</th>
-                <th scope="col" class="text-end">{{ 'shipments.detail.localCharges.col.total' | transloco }}</th>
-                <th scope="col">{{ 'shipments.detail.localCharges.col.status' | transloco }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (charge of charges; track charge.id) {
-                <tr>
-                  <td class="fw-semibold">{{ charge.chargeCode }}</td>
-                  <td>{{ charge.description }}</td>
-                  <td class="text-end">{{ charge.amount | hlCurrency: charge.currency }}</td>
-                  <td class="text-end">{{ charge.taxAmount | hlCurrency: charge.currency }}</td>
-                  <td class="text-end">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
-                  <td><app-status-badge [status]="charge.status" /></td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      } @else {
-        <app-state-message kind="empty" [messageKey]="'shipments.detail.localCharges.empty'" />
-      }
-    </section>
+  <!-- Cargos locales con las reglas de Nexus (Ola C, GET /charges/{bl}): solo si la matriz los habilita -->
+  @if (s.localCharges !== null) {
+    <app-charges-panel [blNumber]="s.blNumber" />
   }
 
   <!-- Demurrage: solo si la matriz lo habilita para el rol -->
@@ -307,7 +269,7 @@
   @if (canRequestWarehouseChange()) {
     <section class="hl-card p-4" aria-labelledby="shipment-actions-title">
       <h2 id="shipment-actions-title" class="section-title mb-3">{{ 'shipments.detail.actions.title' | transloco }}</h2>
-      <a [routerLink]="['/warehouse']" [queryParams]="{ blId: s.id }" class="btn btn-outline-secondary">
+      <a [routerLink]="['/warehouse']" [queryParams]="{ bl: s.blNumber }" class="btn btn-outline-secondary">
         {{ 'shipments.detail.actions.warehouseChange' | transloco }}
       </a>
     </section>

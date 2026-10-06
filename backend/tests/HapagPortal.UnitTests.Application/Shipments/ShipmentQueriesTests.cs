@@ -1,5 +1,8 @@
 namespace HapagPortal.UnitTests.Application.Shipments;
 
+using HapagPortal.Application.Common.Interfaces;
+using NSubstitute;
+using HapagPortal.Application.ChargeRules.Common;
 using FluentAssertions;
 using HapagPortal.Application.Shipments.Common;
 using HapagPortal.Application.Shipments.Detail;
@@ -14,13 +17,15 @@ public sealed class ShipmentQueriesTests
     private readonly Client _org;
     private readonly SearchShipmentsQueryHandler _search;
     private readonly GetShipmentDetailQueryHandler _detail;
+    private readonly IShipmentAccessEvaluator _evaluator;
 
     public ShipmentQueriesTests()
     {
         var client = AccessTestData.ClientContext(_db);
         _org = client.Organization;
+        _evaluator = client.Evaluator;
         _search = new SearchShipmentsQueryHandler(_db, client.Evaluator);
-        _detail = new GetShipmentDetailQueryHandler(_db, client.Evaluator);
+        _detail = new GetShipmentDetailQueryHandler(_db, client.Evaluator, Substitute.For<IChargeRulesService>());
     }
 
     private BillOfLading Own(string blNumber, string role, string type = "Import", string country = "CL",
@@ -172,5 +177,26 @@ public sealed class ShipmentQueriesTests
         result.Value.Containers.Should().ContainSingle();
         result.Value.ServiceOrders.Should().ContainSingle(so => so.OrderNumber == "SO-1");
         result.Value.AllowedActions.Should().Contain(ShipmentActionCodes.PayImportDemurrage);
+    }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task Detail_IpoShouldBeHiddenOnlyForCreditCustomers(bool ipoExcluded, bool expectIpo)
+    {
+        var bl = Own("BL-IPO", ShipmentRoleCodes.Consignee);
+        bl.LocalCharges.Add(new LocalCharge { ChargeType = "THC", Currency = "CLP", Status = "Pending", BillOfLadingId = bl.Id });
+        bl.LocalCharges.Add(new LocalCharge { ChargeType = ChargeConceptCodes.Ipo, Currency = "USD", Status = "Pending", BillOfLadingId = bl.Id });
+        var rules = Substitute.For<IChargeRulesService>();
+        rules.GetConditionsAsync(Arg.Any<Client>(), Arg.Any<CancellationToken>())
+            .Returns(new CommercialConditionsDto(true, "Nexus", _org.TaxId, _org.MatchCode, ipoExcluded, ipoExcluded ? 30 : null,
+                Array.Empty<string>(), null, null, false, false, ipoExcluded, null));
+        var handler = new GetShipmentDetailQueryHandler(_db, _evaluator, rules);
+
+        var result = await handler.Handle(new GetShipmentDetailQuery("BL-IPO"), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.LocalCharges!.Any(c => c.ChargeCode == ChargeConceptCodes.Ipo).Should().Be(expectIpo);
+        result.Value.LocalCharges!.Should().Contain(c => c.ChargeCode == "THC");
     }
 }

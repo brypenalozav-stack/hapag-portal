@@ -64,12 +64,13 @@ export const ORGANIZACION_ADMIN: OrganizationSummary = {
   canOperate: true,
 };
 
-/** Permisos internos de la Ola A (M8-04, M8-06, M1-11). */
+/** Permisos internos de la Ola A (M8-04, M8-06, M1-11) y los mantenedores de la Ola C (M8-01). */
 export const PERMISOS_ADMIN = [
   'shipments.view-all',
   'organizations.review',
   'organizations.ar-check',
   'access-matrix.manage',
+  'maintainers.manage',
 ];
 
 export type Idioma = 'es' | 'en';
@@ -129,7 +130,7 @@ export async function sembrarSesion(page: Page, opciones: OpcionesSesion = {}): 
   }
 }
 
-/** Sesión del administrador interno de Hapag-Lloyd con los permisos de la Ola A. */
+/** Sesión del administrador interno de Hapag-Lloyd con los permisos internos (Olas A y C). */
 export async function sembrarSesionAdmin(page: Page, lang?: Idioma): Promise<void> {
   await sembrarSesion(page, {
     lang,

@@ -1,0 +1,227 @@
+<div class="hl-page-header">
+  <h1>{{ 'warehouse.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'warehouse.subtitle' | transloco }}</p>
+</div>
+
+<!-- Solicitud individual: cambio gratuito o tarifa vigente (M3-04, M8-01) -->
+<section class="hl-card p-4 mb-4" aria-labelledby="warehouse-single-title">
+  <h2 id="warehouse-single-title" class="section-title mb-3">{{ 'warehouse.single.title' | transloco }}</h2>
+
+  @if (result(); as r) {
+    <div class="alert" [class.alert-success]="r.isFree" [class.alert-info]="!r.isFree" role="status">
+      <h3 #resultHeading class="h6 fw-bold" tabindex="-1">
+        {{ (r.isFree ? 'warehouse.single.result.freeTitle' : 'warehouse.single.result.pendingTitle') | transloco }}
+      </h3>
+      <p class="mb-1">
+        @if (r.isFree) {
+          {{ 'warehouse.single.result.free' | transloco: { bl: r.blNumber, from: r.fromWarehouse, to: r.toWarehouse } }}
+        } @else {
+          {{ 'warehouse.single.result.pending' | transloco: { bl: r.blNumber, amount: (r.amount | hlCurrency: r.currency) } }}
+        }
+      </p>
+      <p class="small mb-0">
+        {{ 'warehouse.single.result.status' | transloco: { status: (r.status | codeLabel: statusKeys), date: (r.createdAt | hlDate: 'datetime') } }}
+      </p>
+    </div>
+    <button type="button" class="btn btn-outline-secondary" (click)="newRequest()">{{ 'warehouse.single.result.another' | transloco }}</button>
+  } @else {
+    <form class="row g-3 align-items-end mb-3" (submit)="loadQuote($event)">
+      <div class="col-md-5">
+        <label for="warehouse-bl" class="form-label small fw-semibold">{{ 'warehouse.single.blNumber' | transloco }}</label>
+        <input id="warehouse-bl" type="text" class="form-control" autocomplete="off" required [value]="blNumber()" (input)="onBlNumber($event)" />
+      </div>
+      <div class="col-md-4">
+        <label for="warehouse-container" class="form-label small fw-semibold">{{ 'warehouse.single.container' | transloco }}</label>
+        <input id="warehouse-container" type="text" class="form-control" autocomplete="off" aria-describedby="warehouse-container-help"
+               [value]="containerNumber()" (input)="onContainer($event)" />
+        <div id="warehouse-container-help" class="form-text">{{ 'warehouse.single.containerHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-outline-secondary w-100" [disabled]="!blNumber().trim()">{{ 'warehouse.single.quote' | transloco }}</button>
+      </div>
+    </form>
+
+    @if (quoteLoading()) {
+      <app-loading-spinner />
+    } @else if (quoteFailed()) {
+      <app-state-message kind="error" (retry)="loadQuote()" />
+    } @else if (quoteError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ quoteError() }}</div>
+    } @else if (quote(); as q) {
+      @if (q.entitlement.isFree) {
+        <div class="alert alert-success" role="note" data-testid="warehouse-free-entitlement">
+          <p class="fw-semibold mb-1">{{ 'warehouse.single.free.title' | transloco }}</p>
+          <p class="small mb-0">
+            {{ 'warehouse.single.free.detail' | transloco: {
+              source: (q.entitlement.source | codeLabel: sourceKeys),
+              reason: q.entitlement.reason ?? '—',
+              used: q.entitlement.usedOnBl,
+              max: q.entitlement.maxUsesPerBl ?? '—'
+            } }}
+          </p>
+        </div>
+      } @else if (q.tariffs.length > 0) {
+        <fieldset class="mb-3">
+          <legend class="form-label small fw-semibold mb-1">{{ 'warehouse.single.tariffs.legend' | transloco }}</legend>
+          <p class="small text-muted mb-2">{{ 'warehouse.single.tariffs.help' | transloco }}</p>
+          @for (t of q.tariffs; track t.code) {
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="warehouse-tariff" [id]="'warehouse-tariff-' + t.code"
+                     [checked]="tariffCode() === t.code" (change)="onTariff(t.code)" />
+              <label class="form-check-label" [for]="'warehouse-tariff-' + t.code">
+                {{ 'warehouse.single.tariffs.option' | transloco: {
+                  code: t.code ?? '—',
+                  description: t.description ?? '',
+                  amount: (t.amount | hlCurrency: t.currency),
+                  from: (t.validFrom | hlDate: 'localDate'),
+                  source: (t.source | codeLabel: sourceKeys)
+                } }}
+              </label>
+            </div>
+            @if (t.currency !== localCurrency()) {
+              <app-exchange-rate-note class="d-block ms-4" [from]="t.currency" [to]="localCurrency()" />
+            }
+          }
+        </fieldset>
+      }
+
+      @if (!q.canRequest) {
+        <div class="alert alert-warning py-2" role="note">{{ (quoteBlockedKey() ?? 'warehouse.single.blocked.generic') | transloco }}</div>
+      } @else {
+        <form novalidate (submit)="submitSingle($event)">
+          @if (singleErrors().length > 0) {
+            <div #singleErrorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="warehouse-single-errors-title">
+              <h3 id="warehouse-single-errors-title" class="h6 fw-bold">{{ 'warehouse.single.errors.summaryTitle' | transloco }}</h3>
+              <ul class="mb-0">
+                @for (error of singleErrors(); track error.key) {
+                  <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+                }
+              </ul>
+            </div>
+          }
+          @if (singleError()) {
+            <div class="alert alert-danger py-2" role="alert">{{ singleError() }}</div>
+          }
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label for="warehouse-from" class="form-label small fw-semibold">{{ 'warehouse.single.from' | transloco }}</label>
+              <input id="warehouse-from" type="text" class="form-control" autocomplete="off" aria-describedby="warehouse-from-help"
+                     [value]="fromWarehouse()" (input)="onFrom($event)" />
+              <div id="warehouse-from-help" class="form-text">{{ 'warehouse.single.fromHelp' | transloco }}</div>
+            </div>
+            <div class="col-md-6">
+              <label for="warehouse-to" class="form-label small fw-semibold">{{ 'warehouse.single.to' | transloco }}</label>
+              <input id="warehouse-to" type="text" class="form-control" autocomplete="off" required
+                     aria-describedby="warehouse-to-help" [attr.aria-invalid]="singleSubmitted() && singleErrors().length > 0"
+                     [value]="toWarehouse()" (input)="onTo($event)" />
+              <div id="warehouse-to-help" class="form-text">{{ 'warehouse.single.toHelp' | transloco }}</div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-hl-orange" [disabled]="singleBusy()">
+            @if (singleBusy()) {
+              <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            }
+            {{ (q.entitlement.isFree ? 'warehouse.single.submitFree' : 'warehouse.single.submit') | transloco }}
+          </button>
+        </form>
+      }
+    }
+  }
+</section>
+
+<!-- Solicitud masiva para clientes de alto volumen (M3-05) -->
+<section class="hl-card p-4 mb-4" aria-labelledby="warehouse-bulk-title">
+  <h2 id="warehouse-bulk-title" class="section-title mb-2">{{ 'warehouse.bulk.title' | transloco }}</h2>
+  <p class="small text-muted">{{ 'warehouse.bulk.help' | transloco: { max: maxItems } }}</p>
+
+  <form novalidate (submit)="submitBulk($event)">
+    @if (bulkErrors().length > 0) {
+      <div #bulkErrorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="warehouse-bulk-errors-title">
+        <h3 id="warehouse-bulk-errors-title" class="h6 fw-bold">{{ 'warehouse.bulk.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of bulkErrors(); track $index) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco: error.params }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (bulkError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ bulkError() }}</div>
+    }
+
+    <div class="mb-3">
+      <label for="warehouse-bulk-destination" class="form-label small fw-semibold">{{ 'warehouse.bulk.destination' | transloco }}</label>
+      <input id="warehouse-bulk-destination" type="text" class="form-control" autocomplete="off" aria-describedby="warehouse-bulk-destination-help"
+             [value]="defaultDestination()" (input)="onDefaultDestination($event)" />
+      <div id="warehouse-bulk-destination-help" class="form-text">{{ 'warehouse.bulk.destinationHelp' | transloco }}</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="warehouse-bulk-lines" class="form-label small fw-semibold">{{ 'warehouse.bulk.lines' | transloco }}</label>
+      <textarea id="warehouse-bulk-lines" class="form-control font-monospace" rows="6" aria-describedby="warehouse-bulk-lines-help warehouse-bulk-count"
+                [value]="bulkText()" (input)="onBulkText($event)"></textarea>
+      <div id="warehouse-bulk-lines-help" class="form-text">{{ 'warehouse.bulk.linesHelp' | transloco }}</div>
+      <div id="warehouse-bulk-count" class="small fw-semibold mt-1">{{ 'warehouse.bulk.count' | transloco: { count: parsed().items.length } }}</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="warehouse-bulk-file" class="form-label small fw-semibold">{{ 'warehouse.bulk.file.label' | transloco }}</label>
+      <input id="warehouse-bulk-file" type="file" class="form-control" accept=".csv,.txt,text/csv,text/plain"
+             aria-describedby="warehouse-bulk-file-help" (change)="onFile($event)" />
+      <div id="warehouse-bulk-file-help" class="form-text">{{ 'warehouse.bulk.file.help' | transloco }}</div>
+      @if (fileError()) {
+        <div class="small text-danger mt-1" role="alert">{{ fileError() }}</div>
+      }
+    </div>
+
+    <!-- Selección múltiple de embarques de importación -->
+    <fieldset class="mb-3">
+      <legend class="form-label small fw-semibold mb-1">{{ 'warehouse.bulk.shipments.legend' | transloco }}</legend>
+      @if (!shipmentsLoaded()) {
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="shipmentsLoading()" (click)="loadShipments()">
+          {{ 'warehouse.bulk.shipments.load' | transloco }}
+        </button>
+      } @else if (shipments().length === 0) {
+        <p class="small text-muted mb-0">{{ 'warehouse.bulk.shipments.empty' | transloco }}</p>
+      } @else {
+        <div class="table-responsive warehouse-shipments mb-2" tabindex="0" role="region" [attr.aria-label]="'warehouse.bulk.shipments.caption' | transloco">
+          <table class="hl-table">
+            <caption class="visually-hidden">{{ 'warehouse.bulk.shipments.caption' | transloco }}</caption>
+            <thead>
+              <tr>
+                <th scope="col"><span class="visually-hidden">{{ 'warehouse.bulk.shipments.col.select' | transloco }}</span></th>
+                <th scope="col">{{ 'warehouse.bulk.shipments.col.bl' | transloco }}</th>
+                <th scope="col">{{ 'warehouse.bulk.shipments.col.vessel' | transloco }}</th>
+                <th scope="col">{{ 'warehouse.bulk.shipments.col.eta' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of shipments(); track s.id) {
+                <tr>
+                  <td>
+                    <input class="form-check-input" type="checkbox" [id]="'warehouse-shipment-' + s.id"
+                           [checked]="isShipmentSelected(s.blNumber)" (change)="toggleShipment(s.blNumber, $event)"
+                           [attr.aria-label]="'warehouse.bulk.shipments.selectLabel' | transloco: { bl: s.blNumber }" />
+                  </td>
+                  <td class="fw-semibold">{{ s.blNumber }}</td>
+                  <td>{{ s.vessel ?? '—' }}</td>
+                  <td>{{ s.eta ? (s.eta | hlDate) : '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="selectedShipments().size === 0" (click)="addSelectedShipments()">
+          {{ 'warehouse.bulk.shipments.add' | transloco: { count: selectedShipments().size } }}
+        </button>
+      }
+    </fieldset>
+
+    <button type="submit" class="btn btn-hl-orange" [disabled]="bulkBusy()">
+      @if (bulkBusy()) {
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+      }
+      {{ 'warehouse.bulk.submit' | transloco: { count: parsed().items.length } }}
+    </button>
+  </form>
+</section>

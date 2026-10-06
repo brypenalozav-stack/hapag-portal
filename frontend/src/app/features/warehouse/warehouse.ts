@@ -1,200 +1,361 @@
-import { Component, inject, signal, DestroyRef } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, OnInit, computed, inject, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
-import { ApiService } from '../../core/services/api.service';
-import { BillOfLadingService } from '../../core/services/bl.service';
-import { API_ENDPOINTS } from '../../core/constants/app.constants';
+import { WarehouseChangeService } from '../../core/services/warehouse-change.service';
+import { ShipmentService } from '../../core/services/shipment.service';
+import { LiveAnnouncerService } from '../../core/services/live-announcer.service';
+import {
+  WAREHOUSE_BATCH_MAX_ITEMS,
+  WarehouseChangeDetail,
+  WarehouseChangeQuote,
+} from '../../core/models/warehouse-change.model';
+import { ShipmentListItem } from '../../core/models/shipment.model';
+import { apiErrorKey } from '../../core/http/api-error';
+import { CHARGE_ERRORS, DATA_SOURCE_KEYS, WAREHOUSE_CHANGE_STATUS_KEYS } from '../../core/i18n/labels';
+import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
+import { StateMessageComponent, isServiceUnavailable } from '../../shared/components/state-message/state-message';
+import { ExchangeRateNoteComponent } from '../../shared/components/exchange-rate-note/exchange-rate-note';
+import { CodeLabelPipe } from '../../shared/pipes/code-label.pipe';
+import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
+import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
+import { parseBulkLines } from './bulk-lines';
+import { focusAfterRender } from '../../shared/focus-after-render';
 
+interface FormError {
+  fieldId: string;
+  key: string;
+  params?: Record<string, unknown>;
+}
+
+/** Moneda local de cada país, para informar el tipo de cambio de una tarifa en otra moneda (M5-05). */
+const COUNTRY_CURRENCY: Record<string, string> = { CL: 'CLP', BO: 'BOB' };
+/** Motivos de bloqueo de la cotización → clave Transloco. */
+const QUOTE_BLOCKED_KEYS: Record<string, string> = {
+  NO_PERMISSION: 'warehouse.single.blocked.noPermission',
+  'Tariff.NotInForce': 'warehouse.single.blocked.tariffNotInForce',
+};
+/** Embarques de importación que se ofrecen para la selección múltiple. */
+const SHIPMENT_PAGE_SIZE = 50;
+/** Tamaño máximo del archivo de la lista (texto). */
+const MAX_FILE_BYTES = 512 * 1024;
+
+/**
+ * Cambio de almacén (Fase 1, Ola C; reemplaza al formulario anterior, que aceptaba el monto del
+ * cliente):
+ * - solicitud individual: el servidor indica si hay derecho a cambio gratuito (regla interna o
+ *   Nexus) o cobra la tarifa KTE/KTF vigente; la gratuita se completa sin cobro ni Customer
+ *   Service (M3-04, M8-01);
+ * - solicitud masiva: lista pegada o cargada desde un archivo, o embarques elegidos del listado;
+ *   se procesa en segundo plano y el avance se sigue en /warehouse/bulk/:id (M3-05, NF-19).
+ */
 @Component({
   selector: 'app-warehouse',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe],
-  template: `
-    <div class="hl-page-header">
-      <h1>{{ 'warehouse.title' | transloco }}</h1>
-      <p class="text-muted mb-0">{{ 'warehouse.subtitle' | transloco }}</p>
-    </div>
-
-    @if (success()) {
-      <div class="hl-card p-5 text-center" role="status">
-        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="mb-3 text-hl-green" viewBox="0 0 16 16">
-          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-        </svg>
-        <h4 class="text-hl-green">{{ 'warehouse.success.title' | transloco }}</h4>
-        <p class="text-muted">{{ 'warehouse.success.message' | transloco }}</p>
-        <a routerLink="/dashboard" class="btn btn-hl-blue mt-2">{{ 'warehouse.success.backToDashboard' | transloco }}</a>
-      </div>
-    } @else {
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <div class="hl-card p-4">
-            @if (error()) {
-              <div class="alert alert-danger py-2" role="alert">{{ error() }}</div>
-            }
-
-            <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-              <div class="hl-form-group">
-                <label for="blNumber">{{ 'warehouse.blNumber' | transloco }}</label>
-                <input required type="text" id="blNumber" class="form-control" formControlName="blNumber"
-                       [placeholder]="'warehouse.blPlaceholder' | transloco"
-                       aria-describedby="blNumber-error"
-                       [attr.aria-invalid]="form.controls.blNumber.touched && form.controls.blNumber.invalid"
-                       [class.is-invalid]="form.controls.blNumber.touched && form.controls.blNumber.invalid" />
-                <div id="blNumber-error" class="invalid-feedback">
-                  @if (form.controls.blNumber.touched && form.controls.blNumber.errors?.['required']) {
-                    {{ 'warehouse.blRequired' | transloco }}
-                  }
-                </div>
-              </div>
-
-              <div class="hl-form-group">
-                <label for="containerNumber">{{ 'warehouse.containerNumber' | transloco }}</label>
-                <input required type="text" id="containerNumber" class="form-control" formControlName="containerNumber"
-                       [placeholder]="'warehouse.containerPlaceholder' | transloco"
-                       aria-describedby="containerNumber-error"
-                       [attr.aria-invalid]="form.controls.containerNumber.touched && form.controls.containerNumber.invalid"
-                       [class.is-invalid]="form.controls.containerNumber.touched && form.controls.containerNumber.invalid" />
-                <div id="containerNumber-error" class="invalid-feedback">
-                  @if (form.controls.containerNumber.touched && form.controls.containerNumber.errors?.['required']) {
-                    {{ 'warehouse.containerRequired' | transloco }}
-                  }
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="hl-form-group">
-                    <label for="currentWarehouse">{{ 'warehouse.currentWarehouse' | transloco }}</label>
-                    <input required type="text" id="currentWarehouse" class="form-control" formControlName="currentWarehouse"
-                           [placeholder]="'warehouse.currentWarehousePlaceholder' | transloco"
-                           aria-describedby="currentWarehouse-error"
-                           [attr.aria-invalid]="form.controls.currentWarehouse.touched && form.controls.currentWarehouse.invalid"
-                           [class.is-invalid]="form.controls.currentWarehouse.touched && form.controls.currentWarehouse.invalid" />
-                    <div id="currentWarehouse-error" class="invalid-feedback">
-                      @if (form.controls.currentWarehouse.touched && form.controls.currentWarehouse.errors?.['required']) {
-                        {{ 'warehouse.fieldRequired' | transloco }}
-                      }
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="hl-form-group">
-                    <label for="requestedWarehouse">{{ 'warehouse.requestedWarehouse' | transloco }}</label>
-                    <input required type="text" id="requestedWarehouse" class="form-control" formControlName="requestedWarehouse"
-                           [placeholder]="'warehouse.requestedWarehousePlaceholder' | transloco"
-                           aria-describedby="requestedWarehouse-error"
-                           [attr.aria-invalid]="form.controls.requestedWarehouse.touched && form.controls.requestedWarehouse.invalid"
-                           [class.is-invalid]="form.controls.requestedWarehouse.touched && form.controls.requestedWarehouse.invalid" />
-                    <div id="requestedWarehouse-error" class="invalid-feedback">
-                      @if (form.controls.requestedWarehouse.touched && form.controls.requestedWarehouse.errors?.['required']) {
-                        {{ 'warehouse.fieldRequired' | transloco }}
-                      }
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="hl-form-group">
-                <label for="reason">{{ 'warehouse.reason' | transloco }}</label>
-                <textarea required id="reason" class="form-control" formControlName="reason" rows="3"
-                          [placeholder]="'warehouse.reasonPlaceholder' | transloco"
-                          aria-describedby="reason-error"
-                          [attr.aria-invalid]="form.controls.reason.touched && form.controls.reason.invalid"
-                          [class.is-invalid]="form.controls.reason.touched && form.controls.reason.invalid"></textarea>
-                <div id="reason-error" class="invalid-feedback">
-                  @if (form.controls.reason.touched && form.controls.reason.errors?.['required']) {
-                    {{ 'warehouse.reasonRequired' | transloco }}
-                  }
-                </div>
-              </div>
-
-              <div class="hl-form-group">
-                <label for="contactPhone">{{ 'warehouse.contactPhone' | transloco }}</label>
-                <input type="tel" id="contactPhone" class="form-control" formControlName="contactPhone" autocomplete="tel"
-                       [placeholder]="'warehouse.contactPhonePlaceholder' | transloco" />
-              </div>
-
-              <div class="hl-form-group">
-                <label for="amount">{{ 'warehouse.amount' | transloco }}</label>
-                <input required type="number" id="amount" class="form-control" formControlName="amount" min="1"
-                       [placeholder]="'warehouse.amountPlaceholder' | transloco"
-                       aria-describedby="amount-error"
-                       [attr.aria-invalid]="form.controls.amount.touched && form.controls.amount.invalid"
-                       [class.is-invalid]="form.controls.amount.touched && form.controls.amount.invalid" />
-                <div id="amount-error" class="invalid-feedback">
-                  @if (form.controls.amount.touched && form.controls.amount.invalid) {
-                    {{ 'warehouse.amountInvalid' | transloco }}
-                  }
-                </div>
-              </div>
-
-              <button type="submit" class="btn btn-hl-orange w-100 py-2 mt-2" [disabled]="submitting()">
-                @if (submitting()) {
-                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                }
-                {{ 'warehouse.submit' | transloco }}
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    }
-  `,
-  styles: [':host { display: block; }'],
+  imports: [
+    TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
+    ExchangeRateNoteComponent,
+  ],
+  templateUrl: './warehouse.html',
+  styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; } .warehouse-shipments { max-height: 16rem; overflow-y: auto; }'],
 })
-export class WarehouseComponent {
-  private readonly fb = inject(FormBuilder);
-  private readonly api = inject(ApiService);
-  private readonly blService = inject(BillOfLadingService);
+export class WarehouseComponent implements OnInit {
+  private readonly service = inject(WarehouseChangeService);
+  private readonly shipmentService = inject(ShipmentService);
+  private readonly announcer = inject(LiveAnnouncerService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
 
-  form = this.fb.nonNullable.group({
-    blNumber: ['', Validators.required],
-    containerNumber: ['', Validators.required],
-    currentWarehouse: ['', Validators.required],
-    requestedWarehouse: ['', Validators.required],
-    reason: ['', Validators.required],
-    contactPhone: [''],
-    amount: [0, [Validators.required, Validators.min(1)]],
+  /** BL precargado desde el detalle del embarque (?bl=). */
+  bl = input<string>();
+
+  readonly sourceKeys = DATA_SOURCE_KEYS;
+  readonly statusKeys = WAREHOUSE_CHANGE_STATUS_KEYS;
+  readonly maxItems = WAREHOUSE_BATCH_MAX_ITEMS;
+
+  // Solicitud individual (M3-04)
+  blNumber = signal('');
+  containerNumber = signal('');
+  quote = signal<WarehouseChangeQuote | null>(null);
+  quoteLoading = signal(false);
+  quoteFailed = signal(false);
+  quoteError = signal('');
+  tariffCode = signal<string | null>(null);
+  fromWarehouse = signal('');
+  toWarehouse = signal('');
+  singleSubmitted = signal(false);
+  singleBusy = signal(false);
+  singleError = signal('');
+  result = signal<WarehouseChangeDetail | null>(null);
+
+  private readonly singleErrorSummary = viewChild<ElementRef<HTMLElement>>('singleErrorSummary');
+  private readonly resultHeading = viewChild<ElementRef<HTMLElement>>('resultHeading');
+
+  // Solicitud masiva (M3-05)
+  bulkText = signal('');
+  defaultDestination = signal('');
+  fileError = signal('');
+  shipments = signal<ShipmentListItem[]>([]);
+  shipmentsLoaded = signal(false);
+  shipmentsLoading = signal(false);
+  selectedShipments = signal<Set<string>>(new Set());
+  bulkSubmitted = signal(false);
+  bulkBusy = signal(false);
+  bulkError = signal('');
+
+  private readonly bulkErrorSummary = viewChild<ElementRef<HTMLElement>>('bulkErrorSummary');
+
+  localCurrency = computed(() => COUNTRY_CURRENCY[this.quote()?.country ?? 'CL'] ?? 'CLP');
+
+  quoteBlockedKey = computed(() => {
+    const reason = this.quote()?.blockedReason;
+    return reason ? (QUOTE_BLOCKED_KEYS[reason] ?? 'warehouse.single.blocked.generic') : null;
   });
 
-  submitting = signal(false);
-  error = signal('');
-  success = signal(false);
-
-  onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
+  singleErrors = computed<FormError[]>(() => {
+    if (!this.singleSubmitted()) return [];
+    const list: FormError[] = [];
+    if (!this.toWarehouse().trim()) list.push({ fieldId: 'warehouse-to', key: 'warehouse.single.errors.toRequired' });
+    if (this.fromWarehouse().trim() && this.fromWarehouse().trim().toLowerCase() === this.toWarehouse().trim().toLowerCase()) {
+      list.push({ fieldId: 'warehouse-to', key: 'warehouse.single.errors.sameWarehouse' });
     }
+    return list;
+  });
 
-    this.submitting.set(true);
-    this.error.set('');
+  parsed = computed(() => parseBulkLines(this.bulkText(), this.defaultDestination()));
 
-    // El backend espera fromWarehouse/toWarehouse/billOfLadingId (Guid)/country/amount;
-    // se resuelve el BL a partir del número antes de enviar (BUG-13).
-    const raw = this.form.getRawValue();
-    this.blService.getByNumber(raw.blNumber).pipe(
-      switchMap((bl) => this.api.post(API_ENDPOINTS.WAREHOUSE_CHANGES, {
-        fromWarehouse: raw.currentWarehouse,
-        toWarehouse: raw.requestedWarehouse,
-        billOfLadingId: bl.id,
-        country: bl.country,
-        amount: raw.amount,
-      })),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: () => {
-        this.submitting.set(false);
-        this.success.set(true);
+  bulkErrors = computed<FormError[]>(() => {
+    if (!this.bulkSubmitted()) return [];
+    const list: FormError[] = [];
+    const { items, issues } = this.parsed();
+    if (items.length === 0 && issues.length === 0) list.push({ fieldId: 'warehouse-bulk-lines', key: 'warehouse.bulk.errors.linesRequired' });
+    if (items.length > WAREHOUSE_BATCH_MAX_ITEMS) {
+      list.push({ fieldId: 'warehouse-bulk-lines', key: 'warehouse.bulk.errors.tooMany', params: { max: WAREHOUSE_BATCH_MAX_ITEMS } });
+    }
+    for (const issue of issues.slice(0, 10)) {
+      list.push({
+        fieldId: issue.kind === 'missingDestination' ? 'warehouse-bulk-destination' : 'warehouse-bulk-lines',
+        key: issue.kind === 'missingDestination' ? 'warehouse.bulk.errors.missingDestination' : 'warehouse.bulk.errors.missingBl',
+        params: { line: issue.lineNumber },
+      });
+    }
+    return list;
+  });
+
+  ngOnInit(): void {
+    const bl = this.bl()?.trim();
+    if (bl) {
+      this.blNumber.set(bl);
+      this.loadQuote();
+    }
+  }
+
+  // Solicitud individual
+  onBlNumber(event: Event): void {
+    this.blNumber.set((event.target as HTMLInputElement).value);
+  }
+
+  onContainer(event: Event): void {
+    this.containerNumber.set((event.target as HTMLInputElement).value);
+  }
+
+  onFrom(event: Event): void {
+    this.fromWarehouse.set((event.target as HTMLInputElement).value);
+  }
+
+  onTo(event: Event): void {
+    this.toWarehouse.set((event.target as HTMLInputElement).value);
+  }
+
+  onTariff(code: string | null | undefined): void {
+    this.tariffCode.set(code ?? null);
+  }
+
+  /** Derecho a cambio gratuito o tarifas vigentes para el BL (M3-04, M8-01). */
+  loadQuote(event?: Event): void {
+    event?.preventDefault();
+    const bl = this.blNumber().trim();
+    if (!bl) return;
+    this.quoteLoading.set(true);
+    this.quoteFailed.set(false);
+    this.quoteError.set('');
+    this.quote.set(null);
+    this.result.set(null);
+    this.singleSubmitted.set(false);
+    this.singleError.set('');
+    this.service.getQuote(bl, this.containerNumber().trim() || undefined).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (quote) => {
+        this.quote.set(quote);
+        this.tariffCode.set(quote.defaultTariffCode ?? quote.tariffs[0]?.code ?? null);
+        this.quoteLoading.set(false);
       },
       error: (err) => {
-        this.submitting.set(false);
-        this.error.set(err.error?.message ?? translate('warehouse.submitError'));
+        if (isServiceUnavailable(err)) {
+          this.quoteFailed.set(true);
+        } else if (err instanceof HttpErrorResponse && err.status === 404) {
+          this.quoteError.set(translate('warehouse.single.notFound', { bl }));
+        } else if (err instanceof HttpErrorResponse && err.status === 403) {
+          this.quoteError.set(translate('warehouse.single.blocked.noPermission'));
+        } else {
+          this.quoteError.set(translate(apiErrorKey(err, CHARGE_ERRORS, 'warehouse.single.quoteError')));
+        }
+        this.quoteLoading.set(false);
       },
     });
+  }
+
+  submitSingle(event: Event): void {
+    event.preventDefault();
+    const quote = this.quote();
+    if (!quote) return;
+    this.singleSubmitted.set(true);
+    this.singleError.set('');
+    if (this.singleErrors().length > 0) {
+      this.announcer.announce(translate('common.form.invalid'), 'assertive');
+      focusAfterRender(this.injector, () => this.singleErrorSummary()?.nativeElement);
+      return;
+    }
+    this.singleBusy.set(true);
+    this.service.request({
+      blNumber: quote.blNumber,
+      containerNumber: this.containerNumber().trim() || null,
+      fromWarehouse: this.fromWarehouse().trim() || null,
+      toWarehouse: this.toWarehouse().trim(),
+      tariffCode: quote.entitlement.isFree ? null : this.tariffCode(),
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (detail) => {
+        this.singleBusy.set(false);
+        this.result.set(detail);
+        this.announcer.announce(
+          detail.isFree
+            ? translate('warehouse.single.result.freeAnnouncement', { bl: detail.blNumber })
+            : translate('warehouse.single.result.pendingAnnouncement', { bl: detail.blNumber }),
+        );
+        focusAfterRender(this.injector, () => this.resultHeading()?.nativeElement);
+      },
+      error: (err) => {
+        this.singleBusy.set(false);
+        const message = translate(apiErrorKey(err, CHARGE_ERRORS, 'warehouse.single.errors.submit'));
+        this.singleError.set(message);
+        this.announcer.announce(message, 'assertive');
+      },
+    });
+  }
+
+  newRequest(): void {
+    this.result.set(null);
+    this.quote.set(null);
+    this.toWarehouse.set('');
+    this.fromWarehouse.set('');
+    this.singleSubmitted.set(false);
+    focusAfterRender(this.injector, () => document.getElementById('warehouse-bl'));
+  }
+
+  // Solicitud masiva
+  onBulkText(event: Event): void {
+    this.bulkText.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  onDefaultDestination(event: Event): void {
+    this.defaultDestination.set((event.target as HTMLInputElement).value);
+  }
+
+  /** Carga la lista desde un archivo de texto o CSV y la agrega al área de texto. */
+  onFile(event: Event): void {
+    const inputEl = event.target as HTMLInputElement;
+    const file = inputEl.files?.[0];
+    this.fileError.set('');
+    if (!file) return;
+    if (file.size > MAX_FILE_BYTES) {
+      this.fileError.set(translate('warehouse.bulk.file.tooLarge'));
+      inputEl.value = '';
+      return;
+    }
+    file.text().then(
+      (content) => {
+        this.appendLines(content.split(/\r?\n/).filter((l) => l.trim() !== ''));
+        this.announcer.announce(translate('warehouse.bulk.file.loaded', { name: file.name }));
+        inputEl.value = '';
+      },
+      () => this.fileError.set(translate('warehouse.bulk.file.readError')),
+    );
+  }
+
+  loadShipments(): void {
+    this.shipmentsLoading.set(true);
+    this.shipmentService.search({ operation: 'IMPORT', page: 1, pageSize: SHIPMENT_PAGE_SIZE }).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (page) => {
+        this.shipments.set(page.items);
+        this.shipmentsLoaded.set(true);
+        this.shipmentsLoading.set(false);
+      },
+      error: () => {
+        this.shipments.set([]);
+        this.shipmentsLoaded.set(true);
+        this.shipmentsLoading.set(false);
+      },
+    });
+  }
+
+  isShipmentSelected(bl: string): boolean {
+    return this.selectedShipments().has(bl);
+  }
+
+  toggleShipment(bl: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.selectedShipments.update((current) => {
+      const next = new Set(current);
+      if (checked) next.add(bl);
+      else next.delete(bl);
+      return next;
+    });
+  }
+
+  /** Agrega los embarques elegidos a la lista (con el destino común, si se indicó). */
+  addSelectedShipments(): void {
+    const selected = [...this.selectedShipments()];
+    if (selected.length === 0) return;
+    this.appendLines(selected);
+    this.selectedShipments.set(new Set());
+    this.announcer.announce(translate('warehouse.bulk.shipments.added', { count: selected.length }));
+  }
+
+  private appendLines(lines: string[]): void {
+    const current = this.bulkText().trimEnd();
+    this.bulkText.set([current, ...lines].filter((l) => l !== '').join('\n'));
+  }
+
+  submitBulk(event: Event): void {
+    event.preventDefault();
+    this.bulkSubmitted.set(true);
+    this.bulkError.set('');
+    if (this.bulkErrors().length > 0) {
+      this.announcer.announce(translate('common.form.invalid'), 'assertive');
+      focusAfterRender(this.injector, () => this.bulkErrorSummary()?.nativeElement);
+      return;
+    }
+    this.bulkBusy.set(true);
+    this.service.submitBulk(this.parsed().items).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (batch) => {
+        this.bulkBusy.set(false);
+        this.announcer.announce(translate('warehouse.bulk.submitted', { count: batch.totalItems }));
+        this.router.navigate(['/warehouse/bulk', batch.id]);
+      },
+      error: (err) => {
+        this.bulkBusy.set(false);
+        const message = translate(apiErrorKey(err, CHARGE_ERRORS, 'warehouse.bulk.errors.submit'));
+        this.bulkError.set(message);
+        this.announcer.announce(message, 'assertive');
+      },
+    });
+  }
+
+  focusField(event: Event, fieldId: string): void {
+    event.preventDefault();
+    document.getElementById(fieldId)?.focus();
   }
 }

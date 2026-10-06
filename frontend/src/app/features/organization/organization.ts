@@ -17,11 +17,13 @@ import { OrganizationDocumentsComponent } from './organization-documents/organiz
 import { OrganizationUsersComponent } from './organization-users/organization-users';
 import { JoinRequestsComponent } from './join-requests/join-requests';
 import { AccessManagementComponent } from '../access/access-management/access-management';
+import { CommercialConditionsComponent } from './commercial-conditions/commercial-conditions';
 
 /**
  * Mi organización: datos y estado del registro (M1-07), documentación de respaldo (M1-07),
  * solicitudes de vinculación (M1-08), usuarios de la organización (M1-02) y la vista única de
- * accesos y permisos (M1-24). Las secciones de gestión se muestran según los permisos del JWT;
+ * accesos y permisos (M1-24). Ola C: condiciones comerciales leídas de Nexus (crédito M8-02, FFWW
+ * M8-03), solo lectura. Las secciones de gestión se muestran según los permisos del JWT;
  * el servidor vuelve a exigirlos.
  */
 @Component({
@@ -30,6 +32,7 @@ import { AccessManagementComponent } from '../access/access-management/access-ma
   imports: [
     TranslocoPipe, CodeLabelPipe, LoadingSpinnerComponent, StateMessageComponent,
     OrganizationDocumentsComponent, OrganizationUsersComponent, JoinRequestsComponent, AccessManagementComponent,
+    CommercialConditionsComponent,
   ],
   templateUrl: './organization.html',
   styleUrl: './organization.scss',
@@ -52,6 +55,12 @@ export class OrganizationComponent implements OnInit {
   canManageUsers = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_ORGANIZATION_USERS));
   canApproveRequests = computed(() => this.auth.hasPermission(PERMISSIONS.APPROVE_JOIN_REQUESTS));
   canManageAccess = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_THIRD_PARTY_ACCESS));
+
+  /** Condiciones comerciales de Nexus (M8-02, M8-03): organizaciones de clientes aprobadas. */
+  showCommercialConditions = computed(() => {
+    const org = this.organization();
+    return !!org && org.status === 'Approved' && org.organizationType !== 'Internal';
+  });
 
   /** Accesos y permisos (M1-24): organizaciones aprobadas que no son Hapag-Lloyd (el servidor responde 403 al interno). */
   showAccess = computed(() => {

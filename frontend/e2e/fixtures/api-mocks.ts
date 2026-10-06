@@ -1,10 +1,5 @@
 import { Page, Route } from '@playwright/test';
-import type {
-  BillOfLading,
-  BLChargesResponse,
-  DemurrageCharge,
-  LocalCharge,
-} from '../../src/app/core/models/bl.model';
+import type { BillOfLading, DemurrageCharge, LocalCharge } from '../../src/app/core/models/bl.model';
 import type { NotificationItem } from '../../src/app/core/models/notification.model';
 import type { Payment } from '../../src/app/core/models/payment.model';
 import type { Receipt } from '../../src/app/core/services/receipt.service';
@@ -29,6 +24,37 @@ import type {
   OrganizationRef,
   VisibilityWidening,
 } from '../../src/app/core/models/access.model';
+import type {
+  CommercialConditions,
+  ExchangeRate,
+  ExemptionFigure,
+  ExemptionTrace,
+  RuledCharge,
+  ShipmentCharges,
+} from '../../src/app/core/models/charges.model';
+import type {
+  CalculateDemurrageRequest,
+  DemurrageCalculation,
+  DemurrageConceptCharge,
+  DemurrageLine,
+  DemurrageStatus,
+} from '../../src/app/core/models/demurrage.model';
+import type {
+  WarehouseChangeBatch,
+  WarehouseChangeBatchItem,
+  WarehouseChangeDetail,
+  WarehouseChangeQuote,
+  WarehouseChangeRequest,
+} from '../../src/app/core/models/warehouse-change.model';
+import type {
+  ChargeConcept,
+  InternalChargeRule,
+  InternalChargeRuleChange,
+  Tariff,
+  TariffChange,
+  TariffRequest,
+  TariffSnapshot,
+} from '../../src/app/core/models/tariff.model';
 import { ORGANIZACION_PRUEBA, USUARIO_PRUEBA } from './session';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
@@ -97,12 +123,6 @@ const DEMURRAGE: DemurrageCharge[] = [
     country: 'CL',
   },
 ];
-
-const CARGOS_BL: BLChargesResponse = {
-  blNumber: BL_PRUEBA.blNumber,
-  localCharges: CARGOS_LOCALES,
-  demurrageCharges: DEMURRAGE,
-};
 
 const PAGOS: Payment[] = [
   {
@@ -854,14 +874,721 @@ function resultadoOtorgamiento(cuerpo: { blNumbers?: string[]; bookingNumbers?: 
   };
 }
 
+// ---------------------------------------------------------------------------
+// Fase 1, Ola C: cargos con reglas de Nexus (M4-01 a M4-04, M3-01, M5-05), condiciones comerciales
+// (M8-02, M8-03), demurrage por estado (M3-18, M3-02, M3-16), cambio de almacén (M3-04, M3-05),
+// tarifas (M8-01, NF-15) y reglas internas de cobro.
+// ---------------------------------------------------------------------------
+
+/** Gate In y EDS exentos por el consignatario del Master: "Aplicar reglas" completa sin carro (M4-02). */
+export const BL_EXENTO = 'HLCUSAI260401020';
+/** Pagador con crédito en Nexus: el IPO no llega (M4-03). */
+export const BL_CREDITO = 'HLCUVAP260401130';
+/** Pagador FFWW: carta de responsabilidad faltante que bloquea el avance (M4-04). */
+export const BL_FFWW = 'HLCUSAI260401199';
+/** Nexus no responde (NF-11). */
+export const BL_NEXUS_CAIDO = 'HLCUSAI260409999';
+/** Demurrage facturado con deuda vigente: la calculadora no se habilita (M3-18). */
+export const BL_DEM_FACTURADO = 'HLCUSAI260400910';
+/** Demurrage calculado y no pagado; también tiene derecho a cambio de almacén gratuito (M3-04). */
+export const BL_DEM_CALCULADO = 'HLCUVAL250100123';
+/** Demurrage aún no calculado: muestra los datos y la calculadora. */
+export const BL_DEM_SIN_CALCULO = BL_EXENTO;
+/** Sin demurrage: no registra deuda. */
+export const BL_DEM_SIN_DEUDA = BL_EXPORTACION;
+/** Bolivia: demoras anticipadas obligatorias con el CLD bloqueado (M3-16). */
+export const BL_BOLIVIA = 'HLCUARI260100045';
+/** BL con derecho a cambio de almacén gratuito (regla interna del portal). */
+export const BL_CAMBIO_GRATIS = BL_DEM_CALCULADO;
+/** Solicitud masiva de cambio de almacén cuyo avance se consulta (M3-05). */
+export const LOTE_CAMBIO_ALMACEN = 'b2000000-0000-4000-8000-000000000001';
+/** Tarifa con tramos de horas (LATE_ARRIVAL) que se edita en las pruebas (M8-01). */
+export const TARIFA_TRAMOS = 'f3000000-0000-4000-8000-000000000003';
+/** Regla interna de cambio de almacén gratuito. */
+export const REGLA_CAMBIO_GRATIS = 'f4000000-0000-4000-8000-000000000001';
+
+const EVALUADO = '2026-10-05T15:00:00Z';
+
+function condiciones(datos: Partial<CommercialConditions> = {}): CommercialConditions {
+  return {
+    available: true,
+    source: 'NEXUS',
+    taxId: '76123456-7',
+    matchCode: ORGANIZACION_PRUEBA.matchCode,
+    hasCredit: false,
+    creditDays: null,
+    creditConcepts: [],
+    creditValidFrom: null,
+    creditValidTo: null,
+    isFreightForwarder: false,
+    responsibilityLetterRequired: false,
+    ipoExcluded: false,
+    ...datos,
+  };
+}
+
+function cargo(datos: Partial<RuledCharge> & Pick<RuledCharge, 'chargeId' | 'conceptCode' | 'conceptName'>): RuledCharge {
+  return {
+    description: null,
+    category: 'LocalCharge',
+    amount: 100000,
+    taxAmount: 19000,
+    totalAmount: 119000,
+    currency: 'CLP',
+    status: 'Pending',
+    outcome: 'Payable',
+    payableAmount: 100000,
+    payableTaxAmount: 19000,
+    payableTotal: 119000,
+    action: 'AddToCart',
+    actionBlockedReason: null,
+    exemption: null,
+    localCurrency: null,
+    ...datos,
+  };
+}
+
+/** Exención de Nexus del consignatario del BL Master (Delfin) para un concepto (M4-01). */
+function exencion(concepto: string, monto: number, aplicada: string | null = null): ExemptionTrace {
+  return {
+    party: 'MasterConsignee',
+    taxId: '76000001-1',
+    matchCode: null,
+    concept: concepto,
+    conditionAmount: null,
+    conditionCurrency: null,
+    validFrom: '2026-01-01',
+    validTo: null,
+    source: 'NEXUS',
+    exemptAmount: monto,
+    appliedAt: aplicada,
+  };
+}
+
+function cargosBl(blNumber: string, datos: Partial<ShipmentCharges> = {}): ShipmentCharges {
+  return {
+    blId: `3f0c2a1e-0000-4000-8000-${blNumber.slice(-12).padStart(12, '0')}`,
+    blNumber,
+    country: 'CL',
+    shipmentType: 'Import',
+    timeZone: 'America/Santiago',
+    payer: { organizationId: ORGANIZACION_PRUEBA.id, name: ORGANIZACION_PRUEBA.name, taxId: '76123456-7', matchCode: ORGANIZACION_PRUEBA.matchCode },
+    conditions: condiciones(),
+    exemptionFigures: [],
+    charges: [],
+    payableTotals: [],
+    allApplicableExempt: false,
+    requiresPayment: false,
+    rulesAvailable: true,
+    requirements: [],
+    canProceed: true,
+    evaluatedAt: EVALUADO,
+    ...datos,
+  };
+}
+
+const FIGURAS_DELFIN: ExemptionFigure[] = [
+  {
+    party: 'MasterConsignee',
+    name: 'Delfin Logística SpA',
+    taxId: '76000001-1',
+    matchCode: null,
+    available: true,
+    exemptions: [
+      { concept: 'GATE_IN', validFrom: '2026-01-01', validTo: null },
+      { concept: 'EDS', validFrom: '2026-01-01', validTo: null },
+    ],
+  },
+  { party: 'FinalClient', name: ORGANIZACION_PRUEBA.name, taxId: '76123456-7', matchCode: ORGANIZACION_PRUEBA.matchCode, available: true, exemptions: [] },
+];
+
+function cargosExentos(aplicada: string | null): ShipmentCharges {
+  const exento = (id: string, concepto: string, nombre: string): RuledCharge =>
+    cargo({
+      chargeId: id,
+      conceptCode: concepto,
+      conceptName: nombre,
+      amount: 95000,
+      taxAmount: 18050,
+      totalAmount: 113050,
+      status: aplicada ? 'Exempt' : 'Pending',
+      outcome: 'Exempt',
+      payableAmount: 0,
+      payableTaxAmount: 0,
+      payableTotal: 0,
+      action: 'None',
+      exemption: exencion(concepto, 95000, aplicada),
+    });
+  return cargosBl(BL_EXENTO, {
+    exemptionFigures: FIGURAS_DELFIN,
+    charges: [
+      exento('c3000000-0000-4000-8000-000000000001', 'GATE_IN', 'Gate In'),
+      exento('c3000000-0000-4000-8000-000000000002', 'EDS', 'EDS'),
+    ],
+    allApplicableExempt: true,
+  });
+}
+
+const IPO_USD = (id: string): RuledCharge =>
+  cargo({
+    chargeId: id,
+    conceptCode: 'IPO',
+    conceptName: 'IPO',
+    amount: 150,
+    taxAmount: 0,
+    totalAmount: 150,
+    currency: 'USD',
+    payableAmount: 150,
+    payableTaxAmount: 0,
+    payableTotal: 150,
+    localCurrency: { currency: 'CLP', amount: 142500, rate: 950, effectiveDate: '2026-10-05', source: 'NEXUS' },
+  });
+
+const CARGOS_OLA_C: Record<string, ShipmentCharges> = {
+  [BL_EXENTO]: cargosExentos(null),
+  // BL de prueba: THC a pagar, Gate In exento parcial y el IPO en USD con su equivalente en CLP (M5-05).
+  [BL_PRUEBA.blNumber]: cargosBl(BL_PRUEBA.blNumber, {
+    blId: BL_PRUEBA.id,
+    exemptionFigures: FIGURAS_DELFIN,
+    charges: [
+      cargo({ chargeId: 'c3000000-0000-4000-8000-000000000011', conceptCode: 'THC', conceptName: 'THC', description: 'Terminal Handling Charge', action: 'Pay' }),
+      cargo({
+        chargeId: 'c3000000-0000-4000-8000-000000000012',
+        conceptCode: 'GATE_IN',
+        conceptName: 'Gate In',
+        outcome: 'PartiallyExempt',
+        payableAmount: 50000,
+        payableTaxAmount: 9500,
+        payableTotal: 59500,
+        exemption: { ...exencion('GATE_IN', 50000), conditionAmount: 50000, conditionCurrency: 'CLP' },
+      }),
+      IPO_USD('c3000000-0000-4000-8000-000000000013'),
+    ],
+    payableTotals: [
+      { currency: 'CLP', amount: 150000, taxAmount: 28500, total: 178500 },
+      { currency: 'USD', amount: 150, taxAmount: 0, total: 150 },
+    ],
+    requiresPayment: true,
+  }),
+  // Crédito en Nexus: el IPO no llega del servidor (M4-03, M8-02).
+  [BL_CREDITO]: cargosBl(BL_CREDITO, {
+    conditions: condiciones({ hasCredit: true, creditDays: 30, creditConcepts: ['LOCAL_CHARGES', 'MHD'], creditValidFrom: '2026-01-01', ipoExcluded: true }),
+    charges: [cargo({ chargeId: 'c3000000-0000-4000-8000-000000000021', conceptCode: 'THC', conceptName: 'THC' })],
+    payableTotals: [{ currency: 'CLP', amount: 100000, taxAmount: 19000, total: 119000 }],
+    requiresPayment: true,
+  }),
+  // FFWW: el IPO se muestra y la carta de responsabilidad bloquea el avance (M4-04, M8-03).
+  [BL_FFWW]: cargosBl(BL_FFWW, {
+    conditions: condiciones({ isFreightForwarder: true, responsibilityLetterRequired: true }),
+    charges: [
+      cargo({ chargeId: 'c3000000-0000-4000-8000-000000000031', conceptCode: 'THC', conceptName: 'THC' }),
+      IPO_USD('c3000000-0000-4000-8000-000000000032'),
+    ],
+    payableTotals: [
+      { currency: 'CLP', amount: 100000, taxAmount: 19000, total: 119000 },
+      { currency: 'USD', amount: 150, taxAmount: 0, total: 150 },
+    ],
+    requiresPayment: true,
+    requirements: [{ code: 'RESPONSIBILITY_LETTER', status: 'Missing', blocksProcess: true, source: 'NEXUS' }],
+    canProceed: false,
+  }),
+  // Nexus no responde: no se presentan cargos como definitivos (NF-11).
+  [BL_NEXUS_CAIDO]: cargosBl(BL_NEXUS_CAIDO, {
+    conditions: condiciones({ available: false, errorCode: 'Integration.Unavailable' }),
+    charges: [cargo({ chargeId: 'c3000000-0000-4000-8000-000000000041', conceptCode: 'THC', conceptName: 'THC', action: 'None', actionBlockedReason: 'RULES_UNAVAILABLE' })],
+    rulesAvailable: false,
+  }),
+  [BL_EXPORTACION]: cargosBl(BL_EXPORTACION, { shipmentType: 'Export' }),
+  [BL_SIN_FLETE]: cargosBl(BL_SIN_FLETE, { shipmentType: 'Export' }),
+};
+
+function estadoDemurrage(blNumber: string, datos: Partial<DemurrageStatus>): DemurrageStatus {
+  return {
+    blId: `3f0c2a1e-0000-4000-8000-${blNumber.slice(-12).padStart(12, '0')}`,
+    blNumber,
+    country: 'CL',
+    timeZone: 'America/Santiago',
+    state: 'NoDemurrage',
+    action: 'None',
+    actionAllowed: true,
+    actionBlockedReason: null,
+    calculatorEnabled: false,
+    messageCode: null,
+    invoices: [],
+    lines: [],
+    calculationInputs: null,
+    otherConcepts: [],
+    mhd: null,
+    advance: { required: false, status: 'NotRequired', cldBlocked: false, action: 'None' },
+    requirements: [],
+    evaluatedAt: EVALUADO,
+    ...datos,
+  };
+}
+
+const LINEA_FACTURADA: DemurrageLine = {
+  id: 'd3000000-0000-4000-8000-000000000001',
+  containerNumber: 'HLXU3034001',
+  freeDays: 7,
+  demurrageDays: 10,
+  dailyRate: 51000,
+  totalAmount: 510000,
+  currency: 'CLP',
+  startDate: '2026-09-21T03:00:00Z',
+  endDate: '2026-10-01T03:00:00Z',
+  status: 'Invoiced',
+  isExempt: false,
+  invoiceNumber: 'FAC-DEM-2026-0915',
+  invoicedAt: '2026-10-01T15:00:00Z',
+  invoiceDueDate: '2026-10-15T03:00:00Z',
+};
+
+const MHD: DemurrageConceptCharge = {
+  chargeId: 'd3000000-0000-4000-8000-000000000101',
+  conceptCode: 'MHD',
+  conceptName: 'MHD',
+  amount: 450,
+  taxAmount: 0,
+  totalAmount: 450,
+  currency: 'USD',
+  status: 'Pending',
+  deduction: 0,
+  payableTotal: 450,
+  action: 'AddToCart',
+};
+
+const ENTRADAS_CALCULO = {
+  dischargeDate: '2026-09-28T12:00:00Z',
+  freeDays: 7,
+  freeDaysSource: 'FIS',
+  containers: [
+    { containerNumber: 'HLXU3034002', containerType: '20DV', status: 'Discharged' },
+    { containerNumber: 'HLXU3034003', containerType: '40HC', status: 'Discharged' },
+  ],
+  tariffAvailable: true,
+  today: '2026-10-05',
+};
+
+const LINEAS_CALCULADAS: DemurrageLine[] = [
+  {
+    id: 'd3000000-0000-4000-8000-000000000011',
+    containerNumber: 'HLXU3034002',
+    freeDays: 7,
+    demurrageDays: 5,
+    dailyRate: 35000,
+    totalAmount: 175000,
+    currency: 'CLP',
+    startDate: '2026-09-28T12:00:00Z',
+    endDate: '2026-10-10T03:00:00Z',
+    status: 'Pending',
+    isExempt: false,
+  },
+];
+
+const DEMURRAGE_OLA_C: Record<string, DemurrageStatus> = {
+  [BL_DEM_FACTURADO]: estadoDemurrage(BL_DEM_FACTURADO, {
+    state: 'InvoicedWithDebt',
+    action: 'Pay',
+    invoices: [{ invoiceNumber: 'FAC-DEM-2026-0915', amount: 510000, currency: 'CLP', dueDate: '2026-10-15T03:00:00Z', invoicedAt: '2026-10-01T15:00:00Z', lineIds: [LINEA_FACTURADA.id] }],
+    lines: [LINEA_FACTURADA],
+    otherConcepts: [MHD],
+    mhd: { currency: 'USD', total: 450, advanceDeducted: 0, netPayable: 450 },
+  }),
+  [BL_DEM_CALCULADO]: estadoDemurrage(BL_DEM_CALCULADO, {
+    state: 'CalculatedUnpaid',
+    action: 'AddToCart',
+    calculatorEnabled: true,
+    lines: LINEAS_CALCULADAS,
+  }),
+  [BL_DEM_SIN_CALCULO]: estadoDemurrage(BL_DEM_SIN_CALCULO, {
+    state: 'NotCalculated',
+    action: 'Calculate',
+    calculatorEnabled: true,
+    calculationInputs: ENTRADAS_CALCULO,
+  }),
+  [BL_DEM_SIN_DEUDA]: estadoDemurrage(BL_DEM_SIN_DEUDA, { messageCode: 'NO_DEBT' }),
+  // Bolivia: demoras anticipadas obligatorias, CLD bloqueado y MHD a descontar (M3-16).
+  [BL_BOLIVIA]: estadoDemurrage(BL_BOLIVIA, {
+    country: 'BO',
+    timeZone: 'America/La_Paz',
+    state: 'NotCalculated',
+    action: 'Calculate',
+    calculatorEnabled: true,
+    calculationInputs: { ...ENTRADAS_CALCULO, freeDaysSource: 'PORTAL', containers: [ENTRADAS_CALCULO.containers[0]] },
+    otherConcepts: [{ ...MHD, chargeId: 'd3000000-0000-4000-8000-000000000201' }],
+    mhd: { currency: 'USD', total: 450, advanceDeducted: 0, netPayable: 450 },
+    advance: {
+      required: true,
+      status: 'NotRequested',
+      ruleId: 'f4000000-0000-4000-8000-000000000002',
+      ruleReason: 'Cuenta sujeta a demoras anticipadas según reglas internas',
+      amount: 150,
+      currency: 'USD',
+      chargeId: null,
+      cldBlocked: true,
+      cldBlockReason: 'ADVANCE_DEMURRAGE',
+      action: 'AddToCart',
+    },
+    requirements: [{ code: 'ADVANCE_DEMURRAGE', status: 'Missing', blocksProcess: true, source: 'PORTAL' }],
+  }),
+};
+
+/** Resultado de la calculadora (vista previa o guardado) para el BL sin cálculo. */
+function calculoDemurrage(cuerpo: CalculateDemurrageRequest): DemurrageCalculation {
+  const contenedores = cuerpo.containerNumbers ?? ENTRADAS_CALCULO.containers.map((c) => c.containerNumber);
+  const lineas = contenedores.map((numero) => ({
+    containerNumber: numero,
+    containerType: '20DV',
+    startDate: '2026-09-28T12:00:00Z',
+    untilDate: cuerpo.untilDate ?? '2026-10-05',
+    elapsedDays: 12,
+    freeDays: 7,
+    demurrageDays: 5,
+    dailyRate: 35000,
+    totalAmount: 175000,
+    currency: 'CLP',
+    tariffSource: 'PORTAL',
+    tariffId: 'f3000000-0000-4000-8000-000000000004',
+    breakdown: [{ fromUnit: 8, toUnit: 14, units: 5, unitAmount: 35000, amount: 175000 }],
+  }));
+  return {
+    blNumber: BL_DEM_SIN_CALCULO,
+    saved: cuerpo.save,
+    lines: lineas,
+    totals: [{ currency: 'CLP', amount: 175000 * lineas.length, taxAmount: 0, total: 175000 * lineas.length }],
+    status: cuerpo.save
+      ? estadoDemurrage(BL_DEM_SIN_CALCULO, { state: 'CalculatedUnpaid', action: 'AddToCart', calculatorEnabled: true, lines: LINEAS_CALCULADAS })
+      : null,
+  };
+}
+
+/** Tipo de cambio de Nexus por par de monedas (M5-05). */
+function tipoDeCambio(url: URL): ExchangeRate {
+  const from = url.searchParams.get('from') ?? 'USD';
+  const to = url.searchParams.get('to') ?? 'CLP';
+  return { fromCurrency: from, toCurrency: to, rate: to === 'BOB' ? 6.96 : 950, effectiveDate: '2026-10-05', source: 'NEXUS', approved: true };
+}
+
+const COTIZACION_TARIFAS: WarehouseChangeQuote = {
+  blNumber: BL_PRUEBA.blNumber,
+  country: 'CL',
+  containerNumber: null,
+  entitlement: { isFree: false, usedOnBl: 0 },
+  tariffs: [
+    { code: 'KTE', description: 'Cambio de almacén (KTE)', amount: 9940, currency: 'CLP', source: 'PORTAL', validFrom: '2026-10-01', validTo: null },
+    { code: 'KTF', description: 'Cambio de almacén (KTF)', amount: 110910, currency: 'CLP', source: 'PORTAL', validFrom: '2026-10-01', validTo: null },
+  ],
+  defaultTariffCode: 'KTE',
+  canRequest: true,
+};
+
+const COTIZACION_GRATIS: WarehouseChangeQuote = {
+  blNumber: BL_CAMBIO_GRATIS,
+  country: 'CL',
+  containerNumber: null,
+  entitlement: {
+    isFree: true,
+    source: 'PORTAL',
+    reference: `RULE:${REGLA_CAMBIO_GRATIS}`,
+    reason: 'Cliente de alto volumen con cambio gratuito',
+    maxUsesPerBl: 1,
+    usedOnBl: 0,
+  },
+  tariffs: [],
+  defaultTariffCode: null,
+  canRequest: true,
+};
+
+/** Solicitud individual: gratuita completa sin cobro; si no, queda pendiente de pago (M3-04). */
+function solicitudCambio(cuerpo: WarehouseChangeRequest): WarehouseChangeDetail {
+  const gratis = cuerpo.blNumber === BL_CAMBIO_GRATIS;
+  return {
+    id: 'w3000000-0000-4000-8000-000000000001',
+    billOfLadingId: BL_PRUEBA.id,
+    blNumber: cuerpo.blNumber,
+    containerNumber: cuerpo.containerNumber,
+    fromWarehouse: cuerpo.fromWarehouse ?? 'STI',
+    toWarehouse: cuerpo.toWarehouse,
+    amount: gratis ? 0 : 9940,
+    currency: 'CLP',
+    status: gratis ? 'Completed' : 'Pending',
+    country: 'CL',
+    isFree: gratis,
+    requiresPayment: !gratis,
+    tariffCode: gratis ? null : (cuerpo.tariffCode ?? 'KTE'),
+    tariffSource: gratis ? null : 'PORTAL',
+    entitlementSource: gratis ? 'PORTAL' : null,
+    entitlementReference: gratis ? `RULE:${REGLA_CAMBIO_GRATIS}` : null,
+    batchId: null,
+    createdAt: '2026-10-05T15:00:00Z',
+    completedAt: gratis ? '2026-10-05T15:00:00Z' : null,
+  };
+}
+
+const LINEAS_LOTE: WarehouseChangeBatchItem[] = [
+  { lineNumber: 1, blNumber: BL_CAMBIO_GRATIS, containerNumber: null, fromWarehouse: 'STI', toWarehouse: 'Bodega 1', tariffCode: null, status: 'Succeeded', warehouseChangeId: 'w3000000-0000-4000-8000-000000000011', processedAt: '2026-10-05T15:00:05Z' },
+  { lineNumber: 2, blNumber: BL_PRUEBA.blNumber, containerNumber: null, fromWarehouse: 'STI', toWarehouse: 'Bodega 1', tariffCode: null, status: 'Succeeded', warehouseChangeId: 'w3000000-0000-4000-8000-000000000012', processedAt: '2026-10-05T15:00:07Z' },
+  { lineNumber: 3, blNumber: 'HLCUXXX000000', containerNumber: null, fromWarehouse: null, toWarehouse: 'Bodega 1', tariffCode: null, status: 'Failed', errorCode: 'BillOfLading.NotFound', errorMessage: 'Not found', processedAt: '2026-10-05T15:00:01Z' },
+];
+
+/** Orden en que se procesan las líneas: la 3 falla al recibirla (sin acceso) y luego la 1 y la 2. */
+const ORDEN_LOTE = [2, 0, 1];
+
+/** Avance de la solicitud masiva según la consulta: 1 y 2 de 3 en proceso y luego terminada con errores. */
+function loteEnAvance(consulta: number): WarehouseChangeBatch {
+  const procesadas = Math.max(0, Math.min(consulta + 1, LINEAS_LOTE.length));
+  const hechas = new Set(ORDEN_LOTE.slice(0, procesadas));
+  const items: WarehouseChangeBatchItem[] = LINEAS_LOTE.map((l, i) =>
+    hechas.has(i) ? l : { ...l, status: 'Pending', errorCode: null, errorMessage: null, warehouseChangeId: null, processedAt: null },
+  );
+  const final = procesadas === LINEAS_LOTE.length;
+  return {
+    id: LOTE_CAMBIO_ALMACEN,
+    status: final ? 'CompletedWithErrors' : 'Processing',
+    totalItems: LINEAS_LOTE.length,
+    processedItems: procesadas,
+    succeededItems: items.filter((i) => i.status === 'Succeeded').length,
+    failedItems: items.filter((i) => i.status === 'Failed').length,
+    progressPercent: Math.floor((procesadas * 100) / LINEAS_LOTE.length),
+    createdAt: '2026-10-05T15:00:00Z',
+    startedAt: '2026-10-05T15:00:01Z',
+    completedAt: final ? '2026-10-05T15:00:07Z' : null,
+    items,
+  };
+}
+
+function tarifa(datos: Partial<Tariff> & Pick<Tariff, 'id' | 'conceptCode'>): Tariff {
+  return {
+    conceptName: null,
+    code: null,
+    country: 'CL',
+    currency: 'CLP',
+    containerType: null,
+    description: null,
+    amount: 0,
+    tierUnit: 'None',
+    tierMode: 'Flat',
+    tiers: [],
+    validFrom: '2026-10-01',
+    validTo: null,
+    isActive: true,
+    createdAt: '2026-09-30T12:00:00Z',
+    createdBy: 'admin@hapag-lloyd.cl',
+    modifiedAt: null,
+    modifiedBy: null,
+    ...datos,
+  };
+}
+
+const TARIFAS: Tariff[] = [
+  tarifa({ id: 'f3000000-0000-4000-8000-000000000001', conceptCode: 'WAREHOUSE_CHANGE', conceptName: 'Cambio de almacén', code: 'KTE', amount: 9940, description: 'Cambio de almacén (KTE)' }),
+  tarifa({ id: 'f3000000-0000-4000-8000-000000000002', conceptCode: 'WAREHOUSE_CHANGE', conceptName: 'Cambio de almacén', code: 'KTF', amount: 110910, description: 'Cambio de almacén (KTF)' }),
+  tarifa({
+    id: TARIFA_TRAMOS,
+    conceptCode: 'LATE_ARRIVAL',
+    conceptName: 'Llegada tardía',
+    currency: 'USD',
+    tierUnit: 'Hours',
+    tierMode: 'Flat',
+    tiers: [
+      { fromUnit: 0, toUnit: 24, amount: 100 },
+      { fromUnit: 25, toUnit: 48, amount: 200 },
+      { fromUnit: 49, toUnit: null, amount: 350 },
+    ],
+    modifiedAt: '2026-10-03T14:00:00Z',
+    modifiedBy: 'tarifas@hapag-lloyd.cl',
+  }),
+];
+
+const CONCEPTOS: ChargeConcept[] = [
+  { code: 'WAREHOUSE_CHANGE', name: 'Cambio de almacén', category: 'Service', countries: ['CL', 'BO'], nexusTariff: false, nexusExemptible: false, displayOrder: 13 },
+  { code: 'LATE_ARRIVAL', name: 'Llegada tardía', category: 'Service', countries: ['CL', 'BO'], nexusTariff: false, nexusExemptible: false, displayOrder: 14 },
+  { code: 'DEMURRAGE', name: 'Demurrage', category: 'Demurrage', countries: ['CL', 'BO'], nexusTariff: false, nexusExemptible: false, displayOrder: 11 },
+];
+
+/** Valor vigente de la tarifa con tramos, tal como lo guarda el registro de cambios (NF-15). */
+const SNAPSHOT_TRAMOS: TariffSnapshot = {
+  conceptCode: 'LATE_ARRIVAL',
+  code: null,
+  country: 'CL',
+  currency: 'USD',
+  containerType: null,
+  description: null,
+  amount: 0,
+  tierUnit: 'Hours',
+  tierMode: 'Flat',
+  tiers: TARIFAS[2].tiers,
+  validFrom: '2026-10-01',
+  validTo: null,
+  isActive: true,
+};
+
+const HISTORIAL_TARIFA: TariffChange[] = [
+  {
+    id: 'h3000000-0000-4000-8000-000000000002',
+    tariffId: TARIFA_TRAMOS,
+    action: 'Updated',
+    changedAt: '2026-10-03T14:00:00Z',
+    changedBy: 'tarifas@hapag-lloyd.cl',
+    changedByUserId: 'u0000000-0000-4000-8000-000000000020',
+    previous: { ...SNAPSHOT_TRAMOS, tiers: [{ fromUnit: 0, toUnit: 24, amount: 90 }, { fromUnit: 25, toUnit: null, amount: 180 }] },
+    current: SNAPSHOT_TRAMOS,
+  },
+  {
+    id: 'h3000000-0000-4000-8000-000000000001',
+    tariffId: TARIFA_TRAMOS,
+    action: 'Created',
+    changedAt: '2026-09-30T12:00:00Z',
+    changedBy: 'admin@hapag-lloyd.cl',
+    changedByUserId: 'u0000000-0000-4000-8000-000000000099',
+    previous: null,
+    current: { ...SNAPSHOT_TRAMOS, tiers: [{ fromUnit: 0, toUnit: 24, amount: 90 }, { fromUnit: 25, toUnit: null, amount: 180 }] },
+  },
+];
+
+const REGLAS: InternalChargeRule[] = [
+  {
+    id: REGLA_CAMBIO_GRATIS,
+    ruleType: 'FreeWarehouseChange',
+    country: 'CL',
+    taxId: '76123456-7',
+    matchCode: ORGANIZACION_PRUEBA.matchCode,
+    accountName: ORGANIZACION_PRUEBA.name,
+    reason: 'Cliente de alto volumen con cambio gratuito',
+    maxUsesPerBl: 1,
+    validFrom: '2026-01-01',
+    validTo: null,
+    isActive: true,
+    createdAt: '2026-09-30T12:00:00Z',
+    modifiedAt: null,
+  },
+  {
+    id: 'f4000000-0000-4000-8000-000000000002',
+    ruleType: 'AdvanceDemurrageRequired',
+    country: 'BO',
+    taxId: '1023456029',
+    matchCode: 'BOALTI01',
+    accountName: 'Altiplano Importaciones SRL',
+    reason: 'Cuenta sujeta a demoras anticipadas según reglas internas',
+    maxUsesPerBl: null,
+    validFrom: '2026-01-01',
+    validTo: '2026-12-31',
+    isActive: true,
+    createdAt: '2026-09-30T12:00:00Z',
+    modifiedAt: null,
+  },
+];
+
+const HISTORIAL_REGLA: InternalChargeRuleChange[] = [
+  {
+    id: 'h4000000-0000-4000-8000-000000000001',
+    ruleId: REGLA_CAMBIO_GRATIS,
+    action: 'Created',
+    changedAt: '2026-09-30T12:00:00Z',
+    changedBy: 'admin@hapag-lloyd.cl',
+    changedByUserId: 'u0000000-0000-4000-8000-000000000099',
+    previous: null,
+    current: { ...REGLAS[0], isActive: true },
+  },
+];
+
+/** Respuestas GET de la Ola C (se agregan a RESPUESTAS). */
+const RESPUESTAS_OLA_C: Record<string, unknown> = {
+  ...Object.fromEntries(Object.entries(CARGOS_OLA_C).map(([bl, c]) => [`charges/${bl}`, c])),
+  ...Object.fromEntries(Object.entries(DEMURRAGE_OLA_C).map(([bl, d]) => [`demurrage/${bl}/status`, d])),
+  'organizations/me/commercial-conditions': condiciones({ hasCredit: true, creditDays: 30, creditConcepts: ['LOCAL_CHARGES', 'MHD'], creditValidFrom: '2026-01-01', ipoExcluded: true }),
+  'exchange-rates': tipoDeCambio,
+  [`warehouse-changes/quote/${BL_PRUEBA.blNumber}`]: COTIZACION_TARIFAS,
+  [`warehouse-changes/quote/${BL_CAMBIO_GRATIS}`]: COTIZACION_GRATIS,
+  tariffs: TARIFAS,
+  'tariffs/concepts': CONCEPTOS,
+  ...Object.fromEntries(TARIFAS.map((t) => [`tariffs/${t.id}`, t])),
+  [`tariffs/${TARIFA_TRAMOS}/history`]: HISTORIAL_TARIFA,
+  'internal-charge-rules': REGLAS,
+  [`internal-charge-rules/${REGLA_CAMBIO_GRATIS}/history`]: HISTORIAL_REGLA,
+};
+
+/** Escrituras de la Ola C con parámetros en la ruta o que dependen del cuerpo enviado. */
+const ESCRITURAS_OLA_C: { metodo: string; patron: RegExp; responder: (cuerpo: unknown, m: RegExpMatchArray) => Escritura }[] = [
+  {
+    metodo: 'POST',
+    patron: /^charges\/([^/]+)\/apply-rules$/,
+    responder: (_c, m) => {
+      if (m[1] !== BL_EXENTO) return { status: 400, body: { title: 'ChargeRules.NoChargesToApply', detail: 'No pending charges.' } };
+      const aplicados = cargosExentos('2026-10-05T15:05:00Z');
+      return { status: 200, body: { completed: true, requiresPayment: false, exemptedCharges: aplicados.charges, payableChargeIds: [], charges: aplicados } };
+    },
+  },
+  {
+    metodo: 'POST',
+    patron: /^demurrage\/([^/]+)\/calculate$/,
+    responder: (cuerpo, m) => {
+      const estado = DEMURRAGE_OLA_C[m[1]];
+      if (estado && !estado.calculatorEnabled) {
+        return { status: 400, body: { title: 'Demurrage.InvoiceExists', detail: 'Invoice exists.' } };
+      }
+      return { status: 200, body: calculoDemurrage(cuerpo as CalculateDemurrageRequest) };
+    },
+  },
+  {
+    metodo: 'POST',
+    patron: /^demurrage\/([^/]+)\/advance-demurrage$/,
+    responder: (_c, m) => {
+      const estado = DEMURRAGE_OLA_C[m[1]];
+      if (!estado?.advance.required) return { status: 400, body: { title: 'Demurrage.AdvanceNotRequired', detail: 'Not required.' } };
+      return {
+        status: 200,
+        body: { ...estado, advance: { ...estado.advance, status: 'Pending', chargeId: 'd3000000-0000-4000-8000-000000000301' } },
+      };
+    },
+  },
+  {
+    metodo: 'POST',
+    patron: /^warehouse-changes\/requests$/,
+    responder: (cuerpo) => ({ status: 200, body: solicitudCambio(cuerpo as WarehouseChangeRequest) }),
+  },
+  {
+    metodo: 'POST',
+    patron: /^warehouse-changes\/bulk$/,
+    responder: (cuerpo) => ({
+      status: 202,
+      body: {
+        ...loteEnAvance(-1),
+        status: 'Queued',
+        totalItems: (cuerpo as { items: unknown[] }).items.length,
+        processedItems: 0,
+        succeededItems: 0,
+        failedItems: 0,
+        progressPercent: 0,
+        items: null,
+      },
+    }),
+  },
+  { metodo: 'POST', patron: /^tariffs$/, responder: (cuerpo) => ({ status: 201, body: tarifa({ ...(cuerpo as TariffRequest), id: 'f3000000-0000-4000-8000-000000000009' }) }) },
+  {
+    metodo: 'PUT',
+    patron: /^tariffs\/([^/]+)$/,
+    responder: (cuerpo, m) => {
+      const actual = TARIFAS.find((t) => t.id === m[1]) ?? TARIFAS[0];
+      return { status: 200, body: { ...actual, ...(cuerpo as TariffRequest), modifiedAt: '2026-10-05T15:10:00Z', modifiedBy: 'admin@hapag-lloyd.cl' } };
+    },
+  },
+  { metodo: 'DELETE', patron: /^tariffs\/([^/]+)$/, responder: () => ({ status: 204 }) },
+  { metodo: 'POST', patron: /^internal-charge-rules$/, responder: (cuerpo) => ({ status: 200, body: { ...REGLAS[0], ...(cuerpo as object), id: 'f4000000-0000-4000-8000-000000000009' } }) },
+  {
+    metodo: 'PUT',
+    patron: /^internal-charge-rules\/([^/]+)$/,
+    responder: (cuerpo, m) => ({ status: 200, body: { ...(REGLAS.find((r) => r.id === m[1]) ?? REGLAS[0]), ...(cuerpo as object), modifiedAt: '2026-10-05T15:10:00Z' } }),
+  },
+  { metodo: 'DELETE', patron: /^internal-charge-rules\/([^/]+)$/, responder: () => ({ status: 204 }) },
+];
+
 type RespuestaGet = unknown | ((url: URL) => unknown);
 
 /** Respuestas por ruta relativa a /api/v1/ (método GET); una función recibe la URL con sus query params. */
 const RESPUESTAS: Record<string, RespuestaGet> = {
   'bills-of-lading/my': [BL_PRUEBA],
   [`bills-of-lading/${BL_PRUEBA.blNumber}`]: BL_PRUEBA,
-  [`bills-of-lading/${BL_PRUEBA.blNumber}/charges`]: CARGOS_BL,
-  [`bills-of-lading/${BL_PRUEBA.blNumber}/demurrage`]: DEMURRAGE,
   'payments/my': PAGOS,
   'notifications/unread-count': { count: NOTIFICACIONES.filter((n) => !n.isRead).length },
   notifications: NOTIFICACIONES,
@@ -901,6 +1628,8 @@ const RESPUESTAS: Record<string, RespuestaGet> = {
   'access/open-access': ACCESO_ABIERTO,
   'access/audit': buscarAuditoria,
   [`shipments/${BL_PRUEBA.blNumber}/visibility-widenings`]: AMPLIACIONES,
+  // Ola C
+  ...RESPUESTAS_OLA_C,
 };
 
 type Escritura = { status: number; body?: unknown };
@@ -1012,10 +1741,16 @@ const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo
     responder: () => ({ status: 200, body: AMPLIACIONES }),
   },
   { metodo: 'POST', patron: /^shipments\/([^/]+)\/visibility-widenings\/([^/]+)\/revoke$/, responder: () => ({ status: 204 }) },
+  // Ola C
+  ...ESCRITURAS_OLA_C,
 ];
 
-/** Intercepta /api/v1/**: rutas conocidas con datos ficticios; cualquier otra GET responde []. */
+/**
+ * Intercepta /api/v1/**: rutas conocidas con datos ficticios; cualquier otra GET responde [].
+ * El avance de la solicitud masiva (Ola C) cambia con cada consulta de la página.
+ */
 export async function simularApi(page: Page): Promise<void> {
+  let consultasLote = 0;
   await page.route('**/api/v1/**', async (route: Route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -1042,7 +1777,9 @@ export async function simularApi(page: Page): Promise<void> {
     }
 
     const respuesta = ruta in RESPUESTAS ? RESPUESTAS[ruta] : [];
-    const cuerpo = typeof respuesta === 'function' ? respuesta(url) : respuesta;
+    const cuerpo = ruta === `warehouse-changes/bulk/${LOTE_CAMBIO_ALMACEN}`
+      ? loteEnAvance(consultasLote++)
+      : typeof respuesta === 'function' ? respuesta(url) : respuesta;
     await route.fulfill({
       status: 200,
       contentType: 'application/json',

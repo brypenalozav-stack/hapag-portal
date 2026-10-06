@@ -161,57 +161,6 @@
       "subtitle": "Ingesta masiva con validación aduanera por fila",
       "title": "Carga de Bill of Lading"
     },
-    "creditClients": {
-      "caption": "Clientes con crédito",
-      "col": {
-        "actions": "Acciones",
-        "available": "Disponible",
-        "client": "Cliente",
-        "country": "País",
-        "creditLimit": "Límite Crédito",
-        "creditUsed": "Crédito Usado",
-        "status": "Estado",
-        "taxId": "RUT/NIT"
-      },
-      "created": "Cliente creado exitosamente.",
-      "edit": "Editar",
-      "empty": "No se encontraron clientes.",
-      "errors": {
-        "clientIdRequired": "Debe indicar el ID del cliente existente.",
-        "load": "Error al cargar los clientes con crédito.",
-        "save": "Error al guardar el cliente."
-      },
-      "filters": {
-        "all": "Todos",
-        "country": "País",
-        "search": "Buscar cliente",
-        "searchPlaceholder": "Nombre, RUT/NIT..."
-      },
-      "form": {
-        "cancel": "Cancelar",
-        "clientId": "ID del Cliente (UUID)",
-        "clientIdHelp": "El crédito se asocia a un cliente ya registrado.",
-        "clientIdPlaceholder": "UUID de un cliente existente",
-        "country": "País",
-        "create": "Crear Cliente",
-        "createTitle": "Nuevo Cliente con Crédito",
-        "creditLimit": "Límite de Crédito",
-        "creditLimitMin": "El límite debe ser mayor a 0.",
-        "currency": "Moneda",
-        "editTitle": "Editar Cliente",
-        "name": "Nombre / Razón Social",
-        "namePlaceholder": "Nombre del cliente",
-        "nameRequired": "El nombre es obligatorio.",
-        "taxId": "RUT / NIT",
-        "taxIdPlaceholder": "Ej: 76.123.456-7",
-        "taxIdRequired": "El RUT/NIT es obligatorio.",
-        "update": "Actualizar"
-      },
-      "new": "Nuevo Cliente",
-      "subtitle": "Administración de clientes con crédito aprobado",
-      "title": "Clientes con Línea de Crédito",
-      "updated": "Cliente actualizado exitosamente."
-    },
     "customs": {
       "amendment": {
         "blId": "ID del B/L (opcional)",
@@ -326,48 +275,99 @@
       "viewBoard": "Ver tablero",
       "viewRules": "Ver reglas"
     },
-    "demurrageExemptions": {
-      "active": "Activa",
-      "caption": "Excepciones de demurrage",
-      "col": {
-        "actions": "Acciones",
-        "client": "Cliente",
-        "country": "País",
-        "reason": "Motivo",
-        "status": "Estado",
-        "taxId": "RUT / NIT"
-      },
-      "deactivate": "Desactivar",
-      "empty": "No se encontraron excepciones.",
-      "errors": {
-        "create": "Error al crear la excepción. Verifique los datos e intente nuevamente.",
-        "deactivate": "Error al desactivar la excepción.",
-        "load": "Error al cargar las excepciones de demurrage.",
-        "required": "Nombre del cliente, RUT/NIT y país son obligatorios."
-      },
-      "filters": {
-        "all": "Todos",
-        "country": "País",
-        "search": "Buscar",
-        "searchPlaceholder": "Cliente, RUT/NIT..."
-      },
+    "internalRules": {
       "form": {
+        "accountName": "Razón social (opcional)",
         "cancel": "Cancelar",
-        "clientName": "Nombre del Cliente *",
-        "clientNamePlaceholder": "Ej: Importadora Demo SpA",
-        "country": "País *",
-        "create": "Crear Excepción",
-        "reason": "Motivo",
-        "reasonPlaceholder": "Ej: Acuerdo comercial",
-        "selectCountry": "Seleccionar",
-        "taxId": "RUT / NIT *",
-        "taxIdPlaceholder": "Ej: 76.123.456-7",
-        "title": "Nueva Excepción de Demurrage"
+        "country": "País",
+        "create": "Crear regla",
+        "createTitle": "Nueva regla interna",
+        "created": "Regla creada.",
+        "editTitle": "Editar regla interna",
+        "errors": {
+          "identifierRequired": "Indique el RUT/NIT o el Match Code de la cuenta.",
+          "maxUsesInvalid": "Los cambios gratuitos por BL deben ser un entero mayor que cero.",
+          "submit": "No se pudo guardar la regla.",
+          "summaryTitle": "Revise los siguientes campos",
+          "validFromRequired": "Indique la fecha de inicio de la vigencia.",
+          "validToBeforeFrom": "La fecha de término no puede ser anterior a la de inicio."
+        },
+        "identifierHelp": "Indique el RUT/NIT o el Match Code de la cuenta (al menos uno). El RUT/NIT se guarda sin puntos.",
+        "matchCode": "Match Code",
+        "maxUses": "Cambios gratuitos por BL",
+        "maxUsesHelp": "Vacío = sin límite.",
+        "reason": "Motivo (opcional)",
+        "save": "Guardar cambios",
+        "taxId": "RUT/NIT",
+        "type": "Tipo de regla",
+        "updated": "Regla actualizada. El cambio quedó en el registro.",
+        "validFrom": "Vigente desde",
+        "validTo": "Vigente hasta (opcional)",
+        "validToHelp": "Vacío = sin término."
       },
-      "inactive": "Inactiva",
-      "new": "Nueva Excepción",
-      "subtitle": "Gestión de exenciones de demurrage para clientes",
-      "title": "Excepciones de Demurrage"
+      "history": {
+        "caption": "Registro de cambios de la regla",
+        "close": "Cerrar historial",
+        "col": {
+          "action": "Cambio",
+          "current": "Valor nuevo",
+          "date": "Fecha",
+          "previous": "Valor anterior",
+          "user": "Usuario"
+        },
+        "empty": "Sin cambios registrados.",
+        "title": "Registro de cambios de la regla de {{ account }}"
+      },
+      "list": {
+        "caption": "Reglas internas de cobro",
+        "col": {
+          "account": "Cuenta",
+          "actions": "Acciones",
+          "country": "País",
+          "maxUses": "Usos por BL",
+          "status": "Estado",
+          "type": "Tipo",
+          "validity": "Vigencia"
+        },
+        "deactivate": "Desactivar",
+        "deactivateError": "No se pudo desactivar la regla.",
+        "deactivateLabel": "Desactivar la regla de {{ account }}",
+        "deactivated": "Regla de {{ account }} desactivada.",
+        "edit": "Editar",
+        "editLabel": "Editar la regla de {{ account }}",
+        "empty": "No hay reglas con esos filtros.",
+        "filters": {
+          "allCountries": "Todos",
+          "allTypes": "Todos",
+          "clear": "Limpiar",
+          "country": "País",
+          "includeInactive": "Incluir inactivas",
+          "label": "Filtrar reglas",
+          "search": "Buscar",
+          "type": "Tipo"
+        },
+        "history": "Historial",
+        "historyLabel": "Ver el historial de la regla de {{ account }}",
+        "identifiers": "RUT/NIT {{ taxId }} · Match Code {{ matchCode }}",
+        "loadError": "No se pudieron cargar las reglas.",
+        "new": "Nueva regla"
+      },
+      "snapshot": {
+        "account": "Cuenta: {{ name }}, RUT/NIT {{ taxId }}, Match Code {{ matchCode }}",
+        "header": "{{ type }}, {{ country }}",
+        "maxUses": "Cambios gratuitos por BL: {{ count }}",
+        "none": "Sin valor"
+      },
+      "status": {
+        "active": "Activa",
+        "inactive": "Inactiva"
+      },
+      "subtitle": "Cuentas con cambio de almacén gratuito y cuentas de Bolivia sujetas a demoras anticipadas. El crédito, las exenciones y los FFWW se leen de Nexus.",
+      "title": "Reglas internas de cobro",
+      "validity": {
+        "open": "Desde {{ from }}, sin término",
+        "range": "{{ from }} a {{ to }}"
+      }
     },
     "organizations": {
       "caption": "Organizaciones registradas",
@@ -512,6 +512,139 @@
       "types": {
         "overdueDeadlines": "Plazos vencidos / en riesgo",
         "transmissions": "Transmisiones a Aduana"
+      }
+    },
+    "tariffs": {
+      "editor": {
+        "amount": "Monto",
+        "amountHelp": "Monto fijo; con tramos se usa el valor de cada tramo. Use punto o coma decimal.",
+        "breadcrumbLabel": "Ruta de navegación",
+        "cancel": "Volver",
+        "code": "Código (opcional)",
+        "codeHelp": "Por ejemplo KTE o KTF para el cambio de almacén.",
+        "concept": "Concepto",
+        "conceptPlaceholder": "Elija un concepto",
+        "containerType": "Tipo de contenedor (opcional)",
+        "containerTypeHelp": "Vacío = todos los tipos. Ejemplo: 20DV.",
+        "country": "País",
+        "create": "Crear tarifa",
+        "created": "Tarifa creada.",
+        "currency": "Moneda",
+        "deactivate": "Desactivar tarifa",
+        "deactivated": "Tarifa desactivada.",
+        "description": "Descripción (opcional)",
+        "editTitle": "Editar tarifa",
+        "errors": {
+          "amountInvalid": "Indique un monto válido, mayor o igual a cero.",
+          "conceptRequired": "Elija el concepto.",
+          "deactivate": "No se pudo desactivar la tarifa.",
+          "submit": "No se pudo guardar la tarifa.",
+          "summaryTitle": "Revise los siguientes campos",
+          "tierAmount": "Tramo {{ number }}: indique un valor válido.",
+          "tierFrom": "Tramo {{ number }}: «desde» debe ser un número entero.",
+          "tierOpenNotLast": "Tramo {{ number }}: solo el último tramo puede quedar abierto.",
+          "tierOverlap": "Tramo {{ number }}: debe empezar después del tramo anterior.",
+          "tierTo": "Tramo {{ number }}: «hasta» debe ser un entero mayor o igual que «desde».",
+          "tiersRequired": "Agregue al menos un tramo o elija «Sin tramos».",
+          "validFromRequired": "Indique la fecha de inicio de la vigencia.",
+          "validToBeforeFrom": "La fecha de término no puede ser anterior a la de inicio."
+        },
+        "formTitle": "Datos de la tarifa",
+        "inactiveNotice": "Esta tarifa está inactiva: no se aplica a los cobros.",
+        "loadError": "No se pudo cargar la tarifa.",
+        "newTitle": "Nueva tarifa",
+        "notFound": "La tarifa no existe.",
+        "save": "Guardar cambios",
+        "subtitle": "Defina el valor o los tramos de la tarifa y su vigencia (fecha del país).",
+        "tiers": {
+          "add": "Agregar tramo",
+          "added": "Se agregó el tramo {{ number }}.",
+          "amountLabel": "Valor, tramo {{ number }}",
+          "caption": "Tramos de la tarifa",
+          "col": {
+            "actions": "Acciones",
+            "amount": "Valor ({{ currency }})",
+            "from": "Desde ({{ unit }})",
+            "number": "Tramo",
+            "to": "Hasta ({{ unit }})"
+          },
+          "fromLabel": "Desde, tramo {{ number }}",
+          "help": "Los tramos van en orden ascendente y sin traslapes; solo el último puede quedar sin «hasta» (abierto).",
+          "legend": "Tramos",
+          "mode": "Modo de cálculo",
+          "modeHelp": "Valor del tramo: se cobra el valor del tramo que contiene la medida. Por unidad: cada unidad se cobra al valor de su tramo.",
+          "remove": "Quitar",
+          "removeLabel": "Quitar el tramo {{ number }}",
+          "removed": "Se quitó el tramo {{ number }}.",
+          "toLabel": "Hasta, tramo {{ number }}",
+          "unit": "Unidad de los tramos",
+          "unitHelp": "Elija horas o días para tramos de tiempo transcurrido desde el hito del embarque."
+        },
+        "updated": "Tarifa actualizada. El cambio quedó en el registro.",
+        "validFrom": "Vigente desde",
+        "validTo": "Vigente hasta (opcional)",
+        "validToHelp": "Vacío = sin término."
+      },
+      "history": {
+        "caption": "Registro de cambios de la tarifa",
+        "col": {
+          "action": "Cambio",
+          "current": "Valor nuevo",
+          "date": "Fecha",
+          "previous": "Valor anterior",
+          "user": "Usuario"
+        },
+        "empty": "Sin cambios registrados.",
+        "title": "Registro de cambios"
+      },
+      "list": {
+        "anyContainer": "Todos",
+        "caption": "Tarifas de cargos locales",
+        "col": {
+          "actions": "Acciones",
+          "code": "Código",
+          "concept": "Concepto",
+          "containerType": "Tipo de contenedor",
+          "country": "País",
+          "status": "Estado",
+          "validity": "Vigencia",
+          "value": "Valor"
+        },
+        "edit": "Editar",
+        "editLabel": "Editar la tarifa {{ concept }} {{ code }} de {{ country }}",
+        "empty": "No hay tarifas con esos filtros.",
+        "filters": {
+          "allConcepts": "Todos",
+          "allCountries": "Todos",
+          "clear": "Limpiar",
+          "concept": "Concepto",
+          "country": "País",
+          "inForceOn": "Vigente el",
+          "includeInactive": "Incluir inactivas",
+          "label": "Filtrar tarifas",
+          "search": "Buscar"
+        },
+        "loadError": "No se pudieron cargar las tarifas.",
+        "new": "Nueva tarifa",
+        "subtitle": "Valores que el portal aplica a los cobros. Cada cambio queda registrado.",
+        "tiers": "Tramos: {{ count }} ({{ unit }}, {{ currency }})",
+        "title": "Tarifas de cargos locales"
+      },
+      "snapshot": {
+        "amount": "Monto: {{ amount }}",
+        "header": "{{ concept }} {{ code }}, {{ country }}, {{ currency }}",
+        "none": "Sin valor",
+        "tierOpen": "{{ from }} o más: {{ amount }}",
+        "tierRange": "{{ from }} a {{ to }}: {{ amount }}",
+        "tiers": "Tramos en {{ unit }} ({{ mode }}):"
+      },
+      "status": {
+        "active": "Activa",
+        "inactive": "Inactiva"
+      },
+      "validity": {
+        "open": "Desde {{ from }}, sin término",
+        "range": "{{ from }} a {{ to }}"
       }
     },
     "users": {
@@ -712,6 +845,86 @@
       "title": "Nueva Contraseña"
     }
   },
+  "charges": {
+    "initial": "Ingrese un número de BL para ver sus cargos locales.",
+    "panel": {
+      "action": {
+        "addToCart": "Agregar al carro",
+        "addToCartLabel": "Agregar {{ concept }} al carro",
+        "blockedByLetter": "Bloqueado: falta la carta de responsabilidad",
+        "calculate": "Calcular",
+        "none": "Sin acción",
+        "pay": "Pagar",
+        "payLabel": "Pagar {{ concept }}",
+        "saved": "Guardado para el carro"
+      },
+      "apply": {
+        "button": "Aplicar exenciones de Nexus",
+        "completeButton": "Aplicar exenciones y completar",
+        "completed": "Todos los cargos aplicables quedaron exentos según Nexus. No se agregó nada al carro de compra.",
+        "completedTitle": "Proceso completado sin pago",
+        "error": "No se pudieron aplicar las exenciones. Intente nuevamente.",
+        "help": "Registre en el embarque las exenciones informadas por Nexus. Los cargos que queden por pagar podrán agregarse al carro.",
+        "helpAllExempt": "Todos los cargos aplicables están exentos según Nexus: al aplicar las exenciones el proceso se completa sin pasar por el carro de compra.",
+        "partial": "{exempted, plural, =0 {No se registraron exenciones} one {Se registró # exención} other {Se registraron # exenciones}}; {payable, plural, =0 {no quedan cargos por pagar.} one {queda # cargo por pagar.} other {quedan # cargos por pagar.}}",
+        "partialTitle": "Exenciones registradas"
+      },
+      "caption": "Cargos locales del BL {{ bl }} con el resultado de las reglas",
+      "cart": {
+        "comingSoon": "El carro de compra se habilitará próximamente: los cargos que agregue quedan guardados en esta sesión.",
+        "saved": "{{ concept }} quedó guardado para el carro de compra."
+      },
+      "col": {
+        "action": "Acción",
+        "amount": "Monto",
+        "concept": "Concepto",
+        "exemption": "Exención (Nexus)",
+        "outcome": "Resultado",
+        "payable": "A pagar"
+      },
+      "empty": "Este BL no tiene cargos locales.",
+      "evaluatedAt": "Reglas evaluadas el {{ date }}.",
+      "exemption": {
+        "applied": "Aplicada el {{ date }}.",
+        "none": "Sin exención",
+        "reference": "Exento según {{ source }}: {{ party }}, {{ taxId }}, vigente desde {{ from }}."
+      },
+      "figures": {
+        "exemptOf": "Exento de:",
+        "item": "{{ party }}: {{ name }} ({{ taxId }}).",
+        "none": "Sin exenciones vigentes.",
+        "title": "Exenciones consultadas en Nexus",
+        "unavailable": "Nexus no respondió para esta figura."
+      },
+      "forbidden": "Su organización no tiene permiso para consultar los cargos de este BL.",
+      "ipoExcluded": "El recargo IPO no se cobra: la organización tiene condición de crédito en Nexus.",
+      "letter": {
+        "comingSoon": "La generación de la carta estará disponible próximamente en el portal.",
+        "generate": "Generar carta de responsabilidad",
+        "text": "Nexus informa que su organización es un freight forwarder (FFWW) autorizado: la carta de responsabilidad es obligatoria y bloquea el avance del proceso mientras no esté presente. Estado de la carta: {{ status }}.",
+        "title": "Carta de responsabilidad obligatoria"
+      },
+      "loadError": "No se pudieron cargar los cargos. Intente nuevamente.",
+      "localCurrency": "Equivale a {{ amount }} (tipo de cambio {{ rate }}, vigente al {{ date }}, fuente {{ source }})",
+      "notFound": "No encontramos el BL {{ bl }} entre los embarques a los que tiene acceso.",
+      "payer": "Pagador: {{ name }} ({{ taxId }}).",
+      "rulesUnavailable": "Nexus no está disponible en este momento: no podemos confirmar las exenciones ni los montos a pagar. Intente nuevamente en unos minutos.",
+      "title": "Cargos locales del BL {{ bl }}",
+      "totals": {
+        "currency": "Total en {{ currency }}",
+        "nothingToPay": "No hay montos por pagar: todos los cargos aplicables están exentos.",
+        "title": "Total a pagar por moneda"
+      }
+    },
+    "search": {
+      "blNumber": "Número de BL",
+      "help": "Ejemplo: HLCUSAI260401020",
+      "label": "Buscar cargos por BL",
+      "submit": "Consultar"
+    },
+    "subtitle": "Consulte los cargos de un BL con las exenciones y condiciones informadas por Nexus.",
+    "title": "Cargos locales"
+  },
   "common": {
     "accessAuditEvent": {
       "bookingAccessLinked": "Acceso por booking vinculado al BL",
@@ -778,12 +991,85 @@
       "indefinite": "Sin término",
       "untilDate": "Hasta una fecha"
     },
+    "advanceDemurrageStatus": {
+      "notRequested": "Cargo no generado",
+      "notRequired": "No exigidas",
+      "paid": "Pagadas",
+      "pending": "Pendiente de pago"
+    },
     "brand": {
       "tagline": "SHIPPING & LOGISTICS"
+    },
+    "chargeBlockedReason": {
+      "associationRequired": "Debe asociarse al BL antes de operar",
+      "noPermission": "Sin permiso para esta acción",
+      "rulesUnavailable": "No disponible: Nexus no respondió"
+    },
+    "chargeConcept": {
+      "advanceDemurrageBo": "Demoras anticipadas",
+      "blFee": "Emisión de BL",
+      "demurrage": "Demurrage",
+      "eds": "EDS",
+      "gateIn": "Gate In",
+      "gateOut": "Gate Out",
+      "ipo": "IPO",
+      "isps": "ISPS",
+      "lateArrival": "Llegada tardía",
+      "mhd": "MHD",
+      "thc": "THC",
+      "thcRf": "THC reefer",
+      "transitFee": "Tránsito",
+      "warehouseChange": "Cambio de almacén"
+    },
+    "chargeErrors": {
+      "advanceNotRequired": "La cuenta no está sujeta a demoras anticipadas.",
+      "blNotFound": "No encontramos el BL entre los embarques a los que tiene acceso.",
+      "conceptNotFound": "El concepto de cobro no existe en el catálogo.",
+      "conditionsUnavailable": "Nexus no está disponible: no se pueden leer las condiciones comerciales. Intente más tarde.",
+      "containerNotFound": "El contenedor no pertenece al BL.",
+      "exchangeRateNotApproved": "El tipo de cambio aún no está aprobado para transacciones.",
+      "exchangeRateNotFound": "Nexus no informa un tipo de cambio para esa fecha.",
+      "forbidden": "Su organización no tiene permiso para esta operación.",
+      "invalidTiers": "Los tramos no son válidos: deben ser ascendentes, sin traslapes y solo el último puede quedar abierto.",
+      "invoiceExists": "El BL ya tiene una factura de demurrage: pague la factura en lugar de recalcular.",
+      "noChargesToApply": "El BL no tiene cargos pendientes a los que aplicar reglas.",
+      "notArrived": "El BL aún no tiene fecha de descarga.",
+      "notImport": "El demurrage aplica solo a BL de importación.",
+      "ruleMissingIdentifier": "Indique el RUT/NIT o el Match Code de la cuenta.",
+      "ruleNotFound": "La regla interna no existe.",
+      "sameWarehouse": "El almacén de destino debe ser distinto del actual.",
+      "tariffNotFound": "La tarifa no existe.",
+      "tariffNotInForce": "No hay una tarifa vigente para este concepto en el país.",
+      "tariffOverlaps": "Ya existe una tarifa activa con el mismo concepto, país, moneda, tipo de contenedor y código en esa vigencia.",
+      "warehouseChangeNotFound": "La solicitud de cambio de almacén no existe."
+    },
+    "chargeOutcome": {
+      "exempt": "Exento",
+      "paid": "Pagado",
+      "partiallyExempt": "Exento parcial",
+      "payable": "A pagar"
+    },
+    "chargeStatus": {
+      "exempt": "Exento",
+      "invoiced": "Facturado",
+      "paid": "Pagado",
+      "pending": "Pendiente"
     },
     "country": {
       "bo": "Bolivia",
       "cl": "Chile"
+    },
+    "dataSource": {
+      "fis": "FIS",
+      "nexus": "Nexus",
+      "portal": "Portal (mantenedor)",
+      "tariff": "Tarifa"
+    },
+    "demurrageState": {
+      "calculatedUnpaid": "Calculado y no pagado",
+      "invoicedWithDebt": "Facturado con deuda vigente",
+      "noDemurrage": "Sin demurrage",
+      "notCalculated": "Aún no calculado"
     },
     "documentType": {
       "creditAuthorization": "Autorización de validación crediticia",
@@ -791,8 +1077,21 @@
       "registrationLetter": "Carta de solicitud de registro",
       "taxCertificate": "Certificado tributario"
     },
+    "exemptionParty": {
+      "finalClient": "Cliente final",
+      "masterConsignee": "Consignatario del BL Master"
+    },
     "form": {
       "invalid": "El formulario tiene errores. Revise los campos marcados."
+    },
+    "internalRuleType": {
+      "advanceDemurrageRequired": "Demoras anticipadas obligatorias (Bolivia)",
+      "freeWarehouseChange": "Cambio de almacén gratuito"
+    },
+    "maintainerAction": {
+      "created": "Creación",
+      "deactivated": "Desactivación",
+      "updated": "Modificación"
     },
     "membershipStatus": {
       "active": "Activo",
@@ -821,6 +1120,11 @@
       "freightForwarder": "Freight forwarder (FFWW)",
       "internal": "Hapag-Lloyd"
     },
+    "requirementStatus": {
+      "fulfilled": "cumplido",
+      "missing": "falta",
+      "pending": "en revisión"
+    },
     "shipmentRole": {
       "carrier": "Transportista",
       "consignee": "Consignatario (CN)",
@@ -828,6 +1132,33 @@
       "customsAgency": "Agencia de aduanas (AGA)",
       "shipper": "Embarcador (SH)",
       "thirdParty": "Tercero"
+    },
+    "tariffTierMode": {
+      "flat": "Valor del tramo",
+      "perUnit": "Por unidad"
+    },
+    "tariffTierUnit": {
+      "businessDays": "Días hábiles",
+      "calendarDays": "Días corridos",
+      "hours": "Horas",
+      "none": "Sin tramos (monto fijo)",
+      "units": "Unidades"
+    },
+    "warehouseBatchItemStatus": {
+      "failed": "Con error",
+      "pending": "Pendiente",
+      "succeeded": "Correcta"
+    },
+    "warehouseBatchStatus": {
+      "completed": "Terminada",
+      "completedWithErrors": "Terminada con errores",
+      "processing": "En proceso",
+      "queued": "En cola"
+    },
+    "warehouseChangeStatus": {
+      "cancelled": "Anulada",
+      "completed": "Completada",
+      "pending": "Pendiente de pago"
     },
     "wideningStatus": {
       "active": "Vigente",
@@ -885,32 +1216,131 @@
     "welcome": "Bienvenido,"
   },
   "demurrage": {
-    "blNumber": "Número de BL",
-    "blPlaceholder": "Ej: HLCUVAL250100123",
-    "boNote": {
-      "text": "Algunos contenedores pueden estar exentos de demurrage según acuerdos comerciales vigentes.",
-      "title": "Nota para clientes de Bolivia:"
+    "calculator": {
+      "caption": "Resultado del cálculo por contenedor",
+      "col": {
+        "container": "Contenedor",
+        "demurrageDays": "Días de demurrage",
+        "elapsedDays": "Días transcurridos",
+        "freeDays": "Días libres",
+        "tariff": "Tarifa",
+        "total": "Total",
+        "until": "Hasta"
+      },
+      "containerLabel": "{{ number }} ({{ type }})",
+      "containers": "Contenedores a calcular",
+      "errors": {
+        "containersRequired": "Elija al menos un contenedor.",
+        "submit": "No se pudo calcular el demurrage. Intente nuevamente.",
+        "summaryTitle": "Revise los siguientes campos",
+        "untilRequired": "Indique la fecha hasta la que se calcula."
+      },
+      "preview": "Vista previa",
+      "previewAnnouncement": "{count, plural, one {Vista previa lista para # contenedor.} other {Vista previa lista para # contenedores.}}",
+      "previewNote": "Vista previa: el cálculo no se guardó.",
+      "save": "Calcular y guardar",
+      "savedAnnouncement": "Cálculo guardado: el demurrage quedó calculado y listo para agregar al carro.",
+      "title": "Calculadora de demurrage",
+      "total": "Total: {{ amount }}",
+      "untilDate": "Calcular hasta",
+      "untilDateHelp": "Fecha estimada de devolución del contenedor (fecha del país del BL)."
     },
-    "caption": "Demurrage por contenedor",
-    "col": {
-      "container": "Contenedor",
-      "dailyRate": "Tarifa Diaria",
-      "demurrageDays": "Días Demurrage",
-      "freeDays": "Días Libres",
-      "status": "Estado",
-      "total": "Total"
+    "initial": "Ingrese un número de BL para ver el estado de su demurrage.",
+    "panel": {
+      "advance": {
+        "addToCart": "Agregar demoras anticipadas al carro",
+        "amount": "Monto",
+        "cldBlocked": "El certificado de libre deuda (CLD) queda bloqueado hasta que se confirme el pago de las demoras anticipadas.",
+        "deductionHelp": "El monto pagado de forma anticipada se descuenta del MHD total del embarque.",
+        "error": "No se pudo generar el cargo de demoras anticipadas.",
+        "generate": "Generar cargo de demoras anticipadas",
+        "generated": "Se generó el cargo de demoras anticipadas.",
+        "rule": "Regla interna aplicada",
+        "status": "Estado",
+        "title": "Demoras anticipadas (Bolivia)"
+      },
+      "calculated": {
+        "addToCart": "Agregar al carro",
+        "help": "El demurrage está calculado y no pagado. Detalle del cálculo:"
+      },
+      "cart": {
+        "conceptSaved": "{{ concept }} quedó guardado para el carro de compra.",
+        "linesSaved": "{count, plural, one {Se guardó # línea de demurrage para el carro de compra.} other {Se guardaron # líneas de demurrage para el carro de compra.}}",
+        "linesSavedNote": "Las líneas calculadas quedaron guardadas para el carro de compra, que se habilitará próximamente.",
+        "saved": "Guardado para el carro"
+      },
+      "concepts": {
+        "add": "Agregar al carro",
+        "addLabel": "Agregar {{ concept }} al carro",
+        "caption": "Conceptos de la pestaña de demurrage",
+        "col": {
+          "action": "Acción",
+          "amount": "Monto",
+          "concept": "Concepto",
+          "deduction": "Descuento por demoras anticipadas",
+          "payable": "A pagar",
+          "status": "Estado"
+        },
+        "noAction": "Sin acción",
+        "title": "MHD y otros conceptos de demurrage"
+      },
+      "evaluatedAt": "Estado evaluado el {{ date }}.",
+      "forbidden": "Su organización no tiene permiso para consultar el demurrage de este BL.",
+      "invoiced": {
+        "calculatorBlocked": "La calculadora no está disponible porque el BL ya tiene una factura de demurrage: gestione el pago de la factura.",
+        "caption": "Facturas de demurrage con deuda vigente",
+        "col": {
+          "amount": "Monto",
+          "currency": "Moneda",
+          "dueDate": "Vencimiento",
+          "invoice": "Factura"
+        },
+        "help": "El BL tiene demurrage facturado con deuda vigente.",
+        "pay": "Pagar factura"
+      },
+      "lines": {
+        "caption": "Detalle del cálculo de demurrage por contenedor",
+        "col": {
+          "container": "Contenedor",
+          "dailyRate": "Tarifa diaria",
+          "demurrageDays": "Días de demurrage",
+          "freeDays": "Días libres",
+          "period": "Período",
+          "status": "Estado",
+          "total": "Total"
+        },
+        "period": "{{ from }} a {{ to }}"
+      },
+      "loadError": "No se pudo cargar el demurrage. Intente nuevamente.",
+      "mhd": {
+        "summary": "MHD total {{ total }}; descuento por demoras anticipadas pagadas {{ deducted }}; saldo {{ net }}."
+      },
+      "noDemurrage": {
+        "message": "Este BL no registra deuda de demurrage."
+      },
+      "notCalculated": {
+        "calculate": "Calcular demurrage",
+        "containers": "Contenedores",
+        "dischargeDate": "Fecha de descarga",
+        "freeDays": "Días libres",
+        "help": "El demurrage aún no está calculado. Estos son los datos para calcularlo:",
+        "source": "Fuente: {{ source }}",
+        "tariff": "Tarifa vigente",
+        "tariffNo": "No disponible",
+        "tariffYes": "Disponible"
+      },
+      "notFound": "No encontramos el BL {{ bl }} entre los embarques a los que tiene acceso.",
+      "state": "Estado: {{ state }}",
+      "title": "Demurrage del BL {{ bl }}"
     },
-    "empty": "No hay cargos de demurrage para este BL.",
-    "exempt": "EXENTO",
-    "exemptionReason": "Motivo de exención:",
-    "initial": "Ingrese un número de BL para consultar los cargos de demurrage.",
-    "loadError": "Error al cargar la información de demurrage. Verifique el número de BL.",
-    "pay": "Pagar Demurrage",
-    "resultsFor": "Resultados para BL:",
-    "search": "Buscar",
-    "subtitle": "Consulte los cargos de demurrage por número de BL",
-    "title": "Demurrage",
-    "total": "Total Demurrage"
+    "search": {
+      "blNumber": "Número de BL",
+      "help": "Ejemplo: HLCUSAI260400910",
+      "label": "Buscar demurrage por BL",
+      "submit": "Consultar"
+    },
+    "subtitle": "Consulte el estado del demurrage de un BL y la acción que corresponde.",
+    "title": "Demurrage"
   },
   "faq": {
     "categories": {
@@ -937,36 +1367,6 @@
     "subtitle": "Encuentre respuestas a las consultas más comunes",
     "title": "Preguntas Frecuentes"
   },
-  "localCharges": {
-    "blNumber": "Número de BL",
-    "blPlaceholder": "Ej: HLCUVAL250100123",
-    "caption": "Cargos locales del BL",
-    "col": {
-      "amount": "Monto",
-      "code": "Código",
-      "description": "Descripción",
-      "status": "Estado",
-      "tax": "Impuesto",
-      "total": "Total"
-    },
-    "empty": "No hay cargos locales pendientes.",
-    "initial": "Ingrese un número de BL para consultar los cargos locales.",
-    "loadError": "Error al cargar los cargos locales. Verifique el número de BL.",
-    "resultsFor": "Resultados para BL:",
-    "search": "Buscar",
-    "selectAll": "Seleccionar todos los cargos pendientes",
-    "selectCharge": "Seleccionar cargo {{ code }}",
-    "subtitle": "Consulte y pague los cargos locales por número de BL",
-    "summary": {
-      "paySelected": "Pagar Seleccionados",
-      "selected": "Cargos seleccionados:",
-      "subtotal": "Subtotal",
-      "tax": "IVA ({{ rate }}%)",
-      "title": "Resumen de Pago",
-      "total": "Total"
-    },
-    "title": "Cargos Locales"
-  },
   "notifications": {
     "empty": "No tienes notificaciones.",
     "loadError": "Error al cargar las notificaciones.",
@@ -984,6 +1384,29 @@
     }
   },
   "organization": {
+    "commercialConditions": {
+      "credit": "Condición de crédito",
+      "creditConcepts": "Conceptos con crédito",
+      "creditNo": "Sin condición de crédito",
+      "creditValidity": "Vigencia del crédito",
+      "creditYes": "Con crédito a {{ days }} días",
+      "ffww": "Freight forwarder (FFWW) autorizado",
+      "ffwwNo": "No",
+      "ffwwYes": "Sí",
+      "help": "Se leen desde Nexus por RUT/NIT y Match Code y se administran en Nexus.",
+      "ipo": "Recargo IPO",
+      "ipoApplies": "Se cobra",
+      "ipoExcluded": "Excluido por condición de crédito",
+      "letter": "Carta de responsabilidad",
+      "letterNotRequired": "No obligatoria",
+      "letterRequired": "Obligatoria",
+      "localCharges": "Cargos locales",
+      "source": "Fuente: {{ source }}. RUT/NIT {{ taxId }}, Match Code {{ matchCode }}.",
+      "title": "Condiciones comerciales (Nexus)",
+      "unavailable": "Nexus no está disponible: no podemos mostrar las condiciones comerciales en este momento.",
+      "validFrom": "Desde el {{ from }}, sin término",
+      "validRange": "Del {{ from }} al {{ to }}"
+    },
     "data": {
       "canOperate": "Puede pagar y solicitar servicios",
       "canOperateNo": "No",
@@ -1294,6 +1717,10 @@
     }
   },
   "shared": {
+    "exchangeRate": {
+      "note": "Tipo de cambio {{ from }}→{{ to }}: {{ rate }}, vigente al {{ date }} (fuente {{ source }}).",
+      "unavailable": "No se pudo obtener el tipo de cambio {{ from }}→{{ to }} desde Nexus."
+    },
     "loadingSpinner": {
       "label": "Cargando..."
     },
@@ -1327,13 +1754,12 @@
         "adminOrganizations": "Organizaciones",
         "audit": "Auditoría",
         "blImport": "Carga de BL",
-        "creditClients": "Clientes Crédito",
         "customs": "Transmisión Aduana",
         "dashboard": "Dashboard",
         "deadlines": "Control de Plazos",
         "demurrage": "Demurrage",
-        "demurrageExemptions": "Excepciones Demurrage",
         "faq": "FAQ",
+        "internalRules": "Reglas de cobro",
         "localCharges": "Cargos Locales",
         "organization": "Mi organización",
         "payments": "Pagos",
@@ -1341,6 +1767,7 @@
         "reports": "Reportes",
         "serviceOrders": "Órdenes de Servicio",
         "shipments": "Embarques",
+        "tariffs": "Tarifas",
         "users": "Usuarios",
         "warehouse": "Cambio Almacén"
       },
@@ -1474,20 +1901,6 @@
         "voyage": "Viaje"
       },
       "loadError": "No se pudo cargar el embarque.",
-      "localCharges": {
-        "caption": "Cargos locales del embarque",
-        "col": {
-          "amount": "Monto",
-          "code": "Concepto",
-          "description": "Descripción",
-          "status": "Estado",
-          "tax": "Impuesto",
-          "total": "Total"
-        },
-        "empty": "El embarque no tiene cargos locales.",
-        "pay": "Pagar cargos locales",
-        "title": "Cargos locales"
-      },
       "notFound": "No encontramos el embarque o no tiene acceso a él.",
       "parties": {
         "accessSource": "Origen del acceso",
@@ -1916,33 +2329,125 @@
     }
   },
   "warehouse": {
-    "amount": "Monto",
-    "amountInvalid": "Ingrese un monto válido.",
-    "amountPlaceholder": "Monto de la solicitud",
-    "blNumber": "Número de BL",
-    "blPlaceholder": "Ej: HLCU1234567890",
-    "blRequired": "El número de BL es obligatorio.",
-    "contactPhone": "Teléfono de Contacto",
-    "contactPhonePlaceholder": "Teléfono para coordinación",
-    "containerNumber": "Número de Contenedor",
-    "containerPlaceholder": "Ej: HLXU1234567",
-    "containerRequired": "El número de contenedor es obligatorio.",
-    "currentWarehouse": "Almacén Actual",
-    "currentWarehousePlaceholder": "Nombre del almacén actual",
-    "fieldRequired": "Este campo es obligatorio.",
-    "reason": "Motivo de la Solicitud",
-    "reasonPlaceholder": "Describa el motivo del cambio de almacén",
-    "reasonRequired": "El motivo es obligatorio.",
-    "requestedWarehouse": "Almacén Solicitado",
-    "requestedWarehousePlaceholder": "Nombre del almacén destino",
-    "submit": "Enviar Solicitud",
-    "submitError": "Error al enviar la solicitud.",
-    "subtitle": "Solicite el cambio de almacén para sus contenedores",
-    "success": {
-      "backToDashboard": "Volver al Dashboard",
-      "message": "Su solicitud de cambio de almacén ha sido registrada. Recibirá una confirmación por correo.",
-      "title": "Solicitud Enviada"
+    "bulk": {
+      "count": "{count, plural, =0 {Sin líneas listas para enviar} one {# línea lista para enviar} other {# líneas listas para enviar}}",
+      "destination": "Almacén de destino común (opcional)",
+      "destinationHelp": "Se usa en las líneas que no indican destino.",
+      "errors": {
+        "linesRequired": "Ingrese al menos una línea con un número de BL.",
+        "missingBl": "Línea {{ line }}: falta el número de BL.",
+        "missingDestination": "Línea {{ line }}: indique el almacén de destino o un destino común.",
+        "submit": "No se pudo enviar la solicitud masiva.",
+        "summaryTitle": "Revise los siguientes campos",
+        "tooMany": "La solicitud admite hasta {{ max }} líneas."
+      },
+      "file": {
+        "help": "El contenido se agrega a la lista con el mismo formato.",
+        "label": "Cargar la lista desde un archivo (CSV o texto)",
+        "loaded": "Se agregó el contenido de {{ name }} a la lista.",
+        "readError": "No se pudo leer el archivo.",
+        "tooLarge": "El archivo supera los 512 KB."
+      },
+      "help": "Para clientes de alto volumen: ingrese hasta {{ max }} líneas. Se procesan en segundo plano y podrá seguir el avance.",
+      "lines": "Lista de solicitudes",
+      "linesHelp": "Una línea por solicitud: BL;almacén de destino;contenedor;almacén actual. Solo el BL es obligatorio si indica un destino común. También acepta coma o tabulación como separador.",
+      "shipments": {
+        "add": "{count, plural, =0 {Agregar seleccionados a la lista} one {Agregar # embarque a la lista} other {Agregar # embarques a la lista}}",
+        "added": "{count, plural, one {Se agregó # embarque a la lista.} other {Se agregaron # embarques a la lista.}}",
+        "caption": "Embarques de importación",
+        "col": {
+          "bl": "BL",
+          "eta": "ETA",
+          "select": "Seleccionar",
+          "vessel": "Nave"
+        },
+        "empty": "No hay embarques de importación para elegir.",
+        "legend": "Elegir embarques de importación",
+        "load": "Mostrar mis embarques de importación",
+        "selectLabel": "Seleccionar el BL {{ bl }}"
+      },
+      "submit": "{count, plural, =0 {Enviar solicitud masiva} one {Enviar solicitud masiva (# línea)} other {Enviar solicitud masiva (# líneas)}}",
+      "submitted": "{count, plural, one {Solicitud masiva recibida con # línea.} other {Solicitud masiva recibida con # líneas.}}",
+      "title": "Solicitud masiva"
     },
-    "title": "Solicitud de Cambio de Almacén"
+    "progress": {
+      "back": "Volver a cambio de almacén",
+      "barLabel": "Avance de la solicitud masiva",
+      "breadcrumb": "Avance de la solicitud masiva",
+      "breadcrumbLabel": "Ruta de navegación",
+      "counts": "{{ processed }} de {{ total }} líneas procesadas ({{ percent }} %)",
+      "createdAt": "Recibida",
+      "failed": "Con error",
+      "finished": "Solicitud masiva terminada: {{ succeeded }} correctas y {{ failed }} con error de {{ total }} líneas.",
+      "items": {
+        "caption": "Resultado de cada línea de la solicitud masiva",
+        "col": {
+          "bl": "BL",
+          "container": "Contenedor",
+          "destination": "Destino",
+          "detail": "Detalle",
+          "line": "Línea",
+          "status": "Estado"
+        },
+        "done": "Completada",
+        "title": "Resultado por línea"
+      },
+      "loadError": "No se pudo consultar el avance.",
+      "notFound": "No encontramos la solicitud masiva.",
+      "polling": "Actualizando el avance…",
+      "status": "Estado: {{ status }}",
+      "subtitle": "El avance se actualiza solo mientras la solicitud se procesa.",
+      "succeeded": "Correctas",
+      "title": "Solicitud masiva de cambio de almacén",
+      "total": "Líneas",
+      "update": "Avance de la solicitud masiva: {{ processed }} de {{ total }} líneas procesadas ({{ percent }} %)."
+    },
+    "single": {
+      "blNumber": "Número de BL",
+      "blocked": {
+        "generic": "La solicitud no está disponible para este BL.",
+        "noPermission": "Su organización no tiene permiso para solicitar el cambio de almacén de este BL.",
+        "tariffNotInForce": "No hay una tarifa de cambio de almacén vigente para este país."
+      },
+      "container": "Contenedor (opcional)",
+      "containerHelp": "Déjelo vacío para solicitar el cambio de todo el BL.",
+      "errors": {
+        "sameWarehouse": "El almacén de destino debe ser distinto del actual.",
+        "submit": "No se pudo registrar la solicitud. Intente nuevamente.",
+        "summaryTitle": "Revise los siguientes campos",
+        "toRequired": "Indique el almacén de destino."
+      },
+      "free": {
+        "detail": "Origen: {{ source }}. Motivo: {{ reason }}. Usados en este BL: {{ used }} de {{ max }}. La solicitud se completa sin cobro y sin intervención de Customer Service.",
+        "title": "Tiene derecho a un cambio de almacén gratuito"
+      },
+      "from": "Almacén actual (opcional)",
+      "fromHelp": "Si lo deja vacío se usa el depósito informado para el BL.",
+      "notFound": "No encontramos el BL {{ bl }} entre los embarques a los que tiene acceso.",
+      "quote": "Consultar condiciones",
+      "quoteError": "No se pudieron consultar las condiciones del cambio de almacén.",
+      "result": {
+        "another": "Hacer otra solicitud",
+        "free": "El cambio de almacén del BL {{ bl }} de {{ from }} a {{ to }} quedó completado sin cobro y sin intervención de Customer Service.",
+        "freeAnnouncement": "Cambio de almacén del BL {{ bl }} completado sin cobro.",
+        "freeTitle": "Cambio de almacén completado",
+        "pending": "La solicitud del BL {{ bl }} quedó registrada por {{ amount }}. El pago se hará desde el carro de compra, que se habilitará próximamente.",
+        "pendingAnnouncement": "Solicitud de cambio de almacén del BL {{ bl }} registrada, pendiente de pago.",
+        "pendingTitle": "Solicitud registrada, pendiente de pago",
+        "status": "Estado: {{ status }}. Registrada el {{ date }}."
+      },
+      "submit": "Solicitar cambio de almacén",
+      "submitFree": "Solicitar cambio gratuito",
+      "tariffs": {
+        "help": "Valores vigentes del mantenedor de tarifas; el monto lo determina el portal.",
+        "legend": "Tarifa del cambio de almacén",
+        "option": "{{ code }} {{ description }}: {{ amount }} (vigente desde {{ from }}, {{ source }})"
+      },
+      "title": "Solicitud individual",
+      "to": "Almacén de destino",
+      "toHelp": "Obligatorio."
+    },
+    "subtitle": "Solicite el cambio de almacén de un BL o de varios a la vez.",
+    "title": "Cambio de almacén"
   }
 }

@@ -28,7 +28,8 @@ public sealed class GetShipmentDetailQueryValidator : AbstractValidator<GetShipm
 
 public sealed class GetShipmentDetailQueryHandler(
     IApplicationDbContext dbContext,
-    IShipmentAccessEvaluator accessEvaluator)
+    IShipmentAccessEvaluator accessEvaluator,
+    IChargeRulesService chargeRulesService)
     : IQueryHandler<GetShipmentDetailQuery, ShipmentDetailDto>
 {
     public async Task<Result<ShipmentDetailDto>> Handle(
@@ -83,6 +84,20 @@ public sealed class GetShipmentDetailQueryHandler(
                 lc.TotalAmount,
                 bl.Country)).ToList()
             : null;
+
+        // M4-03: el recargo IPO no se presenta a clientes con condición de crédito vigente en Nexus.
+        if (localCharges is not null
+            && scope.OrganizationId is { } organizationId
+            && localCharges.Any(c => c.ChargeCode == ChargeConceptCodes.Ipo))
+        {
+            var organization = await dbContext.Clients.AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == organizationId, cancellationToken);
+            if (organization is not null
+                && (await chargeRulesService.GetConditionsAsync(organization, cancellationToken))?.IpoExcluded == true)
+            {
+                localCharges = localCharges.Where(c => c.ChargeCode != ChargeConceptCodes.Ipo).ToList();
+            }
+        }
 
         var demurrage = permissions.Can(ShipmentActionCodes.PayImportDemurrage)
             ? bl.DemurrageCharges.Select(dc => new DemurrageChargeDto(

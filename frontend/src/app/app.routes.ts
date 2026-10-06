@@ -61,18 +61,22 @@ export const routes: Routes = [
       import('./features/payments/payment-form/payment-form').then((m) => m.PaymentFormComponent),
     canActivate: [authGuard],
   },
+  // Ola C: cargos con las reglas de Nexus (M4-01 a M4-04, M3-01, M5-05); reemplazan a /local-charges.
   {
-    path: 'local-charges',
+    path: 'charges',
     loadComponent: () =>
-      import('./features/local-charges/local-charges').then((m) => m.LocalChargesComponent),
+      import('./features/charges/charges').then((m) => m.ChargesComponent),
     canActivate: [authGuard],
   },
   {
-    path: 'local-charges/:blNumber',
+    path: 'charges/:blNumber',
     loadComponent: () =>
-      import('./features/local-charges/local-charges').then((m) => m.LocalChargesComponent),
+      import('./features/charges/charges').then((m) => m.ChargesComponent),
     canActivate: [authGuard],
   },
+  { path: 'local-charges', redirectTo: '/charges', pathMatch: 'full' },
+  { path: 'local-charges/:blNumber', redirectTo: '/charges/:blNumber' },
+  // Demurrage por estado del BL (M3-18, M3-02, M3-16).
   {
     path: 'demurrage',
     loadComponent: () =>
@@ -85,10 +89,20 @@ export const routes: Routes = [
       import('./features/demurrage/demurrage').then((m) => m.DemurrageComponent),
     canActivate: [authGuard],
   },
+  // Cambio de almacén gratuito o tarifado y solicitud masiva (M3-04, M3-05).
   {
     path: 'warehouse',
     loadComponent: () =>
       import('./features/warehouse/warehouse').then((m) => m.WarehouseComponent),
+    canActivate: [authGuard],
+  },
+  // Avance de una solicitud masiva de cambio de almacén (M3-05, NF-19).
+  {
+    path: 'warehouse/bulk/:id',
+    loadComponent: () =>
+      import('./features/warehouse/warehouse-bulk-progress/warehouse-bulk-progress').then(
+        (m) => m.WarehouseBulkProgressComponent,
+      ),
     canActivate: [authGuard],
   },
   {
@@ -129,20 +143,6 @@ export const routes: Routes = [
     path: 'faq',
     loadComponent: () =>
       import('./features/faq/faq').then((m) => m.FAQComponent),
-  },
-  {
-    path: 'admin/credit-clients',
-    loadComponent: () =>
-      import('./features/admin/credit-clients/credit-clients').then((m) => m.CreditClientsComponent),
-    canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/demurrage-exemptions',
-    loadComponent: () =>
-      import('./features/admin/demurrage-exemptions/demurrage-exemptions').then(
-        (m) => m.DemurrageExemptionsComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
   },
   {
     path: 'admin/users',
@@ -205,6 +205,32 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/access-matrix/access-matrix').then((m) => m.AccessMatrixComponent),
     canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_ACCESS_MATRIX)],
+  },
+  // Ola C: mantenedores internos de tarifas (M8-01, NF-15) y reglas internas de cobro (M3-04, M3-16).
+  // Clientes con crédito y exenciones se leen de Nexus (M8-02): ya no tienen mantenedor en el portal.
+  {
+    path: 'admin/tariffs',
+    loadComponent: () =>
+      import('./features/admin/tariffs/tariffs').then((m) => m.TariffsComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/tariffs/new',
+    loadComponent: () =>
+      import('./features/admin/tariffs/tariff-editor').then((m) => m.TariffEditorComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/tariffs/:id',
+    loadComponent: () =>
+      import('./features/admin/tariffs/tariff-editor').then((m) => m.TariffEditorComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/internal-charge-rules',
+    loadComponent: () =>
+      import('./features/admin/internal-rules/internal-rules').then((m) => m.InternalRulesComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
   },
   { path: '**', redirectTo: '/dashboard' },
 ];

@@ -2,7 +2,6 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
 using HapagPortal.Application.WarehouseChanges.Bulk;
-using HapagPortal.Application.WarehouseChanges.Commands.Create;
 using HapagPortal.Application.WarehouseChanges.Read.GetById;
 using HapagPortal.Application.WarehouseChanges.Read.GetMyChanges;
 using HapagPortal.Application.WarehouseChanges.Requests;
@@ -13,20 +12,13 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/warehouse-changes")]
+/// <summary>
+/// Cambio de almacén. El POST /warehouse-changes anterior, que aceptaba el monto enviado por el cliente,
+/// se retiró en la Ola C: las solicitudes van por /requests (individual) y /bulk (masiva), donde el
+/// monto lo determina el servidor según el derecho a cambio gratuito o la tarifa vigente (M3-04, M8-01).
+/// </summary>
 public sealed class WarehouseChangesController : ApiController
 {
-    [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateWarehouseChangeCommand command,
-        CancellationToken cancellationToken)
-    {
-        var result = await Sender.Send(command, cancellationToken);
-
-        return result.IsSuccess
-            ? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value)
-            : HandleFailure(result);
-    }
-
     [HttpGet("my")]
     public async Task<IActionResult> GetMyWarehouseChanges(
         CancellationToken cancellationToken)

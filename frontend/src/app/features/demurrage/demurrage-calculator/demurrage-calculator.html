@@ -1,0 +1,88 @@
+<form class="border rounded p-3" novalidate aria-labelledby="demurrage-calc-title" (submit)="$event.preventDefault(); calculate(true)">
+  <h3 id="demurrage-calc-title" class="h6 fw-bold">{{ 'demurrage.calculator.title' | transloco }}</h3>
+
+  @if (errors().length > 0) {
+    <div #calcErrorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="demurrage-calc-errors-title">
+      <h4 id="demurrage-calc-errors-title" class="h6 fw-bold">{{ 'demurrage.calculator.errors.summaryTitle' | transloco }}</h4>
+      <ul class="mb-0">
+        @for (error of errors(); track error.key) {
+          <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+        }
+      </ul>
+    </div>
+  }
+  @if (submitError()) {
+    <div class="alert alert-danger py-2" role="alert">{{ submitError() }}</div>
+  }
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <label for="demurrage-calc-until" class="form-label small fw-semibold">{{ 'demurrage.calculator.untilDate' | transloco }}</label>
+      <input id="demurrage-calc-until" type="date" class="form-control" required [value]="untilDate()" [min]="inputs().today"
+             aria-describedby="demurrage-calc-until-help" [attr.aria-invalid]="submitted() && !untilDate()" (change)="onUntilDate($event)" />
+      <div id="demurrage-calc-until-help" class="form-text">{{ 'demurrage.calculator.untilDateHelp' | transloco }}</div>
+    </div>
+    <div class="col-md-8">
+      <fieldset>
+        <legend class="form-label small fw-semibold mb-1">{{ 'demurrage.calculator.containers' | transloco }}</legend>
+        @for (container of inputs().containers; track container.containerNumber) {
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" [id]="'demurrage-calc-container-' + container.containerNumber"
+                   [checked]="isSelected(container.containerNumber)" (change)="toggleContainer(container.containerNumber, $event)" />
+            <label class="form-check-label" [for]="'demurrage-calc-container-' + container.containerNumber">
+              {{ 'demurrage.calculator.containerLabel' | transloco: { number: container.containerNumber, type: container.containerType } }}
+            </label>
+          </div>
+        }
+      </fieldset>
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap gap-2">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="busy()" (click)="calculate(false)">{{ 'demurrage.calculator.preview' | transloco }}</button>
+    <button type="submit" class="btn btn-hl-orange" [disabled]="busy()">
+      @if (busy()) {
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+      }
+      {{ 'demurrage.calculator.save' | transloco }}
+    </button>
+  </div>
+
+  @if (preview(); as p) {
+    <div class="table-responsive mt-3" tabindex="0" role="region" [attr.aria-label]="'demurrage.calculator.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'demurrage.calculator.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'demurrage.calculator.col.container' | transloco }}</th>
+            <th scope="col">{{ 'demurrage.calculator.col.until' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'demurrage.calculator.col.elapsedDays' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'demurrage.calculator.col.freeDays' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'demurrage.calculator.col.demurrageDays' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'demurrage.calculator.col.total' | transloco }}</th>
+            <th scope="col">{{ 'demurrage.calculator.col.tariff' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of p.lines; track line.containerNumber) {
+            <tr>
+              <td class="fw-semibold">{{ line.containerNumber }}</td>
+              <td>{{ line.untilDate | hlDate: 'localDate' }}</td>
+              <td class="text-end">{{ line.elapsedDays }}</td>
+              <td class="text-end">{{ line.freeDays }}</td>
+              <td class="text-end">{{ line.demurrageDays }}</td>
+              <td class="text-end">{{ line.totalAmount | hlCurrency: line.currency }}</td>
+              <td>{{ line.tariffSource | codeLabel: sourceKeys }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @for (t of p.totals; track t.currency) {
+      <p class="fw-bold mt-2 mb-0">{{ 'demurrage.calculator.total' | transloco: { amount: (t.total | hlCurrency: t.currency) } }}</p>
+    }
+    @if (!p.saved) {
+      <p class="small text-muted mb-0">{{ 'demurrage.calculator.previewNote' | transloco }}</p>
+    }
+  }
+</form>

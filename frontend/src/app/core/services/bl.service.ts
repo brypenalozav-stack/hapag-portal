@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { BillOfLading, LocalCharge, DemurrageCharge, BLChargesResponse } from '../models/bl.model';
+import { BillOfLading } from '../models/bl.model';
 
 @Injectable({ providedIn: 'root' })
 export class BillOfLadingService {
@@ -20,13 +20,5 @@ export class BillOfLadingService {
 
   getMyBLs(): Observable<BillOfLading[]> {
     return this.api.get<BillOfLading[]>('bills-of-lading/my');
-  }
-
-  getCharges(blNumber: string): Observable<BLChargesResponse> {
-    return this.api.get<BLChargesResponse>(`bills-of-lading/${blNumber}/charges`);
-  }
-
-  getDemurrage(blNumber: string): Observable<DemurrageCharge[]> {
-    return this.api.get<DemurrageCharge[]>(`bills-of-lading/${blNumber}/demurrage`);
   }
 }

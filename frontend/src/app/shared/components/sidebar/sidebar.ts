@@ -22,6 +22,8 @@ export class SidebarComponent {
   );
   /** Editor de la matriz base de accesos (M1-11). */
   canManageAccessMatrix = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_ACCESS_MATRIX));
+  /** Mantenedores de tarifas (M8-01) y reglas internas de cobro (M3-04, M3-16). */
+  canManageMaintainers = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_MAINTAINERS));
   closed = output<void>();
 
   onLinkClick(): void {

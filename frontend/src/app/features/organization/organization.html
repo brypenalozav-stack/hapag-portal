@@ -63,6 +63,10 @@
     </dl>
   </section>
 
+  @if (showCommercialConditions()) {
+    <app-commercial-conditions class="d-block mb-4" />
+  }
+
   <app-organization-documents class="d-block mb-4" />
 
   @if (canApproveRequests()) {
