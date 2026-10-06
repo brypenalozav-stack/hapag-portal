@@ -2,22 +2,20 @@ namespace HapagPortal.UnitTests.Application.BillsOfLading;
 
 using FluentAssertions;
 using HapagPortal.Application.BillsOfLading.Read.GetByNumber;
-using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
-using NSubstitute;
 
 public sealed class GetBLByNumberQueryHandlerTests
 {
     private readonly MockApplicationDbContext _dbContext = new();
-    private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
-    private readonly Guid _clientId = Guid.NewGuid();
+    private readonly Guid _clientId;
     private readonly GetBLByNumberQueryHandler _handler;
 
     public GetBLByNumberQueryHandlerTests()
     {
-        _currentUser.ClientId.Returns(_clientId);
-        _handler = new GetBLByNumberQueryHandler(_dbContext, _currentUser);
+        var client = AccessTestData.ClientContext(_dbContext);
+        _clientId = client.Organization.Id;
+        _handler = new GetBLByNumberQueryHandler(_dbContext, client.Evaluator);
     }
 
     [Fact]

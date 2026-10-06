@@ -83,11 +83,34 @@ public sealed class HttpShipmentSource(HttpClient httpClient, ISecretResolver se
         dto.DepotImport,
         dto.DepotExport,
         dto.MatchCode,
-        dto.TaxId);
+        dto.TaxId,
+        dto.PortOfDischargeCode,
+        dto.FinalDestinationCode,
+        dto.Difu?.Code,
+        dto.Difu?.LocationCode,
+        dto.Issuance?.DocumentType,
+        dto.Issuance?.EblPlatform,
+        dto.Issuance?.Status,
+        dto.Issuance?.StatusAt,
+        dto.Issuance?.IssuancePlace);
 
     private sealed record ShipmentPageDto(IReadOnlyList<ShipmentDto> Items, string? NextCursor);
 
-    /// <summary><c>ShipmentSummary</c> de CT-FIS; el detalle por BL trae más campos, que se ignoran.</summary>
+    /// <summary>DIFU informado por el origen y localidad a la que está asociado (M2-01, propuesta Ola F).</summary>
+    private sealed record DifuDto(string Code, string? LocationCode = null);
+
+    /// <summary>Documento de transporte y su estado de emisión (M2-02, propuesta Ola F).</summary>
+    private sealed record IssuanceDto(
+        string? DocumentType = null,
+        string? EblPlatform = null,
+        string? Status = null,
+        DateTime? StatusAt = null,
+        string? IssuancePlace = null);
+
+    /// <summary>
+    /// <c>ShipmentSummary</c> de CT-FIS con los campos opcionales de la Ola F (<c>portOfDischargeCode</c>,
+    /// <c>finalDestinationCode</c>, <c>difu</c>, <c>issuance</c>); el detalle por BL trae más campos, que se ignoran.
+    /// </summary>
     private sealed record ShipmentDto(
         string BlNumber,
         string ShipmentType,
@@ -101,5 +124,9 @@ public sealed class HttpShipmentSource(HttpClient httpClient, ISecretResolver se
         string? DepotImport = null,
         string? DepotExport = null,
         string? MatchCode = null,
-        string? TaxId = null);
+        string? TaxId = null,
+        string? PortOfDischargeCode = null,
+        string? FinalDestinationCode = null,
+        DifuDto? Difu = null,
+        IssuanceDto? Issuance = null);
 }

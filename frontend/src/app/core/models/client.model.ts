@@ -1,3 +1,5 @@
+import { OrganizationSummary, OrganizationType } from './organization.model';
+
 export interface Client {
   id: string;
   name: string;
@@ -22,6 +24,8 @@ export interface LoginResponse {
   refreshToken: string;
   expiresIn: number;
   user: Client;
+  /** Organización del usuario y su situación (M1-07, M1-08, M1-02, M1-04). */
+  organization?: OrganizationSummary | null;
 }
 
 export interface RegisterRequest {
@@ -33,6 +37,10 @@ export interface RegisterRequest {
   country: 'CL' | 'BO';
   clientType: 'Client' | 'CustomsAgent';
   agentCode?: string;
+  /** Tipo de organización declarado (M1-07); prevalece sobre `clientType`. */
+  organizationType?: OrganizationType;
+  contactFirstName?: string;
+  contactLastName?: string;
 }
 
 export interface ForgotPasswordRequest {

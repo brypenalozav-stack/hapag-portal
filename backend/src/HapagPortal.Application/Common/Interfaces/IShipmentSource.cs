@@ -19,7 +19,12 @@ public interface IShipmentSource
         CancellationToken cancellationToken = default);
 }
 
-/// <summary>Resumen de un embarque (<c>ShipmentSummary</c> de CT-FIS).</summary>
+/// <summary>
+/// Resumen de un embarque (<c>ShipmentSummary</c> de CT-FIS). Ola F agrega, como propuesta del contrato,
+/// los datos de publicación por DIFU (M2-01: puerto de descarga, destino final y DIFU con su localidad) y de
+/// emisión del documento de transporte (M2-02: tipo BL/SWB/EBL, plataforma del EBL, código de estado de
+/// emisión del origen, su fecha y el lugar de emisión). Son opcionales: nulo = el origen no lo informa.
+/// </summary>
 public sealed record ShipmentRecord(
     string BlNumber,
     string? BookingNumber,
@@ -32,4 +37,13 @@ public sealed record ShipmentRecord(
     string? DepotImport,
     string? DepotExport,
     string? MatchCode,
-    string? TaxId);
+    string? TaxId,
+    string? PortOfDischargeCode = null,
+    string? FinalDestinationCode = null,
+    string? DifuCode = null,
+    string? DifuLocationCode = null,
+    string? DocumentType = null,
+    string? EblPlatform = null,
+    string? IssuanceStatus = null,
+    DateTime? IssuanceStatusAt = null,
+    string? IssuancePlace = null);

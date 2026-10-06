@@ -1,0 +1,94 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.organizations.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.organizations.subtitle' | transloco }}</p>
+</div>
+
+<form class="hl-card p-3 mb-4" (ngSubmit)="applyFilters()" role="search" [attr.aria-label]="'admin.organizations.filters.label' | transloco">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-3">
+      <label for="org-status-filter" class="form-label small fw-semibold">{{ 'admin.organizations.filters.status' | transloco }}</label>
+      <select id="org-status-filter" name="status" class="form-select" [(ngModel)]="statusFilter">
+        <option value="">{{ 'admin.organizations.filters.all' | transloco }}</option>
+        @for (status of statuses; track status) {
+          <option [value]="status">{{ status | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="org-type-filter" class="form-label small fw-semibold">{{ 'admin.organizations.filters.type' | transloco }}</label>
+      <select id="org-type-filter" name="organizationType" class="form-select" [(ngModel)]="typeFilter">
+        <option value="">{{ 'admin.organizations.filters.all' | transloco }}</option>
+        @for (type of types; track type) {
+          <option [value]="type">{{ type | codeLabel: typeKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label for="org-search" class="form-label small fw-semibold">{{ 'admin.organizations.filters.search' | transloco }}</label>
+      <input id="org-search" name="search" type="text" class="form-control" autocomplete="off"
+             aria-describedby="org-search-help" [(ngModel)]="searchTerm" />
+      <div id="org-search-help" class="form-text">{{ 'admin.organizations.filters.searchHelp' | transloco }}</div>
+    </div>
+    <div class="col-md-2 align-self-start pt-md-4">
+      <button type="submit" class="btn btn-hl-orange w-100 mt-md-1">{{ 'admin.organizations.filters.apply' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (error()) {
+  <div class="alert alert-warning" role="alert">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (organizations().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.organizations.empty'" />
+} @else {
+  <div class="hl-card">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.organizations.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.organizations.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.organizations.col.name' | transloco }}</th>
+            <th scope="col">{{ 'admin.organizations.col.taxId' | transloco }}</th>
+            <th scope="col">{{ 'admin.organizations.col.country' | transloco }}</th>
+            <th scope="col">{{ 'admin.organizations.col.type' | transloco }}</th>
+            <th scope="col">{{ 'admin.organizations.col.status' | transloco }}</th>
+            <th scope="col">{{ 'admin.organizations.col.matchCode' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'admin.organizations.col.users' | transloco }}</th>
+            <th scope="col">{{ 'admin.organizations.col.createdAt' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (org of organizations(); track org.id) {
+            <tr>
+              <td><a [routerLink]="['/admin/organizations', org.id]" class="fw-semibold text-hl-blue">{{ org.name }}</a></td>
+              <td>{{ org.taxIdType }} {{ org.taxId }}</td>
+              <td><app-country-badge [country]="org.country" /></td>
+              <td>{{ org.organizationType | codeLabel: typeKeys }}</td>
+              <td>{{ org.status | codeLabel: statusKeys }}</td>
+              <td>{{ org.matchCode ?? '—' }}</td>
+              <td class="text-end">{{ org.userCount }}</td>
+              <td>{{ org.createdAt | hlDate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'admin.organizations.pagination.label' | transloco">
+      <span class="small text-muted">{{ 'admin.organizations.pagination.showing' | transloco: { shown: organizations().length, total: total() } }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">
+          {{ 'admin.organizations.pagination.previous' | transloco }}
+        </button>
+        <span class="small">{{ 'admin.organizations.pagination.page' | transloco: { page: page(), pages: totalPages } }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">
+          {{ 'admin.organizations.pagination.next' | transloco }}
+        </button>
+      </div>
+    </nav>
+  </div>
+}

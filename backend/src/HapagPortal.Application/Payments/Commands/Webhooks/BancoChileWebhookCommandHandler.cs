@@ -2,6 +2,7 @@ namespace HapagPortal.Application.Payments.Commands.Webhooks;
 
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Payments.Common;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
@@ -16,6 +17,7 @@ public sealed class BancoChileWebhookCommandHandler(
     private const string BancoChileStatusRejected = "rejected";
     private const string BancoChileStatusPending = "pending";
     private const decimal AmountTolerance = 0.01m;
+    private static readonly PaymentActor WebhookActor = new("BANCOCHILE_WEBHOOK", null);
 
     public async Task<Result> Handle(
         BancoChileWebhookCommand request,
@@ -49,19 +51,17 @@ public sealed class BancoChileWebhookCommandHandler(
             return Result.Failure(DomainErrors.Payment.InvalidAmount);
         }
 
-        payment.Status = request.Status switch
+        var newStatus = request.Status switch
         {
             BancoChileStatusApproved => PaymentStatus.Confirmed,
             BancoChileStatusRejected => PaymentStatus.Failed,
             BancoChileStatusPending => PaymentStatus.Processing,
-            _ => payment.Status
+            _ => null
         };
 
-        if (payment.Status == PaymentStatus.Confirmed)
-        {
-            payment.ConfirmedAt = DateTime.UtcNow;
-            payment.ConfirmedBy = "BANCOCHILE_WEBHOOK";
-        }
+        // Ola D: la transición pasa por el ciclo de vida (historial NF-02, liberación NF-03).
+        if (newStatus is not null)
+            await PaymentWebhookTransitions.ApplyAsync(dbContext, payment, newStatus, WebhookActor, request.TransactionId, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

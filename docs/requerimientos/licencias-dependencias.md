@@ -56,3 +56,19 @@ Cada fase que agrega una dependencia registra aquí el nombre, la **versión exa
 | cosmiconfig 8.3.6 y sus transitivas (js-yaml 4.3.2, import-fresh, parse-json, etc.: MIT; argparse 2.0.1: Python-2.0), vía @jsverse/transloco-utils; solo Node, no entran al bundle | 8.3.6 | `frontend/package-lock.json` | MIT / Python-2.0 | 5b |
 | @jsverse/transloco-keys-manager | 8.1.1 | `frontend/package.json` (devDependencies) | MIT | 5b |
 | Transitivas de @jsverse/transloco-keys-manager (cheerio, glob, ora, chalk, cosmiconfig 9.0.2, @jsverse/angular-utils 1.0.0-beta.6, etc.: MIT; css-select, css-what, cheerio-select, entities: BSD-2-Clause; flat 6.0.1, ieee754: BSD-3-Clause) | según `package-lock.json` | `frontend/package-lock.json` (dev) | MIT / BSD-2-Clause / BSD-3-Clause | 5b |
+| PDFsharp-MigraDoc (MigraDoc.DocumentObjectModel y MigraDoc.Rendering: generación de PDF de los documentos del embarque; no QuestPDF ni iText) | 6.2.4 | `backend/src/HapagPortal.Infrastructure/HapagPortal.Infrastructure.csproj` | MIT | Fase 1 Ola E |
+| PDFsharp (transitiva de PDFsharp-MigraDoc: PdfSharp, PdfSharp.Shared, PdfSharp.System y demás ensamblados PdfSharp.*) | 6.2.4 | `HapagPortal.Infrastructure` | MIT | Fase 1 Ola E |
+| System.Security.Cryptography.Pkcs (transitiva de PDFsharp) | 8.0.1 | `HapagPortal.Infrastructure` | MIT | Fase 1 Ola E |
+| Microsoft.Extensions.Logging.Abstractions (transitiva de PDFsharp, pide ≥ 8.0.3; se resuelve la del proyecto) | 9.0.10 | `HapagPortal.Infrastructure` | MIT | Fase 1 Ola E |
+| Liberation Sans (Regular, Bold, Italic, BoldItalic; fuente incrustada en los PDF, licencia en `Documents/Fonts/LICENSE-LiberationFonts-OFL-1.1.txt`) | 2.1.5 | `backend/src/HapagPortal.Infrastructure/Documents/Fonts/` (recurso incrustado) | OFL-1.1 | Fase 1 Ola E |
+
+### Ola F (Fase 1): asistente y buscador DG
+
+Sin paquetes nuevos en el backend: la caché corta del TATC usa `Microsoft.Extensions.Caching.Memory`, ya presente como dependencia transitiva de EF Core (MIT).
+
+| Dependencia | Versión exacta | Dónde | Licencia | Fase |
+|---|---|---|---|---|
+| Ollama (servidor local opcional, fuera del despliegue del portal; solo con `Assistant:Mode=Ollama`) | la que instale cada ambiente | Infraestructura del ambiente, consumido por HTTP (`POST /api/chat`) | MIT | Ola F |
+| Modelo por defecto `phi3.5` (Phi-3.5-mini) | etiqueta `phi3.5` de Ollama | Infraestructura del ambiente | MIT | Ola F |
+
+Otro modelo solo puede configurarse si su licencia está aprobada por la OSI (por ejemplo Apache-2.0 o MIT); modelos con licencias comunitarias no OSI no se usan. La base de referencia DG (M10-06) siembra una muestra con números ONU, nombres y clases de la lista de las Recomendaciones de la ONU; no reproduce texto del Código IMDG. La lista completa se carga por la importación CSV desde la fuente que Hapag-Lloyd valide con su licencia.

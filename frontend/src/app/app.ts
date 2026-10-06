@@ -5,11 +5,13 @@ import { AuthService } from './core/services/auth.service';
 import { LiveAnnouncerService } from './core/services/live-announcer.service';
 import { NavbarComponent } from './shared/components/navbar/navbar';
 import { SidebarComponent } from './shared/components/sidebar/sidebar';
+import { AssistantComponent } from './shared/components/assistant/assistant';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, TranslocoPipe, NavbarComponent, SidebarComponent],
+  imports: [RouterOutlet, TranslocoPipe, NavbarComponent, SidebarComponent, AssistantComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -17,6 +19,8 @@ export class AppComponent {
   readonly auth = inject(AuthService);
   readonly announcer = inject(LiveAnnouncerService);
   private readonly document = inject(DOCUMENT);
+  /** Tema claro u oscuro (M11-07): se aplica desde el arranque, con o sin sesión. */
+  readonly theme = inject(ThemeService);
   sidebarOpen = signal(false);
 
   toggleSidebar(): void {

@@ -1,0 +1,126 @@
+<dialog #dialog class="hl-dialog" aria-labelledby="letter-title" (close)="onClosed()">
+  <div class="hl-dialog__header">
+    <h2 id="letter-title" class="h5 fw-bold mb-0">{{ 'documents.letter.title' | transloco: { bl: blNumber() } }}</h2>
+    <button type="button" class="btn btn-sm btn-outline-secondary hl-icon-btn" [attr.aria-label]="'documents.letter.close' | transloco" (click)="close()">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+      </svg>
+    </button>
+  </div>
+
+  <form id="letter-form" novalidate (submit)="submit($event)">
+    <div class="hl-dialog__body">
+      @if (errors().length > 0) {
+        <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="letter-errors-title">
+          <h3 id="letter-errors-title" class="h6 fw-bold">{{ 'documents.letter.errors.summaryTitle' | transloco }}</h3>
+          <ul class="mb-0">
+            @for (error of errors(); track error.key) {
+              <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+            }
+          </ul>
+        </div>
+      }
+      @if (submitError()) {
+        <div class="alert alert-danger py-2" role="alert" data-testid="letter-error">{{ submitError() }}</div>
+      }
+
+      <p class="small text-muted">{{ 'documents.letter.help' | transloco }}</p>
+
+      <!-- Datos de quien firma la carta (M6-06) -->
+      <fieldset class="mb-2">
+        <legend class="h6 fw-bold">{{ 'documents.letter.signatory' | transloco }}</legend>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="letter-signatory-name" class="form-label small fw-semibold">{{ 'documents.letter.fields.signatoryName' | transloco }}</label>
+            <input id="letter-signatory-name" type="text" class="form-control" required autocomplete="name"
+                   [value]="values().signatoryName" (input)="onInput('signatoryName', $event)"
+                   [class.is-invalid]="!!fieldError('letter-signatory-name')" [attr.aria-invalid]="fieldError('letter-signatory-name') ? true : null"
+                   [attr.aria-describedby]="fieldError('letter-signatory-name') ? 'letter-signatory-name-error' : null" />
+            @if (fieldError('letter-signatory-name'); as error) {
+              <div id="letter-signatory-name-error" class="invalid-feedback">{{ error | transloco }}</div>
+            }
+          </div>
+          <div class="col-md-6">
+            <label for="letter-signatory-tax-id" class="form-label small fw-semibold">{{ 'documents.letter.fields.signatoryTaxId' | transloco }}</label>
+            <input id="letter-signatory-tax-id" type="text" class="form-control" required autocomplete="off"
+                   [value]="values().signatoryTaxId" (input)="onInput('signatoryTaxId', $event)"
+                   [class.is-invalid]="!!fieldError('letter-signatory-tax-id')" [attr.aria-invalid]="fieldError('letter-signatory-tax-id') ? true : null"
+                   [attr.aria-describedby]="fieldError('letter-signatory-tax-id') ? 'letter-signatory-tax-id-help letter-signatory-tax-id-error' : 'letter-signatory-tax-id-help'" />
+            <div id="letter-signatory-tax-id-help" class="form-text">{{ 'documents.letter.fields.signatoryTaxIdHelp' | transloco }}</div>
+            @if (fieldError('letter-signatory-tax-id'); as error) {
+              <div id="letter-signatory-tax-id-error" class="invalid-feedback">{{ error | transloco }}</div>
+            }
+          </div>
+          <div class="col-md-6">
+            <label for="letter-signatory-position" class="form-label small fw-semibold">{{ 'documents.letter.fields.signatoryPosition' | transloco }}</label>
+            <input id="letter-signatory-position" type="text" class="form-control" required autocomplete="organization-title"
+                   [value]="values().signatoryPosition" (input)="onInput('signatoryPosition', $event)"
+                   [class.is-invalid]="!!fieldError('letter-signatory-position')" [attr.aria-invalid]="fieldError('letter-signatory-position') ? true : null"
+                   [attr.aria-describedby]="fieldError('letter-signatory-position') ? 'letter-signatory-position-error' : null" />
+            @if (fieldError('letter-signatory-position'); as error) {
+              <div id="letter-signatory-position-error" class="invalid-feedback">{{ error | transloco }}</div>
+            }
+          </div>
+          <div class="col-md-6">
+            <label for="letter-contact-email" class="form-label small fw-semibold">{{ 'documents.letter.fields.contactEmail' | transloco }}</label>
+            <input id="letter-contact-email" type="email" class="form-control" required autocomplete="email"
+                   [value]="values().contactEmail" (input)="onInput('contactEmail', $event)"
+                   [class.is-invalid]="!!fieldError('letter-contact-email')" [attr.aria-invalid]="fieldError('letter-contact-email') ? true : null"
+                   [attr.aria-describedby]="fieldError('letter-contact-email') ? 'letter-contact-email-error' : null" />
+            @if (fieldError('letter-contact-email'); as error) {
+              <div id="letter-contact-email-error" class="invalid-feedback">{{ error | transloco }}</div>
+            }
+          </div>
+          <div class="col-md-6">
+            <label for="letter-contact-phone" class="form-label small fw-semibold">{{ 'documents.letter.fields.contactPhone' | transloco }}</label>
+            <input id="letter-contact-phone" type="tel" class="form-control" autocomplete="tel"
+                   [value]="values().contactPhone" (input)="onInput('contactPhone', $event)" />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Datos de la carga y observaciones (opcionales) -->
+      <div class="mb-3">
+        <label for="letter-cargo" class="form-label small fw-semibold">{{ 'documents.letter.fields.cargoDescription' | transloco }}</label>
+        <input id="letter-cargo" type="text" class="form-control" autocomplete="off"
+               [value]="values().cargoDescription" (input)="onInput('cargoDescription', $event)" />
+      </div>
+      <div class="mb-3">
+        <label for="letter-observations" class="form-label small fw-semibold">{{ 'documents.letter.fields.observations' | transloco }}</label>
+        <textarea id="letter-observations" class="form-control" rows="2"
+                  [value]="values().observations" (input)="onInput('observations', $event)"></textarea>
+      </div>
+
+      <!-- Términos vigentes y su aceptación (M6-06) -->
+      @if (termsLoading()) {
+        <app-loading-spinner />
+      } @else if (terms(); as t) {
+        <div class="border rounded p-3">
+          <h3 id="letter-terms-title" class="h6 fw-bold">{{ 'documents.letter.termsTitle' | transloco: { title: t.title, version: t.version } }}</h3>
+          <div class="document-terms small mb-2" tabindex="0" role="region" aria-labelledby="letter-terms-title" data-testid="letter-terms">{{ t.text }}</div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="letter-accept-terms" required [checked]="acceptTerms()"
+                   [class.is-invalid]="!!fieldError('letter-accept-terms')" [attr.aria-invalid]="fieldError('letter-accept-terms') ? true : null"
+                   aria-describedby="letter-accept-terms-help" (change)="onAcceptTerms($event)" />
+            <label class="form-check-label" for="letter-accept-terms">{{ 'documents.letter.accept' | transloco: { version: t.version } }}</label>
+          </div>
+          <div id="letter-accept-terms-help" class="form-text">{{ 'documents.letter.acceptHelp' | transloco }}</div>
+        </div>
+      } @else {
+        <div class="alert alert-warning py-2 mb-0" role="alert">
+          <p class="mb-2">{{ termsError() }}</p>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="loadTerms()">{{ 'documents.letter.retryTerms' | transloco }}</button>
+        </div>
+      }
+    </div>
+    <div class="hl-dialog__footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="close()">{{ 'documents.letter.cancel' | transloco }}</button>
+      <button type="submit" class="btn btn-hl-orange" [disabled]="submitting() || !terms()">
+        @if (submitting()) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        }
+        {{ 'documents.letter.submit' | transloco }}
+      </button>
+    </div>
+  </form>
+</dialog>

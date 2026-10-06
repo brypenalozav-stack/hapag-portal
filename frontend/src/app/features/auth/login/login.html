@@ -89,8 +89,11 @@
         <a routerLink="/forgot-password" class="register-link d-block mb-2">
           {{ 'auth.login.forgotPassword' | transloco }}
         </a>
-        <a routerLink="/register" class="register-link">
+        <a routerLink="/register" class="register-link d-block mb-2">
           {{ 'auth.login.noAccount' | transloco }} <strong>{{ 'auth.login.registerLink' | transloco }}</strong>
+        </a>
+        <a routerLink="/register/join" class="register-link">
+          {{ 'auth.login.joinPrompt' | transloco }} <strong>{{ 'auth.login.joinLink' | transloco }}</strong>
         </a>
       </div>
     </div>

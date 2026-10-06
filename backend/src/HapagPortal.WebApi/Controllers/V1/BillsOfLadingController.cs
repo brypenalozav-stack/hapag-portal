@@ -4,7 +4,6 @@ using Asp.Versioning;
 using HapagPortal.Application.BillsOfLading.Import;
 using HapagPortal.Application.BillsOfLading.Read.GetAll;
 using HapagPortal.Application.BillsOfLading.Read.GetByNumber;
-using HapagPortal.Application.BillsOfLading.Read.GetCharges;
 using HapagPortal.Application.BillsOfLading.Read.GetContainers;
 using HapagPortal.Application.BillsOfLading.Read.GetMyBLs;
 using HapagPortal.Application.Demurrage.Read.GetByBL;
@@ -58,18 +57,8 @@ public sealed class BillsOfLadingController : ApiController
             : HandleFailure(result);
     }
 
-    [HttpGet("{blNumber}/charges")]
-    public async Task<IActionResult> GetCharges(
-        string blNumber,
-        CancellationToken cancellationToken)
-    {
-        var query = new GetChargesByBLQuery(blNumber);
-        var result = await Sender.Send(query, cancellationToken);
-
-        return result.IsSuccess
-            ? Ok(result.Value)
-            : HandleFailure(result);
-    }
+    // GET {blNumber}/charges se retiró en la Ola C: los cargos del BL con las reglas de Nexus aplicadas
+    // (exenciones, IPO excluido por crédito) están en GET /charges/{blNumber}.
 
     [HttpGet("{blNumber}/demurrage")]
     public async Task<IActionResult> GetDemurrage(

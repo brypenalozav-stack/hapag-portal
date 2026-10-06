@@ -13,6 +13,9 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 
+// Los endpoints de estos mantenedores heredados están marcados [Obsolete] desde la Ola C (el crédito y
+// las exenciones se leen de Nexus); las pruebas siguen cubriéndolos mientras existan.
+#pragma warning disable CS0618
 public sealed class AdminControllerTests
 {
     private readonly ISender _sender = Substitute.For<ISender>();
@@ -112,3 +115,4 @@ public sealed class AdminControllerTests
         okResult.Value.Should().Be(dto);
     }
 }
+#pragma warning restore CS0618

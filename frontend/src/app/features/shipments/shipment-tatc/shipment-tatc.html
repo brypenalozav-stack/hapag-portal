@@ -1,0 +1,88 @@
+<section class="hl-card mb-4" aria-labelledby="shipment-tatc-title" data-testid="shipment-tatc">
+  <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h2 id="shipment-tatc-title" class="section-title">{{ 'shipments.detail.tatc.title' | transloco }}</h2>
+    @if (tatc()?.canRequestGeneration) {
+      <a routerLink="/tatc" [queryParams]="{ bl: blNumber() }" class="btn btn-sm btn-outline-secondary">{{ 'shipments.detail.tatc.request' | transloco }}</a>
+    }
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <div class="p-3">
+      <div class="alert alert-warning mb-2" role="alert">{{ 'shipments.detail.tatc.portalUnavailable' | transloco }}</div>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="load()">{{ 'shipments.detail.tatc.retry' | transloco }}</button>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-danger m-3" role="alert">{{ error() }}</div>
+  } @else if (tatc(); as t) {
+    @if (!t.available) {
+      <!-- NF-11: el sistema de TATC no respondió; no se muestran datos anteriores como vigentes -->
+      <div class="p-3">
+        <div class="alert alert-warning mb-2" role="alert" data-testid="tatc-unavailable">{{ 'shipments.detail.tatc.unavailable' | transloco }}</div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="load()">{{ 'shipments.detail.tatc.retry' | transloco }}</button>
+      </div>
+    } @else {
+      <div class="p-3 pb-0">
+        <dl class="row g-3 mb-0">
+          <div class="col-sm-6 col-lg-4">
+            <dt class="detail-label">{{ 'shipments.detail.tatc.blStatus' | transloco }}</dt>
+            <dd class="mb-0">
+              @if (t.status) {
+                <span class="hl-badge" [class]="statusClass[t.status] || 'hl-badge--processing'" data-testid="tatc-status">{{ t.status | codeLabel: statusKeys }}</span>
+              } @else {
+                {{ 'shipments.detail.tatc.notInformed' | transloco }}
+              }
+            </dd>
+          </div>
+          <div class="col-sm-6 col-lg-4">
+            <dt class="detail-label">{{ 'shipments.detail.tatc.sourceUpdatedAt' | transloco }}</dt>
+            <dd class="detail-value">{{ t.sourceUpdatedAt ? (t.sourceUpdatedAt | hlDate: 'datetime') : ('shipments.detail.tatc.notInformed' | transloco) }}</dd>
+          </div>
+          <div class="col-sm-6 col-lg-4">
+            <dt class="detail-label">{{ 'shipments.detail.tatc.retrievedAt' | transloco }}</dt>
+            <dd class="detail-value">{{ t.retrievedAt | hlDate: 'datetime' }}</dd>
+          </div>
+        </dl>
+      </div>
+      @if (t.containers.length > 0) {
+        <div class="table-responsive mt-3" tabindex="0" role="region" [attr.aria-label]="'shipments.detail.tatc.caption' | transloco: { bl: t.blNumber }">
+          <table class="hl-table">
+            <caption class="visually-hidden">{{ 'shipments.detail.tatc.caption' | transloco: { bl: t.blNumber } }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'shipments.detail.tatc.col.container' | transloco }}</th>
+                <th scope="col">{{ 'shipments.detail.tatc.col.number' | transloco }}</th>
+                <th scope="col">{{ 'shipments.detail.tatc.col.status' | transloco }}</th>
+                <th scope="col">{{ 'shipments.detail.tatc.col.issuedAt' | transloco }}</th>
+                <th scope="col">{{ 'shipments.detail.tatc.col.warehouse' | transloco }}</th>
+                <th scope="col">{{ 'shipments.detail.tatc.col.pending' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (container of t.containers; track container.containerNumber) {
+                <tr [attr.data-testid]="'tatc-' + container.containerNumber">
+                  <td class="fw-semibold">{{ container.containerNumber }}</td>
+                  <td>{{ container.tatcNumber ?? '—' }}</td>
+                  <td><span class="hl-badge" [class]="statusClass[container.status] || 'hl-badge--processing'">{{ container.status | codeLabel: statusKeys }}</span></td>
+                  <td>{{ container.issuedAt ? (container.issuedAt | hlDate: 'datetime') : '—' }}</td>
+                  <td>{{ container.warehouseCode ?? '—' }}</td>
+                  <td>
+                    @for (reason of container.pendingReasons; track reason) {
+                      <span class="d-block small">{{ reason | codeLabel: reasonKeys }}</span>
+                    } @empty {
+                      <span aria-hidden="true">—</span>
+                      <span class="visually-hidden">{{ 'shipments.detail.tatc.noPending' | transloco }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="p-3 mb-0 text-muted" role="status">{{ 'shipments.detail.tatc.empty' | transloco }}</p>
+      }
+    }
+  }
+</section>

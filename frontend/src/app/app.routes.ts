@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { internalGuard } from './core/guards/internal.guard';
+import { permissionGuard } from './core/guards/permission.guard';
+import { PERMISSIONS } from './core/constants/app.constants';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -16,47 +18,100 @@ export const routes: Routes = [
       import('./features/auth/register/register').then((m) => m.RegisterComponent),
   },
   {
+    path: 'register/join',
+    loadComponent: () =>
+      import('./features/auth/join-organization/join-organization').then((m) => m.JoinOrganizationComponent),
+  },
+  {
     path: 'dashboard',
     loadComponent: () =>
       import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
     canActivate: [authGuard],
   },
+  // Listado y detalle de embarques (M2-06, M2-07); reemplazan a la consulta de BL.
   {
-    path: 'bills-of-lading',
+    path: 'shipments',
     loadComponent: () =>
-      import('./features/bill-of-lading/bl-list/bl-list').then((m) => m.BLListComponent),
+      import('./features/shipments/shipment-list/shipment-list').then((m) => m.ShipmentListComponent),
     canActivate: [authGuard],
   },
   {
-    path: 'bills-of-lading/:blNumber',
+    path: 'shipments/:blNumber',
     loadComponent: () =>
-      import('./features/bill-of-lading/bl-detail/bl-detail').then((m) => m.BLDetailComponent),
+      import('./features/shipments/shipment-detail/shipment-detail').then((m) => m.ShipmentDetailComponent),
+    canActivate: [authGuard],
+  },
+  // Ola E: repositorio documental del embarque en su propia página (M6-09), para enlaces directos.
+  {
+    path: 'shipments/:blNumber/documents',
+    loadComponent: () =>
+      import('./features/documents/shipment-documents-page').then((m) => m.ShipmentDocumentsPageComponent),
+    canActivate: [authGuard],
+  },
+  { path: 'bills-of-lading', redirectTo: '/shipments', pathMatch: 'full' },
+  { path: 'bills-of-lading/:blNumber', redirectTo: '/shipments/:blNumber' },
+  {
+    path: 'organization',
+    loadComponent: () =>
+      import('./features/organization/organization').then((m) => m.OrganizationComponent),
+    canActivate: [authGuard],
+  },
+  // Ola D: carro unificado por moneda (M5-01, M5-08, M5-09), pago desde la cuenta para clientes con
+  // crédito (M5-07), resultado del pago (NF-02, NF-12), facturas (M7-01) e historial de pagos (M7-02).
+  // El listado de pagos, los comprobantes y el pago por BL anteriores se retiraron: sus rutas redirigen.
+  {
+    path: 'cart',
+    loadComponent: () => import('./features/cart/cart').then((m) => m.CartComponent),
     canActivate: [authGuard],
   },
   {
-    path: 'payments',
+    path: 'account-payments',
     loadComponent: () =>
-      import('./features/payments/payment-list/payment-list').then((m) => m.PaymentListComponent),
+      import('./features/account-payments/account-payments').then((m) => m.AccountPaymentsComponent),
     canActivate: [authGuard],
   },
   {
-    path: 'payments/new/:blId',
+    path: 'payments/:id/result',
     loadComponent: () =>
-      import('./features/payments/payment-form/payment-form').then((m) => m.PaymentFormComponent),
+      import('./features/payments/payment-result/payment-result').then((m) => m.PaymentResultComponent),
     canActivate: [authGuard],
   },
   {
-    path: 'local-charges',
-    loadComponent: () =>
-      import('./features/local-charges/local-charges').then((m) => m.LocalChargesComponent),
+    path: 'invoices',
+    loadComponent: () => import('./features/invoices/invoices').then((m) => m.InvoicesComponent),
     canActivate: [authGuard],
   },
   {
-    path: 'local-charges/:blNumber',
+    path: 'payment-history',
     loadComponent: () =>
-      import('./features/local-charges/local-charges').then((m) => m.LocalChargesComponent),
+      import('./features/payment-history/payment-history').then((m) => m.PaymentHistoryComponent),
     canActivate: [authGuard],
   },
+  {
+    path: 'payment-history/:id',
+    loadComponent: () =>
+      import('./features/payment-history/payment-history-detail').then((m) => m.PaymentHistoryDetailComponent),
+    canActivate: [authGuard],
+  },
+  { path: 'payments', redirectTo: '/payment-history', pathMatch: 'full' },
+  { path: 'payments/new/:blId', redirectTo: '/cart' },
+  { path: 'receipts', redirectTo: '/payment-history', pathMatch: 'full' },
+  // Ola C: cargos con las reglas de Nexus (M4-01 a M4-04, M3-01, M5-05); reemplazan a /local-charges.
+  {
+    path: 'charges',
+    loadComponent: () =>
+      import('./features/charges/charges').then((m) => m.ChargesComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'charges/:blNumber',
+    loadComponent: () =>
+      import('./features/charges/charges').then((m) => m.ChargesComponent),
+    canActivate: [authGuard],
+  },
+  { path: 'local-charges', redirectTo: '/charges', pathMatch: 'full' },
+  { path: 'local-charges/:blNumber', redirectTo: '/charges/:blNumber' },
+  // Demurrage por estado del BL (M3-18, M3-02, M3-16).
   {
     path: 'demurrage',
     loadComponent: () =>
@@ -69,10 +124,20 @@ export const routes: Routes = [
       import('./features/demurrage/demurrage').then((m) => m.DemurrageComponent),
     canActivate: [authGuard],
   },
+  // Cambio de almacén gratuito o tarifado y solicitud masiva (M3-04, M3-05).
   {
     path: 'warehouse',
     loadComponent: () =>
       import('./features/warehouse/warehouse').then((m) => m.WarehouseComponent),
+    canActivate: [authGuard],
+  },
+  // Avance de una solicitud masiva de cambio de almacén (M3-05, NF-19).
+  {
+    path: 'warehouse/bulk/:id',
+    loadComponent: () =>
+      import('./features/warehouse/warehouse-bulk-progress/warehouse-bulk-progress').then(
+        (m) => m.WarehouseBulkProgressComponent,
+      ),
     canActivate: [authGuard],
   },
   {
@@ -81,10 +146,16 @@ export const routes: Routes = [
       import('./features/service-orders/service-orders').then((m) => m.ServiceOrdersComponent),
     canActivate: [authGuard],
   },
+  // Ola F: solicitud masiva de TATC por localidad (M2-09) y buscador de mercancías peligrosas (M10-06).
   {
-    path: 'receipts',
+    path: 'tatc',
+    loadComponent: () => import('./features/tatc/tatc-bulk').then((m) => m.TatcBulkComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'dangerous-goods',
     loadComponent: () =>
-      import('./features/receipts/receipts').then((m) => m.ReceiptsComponent),
+      import('./features/dangerous-goods/dangerous-goods').then((m) => m.DangerousGoodsComponent),
     canActivate: [authGuard],
   },
   {
@@ -113,20 +184,6 @@ export const routes: Routes = [
     path: 'faq',
     loadComponent: () =>
       import('./features/faq/faq').then((m) => m.FAQComponent),
-  },
-  {
-    path: 'admin/credit-clients',
-    loadComponent: () =>
-      import('./features/admin/credit-clients/credit-clients').then((m) => m.CreditClientsComponent),
-    canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/demurrage-exemptions',
-    loadComponent: () =>
-      import('./features/admin/demurrage-exemptions/demurrage-exemptions').then(
-        (m) => m.DemurrageExemptionsComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
   },
   {
     path: 'admin/users',
@@ -162,6 +219,110 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/reports/reports').then((m) => m.ReportsComponent),
     canActivate: [authGuard, internalGuard],
+  },
+  // Flujo interno de clientes nuevos y Match Code (M8-04) y matriz base de accesos (M1-11).
+  {
+    path: 'admin/organizations',
+    loadComponent: () =>
+      import('./features/admin/organizations/organizations').then((m) => m.AdminOrganizationsComponent),
+    canActivate: [
+      authGuard,
+      internalGuard,
+      permissionGuard(PERMISSIONS.REVIEW_ORGANIZATIONS, PERMISSIONS.CHECK_ORGANIZATIONS_AR),
+    ],
+  },
+  {
+    path: 'admin/organizations/:id',
+    loadComponent: () =>
+      import('./features/admin/organizations/organization-review').then((m) => m.OrganizationReviewComponent),
+    canActivate: [
+      authGuard,
+      internalGuard,
+      permissionGuard(PERMISSIONS.REVIEW_ORGANIZATIONS, PERMISSIONS.CHECK_ORGANIZATIONS_AR),
+    ],
+  },
+  {
+    path: 'admin/access-matrix',
+    loadComponent: () =>
+      import('./features/admin/access-matrix/access-matrix').then((m) => m.AccessMatrixComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_ACCESS_MATRIX)],
+  },
+  // Ola C: mantenedores internos de tarifas (M8-01, NF-15) y reglas internas de cobro (M3-04, M3-16).
+  // Clientes con crédito y exenciones se leen de Nexus (M8-02): ya no tienen mantenedor en el portal.
+  {
+    path: 'admin/tariffs',
+    loadComponent: () =>
+      import('./features/admin/tariffs/tariffs').then((m) => m.TariffsComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/tariffs/new',
+    loadComponent: () =>
+      import('./features/admin/tariffs/tariff-editor').then((m) => m.TariffEditorComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/tariffs/:id',
+    loadComponent: () =>
+      import('./features/admin/tariffs/tariff-editor').then((m) => m.TariffEditorComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/internal-charge-rules',
+    loadComponent: () =>
+      import('./features/admin/internal-rules/internal-rules').then((m) => m.InternalRulesComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  // Ola D: configuración de pagos (M5-03, M5-04), ventanas de bloqueo (M8-07) y Finanzas (M5-02, NF-03, NF-04).
+  {
+    path: 'admin/payment-currencies',
+    loadComponent: () =>
+      import('./features/admin/payment-config/payment-currencies').then((m) => m.PaymentCurrenciesComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/payment-methods',
+    loadComponent: () =>
+      import('./features/admin/payment-config/payment-methods').then((m) => m.PaymentMethodsComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/payment-blocks',
+    loadComponent: () =>
+      import('./features/admin/payment-config/payment-blocks').then((m) => m.PaymentBlocksComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_PAYMENT_BLOCKS)],
+  },
+  {
+    path: 'admin/payments-finance',
+    loadComponent: () =>
+      import('./features/admin/payment-config/payments-finance').then((m) => m.PaymentsFinanceComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PAYMENTS_FINANCE)],
+  },
+  // Ola F: reglas de publicación por DIFU (M2-01), base de conocimiento y casillas del asistente (M10-02) y
+  // carga de la base de referencia de mercancías peligrosas (M10-06), con registro de cambios (NF-15).
+  {
+    path: 'admin/publication-rules',
+    loadComponent: () =>
+      import('./features/admin/publication-rules/publication-rules').then((m) => m.PublicationRulesComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/assistant-knowledge',
+    loadComponent: () =>
+      import('./features/admin/assistant-knowledge/assistant-knowledge').then((m) => m.AssistantKnowledgeComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/assistant-mailboxes',
+    loadComponent: () =>
+      import('./features/admin/assistant-mailboxes/assistant-mailboxes').then((m) => m.AssistantMailboxesComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/dangerous-goods',
+    loadComponent: () =>
+      import('./features/admin/dangerous-goods-import/dangerous-goods-import').then((m) => m.DangerousGoodsImportComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
   },
   { path: '**', redirectTo: '/dashboard' },
 ];

@@ -24,17 +24,17 @@ Fichas: IDs de la especificación v3 más las fichas nuevas M2-10, M8-09 y M11-x
 | Depósito | Pago por depósito o transferencia bancaria con boleta y confirmación manual | M5-03, M5-06, M7-02 | 31, 54 | Confirmación Pago | Manual: comprobante por canales externos; Nexus solo consulta | Descripción del intercambio actual [CT-DEP](deposito.md) | Nexus/IT – Lucho (apoyo: Finanzas – Fer, Ricardo) | Sin puerto | — |
 | DBNet/SII | Emisión y consulta de documentos tributarios electrónicos | M3-11, M5-09, M7-01, M7-02 | 50–51 | — | API DBNet por definir (tarea 51: homologación con la API BAP); secreto `SII_KEY` existente | Contrato PROPUESTA [CT-DBNET](contratos/dbnet.openapi.yaml) | Finanzas – Fer (apoyo: Jorge) | `IInvoiceProvider` | Dummy (6b); Real contra simulador (6c) |
 | Mercurio | Almacenes por puerto y almacén asignado a cada contenedor | M3-04, M3-05, M3-06 | 32 | Cambio de Almacén | API HTTP usada hoy por Nexus solo con GET | Contrato PROPUESTA [CT-MERC](contratos/mercurio.openapi.yaml), solo lectura | Nexus/IT – Lucho | Sin puerto | — |
-| TATC/Flagare | Estado del TATC por contenedor y del CLD de Bolivia | M2-09, M3-04, M3-16, M6-07 | 32–34 | Generar TATC, Generar CLD, Cambio de Almacén | Servicios HTTP de Flagare consultados hoy por Nexus | Contrato PROPUESTA [CT-TATC](contratos/tatc.openapi.yaml), solo lectura | Nexus/IT – Lucho | Sin puerto | — |
+| TATC/Flagare | Estado del TATC por contenedor y del CLD de Bolivia; generación masiva de TATC por localidad (propuesta Ola F) | M2-09, M3-04, M3-16, M6-07 | 32–34 | Generar TATC, Generar CLD, Cambio de Almacén | Servicios HTTP de Flagare consultados hoy por Nexus | Contrato PROPUESTA [CT-TATC](contratos/tatc.openapi.yaml) | Nexus/IT – Lucho | `ITatcProvider` | Dummy; Real con `BaseUrl` y caché corta (Ola F) |
 | Tracking | Hitos y ubicación del embarque | M2-08 | Sin tarea | — | Sin integración | Contrato PROPUESTA [CT-TRACK](contratos/tracking.openapi.yaml) | Customer Service – Cami/Mati | `ITrackingProvider` | Dummy (6b); Real contra simulador (6c) |
 | Dispute | Acceso al sitio de Dispute de productos digitales de Hapag-Lloyd | M2-05 | Sin tarea | — | Enlace web, sin intercambio de datos | Descripción [CT-DISP](dispute.md) | Customer Service – Cami/Mati | Sin puerto | — |
 | Firma | Firma electrónica de certificados | M6-01, M6-02, M6-07 | Sin tarea | — | Sin integración | Contrato PROPUESTA [CT-SIGN](contratos/firma.openapi.yaml) | Área Legal (titular) | `IDocumentSigner` | Solo Dummy (6b) |
 | Storage | Almacenamiento de comprobantes, documentos de registro y documentos emitidos | M1-07, M5-06, M6-09, NF-16 | Sin tarea | — | Sin implementación | Contrato PROPUESTA [CT-STORAGE](storage.md) | Área Seguridad TI (titular) | `IFileStorage` | Solo Dummy (6b) |
 | Correo | Correos transaccionales y notificaciones | M1-10, M1-25, M6-01, M10-05, M11-02 | Sin tarea | — | SMTP existente (`EmailService.cs`) | En operación | Nexus/IT – Jorge | `IEmailService` (existente) | Existente, sin cambio |
-| IA | Asistente conversacional | M10-01 a M10-06 | Sin tarea | — | Fase 2, sin contrato | Sin contrato | Producto/Negocio – Katu | Sin puerto | — |
+| IA | Asistente conversacional | M10-01 a M10-05 | Sin tarea | — | Motor de reglas propio; modelo abierto local opcional por HTTP (Ollama, `POST /api/chat`) | Sin contrato | Producto/Negocio – Katu | `IAssistantEngine` | Rules (por defecto); Ollama con `Assistant:Mode=Ollama` y `Assistant:Ollama:BaseUrl` (Ola F) |
 
 ### Notas
 - **Correo:** SMTP existente (`EmailService.cs`). La localización ES/EN de los correos es de Fase 2 (Q8).
-- **IA:** Fase 2, sin contrato.
+- **IA:** el asistente de la Ola F responde con reglas y datos del portal; el modelo local (Ollama) solo clasifica la intención y redacta con los datos ya autorizados, y si falla el portal responde con reglas. No se usan servicios de IA de pago.
 - **FIS:** Entrada transitoria: `POST bills-of-lading/import` (Q6). El importador existente (`ImportBillsOfLadingCommandHandler.cs`) sigue siendo la vía de carga hasta que CT-FIS se valide y se conmute a `Mode=Real`.
 - **Nexus «Datos» (tarea 37):** resuelta por Q3. El portal consulta a Nexus vía API bajo demanda, con caché corta.
 - **Errores de facturación:** permanece en Nexus (Q7); no tiene contrato.
@@ -54,7 +54,7 @@ Fichas: IDs de la especificación v3 más las fichas nuevas M2-10, M8-09 y M11-x
 | CT-SIGN | [`contratos/firma.openapi.yaml`](contratos/firma.openapi.yaml) | `POST /sign` | Área Legal (titular) | `IDocumentSigner` |
 | CT-STORAGE | [`storage.md`](storage.md) | `Save`, `OpenRead`, `Delete` | Área Seguridad TI (titular) | `IFileStorage` |
 | CT-MERC | [`contratos/mercurio.openapi.yaml`](contratos/mercurio.openapi.yaml) | `GET /warehouses`, `GET /bills-of-lading/{blNumber}/warehouse` (solo lectura) | Nexus/IT – Lucho | Sin puerto |
-| CT-TATC | [`contratos/tatc.openapi.yaml`](contratos/tatc.openapi.yaml) | `GET /bills-of-lading/{blNumber}/tatc`, `GET /bills-of-lading/{blNumber}/cld` (solo lectura) | Nexus/IT – Lucho | Sin puerto |
+| CT-TATC | [`contratos/tatc.openapi.yaml`](contratos/tatc.openapi.yaml) | `GET /bills-of-lading/{blNumber}/tatc`, `GET /bills-of-lading/{blNumber}/cld`, `POST /tatc/generation-requests` (propuesta Ola F) | Nexus/IT – Lucho | `ITatcProvider` (Ola F) |
 | CT-NAVE | [`navesoft.md`](navesoft.md) | Descripción del intercambio actual por CSV/FTP | Nexus/IT – Lucho | Sin puerto |
 | CT-DEP | [`deposito.md`](deposito.md) | Descripción del flujo actual de depósito y transferencia | Nexus/IT – Lucho (apoyo: Finanzas – Fer, Ricardo) | Sin puerto |
 | CT-DISP | [`dispute.md`](dispute.md) | Enlace al sitio de Dispute | Customer Service – Cami/Mati | Sin puerto |

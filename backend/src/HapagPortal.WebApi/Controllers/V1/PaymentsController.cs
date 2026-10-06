@@ -5,7 +5,7 @@ using Asp.Versioning;
 using HapagPortal.Application.Payments.Commands.Cancel;
 using HapagPortal.Application.Payments.Commands.Confirm;
 using HapagPortal.Application.Payments.Commands.Webhooks;
-using HapagPortal.Application.Payments.Create;
+using HapagPortal.Application.Payments.Lifecycle;
 using HapagPortal.Application.Payments.Read.GetById;
 using HapagPortal.Application.Payments.Read.GetMyPayments;
 using HapagPortal.WebApi.Abstractions;
@@ -16,18 +16,6 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 public sealed class PaymentsController : ApiController
 {
-    [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreatePaymentCommand command,
-        CancellationToken cancellationToken)
-    {
-        var result = await Sender.Send(command, cancellationToken);
-
-        return result.IsSuccess
-            ? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value)
-            : HandleFailure(result);
-    }
-
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(
         Guid id,
@@ -47,6 +35,32 @@ public sealed class PaymentsController : ApiController
     {
         var query = new GetMyPaymentsQuery();
         var result = await Sender.Send(query, cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : HandleFailure(result);
+    }
+
+    /// <summary>Estado único del pago con su historial de transiciones (NF-02, NF-12).</summary>
+    [HttpGet("{id:guid}/status")]
+    public async Task<IActionResult> GetStatus(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetPaymentStatusQuery(id), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : HandleFailure(result);
+    }
+
+    /// <summary>Emite la boleta de depósito: desde aquí el cliente ya no puede anularla (M5-02).</summary>
+    [HttpPost("{id:guid}/issue-slip")]
+    public async Task<IActionResult> IssueSlip(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new IssueDepositSlipCommand(id), cancellationToken);
 
         return result.IsSuccess
             ? Ok(result.Value)

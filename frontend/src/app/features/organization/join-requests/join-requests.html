@@ -1,0 +1,81 @@
+<section class="hl-card" aria-labelledby="join-requests-title">
+  <div class="card-header p-3">
+    <h2 id="join-requests-title" class="h5 fw-bold mb-1">{{ 'organization.joinRequests.title' | transloco }}</h2>
+    <p class="small text-muted mb-0">{{ 'organization.joinRequests.help' | transloco }}</p>
+  </div>
+
+  @if (actionError()) {
+    <div class="alert alert-danger py-2 m-3" role="alert">{{ actionError() }}</div>
+  }
+
+  @if (rejecting(); as request) {
+    <form class="p-3 border-bottom" (ngSubmit)="confirmReject()">
+      <h3 class="h6 fw-bold mb-3">{{ 'organization.joinRequests.rejectTitle' | transloco: { name: request.fullName } }}</h3>
+      <label for="join-reject-reason" class="form-label small fw-semibold">{{ 'organization.joinRequests.rejectReason' | transloco }}</label>
+      <textarea id="join-reject-reason" name="rejectReason" class="form-control" rows="2" [(ngModel)]="rejectReason"></textarea>
+      <div class="d-flex gap-2 mt-3">
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelReject()">{{ 'organization.joinRequests.cancel' | transloco }}</button>
+        <button type="submit" class="btn btn-danger" [disabled]="busy() === request.userId">{{ 'organization.joinRequests.confirmReject' | transloco }}</button>
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (requests().length === 0) {
+    <app-state-message kind="empty" [messageKey]="'organization.joinRequests.empty'" />
+  } @else {
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'organization.joinRequests.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'organization.joinRequests.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'organization.joinRequests.col.name' | transloco }}</th>
+            <th scope="col">{{ 'organization.joinRequests.col.email' | transloco }}</th>
+            <th scope="col">{{ 'organization.joinRequests.col.organization' | transloco }}</th>
+            <th scope="col">{{ 'organization.joinRequests.col.requestedAt' | transloco }}</th>
+            <th scope="col">{{ 'organization.joinRequests.col.profile' | transloco }}</th>
+            <th scope="col">{{ 'organization.joinRequests.col.actions' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (request of requests(); track request.userId) {
+            <tr>
+              <td class="fw-semibold">{{ request.fullName }}</td>
+              <td>{{ request.email }}</td>
+              <td>{{ request.organizationName }}</td>
+              <td>{{ request.requestedAt | hlDate: 'datetime' }}</td>
+              <td>
+                <label class="visually-hidden" [for]="'join-profile-' + request.userId">
+                  {{ 'organization.joinRequests.profileLabel' | transloco: { name: request.fullName } }}
+                </label>
+                <select class="form-select form-select-sm" [id]="'join-profile-' + request.userId"
+                        [name]="'join-profile-' + request.userId" [(ngModel)]="profileFor[request.userId]">
+                  @for (profile of profiles; track profile) {
+                    <option [value]="profile">{{ profile | codeLabel: profileKeys }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <button type="button" class="btn btn-sm btn-hl-green" [disabled]="busy() === request.userId"
+                          [attr.aria-label]="'organization.joinRequests.approveLabel' | transloco: { name: request.fullName }"
+                          (click)="approve(request)">
+                    {{ 'organization.joinRequests.approve' | transloco }}
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="busy() === request.userId"
+                          [attr.aria-label]="'organization.joinRequests.rejectLabel' | transloco: { name: request.fullName }"
+                          (click)="startReject(request)">
+                    {{ 'organization.joinRequests.reject' | transloco }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

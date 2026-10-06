@@ -1,0 +1,41 @@
+<section id="accesos-y-permisos" class="hl-card" aria-labelledby="access-management-title">
+  <div class="card-header p-3">
+    <h2 id="access-management-title" class="h5 fw-bold mb-1">{{ 'thirdPartyAccess.management.title' | transloco }}</h2>
+    <p class="small text-muted mb-0">{{ 'thirdPartyAccess.management.help' | transloco }}</p>
+  </div>
+
+  @if (!canManage()) {
+    <div class="alert alert-info py-2 m-3" role="note">{{ 'thirdPartyAccess.management.readOnly' | transloco }}</div>
+  }
+
+  <div class="nav nav-tabs px-3 pt-2" role="tablist" [attr.aria-label]="'thirdPartyAccess.management.tabsLabel' | transloco">
+    @for (tab of tabs(); track tab.id; let i = $index) {
+      <button type="button" role="tab" class="nav-link" [class.active]="active() === tab.id"
+              [id]="'access-tab-' + tab.id" [attr.aria-selected]="active() === tab.id"
+              [attr.aria-controls]="'access-panel-' + tab.id" [attr.tabindex]="active() === tab.id ? 0 : -1"
+              (click)="select(tab.id)" (keydown)="onTabKeydown($event, i)">
+        {{ tab.labelKey | transloco }}
+      </button>
+    }
+  </div>
+
+  <div role="tabpanel" [id]="'access-panel-' + active()" [attr.aria-labelledby]="'access-tab-' + active()" tabindex="0">
+    @switch (active()) {
+      @case ('grants') {
+        <app-access-grants [canManage]="canManage()" />
+      }
+      @case ('defaults') {
+        <app-access-defaults [canManage]="canManage()" />
+      }
+      @case ('openAccess') {
+        <app-open-access [canManage]="canManage()" />
+      }
+      @case ('earlyBooking') {
+        <app-early-booking />
+      }
+      @case ('audit') {
+        <app-access-audit />
+      }
+    }
+  </div>
+</section>

@@ -2,7 +2,6 @@ namespace HapagPortal.UnitTests.WebApi.Controllers;
 
 using FluentAssertions;
 using HapagPortal.Application.Common.Dtos;
-using HapagPortal.Application.WarehouseChanges.Commands.Create;
 using HapagPortal.Application.WarehouseChanges.Read.GetById;
 using HapagPortal.Application.WarehouseChanges.Read.GetMyChanges;
 using HapagPortal.Domain.Results;
@@ -26,22 +25,6 @@ public sealed class WarehouseChangesControllerTests
     private static WarehouseChangeResponseDto CreateWarehouseChangeDto() =>
         new(Guid.NewGuid(), "Warehouse A", "Warehouse B",
             250m, "CLP", "Pending", "CL", Guid.NewGuid(), DateTime.UtcNow);
-
-    [Fact]
-    public async Task Create_Success_ShouldReturnCreatedAtAction()
-    {
-        var command = new CreateWarehouseChangeCommand(
-            "Warehouse A", "Warehouse B", Guid.NewGuid(), "CL", 250m);
-        var dto = CreateWarehouseChangeDto();
-
-        _sender.Send(command, Arg.Any<CancellationToken>())
-            .Returns(Result<WarehouseChangeResponseDto>.Success(dto));
-
-        var result = await _controller.Create(command, CancellationToken.None);
-
-        var createdResult = result.Should().BeOfType<CreatedAtActionResult>().Subject;
-        createdResult.Value.Should().Be(dto);
-    }
 
     [Fact]
     public async Task GetMyChanges_Success_ShouldReturnOk()

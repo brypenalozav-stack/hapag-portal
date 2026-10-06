@@ -32,6 +32,12 @@ internal sealed class TestDbSet<T> : DbSet<T>, IQueryable<T>, IAsyncEnumerable<T
         return null!;
     }
 
+    public override Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<T> Remove(T entity)
+    {
+        _data.Remove(entity);
+        return null!;
+    }
+
     IQueryProvider IQueryable.Provider => ((IQueryable<T>)_queryable).Provider;
     System.Linq.Expressions.Expression IQueryable.Expression => _queryable.Expression;
     Type IQueryable.ElementType => _queryable.ElementType;

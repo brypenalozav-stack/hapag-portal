@@ -1,0 +1,243 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.internalRules.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.internalRules.subtitle' | transloco }}</p>
+  </div>
+  <button type="button" class="btn btn-hl-orange" (click)="openCreate()">{{ 'admin.internalRules.list.new' | transloco }}</button>
+</div>
+
+<!-- Alta y edición -->
+@if (formOpen()) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="rule-form-title" (submit)="submit($event)">
+    <h2 #formHeading id="rule-form-title" class="section-title mb-3" tabindex="-1">
+      {{ (editing() ? 'admin.internalRules.form.editTitle' : 'admin.internalRules.form.createTitle') | transloco }}
+    </h2>
+
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="rule-errors-title">
+        <h3 id="rule-errors-title" class="h6 fw-bold">{{ 'admin.internalRules.form.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track error.key) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label for="rule-type" class="form-label small fw-semibold">{{ 'admin.internalRules.form.type' | transloco }}</label>
+        <select id="rule-type" class="form-select" required [(ngModel)]="form.ruleType" [ngModelOptions]="{ standalone: true }">
+          @for (t of ruleTypes; track t) {
+            <option [value]="t">{{ t | codeLabel: typeKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label for="rule-country" class="form-label small fw-semibold">{{ 'admin.internalRules.form.country' | transloco }}</label>
+        <select id="rule-country" class="form-select" required [(ngModel)]="form.country" [ngModelOptions]="{ standalone: true }">
+          <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+          <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="rule-tax-id" class="form-label small fw-semibold">{{ 'admin.internalRules.form.taxId' | transloco }}</label>
+        <input id="rule-tax-id" type="text" class="form-control" autocomplete="off" aria-describedby="rule-identifier-help"
+               [attr.aria-invalid]="hasError('rule-tax-id')" [(ngModel)]="form.taxId" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-4">
+        <label for="rule-match-code" class="form-label small fw-semibold">{{ 'admin.internalRules.form.matchCode' | transloco }}</label>
+        <input id="rule-match-code" type="text" class="form-control" autocomplete="off" aria-describedby="rule-identifier-help"
+               [(ngModel)]="form.matchCode" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-4">
+        <label for="rule-account-name" class="form-label small fw-semibold">{{ 'admin.internalRules.form.accountName' | transloco }}</label>
+        <input id="rule-account-name" type="text" class="form-control" autocomplete="organization"
+               [(ngModel)]="form.accountName" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-12">
+        <div id="rule-identifier-help" class="form-text mt-0">{{ 'admin.internalRules.form.identifierHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-8">
+        <label for="rule-reason" class="form-label small fw-semibold">{{ 'admin.internalRules.form.reason' | transloco }}</label>
+        <input id="rule-reason" type="text" class="form-control" maxlength="300" [(ngModel)]="form.reason" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      @if (form.ruleType === 'FreeWarehouseChange') {
+        <div class="col-md-4">
+          <label for="rule-max-uses" class="form-label small fw-semibold">{{ 'admin.internalRules.form.maxUses' | transloco }}</label>
+          <input id="rule-max-uses" type="text" inputmode="numeric" class="form-control" aria-describedby="rule-max-uses-help"
+                 [attr.aria-invalid]="hasError('rule-max-uses')" [(ngModel)]="form.maxUsesPerBl" [ngModelOptions]="{ standalone: true }" />
+          <div id="rule-max-uses-help" class="form-text">{{ 'admin.internalRules.form.maxUsesHelp' | transloco }}</div>
+        </div>
+      }
+      <div class="col-md-4">
+        <label for="rule-valid-from" class="form-label small fw-semibold">{{ 'admin.internalRules.form.validFrom' | transloco }}</label>
+        <input id="rule-valid-from" type="date" class="form-control" required [attr.aria-invalid]="hasError('rule-valid-from')"
+               [(ngModel)]="form.validFrom" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-4">
+        <label for="rule-valid-to" class="form-label small fw-semibold">{{ 'admin.internalRules.form.validTo' | transloco }}</label>
+        <input id="rule-valid-to" type="date" class="form-control" aria-describedby="rule-valid-to-help" [attr.aria-invalid]="hasError('rule-valid-to')"
+               [(ngModel)]="form.validTo" [ngModelOptions]="{ standalone: true }" />
+        <div id="rule-valid-to-help" class="form-text">{{ 'admin.internalRules.form.validToHelp' | transloco }}</div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">
+        {{ (editing() ? 'admin.internalRules.form.save' : 'admin.internalRules.form.create') | transloco }}
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'admin.internalRules.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+<form class="hl-card p-3 mb-4" role="search" [attr.aria-label]="'admin.internalRules.list.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="rules-filter-type" class="form-label small fw-semibold">{{ 'admin.internalRules.list.filters.type' | transloco }}</label>
+      <select id="rules-filter-type" class="form-select" name="ruleType" [(ngModel)]="ruleType">
+        <option value="">{{ 'admin.internalRules.list.filters.allTypes' | transloco }}</option>
+        @for (t of ruleTypes; track t) {
+          <option [value]="t">{{ t | codeLabel: typeKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="rules-filter-country" class="form-label small fw-semibold">{{ 'admin.internalRules.list.filters.country' | transloco }}</label>
+      <select id="rules-filter-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.internalRules.list.filters.allCountries' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="form-check mb-2">
+        <input id="rules-filter-inactive" type="checkbox" class="form-check-input" name="includeInactive" [(ngModel)]="includeInactive" />
+        <label for="rules-filter-inactive" class="form-check-label small">{{ 'admin.internalRules.list.filters.includeInactive' | transloco }}</label>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'admin.internalRules.list.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'admin.internalRules.list.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (rules().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.internalRules.list.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.internalRules.list.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.internalRules.list.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.internalRules.list.col.type' | transloco }}</th>
+            <th scope="col">{{ 'admin.internalRules.list.col.account' | transloco }}</th>
+            <th scope="col">{{ 'admin.internalRules.list.col.country' | transloco }}</th>
+            <th scope="col">{{ 'admin.internalRules.list.col.maxUses' | transloco }}</th>
+            <th scope="col">{{ 'admin.internalRules.list.col.validity' | transloco }}</th>
+            <th scope="col">{{ 'admin.internalRules.list.col.status' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.internalRules.list.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rule of rules(); track rule.id) {
+            <tr>
+              <td class="fw-semibold">{{ rule.ruleType | codeLabel: typeKeys }}</td>
+              <td>
+                {{ rule.accountName ?? '—' }}
+                <span class="d-block small text-muted">{{ 'admin.internalRules.list.identifiers' | transloco: { taxId: rule.taxId ?? '—', matchCode: rule.matchCode ?? '—' } }}</span>
+              </td>
+              <td>{{ rule.country }}</td>
+              <td>{{ rule.maxUsesPerBl ?? '—' }}</td>
+              <td>
+                @if (rule.validTo) {
+                  {{ 'admin.internalRules.validity.range' | transloco: { from: (rule.validFrom | hlDate: 'localDate'), to: (rule.validTo | hlDate: 'localDate') } }}
+                } @else {
+                  {{ 'admin.internalRules.validity.open' | transloco: { from: (rule.validFrom | hlDate: 'localDate') } }}
+                }
+              </td>
+              <td>{{ (rule.isActive ? 'admin.internalRules.status.active' : 'admin.internalRules.status.inactive') | transloco }}</td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(rule)"
+                          [attr.aria-label]="'admin.internalRules.list.editLabel' | transloco: { account: accountOf(rule) }">
+                    {{ 'admin.internalRules.list.edit' | transloco }}
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(rule)"
+                          [attr.aria-label]="'admin.internalRules.list.historyLabel' | transloco: { account: accountOf(rule) }">
+                    {{ 'admin.internalRules.list.history' | transloco }}
+                  </button>
+                  @if (rule.isActive) {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="deactivate(rule)"
+                            [attr.aria-label]="'admin.internalRules.list.deactivateLabel' | transloco: { account: accountOf(rule) }">
+                      {{ 'admin.internalRules.list.deactivate' | transloco }}
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
+
+<!-- Registro de cambios de la regla elegida (NF-15) -->
+@if (historyRule(); as rule) {
+  <section class="hl-card mb-4" aria-labelledby="rule-history-title">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #historyHeading id="rule-history-title" class="section-title" tabindex="-1">
+        {{ 'admin.internalRules.history.title' | transloco: { account: accountOf(rule) } }}
+      </h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeHistory()">{{ 'admin.internalRules.history.close' | transloco }}</button>
+    </div>
+    @if (historyLoading()) {
+      <app-loading-spinner />
+    } @else if (history().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.internalRules.history.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.internalRules.history.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.internalRules.history.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.internalRules.history.col.date' | transloco }}</th>
+              <th scope="col">{{ 'admin.internalRules.history.col.user' | transloco }}</th>
+              <th scope="col">{{ 'admin.internalRules.history.col.action' | transloco }}</th>
+              <th scope="col">{{ 'admin.internalRules.history.col.previous' | transloco }}</th>
+              <th scope="col">{{ 'admin.internalRules.history.col.current' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (change of history(); track change.id) {
+              <tr>
+                <td>{{ change.changedAt | hlDate: 'datetime' }}</td>
+                <td>{{ change.changedBy }}</td>
+                <td>{{ change.action | codeLabel: actionKeys }}</td>
+                <td class="small"><app-rule-snapshot [snapshot]="change.previous" /></td>
+                <td class="small"><app-rule-snapshot [snapshot]="change.current" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

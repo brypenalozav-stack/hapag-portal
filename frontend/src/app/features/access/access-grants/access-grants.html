@@ -1,0 +1,246 @@
+<div class="p-3 d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h3 class="h6 fw-bold mb-1">{{ 'thirdPartyAccess.grants.title' | transloco }}</h3>
+    <p class="small text-muted mb-0">{{ 'thirdPartyAccess.grants.help' | transloco }}</p>
+  </div>
+  @if (canManage()) {
+    <button type="button" class="btn btn-sm btn-hl-orange" (click)="openGrant($event)">{{ 'thirdPartyAccess.grants.grant' | transloco }}</button>
+  }
+</div>
+
+<!-- Filtros: dirección, estado y BL o booking -->
+<form class="px-3 pb-3 border-bottom" role="search" [attr.aria-label]="'thirdPartyAccess.grants.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="access-filter-direction" class="form-label small fw-semibold">{{ 'thirdPartyAccess.grants.filters.direction' | transloco }}</label>
+      <select id="access-filter-direction" class="form-select" name="direction" [(ngModel)]="direction">
+        <option value="">{{ 'thirdPartyAccess.grants.filters.allDirections' | transloco }}</option>
+        @for (d of directions; track d) {
+          <option [value]="d">{{ d | codeLabel: directionKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="access-filter-status" class="form-label small fw-semibold">{{ 'thirdPartyAccess.grants.filters.status' | transloco }}</label>
+      <select id="access-filter-status" class="form-select" name="status" [(ngModel)]="status">
+        <option value="">{{ 'thirdPartyAccess.grants.filters.allStatuses' | transloco }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="access-filter-reference" class="form-label small fw-semibold">{{ 'thirdPartyAccess.grants.filters.reference' | transloco }}</label>
+      <input id="access-filter-reference" type="search" class="form-control" name="reference" autocomplete="off" [(ngModel)]="reference" />
+    </div>
+    <div class="col-sm-6 col-lg-3 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'thirdPartyAccess.grants.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'thirdPartyAccess.grants.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2 m-3" role="alert">{{ actionError() }}</div>
+}
+
+<!-- Revocación con aviso de la revocación en cadena (M1-22) -->
+@if (revoking(); as target) {
+  <form class="p-3 border-bottom" (ngSubmit)="confirmRevoke()">
+    <h4 id="access-revoke-title" class="h6 fw-bold" tabindex="-1">
+      @if (target.kind === 'single') {
+        {{ 'thirdPartyAccess.grants.revoke.title' | transloco: { name: target.grant.grantee.name, reference: referenceOf(target.grant) } }}
+      } @else {
+        {{ 'thirdPartyAccess.grants.revoke.bulkTitle' | transloco: { count: target.ids.length } }}
+      }
+    </h4>
+    <div class="alert alert-warning py-2" role="note">{{ 'thirdPartyAccess.grants.revoke.cascadeWarning' | transloco }}</div>
+    <label for="access-revoke-reason" class="form-label small fw-semibold">{{ 'thirdPartyAccess.grants.revoke.reason' | transloco }}</label>
+    <textarea id="access-revoke-reason" name="revokeReason" class="form-control" rows="2" maxlength="500" [(ngModel)]="revokeReason"></textarea>
+    <div class="d-flex gap-2 mt-3">
+      <button type="button" class="btn btn-outline-secondary" (click)="cancelRevoke()">{{ 'thirdPartyAccess.grants.revoke.cancel' | transloco }}</button>
+      <button type="submit" class="btn btn-danger" [disabled]="revokeBusy()">{{ 'thirdPartyAccess.grants.revoke.confirm' | transloco }}</button>
+    </div>
+  </form>
+}
+
+<!-- Aceptación de términos del mandato (M1-03) -->
+@if (accepting(); as grant) {
+  <form class="p-3 border-bottom" (ngSubmit)="confirmAccept()">
+    <h4 id="access-accept-title" class="h6 fw-bold" tabindex="-1">{{ 'thirdPartyAccess.grants.accept.title' | transloco: { name: grant.grantee.name, reference: referenceOf(grant) } }}</h4>
+    @if (terms(); as t) {
+      <p class="small fw-semibold mb-1">{{ 'thirdPartyAccess.grants.accept.termsTitle' | transloco: { title: t.title, version: t.version } }}</p>
+      <p class="small">{{ t.summary }}</p>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="access-accept-terms" [checked]="acceptChecked()" (change)="onAcceptChange($event)" />
+        <label class="form-check-label" for="access-accept-terms">{{ 'thirdPartyAccess.grants.accept.checkbox' | transloco: { version: t.version } }}</label>
+      </div>
+    } @else {
+      <app-loading-spinner />
+    }
+    <div class="d-flex gap-2 mt-3">
+      <button type="button" class="btn btn-outline-secondary" (click)="cancelAccept()">{{ 'thirdPartyAccess.grants.accept.cancel' | transloco }}</button>
+      <button type="submit" class="btn btn-hl-orange" [disabled]="acceptBusy() || !acceptChecked() || !terms()">{{ 'thirdPartyAccess.grants.accept.confirm' | transloco }}</button>
+    </div>
+  </form>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (grants().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'thirdPartyAccess.grants.empty'" />
+} @else {
+  @if (canManage() && revocable().length > 0) {
+    <div class="px-3 pt-3 d-flex flex-wrap align-items-center gap-2">
+      <span class="small me-auto" role="status">{{ 'thirdPartyAccess.grants.selectedCount' | transloco: { count: selection().size } }}</span>
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="selection().size === 0" (click)="startBulkRevoke()">
+        {{ 'thirdPartyAccess.grants.revokeSelected' | transloco: { count: selection().size } }}
+      </button>
+    </div>
+  }
+  <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'thirdPartyAccess.grants.caption' | transloco">
+    <table class="hl-table">
+      <caption class="visually-hidden">{{ 'thirdPartyAccess.grants.caption' | transloco }}</caption>
+      <thead>
+        <tr>
+          @if (canManage()) {
+            <th scope="col">
+              <input class="form-check-input" type="checkbox" id="access-select-all" [checked]="allSelected()"
+                     [disabled]="revocable().length === 0"
+                     [attr.aria-label]="'thirdPartyAccess.grants.selectAll' | transloco" (change)="toggleAll($event)" />
+            </th>
+          }
+          <th scope="col">{{ 'thirdPartyAccess.grants.col.grantor' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.grants.col.grantee' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.grants.col.reference' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.grants.col.start' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.grants.col.end' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.grants.col.permissions' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.grants.col.status' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.grants.col.origin' | transloco }}</th>
+          @if (canManage()) {
+            <th scope="col">{{ 'thirdPartyAccess.grants.col.actions' | transloco }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (grant of grants(); track grant.id) {
+          <tr>
+            @if (canManage()) {
+              <td>
+                @if (grant.canEdit) {
+                  <input class="form-check-input" type="checkbox" [id]="'access-select-' + grant.id" [checked]="isSelected(grant)"
+                         [attr.aria-label]="'thirdPartyAccess.grants.selectLabel' | transloco: { name: grant.grantee.name, reference: referenceOf(grant) }"
+                         (change)="toggleSelection(grant, $event)" />
+                }
+              </td>
+            }
+            <td>
+              <span class="fw-semibold">{{ grant.grantor.name }}</span>
+              <span class="d-block small text-muted">{{ grant.direction | codeLabel: directionKeys }}</span>
+            </td>
+            <td>
+              <span class="fw-semibold">{{ grant.grantee.name }}</span>
+              <span class="d-block small text-muted">{{ grant.grantee.organizationType | codeLabel: typeKeys }}</span>
+            </td>
+            <td>
+              @if (grant.blNumber) {
+                <span class="d-block">{{ 'thirdPartyAccess.grants.blLabel' | transloco: { bl: grant.blNumber } }}</span>
+              }
+              @if (grant.bookingNumber) {
+                <span class="d-block small">{{ 'thirdPartyAccess.grants.bookingLabel' | transloco: { booking: grant.bookingNumber } }}</span>
+              }
+            </td>
+            <td>{{ grant.validFrom | hlDate }}</td>
+            <td>{{ grant.validTo ? (grant.validTo | hlDate) : ('thirdPartyAccess.grants.noEnd' | transloco) }}</td>
+            <td>
+              <details>
+                <summary class="small">
+                  {{ grant.hasExplicitPermissions
+                    ? ('thirdPartyAccess.grants.permissionsCount' | transloco: { count: grant.effectiveActionCodes.length })
+                    : ('thirdPartyAccess.grants.baseLevel' | transloco: { count: grant.effectiveActionCodes.length }) }}
+                </summary>
+                <ul class="small mb-0 ps-3">
+                  @for (code of grant.effectiveActionCodes; track code) {
+                    <li>{{ code | codeLabel: actionKeys }}</li>
+                  }
+                </ul>
+              </details>
+            </td>
+            <td>
+              <span class="hl-badge" [class]="badgeClass(grant)">{{ grant.status | codeLabel: statusKeys }}</span>
+              @if (grant.endReason) {
+                <span class="d-block small text-muted">{{ grant.endReason | codeLabel: endReasonKeys }}</span>
+              }
+            </td>
+            <td>{{ originCode(grant) | codeLabel: originKeys }}</td>
+            @if (canManage()) {
+              <td>
+                @if (grant.canEdit) {
+                  <div class="d-flex flex-wrap gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            [attr.aria-label]="'thirdPartyAccess.grants.editLabel' | transloco: { name: grant.grantee.name, reference: referenceOf(grant) }"
+                            [attr.aria-expanded]="editing()?.id === grant.id" (click)="startEdit(grant)">
+                      {{ 'thirdPartyAccess.grants.edit.button' | transloco }}
+                    </button>
+                    @if (grant.isMandate && grant.status === 'PendingAcceptance') {
+                      <button type="button" class="btn btn-sm btn-outline-secondary"
+                              [attr.aria-label]="'thirdPartyAccess.grants.acceptLabel' | transloco: { name: grant.grantee.name, reference: referenceOf(grant) }"
+                              (click)="startAccept(grant)">
+                        {{ 'thirdPartyAccess.grants.accept.button' | transloco }}
+                      </button>
+                    }
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            [attr.aria-label]="'thirdPartyAccess.grants.revokeLabel' | transloco: { name: grant.grantee.name, reference: referenceOf(grant) }"
+                            (click)="startRevoke(grant)">
+                      {{ 'thirdPartyAccess.grants.revoke.button' | transloco }}
+                    </button>
+                  </div>
+                }
+              </td>
+            }
+          </tr>
+          <!-- Edición en el lugar de vigencia y permisos (M1-24) -->
+          @if (editing()?.id === grant.id) {
+            <tr>
+              <td [attr.colspan]="canManage() ? 10 : 8">
+                <form class="py-2" novalidate (ngSubmit)="saveEdit(grant)">
+                  <h4 class="h6 fw-bold">{{ 'thirdPartyAccess.grants.edit.title' | transloco: { name: grant.grantee.name, reference: referenceOf(grant) } }}</h4>
+                  @if (editError()) {
+                    <div class="alert alert-danger py-2" role="alert">{{ editError() }}</div>
+                  }
+                  <app-validity-fields idPrefix="access-edit" [(value)]="editValidity" [requireEnd]="grant.isMandate"
+                                       [showStart]="false" [showErrors]="editSubmitted()" />
+                  <app-permission-checklist idPrefix="access-edit" [(value)]="editPermissions" [actions]="editActions()"
+                                            [loading]="editActionsLoading()" [requireExplicit]="grant.isMandate" />
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary" (click)="cancelEdit()">{{ 'thirdPartyAccess.grants.edit.cancel' | transloco }}</button>
+                    <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">{{ 'thirdPartyAccess.grants.edit.save' | transloco }}</button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+  <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'thirdPartyAccess.grants.pagination.label' | transloco">
+    <span class="small text-muted">{{ 'thirdPartyAccess.grants.pagination.showing' | transloco: { shown: grants().length, total: total() } }}</span>
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">
+        {{ 'thirdPartyAccess.grants.pagination.previous' | transloco }}
+      </button>
+      <span class="small">{{ 'thirdPartyAccess.grants.pagination.page' | transloco: { page: page(), pages: totalPages() } }}</span>
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="changePage(1)">
+        {{ 'thirdPartyAccess.grants.pagination.next' | transloco }}
+      </button>
+    </div>
+  </nav>
+}
+
+@if (dialogOpen()) {
+  <app-grant-dialog (closed)="onDialogClosed($event)" />
+}

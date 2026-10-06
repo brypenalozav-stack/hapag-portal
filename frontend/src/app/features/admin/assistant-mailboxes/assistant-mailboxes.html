@@ -1,0 +1,123 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.assistantMailboxes.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.assistantMailboxes.subtitle' | transloco }}</p>
+  </div>
+  <button type="button" class="btn btn-hl-orange" (click)="openCreate()">{{ 'admin.assistantMailboxes.list.new' | transloco }}</button>
+</div>
+
+@if (formOpen()) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="mailbox-form-title" (submit)="submit($event)">
+    <h2 #formHeading id="mailbox-form-title" class="section-title mb-3" tabindex="-1">
+      {{ (editing() ? 'admin.assistantMailboxes.form.editTitle' : 'admin.assistantMailboxes.form.createTitle') | transloco }}
+    </h2>
+
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="mailbox-errors-title">
+        <h3 id="mailbox-errors-title" class="h6 fw-bold">{{ 'admin.assistantMailboxes.form.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track error.key) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-3">
+        <label for="mailbox-country" class="form-label small fw-semibold">{{ 'admin.assistantMailboxes.form.country' | transloco }}</label>
+        <select id="mailbox-country" class="form-select" required [disabled]="editing()" [(ngModel)]="form.country" [ngModelOptions]="{ standalone: true }">
+          <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+          <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="mailbox-topic" class="form-label small fw-semibold">{{ 'admin.assistantMailboxes.form.topic' | transloco }}</label>
+        <select id="mailbox-topic" class="form-select" required [disabled]="editing()" [(ngModel)]="form.topic" [ngModelOptions]="{ standalone: true }">
+          @for (t of topics; track t) {
+            <option [value]="t">{{ t | codeLabel: topicKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label for="mailbox-email" class="form-label small fw-semibold">{{ 'admin.assistantMailboxes.form.email' | transloco }}</label>
+        <input id="mailbox-email" type="email" class="form-control" required autocomplete="email" maxlength="200"
+               [attr.aria-invalid]="hasError('mailbox-email')" [(ngModel)]="form.email" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-9">
+        <label for="mailbox-notes" class="form-label small fw-semibold">{{ 'admin.assistantMailboxes.form.notes' | transloco }}</label>
+        <input id="mailbox-notes" type="text" class="form-control" maxlength="300" [(ngModel)]="form.notes" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <div class="form-check mb-2">
+          <input id="mailbox-active" type="checkbox" class="form-check-input" [(ngModel)]="form.isActive" [ngModelOptions]="{ standalone: true }" />
+          <label for="mailbox-active" class="form-check-label small">{{ 'admin.assistantMailboxes.form.active' | transloco }}</label>
+        </div>
+      </div>
+      <div class="col-12">
+        <p class="form-text mt-0 mb-0">{{ 'admin.assistantMailboxes.form.help' | transloco }}</p>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">{{ 'admin.assistantMailboxes.form.save' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'admin.assistantMailboxes.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (mailboxes().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.assistantMailboxes.list.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.assistantMailboxes.list.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.assistantMailboxes.list.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.assistantMailboxes.list.col.country' | transloco }}</th>
+            <th scope="col">{{ 'admin.assistantMailboxes.list.col.topic' | transloco }}</th>
+            <th scope="col">{{ 'admin.assistantMailboxes.list.col.email' | transloco }}</th>
+            <th scope="col">{{ 'admin.assistantMailboxes.list.col.notes' | transloco }}</th>
+            <th scope="col">{{ 'admin.assistantMailboxes.list.col.status' | transloco }}</th>
+            <th scope="col">{{ 'admin.assistantMailboxes.list.col.modified' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.assistantMailboxes.list.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (mailbox of mailboxes(); track mailbox.id) {
+            <tr>
+              <td>{{ mailbox.country }}</td>
+              <td>{{ mailbox.topic | codeLabel: topicKeys }}</td>
+              <td class="fw-semibold">{{ mailbox.email }}</td>
+              <td>{{ mailbox.notes ?? '—' }}</td>
+              <td>{{ (mailbox.isActive ? 'admin.assistantMailboxes.status.active' : 'admin.assistantMailboxes.status.inactive') | transloco }}</td>
+              <td class="small">
+                @if (mailbox.modifiedAt) {
+                  {{ 'admin.assistantMailboxes.list.modifiedValue' | transloco: { user: mailbox.modifiedBy ?? '—', date: (mailbox.modifiedAt | hlDate: 'datetime') } }}
+                } @else {
+                  <span aria-hidden="true">—</span>
+                }
+              </td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(mailbox)"
+                        [attr.aria-label]="'admin.assistantMailboxes.list.editLabel' | transloco: { country: mailbox.country, topic: (mailbox.topic | codeLabel: topicKeys) }">
+                  {{ 'admin.assistantMailboxes.list.edit' | transloco }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

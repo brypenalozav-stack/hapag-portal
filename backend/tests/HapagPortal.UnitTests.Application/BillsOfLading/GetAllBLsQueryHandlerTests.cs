@@ -2,22 +2,19 @@ namespace HapagPortal.UnitTests.Application.BillsOfLading;
 
 using FluentAssertions;
 using HapagPortal.Application.BillsOfLading.Read.GetAll;
-using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
-using NSubstitute;
 
 public sealed class GetAllBLsQueryHandlerTests
 {
     private readonly MockApplicationDbContext _dbContext = new();
-    private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
     private readonly GetAllBLsQueryHandler _handler;
 
     public GetAllBLsQueryHandlerTests()
     {
-        // Estos tests ejercitan el comportamiento de Admin (ver todo / filtrar por clientId).
-        _currentUser.Roles.Returns(new[] { "Admin" });
-        _handler = new GetAllBLsQueryHandler(_dbContext, _currentUser);
+        // Estos tests ejercitan el comportamiento del administrador interno (M8-06: ver todo / filtrar por clientId).
+        var admin = AccessTestData.AdminContext(_dbContext);
+        _handler = new GetAllBLsQueryHandler(_dbContext, admin.Evaluator);
     }
 
     private static BillOfLading CreateBL(string blNumber, string country, Guid? clientId = null) => new()
@@ -97,11 +94,9 @@ public sealed class GetAllBLsQueryHandlerTests
     [Fact]
     public async Task NonAdmin_ShouldOnlySeeOwnClientBLs()
     {
-        var ownClient = Guid.NewGuid();
-        var nonAdmin = Substitute.For<ICurrentUserService>();
-        nonAdmin.Roles.Returns([]);
-        nonAdmin.ClientId.Returns(ownClient);
-        var handler = new GetAllBLsQueryHandler(_dbContext, nonAdmin);
+        var client = AccessTestData.ClientContext(_dbContext);
+        var ownClient = client.Organization.Id;
+        var handler = new GetAllBLsQueryHandler(_dbContext, client.Evaluator);
 
         _dbContext.BillsOfLadingList.Add(CreateBL("BL-001", "CL", ownClient));
         _dbContext.BillsOfLadingList.Add(CreateBL("BL-002", "CL")); // otro cliente

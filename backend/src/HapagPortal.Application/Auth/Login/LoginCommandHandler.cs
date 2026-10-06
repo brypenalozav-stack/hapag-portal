@@ -5,6 +5,8 @@ using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Organizations.Common;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +36,13 @@ public sealed class LoginCommandHandler(
 
         if (!passwordHasher.Verify(request.Password, user.PasswordHash))
             return Result<AuthResponseDto>.Failure(DomainErrors.User.InvalidCredentials);
+
+        // M1-08: una solicitud de vinculación no aprobada no da acceso a la organización.
+        if (user.MembershipStatus == MembershipStatus.Pending)
+            return Result<AuthResponseDto>.Failure(DomainErrors.User.PendingApproval);
+
+        if (user.MembershipStatus == MembershipStatus.Rejected)
+            return Result<AuthResponseDto>.Failure(DomainErrors.User.MembershipRejected);
 
         var roles = await dbContext.UserRoles
             .Where(ur => ur.UserId == user.Id)
@@ -74,7 +83,13 @@ public sealed class LoginCommandHandler(
 
         const int expirationMinutes = 60;
 
+        // Estado de la organización para que la interfaz muestre, p. ej., el registro en revisión (M1-07).
+        var organization = client is null
+            ? null
+            : OrganizationMapper.ToSummary(
+                client, user, roles, permissions.Contains(AccessPermissions.OperateShipments));
+
         return Result<AuthResponseDto>.Success(
-            new AuthResponseDto(token, expirationMinutes, userDto, refreshToken));
+            new AuthResponseDto(token, expirationMinutes, userDto, refreshToken, organization));
     }
 }

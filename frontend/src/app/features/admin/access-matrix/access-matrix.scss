@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+.matrix-level {
+  min-width: 5.5rem;
+}
+
+// Celda con un cambio sin guardar: borde más grueso además del texto del resumen (no solo color).
+.matrix-level--changed {
+  border-width: 3px;
+  border-color: var(--hl-orange-700);
+}
+
+.matrix-action {
+  font-weight: 600;
+  min-width: 16rem;
+  white-space: normal;
+}

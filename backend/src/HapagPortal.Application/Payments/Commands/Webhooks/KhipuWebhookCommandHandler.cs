@@ -2,6 +2,7 @@ namespace HapagPortal.Application.Payments.Commands.Webhooks;
 
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Payments.Common;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.Domain.Results;
@@ -18,6 +19,7 @@ public sealed class KhipuWebhookCommandHandler(
     private const string KhipuStatusRejected = "rejected";
     private const string KhipuStatusPending = "pending";
     private const decimal AmountTolerance = 0.01m;
+    private static readonly PaymentActor WebhookActor = new("KHIPU_WEBHOOK", null);
 
     public async Task<Result> Handle(
         KhipuWebhookCommand request,
@@ -45,35 +47,36 @@ public sealed class KhipuWebhookCommandHandler(
         if (payment.Status is PaymentStatus.Confirmed or PaymentStatus.Cancelled)
             return Result.Success();
 
+        string? newStatus;
+        string? transactionId = null;
+
         if (paymentProvider.VerifiesNotifications)
         {
             var verified = await VerifiedStatusAsync(request, payment, cancellationToken);
             if (verified.IsFailure)
                 return Result.Failure(verified.Error);
 
-            payment.Status = verified.Value switch
-            {
-                PaymentStatus.Confirmed or PaymentStatus.Failed or PaymentStatus.Processing => verified.Value,
-                _ => payment.Status
-            };
+            newStatus = verified.Value.Status is PaymentStatus.Confirmed or PaymentStatus.Failed or PaymentStatus.Processing
+                ? verified.Value.Status
+                : null;
+            transactionId = verified.Value.TransactionId;
         }
         else
         {
             // Modo Dummy: el estado sale del cuerpo, como antes de la Fase 6c.
-            payment.Status = request.Status switch
+            newStatus = request.Status switch
             {
                 KhipuStatusDone => PaymentStatus.Confirmed,
                 KhipuStatusRejected => PaymentStatus.Failed,
                 KhipuStatusPending => PaymentStatus.Processing,
-                _ => payment.Status
+                _ => null
             };
         }
 
-        if (payment.Status == PaymentStatus.Confirmed)
-        {
-            payment.ConfirmedAt = DateTime.UtcNow;
-            payment.ConfirmedBy = "KHIPU_WEBHOOK";
-        }
+        // Ola D: la transición pasa por el ciclo de vida (historial NF-02, liberación NF-03). Un pago ya
+        // cobrado se reconoce aunque haya un bloqueo de pagos vigente (M8-07).
+        if (newStatus is not null)
+            await PaymentWebhookTransitions.ApplyAsync(dbContext, payment, newStatus, WebhookActor, transactionId, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -84,7 +87,7 @@ public sealed class KhipuWebhookCommandHandler(
     /// Consulta el pago a Khipu por el token de la notificacion. Si la consulta falla, o la referencia o
     /// el monto no coinciden con el pago del portal, la notificacion se rechaza sin cambios.
     /// </summary>
-    private async Task<Result<string>> VerifiedStatusAsync(
+    private async Task<Result<PaymentVerification>> VerifiedStatusAsync(
         KhipuWebhookCommand request,
         Payment payment,
         CancellationToken cancellationToken)
@@ -93,7 +96,7 @@ public sealed class KhipuWebhookCommandHandler(
             request.NotificationToken, request.ExternalReference, cancellationToken);
 
         if (verification.IsFailure)
-            return Result<string>.Failure(Error.Unauthorized);
+            return Result<PaymentVerification>.Failure(Error.Unauthorized);
 
         // El monto cobrado es el total del pago (el que se envia a la pasarela al crearlo).
         var matches =
@@ -101,7 +104,7 @@ public sealed class KhipuWebhookCommandHandler(
             Math.Abs(verification.Value.Amount - payment.TotalAmount) <= AmountTolerance;
 
         return matches
-            ? Result<string>.Success(verification.Value.Status)
-            : Result<string>.Failure(Error.Unauthorized);
+            ? Result<PaymentVerification>.Success(verification.Value)
+            : Result<PaymentVerification>.Failure(Error.Unauthorized);
     }
 }

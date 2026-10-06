@@ -8,6 +8,22 @@
     <meta name="description" content="Portal de Servicios Hapag-Lloyd para Chile y Bolivia" />
     <meta name="theme-color" content="#33424F" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+      // Tema (M11-07) antes del primer pintado: evita el destello del tema equivocado. ThemeService lo mantiene.
+      (function () {
+        var root = document.documentElement;
+        var pref = 'auto';
+        try {
+          var stored = window.localStorage.getItem('hl_theme');
+          if (stored === 'light' || stored === 'dark' || stored === 'auto') pref = stored;
+        } catch (e) {
+          // Sin almacenamiento disponible: se usa el tema del sistema operativo.
+        }
+        var dark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        root.setAttribute('data-bs-theme', pref === 'dark' || (pref === 'auto' && dark) ? 'dark' : 'light');
+        root.setAttribute('data-hl-theme-pref', pref);
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

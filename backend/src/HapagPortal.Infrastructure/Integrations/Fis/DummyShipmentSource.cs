@@ -6,7 +6,9 @@ namespace HapagPortal.Infrastructure.Integrations.Fis;
 
 /// <summary>
 /// Embarques simulados de FIS/Data Lake (CT-FIS). Determinista: tres BL fijos, uno por RUT de escenario
-/// (exento, crédito y FFWW). BL desconocido: <c>Success(null)</c>.
+/// (exento, crédito y FFWW), que forman el flujo de cambios; la consulta por BL también resuelve los embarques
+/// de demostración del portal con los datos de publicación y emisión de la Ola F (<see cref="DummyFisDemoData"/>).
+/// BL desconocido: <c>Success(null)</c>.
 /// </summary>
 public sealed class DummyShipmentSource(ILogger<DummyShipmentSource> logger) : IShipmentSource
 {
@@ -32,7 +34,8 @@ public sealed class DummyShipmentSource(ILogger<DummyShipmentSource> logger) : I
     {
         var record = Shipments
             .Select(s => s.Record)
-            .FirstOrDefault(r => string.Equals(r.BlNumber, blNumber?.Trim(), StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(r => string.Equals(r.BlNumber, blNumber?.Trim(), StringComparison.OrdinalIgnoreCase))
+            ?? DummyFisDemoData.Find(blNumber);
 
         logger.LogDebug(
             "Embarque FIS (dummy) - BL: {BlNumber}, Found: {Found}",

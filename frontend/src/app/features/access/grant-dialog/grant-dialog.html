@@ -1,0 +1,196 @@
+<dialog #grantDialog class="hl-dialog" aria-labelledby="grant-dialog-title" (close)="onClosed()">
+  <div class="hl-dialog__header">
+    <h2 id="grant-dialog-title" class="h5 fw-bold mb-0">
+      {{ (presetBlNumber() ? 'thirdPartyAccess.grantDialog.titleForBl' : 'thirdPartyAccess.grantDialog.title') | transloco: { bl: presetBlNumber() ?? '' } }}
+    </h2>
+    <button type="button" class="btn btn-sm btn-outline-secondary hl-icon-btn" [attr.aria-label]="'thirdPartyAccess.grantDialog.close' | transloco" (click)="close()">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+      </svg>
+    </button>
+  </div>
+
+  @if (result(); as r) {
+    <!-- Resultado del otorgamiento (M1-12: el sistema confirma cuántos registros se actualizaron) -->
+    <div class="hl-dialog__body">
+      <h3 #resultHeading class="h6 fw-bold" tabindex="-1">{{ 'thirdPartyAccess.grantDialog.result.title' | transloco }}</h3>
+      <p role="status">
+        {{ 'thirdPartyAccess.grantDialog.result.summary' | transloco: { updated: r.updated, requested: r.requested, created: r.created, modified: r.modified, skipped: r.skipped.length } }}
+      </p>
+      <dl class="row g-2 mb-3">
+        <div class="col-6 col-md-3">
+          <dt class="small text-muted">{{ 'thirdPartyAccess.grantDialog.result.updated' | transloco }}</dt>
+          <dd class="fs-5 fw-bold mb-0" data-testid="grant-result-updated">{{ r.updated }}</dd>
+        </div>
+        <div class="col-6 col-md-3">
+          <dt class="small text-muted">{{ 'thirdPartyAccess.grantDialog.result.created' | transloco }}</dt>
+          <dd class="fs-5 fw-bold mb-0">{{ r.created }}</dd>
+        </div>
+        <div class="col-6 col-md-3">
+          <dt class="small text-muted">{{ 'thirdPartyAccess.grantDialog.result.modified' | transloco }}</dt>
+          <dd class="fs-5 fw-bold mb-0">{{ r.modified }}</dd>
+        </div>
+        <div class="col-6 col-md-3">
+          <dt class="small text-muted">{{ 'thirdPartyAccess.grantDialog.result.skipped' | transloco }}</dt>
+          <dd class="fs-5 fw-bold mb-0">{{ r.skipped.length }}</dd>
+        </div>
+      </dl>
+      @if (r.skipped.length > 0) {
+        <h4 class="h6 fw-bold">{{ 'thirdPartyAccess.grantDialog.result.skippedTitle' | transloco }}</h4>
+        <ul class="small">
+          @for (item of r.skipped; track item.reference) {
+            <li>{{ 'thirdPartyAccess.grantDialog.result.skippedItem' | transloco: { reference: item.reference, reason: (item.code | codeLabel: skippedKeys) } }}</li>
+          }
+        </ul>
+      }
+      @if (r.grants.length > 0 && r.grants[0].status === 'PendingAcceptance') {
+        <div class="alert alert-warning py-2" role="note">{{ 'thirdPartyAccess.grantDialog.result.pendingMandate' | transloco }}</div>
+      }
+    </div>
+    <div class="hl-dialog__footer">
+      <button type="button" class="btn btn-hl-orange" (click)="close()">{{ 'thirdPartyAccess.grantDialog.result.done' | transloco }}</button>
+    </div>
+  } @else {
+    <form (submit)="submit($event)" novalidate>
+      <div class="hl-dialog__body">
+        @if (errors().length > 0) {
+          <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="grant-errors-title">
+            <h3 id="grant-errors-title" class="h6 fw-bold">{{ 'thirdPartyAccess.grantDialog.errors.summaryTitle' | transloco }}</h3>
+            <ul class="mb-0">
+              @for (error of errors(); track error.key) {
+                <li><a [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco: { min: minDays, max: maxDays, maxReferences: maxReferences } }}</a></li>
+              }
+            </ul>
+          </div>
+        }
+        @if (submitError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ submitError() }}</div>
+        }
+
+        <p class="small text-muted">{{ 'thirdPartyAccess.grantDialog.help' | transloco }}</p>
+
+        <!-- 1. Destinatario -->
+        <app-grantee-picker [idPrefix]="idPrefix" [selected]="grantee()" (selectedChange)="onGranteeChange($event)"
+                            [errorKey]="submitted() && !grantee() ? 'thirdPartyAccess.grantDialog.errors.granteeRequired' : null" />
+
+        <!-- 2. Embarques: uno o varios (masivo, M1-12) -->
+        @if (presetBlNumber(); as bl) {
+          <p class="mb-3"><span class="fw-semibold">{{ 'thirdPartyAccess.grantDialog.shipments.fixed' | transloco: { bl: bl } }}</span></p>
+        } @else {
+          <fieldset class="mb-3" aria-describedby="grant-shipments-help">
+            <legend class="form-label small fw-semibold mb-1">{{ 'thirdPartyAccess.grantDialog.shipments.legend' | transloco }}</legend>
+            <div id="grant-shipments-help" class="form-text mt-0 mb-2">{{ 'thirdPartyAccess.grantDialog.shipments.help' | transloco }}</div>
+            <div class="row g-2 align-items-end mb-2">
+              <div class="col-md-8">
+                <label for="grant-shipment-filter" class="form-label small">{{ 'thirdPartyAccess.grantDialog.shipments.filter' | transloco }}</label>
+                <input id="grant-shipment-filter" type="search" class="form-control" autocomplete="off" [value]="shipmentFilter()"
+                       (input)="onShipmentFilter($event)" (keydown)="onShipmentFilterKeydown($event)" />
+              </div>
+              <div class="col-md-4">
+                <button type="button" class="btn btn-outline-secondary w-100" (click)="loadShipments()">{{ 'thirdPartyAccess.grantDialog.shipments.search' | transloco }}</button>
+              </div>
+            </div>
+            @if (shipmentsLoading()) {
+              <app-loading-spinner />
+            } @else if (shipments().length === 0) {
+              <p class="small text-muted mb-0">{{ 'thirdPartyAccess.grantDialog.shipments.empty' | transloco }}</p>
+            } @else {
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <span class="small me-auto" role="status">{{ 'thirdPartyAccess.grantDialog.shipments.selectedCount' | transloco: { count: selected().size } }}</span>
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="selectAllVisible()">{{ 'thirdPartyAccess.grantDialog.shipments.selectAll' | transloco }}</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="selected().size === 0" (click)="clearSelection()">{{ 'thirdPartyAccess.grantDialog.shipments.clear' | transloco }}</button>
+              </div>
+              <div class="table-responsive grant-shipments" tabindex="0" role="region" [attr.aria-label]="'thirdPartyAccess.grantDialog.shipments.caption' | transloco">
+                <table class="hl-table">
+                  <caption class="visually-hidden">{{ 'thirdPartyAccess.grantDialog.shipments.caption' | transloco }}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col"><span class="visually-hidden">{{ 'thirdPartyAccess.grantDialog.shipments.col.select' | transloco }}</span></th>
+                      <th scope="col">{{ 'thirdPartyAccess.grantDialog.shipments.col.bl' | transloco }}</th>
+                      <th scope="col">{{ 'thirdPartyAccess.grantDialog.shipments.col.booking' | transloco }}</th>
+                      <th scope="col">{{ 'thirdPartyAccess.grantDialog.shipments.col.vessel' | transloco }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (shipment of shipments(); track shipment.id) {
+                      <tr>
+                        <td>
+                          <input class="form-check-input" type="checkbox" [id]="'grant-shipment-' + shipment.id"
+                                 [checked]="isSelected(shipment)" (change)="toggleShipment(shipment, $event)"
+                                 [attr.aria-label]="'thirdPartyAccess.grantDialog.shipments.selectLabel' | transloco: { bl: shipment.blNumber }" />
+                        </td>
+                        <td class="fw-semibold">{{ shipment.blNumber }}</td>
+                        <td>{{ shipment.bookingNumber ?? '—' }}</td>
+                        <td>{{ shipment.vessel ?? '—' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              @if (shipmentsTotal() > shipments().length) {
+                <p class="small text-muted mt-1 mb-0">{{ 'thirdPartyAccess.grantDialog.shipments.more' | transloco: { shown: shipments().length, total: shipmentsTotal() } }}</p>
+              }
+            }
+            <div class="d-flex flex-wrap gap-3 mt-2" role="radiogroup" [attr.aria-label]="'thirdPartyAccess.grantDialog.shipments.referenceKind' | transloco">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" id="grant-reference-bl" name="grant-reference" value="bl"
+                       [checked]="referenceKind() === 'bl'" (change)="setReferenceKind('bl')" />
+                <label class="form-check-label" for="grant-reference-bl">{{ 'thirdPartyAccess.grantDialog.shipments.byBl' | transloco }}</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" id="grant-reference-booking" name="grant-reference" value="booking"
+                       [checked]="referenceKind() === 'booking'" (change)="setReferenceKind('booking')" />
+                <label class="form-check-label" for="grant-reference-booking">{{ 'thirdPartyAccess.grantDialog.shipments.byBooking' | transloco }}</label>
+              </div>
+            </div>
+          </fieldset>
+        }
+
+        <!-- 3. Vigencia (M1-14) -->
+        <app-validity-fields [idPrefix]="idPrefix" [(value)]="validity" [requireEnd]="isMandate()" [showErrors]="submitted()" />
+
+        <!-- 4. Mandato digital (M1-03) -->
+        <div class="mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="grant-mandate" [checked]="isMandate()"
+                   aria-describedby="grant-mandate-help" (change)="onMandateChange($event)" />
+            <label class="form-check-label fw-semibold" for="grant-mandate">{{ 'thirdPartyAccess.grantDialog.mandate.label' | transloco }}</label>
+          </div>
+          <div id="grant-mandate-help" class="form-text">{{ 'thirdPartyAccess.grantDialog.mandate.help' | transloco }}</div>
+          @if (isMandate()) {
+            @if (termsLoading()) {
+              <app-loading-spinner />
+            } @else if (terms(); as t) {
+              <div class="border rounded p-3 mt-2">
+                <h3 class="h6 fw-bold">{{ 'thirdPartyAccess.grantDialog.mandate.termsTitle' | transloco: { title: t.title, version: t.version } }}</h3>
+                <p class="small mb-2">{{ t.summary }}</p>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="grant-accept-terms" [checked]="acceptTerms()"
+                         aria-describedby="grant-accept-terms-help" (change)="onAcceptTermsChange($event)" />
+                  <label class="form-check-label" for="grant-accept-terms">{{ 'thirdPartyAccess.grantDialog.mandate.accept' | transloco: { version: t.version } }}</label>
+                </div>
+                <div id="grant-accept-terms-help" class="form-text">{{ 'thirdPartyAccess.grantDialog.mandate.acceptHelp' | transloco }}</div>
+              </div>
+            } @else {
+              <div class="alert alert-warning py-2 mt-2 mb-0" role="alert">{{ 'thirdPartyAccess.grantDialog.mandate.termsError' | transloco }}</div>
+            }
+          }
+        </div>
+
+        <!-- 5. Permisos (M1-15), acotados a lo que posee el otorgante -->
+        <app-permission-checklist [idPrefix]="idPrefix" [(value)]="permissions" [actions]="actions()" [loading]="actionsLoading()"
+                                  [requireExplicit]="isMandate()"
+                                  [pendingKey]="grantee() ? null : 'thirdPartyAccess.grantDialog.permissionsPending'" />
+      </div>
+      <div class="hl-dialog__footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()">{{ 'thirdPartyAccess.grantDialog.cancel' | transloco }}</button>
+        <button type="submit" class="btn btn-hl-orange" [disabled]="submitting()">
+          @if (submitting()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'thirdPartyAccess.grantDialog.submit' | transloco: { count: selectedCount() } }}
+        </button>
+      </div>
+    </form>
+  }
+</dialog>

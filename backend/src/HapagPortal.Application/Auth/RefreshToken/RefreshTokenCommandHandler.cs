@@ -4,6 +4,8 @@ using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Organizations.Common;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +34,9 @@ public sealed class RefreshTokenCommandHandler(
 
         if (!user.IsActive)
             return Result<AuthResponseDto>.Failure(DomainErrors.User.Inactive);
+
+        if (user.MembershipStatus != MembershipStatus.Active)
+            return Result<AuthResponseDto>.Failure(DomainErrors.User.InvalidCredentials);
 
         // El refresh token debe coincidir con el almacenado y no estar expirado (BUG-3).
         if (user.RefreshToken is null ||
@@ -80,7 +85,13 @@ public sealed class RefreshTokenCommandHandler(
 
         const int expirationMinutes = 60;
 
+        // Estado de la organización para que la interfaz muestre, p. ej., el registro en revisión (M1-07).
+        var organization = client is null
+            ? null
+            : OrganizationMapper.ToSummary(
+                client, user, roles, permissions.Contains(AccessPermissions.OperateShipments));
+
         return Result<AuthResponseDto>.Success(
-            new AuthResponseDto(token, expirationMinutes, userDto, newRefreshToken));
+            new AuthResponseDto(token, expirationMinutes, userDto, newRefreshToken, organization));
     }
 }

@@ -9,6 +9,7 @@ namespace HapagPortal.Infrastructure.Integrations.DbNet;
 /// Emisor simulado de documentos tributarios (CT-DBNET), en memoria. Asigna folios correlativos desde
 /// 100001. Determinista: una <c>ExternalReference</c> que contiene "REJECT" queda REJECTED; el resto,
 /// ACCEPTED. Emitir dos veces la misma referencia devuelve el documento ya emitido (idempotencia).
+/// El PDF es un marcador determinista por folio (M7-01) hasta la Ola E.
 /// </summary>
 public sealed class DummyInvoiceProvider(ILogger<DummyInvoiceProvider> logger) : IInvoiceProvider
 {
@@ -60,5 +61,21 @@ public sealed class DummyInvoiceProvider(ILogger<DummyInvoiceProvider> logger) :
     {
         _byFolio.TryGetValue(folio, out var document);
         return Task.FromResult(Result<InvoiceDocument?>.Success(document));
+    }
+
+    /// <summary>
+    /// PDF de marcador para cualquier folio (las facturas de la caché del portal no se emitieron en este
+    /// Dummy). La generación documental real llega con la Ola E.
+    /// </summary>
+    public Task<Result<byte[]?>> GetPdfAsync(
+        string folio,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(folio))
+            return Task.FromResult(Result<byte[]?>.Success(null));
+
+        var content = System.Text.Encoding.ASCII.GetBytes(
+            $"%PDF-1.4\n% Hapag-Lloyd placeholder DTE folio {folio.Trim()}\n%%EOF\n");
+        return Task.FromResult(Result<byte[]?>.Success(content));
     }
 }

@@ -1,6 +1,19 @@
+using System.Text.Json;
+using HapagPortal.Application.Assistant;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Common.Maintainers;
+using HapagPortal.Application.DangerousGoods;
+using HapagPortal.Application.Documents.Common;
+using HapagPortal.Application.Documents.PostPayment;
+using HapagPortal.Application.InternalChargeRules;
+using HapagPortal.Application.Payments.Maintainers;
+using HapagPortal.Application.Shipments.Publication;
+using HapagPortal.Application.Tariffs.Common;
+using HapagPortal.Domain.Access;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
+using HapagPortal.Domain.Shipments;
+using HapagPortal.Infrastructure.Integrations.Fis;
 using Microsoft.EntityFrameworkCore;
 
 namespace HapagPortal.Infrastructure.Persistence;
@@ -20,6 +33,16 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<BLContainer> BLContainers => Set<BLContainer>();
     public DbSet<BLParty> BLParties => Set<BLParty>();
     public DbSet<BLCargoItem> BLCargoItems => Set<BLCargoItem>();
+    public DbSet<ShipmentRole> ShipmentRoles => Set<ShipmentRole>();
+    public DbSet<ShipmentAction> ShipmentActions => Set<ShipmentAction>();
+    public DbSet<ShipmentAccessRule> ShipmentAccessRules => Set<ShipmentAccessRule>();
+    public DbSet<OrganizationDocument> OrganizationDocuments => Set<OrganizationDocument>();
+    public DbSet<AccessGrant> AccessGrants => Set<AccessGrant>();
+    public DbSet<DefaultGrantee> DefaultGrantees => Set<DefaultGrantee>();
+    public DbSet<OpenAccessSetting> OpenAccessSettings => Set<OpenAccessSetting>();
+    public DbSet<ShipmentAssociation> ShipmentAssociations => Set<ShipmentAssociation>();
+    public DbSet<VisibilityWidening> VisibilityWidenings => Set<VisibilityWidening>();
+    public DbSet<AccessAuditEntry> AccessAuditEntries => Set<AccessAuditEntry>();
     public DbSet<CustomsManifest> CustomsManifests => Set<CustomsManifest>();
     public DbSet<CustomsTransmission> CustomsTransmissions => Set<CustomsTransmission>();
     public DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents => Set<CustomsTransmissionEvent>();
@@ -38,6 +61,34 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<TaxConfiguration> TaxConfigurations => Set<TaxConfiguration>();
     public DbSet<Currency> Currencies => Set<Currency>();
+    public DbSet<ChargeConcept> ChargeConcepts => Set<ChargeConcept>();
+    public DbSet<Tariff> Tariffs => Set<Tariff>();
+    public DbSet<TariffTier> TariffTiers => Set<TariffTier>();
+    public DbSet<MaintainerChangeLog> MaintainerChangeLogs => Set<MaintainerChangeLog>();
+    public DbSet<InternalChargeRule> InternalChargeRules => Set<InternalChargeRule>();
+    public DbSet<AppliedExemption> AppliedExemptions => Set<AppliedExemption>();
+    public DbSet<ExchangeRateRecord> ExchangeRateRecords => Set<ExchangeRateRecord>();
+    public DbSet<WarehouseChangeBatch> WarehouseChangeBatches => Set<WarehouseChangeBatch>();
+    public DbSet<WarehouseChangeBatchItem> WarehouseChangeBatchItems => Set<WarehouseChangeBatchItem>();
+    public DbSet<BusinessHoliday> BusinessHolidays => Set<BusinessHoliday>();
+    public DbSet<Cart> Carts => Set<Cart>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
+    public DbSet<PaymentStatusChange> PaymentStatusChanges => Set<PaymentStatusChange>();
+    public DbSet<PaymentOutboxMessage> PaymentOutboxMessages => Set<PaymentOutboxMessage>();
+    public DbSet<PaymentCurrencyRule> PaymentCurrencyRules => Set<PaymentCurrencyRule>();
+    public DbSet<PaymentMethodConfig> PaymentMethodConfigs => Set<PaymentMethodConfig>();
+    public DbSet<PaymentBlockWindow> PaymentBlockWindows => Set<PaymentBlockWindow>();
+    public DbSet<CustomerInvoice> CustomerInvoices => Set<CustomerInvoice>();
+    public DbSet<ShipmentDocument> ShipmentDocuments => Set<ShipmentDocument>();
+    public DbSet<ShipmentDocumentEvent> ShipmentDocumentEvents => Set<ShipmentDocumentEvent>();
+    public DbSet<ShipmentPublicationRule> ShipmentPublicationRules => Set<ShipmentPublicationRule>();
+    public DbSet<KnowledgeArticle> KnowledgeArticles => Set<KnowledgeArticle>();
+    public DbSet<AssistantMailbox> AssistantMailboxes => Set<AssistantMailbox>();
+    public DbSet<AssistantSession> AssistantSessions => Set<AssistantSession>();
+    public DbSet<AssistantMessage> AssistantMessages => Set<AssistantMessage>();
+    public DbSet<DangerousGood> DangerousGoods => Set<DangerousGood>();
+    public DbSet<TatcBatch> TatcBatches => Set<TatcBatch>();
+    public DbSet<TatcBatchItem> TatcBatchItems => Set<TatcBatchItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,10 +98,1426 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         SeedCurrencies(modelBuilder);
         SeedTaxConfigurations(modelBuilder);
         SeedAdminClientAndUser(modelBuilder);
-        SeedFAQs(modelBuilder);
+        var faqs = SeedFAQs(modelBuilder);
         SeedDemoData(modelBuilder);
         SeedRbac(modelBuilder);
         SeedDeadlineRules(modelBuilder);
+        SeedAccessMatrix(modelBuilder);
+        SeedOrganizationAccessDemo(modelBuilder);
+        SeedThirdPartyAccessDemo(modelBuilder);
+        SeedChargeCatalogAndTariffs(modelBuilder);
+        SeedChargeRulesDemo(modelBuilder);
+        SeedPaymentConfiguration(modelBuilder);
+        SeedPaymentsDemo(modelBuilder);
+        SeedDocumentsDemo(modelBuilder);
+        SeedPortalAssistantDemo(modelBuilder, faqs);
+    }
+
+    /// <summary>
+    /// Ola F: copia en cada BL sembrado el último estado conocido que informa FIS (Dummy) para la publicación por
+    /// DIFU (M2-01) y la emisión (M2-02), de modo que el listado coincida con la consulta en el momento.
+    /// </summary>
+    private static BillOfLading[] SourceSnapshot(params BillOfLading[] billsOfLading)
+    {
+        foreach (var bl in billsOfLading)
+        {
+            if (DummyFisDemoData.Find(bl.BLNumber) is not { } record)
+                continue;
+
+            bl.PortOfDischargeCode = ShipmentPublication.NormalizeCode(record.PortOfDischargeCode);
+            bl.FinalDestinationCode = ShipmentPublication.NormalizeCode(record.FinalDestinationCode);
+            bl.DifuCode = record.DifuCode;
+            bl.DifuLocationCode = ShipmentPublication.NormalizeCode(record.DifuLocationCode);
+            bl.TransportDocumentType = BlIssuanceMapper.MapDocumentType(record.DocumentType);
+            bl.EblPlatform = record.EblPlatform;
+            bl.IssuanceStatus = BlIssuanceMapper.MapStatus(record.IssuanceStatus);
+            bl.IssuanceStatusAt = record.IssuanceStatusAt;
+        }
+
+        return billsOfLading;
+    }
+
+    /// <summary>
+    /// Fase 1 Ola F: reglas de publicación por DIFU (M2-01) de Antofagasta y Punta Arenas distribuidos desde San
+    /// Antonio, con un BL de cada caso para Importadora Demo (BL14 sin DIFU: no se publica; BL15 con DIFU: se
+    /// publica); base de conocimiento del asistente por país, sembrada desde la FAQ más artículos de procesos del
+    /// portal (M10-02); casillas de derivación por país; y la muestra de referencia del buscador DG (M10-06).
+    /// Cada alta de un mantenedor queda en el registro de cambios (NF-15).
+    /// </summary>
+    private static void SeedPortalAssistantDemo(ModelBuilder modelBuilder, IReadOnlyList<FAQ> faqs)
+    {
+        var created = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        // ── M2-01: reglas de publicación y BL con destino final distinto del puerto de descarga ──
+        var rules = new[]
+        {
+            new ShipmentPublicationRule
+            {
+                Id = SeedDataIds.PublicationRuleAntofagasta,
+                Country = CountryCodes.Chile,
+                FinalDestinationCode = "CLANF",
+                FinalDestinationName = "Antofagasta",
+                DischargePortCode = "CLSAI",
+                Description = "Carga con destino final Antofagasta distribuida desde San Antonio: se publica con DIFU asociado al destino final.",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            new ShipmentPublicationRule
+            {
+                Id = SeedDataIds.PublicationRulePuntaArenas,
+                Country = CountryCodes.Chile,
+                FinalDestinationCode = "CLPUQ",
+                FinalDestinationName = "Punta Arenas",
+                DischargePortCode = "CLSAI",
+                Description = "Carga con destino final Punta Arenas distribuida desde San Antonio: se publica con DIFU asociado al destino final.",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+        };
+
+        modelBuilder.Entity<ShipmentPublicationRule>().HasData(rules);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(rules.Select(r => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:publication-rule:{r.Id}"),
+            Maintainer = MaintainerNames.ShipmentPublicationRule,
+            EntityId = r.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(ShipmentPublicationRuleSnapshot.From(r), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL14,
+                BLNumber = "HLCUSAI260601410",
+                BookingNumber = "HLCUBKG2606141",
+                ShipmentType = "Import",
+                Vessel = "Lima Express",
+                Voyage = "2612E",
+                PortOfLoading = "Shanghai (CNSHA)",
+                PortOfDischarge = "San Antonio (CLSAI)",
+                PlaceOfDelivery = "Antofagasta, Chile",
+                ETD = new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 10, 3, 0, 0, 0, DateTimeKind.Utc),
+                Consignee = "Importadora Demo SpA",
+                Shipper = "Shanghai Mining Supplies Co.",
+                FreightAmount = 3100m,
+                FreightCurrency = "USD",
+                Status = "Arrived",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL15,
+                BLNumber = "HLCUSAI260601520",
+                BookingNumber = "HLCUBKG2606152",
+                ShipmentType = "Import",
+                Vessel = "Lima Express",
+                Voyage = "2612E",
+                PortOfLoading = "Shanghai (CNSHA)",
+                PortOfDischarge = "San Antonio (CLSAI)",
+                PlaceOfDelivery = "Punta Arenas, Chile",
+                ETD = new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 10, 3, 0, 0, 0, DateTimeKind.Utc),
+                Consignee = "Importadora Demo SpA",
+                Shipper = "Shanghai Cold Chain Ltd",
+                FreightAmount = 2750m,
+                FreightCurrency = "USD",
+                FreightPaidAt = new DateTime(2026, 9, 5, 15, 0, 0, DateTimeKind.Utc),
+                Status = "Arrived",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            }));
+
+        modelBuilder.Entity<BLContainer>().HasData(
+            new BLContainer { Id = SeedDataIds.Container17, ContainerNumber = "HLXU3046001", ContainerType = "40HC", SealNumber = "SL-046001", Weight = 26300m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL14, CreatedAt = created, CreatedBy = "SYSTEM" },
+            new BLContainer { Id = SeedDataIds.Container18, ContainerNumber = "HLXU3046002", ContainerType = "40RF", SealNumber = "SL-046002", Weight = 24800m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL15, CreatedAt = created, CreatedBy = "SYSTEM" });
+
+        modelBuilder.Entity<LocalCharge>().HasData(
+            new LocalCharge { Id = SeedDataIds.LocalCharge26, ChargeType = ChargeConceptCodes.Thc, Description = "Terminal Handling Charge - 40RF (San Antonio)", Amount = 210000m, Currency = "CLP", Status = ChargeStatus.Pending, IsTaxable = true, TaxRate = 19m, TaxAmount = 39900m, TotalAmount = 249900m, BillOfLadingId = SeedDataIds.BL15, CreatedAt = created, CreatedBy = "SYSTEM" });
+
+        modelBuilder.Entity<ShipmentRole>().HasData(new[] { SeedDataIds.BL14, SeedDataIds.BL15 }.Select(blId => new ShipmentRole
+        {
+            Id = DeterministicGuid($"shipment-role:{blId}:{SeedDataIds.DemoClientCL}:{ShipmentRoleCodes.Consignee}"),
+            BillOfLadingId = blId,
+            ClientId = SeedDataIds.DemoClientCL,
+            Role = ShipmentRoleCodes.Consignee,
+            Source = ShipmentRoleSources.Seed,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        }));
+
+        // ── M10-02: casillas de derivación y base de conocimiento por país ──
+        var mailboxes = new[]
+        {
+            new AssistantMailbox
+            {
+                Id = DeterministicGuid("assistant-mailbox:CL:GENERAL"),
+                Country = CountryCodes.Chile,
+                Topic = AssistantTopics.General,
+                Email = "clservice@hapag-lloyd.com",
+                Notes = "Casilla de Customer Service publicada en la FAQ del portal.",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            new AssistantMailbox
+            {
+                Id = DeterministicGuid("assistant-mailbox:BO:GENERAL"),
+                Country = CountryCodes.Bolivia,
+                Topic = AssistantTopics.General,
+                Email = "boservice@hapag-lloyd.com",
+                Notes = "Casilla por validar con Customer Service Bolivia antes de producción.",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+        };
+
+        modelBuilder.Entity<AssistantMailbox>().HasData(mailboxes);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(mailboxes.Select(m => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:assistant-mailbox:{m.Id}"),
+            Maintainer = MaintainerNames.AssistantMailbox,
+            EntityId = m.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(AssistantMailboxSnapshot.From(m), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        static string TopicOf(string faqCategory) => faqCategory switch
+        {
+            "SHIPPING" => AssistantTopics.Shipping,
+            "PAYMENTS" => AssistantTopics.Payments,
+            "DOCUMENTATION" => AssistantTopics.Documentation,
+            "DEMURRAGE" => AssistantTopics.Demurrage,
+            _ => AssistantTopics.General,
+        };
+
+        var articles = faqs.Select(f => new KnowledgeArticle
+        {
+            Id = DeterministicGuid($"knowledge:faq:{f.Id}"),
+            Country = f.Country,
+            Topic = TopicOf(f.Category),
+            Title = f.Question,
+            Content = f.Answer,
+            SortOrder = f.SortOrder,
+            SourceFaqId = f.Id,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        }).ToList();
+
+        var processes = new (string Country, string Code, string Topic, string Title, string Content, string Keywords, int Order)[]
+        {
+            (CountryCodes.Chile, "warehouse-change", AssistantTopics.Shipping, "¿Cómo funciona el cambio de almacén?",
+                "Desde el detalle del BL o la sección Cambio de almacén puede solicitar el cambio para el BL completo o para un contenedor. Si su cuenta tiene derecho a un cambio gratuito (condición informada por Nexus o regla del portal), la solicitud queda completada sin costo. Si no, se aplica la tarifa vigente (KTE o KTF) y el cargo queda listo para pagarlo en el carro. Para varios BL use la solicitud masiva y consulte su avance en la misma sección.",
+                "almacen, cambio de almacen, bodega, KTE, KTF, deposito", 20),
+            (CountryCodes.Chile, "bl-copy", AssistantTopics.Documentation, "¿Cómo solicito una copia del BL?",
+                "En Documentos del embarque puede solicitar la copia del BL valorada (con fletes y cargos) o no valorada (sin valores comerciales). La copia se publica en el repositorio del embarque y se envía al correo registrado de su organización. El shipper solo accede a la copia no valorada.",
+                "copia, copia de bl, valorada, no valorada, documento", 21),
+            (CountryCodes.Chile, "responsibility-letter", AssistantTopics.Documentation, "¿Qué es la carta de responsabilidad para Freight Forwarders?",
+                "Si su organización es un Freight Forwarder autorizado y es consignatario del BL, debe emitir la carta de responsabilidad antes de pagar los cargos del embarque. Se genera en Documentos del embarque completando los datos del firmante y aceptando los términos vigentes; una carta vigente levanta el bloqueo de ese BL.",
+                "carta, carta de responsabilidad, ffww, freight forwarder, bloqueo", 22),
+            (CountryCodes.Chile, "transshipment-certificate", AssistantTopics.Documentation, "¿Cómo obtengo el certificado de transbordo?",
+                "En Documentos del embarque solicite el certificado de transbordo: el portal agrega el cargo del servicio según la tarifa vigente y, una vez confirmado el pago en el carro, emite el certificado firmado, lo publica en el repositorio del BL y lo envía por correo.",
+                "certificado, transbordo, certificado de transbordo", 23),
+            (CountryCodes.Chile, "tatc", AssistantTopics.Documentation, "¿Dónde consulto el estado del TATC?",
+                "En el detalle de un BL de importación, la sección TATC muestra el estado vigente de cada contenedor según el sistema de TATC (sin emitir, pre-TATC, emitido o anulado) y los motivos pendientes, como pagos o documentos. Los clientes con alto volumen en una misma localidad pueden solicitar la generación masiva de TATC.",
+                "tatc, retiro, contenedor, generacion masiva", 24),
+            (CountryCodes.Chile, "cart", AssistantTopics.Payments, "¿Cómo pago mis servicios en el carro?",
+                "Agregue al carro los cargos pendientes desde el detalle del BL, la pestaña de demurrage o sus facturas, indicando el RUT de facturación. El carro agrupa los ítems por país y moneda de pago; cada grupo se paga por separado con los medios habilitados, por ejemplo Khipu, botón de pago bancario o depósito con boleta.",
+                "carro, pago, pagar, khipu, deposito, boleta, moneda, rut de facturacion", 25),
+            (CountryCodes.Chile, "third-party-access", AssistantTopics.General, "¿Cómo doy acceso a mi agencia de aduanas u otro tercero?",
+                "En Accesos de terceros, el administrador de su organización puede otorgar acceso a un BL o booking, de forma individual o masiva, con vigencia y permisos definidos, y revocarlo cuando quiera. También puede configurar terceros por defecto para los BL nuevos. Todos los cambios quedan registrados en la auditoría.",
+                "acceso, terceros, agencia, mandato, otorgar, revocar", 26),
+            (CountryCodes.Bolivia, "no-debt-certificate", AssistantTopics.Documentation, "¿Cómo obtengo el certificado de libre deuda (CLD)?",
+                "En Documentos del embarque de un BL de importación de Bolivia consulte si el CLD está disponible. Se emite firmado cuando no hay recargos, demurrage, facturas, flete Collect ni demoras anticipadas pendientes; si algo falta, el portal indica qué bloquea la emisión.",
+                "cld, libre deuda, certificado, bolivia", 20),
+            (CountryCodes.Bolivia, "advance-demurrage", AssistantTopics.Demurrage, "¿Qué son las demoras anticipadas?",
+                "Algunas cuentas de Bolivia deben pagar demoras anticipadas por contenedor antes de emitir el CLD. El portal las informa en la pestaña de demurrage del BL; al pagarlas, el monto se descuenta del MHD y deja de bloquear el CLD.",
+                "demoras anticipadas, adelanto, demurrage, mhd", 21),
+            (CountryCodes.Bolivia, "deposit", AssistantTopics.Payments, "¿Cómo pago con depósito o transferencia en Bolivia?",
+                "En el carro elija Depósito o transferencia bancaria y emita la boleta. Realice el depósito o la transferencia por el monto indicado; Finanzas confirma el abono y el pago queda confirmado en el historial de pagos.",
+                "deposito, transferencia, boleta, pago, bolivianos", 22),
+            (CountryCodes.Bolivia, "tatc", AssistantTopics.Documentation, "¿Dónde consulto el estado del TATC?",
+                "En el detalle de un BL de importación, la sección TATC muestra el estado vigente de cada contenedor según el sistema de TATC y los motivos pendientes. Para operaciones de alto volumen en una misma localidad puede solicitar la generación masiva de TATC.",
+                "tatc, retiro, contenedor, generacion masiva", 23),
+            (CountryCodes.Bolivia, "third-party-access", AssistantTopics.General, "¿Cómo doy acceso a mi agencia de aduanas u otro tercero?",
+                "En Accesos de terceros, el administrador de su organización puede otorgar acceso a un BL o booking, con vigencia y permisos definidos, y revocarlo cuando quiera. Todos los cambios quedan registrados en la auditoría.",
+                "acceso, terceros, agencia, mandato, otorgar, revocar", 24),
+        };
+
+        articles.AddRange(processes.Select(p => new KnowledgeArticle
+        {
+            Id = DeterministicGuid($"knowledge:{p.Country}:{p.Code}"),
+            Country = p.Country,
+            Topic = p.Topic,
+            Title = p.Title,
+            Content = p.Content,
+            Keywords = p.Keywords,
+            SortOrder = p.Order,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        }));
+
+        modelBuilder.Entity<KnowledgeArticle>().HasData(articles);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(articles.Select(a => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:knowledge:{a.Id}"),
+            Maintainer = MaintainerNames.KnowledgeArticle,
+            EntityId = a.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(KnowledgeArticleSnapshot.From(a), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        // ── M10-06: muestra de referencia (números ONU, nombres y clases de la lista de la ONU) ──
+        var dangerousGoods = new (string? Un, string Es, string En, string? Class, string? Subsidiary, string? Group, string? Notes, string? Keywords)[]
+        {
+            ("1203", "Gasolina", "Gasoline (motor spirit)", "3", null, "II", null, "bencina, nafta, combustible"),
+            ("1202", "Combustible diésel", "Diesel fuel", "3", null, "III", null, "petroleo diesel, gasoil, combustible"),
+            ("1090", "Acetona", "Acetone", "3", null, "II", null, "solvente, quitaesmalte"),
+            ("1170", "Etanol (alcohol etílico) o solución de etanol", "Ethanol (ethyl alcohol) or ethanol solution", "3", null, "II", "Grupo de embalaje II o III según la concentración.", "alcohol etilico, alcohol"),
+            ("1263", "Pintura", "Paint", "3", null, null, "Grupo de embalaje I, II o III según el punto de inflamación.", "pinturas, barniz, laca, esmalte"),
+            ("1993", "Líquido inflamable, n.e.p.", "Flammable liquid, n.o.s.", "3", null, null, "Grupo de embalaje según el punto de inflamación.", "liquido inflamable"),
+            ("1075", "Gases de petróleo licuados", "Petroleum gases, liquefied", "2.1", null, null, null, "glp, gas licuado"),
+            ("1978", "Propano", "Propane", "2.1", null, null, null, "gas propano, glp"),
+            ("1950", "Aerosoles", "Aerosols", "2.1", null, null, "La división (2.1, 2.2 o 2.3) depende del contenido del aerosol.", "spray, aerosol"),
+            ("1005", "Amoníaco anhidro", "Ammonia, anhydrous", "2.3", "8", null, null, "amoniaco, refrigerante"),
+            ("1013", "Dióxido de carbono", "Carbon dioxide", "2.2", null, null, null, "co2, gas carbonico"),
+            ("1845", "Dióxido de carbono sólido (hielo seco)", "Carbon dioxide, solid (dry ice)", "9", null, null, null, "hielo seco, co2 solido"),
+            ("1830", "Ácido sulfúrico", "Sulphuric acid", "8", null, "II", null, "acido sulfurico"),
+            ("1789", "Ácido clorhídrico", "Hydrochloric acid", "8", null, null, "Grupo de embalaje II o III según la concentración.", "acido clorhidrico, acido muriatico"),
+            ("1823", "Hidróxido de sodio sólido", "Sodium hydroxide, solid", "8", null, "II", null, "soda caustica, sosa caustica"),
+            ("2794", "Baterías húmedas llenas de ácido", "Batteries, wet, filled with acid", "8", null, null, null, "baterias, acumuladores, bateria de plomo"),
+            ("3480", "Baterías de ion litio", "Lithium ion batteries", "9", null, null, "Incluye baterías de polímero de ion litio.", "baterias de litio, pilas de litio"),
+            ("3481", "Baterías de ion litio contenidas en un equipo o embaladas con él", "Lithium ion batteries contained in equipment or packed with equipment", "9", null, null, null, "baterias de litio, equipos electronicos"),
+            ("3090", "Baterías de metal litio", "Lithium metal batteries", "9", null, null, null, "baterias de litio, pilas de litio"),
+            ("1942", "Nitrato de amonio", "Ammonium nitrate", "5.1", null, "III", "Con no más del 0,2 % de sustancia combustible.", "nitrato de amonio"),
+            ("2067", "Abonos a base de nitrato de amonio", "Ammonium nitrate based fertilizer", "5.1", null, "III", null, "fertilizante, abono"),
+            ("1748", "Hipoclorito de calcio seco", "Calcium hypochlorite, dry", "5.1", null, "II", null, "cloro, cloro granulado, piscina"),
+            ("3077", "Sustancia sólida peligrosa para el medio ambiente, n.e.p.", "Environmentally hazardous substance, solid, n.o.s.", "9", null, "III", null, "contaminante marino"),
+            ("3082", "Sustancia líquida peligrosa para el medio ambiente, n.e.p.", "Environmentally hazardous substance, liquid, n.o.s.", "9", null, "III", null, "contaminante marino"),
+            ("3166", "Vehículo propulsado por líquido inflamable", "Vehicle, flammable liquid powered", "9", null, null, null, "automovil, auto, vehiculo"),
+            ("1361", "Carbón de origen animal o vegetal", "Carbon, animal or vegetable origin", "4.2", null, null, "Grupo de embalaje II o III.", "carbon vegetal, carbon"),
+            ("1987", "Alcoholes, n.e.p.", "Alcohols, n.o.s.", "3", null, null, "Grupo de embalaje II o III según el punto de inflamación.", "alcohol"),
+            (null, "Muebles de madera", "Wooden furniture", null, null, null, null, "muebles, mobiliario"),
+            (null, "Fruta fresca", "Fresh fruit", null, null, null, "Carga refrigerada no clasificada como mercancía peligrosa.", "fruta, manzanas, uvas, cerezas"),
+            (null, "Vino embotellado", "Bottled wine", null, null, null, "Las bebidas alcohólicas con más de 24 % de alcohol en volumen se clasifican como UN3065, clase 3.", "vino, bebidas alcoholicas"),
+            (null, "Cátodos de cobre", "Copper cathodes", null, null, null, null, "cobre, catodos"),
+            (null, "Prendas de vestir", "Clothing", null, null, null, null, "ropa, textiles, vestuario"),
+        };
+
+        modelBuilder.Entity<DangerousGood>().HasData(dangerousGoods.Select(d =>
+        {
+            var entry = new DangerousGood
+            {
+                Id = DeterministicGuid($"dangerous-good:{d.Un}:{d.En}"),
+                UnNumber = d.Un,
+                ProperShippingNameEs = d.Es,
+                ProperShippingNameEn = d.En,
+                HazardClass = d.Class,
+                SubsidiaryRisk = d.Subsidiary,
+                PackingGroup = d.Group,
+                Notes = d.Notes,
+                Keywords = d.Keywords,
+                IsClassified = d.Class is not null,
+                Source = DangerousGoodSources.Sample,
+                SearchText = string.Empty,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            };
+            entry.SearchText = DangerousGoodCatalog.BuildSearchText(entry);
+            return entry;
+        }));
+    }
+
+    /// <summary>
+    /// Fase 1 Ola E: documentos del embarque de demostración (M6-09) y los escenarios que los muestran. BL12
+    /// es Collect con la agencia de aduanas como parte (M6-04: solo ella ve el comprobante); BL13 es de
+    /// Global Forwarding (FFWW, M4-04) con carta de responsabilidad vigente, mientras BL11 sigue sin carta y
+    /// bloqueado. BL05 tiene las demoras anticipadas pagadas (M3-16), de modo que su CLD (M6-07) se puede
+    /// emitir y el de BL04 muestra los bloqueos. Los documentos sembrados no tienen archivo: se generan desde
+    /// su modelo en la primera descarga (se firman en ese momento los que lo exigen).
+    /// </summary>
+    private static void SeedDocumentsDemo(ModelBuilder modelBuilder)
+    {
+        var now = new DateTime(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc);
+        var settings = new DocumentSettings();
+
+        var bl12 = new BillOfLading
+        {
+            Id = SeedDataIds.BL12,
+            BLNumber = "HLCUSAI260501240",
+            BookingNumber = "HLCUBKG2605124",
+            ShipmentType = "Import",
+            Vessel = "Cartagena Express",
+            Voyage = "2611E",
+            PortOfLoading = "Yokohama (JPYOK)",
+            PortOfDischarge = "San Antonio (CLSAI)",
+            PlaceOfDelivery = "Santiago, Chile",
+            ETD = new DateTime(2026, 8, 28, 0, 0, 0, DateTimeKind.Utc),
+            ETA = new DateTime(2026, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+            Consignee = "Importadora Demo SpA",
+            Shipper = "Yokohama Machinery Co.",
+            NotifyParty = "Agencia Marítima del Pacífico Ltda",
+            FreightAmount = 4800m,
+            FreightCurrency = "USD",
+            FreightTerms = PaymentDocumentRules.CollectFreightTerms,
+            FreightPaidAt = new DateTime(2026, 10, 3, 15, 0, 0, DateTimeKind.Utc),
+            Status = "Arrived",
+            Country = CountryCodes.Chile,
+            ClientId = SeedDataIds.DemoClientCL,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        };
+
+        var bl13 = new BillOfLading
+        {
+            Id = SeedDataIds.BL13,
+            BLNumber = "HLCUVAP260501350",
+            BookingNumber = "HLCUBKG2605135",
+            ShipmentType = "Import",
+            Vessel = "Callao Express",
+            Voyage = "2611N",
+            PortOfLoading = "Shanghai (CNSHA)",
+            PortOfDischarge = "Valparaiso (CLVAP)",
+            PlaceOfDelivery = "Valparaiso, Chile",
+            ETD = new DateTime(2026, 8, 30, 0, 0, 0, DateTimeKind.Utc),
+            ETA = new DateTime(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+            Consignee = "Global Forwarding Chile SpA",
+            Shipper = "Shanghai Furniture Ltd",
+            FreightAmount = 2900m,
+            FreightCurrency = "USD",
+            Status = "Arrived",
+            Country = CountryCodes.Chile,
+            ClientId = SeedDataIds.FfwwDemoClient,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        };
+
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(bl12, bl13));
+
+        var container15 = new BLContainer { Id = SeedDataIds.Container15, ContainerNumber = "HLXU3045001", ContainerType = "40HC", SealNumber = "SL-045001", Weight = 25100m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL12, CreatedAt = now, CreatedBy = "SYSTEM" };
+        var container16 = new BLContainer { Id = SeedDataIds.Container16, ContainerNumber = "HLXU3045002", ContainerType = "20DV", SealNumber = "SL-045002", Weight = 17900m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL13, CreatedAt = now, CreatedBy = "SYSTEM" };
+        modelBuilder.Entity<BLContainer>().HasData(container15, container16);
+
+        modelBuilder.Entity<LocalCharge>().HasData(
+            // Cargo del FFWW sobre BL13: con la carta vigente puede agregarse al carro (M4-04 cumplido).
+            new LocalCharge { Id = SeedDataIds.LocalCharge23, ChargeType = ChargeConceptCodes.Thc, Description = "Terminal Handling Charge - 20DV (Valparaíso)", Amount = 185000m, Currency = "CLP", Status = ChargeStatus.Pending, IsTaxable = true, TaxRate = 19m, TaxAmount = 35150m, TotalAmount = 220150m, BillOfLadingId = SeedDataIds.BL13, CreatedAt = now, CreatedBy = "SYSTEM" },
+            // Servicio de certificado de transbordo pagado de BL06 (origen del certificado sembrado).
+            new LocalCharge { Id = SeedDataIds.LocalCharge24, ChargeType = ChargeConceptCodes.TransshipmentCertificate, Description = "Certificado de transbordo", Amount = 35000m, Currency = "CLP", Status = ChargeStatus.Paid, IsTaxable = true, TaxRate = 19m, TaxAmount = 6650m, TotalAmount = 41650m, BillOfLadingId = SeedDataIds.BL06, CreatedAt = now, CreatedBy = "SYSTEM" },
+            // Demoras anticipadas pagadas de BL05 (M3-16): el CLD de BL05 no queda bloqueado.
+            new LocalCharge { Id = SeedDataIds.LocalCharge25, ChargeType = ChargeConceptCodes.AdvanceDemurrageBo, Description = "Demoras anticipadas (1 contenedor(es))", Amount = 150m, Currency = "USD", Status = ChargeStatus.Paid, IsTaxable = false, TaxRate = 0m, TaxAmount = 0m, TotalAmount = 150m, BillOfLadingId = SeedDataIds.BL05, CreatedAt = now, CreatedBy = "SYSTEM" });
+
+        var shipmentRoles = new (Guid BlId, Guid ClientId, string Role)[]
+        {
+            (SeedDataIds.BL12, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL12, SeedDataIds.AgentClientCL, ShipmentRoleCodes.CustomsAgency),
+            (SeedDataIds.BL13, SeedDataIds.FfwwDemoClient, ShipmentRoleCodes.Consignee),
+        };
+
+        modelBuilder.Entity<ShipmentRole>().HasData(shipmentRoles.Select(r => new ShipmentRole
+        {
+            Id = DeterministicGuid($"shipment-role:{r.BlId}:{r.ClientId}:{r.Role}"),
+            BillOfLadingId = r.BlId,
+            ClientId = r.ClientId,
+            Role = r.Role,
+            Source = ShipmentRoleSources.Seed,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
+
+        // Datos de los BL ya sembrados que usan las plantillas (copia de sus valores).
+        var bl01 = new BillOfLading
+        {
+            Id = SeedDataIds.BL01, BLNumber = "HLCUVAL250100123", BookingNumber = "HLCUBKG2501001", ShipmentType = "Import",
+            Vessel = "Hamburg Express", Voyage = "025E", PortOfLoading = "Shanghai (CNSHA)", PortOfDischarge = "San Antonio (CLSAI)",
+            PlaceOfDelivery = "Santiago, Chile", ETD = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
+            ETA = new DateTime(2026, 4, 5, 0, 0, 0, DateTimeKind.Utc), Consignee = "Importadora Demo SpA",
+            Shipper = "Shanghai Electronics Co. Ltd", NotifyParty = "Agencia Marítima del Pacífico Ltda", FreightAmount = 3500m,
+            FreightCurrency = "USD", Status = "Arrived", Country = CountryCodes.Chile, ClientId = SeedDataIds.DemoClientCL
+        };
+        var bl06 = new BillOfLading
+        {
+            Id = SeedDataIds.BL06, BLNumber = "HLCUSAI260300610", BookingNumber = "HLCUBKG2603061", ShipmentType = "Export",
+            Vessel = "Valparaiso Express", Voyage = "2610S", PortOfLoading = "San Antonio (CLSAI)", PortOfDischarge = "Rotterdam (NLRTM)",
+            PlaceOfDelivery = "Rotterdam, Netherlands", ETD = new DateTime(2026, 10, 20, 0, 0, 0, DateTimeKind.Utc),
+            ETA = new DateTime(2026, 11, 25, 0, 0, 0, DateTimeKind.Utc), Shipper = "Importadora Demo SpA", Consignee = "Fruit Import BV",
+            FreightAmount = 3900m, FreightCurrency = "USD", Status = "Booked", Country = CountryCodes.Chile, ClientId = SeedDataIds.DemoClientCL
+        };
+        var bl01Containers = new List<BLContainer>
+        {
+            new() { ContainerNumber = "HLXU1234567", ContainerType = "40HC", SealNumber = "SL-001234", Weight = 24500m, Status = "Discharged" },
+            new() { ContainerNumber = "HLXU7654321", ContainerType = "20DV", SealNumber = "SL-005678", Weight = 18200m, Status = "Discharged" }
+        };
+        var bl06Containers = new List<BLContainer>
+        {
+            new() { ContainerNumber = "HLXU2023001", ContainerType = "40RF", SealNumber = "SL-020301", Weight = 26800m, Status = "GateIn" }
+        };
+        var bl12Containers = new List<BLContainer> { container15 };
+        var bl13Containers = new List<BLContainer> { container16 };
+
+        ShipmentDocumentData Data(BillOfLading bl, List<BLContainer> containers) => new(bl, [], containers, [], []);
+
+        DocumentHeader Header(string number, BillOfLading bl, DateTime issuedAt) =>
+            new(number, issuedAt, ShipmentDocumentTemplates.VerificationCode(number, bl.BLNumber, issuedAt), settings.IssuerFor(bl.Country));
+
+        ShipmentDocument Document(
+            Guid id, string type, string number, BillOfLading bl, List<BLContainer> containers, DateTime issuedAt,
+            Guid organizationId, string? email, PdfDocumentModel model, string? recipients = null) => new()
+        {
+            Id = id,
+            DocumentType = type,
+            DocumentNumber = number,
+            Status = ShipmentDocumentStatus.Issued,
+            BillOfLadingId = bl.Id,
+            BlNumber = bl.BLNumber,
+            BookingNumber = bl.BookingNumber,
+            Country = bl.Country,
+            ContainerNumbers = string.Join(',', containers.Select(c => c.ContainerNumber)),
+            IssuedAt = issuedAt,
+            IssuedForOrganizationId = organizationId,
+            IssuedByEmail = email,
+            Origin = ShipmentDocumentOrigins.Seed,
+            FileName = ShipmentDocumentTemplates.FileName(type, number),
+            ContentType = ShipmentDocumentService.PdfContentType,
+            VerificationCode = model.VerificationCode!,
+            TemplateJson = JsonSerializer.Serialize(model, ShipmentDocumentService.JsonOptions),
+            RecipientEmails = recipients,
+            DeliveredAt = recipients is null ? null : issuedAt,
+            RetainUntil = issuedAt.AddYears(settings.RetentionYears),
+            CreatedAt = issuedAt,
+            CreatedBy = email ?? "SYSTEM"
+        };
+
+        var transshipmentAt = new DateTime(2026, 10, 4, 13, 0, 0, DateTimeKind.Utc);
+        var copyAt = new DateTime(2026, 10, 3, 16, 30, 0, DateTimeKind.Utc);
+        var collectAt = new DateTime(2026, 10, 3, 15, 5, 0, DateTimeKind.Utc);
+        var letterAt = new DateTime(2026, 10, 2, 14, 0, 0, DateTimeKind.Utc);
+
+        const string transshipmentNumber = "CTB-20261004-5A1B2C3D";
+        const string copyNumber = "CBL-20261003-7E8F9A0B";
+        const string collectNumber = "CCO-20261003-1C2D3E4F";
+        const string letterNumber = "CRE-20261002-9F8E7D6C";
+
+        var letter = Document(
+            SeedDataIds.DocumentLetterBL13, ShipmentDocumentTypes.ResponsibilityLetter, letterNumber, bl13,
+            bl13Containers, letterAt, SeedDataIds.FfwwDemoClient, "ffww@globalforwarding.cl",
+            ShipmentDocumentTemplates.ResponsibilityLetter(
+                Data(bl13, bl13Containers), Header(letterNumber, bl13, letterAt),
+                new ResponsibilityLetterData(
+                    "Global Forwarding Chile SpA", "76000003-3", "Felipe Forwarder", "12.345.678-5", "Gerente de Operaciones",
+                    "ffww@globalforwarding.cl", null, "Muebles de madera", null, ResponsibilityLetterTerms.Version, letterAt)));
+        letter.TermsVersion = ResponsibilityLetterTerms.Version;
+        letter.TermsAcceptedAt = letterAt;
+
+        var documents = new[]
+        {
+            Document(
+                SeedDataIds.DocumentTransshipmentBL06, ShipmentDocumentTypes.TransshipmentCertificate, transshipmentNumber, bl06,
+                bl06Containers, transshipmentAt, SeedDataIds.DemoClientCL, null,
+                ShipmentDocumentTemplates.TransshipmentCertificate(
+                    Data(bl06, bl06Containers), Header(transshipmentNumber, bl06, transshipmentAt), "Importadora Demo SpA", "76123456-7", null),
+                recipients: "demo@importadorademo.cl"),
+            Document(
+                SeedDataIds.DocumentBlCopyBL01, ShipmentDocumentTypes.BlCopyNonValued, copyNumber, bl01,
+                bl01Containers, copyAt, SeedDataIds.DemoClientCL, "demo@importadorademo.cl",
+                ShipmentDocumentTemplates.BlCopy(
+                    Data(bl01, bl01Containers), Header(copyNumber, bl01, copyAt), valued: false, "Importadora Demo SpA (demo@importadorademo.cl)"),
+                recipients: "demo@importadorademo.cl"),
+            Document(
+                SeedDataIds.DocumentCollectBL12, ShipmentDocumentTypes.CollectReceipt, collectNumber, bl12,
+                bl12Containers, collectAt, SeedDataIds.AgentClientCL, null,
+                ShipmentDocumentTemplates.CollectReceipt(
+                    Data(bl12, bl12Containers), Header(collectNumber, bl12, collectAt), "Agencia Marítima del Pacífico Ltda", "96555444-3",
+                    null, null, 4800m, "USD", bl12.FreightPaidAt)),
+            letter,
+        };
+
+        modelBuilder.Entity<ShipmentDocument>().HasData(documents);
+
+        modelBuilder.Entity<ShipmentDocumentEvent>().HasData(documents.Select(d => new ShipmentDocumentEvent
+        {
+            Id = DeterministicGuid($"document-event:{d.Id}:issued"),
+            ShipmentDocumentId = d.Id,
+            EventType = ShipmentDocumentEventTypes.Issued,
+            Channel = d.IssuedByEmail is null ? DocumentChannels.System : DocumentChannels.Portal,
+            OccurredAt = d.IssuedAt,
+            UserEmail = d.IssuedByEmail,
+            OrganizationId = d.IssuedForOrganizationId
+        }));
+    }
+
+    /// <summary>
+    /// Fase 1 Ola D: monedas por recargo del ejemplo de M5-04 (Fletes USD/EUR/CLP, Gate In y EDS CLP,
+    /// Demurrage USD/CLP en Chile) y su par en Bolivia, medios de pago por país (M5-03: Khipu, botón de
+    /// bancos, depósito con boleta y el espacio reservado de dólares digitales) y ventanas de bloqueo de
+    /// pagos (M8-07), con su alta en el registro de cambios (NF-15).
+    /// </summary>
+    private static void SeedPaymentConfiguration(ModelBuilder modelBuilder)
+    {
+        var created = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        var currencies = new (string Country, string Concept, string[] Currencies)[]
+        {
+            (CountryCodes.Chile, PaymentConcepts.Freight, ["USD", "EUR", "CLP"]),
+            (CountryCodes.Chile, ChargeConceptCodes.GateIn, ["CLP"]),
+            (CountryCodes.Chile, ChargeConceptCodes.Eds, ["CLP"]),
+            (CountryCodes.Chile, ChargeConceptCodes.Demurrage, ["USD", "CLP"]),
+            (CountryCodes.Bolivia, PaymentConcepts.Freight, ["USD", "BOB"]),
+            (CountryCodes.Bolivia, ChargeConceptCodes.GateIn, ["BOB"]),
+            (CountryCodes.Bolivia, ChargeConceptCodes.Eds, ["BOB"]),
+            (CountryCodes.Bolivia, ChargeConceptCodes.Demurrage, ["BOB", "USD"]),
+            (CountryCodes.Bolivia, ChargeConceptCodes.AdvanceDemurrageBo, ["USD", "BOB"]),
+        };
+
+        var rules = currencies
+            .SelectMany(c => c.Currencies.Select(currency => new PaymentCurrencyRule
+            {
+                Id = DeterministicGuid($"payment-currency:{c.Country}:{c.Concept}:{currency}"),
+                Country = c.Country,
+                ConceptCode = c.Concept,
+                Currency = currency,
+                IsEnabled = true,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            }))
+            .ToList();
+
+        modelBuilder.Entity<PaymentCurrencyRule>().HasData(rules);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(rules.Select(r => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:payment-currency:{r.Id}"),
+            Maintainer = MaintainerNames.PaymentCurrency,
+            EntityId = r.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(PaymentCurrencySnapshot.From(r), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        var methods = new[]
+        {
+            Method(CountryCodes.Chile, PaymentMethodCodes.Khipu, "Khipu", "Transferencia simplificada con Khipu", PaymentMethodKinds.Online, PaymentProviderKeys.Khipu, "CLP", 10),
+            Method(CountryCodes.Chile, PaymentMethodCodes.BankButtonBancoChile, "Botón de pago Banco de Chile", "Pago en línea desde la banca del Banco de Chile", PaymentMethodKinds.Online, PaymentProviderKeys.BancoChile, "CLP,USD", 20),
+            Method(CountryCodes.Chile, PaymentMethodCodes.BankButtonSantander, "Botón de pago Santander", "Pago en línea desde la banca de Santander", PaymentMethodKinds.Online, PaymentProviderKeys.Santander, "CLP", 30),
+            Method(CountryCodes.Chile, PaymentMethodCodes.BankButtonBci, "Botón de pago Bci", "Pago en línea desde la banca de Bci", PaymentMethodKinds.Online, PaymentProviderKeys.Bci, "CLP", 40),
+            Method(CountryCodes.Chile, PaymentMethodCodes.Deposit, "Depósito bancario (boleta)", "Boleta para depósito o transferencia; Finanzas confirma el abono", PaymentMethodKinds.Deposit, null, "CLP,USD,EUR", 50),
+            Method(CountryCodes.Chile, PaymentMethodCodes.DigitalUsd, "Dólares digitales", "Reservado (M5-03): se habilita cuando se defina el proveedor", PaymentMethodKinds.Online, null, "USD", 90, enabled: false),
+            Method(CountryCodes.Bolivia, PaymentMethodCodes.Deposit, "Depósito o transferencia bancaria (boleta)", "Boleta para depósito o transferencia; Finanzas confirma el abono", PaymentMethodKinds.Deposit, null, "BOB,USD", 10),
+            Method(CountryCodes.Bolivia, PaymentMethodCodes.DigitalUsd, "Dólares digitales", "Reservado (M5-03): se habilita cuando se defina el proveedor", PaymentMethodKinds.Online, null, "USD", 90, enabled: false),
+        };
+
+        foreach (var method in methods)
+        {
+            method.CreatedAt = created;
+            method.CreatedBy = "SYSTEM";
+        }
+
+        modelBuilder.Entity<PaymentMethodConfig>().HasData(methods);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(methods.Select(m => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:payment-method:{m.Id}"),
+            Maintainer = MaintainerNames.PaymentMethod,
+            EntityId = m.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(PaymentMethodSnapshot.From(m), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        var windows = new[]
+        {
+            new PaymentBlockWindow
+            {
+                Id = SeedDataIds.BlockWindowPast,
+                Country = CountryCodes.Chile,
+                StartDate = new DateOnly(2026, 9, 30),
+                StartTime = new TimeOnly(20, 0),
+                EndDate = new DateOnly(2026, 9, 30),
+                EndTime = new TimeOnly(23, 59),
+                Reason = "Cierre contable de septiembre",
+                ClientMessage = "Los pagos están suspendidos temporalmente por el cierre contable mensual. Podrá pagar nuevamente desde las 23:59 (hora de Chile).",
+                CreatedAt = created.AddDays(-5),
+                CreatedBy = "SYSTEM"
+            },
+            new PaymentBlockWindow
+            {
+                Id = SeedDataIds.BlockWindowFuture,
+                Country = null,
+                StartDate = new DateOnly(2026, 10, 31),
+                StartTime = new TimeOnly(21, 0),
+                EndDate = new DateOnly(2026, 11, 1),
+                EndTime = new TimeOnly(6, 0),
+                Reason = "Cierre contable de octubre",
+                ClientMessage = "Los pagos están suspendidos temporalmente por el cierre contable mensual. Podrá pagar nuevamente a partir de las 06:00 (hora local).",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            new PaymentBlockWindow
+            {
+                Id = SeedDataIds.BlockWindowFutureBO,
+                Country = CountryCodes.Bolivia,
+                StartDate = new DateOnly(2026, 12, 24),
+                StartTime = new TimeOnly(18, 0),
+                EndDate = new DateOnly(2026, 12, 26),
+                EndTime = new TimeOnly(8, 0),
+                Reason = "Mantenimiento de la conciliación bancaria de fin de año",
+                ClientMessage = "Los pagos en línea no están disponibles por mantenimiento hasta el 26-12 a las 08:00 (hora de Bolivia).",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+        };
+
+        modelBuilder.Entity<PaymentBlockWindow>().HasData(windows);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(windows.Select(w => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:payment-block:{w.Id}"),
+            Maintainer = MaintainerNames.PaymentBlockWindow,
+            EntityId = w.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(PaymentBlockWindowSnapshot.From(w), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = w.CreatedAt,
+            ChangedBy = "SYSTEM"
+        }));
+
+        static PaymentMethodConfig Method(
+            string country, string code, string name, string description, string kind, string? provider, string currencies,
+            int order, bool enabled = true) => new()
+        {
+            Id = DeterministicGuid($"payment-method:{country}:{code}"),
+            Code = code,
+            Name = name,
+            Description = description,
+            Country = country,
+            Kind = kind,
+            ProviderKey = provider,
+            Currencies = currencies,
+            IsEnabled = enabled,
+            DisplayOrder = order
+        };
+    }
+
+    /// <summary>
+    /// Datos de demostración de la Ola D: facturas locales en la caché (M7-01) para Importadora Demo
+    /// (factura de demurrage, vencida, pagada, sin folio, nota de crédito, en EUR), Comercial Altiplano y el
+    /// cliente con crédito, y pagos históricos del portal (M7-02): uno del carro con Khipu, uno pagado por
+    /// la agencia bajo mandato (pagador distinto del RUT de facturación), una boleta de depósito emitida
+    /// (no anulable por el cliente, M5-02), uno fallido por indisponibilidad de la plataforma (NF-12) y
+    /// uno de Bolivia confirmado por Finanzas, con su historial de estados (NF-02).
+    /// </summary>
+    private static void SeedPaymentsDemo(ModelBuilder modelBuilder)
+    {
+        var synced = new DateTime(2026, 10, 5, 11, 0, 0, DateTimeKind.Utc);
+
+        CustomerInvoice Invoice(
+            Guid id, Guid organizationId, string legalName, string taxId, string country, string? sii, string source,
+            string type, DateOnly issue, DateOnly? due, Guid? blId, string? bl, string? booking, decimal net, decimal tax,
+            string currency, string status, bool payable, string? concept = null, DateTime? paidAt = null) => new()
+        {
+            Id = id,
+            OrganizationId = organizationId,
+            SiiNumber = sii,
+            SourceNumber = source,
+            DocumentType = type,
+            IssueDate = issue,
+            DueDate = due,
+            BillOfLadingId = blId,
+            BlNumber = bl,
+            BookingNumber = booking,
+            LegalName = legalName,
+            TaxId = taxId,
+            NetAmount = net,
+            TaxAmount = tax,
+            TotalAmount = net + tax,
+            Currency = currency,
+            Status = status,
+            SiiStatus = sii is null ? null : "ACCEPTED",
+            IsPayable = payable,
+            Country = country,
+            ConceptCode = concept,
+            PaidAt = paidAt,
+            SyncedAt = synced,
+            Source = "DUMMY",
+            CreatedAt = synced,
+            CreatedBy = "SYSTEM"
+        };
+
+        const string importadora = "Importadora Demo SpA";
+        const string importadoraTaxId = "76123456-7";
+        const string altiplano = "Comercial Altiplano SRL";
+        const string andes = "Distribuidora Andes Crédito SpA";
+
+        modelBuilder.Entity<CustomerInvoice>().HasData(
+            Invoice(SeedDataIds.InvoiceDemurrageBL09, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                "100245", "FAC-DEM-2026-0915", InvoiceDocumentTypes.ExemptInvoice, new(2026, 9, 15), new(2026, 10, 15),
+                SeedDataIds.BL09, "HLCUSAI260400910", "HLCUBKG2604091", 510000m, 0m, "CLP", InvoiceStatus.Pending, true,
+                ChargeConceptCodes.Demurrage),
+            Invoice(SeedDataIds.InvoiceOverdueBL01, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                "100198", "HL-CL-2026-003987", InvoiceDocumentTypes.Invoice, new(2026, 8, 20), new(2026, 9, 19),
+                SeedDataIds.BL01, "HLCUVAL250100123", "HLCUBKG2501001", 120000m, 22800m, "CLP", InvoiceStatus.Pending, true),
+            Invoice(SeedDataIds.InvoicePaidBL02, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                "100150", "HL-CL-2026-003501", InvoiceDocumentTypes.Invoice, new(2026, 7, 10), new(2026, 8, 9),
+                SeedDataIds.BL02, "HLCUVAL250200456", "HLCUBKG2502004", 185000m, 35150m, "CLP", InvoiceStatus.Paid, false,
+                paidAt: new DateTime(2026, 8, 5, 15, 0, 0, DateTimeKind.Utc)),
+            Invoice(SeedDataIds.InvoiceNoFolioBL06, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                null, "HL-CL-2026-004601", InvoiceDocumentTypes.ExemptInvoice, new(2026, 10, 2), new(2026, 11, 1),
+                SeedDataIds.BL06, "HLCUSAI260300610", "HLCUBKG2603061", 350m, 0m, "USD", InvoiceStatus.Pending, true),
+            Invoice(SeedDataIds.InvoiceCreditNoteBL01, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                "100301", "HL-CL-2026-004700", InvoiceDocumentTypes.CreditNote, new(2026, 9, 25), null,
+                SeedDataIds.BL01, "HLCUVAL250100123", "HLCUBKG2501001", 15000m, 2850m, "CLP", InvoiceStatus.Paid, false),
+            Invoice(SeedDataIds.InvoiceEurBL10, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                "100260", "HL-CL-2026-004530", InvoiceDocumentTypes.ExemptInvoice, new(2026, 9, 28), new(2026, 10, 28),
+                SeedDataIds.BL10, "HLCUSAI260401020", "HLCUBKG2604102", 480m, 0m, "EUR", InvoiceStatus.Pending, true),
+            Invoice(SeedDataIds.InvoicePendingBO, SeedDataIds.DemoClientBO, altiplano, "1023456017", CountryCodes.Bolivia,
+                "2026-000812", "HL-BO-2026-000812", InvoiceDocumentTypes.Invoice, new(2026, 9, 10), new(2026, 10, 10),
+                SeedDataIds.BL04, "HLCUARI260100045", "HLCUBKG2601045", 1280m, 166.40m, "BOB", InvoiceStatus.Pending, true),
+            Invoice(SeedDataIds.InvoicePaidBO, SeedDataIds.DemoClientBO, altiplano, "1023456017", CountryCodes.Bolivia,
+                "2026-000790", "HL-BO-2026-000790", InvoiceDocumentTypes.Invoice, new(2026, 8, 30), new(2026, 9, 29),
+                SeedDataIds.BL05, "HLCUIQQ260200078", "HLCUBKG2602078", 690m, 89.70m, "BOB", InvoiceStatus.Paid, false,
+                paidAt: new DateTime(2026, 9, 5, 14, 0, 0, DateTimeKind.Utc)),
+            Invoice(SeedDataIds.InvoiceCreditCustomer01, SeedDataIds.CreditDemoClient, andes, "76000002-2", CountryCodes.Chile,
+                "100277", "HL-CL-2026-004588", InvoiceDocumentTypes.Invoice, new(2026, 9, 26), new(2026, 10, 26),
+                SeedDataIds.BL11, "HLCUVAP260401130", "HLCUBKG2604113", 95000m, 18050m, "CLP", InvoiceStatus.Pending, true),
+            Invoice(SeedDataIds.InvoiceCreditCustomer02, SeedDataIds.CreditDemoClient, andes, "76000002-2", CountryCodes.Chile,
+                "100278", "HL-CL-2026-004589", InvoiceDocumentTypes.ExemptInvoice, new(2026, 9, 26), new(2026, 10, 26),
+                SeedDataIds.BL11, "HLCUVAP260401130", "HLCUBKG2604113", 380m, 0m, "USD", InvoiceStatus.Pending, true));
+
+        Payment Seeded(
+            Guid id, string number, Guid clientId, string origin, string method, string? provider, string currency,
+            decimal amount, decimal tax, string status, DateTime paidAt, Guid? createdBy, string payerTaxId, string payerName) => new()
+        {
+            Id = id,
+            PaymentNumber = number,
+            PaymentType = origin,
+            PaymentMethod = method,
+            PaymentMethodCode = method,
+            ProviderKey = provider,
+            Amount = amount,
+            TaxAmount = tax,
+            TotalAmount = amount + tax,
+            Currency = currency,
+            Status = status,
+            StatusChangedAt = paidAt,
+            Country = currency == "BOB" ? CountryCodes.Bolivia : CountryCodes.Chile,
+            PaymentDate = paidAt,
+            ClientId = clientId,
+            Origin = origin,
+            CreatedByUserId = createdBy,
+            ExternalReference = number,
+            PayerTaxId = payerTaxId,
+            PayerName = payerName,
+            CreatedAt = paidAt,
+            CreatedBy = createdBy?.ToString() ?? "SYSTEM"
+        };
+
+        var khipuPaid = new DateTime(2026, 9, 12, 15, 20, 0, DateTimeKind.Utc);
+        var mandatePaid = new DateTime(2026, 9, 20, 14, 5, 0, DateTimeKind.Utc);
+        var slipIssued = new DateTime(2026, 10, 3, 13, 30, 0, DateTimeKind.Utc);
+        var failedAt = new DateTime(2026, 10, 4, 16, 45, 0, DateTimeKind.Utc);
+        var boliviaPaid = new DateTime(2026, 9, 5, 14, 0, 0, DateTimeKind.Utc);
+
+        var payment09 = Seeded(SeedDataIds.Payment09, "PAY-20260912-1A2B3C4D", SeedDataIds.DemoClientCL, PaymentOrigins.Cart,
+            PaymentMethodCodes.Khipu, PaymentProviderKeys.Khipu, "CLP", 70000m, 13300m, PaymentStatus.Confirmed, khipuPaid,
+            SeedDataIds.DemoUserCL, importadoraTaxId, importadora);
+        payment09.ConfirmedAt = khipuPaid;
+        payment09.ConfirmedBy = "KHIPU_WEBHOOK";
+        payment09.ReceiptNumber = "RCP-20260912-7F3A21C4";
+        payment09.ProviderReference = "DUMMY-KHIPU-PAY-20260912-1A2B3C4D";
+        payment09.ProviderTransactionId = "KHP-TXN-8812345";
+
+        // La agencia paga el flete de BL02 bajo el mandato de Importadora Demo: pagador ≠ RUT de facturación.
+        var payment10 = Seeded(SeedDataIds.Payment10, "PAY-20260920-5E6F7A8B", SeedDataIds.AgentClientCL, PaymentOrigins.Cart,
+            PaymentMethodCodes.BankButtonBancoChile, PaymentProviderKeys.BancoChile, "CLP", 4940000m, 0m, PaymentStatus.Confirmed,
+            mandatePaid, SeedDataIds.AgentUserCL, "96555444-3", "Agencia Marítima del Pacífico Ltda");
+        payment10.ConfirmedAt = mandatePaid;
+        payment10.ConfirmedBy = "BANCOCHILE_WEBHOOK";
+        payment10.ReceiptNumber = "RCP-20260920-2B4D6F80";
+        payment10.ProviderReference = "DUMMY-BANCOCHILE-PAY-20260920-5E6F7A8B";
+        payment10.ProviderTransactionId = "BCH-TXN-55100231";
+        payment10.ExchangeRate = 950m;
+        payment10.BillOfLadingId = SeedDataIds.BL02;
+        payment10.OnBehalfOfClientId = SeedDataIds.DemoClientCL;
+        payment10.AccessGrantId = SeedDataIds.DemoAccessGrant02;
+
+        // Boleta de depósito emitida: el cliente ya no puede anularla (M5-02); Finanzas verifica el abono.
+        var payment11 = Seeded(SeedDataIds.Payment11, "PAY-20261003-9C8B7A6D", SeedDataIds.DemoClientCL, PaymentOrigins.Cart,
+            PaymentMethodCodes.Deposit, null, "CLP", 45000m, 8550m, PaymentStatus.PendingVerification, slipIssued,
+            SeedDataIds.DemoUserCL, importadoraTaxId, importadora);
+        payment11.SlipNumber = "BDP-20261003-5C7D9E1F";
+        payment11.SlipIssuedAt = slipIssued;
+        payment11.BillOfLadingId = SeedDataIds.BL06;
+
+        var payment12 = Seeded(SeedDataIds.Payment12, "PAY-20261004-3D2C1B0A", SeedDataIds.DemoClientCL, PaymentOrigins.Cart,
+            PaymentMethodCodes.Khipu, PaymentProviderKeys.Khipu, "CLP", 85000m, 16150m, PaymentStatus.Failed, failedAt,
+            SeedDataIds.DemoUserCL, importadoraTaxId, importadora);
+        payment12.FailureReason = PaymentFailureReasons.ProviderUnavailable;
+        payment12.BillOfLadingId = SeedDataIds.BL09;
+
+        var payment13 = Seeded(SeedDataIds.Payment13, "PAY-20260903-4A5B6C7D", SeedDataIds.DemoClientBO, PaymentOrigins.Cart,
+            PaymentMethodCodes.Deposit, null, "BOB", 820m, 106.60m, PaymentStatus.Confirmed, boliviaPaid,
+            SeedDataIds.DemoUserBO, "1023456017", altiplano);
+        payment13.ConfirmedAt = boliviaPaid;
+        payment13.ConfirmedBy = "admin@hapag-lloyd.cl";
+        payment13.ReceiptNumber = "RCP-20260905-8E9F0A1B";
+        payment13.SlipNumber = "BDP-20260903-1F2E3D4C";
+        payment13.SlipIssuedAt = boliviaPaid.AddDays(-2);
+
+        modelBuilder.Entity<Payment>().HasData(payment09, payment10, payment11, payment12, payment13);
+
+        PaymentDetail Detail(
+            Guid paymentId, int line, string itemType, Guid? sourceId, string concept, string description, Guid? blId, string? bl,
+            string? booking, decimal amount, decimal tax, string currency, string billingTaxId, string billingName,
+            decimal? originalAmount = null, string? originalCurrency = null, decimal? rate = null, DateTime? releasedAt = null) => new()
+        {
+            Id = DeterministicGuid($"payment-detail:{paymentId}:{line}"),
+            PaymentId = paymentId,
+            ConceptType = concept,
+            Description = description,
+            Amount = amount,
+            TaxAmount = tax,
+            Currency = currency,
+            ItemType = itemType,
+            SourceId = sourceId,
+            BillOfLadingId = blId,
+            BlNumber = bl,
+            BookingNumber = booking,
+            BillingTaxId = billingTaxId,
+            BillingName = billingName,
+            OriginalAmount = originalAmount ?? amount + tax,
+            OriginalCurrency = originalCurrency ?? currency,
+            ExchangeRate = rate,
+            ReleasedAt = releasedAt
+        };
+
+        modelBuilder.Entity<PaymentDetail>().HasData(
+            // Historial: recargos de pagos anteriores, sin fuente vigente que liberar.
+            Detail(SeedDataIds.Payment09, 1, PayableItemTypes.LocalCharge, null, ChargeConceptCodes.Isps, "ISPS - histórico",
+                SeedDataIds.BL02, "HLCUVAL250200456", "HLCUBKG2502004", 25000m, 4750m, "CLP", importadoraTaxId, importadora,
+                releasedAt: khipuPaid),
+            Detail(SeedDataIds.Payment09, 2, PayableItemTypes.LocalCharge, null, ChargeConceptCodes.BlFee, "Emisión de BL - histórico",
+                SeedDataIds.BL06, "HLCUSAI260300610", "HLCUBKG2603061", 45000m, 8550m, "CLP", importadoraTaxId, importadora,
+                releasedAt: khipuPaid),
+            Detail(SeedDataIds.Payment10, 1, PayableItemTypes.Freight, SeedDataIds.BL02, PaymentConcepts.Freight, "Flete Busan - Valparaíso",
+                SeedDataIds.BL02, "HLCUVAL250200456", "HLCUBKG2502004", 4940000m, 0m, "CLP", importadoraTaxId, importadora,
+                5200m, "USD", 950m, mandatePaid),
+            Detail(SeedDataIds.Payment11, 1, PayableItemTypes.LocalCharge, SeedDataIds.LocalCharge10, ChargeConceptCodes.BlFee,
+                "BL Documentation Fee (export)", SeedDataIds.BL06, "HLCUSAI260300610", "HLCUBKG2603061", 45000m, 8550m, "CLP",
+                importadoraTaxId, importadora),
+            Detail(SeedDataIds.Payment12, 1, PayableItemTypes.LocalCharge, SeedDataIds.LocalCharge13, ChargeConceptCodes.Mhd,
+                "MHD - HLXU3034001", SeedDataIds.BL09, "HLCUSAI260400910", "HLCUBKG2604091", 85000m, 16150m, "CLP",
+                importadoraTaxId, importadora),
+            Detail(SeedDataIds.Payment13, 1, PayableItemTypes.LocalCharge, null, ChargeConceptCodes.GateIn, "Gate In - histórico",
+                SeedDataIds.BL05, "HLCUIQQ260200078", "HLCUBKG2602078", 820m, 106.60m, "BOB", "1023456017", altiplano,
+                releasedAt: boliviaPaid));
+
+        var history = new (Guid PaymentId, int Order, string? From, string To, DateTime At, string By, Guid? UserId, string? Reason)[]
+        {
+            (SeedDataIds.Payment09, 1, null, PaymentStatus.Pending, khipuPaid.AddMinutes(-2), "demo@importadorademo.cl", SeedDataIds.DemoUserCL, null),
+            (SeedDataIds.Payment09, 2, PaymentStatus.Pending, PaymentStatus.Processing, khipuPaid.AddMinutes(-2), "SYSTEM", null, "Initiated in Khipu"),
+            (SeedDataIds.Payment09, 3, PaymentStatus.Processing, PaymentStatus.Confirmed, khipuPaid, "KHIPU_WEBHOOK", null, null),
+            (SeedDataIds.Payment10, 1, null, PaymentStatus.Pending, mandatePaid.AddMinutes(-3), "agente@maritimpacifico.cl", SeedDataIds.AgentUserCL, null),
+            (SeedDataIds.Payment10, 2, PaymentStatus.Pending, PaymentStatus.Processing, mandatePaid.AddMinutes(-3), "SYSTEM", null, "Initiated in BancoChile"),
+            (SeedDataIds.Payment10, 3, PaymentStatus.Processing, PaymentStatus.Confirmed, mandatePaid, "BANCOCHILE_WEBHOOK", null, null),
+            (SeedDataIds.Payment11, 1, null, PaymentStatus.Pending, slipIssued.AddMinutes(-10), "demo@importadorademo.cl", SeedDataIds.DemoUserCL, null),
+            (SeedDataIds.Payment11, 2, PaymentStatus.Pending, PaymentStatus.PendingVerification, slipIssued, "demo@importadorademo.cl", SeedDataIds.DemoUserCL, "Deposit slip issued"),
+            (SeedDataIds.Payment12, 1, null, PaymentStatus.Pending, failedAt.AddSeconds(-30), "demo@importadorademo.cl", SeedDataIds.DemoUserCL, null),
+            (SeedDataIds.Payment12, 2, PaymentStatus.Pending, PaymentStatus.Failed, failedAt, "SYSTEM", null, PaymentFailureReasons.ProviderUnavailable),
+            (SeedDataIds.Payment13, 1, null, PaymentStatus.Pending, boliviaPaid.AddDays(-2).AddMinutes(-5), "demo@altiplano.bo", SeedDataIds.DemoUserBO, null),
+            (SeedDataIds.Payment13, 2, PaymentStatus.Pending, PaymentStatus.PendingVerification, boliviaPaid.AddDays(-2), "demo@altiplano.bo", SeedDataIds.DemoUserBO, "Deposit slip issued"),
+            (SeedDataIds.Payment13, 3, PaymentStatus.PendingVerification, PaymentStatus.Confirmed, boliviaPaid, "admin@hapag-lloyd.cl", SeedDataIds.AdminUser, null),
+        };
+
+        modelBuilder.Entity<PaymentStatusChange>().HasData(history.Select(h => new PaymentStatusChange
+        {
+            Id = DeterministicGuid($"payment-status:{h.PaymentId}:{h.Order}"),
+            PaymentId = h.PaymentId,
+            FromStatus = h.From,
+            ToStatus = h.To,
+            ChangedAt = h.At,
+            ChangedBy = h.By,
+            ChangedByUserId = h.UserId,
+            Reason = h.Reason
+        }));
+
+        // M5-05: tipo de cambio y vigencia usados en la conversión del pago bajo mandato.
+        modelBuilder.Entity<ExchangeRateRecord>().HasData(new ExchangeRateRecord
+        {
+            Id = DeterministicGuid($"exchange-rate:payment:{SeedDataIds.Payment10}"),
+            TransactionType = ExchangeRateTransactionTypes.Payment,
+            TransactionId = SeedDataIds.Payment10,
+            FromCurrency = "USD",
+            ToCurrency = "CLP",
+            Rate = 950m,
+            EffectiveDate = new DateOnly(2026, 9, 20),
+            Source = "DUMMY",
+            Approved = true,
+            SourceAmount = 5200m,
+            ConvertedAmount = 4940000m,
+            CapturedAt = mandatePaid.AddMinutes(-3)
+        });
+    }
+
+    /// <summary>
+    /// Fase 1 Ola C: catálogo de conceptos de cobro (coherente con los códigos de los recargos sembrados),
+    /// tarifas del mantenedor (M8-01) con su alta en el registro de cambios (NF-15), reglas internas
+    /// (M3-04, M3-16) y feriados de referencia del calendario de negocio (NF-22, por validar con Hapag).
+    /// </summary>
+    private static void SeedChargeCatalogAndTariffs(ModelBuilder modelBuilder)
+    {
+        var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var tariffsCreated = new DateTime(2026, 9, 30, 12, 0, 0, DateTimeKind.Utc);
+
+        // (Code, Name, Category, Countries, NexusTariff, NexusExemptible)
+        var concepts = new (string Code, string Name, string Category, string Countries, bool NexusTariff, bool NexusExemptible)[]
+        {
+            (ChargeConceptCodes.GateIn, "Gate In", ChargeCategories.LocalCharge, "CL,BO", false, true),
+            (ChargeConceptCodes.Eds, "EDS", ChargeCategories.LocalCharge, "CL,BO", false, true),
+            (ChargeConceptCodes.GateOut, "Gate Out", ChargeCategories.LocalCharge, "CL,BO", false, true),
+            (ChargeConceptCodes.Ipo, "Recargo IPO", ChargeCategories.LocalCharge, "CL,BO", true, false),
+            (ChargeConceptCodes.Thc, "Terminal Handling Charge", ChargeCategories.LocalCharge, "CL,BO", false, false),
+            (ChargeConceptCodes.ThcReefer, "Terminal Handling Charge Reefer", ChargeCategories.LocalCharge, "CL,BO", false, false),
+            (ChargeConceptCodes.BlFee, "Emisión de BL", ChargeCategories.LocalCharge, "CL,BO", false, false),
+            (ChargeConceptCodes.Isps, "Recargo de seguridad ISPS", ChargeCategories.LocalCharge, "CL,BO", false, false),
+            (ChargeConceptCodes.TransitFee, "Documentación de tránsito Bolivia", ChargeCategories.LocalCharge, "BO", false, false),
+            (ChargeConceptCodes.Mhd, "MHD", ChargeCategories.Demurrage, "CL,BO", false, false),
+            (ChargeConceptCodes.Demurrage, "Demurrage (sobreestadía)", ChargeCategories.Demurrage, "CL,BO", false, false),
+            (ChargeConceptCodes.AdvanceDemurrageBo, "Demoras anticipadas", ChargeCategories.Demurrage, "BO", false, false),
+            (ChargeConceptCodes.WarehouseChange, "Cambio de almacén", ChargeCategories.Service, "CL,BO", true, false),
+            (ChargeConceptCodes.LateArrival, "Late Arrival", ChargeCategories.Service, "CL", false, false),
+            (ChargeConceptCodes.TransshipmentCertificate, "Certificado de transbordo", ChargeCategories.Service, "CL", false, false),
+        };
+
+        modelBuilder.Entity<ChargeConcept>().HasData(concepts.Select((c, index) => new ChargeConcept
+        {
+            Id = DeterministicGuid($"charge-concept:{c.Code}"),
+            Code = c.Code,
+            Name = c.Name,
+            Category = c.Category,
+            Countries = c.Countries,
+            NexusTariff = c.NexusTariff,
+            NexusExemptible = c.NexusExemptible,
+            DisplayOrder = (index + 1) * 10,
+            IsActive = true,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
+
+        var october = new DateOnly(2026, 10, 1);
+        var january = new DateOnly(2026, 1, 1);
+
+        var tariffs = new[]
+        {
+            new Tariff { Id = SeedDataIds.TariffKteCL, ConceptCode = ChargeConceptCodes.WarehouseChange, Code = "KTE", Country = CountryCodes.Chile, Currency = "CLP", Description = "Cambio de almacén (KTE)", Amount = 9940m, ValidFrom = october },
+            new Tariff { Id = SeedDataIds.TariffKtfCL, ConceptCode = ChargeConceptCodes.WarehouseChange, Code = "KTF", Country = CountryCodes.Chile, Currency = "CLP", Description = "Cambio de almacén (KTF)", Amount = 110910m, ValidFrom = october },
+            new Tariff { Id = SeedDataIds.TariffWarehouseChangeBO, ConceptCode = ChargeConceptCodes.WarehouseChange, Country = CountryCodes.Bolivia, Currency = "BOB", Description = "Cambio de almacén Bolivia", Amount = 850m, ValidFrom = january },
+            new Tariff { Id = SeedDataIds.TariffLateArrivalCL, ConceptCode = ChargeConceptCodes.LateArrival, Country = CountryCodes.Chile, Currency = "USD", Description = "Late Arrival por horas desde el cierre de recepción", TierUnit = TariffTierUnits.Hours, TierMode = TariffTierModes.Flat, ValidFrom = october },
+            new Tariff { Id = SeedDataIds.TariffDemurrageCL20, ConceptCode = ChargeConceptCodes.Demurrage, Country = CountryCodes.Chile, Currency = "CLP", ContainerType = "20DV", Description = "Demurrage 20' por día desde la descarga", TierUnit = TariffTierUnits.CalendarDays, TierMode = TariffTierModes.PerUnit, ValidFrom = january },
+            new Tariff { Id = SeedDataIds.TariffDemurrageCL, ConceptCode = ChargeConceptCodes.Demurrage, Country = CountryCodes.Chile, Currency = "CLP", Description = "Demurrage 40' y especiales por día desde la descarga", TierUnit = TariffTierUnits.CalendarDays, TierMode = TariffTierModes.PerUnit, ValidFrom = january },
+            new Tariff { Id = SeedDataIds.TariffDemurrageBO, ConceptCode = ChargeConceptCodes.Demurrage, Country = CountryCodes.Bolivia, Currency = "BOB", Description = "Demurrage Bolivia por día desde la descarga", TierUnit = TariffTierUnits.CalendarDays, TierMode = TariffTierModes.PerUnit, ValidFrom = january },
+            new Tariff { Id = SeedDataIds.TariffAdvanceDemurrageBO, ConceptCode = ChargeConceptCodes.AdvanceDemurrageBo, Country = CountryCodes.Bolivia, Currency = "USD", Description = "Demoras anticipadas por contenedor", Amount = 150m, ValidFrom = january },
+            new Tariff { Id = SeedDataIds.TariffTransshipmentCL, ConceptCode = ChargeConceptCodes.TransshipmentCertificate, Country = CountryCodes.Chile, Currency = "CLP", Description = "Certificado de transbordo (M6-01)", Amount = 35000m, ValidFrom = october },
+        };
+
+        var tiers = new (Guid TariffId, int From, int? To, decimal Amount)[]
+        {
+            (SeedDataIds.TariffLateArrivalCL, 0, 24, 100m),
+            (SeedDataIds.TariffLateArrivalCL, 25, 48, 200m),
+            (SeedDataIds.TariffLateArrivalCL, 49, null, 350m),
+            (SeedDataIds.TariffDemurrageCL20, 1, 7, 0m),
+            (SeedDataIds.TariffDemurrageCL20, 8, 14, 35000m),
+            (SeedDataIds.TariffDemurrageCL20, 15, null, 50000m),
+            (SeedDataIds.TariffDemurrageCL, 1, 7, 0m),
+            (SeedDataIds.TariffDemurrageCL, 8, 14, 45000m),
+            (SeedDataIds.TariffDemurrageCL, 15, null, 65000m),
+            (SeedDataIds.TariffDemurrageBO, 1, 10, 0m),
+            (SeedDataIds.TariffDemurrageBO, 11, 20, 310m),
+            (SeedDataIds.TariffDemurrageBO, 21, null, 450m),
+        };
+
+        var tierEntities = tiers.Select(t => new TariffTier
+        {
+            Id = DeterministicGuid($"tariff-tier:{t.TariffId}:{t.From}"),
+            TariffId = t.TariffId,
+            FromUnit = t.From,
+            ToUnit = t.To,
+            Amount = t.Amount
+        }).ToList();
+
+        foreach (var tariff in tariffs)
+        {
+            tariff.CreatedAt = tariffsCreated;
+            tariff.CreatedBy = "SYSTEM";
+        }
+
+        modelBuilder.Entity<Tariff>().HasData(tariffs);
+        modelBuilder.Entity<TariffTier>().HasData(tierEntities);
+
+        // NF-15: el alta de cada tarifa sembrada queda en el registro de cambios para reconstruirla.
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(tariffs.Select(t =>
+        {
+            var snapshot = TariffSnapshot.From(new Tariff
+            {
+                ConceptCode = t.ConceptCode,
+                Code = t.Code,
+                Country = t.Country,
+                Currency = t.Currency,
+                ContainerType = t.ContainerType,
+                Description = t.Description,
+                Amount = t.Amount,
+                TierUnit = t.TierUnit,
+                TierMode = t.TierMode,
+                ValidFrom = t.ValidFrom,
+                ValidTo = t.ValidTo,
+                IsActive = t.IsActive,
+                Tiers = tierEntities.Where(x => x.TariffId == t.Id).ToList()
+            });
+
+            return new MaintainerChangeLog
+            {
+                Id = DeterministicGuid($"maintainer-log:tariff:{t.Id}"),
+                Maintainer = MaintainerNames.Tariff,
+                EntityId = t.Id,
+                Action = MaintainerActions.Created,
+                NewValue = JsonSerializer.Serialize(snapshot, MaintainerChangeLogger.JsonOptions),
+                ChangedAt = tariffsCreated,
+                ChangedBy = "SYSTEM"
+            };
+        }));
+
+        var rules = new[]
+        {
+            new InternalChargeRule
+            {
+                Id = SeedDataIds.RuleFreeWarehouseChangeCL,
+                RuleType = InternalChargeRuleTypes.FreeWarehouseChange,
+                Country = CountryCodes.Chile,
+                TaxId = "76123456-7",
+                MatchCode = "MC100010",
+                AccountName = "Importadora Demo SpA",
+                Reason = "Convenio comercial: un cambio de almacén gratuito por BL",
+                MaxUsesPerBl = 1,
+                ValidFrom = january,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            new InternalChargeRule
+            {
+                Id = SeedDataIds.RuleAdvanceDemurrageBO,
+                RuleType = InternalChargeRuleTypes.AdvanceDemurrageRequired,
+                Country = CountryCodes.Bolivia,
+                TaxId = "1023456017",
+                MatchCode = "MC100020",
+                AccountName = "Comercial Altiplano SRL",
+                Reason = "Regla interna Bolivia: demoras anticipadas obligatorias antes del CLD",
+                ValidFrom = january,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+        };
+
+        modelBuilder.Entity<InternalChargeRule>().HasData(rules);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(rules.Select(r => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:rule:{r.Id}"),
+            Maintainer = MaintainerNames.InternalChargeRule,
+            EntityId = r.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(InternalChargeRuleSnapshot.From(r), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = now,
+            ChangedBy = "SYSTEM"
+        }));
+
+        // Calendario de negocio de referencia (NF-22): feriados nacionales 2026; Hapag-Lloyd publica el oficial.
+        var holidays = new (string Country, DateOnly Date, string Name)[]
+        {
+            (CountryCodes.Chile, new(2026, 1, 1), "Año Nuevo"),
+            (CountryCodes.Chile, new(2026, 4, 3), "Viernes Santo"),
+            (CountryCodes.Chile, new(2026, 4, 4), "Sábado Santo"),
+            (CountryCodes.Chile, new(2026, 5, 1), "Día del Trabajo"),
+            (CountryCodes.Chile, new(2026, 5, 21), "Día de las Glorias Navales"),
+            (CountryCodes.Chile, new(2026, 6, 29), "San Pedro y San Pablo"),
+            (CountryCodes.Chile, new(2026, 7, 16), "Virgen del Carmen"),
+            (CountryCodes.Chile, new(2026, 8, 15), "Asunción de la Virgen"),
+            (CountryCodes.Chile, new(2026, 9, 18), "Independencia Nacional"),
+            (CountryCodes.Chile, new(2026, 9, 19), "Glorias del Ejército"),
+            (CountryCodes.Chile, new(2026, 10, 12), "Encuentro de Dos Mundos"),
+            (CountryCodes.Chile, new(2026, 10, 31), "Día de las Iglesias Evangélicas"),
+            (CountryCodes.Chile, new(2026, 11, 1), "Día de Todos los Santos"),
+            (CountryCodes.Chile, new(2026, 12, 8), "Inmaculada Concepción"),
+            (CountryCodes.Chile, new(2026, 12, 25), "Navidad"),
+            (CountryCodes.Bolivia, new(2026, 1, 1), "Año Nuevo"),
+            (CountryCodes.Bolivia, new(2026, 1, 22), "Día del Estado Plurinacional"),
+            (CountryCodes.Bolivia, new(2026, 2, 16), "Carnaval"),
+            (CountryCodes.Bolivia, new(2026, 2, 17), "Carnaval"),
+            (CountryCodes.Bolivia, new(2026, 4, 3), "Viernes Santo"),
+            (CountryCodes.Bolivia, new(2026, 5, 1), "Día del Trabajo"),
+            (CountryCodes.Bolivia, new(2026, 6, 4), "Corpus Christi"),
+            (CountryCodes.Bolivia, new(2026, 6, 21), "Año Nuevo Andino Amazónico"),
+            (CountryCodes.Bolivia, new(2026, 8, 6), "Día de la Independencia"),
+            (CountryCodes.Bolivia, new(2026, 11, 2), "Día de Todos los Difuntos"),
+            (CountryCodes.Bolivia, new(2026, 12, 25), "Navidad"),
+        };
+
+        modelBuilder.Entity<BusinessHoliday>().HasData(holidays.Select(h => new BusinessHoliday
+        {
+            Id = DeterministicGuid($"holiday:{h.Country}:{h.Date:yyyy-MM-dd}"),
+            Country = h.Country,
+            Date = h.Date,
+            Name = h.Name
+        }));
+    }
+
+    /// <summary>
+    /// Datos de demostración de Fase 1 Ola C sobre los escenarios del Dummy de Nexus: un BL con Gate In y
+    /// EDS exentos por el consignatario del Master (76000001-1, M4-02), un cliente con crédito
+    /// (76000002-2) cuyo IPO no se presenta (M4-03), un FFWW (76000003-3) que requiere carta (M4-04),
+    /// MHD en BL de Chile y Bolivia (M3-02), un BL con demurrage facturado (M3-18), otro sin calcular, y
+    /// la cuenta boliviana sujeta a demoras anticipadas (M3-16).
+    /// </summary>
+    private static void SeedChargeRulesDemo(ModelBuilder modelBuilder)
+    {
+        var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // BCrypt hash of "Admin123!" with work factor 12 (reused for all demo users)
+        const string demoPasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca";
+
+        modelBuilder.Entity<Client>().HasData(
+            new Client
+            {
+                Id = SeedDataIds.CreditDemoClient,
+                Name = "Distribuidora Andes Crédito SpA",
+                TaxId = "76.000.002-2",
+                TaxIdType = "RUT",
+                Country = CountryCodes.Chile,
+                Email = "contacto@distribuidoraandes.cl",
+                ClientType = "Client",
+                OrganizationType = OrganizationTypes.Customer,
+                RegistrationStatus = OrganizationStatus.Approved,
+                MatchCode = "MC000202",
+                OperatingCountries = "CL",
+                ApprovedAt = now,
+                IsActive = true,
+                IsEmailConfirmed = true,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            new Client
+            {
+                Id = SeedDataIds.FfwwDemoClient,
+                Name = "Global Forwarding Chile SpA",
+                TaxId = "76.000.003-3",
+                TaxIdType = "RUT",
+                Country = CountryCodes.Chile,
+                Email = "operaciones@globalforwarding.cl",
+                ClientType = "Client",
+                OrganizationType = OrganizationTypes.FreightForwarder,
+                RegistrationStatus = OrganizationStatus.Approved,
+                MatchCode = "MC000303",
+                OperatingCountries = "CL",
+                ApprovedAt = now,
+                IsActive = true,
+                IsEmailConfirmed = true,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            });
+
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = SeedDataIds.CreditDemoUser,
+                Username = "credito@distribuidoraandes.cl",
+                Email = "credito@distribuidoraandes.cl",
+                PasswordHash = demoPasswordHash,
+                UserType = "Client",
+                Country = CountryCodes.Chile,
+                FirstName = "Camila",
+                LastName = "Crédito",
+                IsActive = true,
+                MembershipStatus = MembershipStatus.Active,
+                ClientId = SeedDataIds.CreditDemoClient,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            new User
+            {
+                Id = SeedDataIds.FfwwDemoUser,
+                Username = "ffww@globalforwarding.cl",
+                Email = "ffww@globalforwarding.cl",
+                PasswordHash = demoPasswordHash,
+                UserType = "Client",
+                Country = CountryCodes.Chile,
+                FirstName = "Felipe",
+                LastName = "Forwarder",
+                IsActive = true,
+                MembershipStatus = MembershipStatus.Active,
+                ClientId = SeedDataIds.FfwwDemoClient,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            });
+
+        modelBuilder.Entity<UserRole>().HasData(
+            new[] { SeedDataIds.CreditDemoUser, SeedDataIds.FfwwDemoUser }.Select(userId => new UserRole
+            {
+                Id = DeterministicGuid($"user-profile:{userId}"),
+                UserId = userId,
+                RoleName = RoleCodes.OrgAdmin,
+                RoleId = DeterministicGuid($"role:{RoleCodes.OrgAdmin}")
+            }));
+
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(
+            // CL importación con demurrage facturado y deuda vigente (M3-18: pagar la factura).
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL09,
+                BLNumber = "HLCUSAI260400910",
+                BookingNumber = "HLCUBKG2604091",
+                ShipmentType = "Import",
+                Vessel = "Rio de Janeiro Express",
+                Voyage = "2608E",
+                PortOfLoading = "Hamburg (DEHAM)",
+                PortOfDischarge = "San Antonio (CLSAI)",
+                PlaceOfDelivery = "Santiago, Chile",
+                ETD = new DateTime(2026, 7, 15, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 8, 20, 0, 0, 0, DateTimeKind.Utc),
+                Consignee = "Importadora Demo SpA",
+                Shipper = "Hamburg Industrial Supplies GmbH",
+                FreightAmount = 4200m,
+                FreightCurrency = "USD",
+                Status = "Arrived",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            // CL importación (Master) con Gate In y EDS exentos por el consignatario del Master y demurrage sin calcular.
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL10,
+                BLNumber = "HLCUSAI260401020",
+                BookingNumber = "HLCUBKG2604102",
+                ShipmentType = "Import",
+                Vessel = "Valparaiso Express",
+                Voyage = "2609E",
+                PortOfLoading = "Ningbo (CNNGB)",
+                PortOfDischarge = "San Antonio (CLSAI)",
+                PlaceOfDelivery = "Santiago, Chile",
+                ETD = new DateTime(2026, 8, 20, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 9, 28, 0, 0, 0, DateTimeKind.Utc),
+                Consignee = "Delfin Logística SpA",
+                Shipper = "Ningbo Home Goods Co.",
+                FreightAmount = 3100m,
+                FreightCurrency = "USD",
+                Status = "Arrived",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.DemoClientCL,
+                BLType = "Master",
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            // CL importación de un cliente con crédito (IPO excluido); el FFWW figura como consignatario.
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL11,
+                BLNumber = "HLCUVAP260401130",
+                BookingNumber = "HLCUBKG2604113",
+                ShipmentType = "Import",
+                Vessel = "Santos Express",
+                Voyage = "2609N",
+                PortOfLoading = "Santos (BRSSZ)",
+                PortOfDischarge = "Valparaiso (CLVAP)",
+                PlaceOfDelivery = "Valparaiso, Chile",
+                ETD = new DateTime(2026, 8, 25, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 9, 15, 0, 0, 0, DateTimeKind.Utc),
+                Consignee = "Global Forwarding Chile SpA",
+                Shipper = "Santos Coffee Exporters Ltda",
+                FreightAmount = 2600m,
+                FreightCurrency = "USD",
+                Status = "Arrived",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.CreditDemoClient,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            }));
+
+        modelBuilder.Entity<BLParty>().HasData(new BLParty
+        {
+            Id = SeedDataIds.BL10MasterConsignee,
+            BillOfLadingId = SeedDataIds.BL10,
+            Role = "Consignee",
+            Name = "Delfin Logística SpA",
+            TaxId = "76000001-1",
+            TaxIdType = "RUT",
+            CountryCode = CountryCodes.Chile,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        });
+
+        modelBuilder.Entity<BLContainer>().HasData(
+            new BLContainer { Id = SeedDataIds.Container11, ContainerNumber = "HLXU3034001", ContainerType = "40HC", SealNumber = "SL-030401", Weight = 23900m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL09, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new BLContainer { Id = SeedDataIds.Container12, ContainerNumber = "HLXU3034002", ContainerType = "20DV", SealNumber = "SL-030402", Weight = 16800m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL10, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new BLContainer { Id = SeedDataIds.Container13, ContainerNumber = "HLXU3034003", ContainerType = "40HC", SealNumber = "SL-030403", Weight = 24100m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL10, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new BLContainer { Id = SeedDataIds.Container14, ContainerNumber = "HLXU3034004", ContainerType = "20DV", SealNumber = "SL-030404", Weight = 17200m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL11, CreatedAt = now, CreatedBy = "SYSTEM" });
+
+        modelBuilder.Entity<LocalCharge>().HasData(
+            new LocalCharge { Id = SeedDataIds.LocalCharge13, ChargeType = ChargeConceptCodes.Mhd, Description = "MHD - HLXU3034001", Amount = 85000m, Currency = "CLP", Status = ChargeStatus.Pending, IsTaxable = true, TaxRate = 19m, TaxAmount = 16150m, TotalAmount = 101150m, BillOfLadingId = SeedDataIds.BL09, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge14, ChargeType = ChargeConceptCodes.GateIn, Description = "Gate In - devolución de vacíos (San Antonio)", Amount = 95000m, Currency = "CLP", Status = ChargeStatus.Pending, IsTaxable = true, TaxRate = 19m, TaxAmount = 18050m, TotalAmount = 113050m, BillOfLadingId = SeedDataIds.BL10, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge15, ChargeType = ChargeConceptCodes.Eds, Description = "EDS", Amount = 38000m, Currency = "CLP", Status = ChargeStatus.Pending, IsTaxable = true, TaxRate = 19m, TaxAmount = 7220m, TotalAmount = 45220m, BillOfLadingId = SeedDataIds.BL10, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge16, ChargeType = ChargeConceptCodes.Ipo, Description = "Recargo IPO", Amount = 150m, Currency = "USD", Status = ChargeStatus.Pending, IsTaxable = false, TaxRate = 0m, TaxAmount = 0m, TotalAmount = 150m, BillOfLadingId = SeedDataIds.BL01, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge17, ChargeType = ChargeConceptCodes.Mhd, Description = "MHD - HLXU1234567 / HLXU7654321", Amount = 85000m, Currency = "CLP", Status = ChargeStatus.Pending, IsTaxable = true, TaxRate = 19m, TaxAmount = 16150m, TotalAmount = 101150m, BillOfLadingId = SeedDataIds.BL01, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge18, ChargeType = ChargeConceptCodes.Thc, Description = "Terminal Handling Charge - 20DV", Amount = 185000m, Currency = "CLP", Status = ChargeStatus.Pending, IsTaxable = true, TaxRate = 19m, TaxAmount = 35150m, TotalAmount = 220150m, BillOfLadingId = SeedDataIds.BL11, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge19, ChargeType = ChargeConceptCodes.Ipo, Description = "Recargo IPO", Amount = 150m, Currency = "USD", Status = ChargeStatus.Pending, IsTaxable = false, TaxRate = 0m, TaxAmount = 0m, TotalAmount = 150m, BillOfLadingId = SeedDataIds.BL11, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge20, ChargeType = ChargeConceptCodes.GateOut, Description = "Gate Out - 20DV (Valparaíso)", Amount = 60000m, Currency = "CLP", Status = ChargeStatus.Pending, IsTaxable = true, TaxRate = 19m, TaxAmount = 11400m, TotalAmount = 71400m, BillOfLadingId = SeedDataIds.BL11, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge21, ChargeType = ChargeConceptCodes.Mhd, Description = "MHD - HLXU8899001", Amount = 450m, Currency = "USD", Status = ChargeStatus.Pending, IsTaxable = false, TaxRate = 0m, TaxAmount = 0m, TotalAmount = 450m, BillOfLadingId = SeedDataIds.BL04, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge22, ChargeType = ChargeConceptCodes.GateOut, Description = "Gate Out - 40RF (San Antonio)", Amount = 60000m, Currency = "CLP", Status = ChargeStatus.Pending, IsTaxable = true, TaxRate = 19m, TaxAmount = 11400m, TotalAmount = 71400m, BillOfLadingId = SeedDataIds.BL06, CreatedAt = now, CreatedBy = "SYSTEM" });
+
+        // 17 días desde la descarga, 7 libres: 7 días a 45.000 y 3 a 65.000 (tarifa DEMURRAGE CL).
+        modelBuilder.Entity<DemurrageCharge>().HasData(new DemurrageCharge
+        {
+            Id = SeedDataIds.Demurrage04,
+            ContainerNumber = "HLXU3034001",
+            FreeDays = 7,
+            DemurrageDays = 10,
+            DailyRate = 51000m,
+            TotalAmount = 510000m,
+            Currency = "CLP",
+            StartDate = new DateTime(2026, 8, 20, 0, 0, 0, DateTimeKind.Utc),
+            EndDate = new DateTime(2026, 9, 6, 0, 0, 0, DateTimeKind.Utc),
+            Status = DemurrageChargeStatus.Invoiced,
+            InvoiceNumber = "FAC-DEM-2026-0915",
+            InvoicedAt = new DateTime(2026, 9, 15, 12, 0, 0, DateTimeKind.Utc),
+            InvoiceDueDate = new DateTime(2026, 10, 15, 3, 0, 0, DateTimeKind.Utc),
+            IsExempt = false,
+            BillOfLadingId = SeedDataIds.BL09,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        });
+
+        var shipmentRoles = new (Guid BlId, Guid ClientId, string Role)[]
+        {
+            (SeedDataIds.BL09, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL10, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL11, SeedDataIds.FfwwDemoClient, ShipmentRoleCodes.Consignee),
+        };
+
+        modelBuilder.Entity<ShipmentRole>().HasData(shipmentRoles.Select(r => new ShipmentRole
+        {
+            Id = DeterministicGuid($"shipment-role:{r.BlId}:{r.ClientId}:{r.Role}"),
+            BillOfLadingId = r.BlId,
+            ClientId = r.ClientId,
+            Role = r.Role,
+            Source = ShipmentRoleSources.Seed,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
     }
 
     /// <summary>
@@ -116,6 +1583,9 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             (RoleCodes.CustomsAgent, "Agente de Aduana"),
             (RoleCodes.AdminBA, "Administrador BA"),
             (RoleCodes.SuperAdmin, "Super Administrador"),
+            (RoleCodes.OrgAdmin, "Administrador de organización"),
+            (RoleCodes.OrgOperator, "Operador de organización"),
+            (RoleCodes.OrgViewer, "Consulta de organización"),
         };
 
         modelBuilder.Entity<Role>().HasData(roles.Select(r => new Role
@@ -136,6 +1606,15 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             "bl.upload", "bl.view",
             "customs.transmit", "customs.retry", "customs.view",
             "deadlines.view", "audit.view", "reports.view", "notifications.view",
+            // Fase 1 Ola A: perfiles de organización (M1-02) e internos (M8-04, M8-06, M1-11).
+            AccessPermissions.ManageOrganizationUsers, AccessPermissions.ApproveJoinRequests,
+            AccessPermissions.OperateShipments, AccessPermissions.ViewAllShipments,
+            AccessPermissions.ReviewOrganizations, AccessPermissions.CheckOrganizationsAr,
+            AccessPermissions.ManageAccessMatrix,
+            // Fase 1 Ola B: accesos a terceros (M1-12 a M1-24).
+            AccessPermissions.ManageThirdPartyAccess,
+            // Fase 1 Ola D: Finanzas (M5-02, NF-03, NF-04) y bloqueo de pagos por horario (M8-07).
+            PaymentPermissions.Finance, PaymentPermissions.ManageBlockWindows,
         };
 
         modelBuilder.Entity<Permission>().HasData(permissions.Select(p => new Permission
@@ -156,6 +1635,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             (RoleCodes.Supervisor, "deadlines.view"), (RoleCodes.Supervisor, "audit.view"),
             (RoleCodes.Supervisor, "reports.view"), (RoleCodes.Supervisor, "notifications.view"),
             (RoleCodes.ExternalApi, "bl.upload"), (RoleCodes.ExternalApi, "customs.transmit"),
+            (RoleCodes.OrgAdmin, AccessPermissions.ManageOrganizationUsers),
+            (RoleCodes.OrgAdmin, AccessPermissions.ApproveJoinRequests),
+            (RoleCodes.OrgAdmin, AccessPermissions.OperateShipments),
+            (RoleCodes.OrgAdmin, AccessPermissions.ManageThirdPartyAccess),
+            (RoleCodes.OrgOperator, AccessPermissions.OperateShipments),
         };
 
         modelBuilder.Entity<RolePermission>().HasData(assignments.Select(a => new RolePermission
@@ -165,6 +1649,466 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             PermissionId = DeterministicGuid($"perm:{a.Perm}")
         }));
     }
+
+    /// <summary>
+    /// Matriz base de M1-11 como datos administrables (no hardcode): una acción por fila del documento
+    /// y una regla por rol, más las excepciones de Freight Forwarder.
+    /// </summary>
+    private static void SeedAccessMatrix(ModelBuilder modelBuilder)
+    {
+        var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        modelBuilder.Entity<ShipmentAction>().HasData(AccessMatrixBaseline.Actions.Select((a, index) => new ShipmentAction
+        {
+            Id = DeterministicGuid($"shipment-action:{a.Code}"),
+            Code = a.Code,
+            Name = a.Name,
+            Category = a.Category,
+            Kind = a.Kind,
+            Scope = a.Scope,
+            DisplayOrder = (index + 1) * 10,
+            IsActive = true,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
+
+        var rules = AccessMatrixBaseline.Actions.SelectMany(a =>
+            ShipmentRoleCodes.MatrixColumns
+                .Select((role, i) => (a.Code, Role: role, OrganizationType: (string?)null, Level: a.Levels[i]))
+                .Concat(a.Overrides.Select(o => (a.Code, o.Role, OrganizationType: (string?)o.OrganizationType, o.Level))));
+
+        modelBuilder.Entity<ShipmentAccessRule>().HasData(rules.Select(r => new ShipmentAccessRule
+        {
+            Id = DeterministicGuid($"shipment-rule:{r.Code}:{r.Role}:{r.OrganizationType ?? "*"}"),
+            ShipmentActionId = DeterministicGuid($"shipment-action:{r.Code}"),
+            Role = r.Role,
+            OrganizationType = r.OrganizationType,
+            Level = r.Level,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
+    }
+
+    /// <summary>
+    /// Datos de demostración de Fase 1 Ola A: perfiles de organización, una solicitud de vinculación
+    /// pendiente, una organización en validación (M8-04), roles por embarque y BL de exportación.
+    /// </summary>
+    private static void SeedOrganizationAccessDemo(ModelBuilder modelBuilder)
+    {
+        var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // BCrypt hash of "Admin123!" with work factor 12 (reused for all demo users)
+        const string demoPasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca";
+
+        // ── Organizaciones ────────────────────────────────────────────
+        modelBuilder.Entity<Client>().HasData(
+            // Cliente titular de un BL de exportación donde Importadora Demo solo es Shipper.
+            new Client
+            {
+                Id = SeedDataIds.PacificTradingClient,
+                Name = "Pacific Trading Co.",
+                TaxId = "77.888.999-0",
+                TaxIdType = "RUT",
+                Country = CountryCodes.Chile,
+                Email = "contacto@pacifictrading.cl",
+                ClientType = "Client",
+                OrganizationType = OrganizationTypes.Customer,
+                RegistrationStatus = OrganizationStatus.Approved,
+                MatchCode = "MC100040",
+                OperatingCountries = "CL",
+                ApprovedAt = now,
+                IsActive = true,
+                IsEmailConfirmed = true,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            // Registro nuevo pendiente de validación interna (bandeja de M8-04).
+            new Client
+            {
+                Id = SeedDataIds.PendingOrgClient,
+                Name = "Logística Andina SpA",
+                TaxId = "76.555.111-2",
+                TaxIdType = "RUT",
+                Country = CountryCodes.Chile,
+                Email = "registro@logisticaandina.cl",
+                Phone = "+56 2 2999 1234",
+                ClientType = "Client",
+                OrganizationType = OrganizationTypes.FreightForwarder,
+                RegistrationStatus = OrganizationStatus.PendingValidation,
+                OperatingCountries = "CL",
+                IsActive = true,
+                IsEmailConfirmed = true,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            });
+
+        // ── Usuarios y perfiles ───────────────────────────────────────
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = SeedDataIds.DemoViewerUserCL,
+                Username = "consulta@importadorademo.cl",
+                Email = "consulta@importadorademo.cl",
+                PasswordHash = demoPasswordHash,
+                UserType = "Client",
+                Country = CountryCodes.Chile,
+                FirstName = "Carla",
+                LastName = "Consulta",
+                IsActive = true,
+                MembershipStatus = MembershipStatus.Active,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            new User
+            {
+                Id = SeedDataIds.DemoJoinRequestUserCL,
+                Username = "solicitud@importadorademo.cl",
+                Email = "solicitud@importadorademo.cl",
+                PasswordHash = demoPasswordHash,
+                UserType = "Client",
+                Country = CountryCodes.Chile,
+                FirstName = "Sergio",
+                LastName = "Solicitante",
+                IsActive = true,
+                MembershipStatus = MembershipStatus.Pending,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            new User
+            {
+                Id = SeedDataIds.PendingOrgUser,
+                Username = "admin@logisticaandina.cl",
+                Email = "admin@logisticaandina.cl",
+                PasswordHash = demoPasswordHash,
+                UserType = "Client",
+                Country = CountryCodes.Chile,
+                FirstName = "Andrea",
+                LastName = "Andina",
+                IsActive = true,
+                MembershipStatus = MembershipStatus.Active,
+                ClientId = SeedDataIds.PendingOrgClient,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            });
+
+        var profiles = new (Guid UserId, string Profile)[]
+        {
+            (SeedDataIds.DemoUserCL, RoleCodes.OrgAdmin),
+            (SeedDataIds.DemoUserBO, RoleCodes.OrgAdmin),
+            (SeedDataIds.AgentUserCL, RoleCodes.OrgAdmin),
+            (SeedDataIds.DemoViewerUserCL, RoleCodes.OrgViewer),
+            (SeedDataIds.PendingOrgUser, RoleCodes.OrgAdmin),
+        };
+
+        modelBuilder.Entity<UserRole>().HasData(profiles.Select(p => new UserRole
+        {
+            Id = DeterministicGuid($"user-profile:{p.UserId}"),
+            UserId = p.UserId,
+            RoleName = p.Profile,
+            RoleId = DeterministicGuid($"role:{p.Profile}")
+        }));
+
+        // ── Embarques de exportación ──────────────────────────────────
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(
+            // CL exportación: Importadora Demo es titular (Customer) y Shipper.
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL06,
+                BLNumber = "HLCUSAI260300610",
+                BookingNumber = "HLCUBKG2603061",
+                ShipmentType = "Export",
+                Vessel = "Valparaiso Express",
+                Voyage = "2610S",
+                PortOfLoading = "San Antonio (CLSAI)",
+                PortOfDischarge = "Rotterdam (NLRTM)",
+                PlaceOfDelivery = "Rotterdam, Netherlands",
+                ETD = new DateTime(2026, 10, 20, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 11, 25, 0, 0, 0, DateTimeKind.Utc),
+                Shipper = "Importadora Demo SpA",
+                Consignee = "Fruit Import BV",
+                FreightAmount = 3900m,
+                FreightCurrency = "USD",
+                Status = "Booked",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            // CL exportación: Pacific Trading es titular; Importadora Demo solo es Shipper (flete X (o)).
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL07,
+                BLNumber = "HLCUVAP260300720",
+                BookingNumber = "HLCUBKG2603072",
+                ShipmentType = "Export",
+                Vessel = "Santos Express",
+                Voyage = "2611N",
+                PortOfLoading = "Valparaiso (CLVAP)",
+                PortOfDischarge = "Shanghai (CNSHA)",
+                PlaceOfDelivery = "Shanghai, China",
+                ETD = new DateTime(2026, 10, 28, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 12, 2, 0, 0, 0, DateTimeKind.Utc),
+                Shipper = "Importadora Demo SpA",
+                Consignee = "Shanghai Wine Trading Ltd",
+                FreightAmount = 4100m,
+                FreightCurrency = "USD",
+                Status = "Loaded",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.PacificTradingClient,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            // BO exportación: Comercial Altiplano es titular y Shipper.
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL08,
+                BLNumber = "HLCUARI260300830",
+                BookingNumber = "HLCUBKG2603083",
+                ShipmentType = "Export",
+                Vessel = "Antofagasta Express",
+                Voyage = "2612S",
+                PortOfLoading = "Arica (CLARI)",
+                PortOfDischarge = "Callao (PECLL)",
+                PlaceOfDelivery = "Lima, Peru",
+                ETD = new DateTime(2026, 11, 5, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 11, 12, 0, 0, 0, DateTimeKind.Utc),
+                Shipper = "Comercial Altiplano SRL",
+                Consignee = "Andes Foods SAC",
+                FreightAmount = 1450m,
+                FreightCurrency = "USD",
+                Status = "Booked",
+                Country = CountryCodes.Bolivia,
+                ClientId = SeedDataIds.DemoClientBO,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            }));
+
+        modelBuilder.Entity<BLContainer>().HasData(
+            new BLContainer { Id = SeedDataIds.Container08, ContainerNumber = "HLXU2023001", ContainerType = "40RF", SealNumber = "SL-020301", Weight = 26800m, Status = "GateIn", BillOfLadingId = SeedDataIds.BL06, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new BLContainer { Id = SeedDataIds.Container09, ContainerNumber = "HLXU2023002", ContainerType = "20DV", SealNumber = "SL-020302", Weight = 17400m, Status = "OnBoard", BillOfLadingId = SeedDataIds.BL07, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new BLContainer { Id = SeedDataIds.Container10, ContainerNumber = "HLXU2023003", ContainerType = "20DV", SealNumber = "SL-020303", Weight = 16900m, Status = "Empty", BillOfLadingId = SeedDataIds.BL08, CreatedAt = now, CreatedBy = "SYSTEM" });
+
+        modelBuilder.Entity<LocalCharge>().HasData(
+            new LocalCharge { Id = SeedDataIds.LocalCharge09, ChargeType = ChargeConceptCodes.GateIn, Description = "Gate In - 40RF (San Antonio)", Amount = 95000m, Currency = "CLP", Status = "Pending", IsTaxable = true, TaxRate = 19m, TaxAmount = 18050m, TotalAmount = 113050m, BillOfLadingId = SeedDataIds.BL06, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge10, ChargeType = "BL_FEE", Description = "BL Documentation Fee (export)", Amount = 45000m, Currency = "CLP", Status = "Pending", IsTaxable = true, TaxRate = 19m, TaxAmount = 8550m, TotalAmount = 53550m, BillOfLadingId = SeedDataIds.BL06, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge11, ChargeType = "THC", Description = "Terminal Handling Charge - 20DV (export)", Amount = 150000m, Currency = "CLP", Status = "Pending", IsTaxable = true, TaxRate = 19m, TaxAmount = 28500m, TotalAmount = 178500m, BillOfLadingId = SeedDataIds.BL07, CreatedAt = now, CreatedBy = "SYSTEM" },
+            new LocalCharge { Id = SeedDataIds.LocalCharge12, ChargeType = ChargeConceptCodes.GateIn, Description = "Gate In - 20DV (Arica)", Amount = 820m, Currency = "BOB", Status = "Pending", IsTaxable = true, TaxRate = 13m, TaxAmount = 106.60m, TotalAmount = 926.60m, BillOfLadingId = SeedDataIds.BL08, CreatedAt = now, CreatedBy = "SYSTEM" });
+
+        // ODS de exportación visible en el detalle del embarque (CL-EXP-13).
+        modelBuilder.Entity<ServiceOrder>().HasData(new ServiceOrder
+        {
+            Id = SeedDataIds.ServiceOrder04,
+            OrderNumber = "SO-2026-00004",
+            OrderType = "GateIn",
+            Status = "Pending",
+            Description = "Recepción de contenedor reefer HLXU2023001 para exportación",
+            Country = CountryCodes.Chile,
+            RequestedAt = new DateTime(2026, 10, 15, 9, 0, 0, DateTimeKind.Utc),
+            BillOfLadingId = SeedDataIds.BL06,
+            ClientId = SeedDataIds.DemoClientCL,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        });
+
+        // ── Roles por embarque (además del titular, que es Customer) ──
+        var shipmentRoles = new (Guid BlId, Guid ClientId, string Role)[]
+        {
+            (SeedDataIds.BL01, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL02, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL04, SeedDataIds.DemoClientBO, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL05, SeedDataIds.DemoClientBO, ShipmentRoleCodes.Consignee),
+            (SeedDataIds.BL06, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Shipper),
+            (SeedDataIds.BL07, SeedDataIds.DemoClientCL, ShipmentRoleCodes.Shipper),
+            (SeedDataIds.BL08, SeedDataIds.DemoClientBO, ShipmentRoleCodes.Shipper),
+        };
+
+        modelBuilder.Entity<ShipmentRole>().HasData(shipmentRoles.Select(r => new ShipmentRole
+        {
+            Id = DeterministicGuid($"shipment-role:{r.BlId}:{r.ClientId}:{r.Role}"),
+            BillOfLadingId = r.BlId,
+            ClientId = r.ClientId,
+            Role = r.Role,
+            Source = ShipmentRoleSources.Seed,
+            CreatedAt = now,
+            CreatedBy = "SYSTEM"
+        }));
+    }
+
+    /// <summary>
+    /// Datos de demostración de Fase 1 Ola B (M1-12 a M1-23): Importadora Demo otorga a la agencia de
+    /// aduanas un acceso con permisos limitados sobre un BL y un mandato con términos aceptados sobre
+    /// otro, la tiene como tercero por defecto, y Pacific Trading activa el acceso abierto por BL.
+    /// </summary>
+    private static void SeedThirdPartyAccessDemo(ModelBuilder modelBuilder)
+    {
+        var created = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+        var validTo = new DateTime(2027, 3, 31, 23, 59, 0, DateTimeKind.Utc);
+
+        // Techo: lo que Importadora Demo (Customer y Consignee de BL01 y BL02) posee sobre esos BL.
+        var customer = Array.IndexOf(ShipmentRoleCodes.MatrixColumns, ShipmentRoleCodes.Customer);
+        var consignee = Array.IndexOf(ShipmentRoleCodes.MatrixColumns, ShipmentRoleCodes.Consignee);
+        var ceiling = ActionCodeList.Format(AccessMatrixBaseline.Actions
+            .Where(a => a.Scope == ShipmentActionScopes.Shipment
+                && (a.Levels[customer] == AccessLevels.Allowed || a.Levels[consignee] == AccessLevels.Allowed))
+            .Select(a => a.Code));
+
+        modelBuilder.Entity<AccessGrant>().HasData(
+            // Acceso individual con permisos limitados: consulta, recargos mandatorios y demurrage (X (o) otorgado).
+            new AccessGrant
+            {
+                Id = SeedDataIds.DemoAccessGrant01,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GrantorRole = ShipmentRoleCodes.Customer,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                BillOfLadingId = SeedDataIds.BL01,
+                BookingNumber = "HLCUBKG2501001",
+                GrantType = AccessGrantTypes.Individual,
+                ActionCodes = ActionCodeList.Format(
+                [
+                    ShipmentActionCodes.ViewShipment, ShipmentActionCodes.ViewReleaseRequirements,
+                    ShipmentActionCodes.ViewTracking, ShipmentActionCodes.ViewBlIssuance,
+                    ShipmentActionCodes.PayMandatoryLocalCharges, ShipmentActionCodes.PayImportDemurrage
+                ]),
+                CeilingActionCodes = ceiling,
+                ValidityType = AccessValidityTypes.UntilDate,
+                ValidFrom = created,
+                ValidTo = validTo,
+                Status = AccessGrantStatus.Active,
+                GrantedByUserId = SeedDataIds.DemoUserCL,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            // Mandato digital (M1-03): alcance de pago de flete y recargos, vigencia definida, términos aceptados.
+            new AccessGrant
+            {
+                Id = SeedDataIds.DemoAccessGrant02,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GrantorRole = ShipmentRoleCodes.Customer,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                BillOfLadingId = SeedDataIds.BL02,
+                BookingNumber = "HLCUBKG2502004",
+                GrantType = AccessGrantTypes.Individual,
+                ActionCodes = ActionCodeList.Format(
+                [
+                    ShipmentActionCodes.ViewShipment, ShipmentActionCodes.PayFreight,
+                    ShipmentActionCodes.PayMandatoryLocalCharges
+                ]),
+                CeilingActionCodes = ceiling,
+                ValidityType = AccessValidityTypes.UntilDate,
+                ValidFrom = created,
+                ValidTo = validTo,
+                Status = AccessGrantStatus.Active,
+                GrantedByUserId = SeedDataIds.DemoUserCL,
+                IsMandate = true,
+                TermsVersion = MandateTerms.CurrentVersion,
+                TermsAcceptedAt = created,
+                TermsAcceptedByUserId = SeedDataIds.DemoUserCL,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            });
+
+        // Tercero por defecto (M1-13): nivel base de M1-11, 180 días por BL nuevo.
+        modelBuilder.Entity<DefaultGrantee>().HasData(new DefaultGrantee
+        {
+            Id = SeedDataIds.DemoDefaultGrantee01,
+            GrantorClientId = SeedDataIds.DemoClientCL,
+            GranteeClientId = SeedDataIds.AgentClientCL,
+            DurationDays = 180,
+            IsActive = true,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        });
+
+        // Acceso abierto por número de BL (M1-17) de Pacific Trading, titular de BL07.
+        modelBuilder.Entity<OpenAccessSetting>().HasData(new OpenAccessSetting
+        {
+            Id = SeedDataIds.DemoOpenAccessSetting01,
+            ClientId = SeedDataIds.PacificTradingClient,
+            IsEnabled = true,
+            ActionCodes = ActionCodeList.Format(
+            [
+                ShipmentActionCodes.ViewShipment, ShipmentActionCodes.ViewTracking, ShipmentActionCodes.ViewBlIssuance,
+                ShipmentActionCodes.ViewReleaseRequirements, ShipmentActionCodes.PayMandatoryLocalCharges
+            ]),
+            ChangedAt = created,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        });
+
+        modelBuilder.Entity<AccessAuditEntry>().HasData(
+            new AccessAuditEntry
+            {
+                Id = SeedDataIds.DemoAccessAudit01,
+                OccurredAt = created,
+                EventType = AccessAuditEvents.GrantCreated,
+                BillOfLadingId = SeedDataIds.BL01,
+                BlNumber = "HLCUVAL250100123",
+                BookingNumber = "HLCUBKG2501001",
+                AccessGrantId = SeedDataIds.DemoAccessGrant01,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = """{"grantType":"Individual","source":"seed"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = SeedDataIds.DemoAccessAudit02,
+                OccurredAt = created,
+                EventType = AccessAuditEvents.GrantCreated,
+                BillOfLadingId = SeedDataIds.BL02,
+                BlNumber = "HLCUVAL250200456",
+                BookingNumber = "HLCUBKG2502004",
+                AccessGrantId = SeedDataIds.DemoAccessGrant02,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = """{"grantType":"Individual","isMandate":true,"source":"seed"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = SeedDataIds.DemoAccessAudit03,
+                OccurredAt = created,
+                EventType = AccessAuditEvents.MandateTermsAccepted,
+                BillOfLadingId = SeedDataIds.BL02,
+                BlNumber = "HLCUVAL250200456",
+                BookingNumber = "HLCUBKG2502004",
+                AccessGrantId = SeedDataIds.DemoAccessGrant02,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = $$"""{"termsVersion":"{{MandateTerms.CurrentVersion}}"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = SeedDataIds.DemoAccessAudit04,
+                OccurredAt = created,
+                EventType = AccessAuditEvents.DefaultGranteeAdded,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = """{"durationDays":180,"source":"seed"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = SeedDataIds.DemoAccessAudit05,
+                OccurredAt = created,
+                EventType = AccessAuditEvents.OpenAccessEnabled,
+                GrantorClientId = SeedDataIds.PacificTradingClient,
+                ActorEmail = "seed",
+                Details = """{"isEnabled":true,"source":"seed"}"""
+            });
+    }
+
 
     private static void SeedCurrencies(ModelBuilder modelBuilder)
     {
@@ -200,6 +2144,18 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 Name = "US Dollar",
                 Symbol = "$",
                 ExchangeRateToUSD = 1m,
+                LastUpdated = now,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
+            },
+            // Ola D: los fletes pueden pagarse en EUR (ejemplo de M5-04).
+            new Currency
+            {
+                Id = SeedDataIds.CurrencyEUR,
+                Code = "EUR",
+                Name = "Euro",
+                Symbol = "€",
+                ExchangeRateToUSD = 0.92m,
                 LastUpdated = now,
                 CreatedAt = now,
                 CreatedBy = "SYSTEM"
@@ -254,6 +2210,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             Email = "admin@hapag-lloyd.cl",
             Phone = "+56 2 2630 1700",
             ClientType = "Internal",
+            OrganizationType = OrganizationTypes.Internal,
+            RegistrationStatus = OrganizationStatus.Approved,
+            OperatingCountries = "CL,BO",
+            ApprovedAt = now,
             IsActive = true,
             IsEmailConfirmed = true,
             CreatedAt = now,
@@ -283,11 +2243,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         });
     }
 
-    private static void SeedFAQs(ModelBuilder modelBuilder)
+    private static FAQ[] SeedFAQs(ModelBuilder modelBuilder)
     {
         var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        modelBuilder.Entity<FAQ>().HasData(
+        FAQ[] faqs =
+        [
             // Chile FAQs
             new FAQ
             {
@@ -446,7 +2407,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 IsActive = true,
                 CreatedAt = now,
                 CreatedBy = "SYSTEM"
-            });
+            },
+        ];
+
+        modelBuilder.Entity<FAQ>().HasData(faqs);
+        return faqs;
     }
 
     private static void SeedDemoData(ModelBuilder modelBuilder)
@@ -473,6 +2438,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             Address = "Av. Providencia 1234, Of. 501",
             City = "Santiago",
             ClientType = "Client",
+            OrganizationType = OrganizationTypes.Customer,
+            RegistrationStatus = OrganizationStatus.Approved,
+            MatchCode = "MC100010",
+            OperatingCountries = "CL,BO",
+            ApprovedAt = now,
             IsActive = true,
             IsEmailConfirmed = true,
             CreatedAt = now,
@@ -514,6 +2484,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             Address = "Calle Comercio 456",
             City = "La Paz",
             ClientType = "Client",
+            OrganizationType = OrganizationTypes.Customer,
+            RegistrationStatus = OrganizationStatus.Approved,
+            MatchCode = "MC100020",
+            OperatingCountries = "BO",
+            ApprovedAt = now,
             IsActive = true,
             IsEmailConfirmed = true,
             CreatedAt = now,
@@ -556,6 +2531,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             City = "Valparaíso",
             ClientType = "Agent",
             AgentCode = "AGT-CL-001",
+            OrganizationType = OrganizationTypes.CustomsAgency,
+            RegistrationStatus = OrganizationStatus.Approved,
+            MatchCode = "MC100030",
+            OperatingCountries = "CL",
+            ApprovedAt = now,
             IsActive = true,
             IsEmailConfirmed = true,
             CreatedAt = now,
@@ -589,10 +2569,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         // ──────────────────────────────────────────────────────────────
 
         // BL 1 — Chile, Arrived, 2 containers
-        modelBuilder.Entity<BillOfLading>().HasData(new BillOfLading
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(new BillOfLading
         {
             Id = SeedDataIds.BL01,
             BLNumber = "HLCUVAL250100123",
+            BookingNumber = "HLCUBKG2501001",
             ShipmentType = "Import",
             Vessel = "Hamburg Express",
             Voyage = "025E",
@@ -611,13 +2592,14 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             ClientId = SeedDataIds.DemoClientCL,
             CreatedAt = now,
             CreatedBy = "SYSTEM"
-        });
+        }));
 
         // BL 2 — Chile, InTransit, 2 containers
-        modelBuilder.Entity<BillOfLading>().HasData(new BillOfLading
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(new BillOfLading
         {
             Id = SeedDataIds.BL02,
             BLNumber = "HLCUVAL250200456",
+            BookingNumber = "HLCUBKG2502004",
             ShipmentType = "Import",
             Vessel = "Berlin Express",
             Voyage = "031W",
@@ -630,18 +2612,21 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             Shipper = "Korea Auto Parts Inc.",
             FreightAmount = 5200m,
             FreightCurrency = "USD",
+            // Ola D: flete pagado por la agencia bajo mandato (pago PAY-20260920-5E6F7A8B).
+            FreightPaidAt = new DateTime(2026, 9, 20, 14, 5, 0, DateTimeKind.Utc),
             Status = "InTransit",
             Country = CountryCodes.Chile,
             ClientId = SeedDataIds.DemoClientCL,
             CreatedAt = now,
             CreatedBy = "SYSTEM"
-        });
+        }));
 
         // BL 3 — Chile, Delivered, 1 container (admin client)
-        modelBuilder.Entity<BillOfLading>().HasData(new BillOfLading
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(new BillOfLading
         {
             Id = SeedDataIds.BL03,
             BLNumber = "HLCUVAL250300789",
+            BookingNumber = "HLCUBKG2503007",
             ShipmentType = "Import",
             Vessel = "Colombo Express",
             Voyage = "018E",
@@ -659,13 +2644,14 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             ClientId = SeedDataIds.AdminClient,
             CreatedAt = now,
             CreatedBy = "SYSTEM"
-        });
+        }));
 
         // BL 4 — Bolivia, Arrived via Arica, 1 container
-        modelBuilder.Entity<BillOfLading>().HasData(new BillOfLading
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(new BillOfLading
         {
             Id = SeedDataIds.BL04,
             BLNumber = "HLCUARI260100045",
+            BookingNumber = "HLCUBKG2601045",
             ShipmentType = "Import",
             Vessel = "Antofagasta Express",
             Voyage = "012E",
@@ -683,13 +2669,14 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             ClientId = SeedDataIds.DemoClientBO,
             CreatedAt = now,
             CreatedBy = "SYSTEM"
-        });
+        }));
 
         // BL 5 — Bolivia, InTransit via Iquique, 1 container
-        modelBuilder.Entity<BillOfLading>().HasData(new BillOfLading
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(new BillOfLading
         {
             Id = SeedDataIds.BL05,
             BLNumber = "HLCUIQQ260200078",
+            BookingNumber = "HLCUBKG2602078",
             ShipmentType = "Import",
             Vessel = "Guayaquil Express",
             Voyage = "007W",
@@ -707,7 +2694,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             ClientId = SeedDataIds.DemoClientBO,
             CreatedAt = now,
             CreatedBy = "SYSTEM"
-        });
+        }));
 
         // ──────────────────────────────────────────────────────────────
         // CONTAINERS (7 total)

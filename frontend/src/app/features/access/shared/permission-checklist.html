@@ -1,0 +1,63 @@
+<fieldset class="mb-3" [attr.aria-describedby]="idPrefix() + '-permissions-help'">
+  <legend class="form-label small fw-semibold mb-1">{{ 'thirdPartyAccess.permissions.legend' | transloco }}</legend>
+  <div [id]="idPrefix() + '-permissions-help'" class="form-text mt-0 mb-2">
+    {{ (requireExplicit() ? 'thirdPartyAccess.permissions.helpMandate' : 'thirdPartyAccess.permissions.help') | transloco }}
+  </div>
+
+  @if (!requireExplicit()) {
+    <div class="d-flex flex-wrap gap-3 mb-2">
+      <div class="form-check">
+        <input class="form-check-input" type="radio" [id]="idPrefix() + '-permissions-base'" [name]="idPrefix() + '-permissions-mode'"
+               value="base" [checked]="mode() === 'base'" (change)="setMode('base')" />
+        <label class="form-check-label" [for]="idPrefix() + '-permissions-base'">{{ 'thirdPartyAccess.permissions.base' | transloco }}</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" [id]="idPrefix() + '-permissions-custom'" [name]="idPrefix() + '-permissions-mode'"
+               value="custom" [checked]="mode() === 'custom'" (change)="setMode('custom')" />
+        <label class="form-check-label" [for]="idPrefix() + '-permissions-custom'">{{ 'thirdPartyAccess.permissions.custom' | transloco }}</label>
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (pendingKey(); as key) {
+    <p class="small text-muted mb-0">{{ key | transloco }}</p>
+  } @else if (mode() === 'base') {
+    <p class="small mb-1">{{ 'thirdPartyAccess.permissions.baseIncludes' | transloco }}</p>
+    <ul class="small mb-0">
+      @for (action of baseLevel(); track action.code) {
+        <li>{{ action.code | codeLabel: actionKeys }}</li>
+      } @empty {
+        <li>{{ 'thirdPartyAccess.permissions.baseEmpty' | transloco }}</li>
+      }
+    </ul>
+  } @else if (actions().length === 0) {
+    <p class="small text-muted mb-0">{{ 'thirdPartyAccess.permissions.empty' | transloco }}</p>
+  } @else {
+    @for (group of [
+      { id: 'information', rows: information(), titleKey: 'thirdPartyAccess.permissions.information' },
+      { id: 'administration', rows: administration(), titleKey: 'thirdPartyAccess.permissions.administration' }
+    ]; track group.id) {
+      @if (group.rows.length > 0) {
+        <fieldset class="mb-2">
+          <legend class="small fw-semibold text-muted mb-1">{{ group.titleKey | transloco }}</legend>
+          <ul class="list-unstyled mb-0">
+            @for (action of group.rows; track action.code) {
+              <li class="form-check">
+                <input class="form-check-input" type="checkbox" [id]="idPrefix() + '-perm-' + action.code"
+                       [checked]="isChecked(action)" [disabled]="isDisabled(action)"
+                       [attr.aria-describedby]="reasonKey(action) ? idPrefix() + '-perm-' + action.code + '-reason' : null"
+                       (change)="toggle(action, $event)" />
+                <label class="form-check-label" [for]="idPrefix() + '-perm-' + action.code">{{ action.code | codeLabel: actionKeys }}</label>
+                @if (reasonKey(action); as reason) {
+                  <span [id]="idPrefix() + '-perm-' + action.code + '-reason'" class="d-block small text-muted">{{ reason | transloco }}</span>
+                }
+              </li>
+            }
+          </ul>
+        </fieldset>
+      }
+    }
+  }
+</fieldset>

@@ -1,0 +1,194 @@
+<div class="hl-page-header">
+  <h1>{{ 'invoices.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'invoices.subtitle' | transloco }}</p>
+</div>
+
+<!-- Organización: la información no se mezcla entre organizaciones (M7-01) -->
+@if (organizations().length > 1) {
+  <div class="hl-card p-3 mb-3">
+    <label for="invoices-organization" class="form-label small fw-semibold">{{ 'invoices.organization' | transloco }}</label>
+    <select id="invoices-organization" class="form-select" name="organizationId" [(ngModel)]="organizationId" (ngModelChange)="onOrganization()">
+      @for (org of organizations(); track org.id) {
+        <option [value]="org.id">{{ 'invoices.organizationOption' | transloco: { name: org.name, taxId: org.taxId } }}</option>
+      }
+    </select>
+  </div>
+} @else if (list(); as l) {
+  <p class="small text-muted">{{ 'invoices.organizationSingle' | transloco: { name: l.organization.name, taxId: l.organization.taxId } }}</p>
+}
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'invoices.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="invoices-bl" class="form-label small fw-semibold">{{ 'invoices.filters.bl' | transloco }}</label>
+      <input id="invoices-bl" type="text" class="form-control" name="blNumber" autocomplete="off" [(ngModel)]="filters.blNumber" />
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="invoices-booking" class="form-label small fw-semibold">{{ 'invoices.filters.booking' | transloco }}</label>
+      <input id="invoices-booking" type="text" class="form-control" name="bookingNumber" autocomplete="off" [(ngModel)]="filters.bookingNumber" />
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="invoices-from" class="form-label small fw-semibold">{{ 'invoices.filters.from' | transloco }}</label>
+      <input id="invoices-from" type="date" class="form-control" name="from" [(ngModel)]="filters.from" />
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="invoices-to" class="form-label small fw-semibold">{{ 'invoices.filters.to' | transloco }}</label>
+      <input id="invoices-to" type="date" class="form-control" name="to" [(ngModel)]="filters.to" />
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="invoices-status" class="form-label small fw-semibold">{{ 'invoices.filters.status' | transloco }}</label>
+      <select id="invoices-status" class="form-select" name="status" [(ngModel)]="filters.status">
+        <option value="">{{ 'invoices.filters.all' | transloco }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="invoices-currency" class="form-label small fw-semibold">{{ 'invoices.filters.currency' | transloco }}</label>
+      <select id="invoices-currency" class="form-select" name="currency" [(ngModel)]="filters.currency">
+        <option value="">{{ 'invoices.filters.all' | transloco }}</option>
+        @for (c of currencies; track c) {
+          <option [value]="c">{{ c }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="invoices-type" class="form-label small fw-semibold">{{ 'invoices.filters.documentType' | transloco }}</label>
+      <select id="invoices-type" class="form-select" name="documentType" [(ngModel)]="filters.documentType">
+        <option value="">{{ 'invoices.filters.all' | transloco }}</option>
+        @for (t of documentTypes; track t) {
+          <option [value]="t">{{ t | codeLabel: docTypeKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'invoices.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'invoices.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+  <button type="button" class="btn btn-outline-secondary" [disabled]="selectedCount() === 0 || selectedCount() > maxDownload || downloading()"
+          (click)="downloadSelected()" aria-describedby="invoices-zip-help">
+    {{ 'invoices.download.zip' | transloco: { count: selectedCount() } }}
+  </button>
+  <button type="button" class="btn btn-outline-secondary" [disabled]="refreshing()" (click)="refresh()">
+    @if (refreshing()) {
+      <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+    }
+    {{ 'invoices.refresh.button' | transloco }}
+  </button>
+  @if (list()?.lastUpdatedAt; as updated) {
+    <span class="small text-muted" data-testid="invoices-last-updated">{{ 'invoices.lastUpdated' | transloco: { date: (updated | hlDate: 'datetime' : list()?.timeZone) } }}</span>
+  }
+</div>
+<p id="invoices-zip-help" class="small text-muted">{{ 'invoices.download.zipHelp' | transloco: { max: maxDownload } }}</p>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search(page())" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (list(); as l) {
+  @if (l.items.length === 0) {
+    <app-state-message kind="empty" [messageKey]="'invoices.empty'" />
+  } @else {
+    <div class="hl-card mb-3">
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'invoices.caption' | transloco: { name: l.organization.name }">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'invoices.caption' | transloco: { name: l.organization.name } }}</caption>
+          <thead>
+            <tr>
+              <th scope="col"><span class="visually-hidden">{{ 'invoices.col.select' | transloco }}</span></th>
+              <th scope="col">{{ 'invoices.col.siiNumber' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.sourceNumber' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.documentType' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.issueDate' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.dueDate' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.reference' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.legalName' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.taxId' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'invoices.col.amount' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.currency' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.status' | transloco }}</th>
+              <th scope="col"><span class="visually-hidden">{{ 'invoices.col.actions' | transloco }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (inv of l.items; track inv.id) {
+              <tr>
+                <td>
+                  <input class="form-check-input" type="checkbox" [id]="'invoice-select-' + inv.id" [disabled]="!inv.canDownload"
+                         [checked]="isSelected(inv)" (change)="toggle(inv, $event)"
+                         [attr.aria-label]="(inv.canDownload ? 'invoices.selectLabel' : 'invoices.selectDisabledLabel') | transloco: { number: label(inv) }" />
+                </td>
+                <!-- Número SII y número del sistema de origen, diferenciados (M7-01) -->
+                <td class="fw-semibold" data-testid="invoice-sii">
+                  @if (inv.siiNumber) {
+                    {{ inv.siiNumber }}
+                  } @else {
+                    <span class="small fw-normal">{{ 'invoices.noFolio' | transloco }}</span>
+                  }
+                </td>
+                <td data-testid="invoice-source">{{ inv.sourceNumber }}</td>
+                <td>{{ inv.documentType | codeLabel: docTypeKeys }}</td>
+                <td>{{ inv.issueDate | hlDate: 'localDate' }}</td>
+                <td>{{ inv.dueDate ? (inv.dueDate | hlDate: 'localDate') : '—' }}</td>
+                <td>
+                  {{ inv.blNumber ?? '—' }}
+                  @if (inv.bookingNumber) {
+                    <span class="small text-muted d-block">{{ 'invoices.booking' | transloco: { booking: inv.bookingNumber } }}</span>
+                  }
+                </td>
+                <td>{{ inv.legalName }}</td>
+                <td>{{ inv.taxId }}</td>
+                <td class="text-end">{{ inv.totalAmount | hlCurrency: inv.currency }}</td>
+                <td>{{ inv.currency }}</td>
+                <td><span class="hl-badge" [class]="statusClass(inv)">{{ inv.status | codeLabel: statusKeys }}</span></td>
+                <td>
+                  <div class="d-flex flex-wrap gap-1">
+                    @if (inv.canDownload) {
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="downloadPdf(inv)"
+                              [attr.aria-label]="'invoices.download.pdfLabel' | transloco: { number: label(inv) }">
+                        {{ 'invoices.download.pdf' | transloco }}
+                      </button>
+                    }
+                    @if (inv.inCart) {
+                      <span class="small fw-semibold">{{ 'invoices.inCart' | transloco }}</span>
+                    } @else if (inv.isPayable && cart.cartEnabled()) {
+                      <button type="button" class="btn btn-sm btn-hl-orange" (click)="addToCart(inv)"
+                              [attr.aria-label]="'invoices.addToCartLabel' | transloco: { number: label(inv) }">
+                        {{ 'invoices.addToCart' | transloco }}
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="d-flex align-items-center gap-2" [attr.aria-label]="'invoices.pagination.label' | transloco">
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="search(page() - 1)">{{ 'invoices.pagination.previous' | transloco }}</button>
+        <span class="small">{{ 'invoices.pagination.status' | transloco: { page: page(), pages: totalPages(), total: l.total } }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="search(page() + 1)">{{ 'invoices.pagination.next' | transloco }}</button>
+      </nav>
+    } @else {
+      <p class="small text-muted">{{ 'invoices.count' | transloco: { count: l.total } }}</p>
+    }
+  }
+}
+
+@if (addTargets(); as targets) {
+  <app-add-to-cart-dialog [targets]="targets" (closed)="onAddClosed($event)" />
+}

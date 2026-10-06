@@ -4,7 +4,8 @@
 // Bootstrap configurado con los tokens (DC4). Los campos de formulario usan $hl-text-muted
 // como borde (7,53:1, WCAG 1.4.11); $hl-border (1,23:1) queda solo para separadores decorativos.
 // Campos y menús desplegables conservan la superficie blanca: por defecto Bootstrap usa
-// $body-bg, que ahora es $hl-light-gray.
+// $body-bg, que ahora es $hl-light-gray. Campos, menús y bordes usan variables CSS para que el
+// tema oscuro (M11-07) los cambie; los valores *-dark son la columna "Variante oscura" de la guía §1.1.
 @use 'bootstrap/scss/bootstrap' with (
   $primary: t.$hl-orange-700,
   $secondary: t.$hl-dark,
@@ -20,10 +21,20 @@
   $border-radius-lg: 0.75rem,
   $card-border-radius: 0.75rem,
   $card-box-shadow: 0 1px 3px rgba(t.$hl-dark, 0.08),
-  $input-bg: t.$hl-white,
-  $dropdown-bg: t.$hl-white,
-  $input-border-color: t.$hl-text-muted,
-  $form-check-input-border: var(--bs-border-width) solid t.$hl-text-muted,
+  $input-bg: var(--hl-input-bg),
+  $dropdown-bg: var(--hl-surface),
+  $input-border-color: var(--hl-text-muted),
+  $form-check-input-border: var(--bs-border-width) solid var(--hl-text-muted),
+  $body-bg-dark: t.$hl-dark-bg,
+  $body-color-dark: t.$hl-dark-text,
+  $body-emphasis-color-dark: t.$hl-white,
+  $body-secondary-color-dark: t.$hl-dark-text,
+  $body-secondary-bg-dark: t.$hl-dark,
+  $body-tertiary-bg-dark: t.$hl-dark,
+  $border-color-dark: t.$hl-text-muted,
+  $link-color-dark: t.$hl-dark-text,
+  $link-hover-color-dark: t.$hl-white,
+  $code-color-dark: t.$hl-dark-text,
   $input-focus-border-color: t.$hl-orange-700,
   $input-focus-box-shadow: 0 0 0 0.2rem rgba(t.$hl-orange-700, 0.15)
 );
@@ -45,6 +56,11 @@
   --hl-surface-muted: #{t.$hl-surface-muted};
   --hl-text-muted: #{t.$hl-text-muted};
   --hl-focus: #{t.$hl-blue};
+  // Alias semánticos de los tokens que cambian con el tema (guía §1.1, columna "Variante oscura").
+  --hl-surface: #{t.$hl-white};
+  --hl-input-bg: #{t.$hl-white};
+  --hl-emphasis: #{t.$hl-dark};
+  --hl-link: #{t.$hl-orange-700};
   --sidebar-width: 260px;
   --navbar-height: 60px;
 }
@@ -55,14 +71,59 @@
   --hl-focus: #{t.$hl-white};
 }
 
-// Variante oscura (Guía UI §1.1). El selector de tema queda para la tarea M11-07.
+// Variante oscura (Guía UI §1.1); el selector de tema es el de la barra superior (M11-07, ThemeService).
+// Superficies (tarjetas, tablas, menús) pasan a $hl-dark y el texto a $hl-dark-text. El naranja $hl-orange-700
+// sobre fondo oscuro no llega a 4,5:1: los enlaces usan $hl-dark-text subrayado y el naranja queda como
+// fondo de botón con texto blanco.
 [data-bs-theme="dark"] {
+  color-scheme: dark;
   --hl-light-gray: #{t.$hl-dark-bg};
   --hl-border: #{t.$hl-text-muted};
   --hl-body-color: #{t.$hl-dark-text};
   --hl-surface-muted: #{t.$hl-dark};
   --hl-text-muted: #{t.$hl-dark-text};
   --hl-focus: #{t.$hl-white};
+  --hl-surface: #{t.$hl-dark};
+  --hl-input-bg: #{t.$hl-dark-bg};
+  --hl-emphasis: #{t.$hl-dark-text};
+  --hl-link: #{t.$hl-dark-text};
+
+  // Botones de contorno: $secondary ($hl-dark) y el naranja no contrastan con las superficies oscuras.
+  .btn-outline-secondary,
+  .btn-outline-primary {
+    --bs-btn-color: #{t.$hl-dark-text};
+    --bs-btn-border-color: #{t.$hl-dark-text};
+    --bs-btn-hover-color: #{t.$hl-dark-bg};
+    --bs-btn-hover-bg: #{t.$hl-dark-text};
+    --bs-btn-hover-border-color: #{t.$hl-dark-text};
+    --bs-btn-active-color: #{t.$hl-dark-bg};
+    --bs-btn-active-bg: #{t.$hl-dark-text};
+    --bs-btn-active-border-color: #{t.$hl-dark-text};
+    --bs-btn-disabled-color: #{t.$hl-dark-text};
+    --bs-btn-disabled-border-color: #{t.$hl-dark-text};
+  }
+
+  // Botón de la selección activa (filtros con aria-pressed): borde claro para distinguirlo de la superficie.
+  .btn-secondary {
+    --bs-btn-border-color: #{t.$hl-dark-text};
+    --bs-btn-active-border-color: #{t.$hl-dark-text};
+  }
+
+  .hl-table thead th {
+    background-color: var(--hl-dark-bg);
+  }
+
+  .hl-country-badge {
+    background-color: rgba(t.$hl-white, 0.1);
+    color: var(--hl-dark-text);
+  }
+
+  .text-hl-orange,
+  .text-hl-green,
+  .text-hl-blue,
+  .text-hl-dark {
+    color: var(--hl-dark-text) !important;
+  }
 }
 
 // Typography
@@ -214,7 +275,7 @@ h1, h2, h3, h4, h5, h6 {
 
 // Cards
 .hl-card {
-  background: var(--hl-white);
+  background: var(--hl-surface);
   border: 1px solid var(--hl-border);
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -254,7 +315,7 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat', sans-serif;
     font-size: 1.75rem;
     font-weight: 700;
-    color: var(--hl-dark);
+    color: var(--hl-emphasis);
   }
 
   .stat-label {
@@ -298,7 +359,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   tbody tr {
-    background-color: var(--hl-white);
+    background-color: var(--hl-surface);
     transition: background-color 0.15s;
 
     &:nth-child(even) {
@@ -412,7 +473,7 @@ h1, h2, h3, h4, h5, h6 {
   legend {
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--hl-dark);
+    color: var(--hl-emphasis);
     margin-bottom: 0.35rem;
   }
 
@@ -464,7 +525,7 @@ h1, h2, h3, h4, h5, h6 {
   h1 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--hl-dark);
+    color: var(--hl-emphasis);
     margin-bottom: 0.25rem;
   }
 
@@ -579,6 +640,47 @@ html {
   justify-content: center;
   min-width: 24px;
   min-height: 24px;
+}
+
+// Acceso a un servicio del dashboard (M1-01, app-dispute-link): toda la tarjeta es el enlace; el título y la
+// descripción forman su nombre.
+.hl-service {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  height: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--hl-border);
+  border-radius: 0.75rem;
+  background-color: var(--hl-surface);
+  color: var(--bs-body-color);
+  text-decoration: none;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    color: var(--hl-link);
+  }
+
+  &:hover {
+    border-color: var(--hl-text-muted);
+
+    .hl-service__title {
+      text-decoration: underline;
+    }
+  }
+}
+
+.hl-service__title {
+  display: block;
+  font-weight: 600;
+  color: var(--hl-link);
+}
+
+.hl-service__description {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--hl-text-muted);
 }
 
 // Estados vacío y error (NF-11, app-state-message)

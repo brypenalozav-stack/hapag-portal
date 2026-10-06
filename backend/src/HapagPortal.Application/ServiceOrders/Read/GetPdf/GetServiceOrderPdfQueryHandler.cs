@@ -2,13 +2,16 @@ namespace HapagPortal.Application.ServiceOrders.Read.GetPdf;
 
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Documents.Common;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
 public sealed class GetServiceOrderPdfQueryHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService currentUserService)
+    ICurrentUserService currentUserService,
+    IPdfDocumentRenderer renderer,
+    DocumentSettings settings)
     : IQueryHandler<GetServiceOrderPdfQuery, byte[]>
 {
     public async Task<Result<byte[]>> Handle(
@@ -27,9 +30,8 @@ public sealed class GetServiceOrderPdfQueryHandler(
             return Result<byte[]>.Failure(
                 DomainErrors.ServiceOrder.NotFound(request.Id));
 
-        // Placeholder PDF - actual PDF generation to be implemented later
-        var placeholder = "%PDF-1.4 placeholder"u8.ToArray();
+        var pdf = await PortalPdfs.ServiceOrderAsync(dbContext, renderer, settings, serviceOrder, cancellationToken);
 
-        return Result<byte[]>.Success(placeholder);
+        return Result<byte[]>.Success(pdf);
     }
 }

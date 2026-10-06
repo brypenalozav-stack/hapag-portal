@@ -4,6 +4,7 @@ using Asp.Versioning;
 using HapagPortal.Application;
 using HapagPortal.Infrastructure.DependencyInjection;
 using HapagPortal.Infrastructure.Persistence;
+using HapagPortal.WebApi.BackgroundServices;
 using HapagPortal.WebApi.Middleware;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -28,6 +29,15 @@ if (!string.IsNullOrEmpty(pgHost))
 // Application & Infrastructure
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+// Vencimiento automático de accesos a terceros y mandatos (M1-14, M1-03).
+builder.Services.AddHostedService<AccessGrantExpiryWorker>();
+
+// Solicitudes masivas de cambio de almacén en segundo plano (M3-05, NF-19).
+builder.Services.AddHostedService<WarehouseChangeBatchWorker>();
+
+// Pasos posteriores a la confirmación de pagos con reintento (NF-03).
+builder.Services.AddHostedService<PaymentOutboxWorker>();
 
 // Controllers
 builder.Services.AddControllers()

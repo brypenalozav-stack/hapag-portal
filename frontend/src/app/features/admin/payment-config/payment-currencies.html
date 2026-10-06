@@ -1,0 +1,118 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.paymentCurrencies.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.paymentCurrencies.subtitle' | transloco }}</p>
+</div>
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.paymentCurrencies.filters.label' | transloco" (ngSubmit)="load()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="currencies-country" class="form-label small fw-semibold">{{ 'admin.paymentCurrencies.filters.country' | transloco }}</label>
+      <select id="currencies-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <button type="submit" class="btn btn-outline-secondary">{{ 'admin.paymentCurrencies.filters.search' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (editing(); as row) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="currencies-form-title" (submit)="save($event)">
+    <h2 #formHeading id="currencies-form-title" class="section-title mb-3" tabindex="-1">
+      {{ 'admin.paymentCurrencies.form.title' | transloco: { concept: conceptLabel(row), country: row.country } }}
+    </h2>
+    @if (formError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ formError() }}</div>
+    }
+    <fieldset class="mb-3">
+      <legend class="form-label small fw-semibold mb-1">{{ 'admin.paymentCurrencies.form.legend' | transloco }}</legend>
+      @for (currency of currencies; track currency) {
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" [id]="'currency-option-' + currency" [checked]="isChecked(currency)" (change)="toggle(currency, $event)" />
+          <label class="form-check-label" [for]="'currency-option-' + currency">{{ currency }}</label>
+        </div>
+      }
+    </fieldset>
+    @if (row.chileFinanceRules) {
+      <p class="small text-muted" role="note">{{ 'admin.paymentCurrencies.form.chileRules' | transloco }}</p>
+    }
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">{{ 'admin.paymentCurrencies.form.save' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'admin.paymentCurrencies.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (rows().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.paymentCurrencies.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.paymentCurrencies.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.paymentCurrencies.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.paymentCurrencies.col.concept' | transloco }}</th>
+            <th scope="col">{{ 'admin.paymentCurrencies.col.currencies' | transloco }}</th>
+            <th scope="col">{{ 'admin.paymentCurrencies.col.source' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.paymentCurrencies.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.conceptCode) {
+            <tr>
+              <td>
+                <span class="fw-semibold d-block">{{ conceptLabel(row) }}</span>
+                <span class="small text-muted">{{ row.conceptCode }}</span>
+              </td>
+              <td data-testid="currencies-enabled">{{ row.enabledCurrencies.join(', ') || '—' }}</td>
+              <td>{{ (row.configured ? 'admin.paymentCurrencies.configured' : 'admin.paymentCurrencies.default') | transloco }}</td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="edit(row)"
+                          [attr.aria-label]="'admin.paymentCurrencies.editLabel' | transloco: { concept: conceptLabel(row) }">{{ 'admin.paymentCurrencies.edit' | transloco }}</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(row)"
+                          [attr.aria-label]="'admin.paymentCurrencies.historyLabel' | transloco: { concept: conceptLabel(row) }">{{ 'admin.paymentCurrencies.history' | transloco }}</button>
+                  @if (row.configured) {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="reset(row)"
+                            [attr.aria-label]="'admin.paymentCurrencies.resetLabel' | transloco: { concept: conceptLabel(row) }">{{ 'admin.paymentCurrencies.resetButton' | transloco }}</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
+
+@if (historyRow(); as row) {
+  <section class="hl-card mb-4" aria-labelledby="currencies-history-title">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #historyHeading id="currencies-history-title" class="section-title" tabindex="-1">
+        {{ 'admin.paymentCurrencies.historyTitle' | transloco: { concept: conceptLabel(row), country: row.country } }}
+      </h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeHistory()">{{ 'admin.paymentCurrencies.historyClose' | transloco }}</button>
+    </div>
+    @if (historyLoading()) {
+      <app-loading-spinner />
+    } @else if (history().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.paymentCurrencies.historyEmpty'" />
+    } @else {
+      <app-change-log [changes]="history()" [captionKey]="'admin.paymentCurrencies.historyCaption'" [fieldKeys]="snapshotKeys" />
+    }
+  </section>
+}

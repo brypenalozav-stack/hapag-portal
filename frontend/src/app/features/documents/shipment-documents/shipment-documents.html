@@ -1,0 +1,214 @@
+<section class="hl-card mb-4" aria-labelledby="shipment-documents-title" data-testid="shipment-documents">
+  <div class="card-header p-3">
+    <h2 id="shipment-documents-title" class="section-title">{{ 'documents.section.title' | transloco }}</h2>
+    <p class="small text-muted mb-0">{{ 'documents.section.help' | transloco }}</p>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" [messageKey]="'documents.section.unavailable'" (retry)="load()" />
+  } @else if (error()) {
+    <div class="alert alert-danger m-3" role="alert">{{ error() }}</div>
+  } @else if (data(); as d) {
+    <div class="p-3">
+      @if (actionResult()) {
+        <div class="alert alert-success py-2" data-testid="documents-result">{{ actionResult() }}</div>
+      }
+      @if (actionError()) {
+        <div class="alert alert-danger py-2" role="alert" data-testid="documents-error">{{ actionError() }}</div>
+      }
+
+      <!-- Carta de responsabilidad del FFWW sobre este BL (M4-04, M6-06) -->
+      @if (d.responsibilityLetter; as letter) {
+        @if (letter.required) {
+          <div class="alert py-2" [class.alert-warning]="letter.blocksProcess" [class.alert-info]="!letter.blocksProcess"
+               role="note" data-testid="documents-letter-state">
+            {{ (letter.blocksProcess ? 'documents.section.letterBlocks' : 'documents.section.letterFulfilled') | transloco: { status: (letter.status | codeLabel: requirementStatusKeys) } }}
+          </div>
+        }
+      }
+
+      <!-- Solicitudes habilitadas por la matriz de M1-11 y el perfil -->
+      @if (hasRequests() && canResend()) {
+        <div class="d-flex flex-wrap gap-2">
+          @if (canRequestCopy()) {
+            <button type="button" class="btn btn-outline-secondary" data-testid="documents-request-copy" (click)="openDialog('blCopy', $event)">{{ 'documents.section.requestCopy' | transloco }}</button>
+          }
+          @if (d.actions.canIssueResponsibilityLetter) {
+            <button type="button" class="btn btn-outline-secondary" data-testid="documents-issue-letter" (click)="openDialog('letter', $event)">{{ 'documents.section.issueLetter' | transloco }}</button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Documentos emitidos del embarque (M6-09) -->
+    @if (d.documents.length === 0) {
+      <app-state-message kind="empty" [messageKey]="'documents.section.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'documents.section.caption' | transloco: { bl: d.blNumber }">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'documents.section.caption' | transloco: { bl: d.blNumber } }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'documents.section.col.type' | transloco }}</th>
+              <th scope="col">{{ 'documents.section.col.number' | transloco }}</th>
+              <th scope="col">{{ 'documents.section.col.issuedAt' | transloco }}</th>
+              <th scope="col">{{ 'documents.section.col.bl' | transloco }}</th>
+              <th scope="col">{{ 'documents.section.col.status' | transloco }}</th>
+              <th scope="col">{{ 'documents.section.col.signature' | transloco }}</th>
+              <th scope="col">{{ 'documents.section.col.actions' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (doc of d.documents; track doc.id) {
+              <tr [attr.data-testid]="'document-' + doc.documentNumber">
+                <td>
+                  <span class="fw-semibold d-block">{{ doc.documentType | codeLabel: typeKeys }}</span>
+                  <span class="small text-muted d-block">{{ doc.origin | codeLabel: originKeys }}</span>
+                  @if (doc.containerNumbers.length > 0) {
+                    <span class="small d-block">{{ 'documents.section.containers' | transloco: { containers: doc.containerNumbers.join(', ') } }}</span>
+                  }
+                  @if (doc.validUntil) {
+                    <span class="small d-block">{{ 'documents.section.validUntil' | transloco: { date: (doc.validUntil | hlDate: 'date' : d.timeZone) } }}</span>
+                  }
+                </td>
+                <td>
+                  <span class="fw-semibold d-block">{{ doc.documentNumber }}</span>
+                  <span class="small text-muted d-block">{{ 'documents.section.verificationCode' | transloco: { code: doc.verificationCode } }}</span>
+                </td>
+                <td>{{ doc.issuedAt | hlDate: 'datetime' : d.timeZone }}</td>
+                <td>
+                  <span class="d-block">{{ doc.blNumber }}</span>
+                  @if (doc.bookingNumber) {
+                    <span class="small text-muted d-block">{{ 'documents.section.booking' | transloco: { booking: doc.bookingNumber } }}</span>
+                  }
+                </td>
+                <td><span class="hl-badge" [class]="statusClass(doc.status)">{{ doc.status | codeLabel: statusKeys }}</span></td>
+                <td class="small" data-testid="document-signature">
+                  @if (!doc.signed) {
+                    {{ 'documents.section.signature.notRequired' | transloco }}
+                  } @else if (doc.signedAt) {
+                    {{ 'documents.section.signature.signed' | transloco: { date: (doc.signedAt | hlDate: 'datetime' : d.timeZone), provider: doc.signatureProvider ?? '—' } }}
+                  } @else {
+                    {{ 'documents.section.signature.onFirstDownload' | transloco }}
+                  }
+                  @if (doc.deliveredAt && doc.recipientEmails.length > 0) {
+                    <span class="d-block">{{ 'documents.section.delivered' | transloco: { emails: doc.recipientEmails.join(', '), date: (doc.deliveredAt | hlDate: 'datetime' : d.timeZone) } }}</span>
+                  }
+                </td>
+                <td>
+                  <div class="d-flex flex-wrap gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === doc.id" (click)="download(doc)"
+                            [attr.aria-label]="'documents.section.downloadLabel' | transloco: { type: (doc.documentType | codeLabel: typeKeys), number: doc.documentNumber }">
+                      {{ 'documents.section.download' | transloco }}
+                    </button>
+                    @if (canResend()) {
+                      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === doc.id" (click)="resend(doc)"
+                              [attr.aria-label]="'documents.section.resendLabel' | transloco: { number: doc.documentNumber }">
+                        {{ 'documents.section.resend' | transloco }}
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Comprobantes de pago (M7-02) y facturas (M7-01) del BL -->
+    <div class="p-3">
+      <h3 class="h6 fw-bold">{{ 'documents.related.title' | transloco }}</h3>
+      @if (d.related.length === 0) {
+        <p class="small text-muted mb-0" role="status">{{ 'documents.related.empty' | transloco }}</p>
+      } @else {
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'documents.related.caption' | transloco: { bl: d.blNumber }">
+          <table class="hl-table">
+            <caption class="visually-hidden">{{ 'documents.related.caption' | transloco: { bl: d.blNumber } }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'documents.related.col.kind' | transloco }}</th>
+                <th scope="col">{{ 'documents.related.col.number' | transloco }}</th>
+                <th scope="col">{{ 'documents.related.col.issuedAt' | transloco }}</th>
+                <th scope="col">{{ 'documents.related.col.description' | transloco }}</th>
+                <th scope="col">{{ 'documents.related.col.action' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of d.related; track item.id) {
+                <tr>
+                  <td>{{ item.kind | codeLabel: relatedKeys }}</td>
+                  <td class="fw-semibold">{{ item.number }}</td>
+                  <td>{{ item.issuedAt | hlDate: 'datetime' : d.timeZone }}</td>
+                  <td>{{ item.description ?? '—' }}</td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === item.id" (click)="downloadRelated(item)"
+                            [attr.aria-label]="'documents.related.downloadLabel' | transloco: { kind: (item.kind | codeLabel: relatedKeys), number: item.number }">
+                      {{ 'documents.related.download' | transloco }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+    @if (d.actions.canRequestNoDebtCertificate || d.actions.canRequestTransshipmentCertificate) {
+      <div class="p-3 pt-0">
+        <!-- Certificado de libre deuda de Bolivia (M6-07) -->
+        @if (d.actions.canRequestNoDebtCertificate) {
+          <app-no-debt-certificate [blNumber]="d.blNumber" [timeZone]="d.timeZone" (issued)="onNoDebtIssued($event)" />
+        }
+
+        <!-- Certificado de transbordo (M6-01): cargo del servicio que se paga con el carro -->
+        @if (d.actions.canRequestTransshipmentCertificate) {
+          <div class="border rounded p-3" role="group" aria-labelledby="transshipment-title" data-testid="transshipment-panel">
+            <h3 id="transshipment-title" class="h6 fw-bold">{{ 'documents.transshipment.title' | transloco }}</h3>
+            <p class="small mb-2">{{ 'documents.transshipment.help' | transloco }}</p>
+            @if (transshipment(); as t) {
+              <p class="mb-2" data-testid="transshipment-charge">
+                {{ 'documents.transshipment.charge' | transloco: { total: (t.totalAmount | hlCurrency: t.currency), tax: (t.taxAmount | hlCurrency: t.currency) } }}
+              </p>
+              @if (t.status === 'Pending') {
+                @if (cart.contains('LocalCharge', t.chargeId)) {
+                  <p class="small fw-semibold mb-0">
+                    {{ 'documents.transshipment.inCart' | transloco }}
+                    <a routerLink="/cart">{{ 'documents.transshipment.goToCart' | transloco }}</a>
+                  </p>
+                } @else if (cart.accountPaymentsEnabled()) {
+                  <a routerLink="/account-payments" class="btn btn-outline-secondary">{{ 'documents.transshipment.accountPayments' | transloco }}</a>
+                } @else if (cart.cartEnabled()) {
+                  <button type="button" class="btn btn-hl-orange" (click)="addTransshipmentToCart()">{{ 'documents.transshipment.addToCart' | transloco }}</button>
+                }
+              }
+            } @else if (canResend()) {
+              <button type="button" class="btn btn-hl-orange" data-testid="transshipment-request" [disabled]="requestingTransshipment()" (click)="requestTransshipment()">
+                @if (requestingTransshipment()) {
+                  <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                }
+                {{ 'documents.transshipment.request' | transloco }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</section>
+
+@if (dialog() === 'blCopy') {
+  @if (data(); as d) {
+    <app-bl-copy-dialog [blNumber]="d.blNumber" [canRequestValued]="d.actions.canRequestValuedCopy"
+                        [canRequestNonValued]="d.actions.canRequestNonValuedCopy" (closed)="onBlCopyClosed($event)" />
+  }
+}
+@if (dialog() === 'letter') {
+  <app-responsibility-letter-dialog [blNumber]="blNumber()" (closed)="onLetterClosed($event)" />
+}
+@if (addTargets(); as targets) {
+  <app-add-to-cart-dialog [targets]="targets" (closed)="onAddClosed()" />
+}

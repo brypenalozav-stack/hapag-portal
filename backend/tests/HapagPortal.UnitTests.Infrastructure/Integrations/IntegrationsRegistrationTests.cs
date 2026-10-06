@@ -105,6 +105,38 @@ public sealed class IntegrationsRegistrationTests
         provider.GetRequiredService<IFileStorage>().Should().BeOfType<DummyFileStorage>();
     }
 
+    [Fact]
+    public void AddIntegrations_LocalStorageMode_ShouldRegisterTheFileSystemStorage()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"hapag-storage-{Guid.NewGuid():N}");
+        try
+        {
+            using var provider = BuildProvider(new Dictionary<string, string?>
+            {
+                ["Integrations:Storage:Mode"] = "Local",
+                ["Integrations:Storage:LocalPath"] = root,
+            });
+
+            provider.GetRequiredService<IFileStorage>().Should().BeOfType<LocalFileStorage>();
+            Directory.Exists(root).Should().BeTrue();
+            provider.GetRequiredService<IDocumentSigner>().Should().BeOfType<DummyDocumentSigner>();
+        }
+        finally
+        {
+            if (Directory.Exists(root))
+                Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Theory]
+    [InlineData("Nexus")]
+    [InlineData("Signature")]
+    public void AddIntegrations_LocalModeOutsideStorage_ShouldThrow(string system)
+    {
+        Register(system, "Local").Should().Throw<InvalidOperationException>()
+            .WithMessage($"Integrations:{system}:Mode='Local'*");
+    }
+
     [Theory]
     [InlineData("Khipu", typeof(HttpKhipuPaymentProvider))]
     [InlineData("BancoChile", typeof(HttpBancoChilePaymentProvider))]

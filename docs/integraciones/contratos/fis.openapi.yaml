@@ -736,6 +736,26 @@ components:
           - string
           - 'null'
           description: FIS H0020 `tax_id`.
+        portOfDischargeCode:
+          type:
+          - string
+          - 'null'
+          description: 'Propuesta Ola F (M2-01): UN/LOCODE del puerto de descarga (p. ej. CLSAI). Pantalla y campo FIS
+            por confirmar.'
+        finalDestinationCode:
+          type:
+          - string
+          - 'null'
+          description: 'Propuesta Ola F (M2-01): UN/LOCODE de la localidad de destino final (p. ej. CLANF, CLPUQ). Pantalla
+            y campo FIS por confirmar.'
+        difu:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Difu'
+        issuance:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Issuance'
         updatedAt:
           type: string
           format: date-time
@@ -743,6 +763,70 @@ components:
       - blNumber
       - shipmentType
       - updatedAt
+    Difu:
+      type: object
+      description: 'Propuesta Ola F (M2-01): DIFU (estructura de distribución) informado para el embarque y localidad de
+        destino final a la que está asociado. El portal publica al cliente un BL con destino final distinto del puerto
+        de descarga solo si su DIFU está asociado a ese destino, según las reglas que mantiene el portal interno. La
+        definición técnica debe confirmar el sistema responsable de informarlo.'
+      properties:
+        code:
+          type: string
+        locationCode:
+          type:
+          - string
+          - 'null'
+          description: UN/LOCODE de la localidad asociada al DIFU.
+      required:
+      - code
+    Issuance:
+      type: object
+      description: 'Propuesta Ola F (M2-02, CL-IMP-14, BO-IMP-14): documento de transporte y su estado de emisión tal
+        como lo registra el origen. El portal traduce `status` a su propio estado (Pending, Issued,
+        AuthorizedAtDestination, IssuedAtDestination, Transferred, Surrendered, TelexReleased, Cancelled) y muestra
+        `Unknown` ante un código no previsto, sin inferirlo.'
+      properties:
+        documentType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - BL
+          - SWB
+          - EBL
+          - null
+          description: BL original, Sea Waybill o BL electrónico.
+        eblPlatform:
+          type:
+          - string
+          - 'null'
+          description: Plataforma del EBL (p. ej. WAVE para Wave BL).
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - NOT_ISSUED
+          - DRAFT
+          - ISSUED
+          - DESTINATION_ISSUANCE_AUTHORIZED
+          - ISSUED_AT_DESTINATION
+          - TRANSFERRED
+          - SURRENDERED
+          - TELEX_RELEASED
+          - VOIDED
+          - null
+        statusAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Fecha del último cambio de estado en el origen.
+        issuancePlace:
+          type:
+          - string
+          - 'null'
+          description: UN/LOCODE del lugar de emisión.
     Shipment:
       allOf:
       - $ref: '#/components/schemas/ShipmentSummary'

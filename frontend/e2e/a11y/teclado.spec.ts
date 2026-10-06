@@ -71,10 +71,12 @@ test('a 375 px el botón de menú alterna aria-expanded y el menú lateral', asy
 });
 
 for (const ruta of [
-  '/bills-of-lading',
-  `/bills-of-lading/${BL_PRUEBA.blNumber}`,
-  '/payments',
-  '/receipts',
+  '/shipments',
+  `/shipments/${BL_PRUEBA.blNumber}`,
+  '/organization',
+  '/payment-history',
+  '/invoices',
+  '/cart',
 ]) {
   test(`cada th de cabecera tiene scope y cada tabla tiene caption [${ruta}]`, async ({ page }) => {
     await abrir(page, ruta);

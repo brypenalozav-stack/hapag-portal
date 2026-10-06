@@ -1,0 +1,97 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'warehouse.progress.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/warehouse">{{ 'warehouse.title' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ 'warehouse.progress.breadcrumb' | transloco }}</li>
+    </ol>
+  </nav>
+  <h1>{{ 'warehouse.progress.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'warehouse.progress.subtitle' | transloco }}</p>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="start()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (batch(); as b) {
+  <section class="hl-card p-4 mb-4" aria-labelledby="warehouse-progress-summary-title">
+    <h2 id="warehouse-progress-summary-title" class="section-title mb-3">
+      {{ 'warehouse.progress.status' | transloco: { status: (b.status | codeLabel: statusKeys) } }}
+    </h2>
+    <div class="progress mb-2" role="progressbar" [attr.aria-label]="'warehouse.progress.barLabel' | transloco"
+         aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="b.progressPercent">
+      <div class="progress-bar bg-hl-blue" [style.width.%]="b.progressPercent"></div>
+    </div>
+    <p class="mb-3" data-testid="warehouse-progress-text">
+      {{ 'warehouse.progress.counts' | transloco: { processed: b.processedItems, total: b.totalItems, percent: b.progressPercent } }}
+    </p>
+    <dl class="row g-2 mb-0">
+      <div class="col-6 col-md-3">
+        <dt class="small text-muted">{{ 'warehouse.progress.total' | transloco }}</dt>
+        <dd class="fs-5 fw-bold mb-0">{{ b.totalItems }}</dd>
+      </div>
+      <div class="col-6 col-md-3">
+        <dt class="small text-muted">{{ 'warehouse.progress.succeeded' | transloco }}</dt>
+        <dd class="fs-5 fw-bold mb-0" data-testid="warehouse-progress-succeeded">{{ b.succeededItems }}</dd>
+      </div>
+      <div class="col-6 col-md-3">
+        <dt class="small text-muted">{{ 'warehouse.progress.failed' | transloco }}</dt>
+        <dd class="fs-5 fw-bold mb-0" data-testid="warehouse-progress-failed">{{ b.failedItems }}</dd>
+      </div>
+      <div class="col-6 col-md-3">
+        <dt class="small text-muted">{{ 'warehouse.progress.createdAt' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ b.createdAt | hlDate: 'datetime' }}</dd>
+      </div>
+    </dl>
+    @if (!isFinal(b)) {
+      <p class="small text-muted mt-3 mb-0">{{ 'warehouse.progress.polling' | transloco }}</p>
+    }
+  </section>
+
+  @if (b.items && b.items.length > 0) {
+    <section class="hl-card mb-4" aria-labelledby="warehouse-progress-items-title">
+      <div class="card-header p-3">
+        <h2 id="warehouse-progress-items-title" class="section-title">{{ 'warehouse.progress.items.title' | transloco }}</h2>
+      </div>
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'warehouse.progress.items.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'warehouse.progress.items.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="text-end">{{ 'warehouse.progress.items.col.line' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.progress.items.col.bl' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.progress.items.col.container' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.progress.items.col.destination' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.progress.items.col.status' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.progress.items.col.detail' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of b.items; track item.lineNumber) {
+              <tr>
+                <td class="text-end">{{ item.lineNumber }}</td>
+                <td class="fw-semibold">{{ item.blNumber }}</td>
+                <td>{{ item.containerNumber ?? '—' }}</td>
+                <td>{{ item.toWarehouse }}</td>
+                <td>{{ item.status | codeLabel: itemStatusKeys }}</td>
+                <td class="small">
+                  @if (item.errorCode) {
+                    {{ item.errorCode | codeLabel: errorKeys }}
+                  } @else if (item.status === 'Succeeded') {
+                    {{ 'warehouse.progress.items.done' | transloco }}
+                  } @else {
+                    <span aria-hidden="true">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  <a routerLink="/warehouse" class="btn btn-outline-secondary">{{ 'warehouse.progress.back' | transloco }}</a>
+}

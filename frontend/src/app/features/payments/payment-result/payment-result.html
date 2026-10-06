@@ -1,0 +1,197 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'paymentResult.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/payment-history">{{ 'paymentResult.breadcrumbHistory' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ 'paymentResult.breadcrumbCurrent' | transloco }}</li>
+    </ol>
+  </nav>
+  <h1>{{ 'paymentResult.title' | transloco }}</h1>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (data(); as d) {
+  @let p = d.payment;
+  <!-- Estado único del pago, sin ambigüedad sobre el cobro (NF-02, NF-12) -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="payment-result-status-title">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+      <h2 id="payment-result-status-title" class="section-title">{{ 'paymentResult.paymentTitle' | transloco: { number: p.paymentNumber } }}</h2>
+      <span class="hl-badge" [class]="statusClass()" data-testid="payment-result-status">{{ p.status | codeLabel: statusKeys }}</span>
+    </div>
+
+    @switch (p.status) {
+      @case ('Confirmed') {
+        <div class="alert alert-success" data-testid="payment-result-message">
+          <p class="fw-bold mb-1">{{ 'paymentResult.confirmed.title' | transloco }}</p>
+          <p class="mb-0">{{ 'paymentResult.confirmed.text' | transloco: { receipt: p.receiptNumber ?? '—', total: (p.totalAmount | hlCurrency: p.currency) } }}</p>
+          @if (d.releasePending) {
+            <p class="small mb-0 mt-1">{{ 'paymentResult.confirmed.releasePending' | transloco }}</p>
+          }
+        </div>
+        <a [routerLink]="['/payment-history', p.id]" class="btn btn-outline-secondary">{{ 'paymentResult.viewReceipt' | transloco }}</a>
+        <!-- Documentos que emite el pago: se publican en el repositorio del embarque (M6-01, M6-03, M6-09) -->
+        @if (documentBls().length > 0) {
+          <div class="mt-3" data-testid="payment-result-documents">
+            <h3 class="h6 fw-bold">{{ 'paymentResult.documents.title' | transloco }}</h3>
+            <p class="small mb-2">{{ 'paymentResult.documents.text' | transloco }}</p>
+            <ul class="mb-0">
+              @for (bl of documentBls(); track bl) {
+                <li><a [routerLink]="['/shipments', bl, 'documents']">{{ 'paymentResult.documents.link' | transloco: { bl: bl } }}</a></li>
+              }
+            </ul>
+          </div>
+        }
+      }
+      @case ('Failed') {
+        <div class="alert alert-danger" data-testid="payment-result-message">
+          <p class="fw-bold mb-1">{{ 'paymentResult.failed.title' | transloco }}</p>
+          <p class="mb-0">{{ (p.failureReason ? (p.failureReason | codeLabel: failureKeys) : ('paymentResult.failed.generic' | transloco)) }}</p>
+          <p class="mb-0 mt-1">{{ 'paymentResult.failed.noCharge' | transloco }}</p>
+        </div>
+        <a routerLink="/cart" class="btn btn-hl-orange">{{ 'paymentResult.backToCart' | transloco }}</a>
+      }
+      @case ('Cancelled') {
+        <div class="alert alert-secondary" data-testid="payment-result-message">
+          <p class="fw-bold mb-1">{{ 'paymentResult.cancelled.title' | transloco }}</p>
+          <p class="mb-0">{{ 'paymentResult.cancelled.text' | transloco }}</p>
+        </div>
+        <a routerLink="/cart" class="btn btn-outline-secondary">{{ 'paymentResult.backToCart' | transloco }}</a>
+      }
+      @case ('PendingVerification') {
+        <div class="alert alert-info" data-testid="payment-result-message">
+          <h3 #slipHeading class="h6 fw-bold" tabindex="-1">{{ 'paymentResult.slip.issuedTitle' | transloco }}</h3>
+          <p class="mb-1" data-testid="payment-result-slip">{{ 'paymentResult.slip.issued' | transloco: { slip: p.slipNumber ?? '—', date: (p.slipIssuedAt | hlDate: 'datetime'), total: (p.totalAmount | hlCurrency: p.currency) } }}</p>
+          <p class="mb-0">{{ 'paymentResult.slip.verification' | transloco }}</p>
+        </div>
+      }
+      @default {
+        @if (d.canIssueSlip) {
+          <!-- Depósito: boleta por emitir; al emitirla ya no se puede anular (M5-02) -->
+          <div class="alert alert-warning" data-testid="payment-result-message">
+            <p class="fw-bold mb-1">{{ 'paymentResult.slip.pendingTitle' | transloco }}</p>
+            <p class="mb-0">{{ 'paymentResult.slip.pendingText' | transloco: { slip: p.slipNumber ?? '—', total: (p.totalAmount | hlCurrency: p.currency) } }}</p>
+          </div>
+          <button type="button" class="btn btn-hl-orange me-2" [disabled]="actionBusy()" (click)="issueSlip()">{{ 'paymentResult.slip.issue' | transloco }}</button>
+        } @else {
+          <div class="alert alert-info d-flex gap-2 align-items-start" data-testid="payment-result-message">
+            @if (polling()) {
+              <span class="spinner-border spinner-border-sm mt-1" aria-hidden="true"></span>
+            }
+            <div>
+              <p class="fw-bold mb-1">{{ 'paymentResult.processing.title' | transloco }}</p>
+              <p class="mb-0">{{ 'paymentResult.processing.text' | transloco }}</p>
+            </div>
+          </div>
+          @if (pollExhausted()) {
+            <p class="small" role="note">{{ 'paymentResult.processing.stillWaiting' | transloco }}</p>
+            <button type="button" class="btn btn-outline-secondary" (click)="load()">{{ 'paymentResult.processing.checkAgain' | transloco }}</button>
+          }
+        }
+      }
+    }
+
+    @if (actionError()) {
+      <div class="alert alert-danger py-2 mt-3" role="alert">{{ actionError() }}</div>
+    }
+
+    <!-- Anulación por el cliente: solo antes de emitir la boleta o enviar el pago (M5-02) -->
+    @if (d.canCancel) {
+      <div class="mt-3">
+        @if (confirmingCancel()) {
+          <p class="small mb-2">{{ 'paymentResult.cancel.question' | transloco }}</p>
+          <button type="button" class="btn btn-sm btn-outline-danger me-2" [disabled]="actionBusy()" (click)="cancel()">{{ 'paymentResult.cancel.confirm' | transloco }}</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="keepPayment()">{{ 'paymentResult.cancel.keep' | transloco }}</button>
+        } @else {
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="askCancel()">{{ 'paymentResult.cancel.button' | transloco }}</button>
+        }
+      </div>
+    } @else if (d.cancelDeniedReason && d.cancelDeniedReason !== 'FINAL') {
+      <p class="small mt-3 mb-0" role="note" data-testid="payment-result-cancel-denied">{{ d.cancelDeniedReason | codeLabel: deniedKeys }}</p>
+    }
+  </section>
+
+  <!-- Detalle: un ítem por servicio pagado (M5-01) -->
+  <section class="hl-card mb-4" aria-labelledby="payment-result-items-title">
+    <div class="card-header p-3">
+      <h2 id="payment-result-items-title" class="section-title">{{ 'paymentResult.items.title' | transloco }}</h2>
+    </div>
+    <dl class="row g-3 p-3 mb-0">
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentResult.items.method' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.method ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentResult.items.total' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.totalAmount | hlCurrency: p.currency }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentResult.items.reference' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.externalReference ?? ref() ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentResult.items.createdAt' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.createdAt | hlDate: 'datetime' }}</dd>
+      </div>
+    </dl>
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'paymentResult.items.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'paymentResult.items.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'paymentResult.items.col.service' | transloco }}</th>
+            <th scope="col">{{ 'paymentResult.items.col.bl' | transloco }}</th>
+            <th scope="col">{{ 'paymentResult.items.col.billing' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'paymentResult.items.col.amount' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of p.items; track item.id) {
+            <tr>
+              <td>
+                <span class="fw-semibold d-block">{{ conceptLabel(item.conceptCode, item.description) }}</span>
+                <span class="small text-muted">{{ item.itemType | codeLabel: typeKeys }}</span>
+              </td>
+              <td>{{ item.blNumber ?? item.bookingNumber ?? '—' }}</td>
+              <td>{{ item.billingTaxId ?? '—' }}</td>
+              <td class="text-end">{{ item.totalAmount | hlCurrency: item.currency }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Historial de estados con fecha y hora (NF-02) -->
+  <section class="hl-card mb-4" aria-labelledby="payment-result-history-title">
+    <div class="card-header p-3">
+      <h2 id="payment-result-history-title" class="section-title">{{ 'paymentResult.history.title' | transloco }}</h2>
+    </div>
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'paymentResult.history.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'paymentResult.history.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'paymentResult.history.col.date' | transloco }}</th>
+            <th scope="col">{{ 'paymentResult.history.col.status' | transloco }}</th>
+            <th scope="col">{{ 'paymentResult.history.col.by' | transloco }}</th>
+            <th scope="col">{{ 'paymentResult.history.col.reason' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (change of d.history; track $index) {
+            <tr>
+              <td>{{ change.changedAt | hlDate: 'datetimeSeconds' }}</td>
+              <td>{{ change.toStatus | codeLabel: statusKeys }}</td>
+              <td>{{ change.changedBy }}</td>
+              <td>{{ change.reason ?? '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

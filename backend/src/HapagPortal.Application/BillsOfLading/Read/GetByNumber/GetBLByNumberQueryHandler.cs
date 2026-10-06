@@ -3,31 +3,37 @@ namespace HapagPortal.Application.BillsOfLading.Read.GetByNumber;
 using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
 public sealed class GetBLByNumberQueryHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService currentUserService)
+    IShipmentAccessEvaluator accessEvaluator)
     : IQueryHandler<GetBLByNumberQuery, BillOfLadingResponseDto>
 {
     public async Task<Result<BillOfLadingResponseDto>> Handle(
         GetBLByNumberQuery request,
         CancellationToken cancellationToken)
     {
-        var bl = await dbContext.BillsOfLading
-            .AsNoTracking()
+        var scope = await accessEvaluator.GetScopeAsync(cancellationToken);
+
+        var bl = await accessEvaluator.FilterAccessible(dbContext.BillsOfLading.AsNoTracking(), scope)
             .Include(b => b.Containers)
             .Include(b => b.Client)
             .Include(b => b.Payments)
             .FirstOrDefaultAsync(b => b.BLNumber == request.BLNumber, cancellationToken);
 
-        if (bl is null || bl.ClientId != currentUserService.ClientId)
+        // Sin acceso se responde NotFound: no se revela la existencia de un BL ajeno.
+        if (bl is null ||
+            !(await accessEvaluator.EvaluateAsync(scope, bl, cancellationToken)).Can(ShipmentActionCodes.ViewShipment))
+        {
             return Result<BillOfLadingResponseDto>.Failure(
                 DomainErrors.BillOfLading.NotFoundByNumber(request.BLNumber));
+        }
 
-        var freightStatus = bl.Payments?.Any(p => p.PaymentType == "Freight" && p.Status == "Confirmed") == true
+        var freightStatus = (bl.FreightPaidAt != null || bl.Payments?.Any(p => p.PaymentType == "Freight" && p.Status == "Confirmed") == true)
             ? "PAID" : "PENDING";
 
         var dto = new BillOfLadingResponseDto(
@@ -55,7 +61,8 @@ public sealed class GetBLByNumberQueryHandler(
                 c.ContainerType,
                 c.SealNumber,
                 c.Weight,
-                c.Status)).ToList());
+                c.Status)).ToList(),
+            bl.BookingNumber);
 
         return Result<BillOfLadingResponseDto>.Success(dto);
     }

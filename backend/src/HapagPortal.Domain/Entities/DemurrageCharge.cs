@@ -17,5 +17,10 @@ public sealed class DemurrageCharge : BaseAuditableEntity
     public string? ExemptReason { get; set; }
     public Guid BillOfLadingId { get; set; }
 
+    // M3-18: factura de demurrage emitida. Con factura, el BL no admite un nuevo cálculo.
+    public string? InvoiceNumber { get; set; }
+    public DateTime? InvoicedAt { get; set; }
+    public DateTime? InvoiceDueDate { get; set; }
+
     public BillOfLading BillOfLading { get; set; } = null!;
 }

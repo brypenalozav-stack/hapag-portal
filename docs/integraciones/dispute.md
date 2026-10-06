@@ -25,3 +25,8 @@ El módulo de Dispute de productos digitales existe como sitio web de Hapag-Lloy
 1. URL del sitio de Dispute para Chile y Bolivia, y si existe versión en inglés.
 2. Si el sitio acepta el número de BL como parámetro de consulta.
 3. Pantallas del portal donde debe aparecer el acceso.
+
+## Implementación en el portal (Ola F)
+
+- `GET /api/v1/config/dispute-link?country=CL|BO` devuelve la URL del país del usuario (o la indicada), si está configurada y si se abre en una pestaña nueva. No envía datos del usuario ni del embarque.
+- La URL se toma del parámetro global del portal `portal.dispute-url.<país>` (editable sin desplegar en `/api/v1/configuration/settings`) y, si no existe, de `PortalLinks:Dispute:<país>` en la configuración del despliegue. Hoy ambas apuntan al sitio general de Hapag-Lloyd hasta que Customer Service confirme la URL de Dispute (punto 1).

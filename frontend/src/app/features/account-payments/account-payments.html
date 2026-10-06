@@ -1,0 +1,174 @@
+<div class="hl-page-header">
+  <h1>{{ 'accountPayments.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'accountPayments.subtitle' | transloco }}</p>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (notCredit()) {
+  <div class="alert alert-info" role="note" data-testid="account-payments-not-credit">
+    <p class="mb-2">{{ 'accountPayments.notCredit' | transloco }}</p>
+    <a routerLink="/cart" class="btn btn-sm btn-hl-orange">{{ 'accountPayments.goToCart' | transloco }}</a>
+  </div>
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">
+    <p class="mb-2">{{ error() }}</p>
+    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="load()">{{ 'accountPayments.retry' | transloco }}</button>
+  </div>
+} @else if (data(); as d) {
+  <app-payment-block-banner [status]="block()" />
+
+  <!-- Condición de crédito leída de Nexus (M8-02) -->
+  <p class="small text-muted" data-testid="account-payments-conditions">
+    {{ 'accountPayments.conditions' | transloco: { name: d.organization.name, taxId: d.organization.taxId, days: d.conditions.creditDays ?? '—' } }}
+  </p>
+  @if (!canOperate()) {
+    <div class="alert alert-info" role="note">{{ 'accountPayments.readOnly' | transloco }}</div>
+  }
+
+  @if (d.items.length === 0) {
+    <app-state-message kind="empty" [messageKey]="'accountPayments.empty'" />
+  } @else {
+    <section class="hl-card mb-4" aria-labelledby="account-payments-items-title">
+      <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h2 id="account-payments-items-title" class="section-title">{{ 'accountPayments.items.title' | transloco }}</h2>
+        <span class="small text-muted">{{ 'accountPayments.items.evaluatedAt' | transloco: { date: (d.evaluatedAt | hlDate: 'datetime') } }}</span>
+      </div>
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'accountPayments.items.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'accountPayments.items.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">
+                <input class="form-check-input" type="checkbox" id="account-payments-all" [checked]="allSelected()" (change)="toggleAll($event)"
+                       [attr.aria-label]="'accountPayments.items.selectAll' | transloco" />
+              </th>
+              <th scope="col">{{ 'accountPayments.items.col.service' | transloco }}</th>
+              <th scope="col">{{ 'accountPayments.items.col.reference' | transloco }}</th>
+              <th scope="col">{{ 'accountPayments.items.col.billing' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'accountPayments.items.col.amount' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of d.items; track itemKey(item)) {
+              <tr>
+                <td>
+                  <input class="form-check-input" type="checkbox" [id]="'account-item-' + item.sourceId" [checked]="isSelected(item)" (change)="toggle(item, $event)"
+                         [attr.aria-label]="'accountPayments.items.selectLabel' | transloco: { concept: conceptLabel(item), bl: item.blNumber ?? item.description ?? '' }" />
+                </td>
+                <td>
+                  <span class="fw-semibold d-block">{{ conceptLabel(item) }}</span>
+                  <span class="small text-muted d-block">{{ item.itemType | codeLabel: typeKeys }}</span>
+                  @if (item.description) {
+                    <span class="small text-muted d-block">{{ item.description }}</span>
+                  }
+                </td>
+                <td>
+                  {{ item.blNumber ?? '—' }}
+                  @if (item.bookingNumber) {
+                    <span class="small text-muted d-block">{{ 'accountPayments.items.booking' | transloco: { booking: item.bookingNumber } }}</span>
+                  }
+                </td>
+                <td class="small">{{ billingOf(item) }}</td>
+                <td class="text-end">{{ item.totalAmount | hlCurrency: item.currency }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (d.totals.length > 0) {
+        <dl class="row g-2 p-3 mb-0">
+          @for (t of d.totals; track t.currency) {
+            <div class="col-sm-6 col-lg-3">
+              <dt class="small text-muted">{{ 'accountPayments.items.pendingTotal' | transloco: { currency: t.currency } }}</dt>
+              <dd class="fw-bold mb-0">{{ t.total | hlCurrency: t.currency }}</dd>
+            </div>
+          }
+        </dl>
+      }
+    </section>
+
+    <!-- Un solo pago con los ítems elegidos -->
+    <section class="hl-card p-4 mb-4" aria-labelledby="account-payments-pay-title">
+      <h2 id="account-payments-pay-title" class="section-title mb-3">{{ 'accountPayments.pay.title' | transloco }}</h2>
+      <p class="small" data-testid="account-payments-selection" aria-live="polite">{{ 'accountPayments.pay.selection' | transloco: { count: selectedItems().length } }}</p>
+
+      @if (mixedCountries()) {
+        <div class="alert alert-warning py-2" role="alert">{{ 'accountPayments.pay.mixedCountries' | transloco }}</div>
+      } @else if (selectedItems().length > 0) {
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label for="account-payments-currency" class="form-label small fw-semibold">{{ 'accountPayments.pay.currency' | transloco }}</label>
+            <select id="account-payments-currency" class="form-select" [disabled]="confirming()" (change)="onCurrency($event)" aria-describedby="account-payments-currency-help">
+              @for (c of currencies(); track c) {
+                <option [value]="c" [selected]="c === currency()">{{ c }}</option>
+              }
+            </select>
+            <div id="account-payments-currency-help" class="form-text">{{ 'accountPayments.pay.currencyHelp' | transloco }}</div>
+          </div>
+          <div class="col-md-8">
+            <p class="small fw-semibold mb-1">{{ 'accountPayments.pay.totals' | transloco }}</p>
+            <ul class="small mb-0">
+              @for (t of selectedTotals(); track t.currency) {
+                <li>{{ t.total | hlCurrency: t.currency }}</li>
+              }
+            </ul>
+            @if (needsConversion()) {
+              <p class="small text-muted mb-0">{{ 'accountPayments.pay.conversion' | transloco: { currency: currency() } }}</p>
+            }
+          </div>
+        </div>
+
+        @if (currencies().length === 0) {
+          <div class="alert alert-warning py-2" role="alert">{{ 'accountPayments.pay.noCurrency' | transloco }}</div>
+        } @else if (!methodsLoading() && methods().length === 0) {
+          <p class="small" role="note">{{ 'accountPayments.pay.noMethods' | transloco }}</p>
+        } @else {
+          <fieldset class="mb-3" [disabled]="confirming() || submitting()">
+            <legend class="form-label small fw-semibold mb-1">{{ 'accountPayments.pay.method' | transloco }}</legend>
+            @for (method of methods(); track method.code) {
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="account-payments-method" [id]="'account-method-' + method.code"
+                       [checked]="methodCode() === method.code" (change)="selectMethod(method.code)" />
+                <label class="form-check-label" [for]="'account-method-' + method.code">
+                  {{ 'accountPayments.pay.methodOption' | transloco: { name: method.name, kind: (method.kind | codeLabel: kindKeys) } }}
+                </label>
+              </div>
+            }
+          </fieldset>
+        }
+      }
+
+      @if (submitError()) {
+        <div class="alert alert-danger py-2" role="alert">{{ submitError() }}</div>
+      }
+
+      @if (confirming()) {
+        <div class="border rounded p-3" role="group" aria-labelledby="account-payments-confirm-title">
+          <h3 #confirmHeading id="account-payments-confirm-title" class="h6 fw-bold" tabindex="-1">{{ 'accountPayments.pay.confirmTitle' | transloco }}</h3>
+          <p class="small mb-3">{{ 'accountPayments.pay.confirmText' | transloco: { count: selectedItems().length, currency: currency(), method: selectedMethodName() } }}</p>
+          <button type="button" class="btn btn-hl-orange me-2" [disabled]="submitting() || payDisabled()" (click)="pay()">
+            @if (submitting()) {
+              <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            }
+            {{ 'accountPayments.pay.confirm' | transloco }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary" [disabled]="submitting()" (click)="cancelReview()">{{ 'accountPayments.pay.back' | transloco }}</button>
+        </div>
+      } @else {
+        <button type="button" class="btn btn-hl-orange" [disabled]="payDisabled()" (click)="review()" aria-describedby="account-payments-pay-help">
+          {{ 'accountPayments.pay.review' | transloco: { count: selectedItems().length } }}
+        </button>
+        <p id="account-payments-pay-help" class="small text-muted mt-2 mb-0">
+          @if (block()?.blocked) {
+            {{ 'accountPayments.pay.disabledBlocked' | transloco }}
+          } @else {
+            {{ 'accountPayments.pay.help' | transloco }}
+          }
+        </p>
+      }
+    </section>
+  }
+}

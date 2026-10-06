@@ -5,8 +5,13 @@ import { NotificationService } from '../../core/services/notification.service';
 import { NotificationItem } from '../../core/models/notification.model';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
 import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
+import { NOTIFICATION_TYPE_KEYS } from '../../core/i18n/labels';
 
-/** Centro de notificaciones del usuario: lista, marcar leída y marcar todas. */
+/**
+ * Centro de notificaciones del usuario: lista, marcar leída y marcar todas. Los tipos conocidos
+ * (accesos otorgados, modificados, revocados, vencidos y revocados en cadena: M1-12, M1-14,
+ * M1-22) muestran el título traducido; el resto, el título que envía el servidor.
+ */
 @Component({
   selector: 'app-notifications',
   standalone: true,
@@ -17,6 +22,8 @@ import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 export class NotificationsComponent implements OnInit {
   private readonly service = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly typeKeys = NOTIFICATION_TYPE_KEYS;
 
   items = signal<NotificationItem[]>([]);
   loading = signal(false);

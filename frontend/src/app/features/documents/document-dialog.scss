@@ -1,0 +1,49 @@
+// Diálogo modal nativo de las solicitudes de documentos (Ola E), con el mismo aspecto que el de agregar al carro.
+.hl-dialog {
+  width: min(44rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  padding: 0;
+  border: 1px solid var(--hl-border);
+  border-radius: 0.5rem;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+
+  &::backdrop {
+    background-color: rgb(0 0 0 / 50%);
+  }
+}
+
+.hl-dialog__header,
+.hl-dialog__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.hl-dialog__header {
+  justify-content: space-between;
+  border-bottom: 1px solid var(--hl-border);
+}
+
+.hl-dialog__footer {
+  justify-content: flex-end;
+  border-top: 1px solid var(--hl-border);
+}
+
+.hl-dialog__body {
+  padding: 1rem 1.25rem;
+}
+
+// Error de cada campo: sobre el fondo del diálogo (--bs-body-bg) el rojo por defecto no llega a 4,5:1
+// (WCAG 1.4.3); el tono de énfasis de Bootstrap sí, en ambos temas.
+.invalid-feedback {
+  color: var(--bs-danger-text-emphasis);
+}
+
+// Texto de los términos de la carta: se recorre con teclado dentro de su región.
+.document-terms {
+  max-height: 12rem;
+  overflow-y: auto;
+  white-space: pre-line;
+}

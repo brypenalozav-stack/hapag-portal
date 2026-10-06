@@ -1,0 +1,130 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.accessMatrix.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.accessMatrix.subtitle' | transloco }}</p>
+</div>
+
+<!-- Lectura de las matrices (M1-11) -->
+<section class="hl-card p-3 mb-4" aria-labelledby="matrix-legend-title">
+  <h2 id="matrix-legend-title" class="h6 fw-bold">{{ 'admin.accessMatrix.legend' | transloco }}</h2>
+  <ul class="mb-0 small">
+    @for (level of levels; track level) {
+      <li>{{ level | codeLabel: levelHelpKeys }}</li>
+    }
+  </ul>
+</section>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (actions().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.accessMatrix.empty'" />
+} @else {
+  <div class="hl-card p-3 mb-4 d-flex flex-wrap align-items-center gap-2">
+    <span class="me-auto small">{{ 'admin.accessMatrix.pending' | transloco: { count: pendingCount() } }}</span>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="pendingCount() === 0 || saving()" (click)="discard()">
+      {{ 'admin.accessMatrix.discard' | transloco }}
+    </button>
+    <button type="button" class="btn btn-hl-orange" [disabled]="pendingCount() === 0 || saving()" (click)="save()">
+      @if (saving()) {
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+      }
+      {{ 'admin.accessMatrix.save' | transloco }}
+    </button>
+  </div>
+
+  @for (group of [
+    { id: 'information', rows: information(), titleKey: 'admin.accessMatrix.information.title', captionKey: 'admin.accessMatrix.information.caption' },
+    { id: 'administration', rows: administration(), titleKey: 'admin.accessMatrix.administration.title', captionKey: 'admin.accessMatrix.administration.caption' }
+  ]; track group.id) {
+    <section class="hl-card mb-4" [attr.aria-labelledby]="'matrix-' + group.id + '-title'">
+      <div class="card-header p-3">
+        <h2 [id]="'matrix-' + group.id + '-title'" class="h5 fw-bold mb-0">{{ group.titleKey | transloco }}</h2>
+      </div>
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="group.captionKey | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ group.captionKey | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.accessMatrix.col.action' | transloco }}</th>
+              @for (role of roles; track role) {
+                <th scope="col">{{ role | codeLabel: roleKeys }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (action of group.rows; track action.code) {
+              <tr>
+                <th scope="row" class="matrix-action">{{ action.code | codeLabel: actionKeys }}</th>
+                @for (role of roles; track role) {
+                  <td>
+                    <select class="form-select form-select-sm matrix-level"
+                            [class.matrix-level--changed]="isChanged(action, role)"
+                            [attr.aria-label]="'admin.accessMatrix.cellLabel' | transloco: { action: (action.code | codeLabel: actionKeys), role: (role | codeLabel: roleKeys) }"
+                            (change)="onLevelChange(action, role, null, $event)">
+                      @for (level of levels; track level) {
+                        <option [value]="level" [selected]="levelOf(action, role) === level">{{ level | codeLabel: levelKeys }}</option>
+                      }
+                    </select>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  <!-- Excepciones por tipo de organización (p. ej. Freight Forwarder) -->
+  @if (exceptions().length > 0) {
+    <section class="hl-card mb-4" aria-labelledby="matrix-exceptions-title">
+      <div class="card-header p-3">
+        <h2 id="matrix-exceptions-title" class="h5 fw-bold mb-1">{{ 'admin.accessMatrix.exceptions.title' | transloco }}</h2>
+        <p class="small text-muted mb-0">{{ 'admin.accessMatrix.exceptions.help' | transloco }}</p>
+      </div>
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.accessMatrix.exceptions.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.accessMatrix.exceptions.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.accessMatrix.col.action' | transloco }}</th>
+              <th scope="col">{{ 'admin.accessMatrix.exceptions.organizationType' | transloco }}</th>
+              <th scope="col">{{ 'admin.accessMatrix.exceptions.role' | transloco }}</th>
+              <th scope="col">{{ 'admin.accessMatrix.exceptions.level' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (exception of exceptions(); track exception.action.code + exception.level.role + exception.level.organizationType) {
+              <tr>
+                <th scope="row" class="matrix-action">{{ exception.action.code | codeLabel: actionKeys }}</th>
+                <td>{{ exception.level.organizationType | codeLabel: typeKeys }}</td>
+                <td>{{ exception.level.role | codeLabel: roleKeys }}</td>
+                <td>
+                  <select class="form-select form-select-sm matrix-level"
+                          [class.matrix-level--changed]="isChanged(exception.action, exception.level.role, exception.level.organizationType)"
+                          [attr.aria-label]="'admin.accessMatrix.exceptionCellLabel' | transloco: {
+                            action: (exception.action.code | codeLabel: actionKeys),
+                            role: (exception.level.role | codeLabel: roleKeys),
+                            type: (exception.level.organizationType | codeLabel: typeKeys)
+                          }"
+                          (change)="onLevelChange(exception.action, exception.level.role, exception.level.organizationType, $event)">
+                    @for (level of levels; track level) {
+                      <option [value]="level" [selected]="levelOf(exception.action, exception.level.role, exception.level.organizationType) === level">
+                        {{ level | codeLabel: levelKeys }}
+                      </option>
+                    }
+                  </select>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}

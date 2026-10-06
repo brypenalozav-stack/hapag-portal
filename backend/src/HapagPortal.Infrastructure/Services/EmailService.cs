@@ -8,7 +8,15 @@ namespace HapagPortal.Infrastructure.Services;
 
 public sealed class EmailService(IConfiguration configuration, ILogger<EmailService> logger) : IEmailService
 {
-    public async Task SendEmailAsync(string to, string subject, string body, CancellationToken cancellationToken = default)
+    public Task SendEmailAsync(string to, string subject, string body, CancellationToken cancellationToken = default) =>
+        SendEmailAsync(to, subject, body, [], cancellationToken);
+
+    public async Task SendEmailAsync(
+        string to,
+        string subject,
+        string body,
+        IReadOnlyList<EmailAttachment> attachments,
+        CancellationToken cancellationToken = default)
     {
         var host = configuration["Smtp:Host"];
 
@@ -16,7 +24,8 @@ public sealed class EmailService(IConfiguration configuration, ILogger<EmailServ
         {
             // Sin SMTP configurado (p.ej. desarrollo): se registra en el log en vez de enviar.
             logger.LogInformation(
-                "Email not sent (SMTP not configured) - To: {To}, Subject: {Subject}", to, subject);
+                "Email not sent (SMTP not configured) - To: {To}, Subject: {Subject}, Attachments: {Attachments}",
+                to, subject, attachments.Count);
             return;
         }
 
@@ -27,6 +36,13 @@ public sealed class EmailService(IConfiguration configuration, ILogger<EmailServ
         var enableSsl = !bool.TryParse(configuration["Smtp:EnableSsl"], out var ssl) || ssl;
 
         using var message = new MailMessage(from, to, subject, body);
+        foreach (var attachment in attachments)
+        {
+            // El adjunto toma posesión del stream y lo libera con el mensaje.
+            message.Attachments.Add(new Attachment(
+                new MemoryStream(attachment.Content, writable: false), attachment.FileName, attachment.ContentType));
+        }
+
         using var client = new SmtpClient(host, port) { EnableSsl = enableSsl };
 
         if (!string.IsNullOrWhiteSpace(smtpUser))
