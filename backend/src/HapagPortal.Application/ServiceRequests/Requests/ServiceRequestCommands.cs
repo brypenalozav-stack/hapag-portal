@@ -317,7 +317,7 @@ public sealed class QuoteServiceRequestQueryHandler(
         if (definition is null || !ServiceCatalogEvaluator.Applies(definition, context.BillOfLading, context.Permissions))
             return Result<ServiceQuoteDto>.Failure(DomainErrors.ServiceDefinition.NotFoundByCode(code));
         if (ServiceDefinitionCodes.DedicatedFlow.Contains(definition.Code))
-            return Result<ServiceQuoteDto>.Failure(DomainErrors.Reinvoicing.UseDedicatedFlow);
+            return Result<ServiceQuoteDto>.Failure(DomainErrors.ServiceRequest.UseDedicatedFlow(definition.Code));
 
         var input = await workflow.ValidateInputAsync(definition, context.BillOfLading, null, request.InputValuesJson, requireComplete: false, cancellationToken);
         if (input.IsFailure)
@@ -356,7 +356,7 @@ public sealed class CreateServiceRequestCommandHandler(
         if (definition is null || !ServiceCatalogEvaluator.Applies(definition, context.BillOfLading, context.Permissions))
             return Result<ServiceRequestDetailDto>.Failure(DomainErrors.ServiceDefinition.NotFoundByCode(code));
         if (ServiceDefinitionCodes.DedicatedFlow.Contains(definition.Code))
-            return Result<ServiceRequestDetailDto>.Failure(DomainErrors.Reinvoicing.UseDedicatedFlow);
+            return Result<ServiceRequestDetailDto>.Failure(DomainErrors.ServiceRequest.UseDedicatedFlow(definition.Code));
 
         // M1-11: solicitar exige la acción de la definición y un perfil que opere; M1-18: asociarse antes.
         if (!context.Permissions.CanExecute(definition.ActionCode))
@@ -438,7 +438,7 @@ public sealed class UpdateServiceRequestCommandHandler(
 
         var serviceRequest = own.Value.Request;
         if (ServiceDefinitionCodes.DedicatedFlow.Contains(serviceRequest.DefinitionCode))
-            return Result<ServiceRequestDetailDto>.Failure(DomainErrors.Reinvoicing.UseDedicatedFlow);
+            return Result<ServiceRequestDetailDto>.Failure(DomainErrors.ServiceRequest.UseDedicatedFlow(serviceRequest.DefinitionCode));
         if (serviceRequest.Status != ServiceRequestStatus.Draft)
             return Result<ServiceRequestDetailDto>.Failure(DomainErrors.ServiceRequest.NotEditable);
 
@@ -492,7 +492,7 @@ public sealed class SubmitServiceRequestCommandHandler(
 
         var serviceRequest = own.Value.Request;
         if (ServiceDefinitionCodes.DedicatedFlow.Contains(serviceRequest.DefinitionCode))
-            return Result<ServiceRequestDetailDto>.Failure(DomainErrors.Reinvoicing.UseDedicatedFlow);
+            return Result<ServiceRequestDetailDto>.Failure(DomainErrors.ServiceRequest.UseDedicatedFlow(serviceRequest.DefinitionCode));
 
         var context = await ServiceShipmentLoader.LoadByIdAsync(dbContext, accessEvaluator, serviceRequest.BillOfLadingId, cancellationToken);
         if (context.IsFailure)

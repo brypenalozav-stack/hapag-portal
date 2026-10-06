@@ -334,6 +334,35 @@ public static class DomainErrors
             new("ResponsibilityLetter.TermsVersionMismatch", $"The accepted terms are not the current version '{current}'.");
     }
 
+    /// <summary>Certificado de flete, importación de Bolivia (M6-02).</summary>
+    public static class FreightCertificate
+    {
+        public static readonly Error NotApplicable =
+            new("FreightCertificate.NotApplicable", "The freight certificate is only issued for Bolivia import shipments.");
+    }
+
+    /// <summary>Carta de liberación y desconsolidado, importación de Bolivia (M6-08).</summary>
+    public static class ReleaseLetter
+    {
+        public static readonly Error NotApplicable =
+            new("ReleaseLetter.NotApplicable", "The release and deconsolidation letter is only issued for Bolivia import shipments.");
+
+        public static readonly Error AlreadyRequested =
+            new("ReleaseLetter.AlreadyRequested", "A release letter of your organization for some of the selected containers is pending approval.");
+
+        public static readonly Error CarrierRequired =
+            new("ReleaseLetter.CarrierRequired", "Indicate a registered carrier or the carrier's name and tax ID.");
+
+        public static readonly Error CarrierNotFound =
+            new("ReleaseLetter.CarrierNotFound", "The selected carrier is not a registered carrier organization.");
+
+        public static Error TatcNotIssued(string containers) =>
+            new("ReleaseLetter.TatcNotIssued", $"The TATC of the selected containers must be issued before approving the letter: {containers}.");
+
+        public static readonly Error TatcUnavailable =
+            new("ReleaseLetter.TatcUnavailable", "The TATC system did not answer; the letter cannot be approved until its status is known.");
+    }
+
     /// <summary>Certificado de libre deuda (M6-07).</summary>
     public static class NoDebtCertificate
     {
@@ -693,6 +722,9 @@ public static class DomainErrors
 
         public static readonly Error NoRecipient =
             new("AssistantSession.NoRecipient", "There is no e-mail address to send the conversation transcript to.");
+
+        public static Error DeliveryNotFound(Guid id) =>
+            new("AssistantDelivery.NotFound", $"The document delivery '{id}' was not found.");
     }
 
     /// <summary>Definiciones de servicios on demand (M2-03, M2-04).</summary>
@@ -767,6 +799,12 @@ public static class DomainErrors
 
         public static readonly Error UnknownFileField =
             new("ServiceRequest.UnknownFileField", "The field is not a file field of the service form.");
+
+        /// <summary>El servicio se solicita por su flujo propio (refacturación IAO, certificado de flete, carta de liberación).</summary>
+        public static Error UseDedicatedFlow(string definitionCode) =>
+            definitionCode == Constants.ServiceDefinitionCodes.IaoReinvoicing
+                ? Reinvoicing.UseDedicatedFlow
+                : new("ServiceRequest.UseDedicatedFlow", $"The service '{definitionCode}' is requested from the shipment documents (/documents), not from the shipment services.");
     }
 
     /// <summary>Base de referencia de mercancías peligrosas (M10-06).</summary>
@@ -931,6 +969,46 @@ public static class DomainErrors
 
         public static readonly Error NotActive =
             new("ParentLink.NotActive", "The parent company link is not active.");
+    }
+
+    /// <summary>Clientes del canal Web Service y sus claves (M3-17, NF-09).</summary>
+    public static class ApiClient
+    {
+        public static Error NotFound(Guid id) =>
+            new("ApiClient.NotFound", $"The web service client '{id}' was not found.");
+
+        public static Error KeyNotFound(Guid id) =>
+            new("ApiClientKey.NotFound", $"The key '{id}' was not found.");
+
+        public static readonly Error InvalidKey =
+            new("WebService.InvalidApiKey", "The API key is missing, unknown, expired or revoked.");
+
+        public static readonly Error AlreadyRevoked =
+            new("ApiClient.AlreadyRevoked", "The web service client is already revoked.");
+
+        public static readonly Error OrganizationNotAllowed =
+            new("ApiClient.OrganizationNotAllowed", "Web service clients are created for approved client organizations only.");
+
+        public static Error ScopeNotGranted(string scope) =>
+            new("WebService.ScopeNotGranted", $"The client is not enabled for '{scope}'.");
+
+        public static readonly Error SignatoryNotConfigured =
+            new("WebService.SignatoryNotConfigured", "The organization has no signatory configured for the responsibility letter on this channel.");
+
+        public static readonly Error RateLimited =
+            new("WebService.RateLimited", "Too many requests for this client in the last minute. Retry later.");
+
+        public static readonly Error IdempotencyKeyRequired =
+            new("WebService.IdempotencyKeyRequired", "The Idempotency-Key header is required (1 to 100 characters).");
+
+        public static readonly Error IdempotencyKeyReused =
+            new("IdempotencyKey.Conflict", "The Idempotency-Key was already used with a different request.");
+
+        public static readonly Error IdempotencyInProgress =
+            new("IdempotencyKey.Conflict", "A request with the same Idempotency-Key is still being processed. Retry later.");
+
+        public static Error RequestNotFound(Guid id) =>
+            new("WebServiceRequest.NotFound", $"The request '{id}' was not found.");
     }
 
     public static class Integration

@@ -350,7 +350,9 @@ public sealed class AssistantTests
 
     [Theory]
     [InlineData("¿Cuál es el estado del BL HLCUVAL250100123?", AssistantIntents.ShipmentStatus)]
-    [InlineData("quiero descargar la copia del BL HLCUVAL250100123", AssistantIntents.ShipmentDocuments)]
+    [InlineData("documentos del BL HLCUVAL250100123", AssistantIntents.ShipmentDocuments)]
+    // M10-04 (Ola J): pedir un documento puntual por su nombre es una entrega de documentos.
+    [InlineData("quiero descargar la copia del BL HLCUVAL250100123", AssistantIntents.DocumentDelivery)]
     [InlineData("detalle de la factura HL-CL-2026-003987", AssistantIntents.InvoiceDetail)]
     [InlineData("¿cuánto debo?", AssistantIntents.PendingCharges)]
     [InlineData("estado del TATC HLCUSAI260400910", AssistantIntents.TatcStatus)]

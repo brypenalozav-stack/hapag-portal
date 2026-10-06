@@ -1,6 +1,8 @@
 namespace HapagPortal.UnitTests.Application.TestHelpers;
 
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Documents.Common;
+using HapagPortal.Application.Documents.ReleaseLetter;
 using HapagPortal.Application.Payments.Commands.Confirm;
 using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.Application.ServiceRequests.PostPayment;
@@ -81,7 +83,28 @@ public sealed class ServiceRequestsFixture
         return new(Db, actor.CurrentUser, actor.Evaluator(Db), Storage);
     }
 
-    public ApproveServiceRequestCommandHandler Approve() => new(Db, Internal, Workflow());
+    public ApproveServiceRequestCommandHandler Approve() => new(Db, Internal, Workflow(), ReleaseLetters());
+
+    /// <summary>Sistema de TATC simulado (M2-09) para la carta de liberación (M6-08): sin registro por defecto.</summary>
+    public ITatcProvider Tatc { get; } = CreateTatc();
+
+    // Generación documental de pruebas (Ola J) sobre el mismo contexto: PDF, firma, almacenamiento y correo simulados.
+    public FakePdfDocumentRenderer Renderer { get; } = new();
+    public InMemoryFileStorage DocumentStorage { get; } = new();
+    public FakeDocumentSigner Signer { get; } = new();
+    public IEmailService Email { get; } = Substitute.For<IEmailService>();
+    public DocumentSettings DocumentSettings { get; } = new();
+
+    public ShipmentDocumentService DocumentService() => new(Db, Renderer, Signer, DocumentStorage, Email, DocumentSettings);
+
+    public ReleaseLetterService ReleaseLetters() => new(Db, Tatc, DocumentService());
+
+    private static ITatcProvider CreateTatc()
+    {
+        var tatc = Substitute.For<ITatcProvider>();
+        tatc.GetByBlNumberAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Result<BlTatcRecord?>.Success(null));
+        return tatc;
+    }
 
     public RejectServiceRequestCommandHandler Reject() => new(Db, Internal, Workflow());
 

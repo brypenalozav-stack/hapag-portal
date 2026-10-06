@@ -43,6 +43,7 @@ public sealed class OllamaAssistantEngine(
             "Responde solo con JSON de la forma {\"intent\":\"<intención>\"}. Intenciones posibles: " +
             string.Join(", ", input.Intents) + ". Greeting: saludo. Knowledge: pregunta sobre procesos o procedimientos. " +
             "ShipmentStatus: estado, nave, ETA o emisión de un BL o booking. ShipmentDocuments: documentos de un embarque. " +
+            "DocumentDelivery: pide que se le entregue o envíe un documento puntual (copia del BL, certificado, carta, comprobante, cupón, boleta o factura). " +
             "PendingCharges: cargos o servicios pendientes de pago. InvoiceDetail: detalle de una factura. " +
             "TatcStatus: estado del TATC. No agregues texto fuera del JSON.";
 

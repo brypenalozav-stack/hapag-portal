@@ -42,6 +42,11 @@ public static class ChargeConceptCodes
     public const string Reinvoicing = "REINVOICING";
     public const string VatLoss = "VAT_LOSS";
 
+    // Fase 2 Ola J (Bolivia): certificado de flete (M6-02) y carta de liberación y desconsolidado (M6-08). Sin tarifa: la
+    // primera entrega no cobra; el concepto deja preparado el cobro en BOB cuando se defina y valide.
+    public const string FreightCertificate = "FREIGHT_CERTIFICATE";
+    public const string ReleaseLetter = "RELEASE_LETTER";
+
     // Recargos de origen ya presentes en los datos (semilla e importación).
     public const string Thc = "THC";
     public const string ThcReefer = "THC_RF";

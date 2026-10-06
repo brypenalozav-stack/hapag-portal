@@ -3,6 +3,7 @@ using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Impersonation;
 using HapagPortal.Application.PortalLinks;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Authentication;
 using HapagPortal.Infrastructure.Customs;
 using HapagPortal.Infrastructure.Documents;
@@ -56,7 +57,12 @@ public static partial class DependencyInjectionExtensions
 
         // Generación documental (Ola E): plantilla PDF con PDFsharp/MigraDoc y configuración "Documents".
         services.AddSingleton<IPdfDocumentRenderer, MigraDocPdfRenderer>();
-        services.AddSingleton(configuration.GetSection(DocumentSettings.SectionName).Get<DocumentSettings>() ?? new DocumentSettings());
+        var documentSettings = configuration.GetSection(DocumentSettings.SectionName).Get<DocumentSettings>() ?? new DocumentSettings();
+        // M6-02: la primera entrega del certificado de flete es sin pago; el modo pagado (BOB) aún no existe.
+        if (documentSettings.FreightCertificateMode != FreightCertificateModes.Free)
+            throw new InvalidOperationException(
+                $"Documents:FreightCertificateMode '{documentSettings.FreightCertificateMode}' is not available: only '{FreightCertificateModes.Free}' is supported until the BOB payment flow is defined.");
+        services.AddSingleton(documentSettings);
 
         // Ola I: «Vista como cliente» (M8-08), sección "Impersonation" (duración y escrituras permitidas; vacío = solo consulta).
         services.AddSingleton(configuration.GetSection(ImpersonationSettings.SectionName).Get<ImpersonationSettings>() ?? new ImpersonationSettings());

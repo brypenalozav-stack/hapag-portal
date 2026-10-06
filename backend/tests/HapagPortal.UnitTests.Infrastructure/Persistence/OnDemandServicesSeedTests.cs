@@ -71,9 +71,10 @@ public sealed class OnDemandServicesSeedTests : IDisposable
         var resolver = new TariffResolver(_context, new DummyTariffProvider(NullLogger<DummyTariffProvider>.Instance));
         var date = new DateOnly(2026, 10, 6);
 
-        // Ola H suma la refacturación IAO (M3-11), activa.
-        definitions.Should().HaveCount(12);
-        definitions.Count(d => d.IsActive).Should().Be(10);
+        // Ola H suma la refacturación IAO (M3-11), activa; Ola J, el certificado de flete (M6-02) y la carta de liberación
+        // y desconsolidado (M6-08), activos y sin cobro.
+        definitions.Should().HaveCount(14);
+        definitions.Count(d => d.IsActive).Should().Be(12);
         definitions.Where(d => !d.IsActive).Select(d => d.Code)
             .Should().BeEquivalentTo([ServiceDefinitionCodes.Opening, ServiceDefinitionCodes.Valuation]);
 
@@ -108,7 +109,9 @@ public sealed class OnDemandServicesSeedTests : IDisposable
             ServiceRequestStatus.Completed, ServiceRequestStatus.Rejected, ServiceRequestStatus.Cancelled,
             ServiceRequestStatus.Completed, ServiceRequestStatus.Draft,
             // Ola H: refacturación IAO pendiente de pago y de aceptación (M3-11).
-            ServiceRequestStatus.PendingPayment]);
+            ServiceRequestStatus.PendingPayment,
+            // Ola J: certificado de flete completado (M6-02) y carta de liberación pendiente de aprobación (M6-08).
+            ServiceRequestStatus.Completed, ServiceRequestStatus.PendingApproval]);
 
         foreach (var request in requests)
         {

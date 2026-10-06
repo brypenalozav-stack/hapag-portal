@@ -10,6 +10,7 @@ using HapagPortal.Application.Counter;
 using HapagPortal.Application.Demurrage.Common;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.PostPayment;
+using HapagPortal.Application.Documents.ReleaseLetter;
 using HapagPortal.Application.ExchangeRates.Common;
 using HapagPortal.Application.Impersonation;
 using HapagPortal.Application.Payments.Common;
@@ -22,6 +23,7 @@ using HapagPortal.Application.Shipments.Issuance;
 using HapagPortal.Application.ShoppingCart;
 using HapagPortal.Application.Tariffs.Common;
 using HapagPortal.Application.WarehouseChanges.Common;
+using HapagPortal.Application.WebService;
 using HapagPortal.Application.Common.Behaviors;
 using HapagPortal.Application.Common.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -82,6 +84,14 @@ public static class DependencyInjection
         services.AddScoped<TransactionReportBuilder>();
         services.AddScoped<CounterSynchronizer>();
         services.AddScoped<ImpersonationGuard>();
+
+        // Fase 2 Ola J: carta de liberación y desconsolidado con su vínculo TATC (M6-08).
+        services.AddScoped<ReleaseLetterService>();
+
+        // Fase 2 Ola J: canal de requerimientos vía Web Service (M3-17): autenticación por clave, bitácora, límite e
+        // idempotencia por cliente.
+        services.AddScoped<ApiClientAuthenticator>();
+        services.AddScoped<ApiClientRequestLog>();
 
         services.AddMediatR(config =>
         {

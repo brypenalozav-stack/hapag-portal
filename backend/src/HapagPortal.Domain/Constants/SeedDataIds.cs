@@ -303,6 +303,17 @@ public static class SeedDataIds
     public static readonly Guid ImpersonationSessionDemo = Guid.Parse("FFFFFFFF-0030-0030-0030-000000000001");
     public static readonly Guid ContactListChangeDemo = Guid.Parse("FFFFFFFF-0031-0031-0031-000000000001");
 
+    // Fase 2 Ola J — certificado de flete (M6-02), carta de liberación y desconsolidado (M6-08) y canal Web Service (M3-17)
+    public static readonly Guid ServiceDefinitionFreightCertificate = Guid.Parse("FFFFFFFF-0022-0022-0022-000000000002");
+    public static readonly Guid ServiceDefinitionReleaseLetter = Guid.Parse("FFFFFFFF-0022-0022-0022-000000000003");
+    public static readonly Guid ServiceRequestFreightCertificateBL05 = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000010");
+    public static readonly Guid ServiceRequestReleaseLetterBL04 = Guid.Parse("FFFFFFFF-0021-0021-0021-000000000011");
+    public static readonly Guid DocumentFreightCertificateBL05 = Guid.Parse("FFFFFFFF-0018-0018-0018-000000000006");
+    public static readonly Guid ReleaseLetterRequestBL04 = Guid.Parse("FFFFFFFF-0032-0032-0032-000000000001");
+    public static readonly Guid ApiClientImportadora = Guid.Parse("FFFFFFFF-0033-0033-0033-000000000001");
+    public static readonly Guid ApiClientImportadoraKey = Guid.Parse("FFFFFFFF-0033-0033-0033-000000000002");
+    public static readonly Guid ApiClientImportadoraUser = Guid.Parse("D4E5F6A7-0004-0004-0004-000000000092");
+
     // Audit Logs
     public static readonly Guid AuditLog01 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000001");
     public static readonly Guid AuditLog02 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000002");

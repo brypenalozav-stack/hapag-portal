@@ -62,6 +62,10 @@ Fichas: IDs de la especificación v3 más las fichas nuevas M2-10, M8-09 y M11-x
 | CT-DEP | [`deposito.md`](deposito.md) | Descripción del flujo actual de depósito y transferencia | Nexus/IT – Lucho (apoyo: Finanzas – Fer, Ricardo) | Sin puerto |
 | CT-DISP | [`dispute.md`](dispute.md) | Enlace al sitio de Dispute | Customer Service – Cami/Mati | Sin puerto |
 
+### Canal Web Service de clientes (M3-17, Ola J)
+
+API entrante del portal para clientes de alto volumen, no un sistema externo del inventario: [`ws-clientes.openapi.yaml`](ws-clientes.openapi.yaml) (CT-WS, PROPUESTA – pendiente de validación con Nexus/IT – Lucho, apoyo: Área Seguridad TI). Operaciones `GET /me`, `GET /responsibility-letters/terms`, `POST /responsibility-letters`, `POST /warehouse-changes`, `POST /warehouse-changes/bulk`, `GET /requests`, `GET /requests/{id}` bajo `/api/ws/v1`, con clave por cliente (`X-Api-Key`, rotación y revocación sin despliegue), alcances, límite por minuto e `Idempotency-Key`. Sin webhooks en esta entrega: el cliente consulta el estado.
+
 ### Elementos comunes de los contratos OpenAPI
 - `openapi: 3.1.0`.
 - `info.x-estado` con la frase `PROPUESTA – pendiente de validación con <responsable>`, repetida al inicio de `info.description`, e `info.x-responsable`.

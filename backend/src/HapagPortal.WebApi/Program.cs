@@ -83,6 +83,15 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Enter your JWT token"
     });
 
+    // M3-17: canal Web Service de clientes (/api/ws/v1), autenticado por la clave del cliente.
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Name = "X-Api-Key",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Description = "Web Service channel key (only for /api/ws/v1)"
+    });
+
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {

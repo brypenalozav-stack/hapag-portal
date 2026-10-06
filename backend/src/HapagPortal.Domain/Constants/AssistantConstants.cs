@@ -35,17 +35,20 @@ public static class AssistantIntents
     public const string InvoiceDetail = "InvoiceDetail";
     public const string TatcStatus = "TatcStatus";
 
+    /// <summary>Entrega de un documento puntual del embarque (M10-04): el asistente identifica el tipo y el BL.</summary>
+    public const string DocumentDelivery = "DocumentDelivery";
+
     /// <summary>Consulta fuera del alcance: recomendación comercial o legal, comparación de tarifas históricas.</summary>
     public const string OutOfScope = "OutOfScope";
 
     /// <summary>Intenciones que el clasificador puede devolver (las demás las decide el portal).</summary>
     public static readonly string[] Classifiable =
     [
-        Greeting, Knowledge, ShipmentStatus, ShipmentDocuments, PendingCharges, InvoiceDetail, TatcStatus
+        Greeting, Knowledge, ShipmentStatus, ShipmentDocuments, PendingCharges, InvoiceDetail, TatcStatus, DocumentDelivery
     ];
 
     public static readonly string[] DataIntents =
-        [ShipmentStatus, ShipmentDocuments, PendingCharges, InvoiceDetail, TatcStatus];
+        [ShipmentStatus, ShipmentDocuments, PendingCharges, InvoiceDetail, TatcStatus, DocumentDelivery];
 }
 
 /// <summary>Tipo de respuesta del asistente.</summary>
@@ -95,4 +98,12 @@ public static class AssistantRefusalReasons
     public const string CommercialAdvice = "COMMERCIAL_ADVICE";
     public const string LegalAdvice = "LEGAL_ADVICE";
     public const string HistoricalTariffs = "HISTORICAL_TARIFFS";
+}
+
+/// <summary>Clase de documento que entrega el asistente (M10-04).</summary>
+public static class AssistantDeliveryKinds
+{
+    public const string ShipmentDocument = "ShipmentDocument";
+    public const string Receipt = "Receipt";
+    public const string Invoice = "Invoice";
 }

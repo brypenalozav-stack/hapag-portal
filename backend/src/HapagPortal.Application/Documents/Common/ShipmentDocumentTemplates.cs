@@ -34,6 +34,45 @@ public sealed record ResponsibilityLetterData(
     string TermsVersion,
     DateTime AcceptedAt);
 
+/// <summary>Datos de la solicitud del certificado de flete (M6-02).</summary>
+public sealed record FreightCertificateData(
+    string RequestNumber,
+    string OrganizationName,
+    string? OrganizationTaxId,
+    string ConsigneeName,
+    string ConsigneeTaxId,
+    string Purpose,
+    string? Recipient,
+    string? Notes);
+
+/// <summary>Estado TATC de una unidad al aprobar la carta de liberación (M2-09).</summary>
+public sealed record ReleaseLetterTatcLine(string ContainerNumber, string Status, string? TatcNumber);
+
+/// <summary>Datos de la carta de liberación y desconsolidado (M6-08) aprobada.</summary>
+public sealed record ReleaseLetterData(
+    string RequestNumber,
+    string OrganizationName,
+    string LegalEntityType,
+    string ConsigneeName,
+    string ConsigneeTaxId,
+    string? ConsigneeAddress,
+    string? LegalRepresentativeName,
+    string? LegalRepresentativeId,
+    string CarrierName,
+    string? CarrierTaxId,
+    bool CarrierRegistered,
+    string? DriverName,
+    string? DriverId,
+    string? TruckPlate,
+    string? Observations,
+    IReadOnlyList<string> Containers,
+    bool TatcAvailable,
+    IReadOnlyList<ReleaseLetterTatcLine> Tatc,
+    DateTime TatcCheckedAt,
+    string? CounterStatus,
+    string ApprovedBy,
+    DateTime ApprovedAt);
+
 /// <summary>
 /// Plantillas de los documentos del portal (M6): cada método arma el modelo de un tipo a partir de los
 /// datos del embarque, sin acceso a datos ni dependencias, para que el resultado sea reproducible. Los
@@ -70,6 +109,8 @@ public static class ShipmentDocumentTemplates
         ShipmentDocumentTypes.ResponsibilityLetter => $"carta-responsabilidad-{number}.pdf",
         ShipmentDocumentTypes.NoDebtCertificate => $"certificado-libre-deuda-{number}.pdf",
         ShipmentDocumentTypes.GateOutAdvanceReceipt => $"recibo-anticipo-gate-out-{number}.pdf",
+        ShipmentDocumentTypes.FreightCertificate => $"certificado-flete-{number}.pdf",
+        ShipmentDocumentTypes.ReleaseLetter => $"carta-liberacion-desconsolidado-{number}.pdf",
         _ => $"{number}.pdf"
     };
 
@@ -331,6 +372,126 @@ public static class ShipmentDocumentTemplates
                 ])
             ],
             signatureNote: "Documento firmado electrónicamente. La validez de la firma se acredita según el mecanismo publicado por Hapag-Lloyd.");
+    }
+
+    /// <summary>
+    /// Certificado de flete (M6-02, BO-IMP-08), firmado: certifica el flete del BL (monto, moneda y condición) para la
+    /// finalidad declarada por el cliente, con los datos del consignatario ingresados en la solicitud.
+    /// </summary>
+    public static PdfDocumentModel FreightCertificate(ShipmentDocumentData data, DocumentHeader header, FreightCertificateData request)
+    {
+        var bl = data.BillOfLading;
+
+        return Model(
+            "Certificado de flete",
+            "Importación - Bolivia",
+            data,
+            header,
+            [
+                Parties(data),
+                new PdfSection("Solicitud",
+                [
+                    new("Solicitud", request.RequestNumber),
+                    new("Solicitada por", request.OrganizationTaxId is null ? request.OrganizationName : $"{request.OrganizationName} ({request.OrganizationTaxId})"),
+                    new("Consignatario", $"{request.ConsigneeName} ({request.ConsigneeTaxId})"),
+                    new("Finalidad", request.Purpose),
+                    new("Dirigido a", request.Recipient),
+                    new("Observaciones", request.Notes)
+                ]),
+                new PdfSection("Flete",
+                [
+                    new("Condición del flete", bl.FreightTerms),
+                    new("Monto del flete", $"{Money(bl.FreightAmount)} {bl.FreightCurrency}"),
+                    new("Puerto de carga", bl.PortOfLoading),
+                    new("Puerto de descarga", bl.PortOfDischarge),
+                    new("Lugar de entrega", bl.PlaceOfDelivery)
+                ]),
+                Units(data.Containers),
+                Cargo(data.CargoItems),
+                new PdfSection("Certificación", Paragraphs:
+                [
+                    $"{header.Issuer} certifica que el flete marítimo de la carga amparada en el BL {bl.BLNumber}, transportada en la " +
+                    $"nave {bl.Vessel ?? "-"} viaje {bl.Voyage ?? "-"} desde {bl.PortOfLoading ?? "-"} hasta {bl.PlaceOfDelivery ?? bl.PortOfDischarge ?? "-"}, " +
+                    $"asciende a {Money(bl.FreightAmount)} {bl.FreightCurrency}, según el registro del embarque a la fecha de emisión.",
+                    "Se emite a solicitud del interesado para la finalidad declarada."
+                ])
+            ],
+            signatureNote: "Documento firmado electrónicamente. La validez de la firma se acredita según el mecanismo publicado por Hapag-Lloyd.");
+    }
+
+    /// <summary>
+    /// Carta de liberación y desconsolidado (M6-08, BO-IMP-11): autoriza la liberación y el desconsolidado de las unidades
+    /// seleccionadas a favor del consignatario, con el transportista que las retira, el estado del TATC de cada unidad al
+    /// aprobarse y, si existe, el registro de Counter (M8-09).
+    /// </summary>
+    public static PdfDocumentModel ReleaseLetter(ShipmentDocumentData data, DocumentHeader header, ReleaseLetterData letter)
+    {
+        var bl = data.BillOfLading;
+        var selected = data.Containers
+            .Where(c => letter.Containers.Contains(c.ContainerNumber, StringComparer.OrdinalIgnoreCase))
+            .ToList();
+        var company = letter.LegalEntityType == LegalEntityTypes.Company;
+
+        var consignee = new List<PdfField>
+        {
+            new("Tipo de sociedad", company ? "Empresa" : "Persona natural"),
+            new(company ? "Razón social" : "Nombre", letter.ConsigneeName),
+            new(company ? "NIT" : "Documento de identidad", letter.ConsigneeTaxId),
+            new("Domicilio", letter.ConsigneeAddress)
+        };
+        if (company)
+        {
+            consignee.Add(new("Representante legal", letter.LegalRepresentativeName));
+            consignee.Add(new("Documento del representante", letter.LegalRepresentativeId));
+        }
+
+        var tatc = letter.TatcAvailable
+            ? new PdfSection("TATC de las unidades",
+                Table: new PdfTable(
+                    ["Contenedor", "Estado TATC", "N° TATC"],
+                    letter.Tatc.Select(t => (IReadOnlyList<string>)[t.ContainerNumber, t.Status, t.TatcNumber ?? "-"]).ToList(),
+                    []),
+                Paragraphs: [$"Estado informado por el sistema de TATC el {LocalDateTime(bl.Country, letter.TatcCheckedAt)}."])
+            : new PdfSection("TATC de las unidades", Paragraphs:
+            [
+                $"El sistema de TATC no respondió al aprobar la carta ({LocalDateTime(bl.Country, letter.TatcCheckedAt)}); el estado del TATC no se certifica en este documento."
+            ]);
+
+        return Model(
+            "Carta de liberación y desconsolidado",
+            "Importación - Bolivia",
+            data,
+            header,
+            [
+                new PdfSection("Consignatario", consignee),
+                new PdfSection("Transportista",
+                [
+                    new("Transportista", letter.CarrierName),
+                    new("NIT / RUT", letter.CarrierTaxId),
+                    new("Registrado en el portal", letter.CarrierRegistered ? "Sí" : "No"),
+                    new("Conductor", letter.DriverName),
+                    new("Documento del conductor", letter.DriverId),
+                    new("Patente", letter.TruckPlate)
+                ]),
+                Units(selected),
+                tatc,
+                new PdfSection("Solicitud",
+                    [
+                        new("Solicitud", letter.RequestNumber),
+                        new("Solicitada por", letter.OrganizationName),
+                        new("Counter", letter.CounterStatus),
+                        new("Aprobada por", letter.ApprovedBy),
+                        new("Aprobada el", LocalDateTime(bl.Country, letter.ApprovedAt)),
+                        new("Observaciones", letter.Observations)
+                    ],
+                    Paragraphs:
+                    [
+                        $"{header.Issuer} autoriza la liberación y el desconsolidado de las unidades individualizadas en este documento, " +
+                        $"amparadas en el BL {bl.BLNumber}, a favor del consignatario indicado y para su retiro por el transportista señalado.",
+                        "La carta no reemplaza las autorizaciones de otras entidades ni libera obligaciones pendientes con el depósito."
+                    ])
+            ],
+            signatureNote: null);
     }
 
     /// <summary>Comprobante (recibo) de un pago confirmado o boleta de depósito (M7-02).</summary>

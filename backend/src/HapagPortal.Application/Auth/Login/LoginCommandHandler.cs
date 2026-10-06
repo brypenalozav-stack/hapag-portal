@@ -30,7 +30,8 @@ public sealed class LoginCommandHandler(
             .Include(u => u.Client)
             .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
-        if (user is null)
+        // M3-17: el usuario técnico de un cliente del canal Web Service no inicia sesión en el portal.
+        if (user is null || user.UserType == UserTypes.Technical)
             return Result<AuthResponseDto>.Failure(DomainErrors.User.InvalidCredentials);
 
         if (!user.IsActive)

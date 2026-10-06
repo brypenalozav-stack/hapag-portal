@@ -211,6 +211,83 @@ public static class ServiceDefinitionCodes
     /// </summary>
     public const string IaoReinvoicing = "IAO_REINVOICING";
 
+    /// <summary>
+    /// Certificado de flete, importación de Bolivia (M6-02, BO-IMP-08, Ola J). Se solicita desde los documentos del
+    /// embarque (<c>/documents/{bl}/freight-certificate</c>); primera entrega sin pago ni carro.
+    /// </summary>
+    public const string FreightCertificate = "FREIGHT_CERTIFICATE";
+
+    /// <summary>
+    /// Carta de liberación y desconsolidado, importación de Bolivia (M6-08, BO-IMP-11, Ola J). Se solicita desde los
+    /// documentos del embarque (<c>/documents/{bl}/release-letter</c>) y la aprueba Customer Service en la bandeja.
+    /// </summary>
+    public const string ReleaseLetter = "RELEASE_LETTER";
+
     /// <summary>Definiciones que se solicitan por un flujo propio y no por <c>/service-requests</c>.</summary>
-    public static readonly string[] DedicatedFlow = [IaoReinvoicing];
+    public static readonly string[] DedicatedFlow = [IaoReinvoicing, FreightCertificate, ReleaseLetter];
+}
+
+/// <summary>
+/// Modo de cobro del certificado de flete (M6-02, <c>Documents:FreightCertificateMode</c>). La primera entrega de
+/// Fase 2 es sin pago ni carro (<see cref="Free"/>); <see cref="Paid"/> queda reservado para cuando se defina y valide
+/// el flujo de cobro en BOB (M5-01, M5-04) y no está disponible: el arranque falla si se configura.
+/// </summary>
+public static class FreightCertificateModes
+{
+    public const string Free = "Free";
+    public const string Paid = "Paid";
+
+    public static readonly string[] All = [Free, Paid];
+}
+
+/// <summary>Claves del formulario del certificado de flete (M6-02).</summary>
+public static class FreightCertificateFields
+{
+    public const string ConsigneeName = "consigneeName";
+    public const string ConsigneeTaxId = "consigneeTaxId";
+    public const string Purpose = "purpose";
+    public const string Recipient = "recipient";
+    public const string Notes = "notes";
+}
+
+/// <summary>Finalidad declarada del certificado de flete.</summary>
+public static class FreightCertificatePurposes
+{
+    public const string Customs = "CUSTOMS";
+    public const string Insurance = "INSURANCE";
+    public const string Bank = "BANK";
+    public const string Other = "OTHER";
+
+    public static readonly string[] All = [Customs, Insurance, Bank, Other];
+}
+
+/// <summary>
+/// Tipo de sociedad del consignatario en la carta de liberación y desconsolidado (M6-08): define los datos exigidos.
+/// Empresa: razón social, NIT y representante legal con su documento; persona natural: nombre y documento de
+/// identidad (CI). Definición provisoria hasta su validación con el área legal.
+/// </summary>
+public static class LegalEntityTypes
+{
+    public const string Company = "COMPANY";
+    public const string NaturalPerson = "NATURAL_PERSON";
+
+    public static readonly string[] All = [Company, NaturalPerson];
+}
+
+/// <summary>Claves del formulario de la carta de liberación y desconsolidado (M6-08).</summary>
+public static class ReleaseLetterFields
+{
+    public const string Containers = "containers";
+    public const string LegalEntityType = "legalEntityType";
+    public const string ConsigneeName = "consigneeName";
+    public const string ConsigneeTaxId = "consigneeTaxId";
+    public const string ConsigneeAddress = "consigneeAddress";
+    public const string LegalRepresentativeName = "legalRepresentativeName";
+    public const string LegalRepresentativeId = "legalRepresentativeId";
+    public const string CarrierName = "carrierName";
+    public const string CarrierTaxId = "carrierTaxId";
+    public const string DriverName = "driverName";
+    public const string DriverId = "driverId";
+    public const string TruckPlate = "truckPlate";
+    public const string Observations = "observations";
 }

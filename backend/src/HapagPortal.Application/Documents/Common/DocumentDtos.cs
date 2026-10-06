@@ -45,13 +45,18 @@ public sealed record RelatedDocumentDto(
 /// <summary>Estado de la carta de responsabilidad del usuario sobre el BL (M4-04, M6-06).</summary>
 public sealed record ResponsibilityLetterStateDto(bool Required, string Status, bool BlocksProcess);
 
-/// <summary>Qué documentos puede solicitar el usuario sobre el BL (M1-11 y perfil que opera).</summary>
+/// <summary>
+/// Qué documentos puede solicitar el usuario sobre el BL (M1-11 y perfil que opera). El certificado de flete y la carta de
+/// liberación y desconsolidado (Ola J) aplican a importación de Bolivia.
+/// </summary>
 public sealed record DocumentActionsDto(
     bool CanRequestValuedCopy,
     bool CanRequestNonValuedCopy,
     bool CanIssueResponsibilityLetter,
     bool CanRequestNoDebtCertificate,
-    bool CanRequestTransshipmentCertificate);
+    bool CanRequestTransshipmentCertificate,
+    bool CanRequestFreightCertificate = false,
+    bool CanRequestReleaseLetter = false);
 
 public sealed record ShipmentDocumentsDto(
     Guid BlId,

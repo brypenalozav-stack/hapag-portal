@@ -4,6 +4,7 @@ using FluentValidation;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Common.Models;
+using HapagPortal.Application.Documents.ReleaseLetter;
 using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.Application.ServiceRequests.Requests;
 using HapagPortal.Domain.Constants;
@@ -205,7 +206,8 @@ public sealed class GetInternalServiceRequestQueryHandler(IApplicationDbContext 
 public sealed class ApproveServiceRequestCommandHandler(
     IApplicationDbContext dbContext,
     ICurrentUserService currentUserService,
-    ServiceRequestWorkflow workflow)
+    ServiceRequestWorkflow workflow,
+    ReleaseLetterService releaseLetters)
     : ICommandHandler<ApproveServiceRequestCommand, ServiceRequestDetailDto>
 {
     public async Task<Result<ServiceRequestDetailDto>> Handle(ApproveServiceRequestCommand request, CancellationToken cancellationToken)
@@ -215,10 +217,31 @@ public sealed class ApproveServiceRequestCommandHandler(
             return Result<ServiceRequestDetailDto>.Failure(loaded.Error);
 
         var (serviceRequest, definition) = loaded.Value;
-        var approved = await workflow.ApproveAsync(
-            serviceRequest, definition, ServiceActor.Internal(currentUserService), request.Notes, DateTime.UtcNow, cancellationToken);
+        var actor = ServiceActor.Internal(currentUserService);
+        var now = DateTime.UtcNow;
+
+        // M6-08: aprobar la carta de liberación la emite (con el TATC consultado ahora) antes de completar la solicitud.
+        string? letterNumber = null;
+        if (serviceRequest.DefinitionCode == ServiceDefinitionCodes.ReleaseLetter)
+        {
+            if (serviceRequest.Status != ServiceRequestStatus.PendingApproval)
+                return Result<ServiceRequestDetailDto>.Failure(
+                    DomainErrors.ServiceRequest.InvalidTransition(serviceRequest.Status, ServiceRequestStatus.Approved));
+
+            var issued = await releaseLetters.IssueOnApprovalAsync(serviceRequest, actor, now, cancellationToken);
+            if (issued.IsFailure)
+                return Result<ServiceRequestDetailDto>.Failure(issued.Error);
+            letterNumber = issued.Value.DocumentNumber;
+        }
+
+        var approved = await workflow.ApproveAsync(serviceRequest, definition, actor, request.Notes, now, cancellationToken);
         if (approved.IsFailure)
             return Result<ServiceRequestDetailDto>.Failure(approved.Error);
+
+        if (letterNumber is not null)
+            serviceRequest.ResolutionNotes = string.IsNullOrWhiteSpace(request.Notes)
+                ? $"Carta {letterNumber} emitida."
+                : $"{request.Notes.Trim()} Carta {letterNumber} emitida.";
 
         return await InternalServiceRequests.SaveAndNotifyAsync(dbContext, workflow, serviceRequest, definition, notify: true, cancellationToken);
     }

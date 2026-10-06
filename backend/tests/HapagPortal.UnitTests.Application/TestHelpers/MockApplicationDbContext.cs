@@ -92,6 +92,11 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<ContactListChange> ContactListChangeList { get; } = [];
     public List<CarrierPreRegistration> CarrierPreRegistrationList { get; } = [];
     public List<OrganizationParentLink> OrganizationParentLinkList { get; } = [];
+    public List<ReleaseLetterRequest> ReleaseLetterRequestList { get; } = [];
+    public List<AssistantDocumentDelivery> AssistantDocumentDeliveryList { get; } = [];
+    public List<ApiClient> ApiClientList { get; } = [];
+    public List<ApiClientKey> ApiClientKeyList { get; } = [];
+    public List<ApiClientRequest> ApiClientRequestList { get; } = [];
 
     public DbSet<Client> Clients => MockDbSetHelper.CreateMockDbSet(ClientList);
     public DbSet<User> Users => MockDbSetHelper.CreateMockDbSet(UserList);
@@ -179,6 +184,11 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<ContactListChange> ContactListChanges => MockDbSetHelper.CreateMockDbSet(ContactListChangeList);
     public DbSet<CarrierPreRegistration> CarrierPreRegistrations => MockDbSetHelper.CreateMockDbSet(CarrierPreRegistrationList);
     public DbSet<OrganizationParentLink> OrganizationParentLinks => MockDbSetHelper.CreateMockDbSet(OrganizationParentLinkList);
+    public DbSet<ReleaseLetterRequest> ReleaseLetterRequests => MockDbSetHelper.CreateMockDbSet(ReleaseLetterRequestList);
+    public DbSet<AssistantDocumentDelivery> AssistantDocumentDeliveries => MockDbSetHelper.CreateMockDbSet(AssistantDocumentDeliveryList);
+    public DbSet<ApiClient> ApiClients => MockDbSetHelper.CreateMockDbSet(ApiClientList);
+    public DbSet<ApiClientKey> ApiClientKeys => MockDbSetHelper.CreateMockDbSet(ApiClientKeyList);
+    public DbSet<ApiClientRequest> ApiClientRequests => MockDbSetHelper.CreateMockDbSet(ApiClientRequestList);
 
     public int SaveChangesCallCount { get; private set; }
 

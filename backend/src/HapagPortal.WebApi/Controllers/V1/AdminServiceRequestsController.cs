@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Documents.ReleaseLetter;
 using HapagPortal.Application.ServiceRequests.Queue;
 using HapagPortal.Application.ServiceRequests.Requests;
 using HapagPortal.Domain.Constants;
@@ -42,6 +43,18 @@ public sealed class AdminServiceRequestsController : ApiController
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetInternalServiceRequestQuery(id), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>
+    /// Carta de liberación y desconsolidado en revisión (M6-08): TATC registrado al enviar, TATC consultado ahora, registro de
+    /// Counter (M8-09) y regla de TATC vigente. Aprobar la solicitud emite la carta.
+    /// </summary>
+    [HttpGet("{id:guid}/release-letter")]
+    [HasPermission(ServiceRequestPermissions.Process)]
+    public async Task<IActionResult> GetReleaseLetter(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetInternalReleaseLetterRequestQuery(id), cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 

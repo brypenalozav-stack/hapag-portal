@@ -3,6 +3,7 @@ namespace HapagPortal.Application.Auth.ForgotPassword;
 using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +21,8 @@ public sealed class ForgotPasswordCommandHandler(
         var user = await dbContext.Users
             .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
-        if (user is not null)
+        // M3-17: el usuario técnico del canal Web Service no tiene contraseña que recuperar.
+        if (user is not null && user.UserType != UserTypes.Technical)
         {
             var resetToken = Guid.NewGuid().ToString();
 

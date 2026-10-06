@@ -116,6 +116,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<ContactListChange> ContactListChanges => Set<ContactListChange>();
     public DbSet<CarrierPreRegistration> CarrierPreRegistrations => Set<CarrierPreRegistration>();
     public DbSet<OrganizationParentLink> OrganizationParentLinks => Set<OrganizationParentLink>();
+    public DbSet<ReleaseLetterRequest> ReleaseLetterRequests => Set<ReleaseLetterRequest>();
+    public DbSet<AssistantDocumentDelivery> AssistantDocumentDeliveries => Set<AssistantDocumentDelivery>();
+    public DbSet<ApiClient> ApiClients => Set<ApiClient>();
+    public DbSet<ApiClientKey> ApiClientKeys => Set<ApiClientKey>();
+    public DbSet<ApiClientRequest> ApiClientRequests => Set<ApiClientRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -141,6 +146,343 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         SeedOnDemandServices(modelBuilder);
         SeedFinanceDemo(modelBuilder);
         SeedAdministrationDemo(modelBuilder);
+        SeedDocumentRequestsAndWebServiceDemo(modelBuilder);
+    }
+
+    /// <summary>
+    /// Fase 2 Ola J: definiciones del certificado de flete (M6-02, sin cobro) y de la carta de liberación y desconsolidado
+    /// (M6-08, aprobación de Customer Service), ambas de importación de Bolivia y con flujo propio, con su alta en el registro
+    /// de cambios (NF-15); un certificado de flete completado para Comercial Altiplano sobre BL05 (sembrado sin archivo: se
+    /// genera y firma en la primera descarga); una carta de liberación pendiente de aprobación sobre BL04 con el TATC
+    /// registrado al enviarla; y un cliente del canal Web Service (M3-17) de Importadora Demo con su usuario técnico y una
+    /// clave de demostración de la que solo se guarda el SHA-256 (el valor está en el contrato de la Ola J, nunca en el repo).
+    /// </summary>
+    private static void SeedDocumentRequestsAndWebServiceDemo(ModelBuilder modelBuilder)
+    {
+        var created = new DateTime(2026, 10, 5, 12, 0, 0, DateTimeKind.Utc);
+        var settings = new DocumentSettings();
+        const string altiplanoEmail = "demo@altiplano.bo";
+        const string altiplano = "Comercial Altiplano SRL";
+        const string altiplanoTaxId = "1023456017";
+
+        // ── Conceptos sin tarifa (cobro no definido en esta entrega) ─
+        modelBuilder.Entity<ChargeConcept>().HasData(
+            new[]
+            {
+                (Code: ChargeConceptCodes.FreightCertificate, Name: "Certificado de flete", Order: 330),
+                (Code: ChargeConceptCodes.ReleaseLetter, Name: "Carta de liberación y desconsolidado", Order: 340),
+            }.Select(c => new ChargeConcept
+            {
+                Id = DeterministicGuid($"charge-concept:{c.Code}"),
+                Code = c.Code,
+                Name = c.Name,
+                Category = ChargeCategories.Service,
+                Countries = CountryCodes.Bolivia,
+                DisplayOrder = c.Order,
+                IsActive = true,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            }));
+
+        // ── Definiciones con flujo propio (Ola G) ──────────────────
+        var freightCertificate = new ServiceDefinition
+        {
+            Id = SeedDataIds.ServiceDefinitionFreightCertificate,
+            Code = ServiceDefinitionCodes.FreightCertificate,
+            NameEs = "Certificado de flete",
+            NameEn = "Freight certificate",
+            DescriptionEs = "Certificado del flete del BL para importación de Bolivia (M6-02, BO-IMP-08): el cliente ingresa los datos del consignatario y la finalidad; el portal emite el PDF firmado y lo envía a su correo. Primera entrega de Fase 2 sin pago ni carro. Se solicita desde los documentos del embarque.",
+            DescriptionEn = "Freight certificate of the BL for Bolivia imports (M6-02): the customer enters the consignee data and the purpose; the portal issues the signed PDF and e-mails it. First Phase 2 delivery without payment or cart. Requested from the shipment documents.",
+            Operations = ServiceOperations.Import,
+            Countries = CountryCodes.Bolivia,
+            ActionCode = ShipmentActionCodes.GenerateFreightCertificate,
+            DisplayOrder = 130,
+            InputSchemaJson = ServiceInputSchema.Serialize(
+            [
+                new ServiceInputField(FreightCertificateFields.ConsigneeName, "Consignatario", "Consignee", ServiceInputFieldTypes.Text, true, MaxLength: 200),
+                new ServiceInputField(FreightCertificateFields.ConsigneeTaxId, "NIT del consignatario", "Consignee tax ID", ServiceInputFieldTypes.Text, true, MaxLength: 30),
+                new ServiceInputField(FreightCertificateFields.Purpose, "Finalidad", "Purpose", ServiceInputFieldTypes.Select, true,
+                [
+                    new ServiceInputOption(FreightCertificatePurposes.Customs, "Trámite aduanero", "Customs clearance"),
+                    new ServiceInputOption(FreightCertificatePurposes.Insurance, "Seguro de la carga", "Cargo insurance"),
+                    new ServiceInputOption(FreightCertificatePurposes.Bank, "Trámite bancario", "Banking"),
+                    new ServiceInputOption(FreightCertificatePurposes.Other, "Otra", "Other")
+                ]),
+                new ServiceInputField(FreightCertificateFields.Recipient, "Dirigido a", "Addressed to", ServiceInputFieldTypes.Text, MaxLength: 200),
+                new ServiceInputField(FreightCertificateFields.Notes, "Observaciones", "Remarks", ServiceInputFieldTypes.TextArea, MaxLength: 1000)
+            ]),
+            PricingMode = ServicePricingModes.None,
+            ChargeConceptCode = ChargeConceptCodes.FreightCertificate,
+            Taxable = false,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        };
+
+        var releaseLetter = new ServiceDefinition
+        {
+            Id = SeedDataIds.ServiceDefinitionReleaseLetter,
+            Code = ServiceDefinitionCodes.ReleaseLetter,
+            NameEs = "Carta de liberación y desconsolidado",
+            NameEn = "Release and deconsolidation letter",
+            DescriptionEs = "Carta de liberación y desconsolidado de las unidades seleccionadas, importación de Bolivia (M6-08, BO-IMP-11): datos del consignatario según el tipo de sociedad y del transportista; el TATC de las unidades se registra al enviar y al aprobar; la aprueba Customer Service y la carta se emite al aprobarse. Sin cobro. Se solicita desde los documentos del embarque.",
+            DescriptionEn = "Release and deconsolidation letter for the selected units, Bolivia imports (M6-08): consignee data by legal entity type and carrier data; the units' TATC is recorded on submission and approval; Customer Service approves it and the letter is issued on approval. No charge. Requested from the shipment documents.",
+            Operations = ServiceOperations.Import,
+            Countries = CountryCodes.Bolivia,
+            ActionCode = ShipmentActionCodes.GenerateReleaseLetter,
+            DisplayOrder = 140,
+            RequiresContainers = true,
+            InputSchemaJson = ServiceInputSchema.Serialize(
+            [
+                new ServiceInputField(ReleaseLetterFields.Containers, "Contenedores", "Containers", ServiceInputFieldTypes.Containers, true),
+                new ServiceInputField(ReleaseLetterFields.LegalEntityType, "Tipo de sociedad", "Legal entity type", ServiceInputFieldTypes.Select, true,
+                [
+                    new ServiceInputOption(LegalEntityTypes.Company, "Empresa", "Company"),
+                    new ServiceInputOption(LegalEntityTypes.NaturalPerson, "Persona natural", "Natural person")
+                ]),
+                new ServiceInputField(ReleaseLetterFields.ConsigneeName, "Consignatario (razón social o nombre)", "Consignee (legal name or name)", ServiceInputFieldTypes.Text, true, MaxLength: 200),
+                new ServiceInputField(ReleaseLetterFields.ConsigneeTaxId, "NIT o documento de identidad", "Tax ID or ID document", ServiceInputFieldTypes.Text, true, MaxLength: 30),
+                new ServiceInputField(ReleaseLetterFields.ConsigneeAddress, "Domicilio", "Address", ServiceInputFieldTypes.Text, MaxLength: 300),
+                new ServiceInputField(ReleaseLetterFields.LegalRepresentativeName, "Representante legal", "Legal representative", ServiceInputFieldTypes.Text, MaxLength: 200),
+                new ServiceInputField(ReleaseLetterFields.LegalRepresentativeId, "Documento del representante", "Representative's ID", ServiceInputFieldTypes.Text, MaxLength: 30),
+                new ServiceInputField(ReleaseLetterFields.CarrierName, "Transportista", "Carrier", ServiceInputFieldTypes.Text, true, MaxLength: 200),
+                new ServiceInputField(ReleaseLetterFields.CarrierTaxId, "NIT / RUT del transportista", "Carrier tax ID", ServiceInputFieldTypes.Text, true, MaxLength: 30),
+                new ServiceInputField(ReleaseLetterFields.DriverName, "Conductor", "Driver", ServiceInputFieldTypes.Text, MaxLength: 200),
+                new ServiceInputField(ReleaseLetterFields.DriverId, "Documento del conductor", "Driver's ID", ServiceInputFieldTypes.Text, MaxLength: 30),
+                new ServiceInputField(ReleaseLetterFields.TruckPlate, "Patente", "Truck plate", ServiceInputFieldTypes.Text, MaxLength: 20),
+                new ServiceInputField(ReleaseLetterFields.Observations, "Observaciones", "Remarks", ServiceInputFieldTypes.TextArea, MaxLength: 1000)
+            ]),
+            PricingMode = ServicePricingModes.None,
+            ChargeConceptCode = ChargeConceptCodes.ReleaseLetter,
+            Taxable = false,
+            ApprovalTeam = ServiceTeams.CustomerService,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        };
+
+        var definitions = new[] { freightCertificate, releaseLetter };
+        modelBuilder.Entity<ServiceDefinition>().HasData(definitions);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(definitions.Select(d => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:service-definition:{d.Id}"),
+            Maintainer = MaintainerNames.ServiceDefinition,
+            EntityId = d.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(ServiceDefinitionMapper.Snapshot(d), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        ServiceRequestEvent Event(Guid requestId, int sequence, string? from, string to, DateTime at, string actor, string kind, string? notes) => new()
+        {
+            Id = DeterministicGuid($"service-request-event:{requestId}:{sequence}"),
+            ServiceRequestId = requestId,
+            Sequence = sequence,
+            FromStatus = from,
+            ToStatus = to,
+            OccurredAt = at,
+            ActorUserId = kind == ServiceRequestActorKinds.Client ? SeedDataIds.DemoUserBO : null,
+            ActorName = actor,
+            ActorKind = kind,
+            Notes = notes
+        };
+
+        // ── Certificado de flete completado (BL05) ─────────────────
+        var freightAt = new DateTime(2026, 10, 5, 14, 0, 0, DateTimeKind.Utc);
+        const string freightRequestNumber = "SRV-20261005-5E1A0010";
+        const string freightNumber = "CFL-20261005-3B4C5D6E";
+
+        var bl05 = new BillOfLading
+        {
+            Id = SeedDataIds.BL05, BLNumber = "HLCUIQQ260200078", BookingNumber = "HLCUBKG2602078", ShipmentType = "Import",
+            Vessel = "Guayaquil Express", Voyage = "007W", PortOfLoading = "Mumbai (INBOM)", PortOfDischarge = "Iquique (CLIQQ)",
+            PlaceOfDelivery = "Santa Cruz, Bolivia", ETD = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
+            ETA = new DateTime(2026, 5, 10, 0, 0, 0, DateTimeKind.Utc), Consignee = altiplano, Shipper = "Mumbai Spices & Commodities Pvt Ltd",
+            FreightAmount = 1950m, FreightCurrency = "USD", Status = "InTransit", Country = CountryCodes.Bolivia, ClientId = SeedDataIds.DemoClientBO
+        };
+        var bl05Containers = new List<BLContainer>
+        {
+            new() { ContainerNumber = "HLXU5566778", ContainerType = "40HC", SealNumber = "SL-015678", Weight = 21300m, Status = "OnBoard" },
+            new() { ContainerNumber = "HLXU5566779", ContainerType = "20DV", SealNumber = "SL-015679", Weight = 14900m, Status = "Discharged", IsShipperOwned = true }
+        };
+        var freightHeader = new DocumentHeader(
+            freightNumber, freightAt, ShipmentDocumentTemplates.VerificationCode(freightNumber, bl05.BLNumber, freightAt), settings.IssuerFor(bl05.Country));
+        var freightModel = ShipmentDocumentTemplates.FreightCertificate(
+            new ShipmentDocumentData(bl05, [], bl05Containers, [], []),
+            freightHeader,
+            new FreightCertificateData(freightRequestNumber, altiplano, altiplanoTaxId, altiplano, altiplanoTaxId, "Trámite aduanero",
+                "Aduana Nacional de Bolivia", "Para la declaración de importación (DIM)."));
+
+        modelBuilder.Entity<ServiceRequest>().HasData(new ServiceRequest
+        {
+            Id = SeedDataIds.ServiceRequestFreightCertificateBL05,
+            RequestNumber = freightRequestNumber,
+            DefinitionId = freightCertificate.Id,
+            DefinitionCode = freightCertificate.Code,
+            OrganizationId = SeedDataIds.DemoClientBO,
+            RequestedByUserId = SeedDataIds.DemoUserBO,
+            RequestedByEmail = altiplanoEmail,
+            BillOfLadingId = SeedDataIds.BL05,
+            BlNumber = bl05.BLNumber,
+            BookingNumber = bl05.BookingNumber,
+            Country = CountryCodes.Bolivia,
+            Operation = ServiceOperations.Import,
+            InputValuesJson = $$"""{"consigneeName":"{{altiplano}}","consigneeTaxId":"{{altiplanoTaxId}}","purpose":"CUSTOMS","recipient":"Aduana Nacional de Bolivia","notes":"Para la declaración de importación (DIM)."}""",
+            Status = ServiceRequestStatus.Completed,
+            StatusChangedAt = freightAt,
+            SubmittedAt = freightAt,
+            CompletedAt = freightAt,
+            ResolutionNotes = $"Certificado {freightNumber} emitido.",
+            TimelineSequence = 3,
+            CreatedAt = freightAt,
+            CreatedBy = altiplanoEmail
+        });
+        modelBuilder.Entity<ServiceRequestEvent>().HasData(
+            Event(SeedDataIds.ServiceRequestFreightCertificateBL05, 1, null, ServiceRequestStatus.Draft, freightAt, altiplanoEmail, ServiceRequestActorKinds.Client, null),
+            Event(SeedDataIds.ServiceRequestFreightCertificateBL05, 2, ServiceRequestStatus.Draft, ServiceRequestStatus.Submitted, freightAt, altiplanoEmail, ServiceRequestActorKinds.Client, null),
+            Event(SeedDataIds.ServiceRequestFreightCertificateBL05, 3, ServiceRequestStatus.Submitted, ServiceRequestStatus.Completed, freightAt, "SYSTEM", ServiceRequestActorKinds.System,
+                $"Certificado {freightNumber} emitido, sin cobro (primera entrega de Fase 2, M6-02)."));
+
+        modelBuilder.Entity<ShipmentDocument>().HasData(new ShipmentDocument
+        {
+            Id = SeedDataIds.DocumentFreightCertificateBL05,
+            DocumentType = ShipmentDocumentTypes.FreightCertificate,
+            DocumentNumber = freightNumber,
+            Status = ShipmentDocumentStatus.Issued,
+            BillOfLadingId = SeedDataIds.BL05,
+            BlNumber = bl05.BLNumber,
+            BookingNumber = bl05.BookingNumber,
+            Country = CountryCodes.Bolivia,
+            ContainerNumbers = string.Join(',', bl05Containers.Select(c => c.ContainerNumber)),
+            IssuedAt = freightAt,
+            IssuedForOrganizationId = SeedDataIds.DemoClientBO,
+            IssuedByUserId = SeedDataIds.DemoUserBO,
+            IssuedByEmail = altiplanoEmail,
+            Origin = ShipmentDocumentOrigins.Seed,
+            GenerationKey = $"service-request:{SeedDataIds.ServiceRequestFreightCertificateBL05}",
+            FileName = ShipmentDocumentTemplates.FileName(ShipmentDocumentTypes.FreightCertificate, freightNumber),
+            ContentType = ShipmentDocumentService.PdfContentType,
+            VerificationCode = freightModel.VerificationCode!,
+            TemplateJson = JsonSerializer.Serialize(freightModel, ShipmentDocumentService.JsonOptions),
+            RecipientEmails = altiplanoEmail,
+            DeliveredAt = freightAt,
+            RetainUntil = freightAt.AddYears(settings.RetentionYears),
+            CreatedAt = freightAt,
+            CreatedBy = altiplanoEmail
+        });
+        modelBuilder.Entity<ShipmentDocumentEvent>().HasData(new ShipmentDocumentEvent
+        {
+            Id = DeterministicGuid($"document-event:{SeedDataIds.DocumentFreightCertificateBL05}:issued"),
+            ShipmentDocumentId = SeedDataIds.DocumentFreightCertificateBL05,
+            EventType = ShipmentDocumentEventTypes.Issued,
+            Channel = DocumentChannels.Portal,
+            OccurredAt = freightAt,
+            UserId = SeedDataIds.DemoUserBO,
+            UserEmail = altiplanoEmail,
+            OrganizationId = SeedDataIds.DemoClientBO
+        });
+
+        // ── Carta de liberación pendiente de aprobación (BL04) ─────
+        var letterAt = new DateTime(2026, 10, 5, 15, 0, 0, DateTimeKind.Utc);
+        const string letterRequestNumber = "SRV-20261005-5E1A0011";
+        const string tatcNote = "TATC NotIssued: HLXU8899001 NotIssued.";
+
+        modelBuilder.Entity<ServiceRequest>().HasData(new ServiceRequest
+        {
+            Id = SeedDataIds.ServiceRequestReleaseLetterBL04,
+            RequestNumber = letterRequestNumber,
+            DefinitionId = releaseLetter.Id,
+            DefinitionCode = releaseLetter.Code,
+            OrganizationId = SeedDataIds.DemoClientBO,
+            RequestedByUserId = SeedDataIds.DemoUserBO,
+            RequestedByEmail = altiplanoEmail,
+            BillOfLadingId = SeedDataIds.BL04,
+            BlNumber = "HLCUARI260100045",
+            BookingNumber = "HLCUBKG2601045",
+            Country = CountryCodes.Bolivia,
+            Operation = ServiceOperations.Import,
+            ContainerNumbers = "HLXU8899001",
+            InputValuesJson = $$"""{"containers":["HLXU8899001"],"legalEntityType":"COMPANY","consigneeName":"{{altiplano}}","consigneeTaxId":"{{altiplanoTaxId}}","consigneeAddress":"Av. Arce 2631, La Paz","legalRepresentativeName":"Marcela Quispe","legalRepresentativeId":"4876512 LP","carrierName":"Transportes Illimani SRL","carrierTaxId":"4455667018","driverName":"Juan Mamani","driverId":"6123987 LP","truckPlate":"2345-KTR"}""",
+            Status = ServiceRequestStatus.PendingApproval,
+            StatusChangedAt = letterAt,
+            AssignedTeam = ServiceTeams.CustomerService,
+            SubmittedAt = letterAt,
+            TimelineSequence = 3,
+            CreatedAt = letterAt,
+            CreatedBy = altiplanoEmail
+        });
+        modelBuilder.Entity<ServiceRequestEvent>().HasData(
+            Event(SeedDataIds.ServiceRequestReleaseLetterBL04, 1, null, ServiceRequestStatus.Draft, letterAt, altiplanoEmail, ServiceRequestActorKinds.Client, null),
+            Event(SeedDataIds.ServiceRequestReleaseLetterBL04, 2, ServiceRequestStatus.Draft, ServiceRequestStatus.Submitted, letterAt, altiplanoEmail, ServiceRequestActorKinds.Client, null),
+            Event(SeedDataIds.ServiceRequestReleaseLetterBL04, 3, ServiceRequestStatus.Submitted, ServiceRequestStatus.PendingApproval, letterAt, "SYSTEM", ServiceRequestActorKinds.System,
+                $"Derivada al equipo {ServiceTeams.CustomerService}. Al enviar: {tatcNote}"));
+        modelBuilder.Entity<ReleaseLetterRequest>().HasData(new ReleaseLetterRequest
+        {
+            Id = SeedDataIds.ReleaseLetterRequestBL04,
+            ServiceRequestId = SeedDataIds.ServiceRequestReleaseLetterBL04,
+            LegalEntityType = LegalEntityTypes.Company,
+            TatcAvailableAtSubmission = true,
+            TatcStatusAtSubmission = TatcStatuses.NotIssued,
+            TatcCheckedAtSubmission = letterAt,
+            TatcSnapshotAtSubmission = """[{"containerNumber":"HLXU8899001","status":"NotIssued","sourceStatus":"NOT_ISSUED","tatcNumber":null,"pendingReasons":["PAYMENT_PENDING","MHD_PENDING"]}]"""
+        });
+
+        // ── Cliente del canal Web Service de Importadora Demo (M3-17) ─
+        const string technicalEmail = "ws-ffffffff003300330033000000000001@clients.ws.invalid";
+        modelBuilder.Entity<User>().HasData(new User
+        {
+            Id = SeedDataIds.ApiClientImportadoraUser,
+            Username = technicalEmail,
+            Email = technicalEmail,
+            // BCrypt de un valor aleatorio descartado: el usuario técnico no tiene contraseña utilizable ni inicia sesión.
+            PasswordHash = "$2a$12$O1N2kndfeGWg41xxfI/dcOwtqqctzfoR6cdyUT./IfSvcU4NaDUGe",
+            UserType = UserTypes.Technical,
+            Country = CountryCodes.Chile,
+            FirstName = "Web Service",
+            LastName = "ERP Importadora Demo",
+            IsActive = true,
+            IsEmailConfirmed = true,
+            MembershipStatus = MembershipStatus.Active,
+            MembershipDecidedAt = created,
+            MembershipDecidedBy = "admin@hapag-lloyd.cl",
+            ClientId = SeedDataIds.DemoClientCL,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        });
+        modelBuilder.Entity<UserRole>().HasData(new UserRole
+        {
+            Id = DeterministicGuid($"user-profile:{SeedDataIds.ApiClientImportadoraUser}"),
+            UserId = SeedDataIds.ApiClientImportadoraUser,
+            RoleName = RoleCodes.OrgOperator,
+            RoleId = DeterministicGuid($"role:{RoleCodes.OrgOperator}")
+        });
+        modelBuilder.Entity<ApiClient>().HasData(new ApiClient
+        {
+            Id = SeedDataIds.ApiClientImportadora,
+            Name = "ERP Importadora Demo",
+            OrganizationId = SeedDataIds.DemoClientCL,
+            TechnicalUserId = SeedDataIds.ApiClientImportadoraUser,
+            Status = ApiClientStatus.Active,
+            Scopes = $"{ApiClientScopes.ResponsibilityLetter},{ApiClientScopes.WarehouseChange}",
+            RateLimitPerMinute = 60,
+            SignatoryName = "Daniela Demo",
+            SignatoryTaxId = "15.678.901-2",
+            SignatoryPosition = "Gerente de Comercio Exterior",
+            SignatoryEmail = "demo@importadorademo.cl",
+            TechnicalContactEmail = "ti@importadorademo.cl",
+            Notes = "Cliente de demostración del canal Web Service (Ola J).",
+            CreatedAt = created,
+            CreatedBy = "admin@hapag-lloyd.cl"
+        });
+        // Solo el SHA-256 de la clave de demostración (NF-09); el valor en claro no está en el repositorio.
+        modelBuilder.Entity<ApiClientKey>().HasData(new ApiClientKey
+        {
+            Id = SeedDataIds.ApiClientImportadoraKey,
+            ApiClientId = SeedDataIds.ApiClientImportadora,
+            Prefix = "4pnrf9yxigh5",
+            KeyHash = "b23557bc92386afaa0dacb9c9c48adc6554223090784f268cbe3fba4bd93e6ba",
+            CreatedAt = created,
+            CreatedBy = "admin@hapag-lloyd.cl"
+        });
     }
 
     /// <summary>
@@ -3831,6 +4173,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             AdministrationPermissions.AccessAdminArea, AdministrationPermissions.UseImpersonation,
             AdministrationPermissions.ManageAnnouncements, AdministrationPermissions.ManageCounter,
             AdministrationPermissions.ViewTransactionsReport,
+            // Fase 2 Ola J: clientes del canal Web Service y sus claves (M3-17, NF-09).
+            ApiClientPermissions.Manage,
         };
 
         modelBuilder.Entity<Permission>().HasData(permissions.Select(p => new Permission

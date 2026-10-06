@@ -26,6 +26,10 @@ public static class DocumentPrefixes
     /// <summary>Recibo del pago anticipado de Gate Out antes de la factura (M3-19, Ola H).</summary>
     public const string GateOutAdvanceReceipt = "RGO-";
 
+    /// <summary>Certificado de flete (M6-02) y carta de liberación y desconsolidado (M6-08), Bolivia (Ola J).</summary>
+    public const string FreightCertificate = "CFL-";
+    public const string ReleaseLetter = "CLB-";
+
     public static string ForDocument(string documentType) => documentType switch
     {
         ShipmentDocumentTypes.TransshipmentCertificate => TransshipmentCertificate,
@@ -35,6 +39,8 @@ public static class DocumentPrefixes
         ShipmentDocumentTypes.ResponsibilityLetter => ResponsibilityLetter,
         ShipmentDocumentTypes.NoDebtCertificate => NoDebtCertificate,
         ShipmentDocumentTypes.GateOutAdvanceReceipt => GateOutAdvanceReceipt,
+        ShipmentDocumentTypes.FreightCertificate => FreightCertificate,
+        ShipmentDocumentTypes.ReleaseLetter => ReleaseLetter,
         _ => throw new ArgumentOutOfRangeException(nameof(documentType), documentType, "Unknown document type.")
     };
 }

@@ -30,7 +30,8 @@ public sealed class GetOrganizationUsersQueryHandler(
 
         var users = await dbContext.Users
             .AsNoTracking()
-            .Where(u => u.ClientId == organizationId && u.MembershipStatus == MembershipStatus.Active)
+            // M3-17: los usuarios técnicos del canal Web Service los administra Hapag-Lloyd, no la organización.
+            .Where(u => u.ClientId == organizationId && u.MembershipStatus == MembershipStatus.Active && u.UserType != UserTypes.Technical)
             .OrderBy(u => u.Email)
             .ToListAsync(cancellationToken);
 

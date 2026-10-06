@@ -10,8 +10,17 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>Quién emite, descarga o envía un documento (NF-14). Sin usuario = el sistema.</summary>
-public sealed record DocumentActor(Guid? UserId, string? Email, Guid? OrganizationId, Guid? OnBehalfOfOrganizationId, Guid? AccessGrantId)
+/// <summary>
+/// Quién emite, descarga o envía un documento (NF-14). Sin usuario = el sistema. <c>Channel</c>: canal por el que actúa
+/// cuando no es el portal (el Web Service de M3-17); nulo = portal o sistema.
+/// </summary>
+public sealed record DocumentActor(
+    Guid? UserId,
+    string? Email,
+    Guid? OrganizationId,
+    Guid? OnBehalfOfOrganizationId,
+    Guid? AccessGrantId,
+    string? Channel = null)
 {
     public static readonly DocumentActor System = new(null, null, null, null, null);
 }
@@ -120,7 +129,8 @@ public sealed class ShipmentDocumentService(
             return Result<ShipmentDocument>.Failure(stored.Error);
 
         dbContext.ShipmentDocuments.Add(document);
-        Log(document, ShipmentDocumentEventTypes.Issued, issue.Actor.UserId is null ? DocumentChannels.System : DocumentChannels.Portal,
+        Log(document, ShipmentDocumentEventTypes.Issued,
+            issue.Actor.Channel ?? (issue.Actor.UserId is null ? DocumentChannels.System : DocumentChannels.Portal),
             issue.Actor, issue.Model.IssuedAt);
 
         return Result<ShipmentDocument>.Success(document);
@@ -256,6 +266,8 @@ public sealed class ShipmentDocumentService(
         ShipmentDocumentTypes.ResponsibilityLetter => "la carta de responsabilidad",
         ShipmentDocumentTypes.NoDebtCertificate => "el certificado de libre deuda",
         ShipmentDocumentTypes.GateOutAdvanceReceipt => "el recibo del pago anticipado de Gate Out",
+        ShipmentDocumentTypes.FreightCertificate => "el certificado de flete",
+        ShipmentDocumentTypes.ReleaseLetter => "la carta de liberación y desconsolidado",
         _ => "el documento"
     };
 

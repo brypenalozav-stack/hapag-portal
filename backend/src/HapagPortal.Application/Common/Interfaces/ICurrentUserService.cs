@@ -21,4 +21,10 @@ public interface ICurrentUserService
     Guid? ImpersonatorUserId => null;
 
     bool IsImpersonating => ImpersonationSessionId is not null;
+
+    /// <summary>
+    /// Cliente del canal Web Service (M3-17) que autenticó la solicitud con su clave; <see cref="UserId"/> es entonces su
+    /// usuario técnico. Nulo para los usuarios del portal.
+    /// </summary>
+    Guid? ApiClientId => null;
 }

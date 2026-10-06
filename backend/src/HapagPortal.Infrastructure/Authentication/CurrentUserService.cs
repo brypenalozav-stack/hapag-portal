@@ -58,4 +58,8 @@ public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor)
         Guid.TryParse(User?.FindFirstValue(ImpersonationClaims.ActorUserId), out var id) ? id : null;
 
     public bool IsImpersonating => ImpersonationSessionId is not null;
+
+    // M3-17: la clave del canal Web Service autentica al usuario técnico de su cliente.
+    public Guid? ApiClientId =>
+        Guid.TryParse(User?.FindFirstValue(ApiClientClaims.ClientId), out var id) ? id : null;
 }

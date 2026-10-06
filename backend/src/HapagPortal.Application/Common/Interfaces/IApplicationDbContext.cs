@@ -91,6 +91,11 @@ public interface IApplicationDbContext
     DbSet<ContactListChange> ContactListChanges { get; }
     DbSet<CarrierPreRegistration> CarrierPreRegistrations { get; }
     DbSet<OrganizationParentLink> OrganizationParentLinks { get; }
+    DbSet<ReleaseLetterRequest> ReleaseLetterRequests { get; }
+    DbSet<AssistantDocumentDelivery> AssistantDocumentDeliveries { get; }
+    DbSet<ApiClient> ApiClients { get; }
+    DbSet<ApiClientKey> ApiClientKeys { get; }
+    DbSet<ApiClientRequest> ApiClientRequests { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -1,0 +1,584 @@
+# CT-WS – Canal de requerimientos vía Web Service para clientes (M3-17) – API entrante del portal
+# Documento en estado PROPUESTA (Fase 2, Ola J). Ver docs/integraciones/README.md, sección "Canal Web Service de clientes".
+openapi: 3.1.0
+info:
+  title: Portal Hapag-Lloyd – canal de requerimientos vía Web Service (clientes)
+  version: 0.1.0
+  description: |
+    PROPUESTA – pendiente de validación con Nexus/IT – Lucho (apoyo: Área Seguridad TI)
+
+    Canal máquina a máquina para clientes de alto volumen (M3-17, decisión Q1: Fase 2, desarrollado y administrado por
+    Hapag-Lloyd). Primera definición de procesos: carta de responsabilidad (M6-06) y cambio de almacén individual y masivo
+    (M3-04, M3-05). El alcance definitivo, el soporte y el mantenimiento se validan con los responsables antes de abrirlo a
+    clientes reales.
+
+    Arquitectura: el canal es parte de la API del portal (`/api/ws/v1`), separado del portal web (`/api/v1`). Cada
+    operación ejecuta el mismo comando que la interfaz, con el usuario técnico del cliente (perfil que opera de su
+    organización): mismas reglas de acceso por rol y embarque (M1-11), segregación por cliente (NF-05), mismos estados y
+    la misma trazabilidad (NF-14). Un BL de otra organización no existe para el cliente (404).
+
+    Autenticación (NF-09): clave por cliente en la cabecera `X-Api-Key` (`hlws_<prefijo>_<secreto>`, 256 bits). El área
+    interna la emite, rota (con período de gracia opcional) y revoca desde `/api/v1/admin/api-clients` sin desplegar; la
+    clave se muestra una sola vez y el portal guarda solo su SHA-256. Una clave no abre el portal web ni un token del
+    portal abre el canal. Todo el tráfico va por canal cifrado (NF-07).
+
+    Alcances por cliente: `responsibility-letter`, `warehouse-change` (403 `WebService.ScopeNotGranted`). Límite por
+    cliente: solicitudes por minuto configurables (429 `WebService.RateLimited`; los rechazos también cuentan).
+    Idempotencia: las operaciones que crean exigen `Idempotency-Key` (1 a 100 caracteres); el reintento idéntico
+    devuelve la misma respuesta con `Idempotent-Replayed: true`; la misma clave con otro contenido o mientras la primera
+    se procesa responde 409 `IdempotencyKey.Conflict`; tras una falla del portal (5xx) se puede reintentar con la misma
+    clave. Cada solicitud queda en la bitácora del canal con cliente, clave, usuario técnico, organización, resultado y
+    lo creado; los documentos emitidos registran el canal `WebService`.
+
+    Sin notificaciones salientes en esta entrega (sin webhooks): el cliente consulta el estado con
+    `GET /requests/{id}` (por ejemplo, el avance de una solicitud masiva).
+
+    Carta de responsabilidad: la firma la organización con el firmante que designó para el canal (configurado por el área
+    interna); la solicitud acepta los términos vigentes (`GET /responsibility-letters/terms`). Igual que en el portal, solo
+    el consignee Freight Forwarder (o quien la reciba por un acceso otorgado) puede emitirla.
+  x-contrato: CT-WS
+  x-estado: 'PROPUESTA – pendiente de validación con Nexus/IT – Lucho (apoyo: Área Seguridad TI)'
+  x-responsable: 'Nexus/IT – Lucho (apoyo: Área Seguridad TI)'
+servers:
+  - url: '{baseUrl}/api/ws/v1'
+    variables:
+      baseUrl:
+        default: https://localhost:5001
+security:
+  - ApiKey: []
+paths:
+  /me:
+    get:
+      operationId: getClientInfo
+      summary: Cliente autenticado (prueba de conexión)
+      responses:
+        '200':
+          description: Cliente, organización, alcances, límite y versión vigente de los términos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientInfo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /responsibility-letters/terms:
+    get:
+      operationId: getResponsibilityLetterTerms
+      summary: Términos vigentes de la carta de responsabilidad
+      responses:
+        '200':
+          description: Versión, título y texto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Terms'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /responsibility-letters:
+    post:
+      operationId: submitResponsibilityLetter
+      summary: Emite la carta de responsabilidad de un BL (M6-06)
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResponsibilityLetterRequest'
+      responses:
+        '201':
+          description: Carta emitida y publicada en el repositorio del embarque
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShipmentDocument'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /warehouse-changes:
+    post:
+      operationId: submitWarehouseChange
+      summary: Solicita un cambio de almacén (M3-04)
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WarehouseChangeRequest'
+      responses:
+        '201':
+          description: Cambio registrado (gratuito y completado, o pendiente de pago en el portal)
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarehouseChange'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /warehouse-changes/bulk:
+    post:
+      operationId: submitWarehouseChangeBatch
+      summary: Solicita cambios de almacén masivos (M3-05, NF-19)
+      description: Hasta 500 líneas. Las líneas sin acceso fallan de inmediato; el resto se procesa en segundo plano.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items:
+                  type: array
+                  minItems: 1
+                  maxItems: 500
+                  items:
+                    $ref: '#/components/schemas/WarehouseChangeRequest'
+      responses:
+        '202':
+          description: Solicitud masiva recibida; consultar su avance con GET /requests/{id}
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarehouseChangeBatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /requests:
+    get:
+      operationId: listRequests
+      summary: Solicitudes enviadas por el cliente, más recientes primero
+      parameters:
+        - name: operation
+          in: query
+          schema:
+            type: string
+            enum: [ResponsibilityLetter, WarehouseChange, WarehouseChangeBatch]
+        - name: outcome
+          in: query
+          schema:
+            $ref: '#/components/schemas/Outcome'
+        - name: blNumber
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Página de solicitudes con el estado actual de lo creado
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total, page, pageSize]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Request'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /requests/{id}:
+    get:
+      operationId: getRequest
+      summary: Estado de una solicitud del cliente (con el detalle por línea de una masiva)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Solicitud
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Clave única por solicitud que crea (1 a 100 caracteres), por ejemplo un UUID.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 100
+  headers:
+    IdempotentReplayed:
+      description: '`true` cuando la respuesta es la guardada de un reintento con la misma clave de idempotencia.'
+      schema:
+        type: string
+        enum: ['true']
+  responses:
+    BadRequest:
+      description: Datos inválidos, falta Idempotency-Key o regla del portal no cumplida
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Unauthorized:
+      description: Clave ausente, desconocida, vencida o revocada (`WebService.InvalidApiKey`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Forbidden:
+      description: Alcance no habilitado (`WebService.ScopeNotGranted`) o la matriz de M1-11 no permite la acción (`Error.Forbidden`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: BL o solicitud inexistente o de otra organización (no se distingue)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Conflict:
+      description: Idempotency-Key reutilizada con otro contenido o en proceso (`IdempotencyKey.Conflict`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    RateLimited:
+      description: Límite de solicitudes por minuto del cliente (`WebService.RateLimited`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    Problem:
+      type: object
+      description: RFC 9457. `title` es el código de error del portal.
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+    ClientInfo:
+      type: object
+      properties:
+        clientId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        organizationId:
+          type: string
+          format: uuid
+        organizationName:
+          type: string
+        organizationTaxId:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+            enum: [responsibility-letter, warehouse-change]
+        rateLimitPerMinute:
+          type: integer
+        signatoryConfigured:
+          type: boolean
+        responsibilityLetterTermsVersion:
+          type: string
+          examples: [CARTA-RESP-2026-10]
+    Terms:
+      type: object
+      properties:
+        version:
+          type: string
+        title:
+          type: string
+        text:
+          type: string
+    ResponsibilityLetterRequest:
+      type: object
+      required: [blNumber, acceptTerms, termsVersion]
+      properties:
+        blNumber:
+          type: string
+          maxLength: 50
+        acceptTerms:
+          type: boolean
+        termsVersion:
+          type: string
+          description: Debe ser la versión vigente (`ResponsibilityLetter.TermsVersionMismatch` si no).
+        cargoDescription:
+          type: [string, 'null']
+          maxLength: 500
+        observations:
+          type: [string, 'null']
+          maxLength: 1000
+        contactPhone:
+          type: [string, 'null']
+          maxLength: 30
+    ShipmentDocument:
+      type: object
+      description: Documento del repositorio del embarque (mismo formato que `GET /api/v1/documents/{blNumber}`).
+      properties:
+        id:
+          type: string
+          format: uuid
+        documentType:
+          type: string
+          examples: [ResponsibilityLetter]
+        documentNumber:
+          type: string
+          examples: [CRE-20261006-1A2B3C4D]
+        status:
+          type: string
+          enum: [Issued, Superseded, Revoked]
+        blNumber:
+          type: string
+        issuedAt:
+          type: string
+          format: date-time
+        verificationCode:
+          type: string
+        termsVersion:
+          type: string
+        termsAcceptedAt:
+          type: string
+          format: date-time
+    WarehouseChangeRequest:
+      type: object
+      required: [blNumber, toWarehouse]
+      properties:
+        blNumber:
+          type: string
+          maxLength: 50
+        containerNumber:
+          type: [string, 'null']
+          maxLength: 20
+        fromWarehouse:
+          type: [string, 'null']
+          maxLength: 100
+        toWarehouse:
+          type: string
+          maxLength: 100
+        tariffCode:
+          type: [string, 'null']
+          maxLength: 20
+    WarehouseChange:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        blNumber:
+          type: string
+        containerNumber:
+          type: [string, 'null']
+        fromWarehouse:
+          type: string
+        toWarehouse:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+          enum: [Completed, Pending, Cancelled]
+        isFree:
+          type: boolean
+        requiresPayment:
+          type: boolean
+    WarehouseChangeBatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [Queued, Processing, Completed, CompletedWithErrors]
+        totalItems:
+          type: integer
+        processedItems:
+          type: integer
+        succeededItems:
+          type: integer
+        failedItems:
+          type: integer
+        progressPercent:
+          type: integer
+    Outcome:
+      type: string
+      enum: [Processing, Accepted, Rejected, Failed]
+    Request:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        operation:
+          type: string
+          enum: [ResponsibilityLetter, WarehouseChange, WarehouseChangeBatch]
+        idempotencyKey:
+          type: [string, 'null']
+        outcome:
+          $ref: '#/components/schemas/Outcome'
+        statusCode:
+          type: [integer, 'null']
+        errorCode:
+          type: [string, 'null']
+        blNumber:
+          type: [string, 'null']
+        receivedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: [string, 'null']
+          format: date-time
+        target:
+          oneOf:
+            - $ref: '#/components/schemas/RequestTarget'
+            - type: 'null'
+    RequestTarget:
+      type: object
+      description: Estado actual en el portal de lo creado por la solicitud.
+      properties:
+        type:
+          type: string
+          enum: [ShipmentDocument, WarehouseChange, WarehouseChangeBatch]
+        id:
+          type: string
+          format: uuid
+        reference:
+          type: [string, 'null']
+        status:
+          type: string
+        blNumber:
+          type: [string, 'null']
+        containerNumber:
+          type: [string, 'null']
+        amount:
+          type: [number, 'null']
+        currency:
+          type: [string, 'null']
+        isFree:
+          type: [boolean, 'null']
+        totalItems:
+          type: [integer, 'null']
+        processedItems:
+          type: [integer, 'null']
+        succeededItems:
+          type: [integer, 'null']
+        failedItems:
+          type: [integer, 'null']
+        completedAt:
+          type: [string, 'null']
+          format: date-time
+        verificationCode:
+          type: [string, 'null']
+        items:
+          type: [array, 'null']
+          items:
+            type: object
+            properties:
+              lineNumber:
+                type: integer
+              blNumber:
+                type: string
+              containerNumber:
+                type: [string, 'null']
+              status:
+                type: string
+                enum: [Pending, Succeeded, Failed]
+              errorCode:
+                type: [string, 'null']
+              warehouseChangeId:
+                type: [string, 'null']
+                format: uuid

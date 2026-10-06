@@ -1,4 +1,6 @@
 using System.Text;
+using HapagPortal.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +38,9 @@ public static partial class DependencyInjectionExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
                     ClockSkew = TimeSpan.Zero,
                 };
-            });
+            })
+            // M3-17: canal Web Service; solo lo usan las rutas /api/ws (el esquema por defecto sigue siendo el JWT del portal).
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyDefaults.Scheme, _ => { });
 
         return services;
     }
