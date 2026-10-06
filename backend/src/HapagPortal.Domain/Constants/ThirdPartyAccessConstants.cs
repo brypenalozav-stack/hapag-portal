@@ -14,10 +14,16 @@ public static class AccessGrantStatus
     public const string Revoked = "Revoked";
     public const string Reconciled = "Reconciled";
 
-    public static readonly string[] All = [PendingAcceptance, Active, Expired, Revoked, Reconciled];
+    /// <summary>
+    /// Acceso asignado a un transportista pre-creado (M1-09): no habilita nada hasta que el transportista ingresa por
+    /// primera vez, momento en que pasa a <see cref="Active"/>.
+    /// </summary>
+    public const string PendingActivation = "PendingActivation";
+
+    public static readonly string[] All = [PendingAcceptance, PendingActivation, Active, Expired, Revoked, Reconciled];
 
     /// <summary>Estados que todavía pueden habilitar o llegar a habilitar el acceso.</summary>
-    public static readonly string[] Open = [PendingAcceptance, Active];
+    public static readonly string[] Open = [PendingAcceptance, PendingActivation, Active];
 }
 
 /// <summary>Vía por la que se creó el acceso (M1-12, M1-13, M1-20).</summary>
@@ -76,6 +82,17 @@ public static class AccessAuditEvents
     public const string DefaultGranteeAdded = "DefaultGranteeAdded";
     public const string DefaultGranteeUpdated = "DefaultGranteeUpdated";
     public const string DefaultGranteeRemoved = "DefaultGranteeRemoved";
+
+    // Fase 2 Ola I: transportistas pre-creados (M1-09) y visibilidad hacia la empresa matriz (M1-21).
+    public const string CarrierPreCreated = "CarrierPreCreated";
+    public const string CarrierActivated = "CarrierActivated";
+    public const string GrantActivated = "GrantActivated";
+    public const string ParentLinkRequested = "ParentLinkRequested";
+    public const string ParentLinkApproved = "ParentLinkApproved";
+    public const string ParentLinkRejected = "ParentLinkRejected";
+    public const string ParentLinkRemoved = "ParentLinkRemoved";
+    public const string ParentVisibilityEnabled = "ParentVisibilityEnabled";
+    public const string ParentVisibilityDisabled = "ParentVisibilityDisabled";
 }
 
 /// <summary>

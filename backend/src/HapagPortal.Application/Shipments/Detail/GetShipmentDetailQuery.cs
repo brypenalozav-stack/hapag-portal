@@ -4,6 +4,7 @@ using FluentValidation;
 using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Counter;
 using HapagPortal.Application.Shipments.Common;
 using HapagPortal.Application.Shipments.Issuance;
 using HapagPortal.Domain.Constants;
@@ -140,6 +141,19 @@ public sealed class GetShipmentDetailQueryHandler(
             ? ShipmentPublicationView.From(bl, await accessEvaluator.GetPublicationAsync(bl, cancellationToken))
             : null;
 
+        // M1-21: la empresa matriz ve de qué filial es el BL.
+        var origin = permissions.OriginOrganizationId is { } originId
+            ? await dbContext.Clients.AsNoTracking()
+                .Where(c => c.Id == originId)
+                .Select(c => new ShipmentOriginOrganizationDto(c.Id, c.Name, c.TaxId))
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
+        // M8-09: los perfiles internos consultan el estado de Counter (canje, HBL, desconsolidado) desde el detalle.
+        var counter = scope.IsAdmin
+            ? await dbContext.CounterRecords.AsNoTracking().FirstOrDefaultAsync(r => r.BillOfLadingId == bl.Id, cancellationToken)
+            : null;
+
         return Result<ShipmentDetailDto>.Success(new ShipmentDetailDto(
             bl.Id,
             bl.BLNumber,
@@ -171,6 +185,8 @@ public sealed class GetShipmentDetailQueryHandler(
             bl.PortOfDischargeCode,
             bl.FinalDestinationCode,
             issuance,
-            publication));
+            publication,
+            origin,
+            counter is null ? null : CounterViews.ToDto(counter)));
     }
 }

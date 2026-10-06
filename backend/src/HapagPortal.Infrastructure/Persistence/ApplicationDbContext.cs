@@ -1,11 +1,14 @@
 using System.Text.Json;
 using HapagPortal.Application.AccountPayments;
+using HapagPortal.Application.Announcements;
 using HapagPortal.Application.Assistant;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Maintainers;
+using HapagPortal.Application.Counter;
 using HapagPortal.Application.DangerousGoods;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.PostPayment;
+using HapagPortal.Application.Guides;
 using HapagPortal.Application.InternalChargeRules;
 using HapagPortal.Application.Payments.Maintainers;
 using HapagPortal.Application.Reinvoicing;
@@ -104,6 +107,15 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<DepositProof> DepositProofs => Set<DepositProof>();
     public DbSet<CreditImputationRule> CreditImputationRules => Set<CreditImputationRule>();
     public DbSet<InvoiceReissue> InvoiceReissues => Set<InvoiceReissue>();
+    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
+    public DbSet<Announcement> Announcements => Set<Announcement>();
+    public DbSet<GuideDefinition> GuideDefinitions => Set<GuideDefinition>();
+    public DbSet<UserGuideState> UserGuideStates => Set<UserGuideState>();
+    public DbSet<ImpersonationSession> ImpersonationSessions => Set<ImpersonationSession>();
+    public DbSet<CounterRecord> CounterRecords => Set<CounterRecord>();
+    public DbSet<ContactListChange> ContactListChanges => Set<ContactListChange>();
+    public DbSet<CarrierPreRegistration> CarrierPreRegistrations => Set<CarrierPreRegistration>();
+    public DbSet<OrganizationParentLink> OrganizationParentLinks => Set<OrganizationParentLink>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -128,6 +140,582 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         SeedPortalAssistantDemo(modelBuilder, faqs);
         SeedOnDemandServices(modelBuilder);
         SeedFinanceDemo(modelBuilder);
+        SeedAdministrationDemo(modelBuilder);
+    }
+
+    /// <summary>
+    /// Fase 2 Ola I (administración): empresa matriz «Grupo Demo Holding S.A.» con Importadora Demo como filial que le
+    /// comparte sus BL (M1-21) y una solicitud pendiente de Comercial Altiplano para la revisión interna; transportista
+    /// pre-creado por Importadora Demo con un BL asignado pendiente de activación (M1-09); comunicados de Chile
+    /// (importación) y Bolivia (exportación) publicados y uno en borrador (M1-26); la guía del carro de pago (M1-27);
+    /// registros de Counter de Bolivia, uno sincronizado y otro pendiente de reintento (M8-09); un cambio de lista de
+    /// distribución (M1-06); una sesión de «Vista como cliente» terminada con su auditoría (M8-08); preferencias de correo
+    /// y notificaciones con acción pendiente en la bandeja (M1-25).
+    /// </summary>
+    private static void SeedAdministrationDemo(ModelBuilder modelBuilder)
+    {
+        var created = new DateTime(2026, 10, 5, 12, 0, 0, DateTimeKind.Utc);
+
+        // BCrypt hash of "Admin123!" with work factor 12 (reused for all demo users)
+        const string demoPasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca";
+
+        // ── Empresa matriz (M1-21) ─────────────────────────────────
+        modelBuilder.Entity<Client>().HasData(
+            new Client
+            {
+                Id = SeedDataIds.HoldingClient,
+                Name = "Grupo Demo Holding S.A.",
+                TaxId = "96.700.100-1",
+                TaxIdType = "RUT",
+                Country = CountryCodes.Chile,
+                Email = "holding@grupodemo.cl",
+                Phone = "+56 2 2400 1000",
+                ClientType = "Client",
+                OrganizationType = OrganizationTypes.Customer,
+                RegistrationStatus = OrganizationStatus.Approved,
+                MatchCode = "MC100090",
+                OperatingCountries = "CL,BO",
+                ApprovedAt = created,
+                IsActive = true,
+                IsEmailConfirmed = true,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            // Transportista pre-creado por Importadora Demo (M1-09): sin registro propio hasta su primer ingreso.
+            new Client
+            {
+                Id = SeedDataIds.PreCreatedCarrierClient,
+                Name = "Transportes Cordillera Ltda.",
+                TaxId = "77.123.321-5",
+                TaxIdType = "RUT",
+                Country = CountryCodes.Chile,
+                Email = "contacto@transportescordillera.cl",
+                ClientType = "Client",
+                OrganizationType = OrganizationTypes.Carrier,
+                RegistrationStatus = OrganizationStatus.PreCreated,
+                OperatingCountries = "CL",
+                ReviewNotes = "Pre-creado por Importadora Demo SpA (M1-09).",
+                IsActive = true,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            });
+
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = SeedDataIds.HoldingUser,
+                Username = "holding@grupodemo.cl",
+                Email = "holding@grupodemo.cl",
+                PasswordHash = demoPasswordHash,
+                UserType = UserTypes.Client,
+                Country = CountryCodes.Chile,
+                FirstName = "Hilda",
+                LastName = "Holding",
+                IsActive = true,
+                MembershipStatus = MembershipStatus.Active,
+                ClientId = SeedDataIds.HoldingClient,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            // Usuario invitado del transportista. Para la demo tiene la contraseña de los demás usuarios; el código de
+            // invitación también permite definir otra con el restablecimiento de contraseña (M1-10).
+            new User
+            {
+                Id = SeedDataIds.PreCreatedCarrierUser,
+                Username = "contacto@transportescordillera.cl",
+                Email = "contacto@transportescordillera.cl",
+                PasswordHash = demoPasswordHash,
+                UserType = UserTypes.Client,
+                Country = CountryCodes.Chile,
+                FirstName = "Tomás",
+                LastName = "Cordillera",
+                IsActive = true,
+                MembershipStatus = MembershipStatus.Active,
+                MembershipDecidedAt = created,
+                MembershipDecidedBy = "demo@importadorademo.cl",
+                PasswordResetToken = "CARRIER-DEMO-INVITE-2026-10",
+                PasswordResetTokenExpiry = new DateTime(2026, 12, 31, 23, 59, 0, DateTimeKind.Utc),
+                ClientId = SeedDataIds.PreCreatedCarrierClient,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            });
+
+        modelBuilder.Entity<UserRole>().HasData(
+            new UserRole
+            {
+                Id = DeterministicGuid($"user-profile:{SeedDataIds.HoldingUser}"),
+                UserId = SeedDataIds.HoldingUser,
+                RoleName = RoleCodes.OrgAdmin,
+                RoleId = DeterministicGuid($"role:{RoleCodes.OrgAdmin}")
+            },
+            new UserRole
+            {
+                Id = DeterministicGuid($"user-profile:{SeedDataIds.PreCreatedCarrierUser}"),
+                UserId = SeedDataIds.PreCreatedCarrierUser,
+                RoleName = RoleCodes.OrgAdmin,
+                RoleId = DeterministicGuid($"role:{RoleCodes.OrgAdmin}")
+            });
+
+        modelBuilder.Entity<OrganizationParentLink>().HasData(
+            new OrganizationParentLink
+            {
+                Id = SeedDataIds.ParentLinkImportadora,
+                OrganizationId = SeedDataIds.DemoClientCL,
+                ParentOrganizationId = SeedDataIds.HoldingClient,
+                Status = ParentLinkStatus.Active,
+                VisibilityEnabled = true,
+                VisibilityChangedAt = created,
+                VisibilityChangedBy = "demo@importadorademo.cl",
+                RequestedAt = created,
+                RequestedByUserId = SeedDataIds.DemoUserCL,
+                RequestedBy = "demo@importadorademo.cl",
+                Notes = "Importadora Demo es filial del grupo.",
+                DecidedAt = created.AddHours(2),
+                DecidedBy = "admin@hapag-lloyd.cl",
+                DecisionNotes = "Escritura de constitución del grupo verificada."
+            },
+            new OrganizationParentLink
+            {
+                Id = SeedDataIds.ParentLinkAltiplanoPending,
+                OrganizationId = SeedDataIds.DemoClientBO,
+                ParentOrganizationId = SeedDataIds.HoldingClient,
+                Status = ParentLinkStatus.Pending,
+                VisibilityEnabled = true,
+                VisibilityChangedAt = created.AddHours(3),
+                VisibilityChangedBy = "demo@altiplano.bo",
+                RequestedAt = created.AddHours(3),
+                RequestedByUserId = SeedDataIds.DemoUserBO,
+                RequestedBy = "demo@altiplano.bo",
+                Notes = "Filial boliviana del grupo."
+            });
+
+        // ── Transportista pre-creado con un BL asignado (M1-09) ────
+        var customer = Array.IndexOf(ShipmentRoleCodes.MatrixColumns, ShipmentRoleCodes.Customer);
+        var consignee = Array.IndexOf(ShipmentRoleCodes.MatrixColumns, ShipmentRoleCodes.Consignee);
+        var ceiling = ActionCodeList.Format(AccessMatrixBaseline.Actions
+            .Where(a => a.Scope == ShipmentActionScopes.Shipment
+                && (a.Levels[customer] == AccessLevels.Allowed || a.Levels[consignee] == AccessLevels.Allowed))
+            .Select(a => a.Code));
+
+        modelBuilder.Entity<CarrierPreRegistration>().HasData(new CarrierPreRegistration
+        {
+            Id = SeedDataIds.CarrierPreRegistrationDemo,
+            CarrierOrganizationId = SeedDataIds.PreCreatedCarrierClient,
+            CarrierUserId = SeedDataIds.PreCreatedCarrierUser,
+            RequestedByOrganizationId = SeedDataIds.DemoClientCL,
+            RequestedByUserId = SeedDataIds.DemoUserCL,
+            RequestedBy = "demo@importadorademo.cl",
+            LegalName = "Transportes Cordillera Ltda.",
+            TaxId = "77.123.321-5",
+            Email = "contacto@transportescordillera.cl",
+            Country = CountryCodes.Chile,
+            DurationDays = 90,
+            Status = CarrierPreRegistrationStatus.Pending,
+            CreatedAt = created,
+            InvitationSentAt = created
+        });
+
+        modelBuilder.Entity<AccessGrant>().HasData(new AccessGrant
+        {
+            Id = SeedDataIds.CarrierGrantBL02,
+            GrantorClientId = SeedDataIds.DemoClientCL,
+            GrantorRole = ShipmentRoleCodes.Customer,
+            GranteeClientId = SeedDataIds.PreCreatedCarrierClient,
+            BillOfLadingId = SeedDataIds.BL02,
+            BookingNumber = "HLCUBKG2502004",
+            GrantType = AccessGrantTypes.Individual,
+            CeilingActionCodes = ceiling,
+            ValidityType = AccessValidityTypes.Duration,
+            ValidFrom = created,
+            DurationDays = 90,
+            Status = AccessGrantStatus.PendingActivation,
+            GrantedByUserId = SeedDataIds.DemoUserCL,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        });
+
+        modelBuilder.Entity<AccessAuditEntry>().HasData(
+            new AccessAuditEntry
+            {
+                Id = DeterministicGuid("access-audit:olai:carrier-pre-created"),
+                OccurredAt = created,
+                EventType = AccessAuditEvents.CarrierPreCreated,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.PreCreatedCarrierClient,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = $$"""{"preRegistrationId":"{{SeedDataIds.CarrierPreRegistrationDemo}}","created":true,"source":"seed"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = DeterministicGuid("access-audit:olai:carrier-grant-bl02"),
+                OccurredAt = created,
+                EventType = AccessAuditEvents.GrantCreated,
+                BillOfLadingId = SeedDataIds.BL02,
+                BlNumber = "HLCUVAL250200456",
+                BookingNumber = "HLCUBKG2502004",
+                AccessGrantId = SeedDataIds.CarrierGrantBL02,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.PreCreatedCarrierClient,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = """{"grantType":"Individual","preCreatedCarrier":true,"status":"PendingActivation","durationDays":90,"source":"seed"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = DeterministicGuid("access-audit:olai:parent-link-requested"),
+                OccurredAt = created,
+                EventType = AccessAuditEvents.ParentLinkRequested,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.HoldingClient,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = $$"""{"parentLinkId":"{{SeedDataIds.ParentLinkImportadora}}","visibilityEnabled":true,"source":"seed"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = DeterministicGuid("access-audit:olai:parent-link-approved"),
+                OccurredAt = created.AddHours(2),
+                EventType = AccessAuditEvents.ParentLinkApproved,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.HoldingClient,
+                ActorUserId = SeedDataIds.AdminUser,
+                ActorEmail = "admin@hapag-lloyd.cl",
+                ActorClientId = SeedDataIds.AdminClient,
+                Details = $$"""{"parentLinkId":"{{SeedDataIds.ParentLinkImportadora}}","source":"seed"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = DeterministicGuid("access-audit:olai:parent-link-requested-bo"),
+                OccurredAt = created.AddHours(3),
+                EventType = AccessAuditEvents.ParentLinkRequested,
+                GrantorClientId = SeedDataIds.DemoClientBO,
+                GranteeClientId = SeedDataIds.HoldingClient,
+                ActorUserId = SeedDataIds.DemoUserBO,
+                ActorEmail = "demo@altiplano.bo",
+                ActorClientId = SeedDataIds.DemoClientBO,
+                Details = $$"""{"parentLinkId":"{{SeedDataIds.ParentLinkAltiplanoPending}}","visibilityEnabled":true,"source":"seed"}"""
+            });
+
+        // ── Comunicados (M1-26) ────────────────────────────────────
+        var announcements = new[]
+        {
+            new Announcement
+            {
+                Id = SeedDataIds.AnnouncementCL,
+                TitleEs = "Nuevo horario del depósito de vacíos en San Antonio",
+                TitleEn = "New opening hours at the San Antonio empty depot",
+                BodyEs = "Desde el 1 de octubre el depósito de vacíos de San Antonio recibe devoluciones de lunes a sábado de 08:00 a 20:00. Programe el Gate In con anticipación para evitar demoras.",
+                BodyEn = "From October 1st the San Antonio empty depot receives returns Monday to Saturday from 08:00 to 20:00. Schedule the Gate In in advance to avoid delays.",
+                Countries = CountryCodes.Chile,
+                Operation = AnnouncementOperations.Import,
+                Severity = AnnouncementSeverities.Important,
+                ValidFrom = new DateTime(2026, 10, 1, 3, 0, 0, DateTimeKind.Utc),
+                ValidTo = new DateTime(2027, 1, 1, 3, 0, 0, DateTimeKind.Utc),
+                Status = AnnouncementStatus.Published,
+                PublishedAt = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc),
+                PublishedBy = "admin@hapag-lloyd.cl",
+                NotifyOnPublish = false,
+                CreatedAt = new DateTime(2026, 10, 1, 11, 30, 0, DateTimeKind.Utc),
+                CreatedBy = "admin@hapag-lloyd.cl"
+            },
+            new Announcement
+            {
+                Id = SeedDataIds.AnnouncementBO,
+                TitleEs = "Canje de BL de exportación boliviana en Arica",
+                TitleEn = "Bolivian export BL exchange in Arica",
+                BodyEs = "El canje de los BL de exportación de Bolivia se realiza en el Counter de Arica presentando el BL original y la carta de liberación. El estado del canje queda visible en el detalle del embarque.",
+                BodyEn = "Bolivian export BLs are exchanged at the Arica Counter presenting the original BL and the release letter. The exchange status is shown in the shipment detail.",
+                Countries = CountryCodes.Bolivia,
+                Operation = AnnouncementOperations.Export,
+                Severity = AnnouncementSeverities.Info,
+                ValidFrom = new DateTime(2026, 10, 2, 4, 0, 0, DateTimeKind.Utc),
+                Status = AnnouncementStatus.Published,
+                PublishedAt = new DateTime(2026, 10, 2, 13, 0, 0, DateTimeKind.Utc),
+                PublishedBy = "admin@hapag-lloyd.cl",
+                NotifyOnPublish = false,
+                CreatedAt = new DateTime(2026, 10, 2, 12, 45, 0, DateTimeKind.Utc),
+                CreatedBy = "admin@hapag-lloyd.cl"
+            },
+            new Announcement
+            {
+                Id = SeedDataIds.AnnouncementDraft,
+                TitleEs = "Mantención programada del portal",
+                TitleEn = "Scheduled portal maintenance",
+                BodyEs = "El portal no estará disponible el 20 de octubre entre las 23:00 y las 23:59 (hora de Chile) por mantención programada.",
+                BodyEn = "The portal will be unavailable on October 20th between 23:00 and 23:59 (Chile time) for scheduled maintenance.",
+                Countries = "CL,BO",
+                Operation = AnnouncementOperations.Both,
+                Severity = AnnouncementSeverities.Important,
+                ValidFrom = new DateTime(2026, 10, 15, 3, 0, 0, DateTimeKind.Utc),
+                ValidTo = new DateTime(2026, 10, 21, 3, 0, 0, DateTimeKind.Utc),
+                Status = AnnouncementStatus.Draft,
+                NotifyOnPublish = true,
+                CreatedAt = created,
+                CreatedBy = "admin@hapag-lloyd.cl"
+            }
+        };
+        modelBuilder.Entity<Announcement>().HasData(announcements);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(announcements.Select(a => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:announcement:{a.Id}"),
+            Maintainer = MaintainerNames.Announcement,
+            EntityId = a.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(AnnouncementSnapshot.From(a), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = a.CreatedAt,
+            ChangedByUserId = SeedDataIds.AdminUser,
+            ChangedBy = "admin@hapag-lloyd.cl"
+        }));
+
+        // ── Guía del carro de pago (M1-27) ─────────────────────────
+        var cartGuide = new GuideDefinition
+        {
+            Id = SeedDataIds.GuideCart,
+            Code = "cart-checkout",
+            NameEs = "Cómo pagar desde el carro",
+            NameEn = "How to pay from the cart",
+            DescriptionEs = "Recorre el carro unificado: cargos agregados, RUT de facturación, moneda, medio de pago y confirmación.",
+            DescriptionEn = "Walks through the unified cart: added charges, billing tax ID, currency, payment method and confirmation.",
+            Route = "/cart",
+            Audience = GuideAudiences.Client,
+            IsActive = true,
+            DisplayOrder = 10,
+            Version = 1,
+            StepsJson = GuideSteps.Serialize(
+            [
+                new GuideStepDto(1, "/cart", "cart.items", "Revise los cargos", "Review the charges",
+                    "Aquí están los cargos que agregó desde sus embarques, agrupados por moneda. Puede quitar los que no pagará ahora.",
+                    "These are the charges you added from your shipments, grouped by currency. You can remove the ones you will not pay now."),
+                new GuideStepDto(2, "/cart", "cart.billing-tax-id", "RUT de facturación", "Billing tax ID",
+                    "Indique a qué RUT se emitirá la factura de cada cargo. Por defecto es el de su organización.",
+                    "Choose the tax ID to be invoiced for each charge. By default it is your organization's."),
+                new GuideStepDto(3, "/cart", "cart.currency", "Moneda de pago", "Payment currency",
+                    "Elija la moneda en que pagará; si es distinta de la del cargo se usa el tipo de cambio del día.",
+                    "Choose the payment currency; if it differs from the charge currency the day's exchange rate applies."),
+                new GuideStepDto(4, "/cart", "cart.payment-method", "Medio de pago", "Payment method",
+                    "Seleccione el medio de pago habilitado para su país y moneda.",
+                    "Select a payment method enabled for your country and currency."),
+                new GuideStepDto(5, "/cart", "cart.checkout", "Pague", "Pay",
+                    "Confirme el pago. Recibirá el comprobante en la bandeja de notificaciones y en el historial de pagos.",
+                    "Confirm the payment. You will receive the receipt in the notification inbox and in the payment history.")
+            ]),
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        };
+        modelBuilder.Entity<GuideDefinition>().HasData(cartGuide);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:guide:{cartGuide.Id}"),
+            Maintainer = MaintainerNames.Guide,
+            EntityId = cartGuide.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(GuideSnapshot.From(cartGuide), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        });
+
+        // ── Counter Bolivia/Ultramar (M8-09) ───────────────────────
+        var counterRecords = new[]
+        {
+            new CounterRecord
+            {
+                Id = SeedDataIds.CounterRecordBL08,
+                BillOfLadingId = SeedDataIds.BL08,
+                BlNumber = "HLCUARI260300830",
+                Country = CountryCodes.Bolivia,
+                ExchangeDate = new DateOnly(2026, 10, 2),
+                HblReceived = true,
+                HblReceivedAt = new DateOnly(2026, 10, 3),
+                Deconsolidated = false,
+                SyncStatus = CounterSyncStatus.Synced,
+                SyncedAt = new DateTime(2026, 10, 3, 14, 0, 0, DateTimeKind.Utc),
+                SourceReference = "CNT-BO-000830",
+                RecordedByUserId = SeedDataIds.AdminUser,
+                RecordedBy = "admin@hapag-lloyd.cl",
+                RecordedAt = new DateTime(2026, 10, 3, 14, 0, 0, DateTimeKind.Utc),
+                CreatedAt = new DateTime(2026, 10, 3, 14, 0, 0, DateTimeKind.Utc),
+                CreatedBy = "admin@hapag-lloyd.cl"
+            },
+            new CounterRecord
+            {
+                Id = SeedDataIds.CounterRecordBL04,
+                BillOfLadingId = SeedDataIds.BL04,
+                BlNumber = "HLCUARI260100045",
+                Country = CountryCodes.Bolivia,
+                ExchangeDate = new DateOnly(2026, 10, 4),
+                HblReceived = true,
+                HblReceivedAt = new DateOnly(2026, 10, 4),
+                Deconsolidated = true,
+                DeconsolidatedAt = new DateOnly(2026, 10, 5),
+                Notes = "Desconsolidado en el depósito de Arica.",
+                SyncStatus = CounterSyncStatus.Failed,
+                SyncError = "Integration.Unavailable",
+                RecordedByUserId = SeedDataIds.AdminUser,
+                RecordedBy = "admin@hapag-lloyd.cl",
+                RecordedAt = created,
+                CreatedAt = created,
+                CreatedBy = "admin@hapag-lloyd.cl"
+            }
+        };
+        modelBuilder.Entity<CounterRecord>().HasData(counterRecords);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(counterRecords.Select(r => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:counter:{r.Id}"),
+            Maintainer = MaintainerNames.CounterRecord,
+            EntityId = r.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(CounterRecordSnapshot.From(r) with { SyncStatus = CounterSyncStatus.Pending, SourceReference = null },
+                MaintainerChangeLogger.JsonOptions),
+            ChangedAt = r.RecordedAt,
+            ChangedByUserId = SeedDataIds.AdminUser,
+            ChangedBy = "admin@hapag-lloyd.cl"
+        }));
+
+        // ── Lista de distribución (M1-06) ──────────────────────────
+        modelBuilder.Entity<ContactListChange>().HasData(new ContactListChange
+        {
+            Id = SeedDataIds.ContactListChangeDemo,
+            OrganizationId = SeedDataIds.DemoClientCL,
+            ReportType = ContactReportTypes.Invoices,
+            PreviousEmails = "contabilidad@importadorademo.cl",
+            NewEmails = "finanzas@importadorademo.cl",
+            Status = ContactListChangeStatus.Propagated,
+            SourceReference = "P0060-SEED0001",
+            ChangedByUserId = SeedDataIds.DemoUserCL,
+            ChangedBy = "demo@importadorademo.cl",
+            ChangedAt = new DateTime(2026, 9, 15, 13, 0, 0, DateTimeKind.Utc)
+        });
+
+        // ── «Vista como cliente» terminada, con su auditoría (M8-08) ─
+        var sessionStart = new DateTime(2026, 10, 4, 15, 0, 0, DateTimeKind.Utc);
+        modelBuilder.Entity<ImpersonationSession>().HasData(new ImpersonationSession
+        {
+            Id = SeedDataIds.ImpersonationSessionDemo,
+            ActorUserId = SeedDataIds.AdminUser,
+            ActorEmail = "admin@hapag-lloyd.cl",
+            SubjectUserId = SeedDataIds.DemoUserCL,
+            SubjectEmail = "demo@importadorademo.cl",
+            OrganizationId = SeedDataIds.DemoClientCL,
+            OrganizationName = "Importadora Demo SpA",
+            Reason = "Ticket CS-2026-1004: el cliente no ve el flete del BL HLCUVAL250200456.",
+            Status = ImpersonationStatus.Ended,
+            StartedAt = sessionStart,
+            ExpiresAt = sessionStart.AddMinutes(30),
+            EndedAt = sessionStart.AddMinutes(12),
+            EndReason = ImpersonationEndReasons.Manual,
+            DurationSeconds = 720,
+            RequestCount = 6,
+            BlockedCount = 1,
+            SourceAddress = "10.0.0.15"
+        });
+
+        var sessionParties = $$"""
+            "actorUserId":"{{SeedDataIds.AdminUser}}","actorEmail":"admin@hapag-lloyd.cl","subjectUserId":"{{SeedDataIds.DemoUserCL}}","subjectEmail":"demo@importadorademo.cl","organizationId":"{{SeedDataIds.DemoClientCL}}","organizationName":"Importadora Demo SpA"
+            """;
+        modelBuilder.Entity<AuditLog>().HasData(
+            new AuditLog
+            {
+                Id = DeterministicGuid("audit:impersonation:started"),
+                EntityName = ImpersonationAuditActions.EntityName,
+                EntityId = SeedDataIds.ImpersonationSessionDemo.ToString(),
+                Action = ImpersonationAuditActions.Started,
+                NewValues = "{" + sessionParties + ",\"details\":{\"reason\":\"Ticket CS-2026-1004\",\"readOnly\":true,\"allowedActions\":[]}}",
+                UserId = SeedDataIds.AdminUser.ToString(),
+                Timestamp = sessionStart
+            },
+            new AuditLog
+            {
+                Id = DeterministicGuid("audit:impersonation:blocked"),
+                EntityName = ImpersonationAuditActions.EntityName,
+                EntityId = SeedDataIds.ImpersonationSessionDemo.ToString(),
+                Action = ImpersonationAuditActions.BlockedWrite,
+                NewValues = "{" + sessionParties + ",\"details\":{\"method\":\"POST\",\"path\":\"/api/v1/cart/items\",\"statusCode\":403}}",
+                UserId = SeedDataIds.AdminUser.ToString(),
+                Timestamp = sessionStart.AddMinutes(7)
+            },
+            new AuditLog
+            {
+                Id = DeterministicGuid("audit:impersonation:ended"),
+                EntityName = ImpersonationAuditActions.EntityName,
+                EntityId = SeedDataIds.ImpersonationSessionDemo.ToString(),
+                Action = ImpersonationAuditActions.Ended,
+                NewValues = "{" + sessionParties + ",\"details\":{\"reason\":\"Manual\",\"durationSeconds\":720,\"requestCount\":6,\"blockedCount\":1}}",
+                UserId = SeedDataIds.AdminUser.ToString(),
+                Timestamp = sessionStart.AddMinutes(12)
+            });
+
+        // ── Bandeja de notificaciones (M1-25) ──────────────────────
+        modelBuilder.Entity<NotificationPreference>().HasData(
+            new NotificationPreference
+            {
+                Id = DeterministicGuid($"notification-preference:{SeedDataIds.DemoUserCL}:{NotificationTypes.DocumentIssued}"),
+                UserId = SeedDataIds.DemoUserCL,
+                NotificationType = NotificationTypes.DocumentIssued,
+                EmailEnabled = false,
+                UpdatedAt = created
+            },
+            new NotificationPreference
+            {
+                Id = DeterministicGuid($"notification-preference:{SeedDataIds.DemoUserCL}:{NotificationTypes.AnnouncementPublished}"),
+                UserId = SeedDataIds.DemoUserCL,
+                NotificationType = NotificationTypes.AnnouncementPublished,
+                EmailEnabled = true,
+                UpdatedAt = created
+            });
+
+        modelBuilder.Entity<Notification>().HasData(
+            new Notification
+            {
+                Id = DeterministicGuid("notification:olai:join-request"),
+                UserId = SeedDataIds.DemoUserCL,
+                Type = NotificationTypes.JoinRequestReceived,
+                Title = "Nueva solicitud de vinculación",
+                Body = "Sergio Solicitante (solicitud@importadorademo.cl) solicita vincularse a Importadora Demo SpA.",
+                DedupKey = $"join-request:{SeedDataIds.DemoJoinRequestUserCL}:{SeedDataIds.DemoUserCL}",
+                Module = NotificationModules.Organization,
+                EntityType = NotificationEntityTypes.JoinRequest,
+                EntityId = SeedDataIds.DemoJoinRequestUserCL.ToString(),
+                EntityReference = "Sergio Solicitante",
+                ActionType = NotificationActionTypes.ApproveJoinRequest,
+                ActionTargetId = SeedDataIds.DemoJoinRequestUserCL.ToString(),
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            new Notification
+            {
+                Id = DeterministicGuid("notification:olai:parent-link-requested"),
+                RoleCode = RoleCodes.Administrador,
+                Type = NotificationTypes.ParentLinkRequested,
+                Title = "Solicitud de empresa matriz: Comercial Altiplano SRL",
+                Body = "Comercial Altiplano SRL pide asociarse a Grupo Demo Holding S.A. como su empresa matriz. Revise la solicitud en el área de administración.",
+                DedupKey = $"parent-link-requested:{SeedDataIds.ParentLinkAltiplanoPending}",
+                Module = NotificationModules.Administration,
+                EntityType = NotificationEntityTypes.ParentLink,
+                EntityId = SeedDataIds.ParentLinkAltiplanoPending.ToString(),
+                EntityReference = "Comercial Altiplano SRL",
+                ActionType = NotificationActionTypes.ReviewParentLink,
+                ActionTargetId = SeedDataIds.ParentLinkAltiplanoPending.ToString(),
+                CreatedAt = created.AddHours(3),
+                CreatedBy = "SYSTEM"
+            },
+            new Notification
+            {
+                Id = DeterministicGuid("notification:olai:subsidiary-linked"),
+                UserId = SeedDataIds.HoldingUser,
+                Type = NotificationTypes.ParentLinkApproved,
+                Title = "Filial asociada: Importadora Demo SpA",
+                Body = "Importadora Demo SpA quedó asociada a su organización como filial. Ya puede ver sus BL en el listado de embarques, identificados por organización.",
+                Module = NotificationModules.Organization,
+                EntityType = NotificationEntityTypes.ParentLink,
+                EntityId = SeedDataIds.ParentLinkImportadora.ToString(),
+                EntityReference = "Importadora Demo SpA",
+                CreatedAt = created.AddHours(2),
+                CreatedBy = "SYSTEM"
+            });
     }
 
     /// <summary>
@@ -3238,6 +3826,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             PaymentPermissions.Finance, PaymentPermissions.ManageBlockWindows,
             // Fase 2 Ola G: bandeja interna de solicitudes de servicios on demand (equipos ED y Customer Service).
             ServiceRequestPermissions.Process,
+            // Fase 2 Ola I: área de administración (M8-05), «Vista como cliente» (M8-08), comunicados (M1-26), Counter
+            // (M8-09) y reportería de transacciones (M9-01).
+            AdministrationPermissions.AccessAdminArea, AdministrationPermissions.UseImpersonation,
+            AdministrationPermissions.ManageAnnouncements, AdministrationPermissions.ManageCounter,
+            AdministrationPermissions.ViewTransactionsReport,
         };
 
         modelBuilder.Entity<Permission>().HasData(permissions.Select(p => new Permission
@@ -3263,6 +3856,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             (RoleCodes.OrgAdmin, AccessPermissions.OperateShipments),
             (RoleCodes.OrgAdmin, AccessPermissions.ManageThirdPartyAccess),
             (RoleCodes.OrgOperator, AccessPermissions.OperateShipments),
+            // Fase 2 Ola I: Customer Service (Coordinador) registra el Counter; los supervisores ven la reportería.
+            (RoleCodes.Coordinador, AdministrationPermissions.AccessAdminArea),
+            (RoleCodes.Coordinador, AdministrationPermissions.ManageCounter),
+            (RoleCodes.Supervisor, AdministrationPermissions.AccessAdminArea),
+            (RoleCodes.Supervisor, AdministrationPermissions.ViewTransactionsReport),
         };
 
         modelBuilder.Entity<RolePermission>().HasData(assignments.Select(a => new RolePermission

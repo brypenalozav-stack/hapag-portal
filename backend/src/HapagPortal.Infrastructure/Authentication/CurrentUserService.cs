@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Domain.Constants;
 using Microsoft.AspNetCore.Http;
 
 namespace HapagPortal.Infrastructure.Authentication;
@@ -48,4 +49,13 @@ public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor)
 
     public bool IsAuthenticated =>
         User?.Identity?.IsAuthenticated ?? false;
+
+    // M8-08: el token de «Vista como cliente» identifica la sesión y al usuario interno que la inició.
+    public Guid? ImpersonationSessionId =>
+        Guid.TryParse(User?.FindFirstValue(ImpersonationClaims.SessionId), out var id) ? id : null;
+
+    public Guid? ImpersonatorUserId =>
+        Guid.TryParse(User?.FindFirstValue(ImpersonationClaims.ActorUserId), out var id) ? id : null;
+
+    public bool IsImpersonating => ImpersonationSessionId is not null;
 }

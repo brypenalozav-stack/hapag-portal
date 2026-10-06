@@ -5,6 +5,7 @@ using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Organizations.Carriers;
 using HapagPortal.Application.Organizations.Common;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Errors;
@@ -15,7 +16,8 @@ public sealed class LoginCommandHandler(
     IApplicationDbContext dbContext,
     IPasswordHasher passwordHasher,
     IJwtTokenService jwtTokenService,
-    IPermissionResolver permissionResolver)
+    IPermissionResolver permissionResolver,
+    INotificationPublisher notificationPublisher)
     : ICommandHandler<LoginCommand, AuthResponseDto>
 {
     public async Task<Result<AuthResponseDto>> Handle(
@@ -54,11 +56,19 @@ public sealed class LoginCommandHandler(
         var token = jwtTokenService.GenerateToken(user, roles, permissions.ToList());
         var refreshToken = jwtTokenService.GenerateRefreshToken();
 
-        user.LastLoginAt = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
+        user.LastLoginAt = now;
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        user.RefreshTokenExpiryTime = now.AddDays(7);
+
+        // M1-09: el primer ingreso de un transportista pre-creado lo vincula a lo que los clientes le asignaron.
+        var carrierActivated = user.Client is not null
+            && await CarrierActivation.ActivateOnFirstLoginAsync(dbContext, user, user.Client, now, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        if (carrierActivated)
+            await CarrierActivation.NotifyRequestersAsync(dbContext, notificationPublisher, user.Client!, cancellationToken);
 
         var client = user.Client;
         var primaryRole = roles.Contains("Admin") ? "ADMIN" : "USER";

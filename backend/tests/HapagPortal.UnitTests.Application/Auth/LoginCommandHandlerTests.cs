@@ -18,7 +18,7 @@ public sealed class LoginCommandHandlerTests
 
     public LoginCommandHandlerTests()
     {
-        _handler = new LoginCommandHandler(_dbContext, _passwordHasher, _jwtTokenService, _permissionResolver);
+        _handler = new LoginCommandHandler(_dbContext, _passwordHasher, _jwtTokenService, _permissionResolver, new FakeNotificationPublisher());
     }
 
     [Fact]

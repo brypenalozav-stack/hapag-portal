@@ -411,7 +411,9 @@ public sealed class ServiceRequestWorkflow(
         var (title, body) = Message(request, definitionName);
         await OrganizationNotifier.NotifyAdminsAsync(
             dbContext, notificationPublisher, organization, type, title, body, cancellationToken,
-            dedupKeyPrefix: $"service-request:{request.Id}:{request.Status}");
+            dedupKeyPrefix: $"service-request:{request.Id}:{request.Status}",
+            link: new NotificationLink(NotificationEntityTypes.ServiceRequest, request.Id.ToString(), request.RequestNumber, request.BlNumber),
+            action: new NotificationAction(NotificationActionTypes.OpenServiceRequest, request.Id.ToString()));
     }
 
     public static (string Title, string Body) Message(ServiceRequest request, string definitionName)

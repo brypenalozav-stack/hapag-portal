@@ -180,7 +180,8 @@ public sealed class UpdateAccessGrantCommandHandler(
             NotificationTypes.AccessUpdated,
             "Acceso modificado",
             $"{context.Membership.Organization.Name} modificó la vigencia o los permisos de su acceso sobre {AccessNotifier.Describe(grant, bl?.BLNumber)}.",
-            cancellationToken);
+            cancellationToken,
+            AccessNotifier.ForGrant(grant, bl?.BLNumber));
         await AccessNotifier.NotifyCascadeAsync(dbContext, notificationPublisher, cascade, cancellationToken);
 
         var dto = await AccessGrantMapper.ToDtosAsync(dbContext, matrix, [grant], context.OrganizationId, now, cancellationToken);

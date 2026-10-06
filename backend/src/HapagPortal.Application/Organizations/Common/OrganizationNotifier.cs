@@ -5,7 +5,10 @@ using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>Notifica a los administradores de una organización (campana y correo).</summary>
+/// <summary>
+/// Notifica a los administradores de una organización (bandeja de M1-25 y, según la preferencia de cada uno, correo),
+/// con la gestión o el embarque al que corresponde y la acción disponible.
+/// </summary>
 public static class OrganizationNotifier
 {
     public static async Task NotifyAdminsAsync(
@@ -16,7 +19,9 @@ public static class OrganizationNotifier
         string title,
         string body,
         CancellationToken cancellationToken,
-        string? dedupKeyPrefix = null)
+        string? dedupKeyPrefix = null,
+        NotificationLink? link = null,
+        NotificationAction? action = null)
     {
         var adminIds = dbContext.UserRoles
             .Where(ur => ur.RoleName == RoleCodes.OrgAdmin)
@@ -39,7 +44,9 @@ public static class OrganizationNotifier
                     body,
                     UserId: admin.Id,
                     DedupKey: dedupKeyPrefix is null ? null : $"{dedupKeyPrefix}:{admin.Id}",
-                    Email: admin.Email),
+                    Email: admin.Email,
+                    Link: link,
+                    Action: action),
                 cancellationToken);
         }
     }

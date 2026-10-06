@@ -284,6 +284,25 @@ public static class SeedDataIds
     public static readonly Guid DepositProofRejected = Guid.Parse("FFFFFFFF-0024-0024-0024-000000000001");
     public static readonly Guid DepositProofSubmitted = Guid.Parse("FFFFFFFF-0024-0024-0024-000000000002");
 
+    // Fase 2 Ola I — bandeja (M1-25), comunicados (M1-26), guías (M1-27), impersonación (M8-08), Counter (M8-09),
+    // contactos (M1-06), transportista pre-creado (M1-09) y empresa matriz (M1-21)
+    public static readonly Guid HoldingClient = Guid.Parse("C3D4E5F6-0003-0003-0003-000000000090");
+    public static readonly Guid HoldingUser = Guid.Parse("D4E5F6A7-0004-0004-0004-000000000090");
+    public static readonly Guid PreCreatedCarrierClient = Guid.Parse("C3D4E5F6-0003-0003-0003-000000000091");
+    public static readonly Guid PreCreatedCarrierUser = Guid.Parse("D4E5F6A7-0004-0004-0004-000000000091");
+    public static readonly Guid CarrierPreRegistrationDemo = Guid.Parse("FFFFFFFF-0025-0025-0025-000000000001");
+    public static readonly Guid CarrierGrantBL02 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000003");
+    public static readonly Guid ParentLinkImportadora = Guid.Parse("FFFFFFFF-0026-0026-0026-000000000001");
+    public static readonly Guid ParentLinkAltiplanoPending = Guid.Parse("FFFFFFFF-0026-0026-0026-000000000002");
+    public static readonly Guid AnnouncementCL = Guid.Parse("FFFFFFFF-0027-0027-0027-000000000001");
+    public static readonly Guid AnnouncementBO = Guid.Parse("FFFFFFFF-0027-0027-0027-000000000002");
+    public static readonly Guid AnnouncementDraft = Guid.Parse("FFFFFFFF-0027-0027-0027-000000000003");
+    public static readonly Guid GuideCart = Guid.Parse("FFFFFFFF-0028-0028-0028-000000000001");
+    public static readonly Guid CounterRecordBL08 = Guid.Parse("FFFFFFFF-0029-0029-0029-000000000001");
+    public static readonly Guid CounterRecordBL04 = Guid.Parse("FFFFFFFF-0029-0029-0029-000000000002");
+    public static readonly Guid ImpersonationSessionDemo = Guid.Parse("FFFFFFFF-0030-0030-0030-000000000001");
+    public static readonly Guid ContactListChangeDemo = Guid.Parse("FFFFFFFF-0031-0031-0031-000000000001");
+
     // Audit Logs
     public static readonly Guid AuditLog01 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000001");
     public static readonly Guid AuditLog02 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000002");

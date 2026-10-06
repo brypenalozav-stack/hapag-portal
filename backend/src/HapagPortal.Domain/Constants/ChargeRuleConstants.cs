@@ -174,6 +174,11 @@ public static class MaintainerNames
 
     // Fase 2 Ola H: conceptos elegibles para imputar a la línea de crédito (M5-10).
     public const string CreditImputationRule = "CreditImputationRule";
+
+    // Fase 2 Ola I: comunicados (M1-26), guías (M1-27) y registros de Counter (M8-09).
+    public const string Announcement = "Announcement";
+    public const string Guide = "Guide";
+    public const string CounterRecord = "CounterRecord";
 }
 
 public static class MaintainerActions

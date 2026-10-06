@@ -144,7 +144,9 @@ public sealed class GeneratePaymentDocumentsStep(
                         $"Se emitió {ShipmentDocumentService.Title(type)} {document.DocumentNumber} del BL {bl.BLNumber}. " +
                         "Está disponible en el repositorio documental del embarque.",
                         UserId: payment.CreatedByUserId,
-                        DedupKey: $"document-issued:{document.Id}"),
+                        DedupKey: $"document-issued:{document.Id}",
+                        Link: new NotificationLink(NotificationEntityTypes.ShipmentDocument, document.Id.ToString(), document.DocumentNumber, bl.BLNumber),
+                        Action: new NotificationAction(NotificationActionTypes.OpenDocument, document.Id.ToString())),
                     cancellationToken);
             }
         }

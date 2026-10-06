@@ -161,7 +161,9 @@ public sealed class NotifyPaymentStep(INotificationPublisher notificationPublish
                     $"Se imputaron a su línea de crédito {payment.TotalAmount:N2} {payment.Currency} ({details.Count} cargos). " +
                     "La carga se libera sin pago inmediato y el monto figura como saldo pendiente en su estado de cuenta.",
                     UserId: payment.CreatedByUserId,
-                    DedupKey: $"credit-imputation:{payment.Id}"),
+                    DedupKey: $"credit-imputation:{payment.Id}",
+                    Link: new NotificationLink(NotificationEntityTypes.Payment, payment.Id.ToString(), payment.PaymentNumber,
+                        details.Select(d => d.BlNumber).Distinct().Count() == 1 ? details[0].BlNumber : null)),
                 cancellationToken);
             return;
         }
@@ -172,7 +174,10 @@ public sealed class NotifyPaymentStep(INotificationPublisher notificationPublish
                 $"Pago confirmado {payment.PaymentNumber}",
                 $"Pago {payment.PaymentNumber} confirmado por {payment.TotalAmount:N2} {payment.Currency}. Comprobante {payment.ReceiptNumber}.",
                 UserId: payment.CreatedByUserId,
-                DedupKey: $"payment-confirmed:{payment.Id}"),
+                DedupKey: $"payment-confirmed:{payment.Id}",
+                Link: new NotificationLink(NotificationEntityTypes.Payment, payment.Id.ToString(), payment.PaymentNumber,
+                    details.Select(d => d.BlNumber).Distinct().Count() == 1 ? details[0].BlNumber : null),
+                Action: new NotificationAction(NotificationActionTypes.OpenPayment, payment.Id.ToString())),
             cancellationToken);
     }
 }

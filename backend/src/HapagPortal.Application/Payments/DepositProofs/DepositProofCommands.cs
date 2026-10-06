@@ -5,6 +5,7 @@ using FluentValidation;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Documents.Common;
+using HapagPortal.Application.Notifications.Common;
 using HapagPortal.Application.Organizations.Common;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.Lifecycle;
@@ -249,6 +250,8 @@ public sealed class UploadDepositProofCommandHandler(
         };
 
         dbContext.DepositProofs.Add(proof);
+        await NotificationInbox.ResolveActionAsync(
+            dbContext, NotificationActionTypes.UploadDepositProof, payment.Id.ToString(), now, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         // Aviso a Finanzas (consola interna) para verificar el abono.
@@ -259,7 +262,9 @@ public sealed class UploadDepositProofCommandHandler(
                 $"{payment.PayerName ?? actor.Name} adjuntó el comprobante del depósito del pago {payment.PaymentNumber} " +
                 $"({payment.TotalAmount:N2} {payment.Currency}). Verifique el abono en la bandeja de Finanzas.",
                 RoleCode: RoleCodes.Administrador,
-                DedupKey: $"deposit-proof:{proof.Id}"),
+                DedupKey: $"deposit-proof:{proof.Id}",
+                Link: new NotificationLink(NotificationEntityTypes.DepositProof, proof.Id.ToString(), payment.PaymentNumber),
+                Action: new NotificationAction(NotificationActionTypes.VerifyDepositProof, proof.Id.ToString())),
             cancellationToken);
 
         return Result<PaymentDepositProofsDto>.Success(await DepositProofs.ViewAsync(dbContext, payment, owner: true, cancellationToken));
@@ -408,6 +413,8 @@ public sealed class VerifyDepositProofCommandHandler(
         proof.ReviewedBy = actor.Name;
         proof.ReviewNotes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim();
         payment.DepositProofUrl = DepositProofs.ToDto(proof).DownloadPath;
+        await NotificationInbox.ResolveActionAsync(
+            dbContext, NotificationActionTypes.VerifyDepositProof, proof.Id.ToString(), now, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return Result<DepositProofReviewResultDto>.Success(
@@ -442,6 +449,8 @@ public sealed class RejectDepositProofCommandHandler(
         proof.ReviewedBy = PaymentActor.From(currentUserService).Name;
 
         // El pago sigue en verificación esperando un comprobante válido (o la anulación de Finanzas, M5-02).
+        await NotificationInbox.ResolveActionAsync(
+            dbContext, NotificationActionTypes.VerifyDepositProof, proof.Id.ToString(), now, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var title = $"Comprobante de depósito rechazado ({payment.PaymentNumber})";
@@ -451,7 +460,9 @@ public sealed class RejectDepositProofCommandHandler(
         {
             await notificationPublisher.PublishAsync(
                 new NotificationRequest(NotificationTypes.DepositProofRejected, title, body,
-                    UserId: payment.CreatedByUserId, DedupKey: $"deposit-proof-rejected:{proof.Id}"),
+                    UserId: payment.CreatedByUserId, DedupKey: $"deposit-proof-rejected:{proof.Id}",
+                    Link: new NotificationLink(NotificationEntityTypes.Payment, payment.Id.ToString(), payment.PaymentNumber),
+                    Action: new NotificationAction(NotificationActionTypes.UploadDepositProof, payment.Id.ToString())),
                 cancellationToken);
         }
 
@@ -460,7 +471,9 @@ public sealed class RejectDepositProofCommandHandler(
         {
             await OrganizationNotifier.NotifyAdminsAsync(
                 dbContext, notificationPublisher, organization, NotificationTypes.DepositProofRejected, title, body, cancellationToken,
-                dedupKeyPrefix: $"deposit-proof-rejected:{proof.Id}");
+                dedupKeyPrefix: $"deposit-proof-rejected:{proof.Id}",
+                link: new NotificationLink(NotificationEntityTypes.Payment, payment.Id.ToString(), payment.PaymentNumber),
+                action: new NotificationAction(NotificationActionTypes.UploadDepositProof, payment.Id.ToString()));
         }
 
         return Result<DepositProofReviewResultDto>.Success(

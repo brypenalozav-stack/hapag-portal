@@ -1,10 +1,12 @@
 namespace HapagPortal.Application.Shipments.Common;
 
 using HapagPortal.Application.Common.Dtos;
+using HapagPortal.Application.Counter;
 
 /// <summary>
 /// Origen del acceso del usuario a un embarque: propio (rol en el BL), administración interna,
-/// acceso otorgado (M1-12), autoasociado (M1-18) o acceso abierto por número de BL (M1-17).
+/// acceso otorgado (M1-12), autoasociado (M1-18), acceso abierto por número de BL (M1-17) o BL de una
+/// filial que comparte su visibilidad con su empresa matriz (M1-21).
 /// </summary>
 public static class ShipmentAccessSources
 {
@@ -13,8 +15,12 @@ public static class ShipmentAccessSources
     public const string Grant = "Grant";
     public const string SelfAssociated = "SelfAssociated";
     public const string OpenAccess = "OpenAccess";
+    public const string Parent = "Parent";
     public const string None = "None";
 }
+
+/// <summary>Organización de origen de un BL visto por la empresa matriz (M1-21): la filial a la que pertenece.</summary>
+public sealed record ShipmentOriginOrganizationDto(Guid Id, string Name, string TaxId);
 
 /// <summary>
 /// Estado de emisión del documento de transporte (M2-02): tipo (BL, SWB, EBL), plataforma del EBL (p. ej.
@@ -58,7 +64,8 @@ public sealed record ShipmentListItemDto(
     string AccessSource,
     bool HasPendingCharges,
     ShipmentIssuanceSummaryDto? Issuance = null,
-    ShipmentPublicationDto? Publication = null);
+    ShipmentPublicationDto? Publication = null,
+    ShipmentOriginOrganizationDto? OriginOrganization = null);
 
 public sealed record ShipmentFreightDto(decimal Amount, string Currency, string Status);
 
@@ -109,7 +116,9 @@ public sealed record ShipmentDetailDto(
     string? PortOfDischargeCode = null,
     string? FinalDestinationCode = null,
     ShipmentIssuanceDto? Issuance = null,
-    ShipmentPublicationDto? Publication = null);
+    ShipmentPublicationDto? Publication = null,
+    ShipmentOriginOrganizationDto? OriginOrganization = null,
+    CounterRecordDto? Counter = null);
 
 /// <summary>
 /// Estado de emisión del documento de transporte leído del origen (M2-02, CL-IMP-14, BO-IMP-14).

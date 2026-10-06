@@ -82,7 +82,8 @@ public sealed class AcceptMandateTermsCommandHandler(
             NotificationTypes.AccessGranted,
             "Mandato digital activo",
             $"{context.Membership.Organization.Name} aceptó los términos y activó su mandato sobre {AccessNotifier.Describe(grant, blNumber)}.",
-            cancellationToken);
+            cancellationToken,
+            AccessNotifier.ForGrant(grant, blNumber));
 
         var dto = await AccessGrantMapper.ToDtosAsync(dbContext, context.Matrix, [grant], context.OrganizationId, now, cancellationToken);
         return Result<AccessGrantDto>.Success(dto[0]);

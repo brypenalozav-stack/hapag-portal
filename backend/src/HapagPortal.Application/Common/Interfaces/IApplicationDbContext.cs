@@ -82,6 +82,15 @@ public interface IApplicationDbContext
     DbSet<DepositProof> DepositProofs { get; }
     DbSet<CreditImputationRule> CreditImputationRules { get; }
     DbSet<InvoiceReissue> InvoiceReissues { get; }
+    DbSet<NotificationPreference> NotificationPreferences { get; }
+    DbSet<Announcement> Announcements { get; }
+    DbSet<GuideDefinition> GuideDefinitions { get; }
+    DbSet<UserGuideState> UserGuideStates { get; }
+    DbSet<ImpersonationSession> ImpersonationSessions { get; }
+    DbSet<CounterRecord> CounterRecords { get; }
+    DbSet<ContactListChange> ContactListChanges { get; }
+    DbSet<CarrierPreRegistration> CarrierPreRegistrations { get; }
+    DbSet<OrganizationParentLink> OrganizationParentLinks { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

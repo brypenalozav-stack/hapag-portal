@@ -99,7 +99,9 @@ public sealed class ThirdPartyAccessSeedTests : IDisposable
     public async Task SeededDefaultsAndAudit_ShouldBePresent()
     {
         (await _context.DefaultGrantees.SingleAsync()).GranteeClientId.Should().Be(SeedDataIds.AgentClientCL);
-        (await _context.AccessAuditEntries.CountAsync()).Should().Be(5);
+        // 5 de la Ola B y 5 de la Ola I (transportista pre-creado con su BL asignado y vínculos con la empresa matriz).
+        (await _context.AccessAuditEntries.CountAsync()).Should().Be(10);
+        (await _context.AccessAuditEntries.CountAsync(e => e.OccurredAt < new DateTime(2026, 10, 5, 0, 0, 0, DateTimeKind.Utc))).Should().Be(5);
     }
 
     [Fact]

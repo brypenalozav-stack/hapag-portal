@@ -2,16 +2,20 @@ namespace HapagPortal.Application;
 
 using FluentValidation;
 using HapagPortal.Application.AccountStatement;
+using HapagPortal.Application.Announcements;
 using HapagPortal.Application.Assistant;
 using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Access;
+using HapagPortal.Application.Counter;
 using HapagPortal.Application.Demurrage.Common;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.PostPayment;
 using HapagPortal.Application.ExchangeRates.Common;
+using HapagPortal.Application.Impersonation;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.PostProcessing;
 using HapagPortal.Application.Reinvoicing;
+using HapagPortal.Application.Reports.Transactions;
 using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.Application.ServiceRequests.PostPayment;
 using HapagPortal.Application.Shipments.Issuance;
@@ -71,6 +75,13 @@ public static class DependencyInjection
         services.AddScoped<AccountStatementBuilder>();
         services.AddScoped<ReinvoicingService>();
         services.AddScoped<IPaymentPostStep, ReinvoicingIssueStep>();
+
+        // Fase 2 Ola I: comunicados (M1-26), reportería (M9-01), Counter (M8-09) y control de la «Vista como cliente»
+        // (M8-08). ImpersonationSettings lo registra Infrastructure desde la sección "Impersonation".
+        services.AddScoped<AnnouncementPublisher>();
+        services.AddScoped<TransactionReportBuilder>();
+        services.AddScoped<CounterSynchronizer>();
+        services.AddScoped<ImpersonationGuard>();
 
         services.AddMediatR(config =>
         {

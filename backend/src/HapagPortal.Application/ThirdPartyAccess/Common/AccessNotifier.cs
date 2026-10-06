@@ -19,7 +19,8 @@ public static class AccessNotifier
         string type,
         string title,
         string body,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        NotificationLink? link = null)
     {
         var ids = organizationIds.Distinct().ToList();
         if (ids.Count == 0)
@@ -33,7 +34,8 @@ public static class AccessNotifier
         foreach (var organization in organizations)
         {
             await OrganizationNotifier.NotifyAdminsAsync(
-                dbContext, notificationPublisher, organization, type, title, body, cancellationToken);
+                dbContext, notificationPublisher, organization, type, title, body, cancellationToken,
+                link: link, action: new NotificationAction(NotificationActionTypes.OpenAccessGrants, link?.EntityId ?? organization.Id.ToString()));
         }
     }
 
@@ -74,7 +76,8 @@ public static class AccessNotifier
                 NotificationTypes.AccessRevokedByCascade,
                 "Acceso revocado en cadena",
                 $"El acceso sobre {reference} fue revocado porque se revocó o venció el acceso del que dependía.",
-                cancellationToken);
+                cancellationToken,
+                ForGrant(grant, blNumbers.FirstOrDefault(b => b.Id == grant.BillOfLadingId)?.BLNumber));
         }
 
         foreach (var widening in cascade.Widenings)
@@ -94,9 +97,20 @@ public static class AccessNotifier
                 NotificationTypes.AccessRevokedByCascade,
                 "Ampliación de visibilidad revocada en cadena",
                 $"Se retiró la visibilidad ampliada de '{widening.ActionCode}' sobre {reference} porque se revocó el acceso del que provenía.",
-                cancellationToken);
+                cancellationToken,
+                new NotificationLink(NotificationEntityTypes.Shipment, reference, reference, reference));
         }
     }
+
+    /// <summary>Referencia de la bandeja (M1-25) para un acceso: el acceso y su BL o booking.</summary>
+    public static NotificationLink ForGrant(AccessGrant grant, string? blNumber) =>
+        new(NotificationEntityTypes.AccessGrant, grant.Id.ToString(), blNumber ?? grant.BookingNumber, blNumber);
+
+    /// <summary>Referencia de la bandeja para un aviso sobre varios BL: el primero identifica el embarque.</summary>
+    public static NotificationLink? ForReferences(IReadOnlyCollection<string> blNumbers) =>
+        blNumbers.Count == 0
+            ? null
+            : new(NotificationEntityTypes.Shipment, blNumbers.First(), Describe(blNumbers), blNumbers.Count == 1 ? blNumbers.First() : null);
 
     public static string Describe(AccessGrant grant, string? blNumber) =>
         blNumber ?? grant.BookingNumber ?? "(sin BL)";

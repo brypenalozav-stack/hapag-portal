@@ -281,7 +281,8 @@ public sealed class GrantAccessCommandHandler(
                 NotificationTypes.AccessGranted,
                 request.IsMandate ? "Mandato digital recibido" : "Acceso a embarques otorgado",
                 $"{context.Membership.Organization.Name} le otorgó acceso a {AccessNotifier.Describe(references)}.",
-                cancellationToken);
+                cancellationToken,
+                AccessNotifier.ForReferences(references));
         }
 
         var dtos = await AccessGrantMapper.ToDtosAsync(dbContext, matrix, applied, context.OrganizationId, now, cancellationToken);

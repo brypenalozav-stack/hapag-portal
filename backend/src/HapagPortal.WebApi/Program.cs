@@ -210,6 +210,10 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 app.UseAuthentication();
+
+// «Vista como cliente» (M8-08): sesión activa, solo consulta y auditoría de cada solicitud con el actor interno.
+app.UseMiddleware<ImpersonationMiddleware>();
+
 app.UseAuthorization();
 
 app.MapControllers();

@@ -14,7 +14,8 @@ using Microsoft.EntityFrameworkCore;
 /// vencimiento aplican de inmediato. La vigencia se compara con el reloj en cada consulta, sin
 /// esperar al proceso que registra los vencimientos (M1-14). Los BL no publicados por las reglas de DIFU
 /// de destino final (M2-01) no existen para los clientes: no se listan, no se resuelven por número y no
-/// habilitan acciones; el administrador interno los ve.
+/// habilitan acciones; el administrador interno los ve. La empresa matriz ve, solo para consulta, los BL de las filiales
+/// que le comparten su visibilidad con el vínculo aprobado (M1-21), identificando la filial de origen; no es transitivo.
 /// </summary>
 public sealed class ShipmentAccessEvaluator(
     IApplicationDbContext dbContext,
@@ -84,11 +85,21 @@ public sealed class ShipmentAccessEvaluator(
         var grants = dbContext.AccessGrants;
         var associations = dbContext.ShipmentAssociations;
         var openAccess = dbContext.OpenAccessSettings;
+        var parentLinks = dbContext.OrganizationParentLinks;
+        var clients = dbContext.Clients;
 
-        // Propios (titular heredado o rol del embarque), recibidos por un acceso vigente (M1-12, M1-14)
-        // y autoasociados mientras el acceso abierto del titular siga activo (M1-17, M1-18).
+        // Propios (titular heredado o rol del embarque), recibidos por un acceso vigente (M1-12, M1-14),
+        // autoasociados mientras el acceso abierto del titular siga activo (M1-17, M1-18) y los propios de las
+        // filiales que comparten su visibilidad con esta empresa matriz (M1-21).
         return source.Where(b =>
             b.ClientId == organizationId ||
+            parentLinks.Any(l =>
+                l.ParentOrganizationId == organizationId &&
+                l.Status == ParentLinkStatus.Active &&
+                l.VisibilityEnabled &&
+                clients.Any(c => c.Id == l.OrganizationId && c.IsActive) &&
+                (b.ClientId == l.OrganizationId ||
+                 shipmentRoles.Any(r => r.BillOfLadingId == b.Id && r.ClientId == l.OrganizationId))) ||
             shipmentRoles.Any(r => r.BillOfLadingId == b.Id && r.ClientId == organizationId) ||
             grants.Any(g =>
                 g.BillOfLadingId == b.Id &&
@@ -134,6 +145,10 @@ public sealed class ShipmentAccessEvaluator(
 
             foreach (var grant in entry.Grants)
                 roles.Add(grant.IntendedRole ?? ShipmentRoleCodes.ThirdParty);
+
+            // M1-21: la matriz ve el BL con los roles de la filial de origen.
+            if (roles.Count == 0 && entry.Parent is not null)
+                roles.UnionWith(entry.Parent.Roles);
 
             if (!scope.IsAdmin && roles.Count == 0 && (entry.Associated || entry.OpenAccess is not null))
                 roles.Add(ShipmentRoleCodes.ThirdParty);
@@ -184,6 +199,24 @@ public sealed class ShipmentAccessEvaluator(
         var source = SourceOf(access, isAdmin: false);
         if (source == ShipmentAccessSources.None)
             return ShipmentPermissionSet.None;
+
+        // M1-21: la empresa matriz solo consulta la información que la filial de origen ve del BL (sin pagar, solicitar
+        // ni administrar accesos), aunque su perfil opere.
+        if (source == ShipmentAccessSources.Parent)
+        {
+            var parentView = access.Parent!;
+            var viewOnly = matrix.ViewOnly(matrix.AllowedForRoles(parentView.OrganizationType, parentView.Roles));
+            var parentColumns = AccessLevelResolver.MatrixColumnsFor(parentView.OrganizationType, parentView.Roles);
+            return new ShipmentPermissionSet(
+                ShipmentRoleCodes.MatrixColumns.Where(parentColumns.Contains).ToList(),
+                matrix.Ordered(viewOnly),
+                IsAdmin: false,
+                CanOperate: false)
+            {
+                AccessSource = ShipmentAccessSources.Parent,
+                OriginOrganizationId = parentView.OrganizationId
+            };
+        }
 
         // Roles propios del embarque, con las ampliaciones de otro rol del mismo BL (M1-16).
         var widened = access.FormalRoles.Count == 0
@@ -266,6 +299,8 @@ public sealed class ShipmentAccessEvaluator(
             return ShipmentAccessSources.Own;
         if (access.Grants.Count > 0)
             return ShipmentAccessSources.Grant;
+        if (access.Parent is not null && !isAdmin)
+            return ShipmentAccessSources.Parent;
         if (isAdmin)
             return ShipmentAccessSources.Admin;
         if (access.Associated && access.OpenAccess is not null)
@@ -360,6 +395,26 @@ public sealed class ShipmentAccessEvaluator(
             .Where(s => s.IsEnabled && ownerIds.Contains(s.ClientId))
             .ToListAsync(cancellationToken);
 
+        // M1-21: filiales que comparten su visibilidad con esta organización como empresa matriz.
+        var subsidiaries = scope.IsAdmin
+            ? []
+            : await (
+                    from l in dbContext.OrganizationParentLinks.AsNoTracking()
+                    join c in dbContext.Clients.AsNoTracking() on l.OrganizationId equals c.Id
+                    where l.ParentOrganizationId == organizationId
+                          && l.Status == ParentLinkStatus.Active
+                          && l.VisibilityEnabled
+                          && c.IsActive
+                    select new SubsidiaryRef(c.Id, c.OrganizationType))
+                .ToListAsync(cancellationToken);
+        var subsidiaryIds = subsidiaries.Select(s => s.Id).ToList();
+        var subsidiaryRoles = subsidiaryIds.Count == 0
+            ? []
+            : await dbContext.ShipmentRoles
+                .AsNoTracking()
+                .Where(r => subsidiaryIds.Contains(r.ClientId) && ids.Contains(r.BillOfLadingId))
+                .ToListAsync(cancellationToken);
+
         foreach (var bl in billsOfLading)
         {
             var roles = roleRows
@@ -380,18 +435,57 @@ public sealed class ShipmentAccessEvaluator(
                 ShipmentRoleCodes.MatrixColumns.Where(roles.Contains).ToList(),
                 grantRows.Where(g => g.BillOfLadingId == bl.Id && g.IsEffectiveAt(now)).ToList(),
                 associated.Contains(bl.Id),
-                openSettings.FirstOrDefault(s => owners.Contains(s.ClientId) && s.ClientId != organizationId));
+                openSettings.FirstOrDefault(s => owners.Contains(s.ClientId) && s.ClientId != organizationId),
+                ParentViewOf(bl, subsidiaries, subsidiaryRoles));
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Filial de origen de un BL para la empresa matriz (M1-21): el titular del BL si es filial; si no, la filial con más
+    /// roles en el embarque. Nula si ninguna filial participa.
+    /// </summary>
+    private static ParentView? ParentViewOf(
+        BillOfLading bl,
+        IReadOnlyList<SubsidiaryRef> subsidiaries,
+        IReadOnlyList<ShipmentRole> subsidiaryRoles)
+    {
+        ParentView? best = null;
+        foreach (var subsidiary in subsidiaries)
+        {
+            var roles = subsidiaryRoles
+                .Where(r => r.BillOfLadingId == bl.Id && r.ClientId == subsidiary.Id)
+                .Select(r => r.Role)
+                .ToHashSet();
+            if (bl.ClientId == subsidiary.Id)
+                roles.Add(ShipmentRoleCodes.Customer);
+            if (roles.Count == 0)
+                continue;
+
+            var candidate = new ParentView(subsidiary.Id, subsidiary.OrganizationType,
+                ShipmentRoleCodes.MatrixColumns.Where(roles.Contains).ToList());
+            if (bl.ClientId == subsidiary.Id)
+                return candidate;
+            if (best is null || candidate.Roles.Count > best.Roles.Count)
+                best = candidate;
+        }
+
+        return best;
     }
 
     private sealed record BlAccess(
         IReadOnlyList<string> FormalRoles,
         IReadOnlyList<AccessGrant> Grants,
         bool Associated,
-        OpenAccessSetting? OpenAccess)
+        OpenAccessSetting? OpenAccess,
+        ParentView? Parent = null)
     {
         public static readonly BlAccess Empty = new([], [], false, null);
     }
+
+    private sealed record SubsidiaryRef(Guid Id, string OrganizationType);
+
+    /// <summary>Filial de origen de un BL visto por la empresa matriz (M1-21), con sus roles en el embarque.</summary>
+    private sealed record ParentView(Guid OrganizationId, string OrganizationType, IReadOnlyList<string> Roles);
 }

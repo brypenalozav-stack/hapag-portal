@@ -406,7 +406,9 @@ public sealed class ReinvoicingService(
 
         await Organizations.Common.OrganizationNotifier.NotifyAdminsAsync(
             dbContext, notificationPublisher, organization, type, title, body, cancellationToken,
-            dedupKeyPrefix: $"reinvoicing:{request.Id}:{type}");
+            dedupKeyPrefix: $"reinvoicing:{request.Id}:{type}",
+            link: new NotificationLink(NotificationEntityTypes.ServiceRequest, request.Id.ToString(), request.RequestNumber, request.BlNumber),
+            action: new NotificationAction(NotificationActionTypes.OpenServiceRequest, request.Id.ToString()));
     }
 
     /// <summary>Datos de la nueva razón social: RUT, razón social, dirección y correo válidos, RUT distinto del facturado.</summary>

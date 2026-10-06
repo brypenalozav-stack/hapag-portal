@@ -17,6 +17,8 @@ using Microsoft.EntityFrameworkCore;
 /// autoasociados (M1-12, M1-18), con su origen. La ausencia de un BL no implica ausencia de deuda.
 /// Cada fila trae el último estado de emisión conocido (M2-02). Los BL no publicados por DIFU (M2-01) no
 /// llegan a los clientes; el administrador los ve con el motivo y puede filtrarlos con <c>Published</c>.
+/// La empresa matriz ve los BL de sus filiales con la organización de origen de cada uno y puede separarlos con
+/// <c>OrganizationId</c> (la propia o una filial), sin mezclar la información (M1-21).
 /// </summary>
 public sealed record SearchShipmentsQuery(
     string? BlNumber = null,
@@ -28,7 +30,8 @@ public sealed record SearchShipmentsQuery(
     string? Country = null,
     bool? Published = null,
     int Page = 1,
-    int PageSize = 20) : IQuery<PagedResult<ShipmentListItemDto>>;
+    int PageSize = 20,
+    Guid? OrganizationId = null) : IQuery<PagedResult<ShipmentListItemDto>>;
 
 public sealed class SearchShipmentsQueryValidator : AbstractValidator<SearchShipmentsQuery>
 {
@@ -107,6 +110,22 @@ public sealed class SearchShipmentsQueryHandler(
             query = query.Where(b => b.Country == country);
         }
 
+        // M1-21: la propia organización o una filial que comparte su visibilidad; cualquier otra no se puede consultar.
+        if (request.OrganizationId is { } filterId && !scope.IsAdmin)
+        {
+            var allowed = filterId == scope.OrganizationId
+                || await dbContext.OrganizationParentLinks.AsNoTracking().AnyAsync(l =>
+                    l.OrganizationId == filterId
+                    && l.ParentOrganizationId == scope.OrganizationId
+                    && l.Status == ParentLinkStatus.Active
+                    && l.VisibilityEnabled, cancellationToken);
+            if (!allowed)
+                return Result<PagedResult<ShipmentListItemDto>>.Failure(Error.Forbidden);
+
+            var shipmentRoles = dbContext.ShipmentRoles;
+            query = query.Where(b => b.ClientId == filterId || shipmentRoles.Any(r => r.BillOfLadingId == b.Id && r.ClientId == filterId));
+        }
+
         // M2-01: los clientes solo ven BL publicados (ya filtrados); el administrador puede separarlos.
         if (scope.IsAdmin && request.Published is { } published)
         {
@@ -133,6 +152,24 @@ public sealed class SearchShipmentsQueryHandler(
         var bls = rows.Select(r => r.Bl).ToList();
         var roles = await accessEvaluator.GetRolesAsync(scope, bls, cancellationToken);
         var sources = await accessEvaluator.GetAccessSourcesAsync(scope, bls, cancellationToken);
+
+        // M1-21: organización de origen de los BL vistos como empresa matriz.
+        var origins = new Dictionary<Guid, ShipmentOriginOrganizationDto>();
+        if (!scope.IsAdmin && sources.Values.Contains(ShipmentAccessSources.Parent))
+        {
+            foreach (var bl in bls.Where(b => sources.GetValueOrDefault(b.Id) == ShipmentAccessSources.Parent))
+            {
+                var permissions = await accessEvaluator.EvaluateAsync(scope, bl, cancellationToken);
+                if (permissions.OriginOrganizationId is not { } originId)
+                    continue;
+                var origin = await dbContext.Clients.AsNoTracking()
+                    .Where(c => c.Id == originId)
+                    .Select(c => new ShipmentOriginOrganizationDto(c.Id, c.Name, c.TaxId))
+                    .FirstOrDefaultAsync(cancellationToken);
+                if (origin is not null)
+                    origins[bl.Id] = origin;
+            }
+        }
 
         var publications = new Dictionary<Guid, ShipmentPublicationDto>();
         if (scope.IsAdmin)
@@ -161,7 +198,8 @@ public sealed class SearchShipmentsQueryHandler(
                 sources.GetValueOrDefault(r.Bl.Id) ?? ShipmentAccessSources.Own,
                 r.HasPendingCharges,
                 ShipmentIssuanceReader.Summary(r.Bl),
-                publications.GetValueOrDefault(r.Bl.Id));
+                publications.GetValueOrDefault(r.Bl.Id),
+                origins.GetValueOrDefault(r.Bl.Id));
         }).ToList();
 
         return Result<PagedResult<ShipmentListItemDto>>.Success(

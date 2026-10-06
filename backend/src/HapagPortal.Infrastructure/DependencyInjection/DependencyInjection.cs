@@ -1,6 +1,7 @@
 using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Documents.Common;
+using HapagPortal.Application.Impersonation;
 using HapagPortal.Application.PortalLinks;
 using HapagPortal.Infrastructure.Authentication;
 using HapagPortal.Infrastructure.Customs;
@@ -56,6 +57,9 @@ public static partial class DependencyInjectionExtensions
         // Generación documental (Ola E): plantilla PDF con PDFsharp/MigraDoc y configuración "Documents".
         services.AddSingleton<IPdfDocumentRenderer, MigraDocPdfRenderer>();
         services.AddSingleton(configuration.GetSection(DocumentSettings.SectionName).Get<DocumentSettings>() ?? new DocumentSettings());
+
+        // Ola I: «Vista como cliente» (M8-08), sección "Impersonation" (duración y escrituras permitidas; vacío = solo consulta).
+        services.AddSingleton(configuration.GetSection(ImpersonationSettings.SectionName).Get<ImpersonationSettings>() ?? new ImpersonationSettings());
 
         services.AddIntegrations(configuration);
 

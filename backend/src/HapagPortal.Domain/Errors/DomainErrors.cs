@@ -776,6 +776,163 @@ public static class DomainErrors
             new("DangerousGood.InvalidImport", $"The dangerous goods file is not valid: {reason}");
     }
 
+    /// <summary>Bandeja de notificaciones y preferencias de correo (M1-25).</summary>
+    public static class Notification
+    {
+        public static Error NotFound(Guid id) =>
+            new("Notification.NotFound", $"The notification '{id}' was not found.");
+
+        public static Error UnknownType(string type) =>
+            new("Notification.UnknownType", $"The notification type '{type}' does not exist.");
+
+        public static Error EmailNotAvailable(string type) =>
+            new("Notification.EmailNotAvailable", $"Notifications of type '{type}' are only shown in the portal inbox.");
+
+        public static Error EmailMandatory(string type) =>
+            new("Notification.EmailMandatory", $"Notifications of type '{type}' are always sent by e-mail.");
+    }
+
+    /// <summary>Comunicados masivos (M1-26).</summary>
+    public static class Announcement
+    {
+        public static Error NotFound(Guid id) =>
+            new("Announcement.NotFound", $"The announcement '{id}' was not found.");
+
+        public static Error InvalidTransition(string from, string to) =>
+            new("Announcement.InvalidTransition", $"The announcement cannot change from '{from}' to '{to}'.");
+
+        public static readonly Error Expired =
+            new("Announcement.Expired", "The announcement validity already ended; change its dates before publishing it.");
+    }
+
+    /// <summary>Modo guía (M1-27).</summary>
+    public static class Guide
+    {
+        public static Error NotFound(string code) =>
+            new("Guide.NotFound", $"The guide '{code}' was not found.");
+
+        public static readonly Error AlreadyExists =
+            new("Guide.AlreadyExists", "A guide with the same code already exists.");
+
+        public static Error InvalidSteps(string reason) =>
+            new("Guide.InvalidSteps", reason);
+    }
+
+    /// <summary>«Vista como cliente» (M8-08).</summary>
+    public static class Impersonation
+    {
+        public static Error NotFound(Guid id) =>
+            new("ImpersonationSession.NotFound", $"The impersonation session '{id}' was not found.");
+
+        public static readonly Error NotInternalActor =
+            new("Impersonation.NotInternalActor", "Only authorized internal Hapag-Lloyd users can view the portal as a client.");
+
+        public static readonly Error Nested =
+            new("Impersonation.Nested", "An impersonation session cannot start another one; end the current session first.");
+
+        public static readonly Error TargetNotAllowed =
+            new("Impersonation.TargetNotAllowed", "The selected user cannot be impersonated: it must be an active user of a client organization, without internal roles.");
+
+        public static readonly Error TargetNotFound =
+            new("Impersonation.TargetNotFound", "The user does not belong to the selected organization.");
+
+        public static readonly Error NotImpersonating =
+            new("Impersonation.NotImpersonating", "The current session is not an impersonation session.");
+
+        public static readonly Error Ended =
+            new("Impersonation.Ended", "The impersonation session ended or expired.");
+
+        public static readonly Error ReadOnly =
+            new("Impersonation.ReadOnly", "The portal is in read-only client view: this action is not allowed while impersonating.");
+
+        public static readonly Error NotActive =
+            new("Impersonation.NotActive", "The impersonation session is no longer active.");
+    }
+
+    /// <summary>Counter Bolivia/Ultramar (M8-09).</summary>
+    public static class Counter
+    {
+        public static Error NotFound(string blNumber) =>
+            new("CounterRecord.NotFound", $"There is no Counter record for the bill of lading '{blNumber}'.");
+
+        public static readonly Error NothingToSync =
+            new("Counter.AlreadySynced", "The Counter record is already synchronized with Nexus.");
+
+        public static Error Invalid(string reason) =>
+            new("Counter.Invalid", reason);
+    }
+
+    /// <summary>Listas de distribución de contactos (M1-06).</summary>
+    public static class ContactList
+    {
+        public static readonly Error NotAllowed =
+            new("ContactList.NotAllowed", "Your organization cannot update its distribution lists (M1-11).");
+
+        public static readonly Error MatchCodeRequired =
+            new("ContactList.MatchCodeRequired", "The organization has no Match Code yet; the distribution lists are available after its approval.");
+
+        public static Error UnknownReportType(string reportType) =>
+            new("ContactList.UnknownReportType", $"The report type '{reportType}' does not exist.");
+    }
+
+    /// <summary>Pre-creación de transportistas (M1-09).</summary>
+    public static class CarrierPreCreation
+    {
+        public static Error NotFound(Guid id) =>
+            new("CarrierPreRegistration.NotFound", $"The pre-created carrier '{id}' was not found.");
+
+        public static readonly Error NotAllowed =
+            new("CarrierPreCreation.NotAllowed", "Your organization cannot pre-create carriers (M1-11).");
+
+        public static Error AlreadyRegistered(string name) =>
+            new("CarrierPreCreation.AlreadyRegistered", $"The carrier is already registered in the portal as '{name}': grant it access directly.");
+
+        public static readonly Error NotACarrier =
+            new("CarrierPreCreation.NotACarrier", "The tax ID or e-mail belongs to an organization that is not a carrier.");
+
+        public static readonly Error EmailInUse =
+            new("CarrierPreCreation.EmailInUse", "The e-mail belongs to a user of another organization.");
+
+        public static readonly Error AlreadyActivated =
+            new("CarrierPreCreation.AlreadyActivated", "The carrier already activated its account: grant it access directly.");
+    }
+
+    /// <summary>Registro de una cuenta ya pre-creada (M1-09).</summary>
+    public static class Registration
+    {
+        public static readonly Error PreCreatedAccount =
+            new("Registration.PreCreatedAccountExists",
+                "An account was already created for your organization by a customer. Log in with your e-mail; if you have no password yet, use the invitation code sent to you or request a new one.");
+    }
+
+    /// <summary>Empresa matriz (M1-21).</summary>
+    public static class ParentLink
+    {
+        public static Error NotFound(Guid id) =>
+            new("ParentLink.NotFound", $"The parent company link '{id}' was not found.");
+
+        public static readonly Error NotAllowed =
+            new("ParentLink.NotAllowed", "Your organization cannot share its shipments with a parent company (M1-11).");
+
+        public static readonly Error AlreadyExists =
+            new("ParentLink.AlreadyExists", "The organization already has a parent company link pending or active.");
+
+        public static readonly Error SelfLink =
+            new("ParentLink.SelfLink", "An organization cannot be its own parent company.");
+
+        public static readonly Error InvalidParent =
+            new("ParentLink.InvalidParent", "The parent company must be an approved customer or Freight Forwarder organization.");
+
+        public static readonly Error Cycle =
+            new("ParentLink.Cycle", "The parent company is already a subsidiary of this organization.");
+
+        public static readonly Error NotPending =
+            new("ParentLink.NotPending", "The parent company link is not pending approval.");
+
+        public static readonly Error NotActive =
+            new("ParentLink.NotActive", "The parent company link is not active.");
+    }
+
     public static class Integration
     {
         public static Error Unavailable(string system) =>

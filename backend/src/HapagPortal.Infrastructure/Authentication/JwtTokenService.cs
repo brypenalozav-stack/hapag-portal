@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using HapagPortal.Application.Auth.Common;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -19,15 +20,45 @@ public sealed class JwtTokenService(
 
     public string GenerateToken(User user, IList<string> roles, IList<string>? permissions = null)
     {
+        var expirationMinutes = int.TryParse(configuration["Jwt:ExpirationMinutes"], out var mins) ? mins : DefaultExpirationMinutes;
+        return WriteToken(BuildClaims(user, roles, permissions), DateTime.UtcNow.AddMinutes(expirationMinutes));
+    }
+
+    public string GenerateImpersonationToken(
+        User subject,
+        IList<string> roles,
+        IList<string> permissions,
+        ImpersonationSession session)
+    {
+        var claims = BuildClaims(subject, roles, permissions);
+        claims.Add(new Claim(ImpersonationClaims.SessionId, session.Id.ToString()));
+        claims.Add(new Claim(ImpersonationClaims.ActorUserId, session.ActorUserId.ToString()));
+        claims.Add(new Claim(ImpersonationClaims.ActorEmail, session.ActorEmail));
+        return WriteToken(claims, session.ExpiresAt);
+    }
+
+    private string WriteToken(IEnumerable<Claim> claims, DateTime expires)
+    {
         var secret = configuration["Jwt:Secret"]
             ?? throw new InvalidOperationException("JWT secret is not configured.");
         var issuer = configuration["Jwt:Issuer"];
         var audience = configuration["Jwt:Audience"];
-        var expirationMinutes = int.TryParse(configuration["Jwt:ExpirationMinutes"], out var mins) ? mins : DefaultExpirationMinutes;
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        var token = new JwtSecurityToken(
+            issuer: issuer,
+            audience: audience,
+            claims: claims,
+            expires: expires,
+            signingCredentials: credentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private static List<Claim> BuildClaims(User user, IList<string> roles, IList<string>? permissions)
+    {
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
@@ -54,14 +85,7 @@ public sealed class JwtTokenService(
             }
         }
 
-        var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
-            signingCredentials: credentials);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return claims;
     }
 
     public string GenerateRefreshToken()

@@ -2,6 +2,8 @@ namespace HapagPortal.Application.Auth.Logout;
 
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Impersonation;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +20,20 @@ public sealed class LogoutCommandHandler(
 {
     public async Task<Result> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
+        // M8-08: cerrar sesión durante una «Vista como cliente» termina la impersonación sin tocar las credenciales
+        // (ni el refresh token) del cliente.
+        if (currentUserService.ImpersonationSessionId is { } sessionId)
+        {
+            var session = await dbContext.ImpersonationSessions.FirstOrDefaultAsync(s => s.Id == sessionId, cancellationToken);
+            if (session is not null && session.Status == ImpersonationStatus.Active)
+            {
+                ImpersonationSessions.End(dbContext, session, ImpersonationEndReasons.Logout, DateTime.UtcNow);
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return Result.Success();
+        }
+
         var userId = currentUserService.UserId;
 
         var user = userId is not null
