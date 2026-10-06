@@ -5,6 +5,7 @@ using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Shipments.Common;
+using HapagPortal.Application.Shipments.Issuance;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
@@ -14,7 +15,8 @@ using Microsoft.EntityFrameworkCore;
 /// Detalle de un embarque con contenedores, cargos, demurrage y ODS, filtrado en el servidor según
 /// la matriz de M1-11 y los accesos otorgados (M2-06, M1-12, M1-15). Con el acceso abierto del titular
 /// activo, el número exacto muestra lo que habilita su conjunto de permisos (M1-17) y ofrece la
-/// autoasociación (M1-18). Un BL sin acceso responde NotFound, sin revelar su existencia.
+/// autoasociación (M1-18). Un BL sin acceso, o no publicado por DIFU para un cliente (M2-01), responde
+/// NotFound, sin revelar su existencia. Incluye el estado de emisión leído del origen (M2-02).
 /// </summary>
 public sealed record GetShipmentDetailQuery(string BlNumber) : IQuery<ShipmentDetailDto>;
 
@@ -29,7 +31,8 @@ public sealed class GetShipmentDetailQueryValidator : AbstractValidator<GetShipm
 public sealed class GetShipmentDetailQueryHandler(
     IApplicationDbContext dbContext,
     IShipmentAccessEvaluator accessEvaluator,
-    IChargeRulesService chargeRulesService)
+    IChargeRulesService chargeRulesService,
+    ShipmentIssuanceReader issuanceReader)
     : IQueryHandler<GetShipmentDetailQuery, ShipmentDetailDto>
 {
     public async Task<Result<ShipmentDetailDto>> Handle(
@@ -129,6 +132,14 @@ public sealed class GetShipmentDetailQueryHandler(
                 so.Id, so.OrderNumber, so.OrderType, so.Status, so.RequestedAt, so.CompletedAt))
             .ToListAsync(cancellationToken);
 
+        var issuance = permissions.Can(ShipmentActionCodes.ViewBlIssuance)
+            ? await issuanceReader.ReadAsync(bl, cancellationToken)
+            : null;
+
+        var publication = scope.IsAdmin
+            ? ShipmentPublicationView.From(bl, await accessEvaluator.GetPublicationAsync(bl, cancellationToken))
+            : null;
+
         return Result<ShipmentDetailDto>.Success(new ShipmentDetailDto(
             bl.Id,
             bl.BLNumber,
@@ -156,6 +167,10 @@ public sealed class GetShipmentDetailQueryHandler(
                 c.Id, c.ContainerNumber, c.ContainerType, c.SealNumber, c.Weight, c.Status)).ToList(),
             localCharges,
             demurrage,
-            serviceOrders));
+            serviceOrders,
+            bl.PortOfDischargeCode,
+            bl.FinalDestinationCode,
+            issuance,
+            publication));
     }
 }

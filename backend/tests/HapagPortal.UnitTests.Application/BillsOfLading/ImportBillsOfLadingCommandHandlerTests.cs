@@ -58,6 +58,21 @@ public sealed class ImportBillsOfLadingCommandHandlerTests
     }
 
     [Fact]
+    public async Task DifuFields_ShouldBeStoredNormalizedForThePublicationRules()
+    {
+        var row = ValidRow() with
+        {
+            PortOfDischargeCode = " clsai ", FinalDestinationCode = "clanf", DifuCode = " ANF-01 ", DifuLocationCode = "clanf"
+        };
+
+        await new ImportBillsOfLadingCommandHandler(_dbContext).Handle(new ImportBillsOfLadingCommand([row]), CancellationToken.None);
+
+        var bl = _dbContext.BillsOfLadingList.Single();
+        (bl.PortOfDischargeCode, bl.FinalDestinationCode, bl.DifuCode, bl.DifuLocationCode)
+            .Should().Be(("CLSAI", "CLANF", "ANF-01", "CLANF"));
+    }
+
+    [Fact]
     public async Task InvalidRut_IsRejectedAndNotPersisted()
     {
         var row = ValidRow() with { ConsigneeTaxId = "12.345.678-9" };

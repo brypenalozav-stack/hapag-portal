@@ -1,6 +1,7 @@
 namespace HapagPortal.Application;
 
 using FluentValidation;
+using HapagPortal.Application.Assistant;
 using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Access;
 using HapagPortal.Application.Demurrage.Common;
@@ -9,6 +10,7 @@ using HapagPortal.Application.Documents.PostPayment;
 using HapagPortal.Application.ExchangeRates.Common;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.PostProcessing;
+using HapagPortal.Application.Shipments.Issuance;
 using HapagPortal.Application.ShoppingCart;
 using HapagPortal.Application.Tariffs.Common;
 using HapagPortal.Application.WarehouseChanges.Common;
@@ -47,6 +49,13 @@ public static class DependencyInjection
         services.AddScoped<NoDebtEvaluator>();
         services.AddScoped<IResponsibilityLetterStatus, ResponsibilityLetterStatus>();
         services.AddScoped<IPaymentPostStep, GeneratePaymentDocumentsStep>();
+
+        // Fase 1 Ola F: emisión del BL (M2-02) y asistente (M10-01 a M10-05). El motor configurado
+        // (IAssistantEngine), AssistantSettings y PortalLinkSettings los registra Infrastructure.
+        services.AddScoped<ShipmentIssuanceReader>();
+        services.AddSingleton<RulesAssistantEngine>();
+        services.AddScoped<AssistantDataRetriever>();
+        services.AddScoped<AssistantResponder>();
 
         services.AddMediatR(config =>
         {

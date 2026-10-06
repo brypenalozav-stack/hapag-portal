@@ -1,6 +1,7 @@
 using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Documents.Common;
+using HapagPortal.Application.PortalLinks;
 using HapagPortal.Infrastructure.Authentication;
 using HapagPortal.Infrastructure.Customs;
 using HapagPortal.Infrastructure.Documents;
@@ -57,6 +58,10 @@ public static partial class DependencyInjectionExtensions
         services.AddSingleton(configuration.GetSection(DocumentSettings.SectionName).Get<DocumentSettings>() ?? new DocumentSettings());
 
         services.AddIntegrations(configuration);
+
+        // Ola F: motor del asistente (M10-01) y enlaces externos del portal, como el de Dispute (M2-05).
+        services.AddAssistantEngine(configuration);
+        services.AddSingleton(configuration.GetSection(PortalLinkSettings.SectionName).Get<PortalLinkSettings>() ?? new PortalLinkSettings());
 
         services.AddHttpContextAccessor();
 

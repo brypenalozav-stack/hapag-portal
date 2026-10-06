@@ -1,14 +1,19 @@
 using System.Text.Json;
+using HapagPortal.Application.Assistant;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Maintainers;
+using HapagPortal.Application.DangerousGoods;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.PostPayment;
 using HapagPortal.Application.InternalChargeRules;
 using HapagPortal.Application.Payments.Maintainers;
+using HapagPortal.Application.Shipments.Publication;
 using HapagPortal.Application.Tariffs.Common;
 using HapagPortal.Domain.Access;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
+using HapagPortal.Domain.Shipments;
+using HapagPortal.Infrastructure.Integrations.Fis;
 using Microsoft.EntityFrameworkCore;
 
 namespace HapagPortal.Infrastructure.Persistence;
@@ -76,6 +81,14 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<CustomerInvoice> CustomerInvoices => Set<CustomerInvoice>();
     public DbSet<ShipmentDocument> ShipmentDocuments => Set<ShipmentDocument>();
     public DbSet<ShipmentDocumentEvent> ShipmentDocumentEvents => Set<ShipmentDocumentEvent>();
+    public DbSet<ShipmentPublicationRule> ShipmentPublicationRules => Set<ShipmentPublicationRule>();
+    public DbSet<KnowledgeArticle> KnowledgeArticles => Set<KnowledgeArticle>();
+    public DbSet<AssistantMailbox> AssistantMailboxes => Set<AssistantMailbox>();
+    public DbSet<AssistantSession> AssistantSessions => Set<AssistantSession>();
+    public DbSet<AssistantMessage> AssistantMessages => Set<AssistantMessage>();
+    public DbSet<DangerousGood> DangerousGoods => Set<DangerousGood>();
+    public DbSet<TatcBatch> TatcBatches => Set<TatcBatch>();
+    public DbSet<TatcBatchItem> TatcBatchItems => Set<TatcBatchItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -85,7 +98,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         SeedCurrencies(modelBuilder);
         SeedTaxConfigurations(modelBuilder);
         SeedAdminClientAndUser(modelBuilder);
-        SeedFAQs(modelBuilder);
+        var faqs = SeedFAQs(modelBuilder);
         SeedDemoData(modelBuilder);
         SeedRbac(modelBuilder);
         SeedDeadlineRules(modelBuilder);
@@ -97,6 +110,333 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         SeedPaymentConfiguration(modelBuilder);
         SeedPaymentsDemo(modelBuilder);
         SeedDocumentsDemo(modelBuilder);
+        SeedPortalAssistantDemo(modelBuilder, faqs);
+    }
+
+    /// <summary>
+    /// Ola F: copia en cada BL sembrado el último estado conocido que informa FIS (Dummy) para la publicación por
+    /// DIFU (M2-01) y la emisión (M2-02), de modo que el listado coincida con la consulta en el momento.
+    /// </summary>
+    private static BillOfLading[] SourceSnapshot(params BillOfLading[] billsOfLading)
+    {
+        foreach (var bl in billsOfLading)
+        {
+            if (DummyFisDemoData.Find(bl.BLNumber) is not { } record)
+                continue;
+
+            bl.PortOfDischargeCode = ShipmentPublication.NormalizeCode(record.PortOfDischargeCode);
+            bl.FinalDestinationCode = ShipmentPublication.NormalizeCode(record.FinalDestinationCode);
+            bl.DifuCode = record.DifuCode;
+            bl.DifuLocationCode = ShipmentPublication.NormalizeCode(record.DifuLocationCode);
+            bl.TransportDocumentType = BlIssuanceMapper.MapDocumentType(record.DocumentType);
+            bl.EblPlatform = record.EblPlatform;
+            bl.IssuanceStatus = BlIssuanceMapper.MapStatus(record.IssuanceStatus);
+            bl.IssuanceStatusAt = record.IssuanceStatusAt;
+        }
+
+        return billsOfLading;
+    }
+
+    /// <summary>
+    /// Fase 1 Ola F: reglas de publicación por DIFU (M2-01) de Antofagasta y Punta Arenas distribuidos desde San
+    /// Antonio, con un BL de cada caso para Importadora Demo (BL14 sin DIFU: no se publica; BL15 con DIFU: se
+    /// publica); base de conocimiento del asistente por país, sembrada desde la FAQ más artículos de procesos del
+    /// portal (M10-02); casillas de derivación por país; y la muestra de referencia del buscador DG (M10-06).
+    /// Cada alta de un mantenedor queda en el registro de cambios (NF-15).
+    /// </summary>
+    private static void SeedPortalAssistantDemo(ModelBuilder modelBuilder, IReadOnlyList<FAQ> faqs)
+    {
+        var created = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        // ── M2-01: reglas de publicación y BL con destino final distinto del puerto de descarga ──
+        var rules = new[]
+        {
+            new ShipmentPublicationRule
+            {
+                Id = SeedDataIds.PublicationRuleAntofagasta,
+                Country = CountryCodes.Chile,
+                FinalDestinationCode = "CLANF",
+                FinalDestinationName = "Antofagasta",
+                DischargePortCode = "CLSAI",
+                Description = "Carga con destino final Antofagasta distribuida desde San Antonio: se publica con DIFU asociado al destino final.",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            new ShipmentPublicationRule
+            {
+                Id = SeedDataIds.PublicationRulePuntaArenas,
+                Country = CountryCodes.Chile,
+                FinalDestinationCode = "CLPUQ",
+                FinalDestinationName = "Punta Arenas",
+                DischargePortCode = "CLSAI",
+                Description = "Carga con destino final Punta Arenas distribuida desde San Antonio: se publica con DIFU asociado al destino final.",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+        };
+
+        modelBuilder.Entity<ShipmentPublicationRule>().HasData(rules);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(rules.Select(r => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:publication-rule:{r.Id}"),
+            Maintainer = MaintainerNames.ShipmentPublicationRule,
+            EntityId = r.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(ShipmentPublicationRuleSnapshot.From(r), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL14,
+                BLNumber = "HLCUSAI260601410",
+                BookingNumber = "HLCUBKG2606141",
+                ShipmentType = "Import",
+                Vessel = "Lima Express",
+                Voyage = "2612E",
+                PortOfLoading = "Shanghai (CNSHA)",
+                PortOfDischarge = "San Antonio (CLSAI)",
+                PlaceOfDelivery = "Antofagasta, Chile",
+                ETD = new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 10, 3, 0, 0, 0, DateTimeKind.Utc),
+                Consignee = "Importadora Demo SpA",
+                Shipper = "Shanghai Mining Supplies Co.",
+                FreightAmount = 3100m,
+                FreightCurrency = "USD",
+                Status = "Arrived",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            new BillOfLading
+            {
+                Id = SeedDataIds.BL15,
+                BLNumber = "HLCUSAI260601520",
+                BookingNumber = "HLCUBKG2606152",
+                ShipmentType = "Import",
+                Vessel = "Lima Express",
+                Voyage = "2612E",
+                PortOfLoading = "Shanghai (CNSHA)",
+                PortOfDischarge = "San Antonio (CLSAI)",
+                PlaceOfDelivery = "Punta Arenas, Chile",
+                ETD = new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc),
+                ETA = new DateTime(2026, 10, 3, 0, 0, 0, DateTimeKind.Utc),
+                Consignee = "Importadora Demo SpA",
+                Shipper = "Shanghai Cold Chain Ltd",
+                FreightAmount = 2750m,
+                FreightCurrency = "USD",
+                FreightPaidAt = new DateTime(2026, 9, 5, 15, 0, 0, DateTimeKind.Utc),
+                Status = "Arrived",
+                Country = CountryCodes.Chile,
+                ClientId = SeedDataIds.DemoClientCL,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            }));
+
+        modelBuilder.Entity<BLContainer>().HasData(
+            new BLContainer { Id = SeedDataIds.Container17, ContainerNumber = "HLXU3046001", ContainerType = "40HC", SealNumber = "SL-046001", Weight = 26300m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL14, CreatedAt = created, CreatedBy = "SYSTEM" },
+            new BLContainer { Id = SeedDataIds.Container18, ContainerNumber = "HLXU3046002", ContainerType = "40RF", SealNumber = "SL-046002", Weight = 24800m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL15, CreatedAt = created, CreatedBy = "SYSTEM" });
+
+        modelBuilder.Entity<LocalCharge>().HasData(
+            new LocalCharge { Id = SeedDataIds.LocalCharge26, ChargeType = ChargeConceptCodes.Thc, Description = "Terminal Handling Charge - 40RF (San Antonio)", Amount = 210000m, Currency = "CLP", Status = ChargeStatus.Pending, IsTaxable = true, TaxRate = 19m, TaxAmount = 39900m, TotalAmount = 249900m, BillOfLadingId = SeedDataIds.BL15, CreatedAt = created, CreatedBy = "SYSTEM" });
+
+        modelBuilder.Entity<ShipmentRole>().HasData(new[] { SeedDataIds.BL14, SeedDataIds.BL15 }.Select(blId => new ShipmentRole
+        {
+            Id = DeterministicGuid($"shipment-role:{blId}:{SeedDataIds.DemoClientCL}:{ShipmentRoleCodes.Consignee}"),
+            BillOfLadingId = blId,
+            ClientId = SeedDataIds.DemoClientCL,
+            Role = ShipmentRoleCodes.Consignee,
+            Source = ShipmentRoleSources.Seed,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        }));
+
+        // ── M10-02: casillas de derivación y base de conocimiento por país ──
+        var mailboxes = new[]
+        {
+            new AssistantMailbox
+            {
+                Id = DeterministicGuid("assistant-mailbox:CL:GENERAL"),
+                Country = CountryCodes.Chile,
+                Topic = AssistantTopics.General,
+                Email = "clservice@hapag-lloyd.com",
+                Notes = "Casilla de Customer Service publicada en la FAQ del portal.",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            new AssistantMailbox
+            {
+                Id = DeterministicGuid("assistant-mailbox:BO:GENERAL"),
+                Country = CountryCodes.Bolivia,
+                Topic = AssistantTopics.General,
+                Email = "boservice@hapag-lloyd.com",
+                Notes = "Casilla por validar con Customer Service Bolivia antes de producción.",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+        };
+
+        modelBuilder.Entity<AssistantMailbox>().HasData(mailboxes);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(mailboxes.Select(m => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:assistant-mailbox:{m.Id}"),
+            Maintainer = MaintainerNames.AssistantMailbox,
+            EntityId = m.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(AssistantMailboxSnapshot.From(m), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        static string TopicOf(string faqCategory) => faqCategory switch
+        {
+            "SHIPPING" => AssistantTopics.Shipping,
+            "PAYMENTS" => AssistantTopics.Payments,
+            "DOCUMENTATION" => AssistantTopics.Documentation,
+            "DEMURRAGE" => AssistantTopics.Demurrage,
+            _ => AssistantTopics.General,
+        };
+
+        var articles = faqs.Select(f => new KnowledgeArticle
+        {
+            Id = DeterministicGuid($"knowledge:faq:{f.Id}"),
+            Country = f.Country,
+            Topic = TopicOf(f.Category),
+            Title = f.Question,
+            Content = f.Answer,
+            SortOrder = f.SortOrder,
+            SourceFaqId = f.Id,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        }).ToList();
+
+        var processes = new (string Country, string Code, string Topic, string Title, string Content, string Keywords, int Order)[]
+        {
+            (CountryCodes.Chile, "warehouse-change", AssistantTopics.Shipping, "¿Cómo funciona el cambio de almacén?",
+                "Desde el detalle del BL o la sección Cambio de almacén puede solicitar el cambio para el BL completo o para un contenedor. Si su cuenta tiene derecho a un cambio gratuito (condición informada por Nexus o regla del portal), la solicitud queda completada sin costo. Si no, se aplica la tarifa vigente (KTE o KTF) y el cargo queda listo para pagarlo en el carro. Para varios BL use la solicitud masiva y consulte su avance en la misma sección.",
+                "almacen, cambio de almacen, bodega, KTE, KTF, deposito", 20),
+            (CountryCodes.Chile, "bl-copy", AssistantTopics.Documentation, "¿Cómo solicito una copia del BL?",
+                "En Documentos del embarque puede solicitar la copia del BL valorada (con fletes y cargos) o no valorada (sin valores comerciales). La copia se publica en el repositorio del embarque y se envía al correo registrado de su organización. El shipper solo accede a la copia no valorada.",
+                "copia, copia de bl, valorada, no valorada, documento", 21),
+            (CountryCodes.Chile, "responsibility-letter", AssistantTopics.Documentation, "¿Qué es la carta de responsabilidad para Freight Forwarders?",
+                "Si su organización es un Freight Forwarder autorizado y es consignatario del BL, debe emitir la carta de responsabilidad antes de pagar los cargos del embarque. Se genera en Documentos del embarque completando los datos del firmante y aceptando los términos vigentes; una carta vigente levanta el bloqueo de ese BL.",
+                "carta, carta de responsabilidad, ffww, freight forwarder, bloqueo", 22),
+            (CountryCodes.Chile, "transshipment-certificate", AssistantTopics.Documentation, "¿Cómo obtengo el certificado de transbordo?",
+                "En Documentos del embarque solicite el certificado de transbordo: el portal agrega el cargo del servicio según la tarifa vigente y, una vez confirmado el pago en el carro, emite el certificado firmado, lo publica en el repositorio del BL y lo envía por correo.",
+                "certificado, transbordo, certificado de transbordo", 23),
+            (CountryCodes.Chile, "tatc", AssistantTopics.Documentation, "¿Dónde consulto el estado del TATC?",
+                "En el detalle de un BL de importación, la sección TATC muestra el estado vigente de cada contenedor según el sistema de TATC (sin emitir, pre-TATC, emitido o anulado) y los motivos pendientes, como pagos o documentos. Los clientes con alto volumen en una misma localidad pueden solicitar la generación masiva de TATC.",
+                "tatc, retiro, contenedor, generacion masiva", 24),
+            (CountryCodes.Chile, "cart", AssistantTopics.Payments, "¿Cómo pago mis servicios en el carro?",
+                "Agregue al carro los cargos pendientes desde el detalle del BL, la pestaña de demurrage o sus facturas, indicando el RUT de facturación. El carro agrupa los ítems por país y moneda de pago; cada grupo se paga por separado con los medios habilitados, por ejemplo Khipu, botón de pago bancario o depósito con boleta.",
+                "carro, pago, pagar, khipu, deposito, boleta, moneda, rut de facturacion", 25),
+            (CountryCodes.Chile, "third-party-access", AssistantTopics.General, "¿Cómo doy acceso a mi agencia de aduanas u otro tercero?",
+                "En Accesos de terceros, el administrador de su organización puede otorgar acceso a un BL o booking, de forma individual o masiva, con vigencia y permisos definidos, y revocarlo cuando quiera. También puede configurar terceros por defecto para los BL nuevos. Todos los cambios quedan registrados en la auditoría.",
+                "acceso, terceros, agencia, mandato, otorgar, revocar", 26),
+            (CountryCodes.Bolivia, "no-debt-certificate", AssistantTopics.Documentation, "¿Cómo obtengo el certificado de libre deuda (CLD)?",
+                "En Documentos del embarque de un BL de importación de Bolivia consulte si el CLD está disponible. Se emite firmado cuando no hay recargos, demurrage, facturas, flete Collect ni demoras anticipadas pendientes; si algo falta, el portal indica qué bloquea la emisión.",
+                "cld, libre deuda, certificado, bolivia", 20),
+            (CountryCodes.Bolivia, "advance-demurrage", AssistantTopics.Demurrage, "¿Qué son las demoras anticipadas?",
+                "Algunas cuentas de Bolivia deben pagar demoras anticipadas por contenedor antes de emitir el CLD. El portal las informa en la pestaña de demurrage del BL; al pagarlas, el monto se descuenta del MHD y deja de bloquear el CLD.",
+                "demoras anticipadas, adelanto, demurrage, mhd", 21),
+            (CountryCodes.Bolivia, "deposit", AssistantTopics.Payments, "¿Cómo pago con depósito o transferencia en Bolivia?",
+                "En el carro elija Depósito o transferencia bancaria y emita la boleta. Realice el depósito o la transferencia por el monto indicado; Finanzas confirma el abono y el pago queda confirmado en el historial de pagos.",
+                "deposito, transferencia, boleta, pago, bolivianos", 22),
+            (CountryCodes.Bolivia, "tatc", AssistantTopics.Documentation, "¿Dónde consulto el estado del TATC?",
+                "En el detalle de un BL de importación, la sección TATC muestra el estado vigente de cada contenedor según el sistema de TATC y los motivos pendientes. Para operaciones de alto volumen en una misma localidad puede solicitar la generación masiva de TATC.",
+                "tatc, retiro, contenedor, generacion masiva", 23),
+            (CountryCodes.Bolivia, "third-party-access", AssistantTopics.General, "¿Cómo doy acceso a mi agencia de aduanas u otro tercero?",
+                "En Accesos de terceros, el administrador de su organización puede otorgar acceso a un BL o booking, con vigencia y permisos definidos, y revocarlo cuando quiera. Todos los cambios quedan registrados en la auditoría.",
+                "acceso, terceros, agencia, mandato, otorgar, revocar", 24),
+        };
+
+        articles.AddRange(processes.Select(p => new KnowledgeArticle
+        {
+            Id = DeterministicGuid($"knowledge:{p.Country}:{p.Code}"),
+            Country = p.Country,
+            Topic = p.Topic,
+            Title = p.Title,
+            Content = p.Content,
+            Keywords = p.Keywords,
+            SortOrder = p.Order,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        }));
+
+        modelBuilder.Entity<KnowledgeArticle>().HasData(articles);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(articles.Select(a => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:knowledge:{a.Id}"),
+            Maintainer = MaintainerNames.KnowledgeArticle,
+            EntityId = a.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(KnowledgeArticleSnapshot.From(a), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        // ── M10-06: muestra de referencia (números ONU, nombres y clases de la lista de la ONU) ──
+        var dangerousGoods = new (string? Un, string Es, string En, string? Class, string? Subsidiary, string? Group, string? Notes, string? Keywords)[]
+        {
+            ("1203", "Gasolina", "Gasoline (motor spirit)", "3", null, "II", null, "bencina, nafta, combustible"),
+            ("1202", "Combustible diésel", "Diesel fuel", "3", null, "III", null, "petroleo diesel, gasoil, combustible"),
+            ("1090", "Acetona", "Acetone", "3", null, "II", null, "solvente, quitaesmalte"),
+            ("1170", "Etanol (alcohol etílico) o solución de etanol", "Ethanol (ethyl alcohol) or ethanol solution", "3", null, "II", "Grupo de embalaje II o III según la concentración.", "alcohol etilico, alcohol"),
+            ("1263", "Pintura", "Paint", "3", null, null, "Grupo de embalaje I, II o III según el punto de inflamación.", "pinturas, barniz, laca, esmalte"),
+            ("1993", "Líquido inflamable, n.e.p.", "Flammable liquid, n.o.s.", "3", null, null, "Grupo de embalaje según el punto de inflamación.", "liquido inflamable"),
+            ("1075", "Gases de petróleo licuados", "Petroleum gases, liquefied", "2.1", null, null, null, "glp, gas licuado"),
+            ("1978", "Propano", "Propane", "2.1", null, null, null, "gas propano, glp"),
+            ("1950", "Aerosoles", "Aerosols", "2.1", null, null, "La división (2.1, 2.2 o 2.3) depende del contenido del aerosol.", "spray, aerosol"),
+            ("1005", "Amoníaco anhidro", "Ammonia, anhydrous", "2.3", "8", null, null, "amoniaco, refrigerante"),
+            ("1013", "Dióxido de carbono", "Carbon dioxide", "2.2", null, null, null, "co2, gas carbonico"),
+            ("1845", "Dióxido de carbono sólido (hielo seco)", "Carbon dioxide, solid (dry ice)", "9", null, null, null, "hielo seco, co2 solido"),
+            ("1830", "Ácido sulfúrico", "Sulphuric acid", "8", null, "II", null, "acido sulfurico"),
+            ("1789", "Ácido clorhídrico", "Hydrochloric acid", "8", null, null, "Grupo de embalaje II o III según la concentración.", "acido clorhidrico, acido muriatico"),
+            ("1823", "Hidróxido de sodio sólido", "Sodium hydroxide, solid", "8", null, "II", null, "soda caustica, sosa caustica"),
+            ("2794", "Baterías húmedas llenas de ácido", "Batteries, wet, filled with acid", "8", null, null, null, "baterias, acumuladores, bateria de plomo"),
+            ("3480", "Baterías de ion litio", "Lithium ion batteries", "9", null, null, "Incluye baterías de polímero de ion litio.", "baterias de litio, pilas de litio"),
+            ("3481", "Baterías de ion litio contenidas en un equipo o embaladas con él", "Lithium ion batteries contained in equipment or packed with equipment", "9", null, null, null, "baterias de litio, equipos electronicos"),
+            ("3090", "Baterías de metal litio", "Lithium metal batteries", "9", null, null, null, "baterias de litio, pilas de litio"),
+            ("1942", "Nitrato de amonio", "Ammonium nitrate", "5.1", null, "III", "Con no más del 0,2 % de sustancia combustible.", "nitrato de amonio"),
+            ("2067", "Abonos a base de nitrato de amonio", "Ammonium nitrate based fertilizer", "5.1", null, "III", null, "fertilizante, abono"),
+            ("1748", "Hipoclorito de calcio seco", "Calcium hypochlorite, dry", "5.1", null, "II", null, "cloro, cloro granulado, piscina"),
+            ("3077", "Sustancia sólida peligrosa para el medio ambiente, n.e.p.", "Environmentally hazardous substance, solid, n.o.s.", "9", null, "III", null, "contaminante marino"),
+            ("3082", "Sustancia líquida peligrosa para el medio ambiente, n.e.p.", "Environmentally hazardous substance, liquid, n.o.s.", "9", null, "III", null, "contaminante marino"),
+            ("3166", "Vehículo propulsado por líquido inflamable", "Vehicle, flammable liquid powered", "9", null, null, null, "automovil, auto, vehiculo"),
+            ("1361", "Carbón de origen animal o vegetal", "Carbon, animal or vegetable origin", "4.2", null, null, "Grupo de embalaje II o III.", "carbon vegetal, carbon"),
+            ("1987", "Alcoholes, n.e.p.", "Alcohols, n.o.s.", "3", null, null, "Grupo de embalaje II o III según el punto de inflamación.", "alcohol"),
+            (null, "Muebles de madera", "Wooden furniture", null, null, null, null, "muebles, mobiliario"),
+            (null, "Fruta fresca", "Fresh fruit", null, null, null, "Carga refrigerada no clasificada como mercancía peligrosa.", "fruta, manzanas, uvas, cerezas"),
+            (null, "Vino embotellado", "Bottled wine", null, null, null, "Las bebidas alcohólicas con más de 24 % de alcohol en volumen se clasifican como UN3065, clase 3.", "vino, bebidas alcoholicas"),
+            (null, "Cátodos de cobre", "Copper cathodes", null, null, null, null, "cobre, catodos"),
+            (null, "Prendas de vestir", "Clothing", null, null, null, null, "ropa, textiles, vestuario"),
+        };
+
+        modelBuilder.Entity<DangerousGood>().HasData(dangerousGoods.Select(d =>
+        {
+            var entry = new DangerousGood
+            {
+                Id = DeterministicGuid($"dangerous-good:{d.Un}:{d.En}"),
+                UnNumber = d.Un,
+                ProperShippingNameEs = d.Es,
+                ProperShippingNameEn = d.En,
+                HazardClass = d.Class,
+                SubsidiaryRisk = d.Subsidiary,
+                PackingGroup = d.Group,
+                Notes = d.Notes,
+                Keywords = d.Keywords,
+                IsClassified = d.Class is not null,
+                Source = DangerousGoodSources.Sample,
+                SearchText = string.Empty,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            };
+            entry.SearchText = DangerousGoodCatalog.BuildSearchText(entry);
+            return entry;
+        }));
     }
 
     /// <summary>
@@ -163,7 +503,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             CreatedBy = "SYSTEM"
         };
 
-        modelBuilder.Entity<BillOfLading>().HasData(bl12, bl13);
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(bl12, bl13));
 
         var container15 = new BLContainer { Id = SeedDataIds.Container15, ContainerNumber = "HLXU3045001", ContainerType = "40HC", SealNumber = "SL-045001", Weight = 25100m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL12, CreatedAt = now, CreatedBy = "SYSTEM" };
         var container16 = new BLContainer { Id = SeedDataIds.Container16, ContainerNumber = "HLXU3045002", ContainerType = "20DV", SealNumber = "SL-045002", Weight = 17900m, Status = "Discharged", BillOfLadingId = SeedDataIds.BL13, CreatedAt = now, CreatedBy = "SYSTEM" };
@@ -1033,7 +1373,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 RoleId = DeterministicGuid($"role:{RoleCodes.OrgAdmin}")
             }));
 
-        modelBuilder.Entity<BillOfLading>().HasData(
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(
             // CL importación con demurrage facturado y deuda vigente (M3-18: pagar la factura).
             new BillOfLading
             {
@@ -1106,7 +1446,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 ClientId = SeedDataIds.CreditDemoClient,
                 CreatedAt = now,
                 CreatedBy = "SYSTEM"
-            });
+            }));
 
         modelBuilder.Entity<BLParty>().HasData(new BLParty
         {
@@ -1471,7 +1811,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         }));
 
         // ── Embarques de exportación ──────────────────────────────────
-        modelBuilder.Entity<BillOfLading>().HasData(
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(
             // CL exportación: Importadora Demo es titular (Customer) y Shipper.
             new BillOfLading
             {
@@ -1543,7 +1883,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 ClientId = SeedDataIds.DemoClientBO,
                 CreatedAt = now,
                 CreatedBy = "SYSTEM"
-            });
+            }));
 
         modelBuilder.Entity<BLContainer>().HasData(
             new BLContainer { Id = SeedDataIds.Container08, ContainerNumber = "HLXU2023001", ContainerType = "40RF", SealNumber = "SL-020301", Weight = 26800m, Status = "GateIn", BillOfLadingId = SeedDataIds.BL06, CreatedAt = now, CreatedBy = "SYSTEM" },
@@ -1903,11 +2243,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         });
     }
 
-    private static void SeedFAQs(ModelBuilder modelBuilder)
+    private static FAQ[] SeedFAQs(ModelBuilder modelBuilder)
     {
         var now = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        modelBuilder.Entity<FAQ>().HasData(
+        FAQ[] faqs =
+        [
             // Chile FAQs
             new FAQ
             {
@@ -2066,7 +2407,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 IsActive = true,
                 CreatedAt = now,
                 CreatedBy = "SYSTEM"
-            });
+            },
+        ];
+
+        modelBuilder.Entity<FAQ>().HasData(faqs);
+        return faqs;
     }
 
     private static void SeedDemoData(ModelBuilder modelBuilder)
@@ -2224,7 +2569,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         // ──────────────────────────────────────────────────────────────
 
         // BL 1 — Chile, Arrived, 2 containers
-        modelBuilder.Entity<BillOfLading>().HasData(new BillOfLading
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(new BillOfLading
         {
             Id = SeedDataIds.BL01,
             BLNumber = "HLCUVAL250100123",
@@ -2247,10 +2592,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             ClientId = SeedDataIds.DemoClientCL,
             CreatedAt = now,
             CreatedBy = "SYSTEM"
-        });
+        }));
 
         // BL 2 — Chile, InTransit, 2 containers
-        modelBuilder.Entity<BillOfLading>().HasData(new BillOfLading
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(new BillOfLading
         {
             Id = SeedDataIds.BL02,
             BLNumber = "HLCUVAL250200456",
@@ -2274,10 +2619,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             ClientId = SeedDataIds.DemoClientCL,
             CreatedAt = now,
             CreatedBy = "SYSTEM"
-        });
+        }));
 
         // BL 3 — Chile, Delivered, 1 container (admin client)
-        modelBuilder.Entity<BillOfLading>().HasData(new BillOfLading
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(new BillOfLading
         {
             Id = SeedDataIds.BL03,
             BLNumber = "HLCUVAL250300789",
@@ -2299,10 +2644,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             ClientId = SeedDataIds.AdminClient,
             CreatedAt = now,
             CreatedBy = "SYSTEM"
-        });
+        }));
 
         // BL 4 — Bolivia, Arrived via Arica, 1 container
-        modelBuilder.Entity<BillOfLading>().HasData(new BillOfLading
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(new BillOfLading
         {
             Id = SeedDataIds.BL04,
             BLNumber = "HLCUARI260100045",
@@ -2324,10 +2669,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             ClientId = SeedDataIds.DemoClientBO,
             CreatedAt = now,
             CreatedBy = "SYSTEM"
-        });
+        }));
 
         // BL 5 — Bolivia, InTransit via Iquique, 1 container
-        modelBuilder.Entity<BillOfLading>().HasData(new BillOfLading
+        modelBuilder.Entity<BillOfLading>().HasData(SourceSnapshot(new BillOfLading
         {
             Id = SeedDataIds.BL05,
             BLNumber = "HLCUIQQ260200078",
@@ -2349,7 +2694,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             ClientId = SeedDataIds.DemoClientBO,
             CreatedAt = now,
             CreatedBy = "SYSTEM"
-        });
+        }));
 
         // ──────────────────────────────────────────────────────────────
         // CONTAINERS (7 total)

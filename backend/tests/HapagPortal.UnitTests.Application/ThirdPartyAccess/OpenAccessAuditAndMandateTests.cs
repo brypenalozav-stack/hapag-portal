@@ -59,7 +59,7 @@ public sealed class OpenAccessAuditAndMandateTests
     {
         await SetOpenAccessAsync(_owner, true, [ShipmentActionCodes.PayMandatoryLocalCharges]);
 
-        var detail = await new GetShipmentDetailQueryHandler(_db, _agency.Evaluator(_db), Substitute.For<IChargeRulesService>())
+        var detail = await new GetShipmentDetailQueryHandler(_db, _agency.Evaluator(_db), Substitute.For<IChargeRulesService>(), TestShipmentSources.IssuanceReader())
             .Handle(new GetShipmentDetailQuery(_bl.BLNumber), CancellationToken.None);
 
         detail.IsSuccess.Should().BeTrue();
@@ -73,7 +73,7 @@ public sealed class OpenAccessAuditAndMandateTests
     [Fact]
     public async Task Detail_WithoutOpenAccess_ShouldNotRevealTheBl()
     {
-        var detail = await new GetShipmentDetailQueryHandler(_db, _agency.Evaluator(_db), Substitute.For<IChargeRulesService>())
+        var detail = await new GetShipmentDetailQueryHandler(_db, _agency.Evaluator(_db), Substitute.For<IChargeRulesService>(), TestShipmentSources.IssuanceReader())
             .Handle(new GetShipmentDetailQuery(_bl.BLNumber), CancellationToken.None);
 
         detail.Error.Code.Should().Be("BillOfLading.NotFound");

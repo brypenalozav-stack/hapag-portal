@@ -2,6 +2,7 @@ namespace HapagPortal.Application.Common.Interfaces;
 
 using HapagPortal.Application.Common.Access;
 using HapagPortal.Domain.Entities;
+using HapagPortal.Domain.Shipments;
 
 /// <summary>
 /// Punto único de autorización por embarque (M1-11, NF-05). Toda consulta o acción sobre un BL,
@@ -50,6 +51,13 @@ public interface IShipmentAccessEvaluator
 
     /// <summary>Matriz de M1-11 vigente (para validar otorgamientos).</summary>
     Task<AccessMatrixSnapshot> GetMatrixAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Decisión de publicación del BL según las reglas de DIFU de destino final (M2-01). Los BL no publicados
+    /// quedan fuera de <see cref="FilterAccessible"/>, <see cref="FilterOpenAccess"/> y <see cref="EvaluateAsync"/>
+    /// para los clientes; el administrador interno los ve con el motivo.
+    /// </summary>
+    Task<PublicationDecision> GetPublicationAsync(BillOfLading billOfLading, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

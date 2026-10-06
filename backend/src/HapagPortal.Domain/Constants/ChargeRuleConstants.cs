@@ -158,6 +158,13 @@ public static class MaintainerNames
     public const string PaymentCurrency = "PaymentCurrency";
     public const string PaymentMethod = "PaymentMethod";
     public const string PaymentBlockWindow = "PaymentBlockWindow";
+
+    // Ola F: reglas de publicación por DIFU (M2-01), base de conocimiento y casillas del asistente (M10-02)
+    // y base de referencia de mercancías peligrosas (M10-06).
+    public const string ShipmentPublicationRule = "ShipmentPublicationRule";
+    public const string KnowledgeArticle = "KnowledgeArticle";
+    public const string AssistantMailbox = "AssistantMailbox";
+    public const string DangerousGood = "DangerousGood";
 }
 
 public static class MaintainerActions

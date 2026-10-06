@@ -7,13 +7,24 @@ info:
   description: |
     PROPUESTA – pendiente de validación con Nexus/IT – Lucho
 
-    Solo lectura. La generación del TATC ya es automática fuera de Nexus y el CLD se registra en Nexus; el portal
-    solo consulta su estado (NexusV2 «Generar TATC» y «Generar CLD», tareas 32–34). Hoy Nexus consulta el TATC con
-    servicios HTTP de Flagare; este contrato propone la lectura equivalente para el portal. Sin puerto en el plan.
+    La generación del TATC ya es automática fuera de Nexus y el CLD se registra en Nexus; el portal consulta su estado
+    (NexusV2 «Generar TATC» y «Generar CLD», tareas 32–34). Hoy Nexus consulta el TATC con servicios HTTP de Flagare;
+    este contrato propone la lectura equivalente para el portal.
+
+    Ola F (M2-09): puerto `ITatcProvider` con adaptador Dummy y Real (`Integrations:Tatc:Mode`, `BaseUrl`), con caché
+    corta del estado por BL (`Integrations:Tatc:CacheSeconds`, 30 s por defecto): el portal muestra el estado vigente,
+    nunca el de una carga anterior. El portal usa `getBlTatc` y propone `requestTatcGeneration` para la generación
+    masiva de clientes con alto volumen en una misma localidad; `getBlCld` queda sin uso en el portal.
+
+    Estados del TATC en el portal (por contenedor): NOT_ISSUED → NotIssued, PRE_TATC → PreTatc, ISSUED → Issued,
+    CANCELLED → Cancelled y cualquier otro código → Unknown. Estado agregado del BL: sin contenedores = NotRegistered;
+    todos Issued = Issued; alguno Unknown = Unknown; alguno Issued = PartiallyIssued; alguno PreTatc = PreTatc; todos
+    Cancelled = Cancelled; si no, NotIssued. Estos estados deben confirmarse con los equipos técnicos (M2-09).
   x-contrato: CT-TATC
   x-estado: PROPUESTA – pendiente de validación con Nexus/IT – Lucho
   x-responsable: Nexus/IT – Lucho
-  x-puerto: []
+  x-puerto:
+  - ITatcProvider
   x-tareas-pendientes: 32–34
 servers:
 - url: '{baseUrl}'
@@ -71,6 +82,72 @@ paths:
                       warehouseCode: ALM-SAI-01
                       pendingReasons:
                       - PAYMENT_PENDING
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /tatc/generation-requests:
+    parameters:
+    - $ref: '#/components/parameters/CorrelationId'
+    post:
+      operationId: requestTatcGeneration
+      summary: Generación masiva de TATC (propuesta Ola F)
+      description: |
+        Solicita en una sola llamada la generación del TATC de varios BL de importación de una misma localidad
+        (M2-09, p. ej. la operación por Iquique de un cliente de alto volumen). El portal valida antes el acceso del
+        cliente a cada BL. La cabecera `Idempotency-Key` repite `requestReference`: reintentos con la misma clave
+        devuelven la misma respuesta.
+      tags:
+      - TATC
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Igual a `requestReference`.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TatcGenerationRequest'
+            examples:
+              iquique:
+                value:
+                  requestReference: 8c3b8c78-5e5d-4300-ac21-24106959e344
+                  country: CL
+                  locationCode: CLIQQ
+                  requestedByTaxId: 76000001-1
+                  blNumbers:
+                  - HLCUIQQ2609A0001
+                  - HLCUIQQ2609A0002
+      responses:
+        '202':
+          description: Solicitud recibida con el resultado por BL.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TatcGenerationReceipt'
+              examples:
+                parcial:
+                  value:
+                    requestId: TATC-REQ-8C3B8C78
+                    items:
+                    - blNumber: HLCUIQQ2609A0001
+                      accepted: true
+                    - blNumber: HLCUIQQ2609A0002
+                      accepted: false
+                      reasonCode: ALREADY_ISSUED
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -361,6 +438,62 @@ components:
       - country
       - containers
       - updatedAt
+    TatcGenerationRequest:
+      type: object
+      description: Propuesta Ola F (M2-09).
+      properties:
+        requestReference:
+          type: string
+          description: Identificador de la solicitud en el portal (clave de idempotencia).
+        country:
+          type: string
+          enum:
+          - CL
+          - BO
+        locationCode:
+          type: string
+          description: UN/LOCODE de la localidad (puerto de descarga o destino final) común a todos los BL.
+        requestedByTaxId:
+          type: string
+          description: RUT/NIT de la organización solicitante.
+        blNumbers:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items:
+            type: string
+      required:
+      - requestReference
+      - country
+      - locationCode
+      - requestedByTaxId
+      - blNumbers
+    TatcGenerationReceipt:
+      type: object
+      description: Propuesta Ola F (M2-09).
+      properties:
+        requestId:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              blNumber:
+                type: string
+              accepted:
+                type: boolean
+              reasonCode:
+                type:
+                - string
+                - 'null'
+                description: Motivo del rechazo, p. ej. NOT_FOUND o ALREADY_ISSUED.
+            required:
+            - blNumber
+            - accepted
+      required:
+      - requestId
+      - items
     Cld:
       type: object
       description: Certificado CLD de la operación de Bolivia (NexusV2 «Generar CLD»).

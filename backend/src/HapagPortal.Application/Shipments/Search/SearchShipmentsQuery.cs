@@ -5,6 +5,7 @@ using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Common.Models;
 using HapagPortal.Application.Shipments.Common;
+using HapagPortal.Application.Shipments.Issuance;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,8 @@ using Microsoft.EntityFrameworkCore;
 /// booking, nave, viaje, estado, operación importación/exportación (M2-07) y país (M1-04).
 /// El universo lo define el evaluador de accesos (M1-11): propios, recibidos por acceso otorgado y
 /// autoasociados (M1-12, M1-18), con su origen. La ausencia de un BL no implica ausencia de deuda.
+/// Cada fila trae el último estado de emisión conocido (M2-02). Los BL no publicados por DIFU (M2-01) no
+/// llegan a los clientes; el administrador los ve con el motivo y puede filtrarlos con <c>Published</c>.
 /// </summary>
 public sealed record SearchShipmentsQuery(
     string? BlNumber = null,
@@ -23,6 +26,7 @@ public sealed record SearchShipmentsQuery(
     string? Status = null,
     string? Operation = null,
     string? Country = null,
+    bool? Published = null,
     int Page = 1,
     int PageSize = 20) : IQuery<PagedResult<ShipmentListItemDto>>;
 
@@ -103,6 +107,14 @@ public sealed class SearchShipmentsQueryHandler(
             query = query.Where(b => b.Country == country);
         }
 
+        // M2-01: los clientes solo ven BL publicados (ya filtrados); el administrador puede separarlos.
+        if (scope.IsAdmin && request.Published is { } published)
+        {
+            query = published
+                ? ShipmentPublicationFilter.Published(query, dbContext.ShipmentPublicationRules)
+                : ShipmentPublicationFilter.Unpublished(query, dbContext.ShipmentPublicationRules);
+        }
+
         var total = await query.CountAsync(cancellationToken);
 
         var rows = await query
@@ -122,6 +134,13 @@ public sealed class SearchShipmentsQueryHandler(
         var roles = await accessEvaluator.GetRolesAsync(scope, bls, cancellationToken);
         var sources = await accessEvaluator.GetAccessSourcesAsync(scope, bls, cancellationToken);
 
+        var publications = new Dictionary<Guid, ShipmentPublicationDto>();
+        if (scope.IsAdmin)
+        {
+            foreach (var bl in bls)
+                publications[bl.Id] = ShipmentPublicationView.From(bl, await accessEvaluator.GetPublicationAsync(bl, cancellationToken));
+        }
+
         var items = rows.Select(r =>
         {
             var blRoles = roles.GetValueOrDefault(r.Bl.Id) ?? [];
@@ -140,7 +159,9 @@ public sealed class SearchShipmentsQueryHandler(
                 r.Bl.ETA,
                 blRoles,
                 sources.GetValueOrDefault(r.Bl.Id) ?? ShipmentAccessSources.Own,
-                r.HasPendingCharges);
+                r.HasPendingCharges,
+                ShipmentIssuanceReader.Summary(r.Bl),
+                publications.GetValueOrDefault(r.Bl.Id));
         }).ToList();
 
         return Result<PagedResult<ShipmentListItemDto>>.Success(

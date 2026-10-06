@@ -36,6 +36,29 @@ public sealed class BillOfLading : BaseAuditableEntity
     /// <summary>Flete pagado desde el carro o la vista de crédito (Ola D, liberación de NF-03).</summary>
     public DateTime? FreightPaidAt { get; set; }
 
+    // Fase 1 Ola F: datos del sistema de origen (CT-FIS) para la publicación (M2-01) y la emisión (M2-02).
+
+    /// <summary>UN/LOCODE del puerto de descarga (p. ej. CLSAI).</summary>
+    public string? PortOfDischargeCode { get; set; }
+
+    /// <summary>UN/LOCODE de la localidad de destino final de la carga (p. ej. CLANF).</summary>
+    public string? FinalDestinationCode { get; set; }
+
+    /// <summary>DIFU (estructura de distribución) informado por el origen y la localidad a la que está asociado.</summary>
+    public string? DifuCode { get; set; }
+
+    public string? DifuLocationCode { get; set; }
+
+    /// <summary>Documento de transporte (<c>TransportDocumentTypes</c>: BL, SWB o EBL) y plataforma del EBL (p. ej. WAVE).</summary>
+    public string? TransportDocumentType { get; set; }
+
+    public string? EblPlatform { get; set; }
+
+    /// <summary>Último estado de emisión conocido (<c>BlIssuanceStatuses</c>) y su fecha en el origen.</summary>
+    public string? IssuanceStatus { get; set; }
+
+    public DateTime? IssuanceStatusAt { get; set; }
+
     public Client Client { get; set; } = null!;
     public BillOfLading? ParentBL { get; set; }
     public ICollection<BLContainer> Containers { get; set; } = [];

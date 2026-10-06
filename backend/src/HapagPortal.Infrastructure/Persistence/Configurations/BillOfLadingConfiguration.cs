@@ -59,8 +59,19 @@ internal sealed class BillOfLadingConfiguration : IEntityTypeConfiguration<BillO
             .HasMaxLength(5)
             .IsRequired();
 
+        // Ola F: datos del origen para la publicación por DIFU (M2-01) y la emisión (M2-02).
+        builder.Property(e => e.PortOfDischargeCode).HasMaxLength(10);
+        builder.Property(e => e.FinalDestinationCode).HasMaxLength(10);
+        builder.Property(e => e.DifuCode).HasMaxLength(50);
+        builder.Property(e => e.DifuLocationCode).HasMaxLength(10);
+        builder.Property(e => e.TransportDocumentType).HasMaxLength(10);
+        builder.Property(e => e.EblPlatform).HasMaxLength(30);
+        builder.Property(e => e.IssuanceStatus).HasMaxLength(30);
+
         builder.HasIndex(e => e.BLNumber)
             .IsUnique();
+
+        builder.HasIndex(e => new { e.Country, e.FinalDestinationCode });
 
         builder.HasIndex(e => e.BookingNumber);
 

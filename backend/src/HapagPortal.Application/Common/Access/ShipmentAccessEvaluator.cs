@@ -5,13 +5,16 @@ using HapagPortal.Application.Shipments.Common;
 using HapagPortal.Domain.Access;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
+using HapagPortal.Domain.Shipments;
 using Microsoft.EntityFrameworkCore;
 
 /// <summary>
 /// Evaluación de accesos por embarque en el servidor (M1-11 a M1-18, M8-06, NF-05). Sin caché entre
 /// solicitudes: un cambio de matriz, de perfil, de estado de la organización, una revocación o un
 /// vencimiento aplican de inmediato. La vigencia se compara con el reloj en cada consulta, sin
-/// esperar al proceso que registra los vencimientos (M1-14).
+/// esperar al proceso que registra los vencimientos (M1-14). Los BL no publicados por las reglas de DIFU
+/// de destino final (M2-01) no existen para los clientes: no se listan, no se resuelven por número y no
+/// habilitan acciones; el administrador interno los ve.
 /// </summary>
 public sealed class ShipmentAccessEvaluator(
     IApplicationDbContext dbContext,
@@ -19,6 +22,7 @@ public sealed class ShipmentAccessEvaluator(
 {
     private AccessScope? _scope;
     private AccessMatrixSnapshot? _matrix;
+    private IReadOnlyList<ShipmentPublicationRule>? _publicationRules;
 
     public async Task<AccessScope> GetScopeAsync(CancellationToken cancellationToken = default)
     {
@@ -72,6 +76,8 @@ public sealed class ShipmentAccessEvaluator(
         if (!scope.IsOperational || scope.OrganizationId is null)
             return source.Where(_ => false);
 
+        source = ShipmentPublicationFilter.Published(source, dbContext.ShipmentPublicationRules);
+
         var organizationId = scope.OrganizationId.Value;
         var now = DateTime.UtcNow;
         var shipmentRoles = dbContext.ShipmentRoles;
@@ -104,6 +110,8 @@ public sealed class ShipmentAccessEvaluator(
 
         var shipmentRoles = dbContext.ShipmentRoles;
         var openAccess = dbContext.OpenAccessSettings;
+
+        source = ShipmentPublicationFilter.Published(source, dbContext.ShipmentPublicationRules);
 
         return source.Where(b => openAccess.Any(s => s.IsEnabled && (
             s.ClientId == b.ClientId ||
@@ -151,6 +159,10 @@ public sealed class ShipmentAccessEvaluator(
         CancellationToken cancellationToken = default)
     {
         if (!scope.IsOperational)
+            return ShipmentPermissionSet.None;
+
+        // M2-01: un BL no publicado no habilita nada a los clientes, aunque se haya cargado por otra vía.
+        if (!scope.IsAdmin && !ShipmentPublication.Evaluate(billOfLading, await GetPublicationRulesAsync(cancellationToken)).Published)
             return ShipmentPermissionSet.None;
 
         var matrix = await GetMatrixAsync(cancellationToken);
@@ -236,6 +248,17 @@ public sealed class ShipmentAccessEvaluator(
 
     public async Task<AccessMatrixSnapshot> GetMatrixAsync(CancellationToken cancellationToken = default) =>
         _matrix ??= await AccessMatrixSnapshot.LoadAsync(dbContext, cancellationToken);
+
+    public async Task<PublicationDecision> GetPublicationAsync(
+        BillOfLading billOfLading,
+        CancellationToken cancellationToken = default) =>
+        ShipmentPublication.Evaluate(billOfLading, await GetPublicationRulesAsync(cancellationToken));
+
+    private async Task<IReadOnlyList<ShipmentPublicationRule>> GetPublicationRulesAsync(CancellationToken cancellationToken) =>
+        _publicationRules ??= await dbContext.ShipmentPublicationRules
+            .AsNoTracking()
+            .Where(r => r.IsActive)
+            .ToListAsync(cancellationToken);
 
     private static string SourceOf(BlAccess access, bool isAdmin)
     {

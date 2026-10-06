@@ -2,7 +2,9 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
 using HapagPortal.Application.Shipments.Detail;
+using HapagPortal.Application.Shipments.Issuance;
 using HapagPortal.Application.Shipments.Search;
+using HapagPortal.Application.Shipments.Tatc;
 using HapagPortal.Application.ThirdPartyAccess.OpenAccess;
 using HapagPortal.Application.ThirdPartyAccess.Widenings;
 using HapagPortal.Domain.Constants;
@@ -13,8 +15,9 @@ using Microsoft.AspNetCore.Mvc;
 
 /// <summary>
 /// Listado y detalle únicos de embarques accesibles por el usuario (M2-06, M2-07), autoasociación por
-/// acceso abierto (M1-18) y ampliación de visibilidad entre roles (M1-16). La autorización por BL se
-/// resuelve en Application con el evaluador de accesos de M1-11.
+/// acceso abierto (M1-18) y ampliación de visibilidad entre roles (M1-16), estado de emisión del BL (M2-02),
+/// consulta del TATC y su generación masiva (M2-09). La autorización por BL se resuelve en Application con el
+/// evaluador de accesos de M1-11, que además excluye los BL no publicados por DIFU (M2-01).
 /// </summary>
 [ApiVersion("1.0")]
 [Authorize]
@@ -34,6 +37,46 @@ public sealed class ShipmentsController : ApiController
     public async Task<IActionResult> GetDetail(string blNumber, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetShipmentDetailQuery(blNumber), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Estado de emisión del documento de transporte leído del origen (M2-02).</summary>
+    [HttpGet("{blNumber}/issuance")]
+    public async Task<IActionResult> GetIssuance(string blNumber, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetShipmentIssuanceQuery(blNumber), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Estado del BL y de su TATC por contenedor (M2-09).</summary>
+    [HttpGet("{blNumber}/tatc")]
+    public async Task<IActionResult> GetTatc(string blNumber, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetShipmentTatcQuery(blNumber), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Generación masiva de TATC para BL de una misma localidad (M2-09).</summary>
+    [HttpPost("tatc-batches")]
+    public async Task<IActionResult> RequestTatcBatch(
+        [FromBody] RequestTatcBatchCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    [HttpGet("tatc-batches")]
+    public async Task<IActionResult> GetTatcBatches(CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetTatcBatchesQuery(), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    [HttpGet("tatc-batches/{id:guid}")]
+    public async Task<IActionResult> GetTatcBatch(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetTatcBatchQuery(id), cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 

@@ -25,7 +25,7 @@ public sealed class ShipmentQueriesTests
         _org = client.Organization;
         _evaluator = client.Evaluator;
         _search = new SearchShipmentsQueryHandler(_db, client.Evaluator);
-        _detail = new GetShipmentDetailQueryHandler(_db, client.Evaluator, Substitute.For<IChargeRulesService>());
+        _detail = new GetShipmentDetailQueryHandler(_db, client.Evaluator, Substitute.For<IChargeRulesService>(), TestShipmentSources.IssuanceReader());
     }
 
     private BillOfLading Own(string blNumber, string role, string type = "Import", string country = "CL",
@@ -191,7 +191,7 @@ public sealed class ShipmentQueriesTests
         rules.GetConditionsAsync(Arg.Any<Client>(), Arg.Any<CancellationToken>())
             .Returns(new CommercialConditionsDto(true, "Nexus", _org.TaxId, _org.MatchCode, ipoExcluded, ipoExcluded ? 30 : null,
                 Array.Empty<string>(), null, null, false, false, ipoExcluded, null));
-        var handler = new GetShipmentDetailQueryHandler(_db, _evaluator, rules);
+        var handler = new GetShipmentDetailQueryHandler(_db, _evaluator, rules, TestShipmentSources.IssuanceReader());
 
         var result = await handler.Handle(new GetShipmentDetailQuery("BL-IPO"), CancellationToken.None);
 

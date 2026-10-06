@@ -414,6 +414,206 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.ToTable("AppliedExemptions", (string)null);
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.AssistantMailbox", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Country", "Topic")
+                        .IsUnique();
+
+                    b.ToTable("AssistantMailboxes", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("b305d4b2-1f96-e2ba-6fbf-3306a86c0f69"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "clservice@hapag-lloyd.com",
+                            IsActive = true,
+                            Notes = "Casilla de Customer Service publicada en la FAQ del portal.",
+                            Topic = "GENERAL"
+                        },
+                        new
+                        {
+                            Id = new Guid("501c69c3-4255-3394-8838-8a916d18bfff"),
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "boservice@hapag-lloyd.com",
+                            IsActive = true,
+                            Notes = "Casilla por validar con Customer Service Bolivia antes de producción.",
+                            Topic = "GENERAL"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.AssistantMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AnswerType")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("CitationsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ElapsedMs")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Engine")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<bool>("EngineFallback")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Intent")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Role", "CreatedAt");
+
+                    b.HasIndex("SessionId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("AssistantMessages", (string)null);
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.AssistantSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EngineMode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("LastActivityAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("TranscriptSentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TranscriptSentTo")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "StartedAt");
+
+                    b.ToTable("AssistantSessions", (string)null);
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -868,6 +1068,32 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             SealNumber = "SL-045002",
                             Status = "Discharged",
                             Weight = 17900m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000017"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000014"),
+                            ContainerNumber = "HLXU3046001",
+                            ContainerType = "40HC",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-046001",
+                            Status = "Discharged",
+                            Weight = 26300m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000018"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000015"),
+                            ContainerNumber = "HLXU3046002",
+                            ContainerType = "40RF",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-046002",
+                            Status = "Discharged",
+                            Weight = 24800m
                         });
                 });
 
@@ -994,11 +1220,27 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<string>("DifuCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("DifuLocationCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
                     b.Property<DateTime?>("ETA")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("ETD")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EblPlatform")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("FinalDestinationCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<decimal>("FreightAmount")
                         .HasPrecision(18, 2)
@@ -1024,6 +1266,13 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Property<bool>("IsToOrder")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("IssuanceStatus")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime?>("IssuanceStatusAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1048,6 +1297,10 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("PortOfDischargeCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
                     b.Property<string>("PortOfLoading")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -1065,6 +1318,10 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<string>("TransportDocumentType")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<string>("Vessel")
                         .HasMaxLength(100)
@@ -1088,6 +1345,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
 
                     b.HasIndex("ParentBLId");
 
+                    b.HasIndex("Country", "FinalDestinationCode");
+
                     b.ToTable("BillsOfLading", (string)null);
 
                     b.HasData(
@@ -1103,17 +1362,22 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 4, 5, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 3, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLSCL",
                             FreightAmount = 3500m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "TelexReleased",
+                            IssuanceStatusAt = new DateTime(2026, 4, 2, 14, 0, 0, 0, DateTimeKind.Utc),
                             NotifyParty = "Agencia Marítima del Pacífico Ltda",
                             PlaceOfDelivery = "Santiago, Chile",
                             PortOfDischarge = "San Antonio (CLSAI)",
+                            PortOfDischargeCode = "CLSAI",
                             PortOfLoading = "Shanghai (CNSHA)",
                             ShipmentType = "Import",
                             Shipper = "Shanghai Electronics Co. Ltd",
                             Status = "Arrived",
+                            TransportDocumentType = "BL",
                             Vessel = "Hamburg Express",
                             Voyage = "025E"
                         },
@@ -1129,17 +1393,22 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 5, 20, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 4, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLVAP",
                             FreightAmount = 5200m,
                             FreightCurrency = "USD",
                             FreightPaidAt = new DateTime(2026, 9, 20, 14, 5, 0, 0, DateTimeKind.Utc),
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 4, 16, 9, 0, 0, 0, DateTimeKind.Utc),
                             PlaceOfDelivery = "Valparaiso, Chile",
                             PortOfDischarge = "Valparaiso (CLVAP)",
+                            PortOfDischargeCode = "CLVAP",
                             PortOfLoading = "Busan (KRPUS)",
                             ShipmentType = "Import",
                             Shipper = "Korea Auto Parts Inc.",
                             Status = "InTransit",
+                            TransportDocumentType = "SWB",
                             Vessel = "Berlin Express",
                             Voyage = "031W"
                         },
@@ -1155,16 +1424,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 2, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLSCL",
                             FreightAmount = 8750m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "Surrendered",
+                            IssuanceStatusAt = new DateTime(2026, 2, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             PlaceOfDelivery = "Santiago, Chile",
                             PortOfDischarge = "San Antonio (CLSAI)",
+                            PortOfDischargeCode = "CLSAI",
                             PortOfLoading = "Rotterdam (NLRTM)",
                             ShipmentType = "Import",
                             Shipper = "European Machinery GmbH",
                             Status = "Delivered",
+                            TransportDocumentType = "BL",
                             Vessel = "Colombo Express",
                             Voyage = "018E"
                         },
@@ -1180,16 +1454,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 3, 28, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 2, 20, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "BOLPB",
                             FreightAmount = 2800m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "AuthorizedAtDestination",
+                            IssuanceStatusAt = new DateTime(2026, 3, 20, 15, 0, 0, 0, DateTimeKind.Utc),
                             PlaceOfDelivery = "La Paz, Bolivia",
                             PortOfDischarge = "Arica (CLARI)",
+                            PortOfDischargeCode = "CLARI",
                             PortOfLoading = "Ningbo (CNNGB)",
                             ShipmentType = "Import",
                             Shipper = "Ningbo Textiles Export Co.",
                             Status = "Arrived",
+                            TransportDocumentType = "BL",
                             Vessel = "Antofagasta Express",
                             Voyage = "012E"
                         },
@@ -1205,16 +1484,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 5, 10, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "BOSRZ",
                             FreightAmount = 1950m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "IssuedAtDestination",
+                            IssuanceStatusAt = new DateTime(2026, 5, 8, 13, 0, 0, 0, DateTimeKind.Utc),
                             PlaceOfDelivery = "Santa Cruz, Bolivia",
                             PortOfDischarge = "Iquique (CLIQQ)",
+                            PortOfDischargeCode = "CLIQQ",
                             PortOfLoading = "Mumbai (INBOM)",
                             ShipmentType = "Import",
                             Shipper = "Mumbai Spices & Commodities Pvt Ltd",
                             Status = "InTransit",
+                            TransportDocumentType = "BL",
                             Vessel = "Guayaquil Express",
                             Voyage = "007W"
                         },
@@ -1230,16 +1514,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 10, 20, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EblPlatform = "WAVE",
+                            FinalDestinationCode = "NLRTM",
                             FreightAmount = 3900m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "Pending",
                             PlaceOfDelivery = "Rotterdam, Netherlands",
                             PortOfDischarge = "Rotterdam (NLRTM)",
+                            PortOfDischargeCode = "NLRTM",
                             PortOfLoading = "San Antonio (CLSAI)",
                             ShipmentType = "Export",
                             Shipper = "Importadora Demo SpA",
                             Status = "Booked",
+                            TransportDocumentType = "EBL",
                             Vessel = "Valparaiso Express",
                             Voyage = "2610S"
                         },
@@ -1255,16 +1544,22 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 12, 2, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 10, 28, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EblPlatform = "WAVE",
+                            FinalDestinationCode = "CNSHA",
                             FreightAmount = 4100m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 10, 29, 10, 0, 0, 0, DateTimeKind.Utc),
                             PlaceOfDelivery = "Shanghai, China",
                             PortOfDischarge = "Shanghai (CNSHA)",
+                            PortOfDischargeCode = "CNSHA",
                             PortOfLoading = "Valparaiso (CLVAP)",
                             ShipmentType = "Export",
                             Shipper = "Importadora Demo SpA",
                             Status = "Loaded",
+                            TransportDocumentType = "EBL",
                             Vessel = "Santos Express",
                             Voyage = "2611N"
                         },
@@ -1280,16 +1575,20 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 11, 12, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 11, 5, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "PELIM",
                             FreightAmount = 1450m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "Pending",
                             PlaceOfDelivery = "Lima, Peru",
                             PortOfDischarge = "Callao (PECLL)",
+                            PortOfDischargeCode = "PECLL",
                             PortOfLoading = "Arica (CLARI)",
                             ShipmentType = "Export",
                             Shipper = "Comercial Altiplano SRL",
                             Status = "Booked",
+                            TransportDocumentType = "SWB",
                             Vessel = "Antofagasta Express",
                             Voyage = "2612S"
                         },
@@ -1305,16 +1604,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 8, 20, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 7, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLSCL",
                             FreightAmount = 4200m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 7, 16, 11, 0, 0, 0, DateTimeKind.Utc),
                             PlaceOfDelivery = "Santiago, Chile",
                             PortOfDischarge = "San Antonio (CLSAI)",
+                            PortOfDischargeCode = "CLSAI",
                             PortOfLoading = "Hamburg (DEHAM)",
                             ShipmentType = "Import",
                             Shipper = "Hamburg Industrial Supplies GmbH",
                             Status = "Arrived",
+                            TransportDocumentType = "BL",
                             Vessel = "Rio de Janeiro Express",
                             Voyage = "2608E"
                         },
@@ -1331,16 +1635,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 9, 28, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 8, 20, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLSCL",
                             FreightAmount = 3100m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 8, 21, 10, 0, 0, 0, DateTimeKind.Utc),
                             PlaceOfDelivery = "Santiago, Chile",
                             PortOfDischarge = "San Antonio (CLSAI)",
+                            PortOfDischargeCode = "CLSAI",
                             PortOfLoading = "Ningbo (CNNGB)",
                             ShipmentType = "Import",
                             Shipper = "Ningbo Home Goods Co.",
                             Status = "Arrived",
+                            TransportDocumentType = "SWB",
                             Vessel = "Valparaiso Express",
                             Voyage = "2609E"
                         },
@@ -1356,16 +1665,22 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 9, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 8, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EblPlatform = "WAVE",
+                            FinalDestinationCode = "CLVAP",
                             FreightAmount = 2600m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "Transferred",
+                            IssuanceStatusAt = new DateTime(2026, 9, 1, 16, 0, 0, 0, DateTimeKind.Utc),
                             PlaceOfDelivery = "Valparaiso, Chile",
                             PortOfDischarge = "Valparaiso (CLVAP)",
+                            PortOfDischargeCode = "CLVAP",
                             PortOfLoading = "Santos (BRSSZ)",
                             ShipmentType = "Import",
                             Shipper = "Santos Coffee Exporters Ltda",
                             Status = "Arrived",
+                            TransportDocumentType = "EBL",
                             Vessel = "Santos Express",
                             Voyage = "2609N"
                         },
@@ -1381,19 +1696,24 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 10, 2, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 8, 28, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLSCL",
                             FreightAmount = 4800m,
                             FreightCurrency = "USD",
                             FreightPaidAt = new DateTime(2026, 10, 3, 15, 0, 0, 0, DateTimeKind.Utc),
                             FreightTerms = "Collect",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "TelexReleased",
+                            IssuanceStatusAt = new DateTime(2026, 9, 30, 18, 0, 0, 0, DateTimeKind.Utc),
                             NotifyParty = "Agencia Marítima del Pacífico Ltda",
                             PlaceOfDelivery = "Santiago, Chile",
                             PortOfDischarge = "San Antonio (CLSAI)",
+                            PortOfDischargeCode = "CLSAI",
                             PortOfLoading = "Yokohama (JPYOK)",
                             ShipmentType = "Import",
                             Shipper = "Yokohama Machinery Co.",
                             Status = "Arrived",
+                            TransportDocumentType = "BL",
                             Vessel = "Cartagena Express",
                             Voyage = "2611E"
                         },
@@ -1409,18 +1729,86 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             ETA = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             ETD = new DateTime(2026, 8, 30, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLVAP",
                             FreightAmount = 2900m,
                             FreightCurrency = "USD",
                             IsSeaWaybill = false,
                             IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 8, 31, 9, 0, 0, 0, DateTimeKind.Utc),
                             PlaceOfDelivery = "Valparaiso, Chile",
                             PortOfDischarge = "Valparaiso (CLVAP)",
+                            PortOfDischargeCode = "CLVAP",
                             PortOfLoading = "Shanghai (CNSHA)",
                             ShipmentType = "Import",
                             Shipper = "Shanghai Furniture Ltd",
                             Status = "Arrived",
+                            TransportDocumentType = "BL",
                             Vessel = "Callao Express",
                             Voyage = "2611N"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000014"),
+                            BLNumber = "HLCUSAI260601410",
+                            BookingNumber = "HLCUBKG2606141",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Consignee = "Importadora Demo SpA",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 10, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLANF",
+                            FreightAmount = 3100m,
+                            FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 9, 2, 12, 0, 0, 0, DateTimeKind.Utc),
+                            PlaceOfDelivery = "Antofagasta, Chile",
+                            PortOfDischarge = "San Antonio (CLSAI)",
+                            PortOfDischargeCode = "CLSAI",
+                            PortOfLoading = "Shanghai (CNSHA)",
+                            ShipmentType = "Import",
+                            Shipper = "Shanghai Mining Supplies Co.",
+                            Status = "Arrived",
+                            TransportDocumentType = "BL",
+                            Vessel = "Lima Express",
+                            Voyage = "2612E"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000015"),
+                            BLNumber = "HLCUSAI260601520",
+                            BookingNumber = "HLCUBKG2606152",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Consignee = "Importadora Demo SpA",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DifuCode = "PUQ-DIFU-0915",
+                            DifuLocationCode = "CLPUQ",
+                            ETA = new DateTime(2026, 10, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLPUQ",
+                            FreightAmount = 2750m,
+                            FreightCurrency = "USD",
+                            FreightPaidAt = new DateTime(2026, 9, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 9, 2, 12, 0, 0, 0, DateTimeKind.Utc),
+                            PlaceOfDelivery = "Punta Arenas, Chile",
+                            PortOfDischarge = "San Antonio (CLSAI)",
+                            PortOfDischargeCode = "CLSAI",
+                            PortOfLoading = "Shanghai (CNSHA)",
+                            ShipmentType = "Import",
+                            Shipper = "Shanghai Cold Chain Ltd",
+                            Status = "Arrived",
+                            TransportDocumentType = "SWB",
+                            Vessel = "Lima Express",
+                            Voyage = "2612E"
                         });
                 });
 
@@ -3264,6 +3652,586 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.ToTable("CustomsTransmissionEvents", (string)null);
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.DangerousGood", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("HazardClass")
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsClassified")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Keywords")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("PackingGroup")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<string>("ProperShippingNameEn")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("ProperShippingNameEs")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("SearchText")
+                        .IsRequired()
+                        .HasMaxLength(1500)
+                        .HasColumnType("character varying(1500)");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("SubsidiaryRisk")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("UnNumber")
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UnNumber");
+
+                    b.ToTable("DangerousGoods", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("24765d35-fb69-b6b5-85f8-ded3bb725df7"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "3",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "bencina, nafta, combustible",
+                            PackingGroup = "II",
+                            ProperShippingNameEn = "Gasoline (motor spirit)",
+                            ProperShippingNameEs = "Gasolina",
+                            SearchText = "un1203 1203 gasolina gasoline (motor spirit) bencina, nafta, combustible",
+                            Source = "SAMPLE",
+                            UnNumber = "1203"
+                        },
+                        new
+                        {
+                            Id = new Guid("0a52470d-60bc-f9c2-e321-f92766b42e8c"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "3",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "petroleo diesel, gasoil, combustible",
+                            PackingGroup = "III",
+                            ProperShippingNameEn = "Diesel fuel",
+                            ProperShippingNameEs = "Combustible diésel",
+                            SearchText = "un1202 1202 combustible diesel diesel fuel petroleo diesel, gasoil, combustible",
+                            Source = "SAMPLE",
+                            UnNumber = "1202"
+                        },
+                        new
+                        {
+                            Id = new Guid("ecb4a1d5-2dab-226d-7bdc-8244a9635258"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "3",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "solvente, quitaesmalte",
+                            PackingGroup = "II",
+                            ProperShippingNameEn = "Acetone",
+                            ProperShippingNameEs = "Acetona",
+                            SearchText = "un1090 1090 acetona acetone solvente, quitaesmalte",
+                            Source = "SAMPLE",
+                            UnNumber = "1090"
+                        },
+                        new
+                        {
+                            Id = new Guid("68b6e81e-140d-38e3-53bf-f395f3607ae5"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "3",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "alcohol etilico, alcohol",
+                            Notes = "Grupo de embalaje II o III según la concentración.",
+                            PackingGroup = "II",
+                            ProperShippingNameEn = "Ethanol (ethyl alcohol) or ethanol solution",
+                            ProperShippingNameEs = "Etanol (alcohol etílico) o solución de etanol",
+                            SearchText = "un1170 1170 etanol (alcohol etilico) o solucion de etanol ethanol (ethyl alcohol) or ethanol solution alcohol etilico, alcohol",
+                            Source = "SAMPLE",
+                            UnNumber = "1170"
+                        },
+                        new
+                        {
+                            Id = new Guid("c109a092-3cf7-5b9a-1bda-25476a9ed4a8"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "3",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "pinturas, barniz, laca, esmalte",
+                            Notes = "Grupo de embalaje I, II o III según el punto de inflamación.",
+                            ProperShippingNameEn = "Paint",
+                            ProperShippingNameEs = "Pintura",
+                            SearchText = "un1263 1263 pintura paint pinturas, barniz, laca, esmalte",
+                            Source = "SAMPLE",
+                            UnNumber = "1263"
+                        },
+                        new
+                        {
+                            Id = new Guid("5c5b3d26-bc80-92ac-c4e3-d2ff92ad99e8"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "3",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "liquido inflamable",
+                            Notes = "Grupo de embalaje según el punto de inflamación.",
+                            ProperShippingNameEn = "Flammable liquid, n.o.s.",
+                            ProperShippingNameEs = "Líquido inflamable, n.e.p.",
+                            SearchText = "un1993 1993 liquido inflamable, n.e.p. flammable liquid, n.o.s. liquido inflamable",
+                            Source = "SAMPLE",
+                            UnNumber = "1993"
+                        },
+                        new
+                        {
+                            Id = new Guid("9df6d733-49f7-4989-63a0-ff8d601424fc"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "2.1",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "glp, gas licuado",
+                            ProperShippingNameEn = "Petroleum gases, liquefied",
+                            ProperShippingNameEs = "Gases de petróleo licuados",
+                            SearchText = "un1075 1075 gases de petroleo licuados petroleum gases, liquefied glp, gas licuado",
+                            Source = "SAMPLE",
+                            UnNumber = "1075"
+                        },
+                        new
+                        {
+                            Id = new Guid("36f15fa3-1970-ac8d-989d-6e23f2d81c61"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "2.1",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "gas propano, glp",
+                            ProperShippingNameEn = "Propane",
+                            ProperShippingNameEs = "Propano",
+                            SearchText = "un1978 1978 propano propane gas propano, glp",
+                            Source = "SAMPLE",
+                            UnNumber = "1978"
+                        },
+                        new
+                        {
+                            Id = new Guid("d81659f8-e496-ef4a-5d69-04669899a616"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "2.1",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "spray, aerosol",
+                            Notes = "La división (2.1, 2.2 o 2.3) depende del contenido del aerosol.",
+                            ProperShippingNameEn = "Aerosols",
+                            ProperShippingNameEs = "Aerosoles",
+                            SearchText = "un1950 1950 aerosoles aerosols spray, aerosol",
+                            Source = "SAMPLE",
+                            UnNumber = "1950"
+                        },
+                        new
+                        {
+                            Id = new Guid("8618626d-f8e5-680d-b35a-eea8b98e93a0"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "2.3",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "amoniaco, refrigerante",
+                            ProperShippingNameEn = "Ammonia, anhydrous",
+                            ProperShippingNameEs = "Amoníaco anhidro",
+                            SearchText = "un1005 1005 amoniaco anhidro ammonia, anhydrous amoniaco, refrigerante",
+                            Source = "SAMPLE",
+                            SubsidiaryRisk = "8",
+                            UnNumber = "1005"
+                        },
+                        new
+                        {
+                            Id = new Guid("e1710ee1-b144-16d0-595a-d4094795db40"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "2.2",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "co2, gas carbonico",
+                            ProperShippingNameEn = "Carbon dioxide",
+                            ProperShippingNameEs = "Dióxido de carbono",
+                            SearchText = "un1013 1013 dioxido de carbono carbon dioxide co2, gas carbonico",
+                            Source = "SAMPLE",
+                            UnNumber = "1013"
+                        },
+                        new
+                        {
+                            Id = new Guid("304efdd2-7458-277b-1c60-2af4af1af337"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "9",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "hielo seco, co2 solido",
+                            ProperShippingNameEn = "Carbon dioxide, solid (dry ice)",
+                            ProperShippingNameEs = "Dióxido de carbono sólido (hielo seco)",
+                            SearchText = "un1845 1845 dioxido de carbono solido (hielo seco) carbon dioxide, solid (dry ice) hielo seco, co2 solido",
+                            Source = "SAMPLE",
+                            UnNumber = "1845"
+                        },
+                        new
+                        {
+                            Id = new Guid("a32273dd-ab7d-00e5-6006-7e8c91bf8797"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "8",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "acido sulfurico",
+                            PackingGroup = "II",
+                            ProperShippingNameEn = "Sulphuric acid",
+                            ProperShippingNameEs = "Ácido sulfúrico",
+                            SearchText = "un1830 1830 acido sulfurico sulphuric acid acido sulfurico",
+                            Source = "SAMPLE",
+                            UnNumber = "1830"
+                        },
+                        new
+                        {
+                            Id = new Guid("ec432f34-8f5a-b0ea-8990-8c6e2dbf415a"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "8",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "acido clorhidrico, acido muriatico",
+                            Notes = "Grupo de embalaje II o III según la concentración.",
+                            ProperShippingNameEn = "Hydrochloric acid",
+                            ProperShippingNameEs = "Ácido clorhídrico",
+                            SearchText = "un1789 1789 acido clorhidrico hydrochloric acid acido clorhidrico, acido muriatico",
+                            Source = "SAMPLE",
+                            UnNumber = "1789"
+                        },
+                        new
+                        {
+                            Id = new Guid("327ab997-3424-cb68-15b0-3b7b33aaf1b8"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "8",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "soda caustica, sosa caustica",
+                            PackingGroup = "II",
+                            ProperShippingNameEn = "Sodium hydroxide, solid",
+                            ProperShippingNameEs = "Hidróxido de sodio sólido",
+                            SearchText = "un1823 1823 hidroxido de sodio solido sodium hydroxide, solid soda caustica, sosa caustica",
+                            Source = "SAMPLE",
+                            UnNumber = "1823"
+                        },
+                        new
+                        {
+                            Id = new Guid("077e55d6-7b2e-253b-c6c9-c5bd14640d3e"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "8",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "baterias, acumuladores, bateria de plomo",
+                            ProperShippingNameEn = "Batteries, wet, filled with acid",
+                            ProperShippingNameEs = "Baterías húmedas llenas de ácido",
+                            SearchText = "un2794 2794 baterias humedas llenas de acido batteries, wet, filled with acid baterias, acumuladores, bateria de plomo",
+                            Source = "SAMPLE",
+                            UnNumber = "2794"
+                        },
+                        new
+                        {
+                            Id = new Guid("0d4ec6d0-512d-2417-9bf6-7a963350c92f"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "9",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "baterias de litio, pilas de litio",
+                            Notes = "Incluye baterías de polímero de ion litio.",
+                            ProperShippingNameEn = "Lithium ion batteries",
+                            ProperShippingNameEs = "Baterías de ion litio",
+                            SearchText = "un3480 3480 baterias de ion litio lithium ion batteries baterias de litio, pilas de litio",
+                            Source = "SAMPLE",
+                            UnNumber = "3480"
+                        },
+                        new
+                        {
+                            Id = new Guid("6fbed7a0-0f71-dfb5-5bfa-5580ac1cd6d1"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "9",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "baterias de litio, equipos electronicos",
+                            ProperShippingNameEn = "Lithium ion batteries contained in equipment or packed with equipment",
+                            ProperShippingNameEs = "Baterías de ion litio contenidas en un equipo o embaladas con él",
+                            SearchText = "un3481 3481 baterias de ion litio contenidas en un equipo o embaladas con el lithium ion batteries contained in equipment or packed with equipment baterias de litio, equipos electronicos",
+                            Source = "SAMPLE",
+                            UnNumber = "3481"
+                        },
+                        new
+                        {
+                            Id = new Guid("c2f40342-cc39-4603-7153-f475053adf2b"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "9",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "baterias de litio, pilas de litio",
+                            ProperShippingNameEn = "Lithium metal batteries",
+                            ProperShippingNameEs = "Baterías de metal litio",
+                            SearchText = "un3090 3090 baterias de metal litio lithium metal batteries baterias de litio, pilas de litio",
+                            Source = "SAMPLE",
+                            UnNumber = "3090"
+                        },
+                        new
+                        {
+                            Id = new Guid("22362860-9851-a198-09da-7fe8490b5ede"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "5.1",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "nitrato de amonio",
+                            Notes = "Con no más del 0,2 % de sustancia combustible.",
+                            PackingGroup = "III",
+                            ProperShippingNameEn = "Ammonium nitrate",
+                            ProperShippingNameEs = "Nitrato de amonio",
+                            SearchText = "un1942 1942 nitrato de amonio ammonium nitrate nitrato de amonio",
+                            Source = "SAMPLE",
+                            UnNumber = "1942"
+                        },
+                        new
+                        {
+                            Id = new Guid("61cf63a7-152d-af37-4217-c3a609aa67b4"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "5.1",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "fertilizante, abono",
+                            PackingGroup = "III",
+                            ProperShippingNameEn = "Ammonium nitrate based fertilizer",
+                            ProperShippingNameEs = "Abonos a base de nitrato de amonio",
+                            SearchText = "un2067 2067 abonos a base de nitrato de amonio ammonium nitrate based fertilizer fertilizante, abono",
+                            Source = "SAMPLE",
+                            UnNumber = "2067"
+                        },
+                        new
+                        {
+                            Id = new Guid("336746ef-6353-0852-f1ce-9537ca17110f"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "5.1",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "cloro, cloro granulado, piscina",
+                            PackingGroup = "II",
+                            ProperShippingNameEn = "Calcium hypochlorite, dry",
+                            ProperShippingNameEs = "Hipoclorito de calcio seco",
+                            SearchText = "un1748 1748 hipoclorito de calcio seco calcium hypochlorite, dry cloro, cloro granulado, piscina",
+                            Source = "SAMPLE",
+                            UnNumber = "1748"
+                        },
+                        new
+                        {
+                            Id = new Guid("7e4bfe6c-34af-523c-57a2-074bbda12a84"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "9",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "contaminante marino",
+                            PackingGroup = "III",
+                            ProperShippingNameEn = "Environmentally hazardous substance, solid, n.o.s.",
+                            ProperShippingNameEs = "Sustancia sólida peligrosa para el medio ambiente, n.e.p.",
+                            SearchText = "un3077 3077 sustancia solida peligrosa para el medio ambiente, n.e.p. environmentally hazardous substance, solid, n.o.s. contaminante marino",
+                            Source = "SAMPLE",
+                            UnNumber = "3077"
+                        },
+                        new
+                        {
+                            Id = new Guid("d9bab528-d5bd-3ca1-e223-ae7685f250af"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "9",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "contaminante marino",
+                            PackingGroup = "III",
+                            ProperShippingNameEn = "Environmentally hazardous substance, liquid, n.o.s.",
+                            ProperShippingNameEs = "Sustancia líquida peligrosa para el medio ambiente, n.e.p.",
+                            SearchText = "un3082 3082 sustancia liquida peligrosa para el medio ambiente, n.e.p. environmentally hazardous substance, liquid, n.o.s. contaminante marino",
+                            Source = "SAMPLE",
+                            UnNumber = "3082"
+                        },
+                        new
+                        {
+                            Id = new Guid("d301d0ab-c9c3-abc7-8615-4eff72143cc1"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "9",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "automovil, auto, vehiculo",
+                            ProperShippingNameEn = "Vehicle, flammable liquid powered",
+                            ProperShippingNameEs = "Vehículo propulsado por líquido inflamable",
+                            SearchText = "un3166 3166 vehiculo propulsado por liquido inflamable vehicle, flammable liquid powered automovil, auto, vehiculo",
+                            Source = "SAMPLE",
+                            UnNumber = "3166"
+                        },
+                        new
+                        {
+                            Id = new Guid("ac55b5f8-ff9c-c7da-9364-3ea41d040a6b"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "4.2",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "carbon vegetal, carbon",
+                            Notes = "Grupo de embalaje II o III.",
+                            ProperShippingNameEn = "Carbon, animal or vegetable origin",
+                            ProperShippingNameEs = "Carbón de origen animal o vegetal",
+                            SearchText = "un1361 1361 carbon de origen animal o vegetal carbon, animal or vegetable origin carbon vegetal, carbon",
+                            Source = "SAMPLE",
+                            UnNumber = "1361"
+                        },
+                        new
+                        {
+                            Id = new Guid("d19fd508-6e73-b57b-4130-d86abe076cc4"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            HazardClass = "3",
+                            IsActive = true,
+                            IsClassified = true,
+                            Keywords = "alcohol",
+                            Notes = "Grupo de embalaje II o III según el punto de inflamación.",
+                            ProperShippingNameEn = "Alcohols, n.o.s.",
+                            ProperShippingNameEs = "Alcoholes, n.e.p.",
+                            SearchText = "un1987 1987 alcoholes, n.e.p. alcohols, n.o.s. alcohol",
+                            Source = "SAMPLE",
+                            UnNumber = "1987"
+                        },
+                        new
+                        {
+                            Id = new Guid("bffa68f3-de6e-6f8d-a472-ca8dce2a9e1c"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            IsClassified = false,
+                            Keywords = "muebles, mobiliario",
+                            ProperShippingNameEn = "Wooden furniture",
+                            ProperShippingNameEs = "Muebles de madera",
+                            SearchText = "muebles de madera wooden furniture muebles, mobiliario",
+                            Source = "SAMPLE"
+                        },
+                        new
+                        {
+                            Id = new Guid("c3941ce9-d357-2e6c-351c-388924c9a455"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            IsClassified = false,
+                            Keywords = "fruta, manzanas, uvas, cerezas",
+                            Notes = "Carga refrigerada no clasificada como mercancía peligrosa.",
+                            ProperShippingNameEn = "Fresh fruit",
+                            ProperShippingNameEs = "Fruta fresca",
+                            SearchText = "fruta fresca fresh fruit fruta, manzanas, uvas, cerezas",
+                            Source = "SAMPLE"
+                        },
+                        new
+                        {
+                            Id = new Guid("50ef7190-04da-4782-2266-529843702934"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            IsClassified = false,
+                            Keywords = "vino, bebidas alcoholicas",
+                            Notes = "Las bebidas alcohólicas con más de 24 % de alcohol en volumen se clasifican como UN3065, clase 3.",
+                            ProperShippingNameEn = "Bottled wine",
+                            ProperShippingNameEs = "Vino embotellado",
+                            SearchText = "vino embotellado bottled wine vino, bebidas alcoholicas",
+                            Source = "SAMPLE"
+                        },
+                        new
+                        {
+                            Id = new Guid("105d0eac-743d-7d48-d7b7-b13227141e48"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            IsClassified = false,
+                            Keywords = "cobre, catodos",
+                            ProperShippingNameEn = "Copper cathodes",
+                            ProperShippingNameEs = "Cátodos de cobre",
+                            SearchText = "catodos de cobre copper cathodes cobre, catodos",
+                            Source = "SAMPLE"
+                        },
+                        new
+                        {
+                            Id = new Guid("4c7b6b59-ddd3-95f4-5279-79efa3f44e22"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            IsClassified = false,
+                            Keywords = "ropa, textiles, vestuario",
+                            ProperShippingNameEn = "Clothing",
+                            ProperShippingNameEs = "Prendas de vestir",
+                            SearchText = "prendas de vestir clothing ropa, textiles, vestuario",
+                            Source = "SAMPLE"
+                        });
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.DeadlineInstance", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4252,6 +5220,401 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.KnowledgeArticle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Keywords")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("SourceFaqId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Country", "IsActive", "Topic");
+
+                    b.ToTable("KnowledgeArticles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("96bd2015-d692-1d1d-3b1d-e217f757b716"),
+                            Content = "Ingrese al módulo 'Bills of Lading', escriba su número de BL en el buscador y presione buscar. Verá el detalle completo incluyendo contenedores, cargos locales y demurrage.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 1,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000001"),
+                            Title = "¿Cómo puedo consultar el estado de mi BL?",
+                            Topic = "SHIPPING"
+                        },
+                        new
+                        {
+                            Id = new Guid("715a32fa-66b0-77ea-386c-de7cd891089f"),
+                            Content = "En Chile puede pagar con Tarjeta de Crédito, Tarjeta de Débito, Transferencia Bancaria y WebPay. Todos los pagos electrónicos se procesan en tiempo real.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 2,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000002"),
+                            Title = "¿Qué métodos de pago están disponibles en Chile?",
+                            Topic = "PAYMENTS"
+                        },
+                        new
+                        {
+                            Id = new Guid("5a58c5dd-046f-3f66-b69b-2b680c1c146d"),
+                            Content = "Vaya al módulo 'Cambio de Almacén', ingrese el número de BL, el contenedor, el almacén actual y el almacén destino. La solicitud será procesada y recibirá confirmación por correo.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 3,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000003"),
+                            Title = "¿Cómo solicito un cambio de almacén?",
+                            Topic = "SHIPPING"
+                        },
+                        new
+                        {
+                            Id = new Guid("cb0c73ee-3a8a-5b3b-9033-b8087818da70"),
+                            Content = "La tasa de IVA vigente en Chile es del 19%. Se aplica automáticamente sobre los cargos locales y servicios facturables.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 4,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000004"),
+                            Title = "¿Cuál es la tasa de IVA aplicada en Chile?",
+                            Topic = "PAYMENTS"
+                        },
+                        new
+                        {
+                            Id = new Guid("a43ec294-e615-b557-7514-1d74754dc32b"),
+                            Content = "Una vez confirmado el pago, vaya al detalle del pago y presione 'Generar Recibo'. El recibo se genera automáticamente en formato PDF con todos los datos fiscales.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 5,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000005"),
+                            Title = "¿Cómo genero un recibo de pago?",
+                            Topic = "DOCUMENTATION"
+                        },
+                        new
+                        {
+                            Id = new Guid("39b01132-be66-8672-471e-d76ffb03210f"),
+                            Content = "Ingrese al módulo 'Bills of Lading' y busque por número de BL. Verá el estado de su carga incluyendo el puerto de ingreso (Arica, Iquique o Antofagasta) y los cargos asociados.",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 1,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000011"),
+                            Title = "¿Cómo puedo consultar el estado de mi BL en Bolivia?",
+                            Topic = "SHIPPING"
+                        },
+                        new
+                        {
+                            Id = new Guid("16a9eb6a-7ade-d4a6-e84b-1f7b78787229"),
+                            Content = "En Bolivia puede pagar mediante Transferencia Bancaria, Efectivo y Cheque. Los pagos en efectivo deben realizarse en oficinas autorizadas.",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 2,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000012"),
+                            Title = "¿Qué métodos de pago están disponibles en Bolivia?",
+                            Topic = "PAYMENTS"
+                        },
+                        new
+                        {
+                            Id = new Guid("5dfa074c-9654-883f-68a8-2dafe0784949"),
+                            Content = "La tasa de IVA vigente en Bolivia es del 13%. Se aplica automáticamente sobre los cargos locales y servicios facturables. Los montos se manejan en Bolivianos (BOB).",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 3,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000013"),
+                            Title = "¿Cuál es la tasa de IVA aplicada en Bolivia?",
+                            Topic = "PAYMENTS"
+                        },
+                        new
+                        {
+                            Id = new Guid("0cf519fe-d8a2-241f-740d-011e9f6eec9d"),
+                            Content = "El NIT (Número de Identificación Tributaria) es el identificador fiscal en Bolivia. Es obligatorio para el registro en el portal y para la emisión de documentos fiscales.",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 4,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000014"),
+                            Title = "¿Qué es el NIT y por qué lo necesito?",
+                            Topic = "GENERAL"
+                        },
+                        new
+                        {
+                            Id = new Guid("3746d3f8-f379-04cc-942e-236c3c248994"),
+                            Content = "El demurrage se calcula desde la fecha de descarga en el puerto chileno. Los días libres y tarifas diarias dependen del tipo de contenedor y acuerdos comerciales. Puede solicitar exenciones a través del módulo de Demurrage.",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 5,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000015"),
+                            Title = "¿Cómo funciona el demurrage para carga en tránsito a Bolivia?",
+                            Topic = "DEMURRAGE"
+                        },
+                        new
+                        {
+                            Id = new Guid("f569fc25-d919-0336-5d34-38d94c4bfa4f"),
+                            Content = "Haga clic en 'Registrarse', seleccione su país (Chile o Bolivia), ingrese los datos de su empresa (RUT/NIT, nombre, correo) y cree una contraseña. Recibirá un correo de confirmación.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 10,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000021"),
+                            Title = "¿Cómo registro mi empresa en el portal?",
+                            Topic = "GENERAL"
+                        },
+                        new
+                        {
+                            Id = new Guid("66411fca-e5ab-f656-ff6d-a7a9f60ed389"),
+                            Content = "En la pantalla de login, haga clic en '¿Olvidó su contraseña?'. Ingrese su correo electrónico y recibirá un enlace para restablecer su contraseña.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 11,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000022"),
+                            Title = "¿Olvidé mi contraseña, cómo la recupero?",
+                            Topic = "GENERAL"
+                        },
+                        new
+                        {
+                            Id = new Guid("38e0bbdf-dcfd-ad4b-7425-a43db4786451"),
+                            Content = "Puede contactarnos al correo clservice@hapag-lloyd.com o llamar al +56 2 2630 1700 (Chile) / +591 2 211 0700 (Bolivia) en horario de oficina de lunes a viernes.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            SortOrder = 12,
+                            SourceFaqId = new Guid("f6a7b8c9-0006-0006-0006-000000000023"),
+                            Title = "¿Cómo contacto a soporte técnico?",
+                            Topic = "GENERAL"
+                        },
+                        new
+                        {
+                            Id = new Guid("4e576670-dc83-d46f-b8df-48b2cce4003e"),
+                            Content = "Desde el detalle del BL o la sección Cambio de almacén puede solicitar el cambio para el BL completo o para un contenedor. Si su cuenta tiene derecho a un cambio gratuito (condición informada por Nexus o regla del portal), la solicitud queda completada sin costo. Si no, se aplica la tarifa vigente (KTE o KTF) y el cargo queda listo para pagarlo en el carro. Para varios BL use la solicitud masiva y consulte su avance en la misma sección.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "almacen, cambio de almacen, bodega, KTE, KTF, deposito",
+                            SortOrder = 20,
+                            Title = "¿Cómo funciona el cambio de almacén?",
+                            Topic = "SHIPPING"
+                        },
+                        new
+                        {
+                            Id = new Guid("a5db2fd7-be42-da7c-64c0-510c8a1da34b"),
+                            Content = "En Documentos del embarque puede solicitar la copia del BL valorada (con fletes y cargos) o no valorada (sin valores comerciales). La copia se publica en el repositorio del embarque y se envía al correo registrado de su organización. El shipper solo accede a la copia no valorada.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "copia, copia de bl, valorada, no valorada, documento",
+                            SortOrder = 21,
+                            Title = "¿Cómo solicito una copia del BL?",
+                            Topic = "DOCUMENTATION"
+                        },
+                        new
+                        {
+                            Id = new Guid("55710394-2ba1-ea8b-e512-20c30b428663"),
+                            Content = "Si su organización es un Freight Forwarder autorizado y es consignatario del BL, debe emitir la carta de responsabilidad antes de pagar los cargos del embarque. Se genera en Documentos del embarque completando los datos del firmante y aceptando los términos vigentes; una carta vigente levanta el bloqueo de ese BL.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "carta, carta de responsabilidad, ffww, freight forwarder, bloqueo",
+                            SortOrder = 22,
+                            Title = "¿Qué es la carta de responsabilidad para Freight Forwarders?",
+                            Topic = "DOCUMENTATION"
+                        },
+                        new
+                        {
+                            Id = new Guid("2e485c6e-0932-aa83-fca0-44c221257b56"),
+                            Content = "En Documentos del embarque solicite el certificado de transbordo: el portal agrega el cargo del servicio según la tarifa vigente y, una vez confirmado el pago en el carro, emite el certificado firmado, lo publica en el repositorio del BL y lo envía por correo.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "certificado, transbordo, certificado de transbordo",
+                            SortOrder = 23,
+                            Title = "¿Cómo obtengo el certificado de transbordo?",
+                            Topic = "DOCUMENTATION"
+                        },
+                        new
+                        {
+                            Id = new Guid("d1273909-b058-56f3-cd79-8b966b84fe8b"),
+                            Content = "En el detalle de un BL de importación, la sección TATC muestra el estado vigente de cada contenedor según el sistema de TATC (sin emitir, pre-TATC, emitido o anulado) y los motivos pendientes, como pagos o documentos. Los clientes con alto volumen en una misma localidad pueden solicitar la generación masiva de TATC.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "tatc, retiro, contenedor, generacion masiva",
+                            SortOrder = 24,
+                            Title = "¿Dónde consulto el estado del TATC?",
+                            Topic = "DOCUMENTATION"
+                        },
+                        new
+                        {
+                            Id = new Guid("1d9a519c-78d6-5e51-dff3-20d2aeeea4ab"),
+                            Content = "Agregue al carro los cargos pendientes desde el detalle del BL, la pestaña de demurrage o sus facturas, indicando el RUT de facturación. El carro agrupa los ítems por país y moneda de pago; cada grupo se paga por separado con los medios habilitados, por ejemplo Khipu, botón de pago bancario o depósito con boleta.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "carro, pago, pagar, khipu, deposito, boleta, moneda, rut de facturacion",
+                            SortOrder = 25,
+                            Title = "¿Cómo pago mis servicios en el carro?",
+                            Topic = "PAYMENTS"
+                        },
+                        new
+                        {
+                            Id = new Guid("1d1add93-0f39-af1b-5416-c59e1ae23e74"),
+                            Content = "En Accesos de terceros, el administrador de su organización puede otorgar acceso a un BL o booking, de forma individual o masiva, con vigencia y permisos definidos, y revocarlo cuando quiera. También puede configurar terceros por defecto para los BL nuevos. Todos los cambios quedan registrados en la auditoría.",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "acceso, terceros, agencia, mandato, otorgar, revocar",
+                            SortOrder = 26,
+                            Title = "¿Cómo doy acceso a mi agencia de aduanas u otro tercero?",
+                            Topic = "GENERAL"
+                        },
+                        new
+                        {
+                            Id = new Guid("5a6f0183-6ea9-4ca5-4022-a73b23a80b89"),
+                            Content = "En Documentos del embarque de un BL de importación de Bolivia consulte si el CLD está disponible. Se emite firmado cuando no hay recargos, demurrage, facturas, flete Collect ni demoras anticipadas pendientes; si algo falta, el portal indica qué bloquea la emisión.",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "cld, libre deuda, certificado, bolivia",
+                            SortOrder = 20,
+                            Title = "¿Cómo obtengo el certificado de libre deuda (CLD)?",
+                            Topic = "DOCUMENTATION"
+                        },
+                        new
+                        {
+                            Id = new Guid("56ae180b-f99c-6a17-1eea-6e0c979bec7f"),
+                            Content = "Algunas cuentas de Bolivia deben pagar demoras anticipadas por contenedor antes de emitir el CLD. El portal las informa en la pestaña de demurrage del BL; al pagarlas, el monto se descuenta del MHD y deja de bloquear el CLD.",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "demoras anticipadas, adelanto, demurrage, mhd",
+                            SortOrder = 21,
+                            Title = "¿Qué son las demoras anticipadas?",
+                            Topic = "DEMURRAGE"
+                        },
+                        new
+                        {
+                            Id = new Guid("9a6bc66a-dfa0-63b8-a053-f9d11bdf40c9"),
+                            Content = "En el carro elija Depósito o transferencia bancaria y emita la boleta. Realice el depósito o la transferencia por el monto indicado; Finanzas confirma el abono y el pago queda confirmado en el historial de pagos.",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "deposito, transferencia, boleta, pago, bolivianos",
+                            SortOrder = 22,
+                            Title = "¿Cómo pago con depósito o transferencia en Bolivia?",
+                            Topic = "PAYMENTS"
+                        },
+                        new
+                        {
+                            Id = new Guid("dfbd1162-e8fd-569d-96bf-dbd1963d5fa1"),
+                            Content = "En el detalle de un BL de importación, la sección TATC muestra el estado vigente de cada contenedor según el sistema de TATC y los motivos pendientes. Para operaciones de alto volumen en una misma localidad puede solicitar la generación masiva de TATC.",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "tatc, retiro, contenedor, generacion masiva",
+                            SortOrder = 23,
+                            Title = "¿Dónde consulto el estado del TATC?",
+                            Topic = "DOCUMENTATION"
+                        },
+                        new
+                        {
+                            Id = new Guid("a7624e2a-707b-e991-f46a-7e54449dd785"),
+                            Content = "En Accesos de terceros, el administrador de su organización puede otorgar acceso a un BL o booking, con vigencia y permisos definidos, y revocarlo cuando quiera. Todos los cambios quedan registrados en la auditoría.",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsActive = true,
+                            Keywords = "acceso, terceros, agencia, mandato, otorgar, revocar",
+                            SortOrder = 24,
+                            Title = "¿Cómo doy acceso a mi agencia de aduanas u otro tercero?",
+                            Topic = "GENERAL"
+                        });
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.LocalCharge", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4727,6 +6090,22 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TaxAmount = 0m,
                             TaxRate = 0m,
                             TotalAmount = 150m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000026"),
+                            Amount = 210000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000015"),
+                            ChargeType = "THC",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Terminal Handling Charge - 40RF (San Antonio)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 39900m,
+                            TaxRate = 19m,
+                            TotalAmount = 249900m
                         });
                 });
 
@@ -5144,6 +6523,296 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             EntityId = new Guid("ffffffff-0016-0016-0016-000000000003"),
                             Maintainer = "PaymentBlockWindow",
                             NewValue = "{\"country\":\"BO\",\"startDate\":\"2026-12-24\",\"startTime\":\"18:00:00\",\"endDate\":\"2026-12-26\",\"endTime\":\"08:00:00\",\"reason\":\"Mantenimiento de la conciliaci\\u00F3n bancaria de fin de a\\u00F1o\",\"clientMessage\":\"Los pagos en l\\u00EDnea no est\\u00E1n disponibles por mantenimiento hasta el 26-12 a las 08:00 (hora de Bolivia).\",\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("330b0267-314d-b97e-6b7e-be7e77469a3a"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("ffffffff-0019-0019-0019-000000000001"),
+                            Maintainer = "ShipmentPublicationRule",
+                            NewValue = "{\"country\":\"CL\",\"finalDestinationCode\":\"CLANF\",\"finalDestinationName\":\"Antofagasta\",\"dischargePortCode\":\"CLSAI\",\"description\":\"Carga con destino final Antofagasta distribuida desde San Antonio: se publica con DIFU asociado al destino final.\",\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("448e2614-c473-a342-7c89-45d7076f9c91"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("ffffffff-0019-0019-0019-000000000002"),
+                            Maintainer = "ShipmentPublicationRule",
+                            NewValue = "{\"country\":\"CL\",\"finalDestinationCode\":\"CLPUQ\",\"finalDestinationName\":\"Punta Arenas\",\"dischargePortCode\":\"CLSAI\",\"description\":\"Carga con destino final Punta Arenas distribuida desde San Antonio: se publica con DIFU asociado al destino final.\",\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("8f53822a-0dbd-8b5f-ca47-f7f1bcfd33f8"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("b305d4b2-1f96-e2ba-6fbf-3306a86c0f69"),
+                            Maintainer = "AssistantMailbox",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"GENERAL\",\"email\":\"clservice@hapag-lloyd.com\",\"notes\":\"Casilla de Customer Service publicada en la FAQ del portal.\",\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("ab821fdb-1437-7a98-7607-bdbc1c31a414"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("501c69c3-4255-3394-8838-8a916d18bfff"),
+                            Maintainer = "AssistantMailbox",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"GENERAL\",\"email\":\"boservice@hapag-lloyd.com\",\"notes\":\"Casilla por validar con Customer Service Bolivia antes de producci\\u00F3n.\",\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("a00f8b4a-8c81-185e-bc3d-d225ff93bc4a"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("96bd2015-d692-1d1d-3b1d-e217f757b716"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"SHIPPING\",\"title\":\"\\u00BFC\\u00F3mo puedo consultar el estado de mi BL?\",\"content\":\"Ingrese al m\\u00F3dulo \\u0027Bills of Lading\\u0027, escriba su n\\u00FAmero de BL en el buscador y presione buscar. Ver\\u00E1 el detalle completo incluyendo contenedores, cargos locales y demurrage.\",\"keywords\":null,\"sortOrder\":1,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("e461c099-2caf-9f58-a814-94f9e2ad1730"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("715a32fa-66b0-77ea-386c-de7cd891089f"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"PAYMENTS\",\"title\":\"\\u00BFQu\\u00E9 m\\u00E9todos de pago est\\u00E1n disponibles en Chile?\",\"content\":\"En Chile puede pagar con Tarjeta de Cr\\u00E9dito, Tarjeta de D\\u00E9bito, Transferencia Bancaria y WebPay. Todos los pagos electr\\u00F3nicos se procesan en tiempo real.\",\"keywords\":null,\"sortOrder\":2,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("0ee73058-562b-0d9c-5f40-f1d916eb621d"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("5a58c5dd-046f-3f66-b69b-2b680c1c146d"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"SHIPPING\",\"title\":\"\\u00BFC\\u00F3mo solicito un cambio de almac\\u00E9n?\",\"content\":\"Vaya al m\\u00F3dulo \\u0027Cambio de Almac\\u00E9n\\u0027, ingrese el n\\u00FAmero de BL, el contenedor, el almac\\u00E9n actual y el almac\\u00E9n destino. La solicitud ser\\u00E1 procesada y recibir\\u00E1 confirmaci\\u00F3n por correo.\",\"keywords\":null,\"sortOrder\":3,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("04ebfebf-4705-16f2-4f2e-eb85300cf792"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("cb0c73ee-3a8a-5b3b-9033-b8087818da70"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"PAYMENTS\",\"title\":\"\\u00BFCu\\u00E1l es la tasa de IVA aplicada en Chile?\",\"content\":\"La tasa de IVA vigente en Chile es del 19%. Se aplica autom\\u00E1ticamente sobre los cargos locales y servicios facturables.\",\"keywords\":null,\"sortOrder\":4,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("ed0a9d06-e01c-dec7-ee9d-1d2e72d2cadb"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("a43ec294-e615-b557-7514-1d74754dc32b"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"DOCUMENTATION\",\"title\":\"\\u00BFC\\u00F3mo genero un recibo de pago?\",\"content\":\"Una vez confirmado el pago, vaya al detalle del pago y presione \\u0027Generar Recibo\\u0027. El recibo se genera autom\\u00E1ticamente en formato PDF con todos los datos fiscales.\",\"keywords\":null,\"sortOrder\":5,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("1758de8e-db7b-f140-0035-1b74fa2dcc71"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("39b01132-be66-8672-471e-d76ffb03210f"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"SHIPPING\",\"title\":\"\\u00BFC\\u00F3mo puedo consultar el estado de mi BL en Bolivia?\",\"content\":\"Ingrese al m\\u00F3dulo \\u0027Bills of Lading\\u0027 y busque por n\\u00FAmero de BL. Ver\\u00E1 el estado de su carga incluyendo el puerto de ingreso (Arica, Iquique o Antofagasta) y los cargos asociados.\",\"keywords\":null,\"sortOrder\":1,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("0c9f6b00-f9a6-debc-c14a-7e1f21d25b09"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("16a9eb6a-7ade-d4a6-e84b-1f7b78787229"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"PAYMENTS\",\"title\":\"\\u00BFQu\\u00E9 m\\u00E9todos de pago est\\u00E1n disponibles en Bolivia?\",\"content\":\"En Bolivia puede pagar mediante Transferencia Bancaria, Efectivo y Cheque. Los pagos en efectivo deben realizarse en oficinas autorizadas.\",\"keywords\":null,\"sortOrder\":2,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("860c6994-8ce6-781b-0381-b1a608ddf07a"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("5dfa074c-9654-883f-68a8-2dafe0784949"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"PAYMENTS\",\"title\":\"\\u00BFCu\\u00E1l es la tasa de IVA aplicada en Bolivia?\",\"content\":\"La tasa de IVA vigente en Bolivia es del 13%. Se aplica autom\\u00E1ticamente sobre los cargos locales y servicios facturables. Los montos se manejan en Bolivianos (BOB).\",\"keywords\":null,\"sortOrder\":3,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("5c8b4814-fc1f-ecfb-c955-ba36a27021dd"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("0cf519fe-d8a2-241f-740d-011e9f6eec9d"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"GENERAL\",\"title\":\"\\u00BFQu\\u00E9 es el NIT y por qu\\u00E9 lo necesito?\",\"content\":\"El NIT (N\\u00FAmero de Identificaci\\u00F3n Tributaria) es el identificador fiscal en Bolivia. Es obligatorio para el registro en el portal y para la emisi\\u00F3n de documentos fiscales.\",\"keywords\":null,\"sortOrder\":4,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("f8a7cc50-78dc-f8e9-dfed-fdb8d86560b2"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("3746d3f8-f379-04cc-942e-236c3c248994"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"DEMURRAGE\",\"title\":\"\\u00BFC\\u00F3mo funciona el demurrage para carga en tr\\u00E1nsito a Bolivia?\",\"content\":\"El demurrage se calcula desde la fecha de descarga en el puerto chileno. Los d\\u00EDas libres y tarifas diarias dependen del tipo de contenedor y acuerdos comerciales. Puede solicitar exenciones a trav\\u00E9s del m\\u00F3dulo de Demurrage.\",\"keywords\":null,\"sortOrder\":5,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("b0fe0baa-0238-5953-3336-77be180946a0"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("f569fc25-d919-0336-5d34-38d94c4bfa4f"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"GENERAL\",\"title\":\"\\u00BFC\\u00F3mo registro mi empresa en el portal?\",\"content\":\"Haga clic en \\u0027Registrarse\\u0027, seleccione su pa\\u00EDs (Chile o Bolivia), ingrese los datos de su empresa (RUT/NIT, nombre, correo) y cree una contrase\\u00F1a. Recibir\\u00E1 un correo de confirmaci\\u00F3n.\",\"keywords\":null,\"sortOrder\":10,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("1c9945f0-fef8-6143-5cac-5262b6360710"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("66411fca-e5ab-f656-ff6d-a7a9f60ed389"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"GENERAL\",\"title\":\"\\u00BFOlvid\\u00E9 mi contrase\\u00F1a, c\\u00F3mo la recupero?\",\"content\":\"En la pantalla de login, haga clic en \\u0027\\u00BFOlvid\\u00F3 su contrase\\u00F1a?\\u0027. Ingrese su correo electr\\u00F3nico y recibir\\u00E1 un enlace para restablecer su contrase\\u00F1a.\",\"keywords\":null,\"sortOrder\":11,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("2e984f5f-ce4d-8337-cec7-b6598ed60abc"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("38e0bbdf-dcfd-ad4b-7425-a43db4786451"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"GENERAL\",\"title\":\"\\u00BFC\\u00F3mo contacto a soporte t\\u00E9cnico?\",\"content\":\"Puede contactarnos al correo clservice@hapag-lloyd.com o llamar al \\u002B56 2 2630 1700 (Chile) / \\u002B591 2 211 0700 (Bolivia) en horario de oficina de lunes a viernes.\",\"keywords\":null,\"sortOrder\":12,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("aaddddcc-3132-82dd-9038-fd2f1f73f65e"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("4e576670-dc83-d46f-b8df-48b2cce4003e"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"SHIPPING\",\"title\":\"\\u00BFC\\u00F3mo funciona el cambio de almac\\u00E9n?\",\"content\":\"Desde el detalle del BL o la secci\\u00F3n Cambio de almac\\u00E9n puede solicitar el cambio para el BL completo o para un contenedor. Si su cuenta tiene derecho a un cambio gratuito (condici\\u00F3n informada por Nexus o regla del portal), la solicitud queda completada sin costo. Si no, se aplica la tarifa vigente (KTE o KTF) y el cargo queda listo para pagarlo en el carro. Para varios BL use la solicitud masiva y consulte su avance en la misma secci\\u00F3n.\",\"keywords\":\"almacen, cambio de almacen, bodega, KTE, KTF, deposito\",\"sortOrder\":20,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("912a37d4-1d25-ba26-c523-601cfbb80a4e"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("a5db2fd7-be42-da7c-64c0-510c8a1da34b"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"DOCUMENTATION\",\"title\":\"\\u00BFC\\u00F3mo solicito una copia del BL?\",\"content\":\"En Documentos del embarque puede solicitar la copia del BL valorada (con fletes y cargos) o no valorada (sin valores comerciales). La copia se publica en el repositorio del embarque y se env\\u00EDa al correo registrado de su organizaci\\u00F3n. El shipper solo accede a la copia no valorada.\",\"keywords\":\"copia, copia de bl, valorada, no valorada, documento\",\"sortOrder\":21,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("448be100-c31a-072d-a990-dd783e9be688"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("55710394-2ba1-ea8b-e512-20c30b428663"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"DOCUMENTATION\",\"title\":\"\\u00BFQu\\u00E9 es la carta de responsabilidad para Freight Forwarders?\",\"content\":\"Si su organizaci\\u00F3n es un Freight Forwarder autorizado y es consignatario del BL, debe emitir la carta de responsabilidad antes de pagar los cargos del embarque. Se genera en Documentos del embarque completando los datos del firmante y aceptando los t\\u00E9rminos vigentes; una carta vigente levanta el bloqueo de ese BL.\",\"keywords\":\"carta, carta de responsabilidad, ffww, freight forwarder, bloqueo\",\"sortOrder\":22,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("41f0ba56-f20c-64d3-e1be-03d34ada591a"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("2e485c6e-0932-aa83-fca0-44c221257b56"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"DOCUMENTATION\",\"title\":\"\\u00BFC\\u00F3mo obtengo el certificado de transbordo?\",\"content\":\"En Documentos del embarque solicite el certificado de transbordo: el portal agrega el cargo del servicio seg\\u00FAn la tarifa vigente y, una vez confirmado el pago en el carro, emite el certificado firmado, lo publica en el repositorio del BL y lo env\\u00EDa por correo.\",\"keywords\":\"certificado, transbordo, certificado de transbordo\",\"sortOrder\":23,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("4cf6e84a-b709-eb08-ebb4-fd0ad3591bc5"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("d1273909-b058-56f3-cd79-8b966b84fe8b"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"DOCUMENTATION\",\"title\":\"\\u00BFD\\u00F3nde consulto el estado del TATC?\",\"content\":\"En el detalle de un BL de importaci\\u00F3n, la secci\\u00F3n TATC muestra el estado vigente de cada contenedor seg\\u00FAn el sistema de TATC (sin emitir, pre-TATC, emitido o anulado) y los motivos pendientes, como pagos o documentos. Los clientes con alto volumen en una misma localidad pueden solicitar la generaci\\u00F3n masiva de TATC.\",\"keywords\":\"tatc, retiro, contenedor, generacion masiva\",\"sortOrder\":24,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("f3f5b5e0-556e-b2be-b555-bf4f22b80c12"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("1d9a519c-78d6-5e51-dff3-20d2aeeea4ab"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"PAYMENTS\",\"title\":\"\\u00BFC\\u00F3mo pago mis servicios en el carro?\",\"content\":\"Agregue al carro los cargos pendientes desde el detalle del BL, la pesta\\u00F1a de demurrage o sus facturas, indicando el RUT de facturaci\\u00F3n. El carro agrupa los \\u00EDtems por pa\\u00EDs y moneda de pago; cada grupo se paga por separado con los medios habilitados, por ejemplo Khipu, bot\\u00F3n de pago bancario o dep\\u00F3sito con boleta.\",\"keywords\":\"carro, pago, pagar, khipu, deposito, boleta, moneda, rut de facturacion\",\"sortOrder\":25,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("dcaab0be-6d77-28fb-fc18-80d79570ad41"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("1d1add93-0f39-af1b-5416-c59e1ae23e74"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"CL\",\"topic\":\"GENERAL\",\"title\":\"\\u00BFC\\u00F3mo doy acceso a mi agencia de aduanas u otro tercero?\",\"content\":\"En Accesos de terceros, el administrador de su organizaci\\u00F3n puede otorgar acceso a un BL o booking, de forma individual o masiva, con vigencia y permisos definidos, y revocarlo cuando quiera. Tambi\\u00E9n puede configurar terceros por defecto para los BL nuevos. Todos los cambios quedan registrados en la auditor\\u00EDa.\",\"keywords\":\"acceso, terceros, agencia, mandato, otorgar, revocar\",\"sortOrder\":26,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("9bfaef86-18ff-7fb5-d963-eb8684f03928"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("5a6f0183-6ea9-4ca5-4022-a73b23a80b89"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"DOCUMENTATION\",\"title\":\"\\u00BFC\\u00F3mo obtengo el certificado de libre deuda (CLD)?\",\"content\":\"En Documentos del embarque de un BL de importaci\\u00F3n de Bolivia consulte si el CLD est\\u00E1 disponible. Se emite firmado cuando no hay recargos, demurrage, facturas, flete Collect ni demoras anticipadas pendientes; si algo falta, el portal indica qu\\u00E9 bloquea la emisi\\u00F3n.\",\"keywords\":\"cld, libre deuda, certificado, bolivia\",\"sortOrder\":20,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("d4f3fa2e-f62e-3b96-5a26-87f96369f490"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("56ae180b-f99c-6a17-1eea-6e0c979bec7f"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"DEMURRAGE\",\"title\":\"\\u00BFQu\\u00E9 son las demoras anticipadas?\",\"content\":\"Algunas cuentas de Bolivia deben pagar demoras anticipadas por contenedor antes de emitir el CLD. El portal las informa en la pesta\\u00F1a de demurrage del BL; al pagarlas, el monto se descuenta del MHD y deja de bloquear el CLD.\",\"keywords\":\"demoras anticipadas, adelanto, demurrage, mhd\",\"sortOrder\":21,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("4580513a-30ca-9b89-9170-3d00fa4974a5"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("9a6bc66a-dfa0-63b8-a053-f9d11bdf40c9"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"PAYMENTS\",\"title\":\"\\u00BFC\\u00F3mo pago con dep\\u00F3sito o transferencia en Bolivia?\",\"content\":\"En el carro elija Dep\\u00F3sito o transferencia bancaria y emita la boleta. Realice el dep\\u00F3sito o la transferencia por el monto indicado; Finanzas confirma el abono y el pago queda confirmado en el historial de pagos.\",\"keywords\":\"deposito, transferencia, boleta, pago, bolivianos\",\"sortOrder\":22,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("23016027-cc30-1ce9-7dce-0d4b58bb031c"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("dfbd1162-e8fd-569d-96bf-dbd1963d5fa1"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"DOCUMENTATION\",\"title\":\"\\u00BFD\\u00F3nde consulto el estado del TATC?\",\"content\":\"En el detalle de un BL de importaci\\u00F3n, la secci\\u00F3n TATC muestra el estado vigente de cada contenedor seg\\u00FAn el sistema de TATC y los motivos pendientes. Para operaciones de alto volumen en una misma localidad puede solicitar la generaci\\u00F3n masiva de TATC.\",\"keywords\":\"tatc, retiro, contenedor, generacion masiva\",\"sortOrder\":23,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("f5691cee-26c9-ad8d-2ade-9c7e2eec8999"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("a7624e2a-707b-e991-f46a-7e54449dd785"),
+                            Maintainer = "KnowledgeArticle",
+                            NewValue = "{\"country\":\"BO\",\"topic\":\"GENERAL\",\"title\":\"\\u00BFC\\u00F3mo doy acceso a mi agencia de aduanas u otro tercero?\",\"content\":\"En Accesos de terceros, el administrador de su organizaci\\u00F3n puede otorgar acceso a un BL o booking, con vigencia y permisos definidos, y revocarlo cuando quiera. Todos los cambios quedan registrados en la auditor\\u00EDa.\",\"keywords\":\"acceso, terceros, agencia, mandato, otorgar, revocar\",\"sortOrder\":24,\"isActive\":true}"
                         });
                 });
 
@@ -11003,6 +12672,92 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentPublicationRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("DischargePortCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("FinalDestinationCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("FinalDestinationName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Country", "FinalDestinationCode", "IsActive");
+
+                    b.ToTable("ShipmentPublicationRules", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0019-0019-0019-000000000001"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Description = "Carga con destino final Antofagasta distribuida desde San Antonio: se publica con DIFU asociado al destino final.",
+                            DischargePortCode = "CLSAI",
+                            FinalDestinationCode = "CLANF",
+                            FinalDestinationName = "Antofagasta",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0019-0019-0019-000000000002"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Description = "Carga con destino final Punta Arenas distribuida desde San Antonio: se publica con DIFU asociado al destino final.",
+                            DischargePortCode = "CLSAI",
+                            FinalDestinationCode = "CLPUQ",
+                            FinalDestinationName = "Punta Arenas",
+                            IsActive = true
+                        });
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -11183,6 +12938,26 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000013"),
                             ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000070"),
                             CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Consignee",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("35804351-fee3-10ce-ed3a-782a1346abcb"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000014"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Consignee",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("3fd9b388-e81b-e6b6-87b4-17bb9996ac3b"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000015"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "SYSTEM",
                             Role = "Consignee",
                             Source = "Seed"
@@ -11532,6 +13307,104 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             FromUnit = 21,
                             TariffId = new Guid("eeeeeeee-0014-0014-0014-000000000007")
                         });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.TatcBatch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AcceptedItems")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("LocationCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<int>("RejectedItems")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RequestedByEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("RequestedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SourceRequestId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int>("TotalItems")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId", "CreatedAt");
+
+                    b.ToTable("TatcBatches", (string)null);
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.TatcBatchItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("LineNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReasonCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId", "LineNumber");
+
+                    b.ToTable("TatcBatchItems", (string)null);
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.TaxConfiguration", b =>
@@ -12385,6 +14258,17 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("BillOfLading");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.AssistantMessage", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.AssistantSession", "Session")
+                        .WithMany("Messages")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.BLCargoItem", b =>
                 {
                     b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
@@ -12755,6 +14639,17 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("Tariff");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.TatcBatchItem", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.TatcBatch", "Batch")
+                        .WithMany("Items")
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Batch");
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.User", b =>
                 {
                     b.HasOne("HapagPortal.Domain.Entities.Client", "Client")
@@ -12822,6 +14717,11 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsRequired();
 
                     b.Navigation("Batch");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.AssistantSession", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.BillOfLading", b =>
@@ -12895,6 +14795,11 @@ namespace HapagPortal.DatabaseMigrations.Migrations
             modelBuilder.Entity("HapagPortal.Domain.Entities.Tariff", b =>
                 {
                     b.Navigation("Tiers");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.TatcBatch", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.User", b =>

@@ -66,6 +66,14 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<CustomerInvoice> CustomerInvoiceList { get; } = [];
     public List<ShipmentDocument> ShipmentDocumentList { get; } = [];
     public List<ShipmentDocumentEvent> ShipmentDocumentEventList { get; } = [];
+    public List<ShipmentPublicationRule> ShipmentPublicationRuleList { get; } = [];
+    public List<KnowledgeArticle> KnowledgeArticleList { get; } = [];
+    public List<AssistantMailbox> AssistantMailboxList { get; } = [];
+    public List<AssistantSession> AssistantSessionList { get; } = [];
+    public List<AssistantMessage> AssistantMessageList { get; } = [];
+    public List<DangerousGood> DangerousGoodList { get; } = [];
+    public List<TatcBatch> TatcBatchList { get; } = [];
+    public List<TatcBatchItem> TatcBatchItemList { get; } = [];
 
     public DbSet<Client> Clients => MockDbSetHelper.CreateMockDbSet(ClientList);
     public DbSet<User> Users => MockDbSetHelper.CreateMockDbSet(UserList);
@@ -127,6 +135,14 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<CustomerInvoice> CustomerInvoices => MockDbSetHelper.CreateMockDbSet(CustomerInvoiceList);
     public DbSet<ShipmentDocument> ShipmentDocuments => MockDbSetHelper.CreateMockDbSet(ShipmentDocumentList);
     public DbSet<ShipmentDocumentEvent> ShipmentDocumentEvents => MockDbSetHelper.CreateMockDbSet(ShipmentDocumentEventList);
+    public DbSet<ShipmentPublicationRule> ShipmentPublicationRules => MockDbSetHelper.CreateMockDbSet(ShipmentPublicationRuleList);
+    public DbSet<KnowledgeArticle> KnowledgeArticles => MockDbSetHelper.CreateMockDbSet(KnowledgeArticleList);
+    public DbSet<AssistantMailbox> AssistantMailboxes => MockDbSetHelper.CreateMockDbSet(AssistantMailboxList);
+    public DbSet<AssistantSession> AssistantSessions => MockDbSetHelper.CreateMockDbSet(AssistantSessionList);
+    public DbSet<AssistantMessage> AssistantMessages => MockDbSetHelper.CreateMockDbSet(AssistantMessageList);
+    public DbSet<DangerousGood> DangerousGoods => MockDbSetHelper.CreateMockDbSet(DangerousGoodList);
+    public DbSet<TatcBatch> TatcBatches => MockDbSetHelper.CreateMockDbSet(TatcBatchList);
+    public DbSet<TatcBatchItem> TatcBatchItems => MockDbSetHelper.CreateMockDbSet(TatcBatchItemList);
 
     public int SaveChangesCallCount { get; private set; }
 

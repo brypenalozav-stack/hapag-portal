@@ -548,6 +548,62 @@ public static class DomainErrors
             new("Customs.IncompleteBL", $"El B/L no está completo para transmitir: {reason}");
     }
 
+    /// <summary>Reglas de publicación por DIFU de destino final (M2-01).</summary>
+    public static class ShipmentPublicationRule
+    {
+        public static Error NotFound(Guid id) =>
+            new("ShipmentPublicationRule.NotFound", $"The publication rule with ID '{id}' was not found.");
+
+        public static readonly Error AlreadyExists =
+            new("ShipmentPublicationRule.AlreadyExists", "An active publication rule already exists for this country, final destination and discharge port.");
+    }
+
+    /// <summary>Consulta y solicitud masiva de TATC (M2-09).</summary>
+    public static class Tatc
+    {
+        public static readonly Error NotApplicable =
+            new("Tatc.NotApplicable", "The TATC applies only to import shipments.");
+
+        public static readonly Error NoValidItems =
+            new("Tatc.NoValidItems", "None of the bills of lading can be included in the TATC request.");
+
+        public static Error BatchNotFound(Guid id) =>
+            new("TatcBatch.NotFound", $"The TATC request with ID '{id}' was not found.");
+    }
+
+    /// <summary>Base de conocimiento y casillas del asistente (M10-02).</summary>
+    public static class KnowledgeArticle
+    {
+        public static Error NotFound(Guid id) =>
+            new("KnowledgeArticle.NotFound", $"The knowledge article with ID '{id}' was not found.");
+    }
+
+    /// <summary>Conversaciones con el asistente (M10-01, M10-05).</summary>
+    public static class AssistantSession
+    {
+        public static Error NotFound(Guid id) =>
+            new("AssistantSession.NotFound", $"The assistant session with ID '{id}' was not found.");
+
+        public static readonly Error Ended =
+            new("AssistantSession.Ended", "The assistant session has ended. Start a new conversation.");
+
+        public static readonly Error Expired =
+            new("AssistantSession.Expired", "The assistant session expired due to inactivity. Start a new conversation.");
+
+        public static readonly Error RateLimited =
+            new("Assistant.RateLimited", "Too many messages in a short time. Wait a moment and try again.");
+
+        public static readonly Error NoRecipient =
+            new("AssistantSession.NoRecipient", "There is no e-mail address to send the conversation transcript to.");
+    }
+
+    /// <summary>Base de referencia de mercancías peligrosas (M10-06).</summary>
+    public static class DangerousGood
+    {
+        public static Error InvalidImport(string reason) =>
+            new("DangerousGood.InvalidImport", $"The dangerous goods file is not valid: {reason}");
+    }
+
     public static class Integration
     {
         public static Error Unavailable(string system) =>

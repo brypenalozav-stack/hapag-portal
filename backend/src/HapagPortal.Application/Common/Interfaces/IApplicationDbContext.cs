@@ -65,6 +65,14 @@ public interface IApplicationDbContext
     DbSet<CustomerInvoice> CustomerInvoices { get; }
     DbSet<ShipmentDocument> ShipmentDocuments { get; }
     DbSet<ShipmentDocumentEvent> ShipmentDocumentEvents { get; }
+    DbSet<ShipmentPublicationRule> ShipmentPublicationRules { get; }
+    DbSet<KnowledgeArticle> KnowledgeArticles { get; }
+    DbSet<AssistantMailbox> AssistantMailboxes { get; }
+    DbSet<AssistantSession> AssistantSessions { get; }
+    DbSet<AssistantMessage> AssistantMessages { get; }
+    DbSet<DangerousGood> DangerousGoods { get; }
+    DbSet<TatcBatch> TatcBatches { get; }
+    DbSet<TatcBatchItem> TatcBatchItems { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

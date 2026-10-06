@@ -7,6 +7,7 @@ using HapagPortal.Application.ThirdPartyAccess.Common;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.Domain.Results;
+using HapagPortal.Domain.Shipments;
 using HapagPortal.Domain.Validation;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,6 +47,10 @@ public sealed class ImportBillsOfLadingCommandHandler(IApplicationDbContext dbCo
                 Country = row.Country,
                 PortOfLoading = row.PortOfLoading,
                 PortOfDischarge = row.PortOfDischarge,
+                PortOfDischargeCode = ShipmentPublication.NormalizeCode(row.PortOfDischargeCode),
+                FinalDestinationCode = ShipmentPublication.NormalizeCode(row.FinalDestinationCode),
+                DifuCode = string.IsNullOrWhiteSpace(row.DifuCode) ? null : row.DifuCode.Trim(),
+                DifuLocationCode = ShipmentPublication.NormalizeCode(row.DifuLocationCode),
                 FreightAmount = 0m,
                 FreightCurrency = row.FreightCurrency,
                 Status = "Active",

@@ -225,6 +225,15 @@ public static class SeedDataIds
     public static readonly Guid DocumentCollectBL12 = Guid.Parse("FFFFFFFF-0018-0018-0018-000000000003");
     public static readonly Guid DocumentLetterBL13 = Guid.Parse("FFFFFFFF-0018-0018-0018-000000000004");
 
+    // Fase 1 Ola F — reglas de publicación por DIFU (M2-01) y BL de demostración con destino final distinto
+    public static readonly Guid BL14 = Guid.Parse("11111111-0007-0007-0007-000000000014");
+    public static readonly Guid BL15 = Guid.Parse("11111111-0007-0007-0007-000000000015");
+    public static readonly Guid Container17 = Guid.Parse("22222222-0008-0008-0008-000000000017");
+    public static readonly Guid Container18 = Guid.Parse("22222222-0008-0008-0008-000000000018");
+    public static readonly Guid LocalCharge26 = Guid.Parse("33333333-0009-0009-0009-000000000026");
+    public static readonly Guid PublicationRuleAntofagasta = Guid.Parse("FFFFFFFF-0019-0019-0019-000000000001");
+    public static readonly Guid PublicationRulePuntaArenas = Guid.Parse("FFFFFFFF-0019-0019-0019-000000000002");
+
     // Audit Logs
     public static readonly Guid AuditLog01 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000001");
     public static readonly Guid AuditLog02 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000002");
