@@ -16,17 +16,17 @@ declare global {
 test('cambia de español a inglés sin recargar y reformatea montos y fechas', async ({ page }) => {
   await simularApi(page);
   await sembrarSesion(page, { lang: 'es' });
-  await page.goto('/payments');
+  await page.goto('/payment-history');
 
   const titulo = page.locator('h1').first();
   const filaClp = page.locator('tr', { hasText: 'PAY-CL-2026-000125' });
   const filaUsd = page.locator('tr', { hasText: 'PAY-CL-2026-000123' });
-  const montoClp = filaClp.locator('td').nth(3);
-  const montoUsd = filaUsd.locator('td').nth(3);
-  const fechaUsd = filaUsd.locator('td').nth(6);
+  const montoClp = filaClp.locator('td').nth(5);
+  const montoUsd = filaUsd.locator('td').nth(5);
+  const fechaUsd = filaUsd.locator('td').nth(1);
 
   // Español, usuario de Chile (es-CL).
-  await expect(titulo).toHaveText('Pagos');
+  await expect(titulo).toHaveText('Historial de pagos');
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
   await expect(montoClp).toContainText('CLP');
   await expect(montoClp).toContainText(/1\.234\.567(?![,\d])/);
@@ -43,7 +43,7 @@ test('cambia de español a inglés sin recargar y reformatea montos y fechas', a
   await expect(botonEn).toHaveAttribute('aria-pressed', 'false');
   await botonEn.click();
 
-  await expect(titulo).toHaveText('Payments');
+  await expect(titulo).toHaveText('Payment history');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(botonEn).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('button', { name: 'Español' })).toHaveAttribute('aria-pressed', 'false');

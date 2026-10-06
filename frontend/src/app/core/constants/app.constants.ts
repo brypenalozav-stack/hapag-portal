@@ -60,6 +60,14 @@ export const API_ENDPOINTS = {
   COMMERCIAL_CONDITIONS: 'organizations/me/commercial-conditions',
   TARIFFS: 'tariffs',
   INTERNAL_CHARGE_RULES: 'internal-charge-rules',
+  // Fase 1, Ola D
+  CART: 'cart',
+  ACCOUNT_PAYMENTS: 'account-payments',
+  INVOICES: 'invoices',
+  PAYMENT_HISTORY: 'payment-history',
+  PAYMENT_CONFIG: 'payment-config',
+  PAYMENT_BLOCKS: 'payment-blocks',
+  ADMIN_PAYMENTS: 'admin/payments',
 } as const;
 
 /**
@@ -81,4 +89,8 @@ export const PERMISSIONS = {
   MANAGE_THIRD_PARTY_ACCESS: 'org.access.manage',
   /** Mantenedores internos: tarifas (M8-01) y reglas internas de cobro (M3-04, M3-16). */
   MANAGE_MAINTAINERS: 'maintainers.manage',
+  /** Finanzas: operaciones detenidas, anulación de boletas emitidas y conciliación (M5-02, NF-03, NF-04). */
+  PAYMENTS_FINANCE: 'payments.finance',
+  /** Ventanas de bloqueo de pagos por horario (M8-07). */
+  MANAGE_PAYMENT_BLOCKS: 'payment-blocks.manage',
 } as const;

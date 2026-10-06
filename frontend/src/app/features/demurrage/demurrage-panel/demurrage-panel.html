@@ -41,12 +41,19 @@
               </tbody>
             </table>
           </div>
-          @if (d.actionAllowed) {
-            <a [routerLink]="['/payments/new', d.blId]" [queryParams]="{ type: 'DEMURRAGE' }" class="btn btn-hl-orange">
-              {{ 'demurrage.panel.invoiced.pay' | transloco }}
-            </a>
-          } @else {
+          @if (!d.actionAllowed) {
             <p class="small mb-0">{{ d.actionBlockedReason | codeLabel: blockedKeys }}</p>
+          } @else if (cart.accountPaymentsEnabled()) {
+            <a routerLink="/account-payments" class="btn btn-outline-secondary">{{ 'demurrage.panel.cart.accountPayments' | transloco }}</a>
+          } @else if (cart.cartEnabled()) {
+            <div class="d-flex flex-wrap gap-2">
+              @for (invoice of d.invoices; track invoice.invoiceNumber) {
+                <button type="button" class="btn btn-hl-orange" (click)="payInvoice(invoice.invoiceNumber)"
+                        [attr.aria-label]="'demurrage.panel.invoiced.payLabel' | transloco: { invoice: invoice.invoiceNumber }">
+                  {{ 'demurrage.panel.invoiced.pay' | transloco }}
+                </button>
+              }
+            </div>
           }
           <p class="small text-muted mt-3 mb-0" role="note" data-testid="demurrage-calculator-blocked">{{ 'demurrage.panel.invoiced.calculatorBlocked' | transloco }}</p>
         }
@@ -85,8 +92,10 @@
           @if (!d.actionAllowed) {
             <p class="small mb-0">{{ d.actionBlockedReason | codeLabel: blockedKeys }}</p>
           } @else if (linesSaved()) {
-            <p class="small fw-semibold mb-0">{{ 'demurrage.panel.cart.linesSavedNote' | transloco }}</p>
-          } @else {
+            <p class="small fw-semibold mb-0">{{ 'demurrage.panel.cart.linesInCart' | transloco }}</p>
+          } @else if (cart.accountPaymentsEnabled()) {
+            <a routerLink="/account-payments" class="btn btn-outline-secondary">{{ 'demurrage.panel.cart.accountPayments' | transloco }}</a>
+          } @else if (cart.cartEnabled()) {
             <button type="button" class="btn btn-hl-orange" (click)="addLinesToCart()">{{ 'demurrage.panel.calculated.addToCart' | transloco }}</button>
           }
         }
@@ -165,7 +174,10 @@
                     } @else if (concept.actionBlockedReason) {
                       <span class="small">{{ concept.actionBlockedReason | codeLabel: blockedKeys }}</span>
                     } @else if (isSaved(concept.chargeId)) {
-                      <span class="small fw-semibold">{{ 'demurrage.panel.cart.saved' | transloco }}</span>
+                      <span class="small fw-semibold">{{ 'demurrage.panel.cart.inCart' | transloco }}</span>
+                    } @else if (!cart.cartEnabled()) {
+                      <span aria-hidden="true">—</span>
+                      <span class="visually-hidden">{{ 'demurrage.panel.concepts.noAction' | transloco }}</span>
                     } @else {
                       <button type="button" class="btn btn-sm btn-hl-orange" (click)="addConceptToCart(concept)"
                               [attr.aria-label]="'demurrage.panel.concepts.addLabel' | transloco: { concept: (concept.conceptCode | codeLabel: conceptKeys) }">
@@ -228,8 +240,8 @@
           </button>
         } @else if (d.advance.status === 'Pending' && d.advance.chargeId) {
           @if (isSaved(d.advance.chargeId)) {
-            <p class="small fw-semibold mb-0">{{ 'demurrage.panel.cart.saved' | transloco }}</p>
-          } @else {
+            <p class="small fw-semibold mb-0">{{ 'demurrage.panel.cart.inCart' | transloco }}</p>
+          } @else if (cart.cartEnabled()) {
             <button type="button" class="btn btn-hl-orange" (click)="addAdvanceToCart()">{{ 'demurrage.panel.advance.addToCart' | transloco }}</button>
           }
         }
@@ -241,3 +253,7 @@
     </p>
   }
 </section>
+
+@if (addTargets(); as targets) {
+  <app-add-to-cart-dialog [targets]="targets" (closed)="onAddClosed()" />
+}

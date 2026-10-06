@@ -49,18 +49,46 @@ export const routes: Routes = [
       import('./features/organization/organization').then((m) => m.OrganizationComponent),
     canActivate: [authGuard],
   },
+  // Ola D: carro unificado por moneda (M5-01, M5-08, M5-09), pago desde la cuenta para clientes con
+  // crédito (M5-07), resultado del pago (NF-02, NF-12), facturas (M7-01) e historial de pagos (M7-02).
+  // El listado de pagos, los comprobantes y el pago por BL anteriores se retiraron: sus rutas redirigen.
   {
-    path: 'payments',
-    loadComponent: () =>
-      import('./features/payments/payment-list/payment-list').then((m) => m.PaymentListComponent),
+    path: 'cart',
+    loadComponent: () => import('./features/cart/cart').then((m) => m.CartComponent),
     canActivate: [authGuard],
   },
   {
-    path: 'payments/new/:blId',
+    path: 'account-payments',
     loadComponent: () =>
-      import('./features/payments/payment-form/payment-form').then((m) => m.PaymentFormComponent),
+      import('./features/account-payments/account-payments').then((m) => m.AccountPaymentsComponent),
     canActivate: [authGuard],
   },
+  {
+    path: 'payments/:id/result',
+    loadComponent: () =>
+      import('./features/payments/payment-result/payment-result').then((m) => m.PaymentResultComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'invoices',
+    loadComponent: () => import('./features/invoices/invoices').then((m) => m.InvoicesComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'payment-history',
+    loadComponent: () =>
+      import('./features/payment-history/payment-history').then((m) => m.PaymentHistoryComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'payment-history/:id',
+    loadComponent: () =>
+      import('./features/payment-history/payment-history-detail').then((m) => m.PaymentHistoryDetailComponent),
+    canActivate: [authGuard],
+  },
+  { path: 'payments', redirectTo: '/payment-history', pathMatch: 'full' },
+  { path: 'payments/new/:blId', redirectTo: '/cart' },
+  { path: 'receipts', redirectTo: '/payment-history', pathMatch: 'full' },
   // Ola C: cargos con las reglas de Nexus (M4-01 a M4-04, M3-01, M5-05); reemplazan a /local-charges.
   {
     path: 'charges',
@@ -109,12 +137,6 @@ export const routes: Routes = [
     path: 'service-orders',
     loadComponent: () =>
       import('./features/service-orders/service-orders').then((m) => m.ServiceOrdersComponent),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'receipts',
-    loadComponent: () =>
-      import('./features/receipts/receipts').then((m) => m.ReceiptsComponent),
     canActivate: [authGuard],
   },
   {
@@ -231,6 +253,31 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/internal-rules/internal-rules').then((m) => m.InternalRulesComponent),
     canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  // Ola D: configuración de pagos (M5-03, M5-04), ventanas de bloqueo (M8-07) y Finanzas (M5-02, NF-03, NF-04).
+  {
+    path: 'admin/payment-currencies',
+    loadComponent: () =>
+      import('./features/admin/payment-config/payment-currencies').then((m) => m.PaymentCurrenciesComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/payment-methods',
+    loadComponent: () =>
+      import('./features/admin/payment-config/payment-methods').then((m) => m.PaymentMethodsComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/payment-blocks',
+    loadComponent: () =>
+      import('./features/admin/payment-config/payment-blocks').then((m) => m.PaymentBlocksComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_PAYMENT_BLOCKS)],
+  },
+  {
+    path: 'admin/payments-finance',
+    loadComponent: () =>
+      import('./features/admin/payment-config/payments-finance').then((m) => m.PaymentsFinanceComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PAYMENTS_FINANCE)],
   },
   { path: '**', redirectTo: '/dashboard' },
 ];

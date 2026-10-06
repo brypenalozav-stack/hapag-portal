@@ -48,6 +48,21 @@ public sealed class CartAndInvoicesControllerTests
     }
 
     [Fact]
+    public async Task ConcurrentCheckout_ShouldMapToConflict()
+    {
+        var controller = new CartController();
+        ControllerTestHelper.SetupController(controller, _sender);
+        _sender.Send(Arg.Any<CheckoutCartCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Result<CheckoutResultDto>.Failure(DomainErrors.Cart.Conflict));
+
+        var result = await controller.Checkout(new CheckoutCartRequest("CL", "CLP", "KHIPU"), "key-456", CancellationToken.None);
+
+        var problem = result.Should().BeOfType<ObjectResult>().Subject;
+        problem.StatusCode.Should().Be(409);
+        problem.Value.Should().BeOfType<ProblemDetails>().Which.Title.Should().Be("Cart.Conflict");
+    }
+
+    [Fact]
     public async Task InvoicePdf_ShouldReturnAFile()
     {
         var controller = new InvoicesController();

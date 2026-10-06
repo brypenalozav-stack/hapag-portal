@@ -98,8 +98,8 @@ test('embarques: el filtro importación/exportación filtra y se mantiene al nav
 
   // La selección se mantiene al volver al listado desde el menú (M2-07).
   const menu = page.getByRole('navigation', { name: 'Menú principal' });
-  await menu.getByRole('link', { name: 'Pagos' }).click();
-  await expect(page).toHaveURL(/\/payments$/);
+  await menu.getByRole('link', { name: 'Historial de pagos' }).click();
+  await expect(page).toHaveURL(/\/payment-history$/);
   await menu.getByRole('link', { name: 'Embarques' }).click();
   await expect(page).toHaveURL(/\/shipments$/);
   await expect(page.getByRole('button', { name: 'Exportación' })).toHaveAttribute('aria-pressed', 'true');
@@ -130,15 +130,15 @@ test('el detalle oculta el flete cuando el servidor lo envía en null (M1-11, M2
   await expect(page.getByRole('heading', { level: 1 })).toContainText(BL_SIN_FLETE);
   await expect(page.getByRole('heading', { name: 'Datos del embarque' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Flete' })).toHaveCount(0);
-  await expect(page.getByRole('link', { name: 'Pagar flete' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Agregar flete al carro' })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Demurrage' })).toHaveCount(0);
   // Exportación: muestra la sección de órdenes de servicio (CL-EXP-13).
   await expect(page.getByRole('heading', { name: 'Órdenes de servicio (ODS)' })).toBeVisible();
 
-  // Con permiso (consignee, puede operar) el flete y su botón de pago sí aparecen.
+  // Con permiso (consignee, puede operar) el flete y su botón de pago (por el carro, Ola D) sí aparecen.
   await page.goto(`/shipments/${BL_PRUEBA.blNumber}`);
   await expect(page.getByRole('heading', { name: 'Flete' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Pagar flete' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Agregar flete al carro' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Demurrage' })).toBeVisible();
 });
 

@@ -238,6 +238,20 @@ public sealed class CartValidationTests
     }
 
     [Fact]
+    public async Task ShipperOnly_ShouldNotPayFreight()
+    {
+        // M1-11: "Visualizar y pagar montos de flete" es X (o) para el shipper (antes lo cubría POST /payments).
+        var bl = _f.Rules.OwnBl("BL-SHIPPER-FREIGHT", consignee: false);
+        bl.ClientId = Guid.NewGuid();
+        AccessTestData.AddRole(_f.Db, bl, _f.Owner.Organization, ShipmentRoleCodes.Shipper);
+
+        var result = await AddAsync(PayableItemTypes.Freight, bl.Id);
+
+        result.Error.Should().Be(Error.Forbidden);
+        _f.Db.CartItemList.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ShipperOnly_ShouldNotPayImportDemurrage()
     {
         var bl = _f.Rules.OwnBl("BL-SHIPPER", consignee: false);

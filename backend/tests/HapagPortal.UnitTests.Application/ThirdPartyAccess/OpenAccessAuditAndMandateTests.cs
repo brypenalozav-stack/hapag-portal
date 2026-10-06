@@ -2,7 +2,6 @@ namespace HapagPortal.UnitTests.Application.ThirdPartyAccess;
 
 using FluentAssertions;
 using HapagPortal.Application.Common.Interfaces;
-using HapagPortal.Application.Payments.Create;
 using HapagPortal.Application.Shipments.Common;
 using HapagPortal.Application.Shipments.Detail;
 using HapagPortal.Application.Shipments.Search;
@@ -15,7 +14,7 @@ using HapagPortal.Domain.Results;
 using HapagPortal.UnitTests.Application.TestHelpers;
 using NSubstitute;
 
-/// <summary>Acceso abierto y autoasociación (M1-17, M1-18), auditoría (M1-23) y pagos bajo mandato (NF-14).</summary>
+/// <summary>Acceso abierto y autoasociación (M1-17, M1-18), y auditoría (M1-23). Los pagos bajo mandato (NF-14) se prueban en el cierre del carro (CheckoutTests).</summary>
 public sealed class OpenAccessAuditAndMandateTests
 {
     private readonly MockApplicationDbContext _db = new();
@@ -148,32 +147,4 @@ public sealed class OpenAccessAuditAndMandateTests
         result.Error.Should().Be(Error.Forbidden);
     }
 
-    [Fact]
-    public async Task PaymentUnderMandate_ShouldIdentifyMandatorAndMandatary()
-    {
-        var mandate = ThirdPartyTestData.AddGrant(_db, _owner.Organization, _agency.Organization, _bl,
-            [ShipmentActionCodes.ViewShipment, ShipmentActionCodes.PayFreight], isMandate: true);
-
-        var handler = new CreatePaymentCommandHandler(
-            _db, Substitute.For<IPaymentGatewayService>(), _agency.CurrentUser, _agency.Evaluator(_db));
-        var result = await handler.Handle(new CreatePaymentCommand(_bl.Id, "Freight", "Cash", null, null, "CL"), CancellationToken.None);
-
-        result.IsSuccess.Should().BeTrue();
-        var payment = _db.PaymentList.Single();
-        payment.ClientId.Should().Be(_agency.Organization.Id);            // mandatario que ejecutó
-        payment.OnBehalfOfClientId.Should().Be(_owner.Organization.Id);   // mandante
-        payment.AccessGrantId.Should().Be(mandate.Id);
-    }
-
-    [Fact]
-    public async Task OwnPayment_ShouldNotReferenceAnyGrant()
-    {
-        var handler = new CreatePaymentCommandHandler(
-            _db, Substitute.For<IPaymentGatewayService>(), _owner.CurrentUser, _owner.Evaluator(_db));
-        var result = await handler.Handle(new CreatePaymentCommand(_bl.Id, "Freight", "Cash", null, null, "CL"), CancellationToken.None);
-
-        result.IsSuccess.Should().BeTrue();
-        _db.PaymentList.Single().OnBehalfOfClientId.Should().BeNull();
-        _db.PaymentList.Single().AccessGrantId.Should().BeNull();
-    }
 }

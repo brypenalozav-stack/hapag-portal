@@ -1,4 +1,59 @@
 {
+  "accountPayments": {
+    "checkout": {
+      "created": "Payment {{ number }} created.",
+      "error": "The payment could not be started. Try again.",
+      "sending": "Sending the payment…",
+      "uncertain": "We could not confirm whether the payment was received. Try again: the same request is never charged twice."
+    },
+    "conditions": "{{ name }} ({{ taxId }}): {{ days }}-day credit terms according to Nexus.",
+    "empty": "There are no pending charges or invoices.",
+    "errors": {
+      "load": "The pending items could not be loaded."
+    },
+    "goToCart": "Go to the cart",
+    "items": {
+      "billingEntry": "{{ name }} ({{ taxId }})",
+      "booking": "Booking {{ booking }}",
+      "caption": "Pending charges, freight, demurrage, warehouse changes and invoices",
+      "col": {
+        "amount": "Amount",
+        "billing": "Billing",
+        "reference": "BL or booking",
+        "service": "Service"
+      },
+      "evaluatedAt": "Checked on {{ date }}",
+      "pendingTotal": "Total pending in {{ currency }}",
+      "selectAll": "Select all",
+      "selectLabel": "Select {{ concept }} {{ bl }}",
+      "title": "Pending payment"
+    },
+    "notCredit": "Your organization has no credit terms in Nexus: pay from the cart.",
+    "pay": {
+      "back": "Back",
+      "confirm": "Confirm payment",
+      "confirmText": "{count, plural, one {# item} other {# items}} in {{ currency }} with {{ method }}, in a single payment.",
+      "confirmTitle": "Confirm the payment",
+      "conversion": "Amounts in other currencies are converted to {{ currency }} with today’s Nexus exchange rate.",
+      "currency": "Payment currency",
+      "currencyHelp": "Only the currencies enabled for all the selected items.",
+      "disabledBlocked": "You cannot pay while payments are suspended.",
+      "help": "Choose the items, the currency and the payment method. Before paying you will see a summary to confirm.",
+      "method": "Payment method",
+      "methodOption": "{{ name }} ({{ kind }})",
+      "mixedCountries": "You selected items from different countries: a payment belongs to a single country. Unselect the items from the other country.",
+      "noCurrency": "The selected items have no payment currency in common: pay them separately.",
+      "noMethods": "There are no payment methods enabled for this currency.",
+      "review": "{count, plural, =0 {Review and pay} one {Review and pay # item} other {Review and pay # items}}",
+      "selection": "{count, plural, =0 {No items selected.} one {# item selected.} other {# items selected.}}",
+      "title": "Pay the selected items",
+      "totals": "Selected amounts"
+    },
+    "readOnly": "Your profile is read-only: you can see what is pending but cannot pay.",
+    "retry": "Try again",
+    "subtitle": "For customers with credit terms: choose the pending charges and invoices and pay them in a single payment.",
+    "title": "Pay from my account"
+  },
   "admin": {
     "accessMatrix": {
       "action": {
@@ -275,6 +330,77 @@
       "viewBoard": "View board",
       "viewRules": "View rules"
     },
+    "finance": {
+      "cancel": {
+        "back": "Back",
+        "button": "Cancel",
+        "buttonLabel": "Cancel payment {{ number }}",
+        "confirm": "Cancel payment",
+        "done": "Payment {{ number }} cancelled. The items went back to the customer’s cart.",
+        "error": "The payment could not be cancelled.",
+        "reason": "Cancellation reason (required)",
+        "reasonHelp": "It is logged with your user, the date and the Finance role.",
+        "reasonRequired": "Enter the cancellation reason.",
+        "title": "Cancel payment {{ number }}"
+      },
+      "errors": {
+        "load": "The information could not be loaded."
+      },
+      "operations": {
+        "attempts": "{{ attempts }} of {{ max }}",
+        "caption": "Release and notice operations",
+        "col": {
+          "actions": "Actions",
+          "attempts": "Attempts",
+          "error": "Last error",
+          "job": "Operation",
+          "next": "Next attempt",
+          "payment": "Payment",
+          "status": "Status"
+        },
+        "defaultStatus": "Stuck and retrying",
+        "empty": "There are no stuck operations.",
+        "filters": "Operation filter",
+        "retried": "Operation for payment {{ number }} retried: {{ status }}.",
+        "retry": "Retry",
+        "retryError": "The operation could not be retried.",
+        "retryLabel": "Retry {{ job }} for payment {{ number }}",
+        "search": "Search",
+        "status": "Status",
+        "title": "Post-payment operations"
+      },
+      "reconciliation": {
+        "all": "All",
+        "caption": "Payments of the period with their reconciliation status",
+        "col": {
+          "actions": "Actions",
+          "dates": "Dates",
+          "document": "Receipt or payment slip",
+          "method": "Method",
+          "payment": "Payment",
+          "reconciliation": "Reconciliation",
+          "references": "References",
+          "status": "Status",
+          "total": "Total"
+        },
+        "confirmed": "Confirmed: {{ date }}",
+        "country": "Country",
+        "created": "Created: {{ date }}",
+        "empty": "There are no payments in the period.",
+        "external": "Portal: {{ value }}",
+        "filters": "Reconciliation filters",
+        "from": "From",
+        "payer": "{{ country }}, payer {{ taxId }}",
+        "provider": "Platform: {{ value }}",
+        "search": "Search",
+        "status": "Payment status",
+        "title": "Payment reconciliation",
+        "to": "To",
+        "transaction": "Transaction: {{ value }}"
+      },
+      "subtitle": "Stuck operations, reconciliation and cancellation of issued payment slips.",
+      "title": "Finance: payments"
+    },
     "internalRules": {
       "form": {
         "accountName": "Legal name (optional)",
@@ -497,6 +623,217 @@
       },
       "subtitle": "New customer creation and Match Code assignment (validation, AR check and approval)",
       "title": "Organizations"
+    },
+    "paymentBlocks": {
+      "allCountries": "All countries",
+      "cancel": "Cancel window",
+      "cancelLabel": "Cancel the window: {{ reason }}",
+      "cancelled": "Window cancelled. The change was logged.",
+      "caption": "Payment block windows",
+      "changedBy": "{{ user }}, {{ date }}",
+      "col": {
+        "actions": "Actions",
+        "changed": "Last change",
+        "country": "Country",
+        "message": "Customer message",
+        "reason": "Reason",
+        "status": "Status",
+        "window": "Window"
+      },
+      "edit": "Edit",
+      "editLabel": "Edit the window: {{ reason }}",
+      "empty": "There are no block windows.",
+      "end": "End now",
+      "endLabel": "End the window now: {{ reason }}",
+      "ended": "Window ended. Payments are available again.",
+      "errors": {
+        "cancel": "The window could not be cancelled.",
+        "load": "The windows could not be loaded."
+      },
+      "filters": {
+        "any": "Any",
+        "country": "Country",
+        "includeCancelled": "Include cancelled",
+        "label": "Block window filters",
+        "search": "Search"
+      },
+      "form": {
+        "cancel": "Cancel",
+        "clientMessage": "Customer message",
+        "clientMessageHelp": "It is shown to customers while the block lasts.",
+        "country": "Country or operation",
+        "create": "Create window",
+        "createTitle": "New block window",
+        "created": "Window created. The change was logged.",
+        "editTitle": "Edit block window",
+        "endDate": "End date",
+        "endTime": "End time",
+        "errors": {
+          "endBeforeStart": "The end must be after the start.",
+          "endDate": "Enter the end date.",
+          "endTime": "Enter the end time.",
+          "message": "Enter the message the customer will see.",
+          "reason": "Enter the reason for the block.",
+          "startDate": "Enter the start date.",
+          "startTime": "Enter the start time.",
+          "submit": "The window could not be saved.",
+          "summaryTitle": "Check the following fields"
+        },
+        "reason": "Reason (internal)",
+        "reasonHelp": "For example: monthly accounting close.",
+        "save": "Save changes",
+        "startDate": "Start date",
+        "startTime": "Start time",
+        "timeHelp": "Dates and times in the country’s local time; with \"All countries\", in each country’s local time.",
+        "updated": "Window updated. The change was logged."
+      },
+      "history": "History",
+      "historyCaption": "Window change log",
+      "historyClose": "Close history",
+      "historyEmpty": "No changes logged.",
+      "historyLabel": "See the history of the window: {{ reason }}",
+      "historyTitle": "History of the window: {{ reason }}",
+      "localTime": "Local time of each country",
+      "new": "New window",
+      "snapshot": {
+        "active": "In force"
+      },
+      "subtitle": "Windows during which payments cannot be made in the portal (M8-07). They start and end automatically; looking up information remains available.",
+      "title": "Scheduled payment blocks",
+      "window": "From {{ startDate }} {{ startTime }} to {{ endDate }} {{ endTime }}"
+    },
+    "paymentConfig": {
+      "history": {
+        "col": {
+          "action": "Action",
+          "current": "New value",
+          "date": "Date",
+          "previous": "Previous value",
+          "user": "User"
+        },
+        "field": "{{ field }}: {{ value }}",
+        "no": "No",
+        "none": "No value",
+        "yes": "Yes"
+      }
+    },
+    "paymentCurrencies": {
+      "caption": "Enabled currencies by charge",
+      "col": {
+        "actions": "Actions",
+        "concept": "Charge",
+        "currencies": "Enabled currencies",
+        "source": "Rule"
+      },
+      "configured": "Configured",
+      "default": "Default",
+      "edit": "Edit",
+      "editLabel": "Edit the currencies of {{ concept }}",
+      "empty": "There are no charges for this country.",
+      "errors": {
+        "load": "The currencies could not be loaded.",
+        "required": "Choose at least one currency or restore the default rule.",
+        "save": "The change could not be saved."
+      },
+      "filters": {
+        "country": "Country",
+        "label": "Payment currency filter",
+        "search": "Show"
+      },
+      "form": {
+        "cancel": "Cancel",
+        "chileRules": "In Chile the Finance rules also apply: CLP is always enabled, EUR charges only in CLP and BOB charges are not paid in BOB.",
+        "legend": "Enabled currencies",
+        "save": "Save",
+        "title": "Currencies of {{ concept }} in {{ country }}"
+      },
+      "history": "History",
+      "historyCaption": "Currency change log",
+      "historyClose": "Close history",
+      "historyEmpty": "No changes logged.",
+      "historyLabel": "See the history of {{ concept }}",
+      "historyTitle": "History of {{ concept }} in {{ country }}",
+      "reset": "{{ concept }} is back to the default rule.",
+      "resetButton": "Restore default",
+      "resetLabel": "Restore the default rule for {{ concept }}",
+      "saved": "Currencies of {{ concept }} saved. The change was logged.",
+      "snapshot": {
+        "concept": "Charge",
+        "country": "Country",
+        "currency": "Currency",
+        "enabled": "Enabled"
+      },
+      "subtitle": "Currencies in which each charge can be paid in each country (M5-04). Without configuration: the charge currency and the local currency.",
+      "title": "Payment currencies by charge"
+    },
+    "paymentMethods": {
+      "caption": "Configured payment methods",
+      "col": {
+        "actions": "Actions",
+        "currencies": "Currencies",
+        "kind": "Type",
+        "method": "Method",
+        "order": "Order",
+        "provider": "Platform",
+        "status": "Status"
+      },
+      "disable": "Disable",
+      "disableLabel": "Disable {{ name }}",
+      "disabled": "{{ name }} was disabled.",
+      "disabledStatus": "Disabled",
+      "edit": "Edit",
+      "editLabel": "Edit {{ name }}",
+      "empty": "There are no payment methods for this country.",
+      "enabled": "Enabled",
+      "errors": {
+        "disable": "The method could not be disabled.",
+        "load": "The payment methods could not be loaded."
+      },
+      "filters": {
+        "country": "Country",
+        "includeDisabled": "Include disabled",
+        "label": "Payment method filters",
+        "search": "Search"
+      },
+      "form": {
+        "cancel": "Cancel",
+        "code": "Code",
+        "codeHelp": "Letters, numbers and underscore; for example KHIPU. It does not change after creation.",
+        "country": "Country",
+        "create": "Create method",
+        "createTitle": "New payment method",
+        "created": "Method {{ name }} created.",
+        "currencies": "Currencies",
+        "description": "Description for the customer",
+        "editTitle": "Edit payment method",
+        "enabled": "Enabled",
+        "errors": {
+          "code": "Enter a code of 2 to 40 letters, numbers or underscores.",
+          "currencies": "Choose at least one currency.",
+          "name": "Enter the name.",
+          "order": "The order must be a whole number, for example 10.",
+          "provider": "An online method needs its payment platform.",
+          "submit": "The payment method could not be saved.",
+          "summaryTitle": "Check the following fields"
+        },
+        "kind": "Type",
+        "name": "Name",
+        "order": "Display order",
+        "provider": "Payment platform",
+        "providerHelp": "To replace a method’s platform, choose another registered one.",
+        "providerPlaceholder": "Choose the platform",
+        "save": "Save changes",
+        "updated": "Method {{ name }} updated. The change was logged."
+      },
+      "history": "History",
+      "historyCaption": "Payment method change log",
+      "historyClose": "Close history",
+      "historyEmpty": "No changes logged.",
+      "historyLabel": "See the history of {{ name }}",
+      "historyTitle": "History of {{ name }}",
+      "new": "New method",
+      "subtitle": "Methods available by country and currency (M5-03): online with their platform, or deposit with payment slip.",
+      "title": "Payment methods"
     },
     "reports": {
       "caption": "Report results",
@@ -845,18 +1182,93 @@
       "title": "New Password"
     }
   },
+  "cart": {
+    "checkout": {
+      "back": "Back",
+      "billingEntry": "{{ name }} ({{ taxId }})",
+      "confirm": "Confirm payment of {{ total }}",
+      "confirmBilling": "Billing: {{ billing }}",
+      "confirmItems": "{count, plural, one {# item} other {# items}} in a single payment",
+      "confirmMethod": "Payment method: {{ method }}",
+      "confirmTitle": "Confirm the payment",
+      "confirmTotal": "Total: {{ total }}",
+      "created": "Payment {{ number }} created.",
+      "disabledBlocked": "You cannot pay while payments are suspended.",
+      "disabledNoItems": "All items are part of a payment in progress.",
+      "disabledNoMethods": "There are no payment methods enabled for this currency.",
+      "disabledReadOnly": "Your read-only profile cannot pay.",
+      "error": "The payment could not be started. Check the cart and try again.",
+      "method": "Payment method",
+      "methodOption": "{{ name }} ({{ kind }})",
+      "methodRequired": "Choose a payment method.",
+      "noMethods": "There are no payment methods enabled for this currency.",
+      "retry": "Retry payment of {{ total }}",
+      "review": "Review and pay {{ total }}",
+      "sending": "Sending the payment…",
+      "uncertain": "We could not confirm whether the payment was received. Try again: the same request is never charged twice."
+    },
+    "col": {
+      "actions": "Actions",
+      "billing": "Billing",
+      "chargeAmount": "Charge amount",
+      "paymentAmount": "Amount to pay",
+      "paymentCurrency": "Payment currency",
+      "reference": "BL or booking",
+      "service": "Service"
+    },
+    "creditCustomer": "Your organization has credit terms: your charges are paid from \"Pay from my account\", not from the cart.",
+    "empty": "The cart is empty.",
+    "emptyInvoices": "See my invoices",
+    "emptyShipments": "Find charges in my shipments",
+    "errors": {
+      "convert": "The currency could not be changed.",
+      "load": "The cart could not be loaded.",
+      "remove": "It could not be removed from the cart."
+    },
+    "goToAccountPayments": "Go to Pay from my account",
+    "group": {
+      "caption": "Items to pay in {{ currency }}",
+      "clear": "Empty",
+      "clearCancel": "No",
+      "clearConfirm": "Yes, empty it",
+      "clearLabel": "Empty the {{ currency }} cart section",
+      "clearQuestion": "Remove all items in {{ currency }}?",
+      "cleared": "The {{ currency }} cart section was emptied.",
+      "count": "{count, plural, one {# item} other {# items}}",
+      "locked": "{count, plural, one {# item is part of a payment in progress and is not included in this payment.} other {# items are part of a payment in progress and are not included in this payment.}}",
+      "lockedLink": "See payment history",
+      "subtotal": "Subtotal in {{ currency }}",
+      "title": "Payment in {{ currency }}, {{ country }}"
+    },
+    "item": {
+      "bl": "BL {{ bl }}",
+      "booking": "Booking {{ booking }}",
+      "converted": "{{ concept }} moved to the {{ currency }} cart section.",
+      "currencyLabel": "Payment currency for {{ concept }}",
+      "locked": "In a payment in progress",
+      "rate": "Exchange rate {{ from }}→{{ to }}: {{ rate }}, effective {{ date }} ({{ source }})",
+      "remove": "Remove",
+      "removeLabel": "Remove {{ concept }} from the cart",
+      "removed": "{{ concept }} was removed from the cart.",
+      "taxId": "Tax ID {{ taxId }}"
+    },
+    "notClient": "The cart is for users of customer organizations: internal users do not pay in the portal.",
+    "readOnly": "Your profile is read-only: you can see the cart but cannot pay or change currencies.",
+    "subtitle": "One cart section per payment currency: each with its own subtotal and payment.",
+    "summary": "{count, plural, one {# item} other {# items}} in {groups, plural, one {# payment currency} other {# payment currencies}}",
+    "title": "Cart"
+  },
   "charges": {
     "initial": "Enter a BL number to see its local charges.",
     "panel": {
       "action": {
+        "accountPayments": "Pay from my account",
         "addToCart": "Add to cart",
         "addToCartLabel": "Add {{ concept }} to the cart",
         "blockedByLetter": "Blocked: the letter of indemnity is missing",
         "calculate": "Calculate",
-        "none": "No action",
-        "pay": "Pay",
-        "payLabel": "Pay {{ concept }}",
-        "saved": "Saved for the cart"
+        "inCart": "In the cart",
+        "none": "No action"
       },
       "apply": {
         "button": "Apply Nexus exemptions",
@@ -871,8 +1283,7 @@
       },
       "caption": "Local charges for BL {{ bl }} with the rule outcome",
       "cart": {
-        "comingSoon": "The cart will be available soon: the charges you add are saved in this session.",
-        "saved": "{{ concept }} was saved for the cart."
+        "viewCart": "{count, plural, =0 {See the cart} one {See the cart (# item)} other {See the cart (# items)}}"
       },
       "col": {
         "action": "Action",
@@ -997,8 +1408,24 @@
       "paid": "Paid",
       "pending": "Awaiting payment"
     },
+    "billingOptionSource": {
+      "grant": "grantor of the access",
+      "invoice": "billed on the invoice",
+      "own": "my organization"
+    },
+    "blockWindowStatus": {
+      "active": "Active",
+      "cancelled": "Cancelled",
+      "ended": "Ended",
+      "scheduled": "Scheduled"
+    },
     "brand": {
       "tagline": "SHIPPING & LOGISTICS"
+    },
+    "cancelDeniedReason": {
+      "final": "The payment is already closed.",
+      "inProgress": "The payment is being processed by the platform: it cannot be cancelled in the portal.",
+      "slipIssued": "The payment slip has already been issued: you cannot cancel it in the portal. To cancel it, contact Finance."
     },
     "chargeBlockedReason": {
       "associationRequired": "You must associate with the BL before operating",
@@ -1010,8 +1437,10 @@
       "blFee": "BL fee",
       "demurrage": "Demurrage",
       "eds": "EDS",
+      "freight": "Freight",
       "gateIn": "Gate In",
       "gateOut": "Gate Out",
+      "invoice": "Invoice",
       "ipo": "IPO",
       "isps": "ISPS",
       "lateArrival": "Late arrival",
@@ -1088,6 +1517,18 @@
       "advanceDemurrageRequired": "Mandatory advance demurrage (Bolivia)",
       "freeWarehouseChange": "Free warehouse change"
     },
+    "invoiceDocumentType": {
+      "creditNote": "Credit note",
+      "debitNote": "Debit note",
+      "exemptInvoice": "Exempt invoice",
+      "invoice": "Invoice"
+    },
+    "invoiceStatus": {
+      "cancelled": "Cancelled",
+      "overdue": "Overdue",
+      "paid": "Paid",
+      "pending": "Pending"
+    },
     "maintainerAction": {
       "created": "Created",
       "deactivated": "Deactivated",
@@ -1119,6 +1560,98 @@
       "customsAgency": "Customs broker",
       "freightForwarder": "Freight forwarder (FFWW)",
       "internal": "Hapag-Lloyd"
+    },
+    "payableItemType": {
+      "demurrage": "Demurrage",
+      "freight": "Freight",
+      "invoice": "Invoice",
+      "localCharge": "Local charge",
+      "warehouseChange": "Warehouse change"
+    },
+    "paymentErrors": {
+      "alreadyCancelled": "The payment is already cancelled.",
+      "alreadyConfirmed": "The payment is already confirmed.",
+      "alreadyPaid": "The item has already been paid.",
+      "associationRequired": "You must associate yourself with the BL before adding its charges to the cart (seen through open access).",
+      "billingTaxIdNotAllowed": "The billing tax ID is not enabled for this item.",
+      "blocked": "Payments are temporarily suspended. You can still look up information.",
+      "blockedWithMessage": "Payments are temporarily suspended: {{ message }}",
+      "cartItemNotFound": "The item is no longer in the cart.",
+      "conditionsUnavailable": "Nexus is not available: the commercial conditions cannot be checked. Nothing was added or charged. Try again later.",
+      "conflict": "Another payment request locked or changed these items at the same time. This request charged nothing: check the payment history and the cart.",
+      "creditCustomer": "Your organization has credit terms: pay from \"Pay from my account\".",
+      "currencyNotAllowed": "The selected currency is not enabled for this charge. Choose another one from the list.",
+      "duplicate": "The item is already in the cart.",
+      "empty": "There are no items to pay in this currency.",
+      "exchangeRateNotApproved": "Today’s exchange rate is not yet approved for transactions.",
+      "exchangeRateNotFound": "Nexus does not report today’s exchange rate: the currency cannot be converted.",
+      "folioRequired": "Only invoices with an issued SII folio can be downloaded together.",
+      "forItem": "{{ item }}: {{ message }}",
+      "forbidden": "Your profile or organization cannot pay this item.",
+      "idempotencyConflict": "This payment request was already used with different data. Check the history before trying again.",
+      "inProgress": "The payment is being processed by the platform: it cannot be cancelled.",
+      "invalidTransition": "The payment status changed: reload the page.",
+      "invoiceNotFound": "We could not find the invoice.",
+      "itemInPayment": "The item is part of a payment in progress. Check the payment history.",
+      "itemLocked": "The item is part of a payment in progress and cannot be changed.",
+      "itemNotFound": "We could not find the item among the ones you can pay.",
+      "methodExists": "A method with that code already exists in the country.",
+      "methodNotAvailable": "The payment method is not available for this currency. Choose another one.",
+      "mixedCountries": "The selected items belong to different countries: pay them separately.",
+      "noPaymentCurrency": "The item has no enabled payment currency.",
+      "notCreditCustomer": "Your organization has no credit terms: use the cart.",
+      "notDeposit": "Only deposit payments have a payment slip.",
+      "notPayable": "The item cannot be paid in the portal.",
+      "operationNotRetryable": "The operation has already finished: there is nothing to retry.",
+      "payDemurrageInvoice": "The demurrage line has already been invoiced: pay the invoice.",
+      "paymentNotFound": "We could not find the payment.",
+      "pdfNotAvailable": "The invoice has no SII folio yet: the PDF is not available.",
+      "providerRequired": "An online method needs a registered payment platform.",
+      "providerUnavailable": "The payment platform did not respond. Nothing was charged and the items are still in the cart: you can try again.",
+      "receiptNotAvailable": "The receipt is not available yet.",
+      "responsibilityLetterRequired": "The freight forwarder letter of indemnity is missing: this BL cannot be paid yet.",
+      "slipAlreadyIssued": "The payment slip has already been issued: you cannot cancel it in the portal.",
+      "sourceUnavailable": "The information source did not respond. No change was saved: try again later.",
+      "unavailable": "The service is not available right now. Try again later.",
+      "windowEnded": "The window has already ended: check the end date and time.",
+      "windowStarted": "The window has already started: it cannot be changed. You can end it early.",
+      "zeroValue": "The item has no amount to pay (for example, it is exempt): it is not added to the cart."
+    },
+    "paymentFailureReason": {
+      "providerRejected": "The payment platform rejected the payment. Nothing was charged.",
+      "providerUnavailable": "The payment platform did not respond. Nothing was charged."
+    },
+    "paymentMethodKind": {
+      "deposit": "Deposit with payment slip",
+      "online": "Online"
+    },
+    "paymentOperationJob": {
+      "notify": "Payer notice",
+      "release": "Service release"
+    },
+    "paymentOperationStatus": {
+      "pending": "Retrying",
+      "stuck": "Stuck",
+      "succeeded": "Completed"
+    },
+    "paymentOrigin": {
+      "account": "Pay from my account",
+      "cart": "Cart",
+      "legacy": "Per-BL payment (previous)"
+    },
+    "paymentStatus": {
+      "cancelled": "Cancelled",
+      "confirmed": "Confirmed",
+      "failed": "Failed, not charged",
+      "pending": "Pending",
+      "pendingVerification": "Payment slip issued, under verification",
+      "processing": "Processing at the payment platform"
+    },
+    "reconciliationStatus": {
+      "matched": "Reconciled",
+      "missingReceipt": "Receipt missing",
+      "missingTransactionReference": "Transaction reference missing",
+      "notSettled": "Not settled"
     },
     "requirementStatus": {
       "fulfilled": "fulfilled",
@@ -1264,10 +1797,10 @@
         "help": "The demurrage is calculated and unpaid. Calculation detail:"
       },
       "cart": {
-        "conceptSaved": "{{ concept }} was saved for the cart.",
-        "linesSaved": "{count, plural, one {# demurrage line was saved for the cart.} other {# demurrage lines were saved for the cart.}}",
-        "linesSavedNote": "The calculated lines were saved for the cart, which will be available soon.",
-        "saved": "Saved for the cart"
+        "accountPayments": "Pay from my account",
+        "inCart": "In the cart",
+        "lineLabel": "Demurrage for container {{ container }}",
+        "linesInCart": "The calculated lines are in the cart."
       },
       "concepts": {
         "add": "Add to cart",
@@ -1296,7 +1829,8 @@
           "invoice": "Invoice"
         },
         "help": "The BL has invoiced demurrage with outstanding debt.",
-        "pay": "Pay invoice"
+        "pay": "Pay invoice",
+        "payLabel": "Pay invoice {{ invoice }}"
       },
       "lines": {
         "caption": "Demurrage calculation detail by container",
@@ -1366,6 +1900,77 @@
     "searchPlaceholder": "Search questions...",
     "subtitle": "Find answers to the most common questions",
     "title": "Frequently Asked Questions"
+  },
+  "invoices": {
+    "addToCart": "Add to cart",
+    "addToCartLabel": "Add invoice {{ number }} to the cart",
+    "booking": "Booking {{ booking }}",
+    "caption": "Invoices of {{ name }}",
+    "cartLabel": "Invoice {{ number }}",
+    "col": {
+      "actions": "Actions",
+      "amount": "Amount",
+      "currency": "Currency",
+      "documentType": "Type",
+      "dueDate": "Due date",
+      "issueDate": "Issue date",
+      "legalName": "Legal name",
+      "reference": "BL or booking",
+      "select": "Select",
+      "siiNumber": "SII number",
+      "sourceNumber": "Source system number",
+      "status": "Status",
+      "taxId": "Tax ID"
+    },
+    "count": "{count, plural, one {# invoice} other {# invoices}}",
+    "download": {
+      "error": "The download failed.",
+      "pdf": "PDF",
+      "pdfDone": "Invoice {{ number }} downloaded.",
+      "pdfLabel": "Download the PDF of invoice {{ number }}",
+      "zip": "{count, plural, =0 {Download selected} one {Download # invoice} other {Download # invoices}}",
+      "zipDone": "{count, plural, one {# invoice was downloaded.} other {# invoices were downloaded.}}",
+      "zipHelp": "The multiple download (zip) accepts up to {{ max }} invoices with an issued SII folio."
+    },
+    "empty": "There are no invoices with these filters.",
+    "errors": {
+      "forbidden": "You have no access to that organization’s invoices.",
+      "load": "The invoices could not be loaded."
+    },
+    "filters": {
+      "all": "All",
+      "bl": "BL",
+      "booking": "Booking",
+      "clear": "Clear",
+      "currency": "Currency",
+      "documentType": "Document type",
+      "from": "Issued from",
+      "label": "Invoice filters",
+      "search": "Search",
+      "status": "Status",
+      "to": "Issued until"
+    },
+    "inCart": "In the cart",
+    "lastUpdated": "Last updated: {{ date }}",
+    "noFolio": "No folio",
+    "organization": "Organization",
+    "organizationOption": "{{ name }} ({{ taxId }})",
+    "organizationSingle": "Organization: {{ name }} ({{ taxId }})",
+    "pagination": {
+      "label": "Invoice pages",
+      "next": "Next",
+      "previous": "Previous",
+      "status": "Page {{ page }} of {{ pages }} ({{ total }} invoices)"
+    },
+    "refresh": {
+      "button": "Refresh",
+      "done": "Invoices refreshed: {{ checked }} checked, {{ updated }} changed.",
+      "error": "The invoices could not be refreshed."
+    },
+    "selectDisabledLabel": "Invoice {{ number }} has no SII folio: it cannot be downloaded",
+    "selectLabel": "Select invoice {{ number }} for download",
+    "subtitle": "Local invoices of the organizations you have access to, kept separate from each other.",
+    "title": "Invoices"
   },
   "notifications": {
     "empty": "You have no notifications.",
@@ -1539,103 +2144,164 @@
       "updated": "User {{ email }} updated."
     }
   },
-  "payments": {
-    "form": {
-      "breadcrumbCurrent": "New Payment",
-      "breadcrumbLabel": "Breadcrumb",
-      "breadcrumbList": "Payments",
-      "dataTitle": "Payment Details",
-      "errors": {
-        "loadBl": "Could not load the BL information.",
-        "submit": "Could not process the payment."
-      },
-      "method": "Payment Method",
-      "methodRequired": "Select a payment method.",
-      "methods": {
-        "bankTransfer": {
-          "hint": "Direct transfer to a Hapag-Lloyd account",
-          "label": "Bank Transfer"
-        },
-        "creditCard": {
-          "hint": "Visa, Mastercard, American Express",
-          "label": "Credit Card"
-        },
-        "creditLine": {
-          "hint": "Charged to your approved credit line",
-          "label": "Credit Line"
-        },
-        "qr": {
-          "hint": "Payment by QR code",
-          "label": "QR Payment"
-        }
-      },
-      "submit": "Confirm Payment",
-      "success": {
-        "message": "Your payment has been registered and is pending confirmation.",
-        "redirect": "Redirecting to the payment list...",
-        "title": "Payment Registered Successfully"
-      },
-      "summary": {
-        "bl": "Bill of Lading",
-        "subtotal": "Subtotal",
-        "tax": "VAT ({{ rate }}%)",
-        "title": "Summary",
-        "total": "Total",
-        "vesselVoyage": "Vessel / Voyage"
-      },
-      "title": "New Payment",
-      "type": "Payment Type",
-      "typeOption": {
-        "demurrage": "Demurrage",
-        "freight": "Freight",
-        "localCharges": "Local Charges"
-      }
+  "paymentHistory": {
+    "bookings": "Booking {{ bookings }}",
+    "caption": "Payments made in the portal",
+    "col": {
+      "actions": "Actions",
+      "billing": "Billing tax ID",
+      "currency": "Currency",
+      "date": "Date",
+      "document": "Receipt or payment slip",
+      "method": "Payment method",
+      "payer": "Payer tax ID",
+      "reference": "BL or booking",
+      "status": "Status",
+      "total": "Total"
     },
-    "list": {
-      "caption": "Payment list",
+    "count": "{count, plural, one {# payment} other {# payments}}",
+    "detail": "Details",
+    "detailLabel": "See the details of {{ number }}",
+    "detailPage": {
+      "billing": "Billing tax ID",
+      "booking": "Booking {{ booking }}",
+      "breadcrumbCurrent": "Payment details",
+      "breadcrumbLabel": "Breadcrumb",
+      "breadcrumbList": "Payment history",
       "col": {
-        "actions": "Actions",
+        "amount": "Amount paid",
+        "billing": "Billing",
+        "original": "Original amount",
+        "reference": "BL or booking",
+        "service": "Service"
+      },
+      "date": "Payment date",
+      "document": "Document {{ number }}",
+      "executedBy": "Made by",
+      "items": "Documents and charges paid",
+      "itemsCaption": "Items included in the payment",
+      "method": "Payment method",
+      "notFound": "We could not find the payment in your organization’s history.",
+      "onBehalfOf": "Under mandate of",
+      "origin": "Origin",
+      "parties": "Payer and billing",
+      "party": "{{ name }} ({{ taxId }})",
+      "payer": "Payer (tax ID that paid)",
+      "paymentNumber": "Payment number",
+      "rate": "Exchange rate {{ rate }}",
+      "receipt": "Receipt",
+      "slip": "Payment slip",
+      "statusHistory": "See status history",
+      "title": "Payment details",
+      "total": "Total"
+    },
+    "empty": "There are no payments with these filters.",
+    "errors": {
+      "load": "The payment history could not be loaded."
+    },
+    "filters": {
+      "all": "All",
+      "bl": "BL",
+      "clear": "Clear",
+      "from": "From",
+      "label": "History filters",
+      "search": "Search",
+      "status": "Status",
+      "to": "To"
+    },
+    "pagination": {
+      "label": "History pages",
+      "next": "Next",
+      "previous": "Previous",
+      "status": "Page {{ page }} of {{ pages }} ({{ total }} payments)"
+    },
+    "payerDiffers": "Different from the payer",
+    "receipt": {
+      "button": "Download",
+      "done": "{{ number }} downloaded.",
+      "error": "The receipt could not be downloaded.",
+      "label": "Download {{ number }}"
+    },
+    "subtitle": "Payments made in the portal by your organization, as payer or as grantor, with their payment slip or receipt.",
+    "title": "Payment history"
+  },
+  "paymentResult": {
+    "announce": {
+      "cancelled": "Payment {{ number }} cancelled. Nothing was charged.",
+      "confirmed": "Payment {{ number }} confirmed. Receipt {{ receipt }}.",
+      "failed": "Payment {{ number }} was not made. Nothing was charged.",
+      "slipIssued": "Payment slip {{ slip }} for payment {{ number }} issued. Finance will verify the deposit.",
+      "status": "Payment {{ number }}: {{ status }}."
+    },
+    "backToCart": "Back to the cart",
+    "breadcrumbCurrent": "Payment result",
+    "breadcrumbHistory": "Payment history",
+    "breadcrumbLabel": "Breadcrumb",
+    "cancel": {
+      "button": "Cancel payment",
+      "confirm": "Yes, cancel it",
+      "error": "The payment could not be cancelled.",
+      "keep": "No, keep it",
+      "question": "Cancel the payment? The items will go back to the cart."
+    },
+    "cancelled": {
+      "text": "Nothing was charged. The items are back in the cart.",
+      "title": "Payment cancelled"
+    },
+    "confirmed": {
+      "releasePending": "The release of the paid services is being processed.",
+      "text": "{{ total }} was charged. Receipt {{ receipt }}.",
+      "title": "Payment confirmed"
+    },
+    "failed": {
+      "generic": "The payment failed.",
+      "noCharge": "Nothing was charged. The items are back in the cart.",
+      "title": "The payment was not made"
+    },
+    "history": {
+      "caption": "Payment status changes with date and time",
+      "col": {
+        "by": "Recorded by",
+        "date": "Date and time",
+        "reason": "Reason",
+        "status": "Status"
+      },
+      "title": "Status history"
+    },
+    "items": {
+      "caption": "Items included in the payment",
+      "col": {
         "amount": "Amount",
-        "bl": "BL",
-        "currency": "Currency",
-        "date": "Date",
-        "method": "Method",
-        "number": "Number",
-        "status": "Status",
-        "type": "Type"
+        "billing": "Billing tax ID",
+        "bl": "BL or booking",
+        "service": "Service"
       },
-      "empty": "No payments found.",
-      "filter": {
-        "all": "All",
-        "confirmed": "Confirmed",
-        "failed": "Failed",
-        "pending": "Pending"
-      },
-      "filterBy": "Filter by status:",
-      "loadError": "Could not load the payments.",
-      "method": {
-        "bankDeposit": "Bank Deposit",
-        "bankTransfer": "Transfer",
-        "cash": "Cash",
-        "check": "Check",
-        "creditCard": "Credit Card",
-        "creditLine": "Credit Line",
-        "debitCard": "Debit Card",
-        "deposit": "Deposit",
-        "khipu": "Khipu",
-        "qr": "QR Payment",
-        "webPay": "WebPay"
-      },
-      "subtitle": "History and status of your payments",
-      "title": "Payments",
-      "type": {
-        "combined": "Combined",
-        "demurrage": "Demurrage",
-        "freight": "Freight",
-        "localCharges": "Local Charges"
-      },
-      "viewReceipt": "View Receipt"
-    }
+      "createdAt": "Created",
+      "method": "Payment method",
+      "reference": "Reference",
+      "title": "Payment details",
+      "total": "Total"
+    },
+    "loadError": "The payment status could not be checked.",
+    "notFound": "We could not find the payment among your organization’s payments.",
+    "paymentTitle": "Payment {{ number }}",
+    "processing": {
+      "checkAgain": "Check again",
+      "stillWaiting": "The platform has not confirmed yet. You can check again or look at the payment history later.",
+      "text": "The charge is not confirmed yet. This page updates by itself; do not pay again.",
+      "title": "Waiting for the payment platform to confirm"
+    },
+    "slip": {
+      "error": "The payment slip could not be issued.",
+      "issue": "Issue payment slip",
+      "issued": "Payment slip {{ slip }} issued on {{ date }} for {{ total }}.",
+      "issuedTitle": "Payment slip issued",
+      "pendingText": "Payment slip {{ slip }} for {{ total }}. Once issued you can make the deposit; from then on you cannot cancel it in the portal.",
+      "pendingTitle": "Payment slip not issued yet",
+      "verification": "Finance will confirm the payment once the deposit is verified. The payment slip can no longer be cancelled in the portal."
+    },
+    "title": "Payment result",
+    "viewReceipt": "See receipt and details"
   },
   "profile": {
     "accountType": "Account Type",
@@ -1657,23 +2323,6 @@
       "agent": "Customs Broker",
       "client": "Customer"
     }
-  },
-  "receipts": {
-    "caption": "Receipt list",
-    "col": {
-      "amount": "Amount",
-      "client": "Customer",
-      "country": "Country",
-      "date": "Date",
-      "paymentNumber": "Payment No.",
-      "receiptNumber": "Receipt No.",
-      "tax": "Tax",
-      "total": "Total"
-    },
-    "empty": "You have no issued receipts.",
-    "loadError": "Could not load the receipts.",
-    "subtitle": "History of issued payment receipts",
-    "title": "Receipts"
   },
   "serviceOrders": {
     "cancel": "Cancel",
@@ -1717,6 +2366,37 @@
     }
   },
   "shared": {
+    "addToCart": {
+      "added": "{count, plural, one {{{ label }} was added to the cart in {{ currency }}.} other {# items were added to the cart in {{ currency }}.}}",
+      "billing": "Billing tax ID (required)",
+      "billingHelp": "Only the tax IDs enabled for you are shown. The tax document will be issued to this tax ID.",
+      "billingOption": "{{ name }} ({{ taxId }}), {{ source }}",
+      "billingPlaceholder": "Choose the billing tax ID",
+      "bl": "BL {{ bl }}",
+      "booking": "Booking {{ booking }}",
+      "cancel": "Cancel",
+      "caption": "Items to add to the cart",
+      "close": "Close",
+      "col": {
+        "amount": "Amount",
+        "reference": "BL or booking",
+        "service": "Service"
+      },
+      "currency": "Payment currency (required)",
+      "currencyHelp": "Only the currencies enabled for this charge. The item goes to the cart section of that currency.",
+      "errors": {
+        "billingRequired": "Choose the billing tax ID.",
+        "currencyRequired": "Choose the payment currency.",
+        "load": "The item could not be checked. Try again.",
+        "noCommonBilling": "The items do not share an enabled billing tax ID: add them separately.",
+        "noCommonCurrency": "The items do not share an enabled payment currency: add them separately.",
+        "submit": "It could not be added to the cart. Try again.",
+        "summaryTitle": "Check the following fields"
+      },
+      "submit": "Add to cart",
+      "title": "Add to cart",
+      "validating": "Checking the item…"
+    },
     "exchangeRate": {
       "note": "Exchange rate {{ from }}→{{ to }}: {{ rate }}, effective {{ date }} (source {{ source }}).",
       "unavailable": "The {{ from }}→{{ to }} exchange rate could not be read from Nexus."
@@ -1725,6 +2405,8 @@
       "label": "Loading..."
     },
     "navbar": {
+      "accountPayments": "Pay from my account",
+      "cartCount": "{count, plural, =0 {Cart, empty} one {Cart, # item} other {Cart, # items}}",
       "country": {
         "bo": "BO, Bolivia",
         "changed": "Operating country changed to {{ country }}.",
@@ -1747,23 +2429,34 @@
       "tagline": "SERVICE PORTAL",
       "userMenu": "User menu: {{ name }}"
     },
+    "paymentBlock": {
+      "consultAvailable": "Meanwhile you can look up your information and prepare the cart; payments are not possible.",
+      "title": "Payments temporarily suspended",
+      "until": "Until {{ date }} at {{ time }} ({{ zone }})."
+    },
     "sidebar": {
       "label": "Main menu",
       "link": {
         "accessMatrix": "Access matrix",
+        "accountPayments": "Pay from my account",
         "adminOrganizations": "Organizations",
         "audit": "Audit",
         "blImport": "BL Upload",
+        "cart": "Cart",
         "customs": "Customs Transmission",
         "dashboard": "Dashboard",
         "deadlines": "Deadline Control",
         "demurrage": "Demurrage",
         "faq": "FAQ",
         "internalRules": "Charge rules",
+        "invoices": "Invoices",
         "localCharges": "Local Charges",
         "organization": "My organization",
-        "payments": "Payments",
-        "receipts": "Receipts",
+        "paymentBlocks": "Payment blocks",
+        "paymentCurrencies": "Payment currencies",
+        "paymentHistory": "Payment history",
+        "paymentMethods": "Payment methods",
+        "paymentsFinance": "Finance: payments",
         "reports": "Reports",
         "serviceOrders": "Service Orders",
         "shipments": "Shipments",
@@ -1882,7 +2575,10 @@
         "title": "Demurrage"
       },
       "freight": {
-        "pay": "Pay freight",
+        "accountPayments": "Pay from my account",
+        "addToCart": "Add freight to cart",
+        "cartLabel": "Freight for BL {{ bl }}",
+        "inCart": "The freight is in the cart.",
         "title": "Freight"
       },
       "general": {
@@ -2427,14 +3123,19 @@
       "quote": "Check terms",
       "quoteError": "The warehouse change terms could not be checked.",
       "result": {
+        "accountPayments": "Pay from my account",
+        "addToCart": "Add to cart",
         "another": "Make another request",
+        "cartLabel": "Warehouse change for BL {{ bl }}",
         "free": "The warehouse change for BL {{ bl }} from {{ from }} to {{ to }} was completed with no charge and no Customer Service involvement.",
         "freeAnnouncement": "Warehouse change for BL {{ bl }} completed with no charge.",
         "freeTitle": "Warehouse change completed",
+        "inCart": "The warehouse change is in the cart.",
         "pending": "The request for BL {{ bl }} was recorded for {{ amount }}. Payment will be made from the cart, which will be available soon.",
         "pendingAnnouncement": "Warehouse change request for BL {{ bl }} recorded, awaiting payment.",
         "pendingTitle": "Request recorded, awaiting payment",
-        "status": "Status: {{ status }}. Recorded on {{ date }}."
+        "status": "Status: {{ status }}. Recorded on {{ date }}.",
+        "viewCart": "See the cart"
       },
       "submit": "Request warehouse change",
       "submitFree": "Request free change",

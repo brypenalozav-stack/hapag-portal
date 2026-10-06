@@ -126,9 +126,21 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
 
     public int SaveChangesCallCount { get; private set; }
 
+    /// <summary>
+    /// Excepción que lanzará el próximo guardado (p. ej. <c>DbUpdateConcurrencyException</c> para simular
+    /// que otra solicitud cambió las mismas filas); se consume al lanzarse.
+    /// </summary>
+    public Exception? NextSaveChangesException { get; set; }
+
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         SaveChangesCallCount++;
+        if (NextSaveChangesException is { } exception)
+        {
+            NextSaveChangesException = null;
+            throw exception;
+        }
+
         return Task.FromResult(1);
     }
 }

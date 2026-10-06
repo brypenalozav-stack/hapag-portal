@@ -5,7 +5,6 @@ using Asp.Versioning;
 using HapagPortal.Application.Payments.Commands.Cancel;
 using HapagPortal.Application.Payments.Commands.Confirm;
 using HapagPortal.Application.Payments.Commands.Webhooks;
-using HapagPortal.Application.Payments.Create;
 using HapagPortal.Application.Payments.Lifecycle;
 using HapagPortal.Application.Payments.Read.GetById;
 using HapagPortal.Application.Payments.Read.GetMyPayments;
@@ -17,18 +16,6 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 public sealed class PaymentsController : ApiController
 {
-    [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreatePaymentCommand command,
-        CancellationToken cancellationToken)
-    {
-        var result = await Sender.Send(command, cancellationToken);
-
-        return result.IsSuccess
-            ? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value)
-            : HandleFailure(result);
-    }
-
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(
         Guid id,

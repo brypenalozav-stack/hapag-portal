@@ -1,11 +1,12 @@
 import { Component, DestroyRef, ElementRef, Injector, OnInit, computed, inject, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { WarehouseChangeService } from '../../core/services/warehouse-change.service';
 import { ShipmentService } from '../../core/services/shipment.service';
 import { LiveAnnouncerService } from '../../core/services/live-announcer.service';
+import { CartService } from '../../core/services/cart.service';
 import {
   WAREHOUSE_BATCH_MAX_ITEMS,
   WarehouseChangeDetail,
@@ -22,6 +23,7 @@ import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { parseBulkLines } from './bulk-lines';
 import { focusAfterRender } from '../../shared/focus-after-render';
+import { AddToCartDialogComponent, AddToCartTarget } from '../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
 
 interface FormError {
   fieldId: string;
@@ -49,13 +51,14 @@ const MAX_FILE_BYTES = 512 * 1024;
  *   Service (M3-04, M8-01);
  * - solicitud masiva: lista pegada o cargada desde un archivo, o embarques elegidos del listado;
  *   se procesa en segundo plano y el avance se sigue en /warehouse/bulk/:id (M3-05, NF-19).
+ * Ola D: la solicitud pendiente de pago se agrega al carro (M5-01) con su RUT de facturación (M5-09).
  */
 @Component({
   selector: 'app-warehouse',
   standalone: true,
   imports: [
     TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
-    ExchangeRateNoteComponent,
+    ExchangeRateNoteComponent, RouterLink, AddToCartDialogComponent,
   ],
   templateUrl: './warehouse.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; } .warehouse-shipments { max-height: 16rem; overflow-y: auto; }'],
@@ -65,6 +68,7 @@ export class WarehouseComponent implements OnInit {
   private readonly shipmentService = inject(ShipmentService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly router = inject(Router);
+  readonly cart = inject(CartService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -89,6 +93,7 @@ export class WarehouseComponent implements OnInit {
   singleBusy = signal(false);
   singleError = signal('');
   result = signal<WarehouseChangeDetail | null>(null);
+  addTargets = signal<AddToCartTarget[] | null>(null);
 
   private readonly singleErrorSummary = viewChild<ElementRef<HTMLElement>>('singleErrorSummary');
   private readonly resultHeading = viewChild<ElementRef<HTMLElement>>('resultHeading');
@@ -242,6 +247,19 @@ export class WarehouseComponent implements OnInit {
         this.announcer.announce(message, 'assertive');
       },
     });
+  }
+
+  /** Agrega al carro el cambio de almacén pendiente de pago (M5-01). */
+  addToCart(detail: WarehouseChangeDetail): void {
+    this.addTargets.set([{
+      itemType: 'WarehouseChange',
+      sourceId: detail.id,
+      label: translate('warehouse.single.result.cartLabel', { bl: detail.blNumber }),
+    }]);
+  }
+
+  onAddClosed(): void {
+    this.addTargets.set(null);
   }
 
   newRequest(): void {

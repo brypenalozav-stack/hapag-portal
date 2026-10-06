@@ -2,7 +2,6 @@ import { Page, Route } from '@playwright/test';
 import type { BillOfLading, DemurrageCharge, LocalCharge } from '../../src/app/core/models/bl.model';
 import type { NotificationItem } from '../../src/app/core/models/notification.model';
 import type { Payment } from '../../src/app/core/models/payment.model';
-import type { Receipt } from '../../src/app/core/services/receipt.service';
 import type { PagedResult } from '../../src/app/core/models/admin-user.model';
 import type { ShipmentDetail, ShipmentListItem } from '../../src/app/core/models/shipment.model';
 import type {
@@ -56,6 +55,7 @@ import type {
   TariffSnapshot,
 } from '../../src/app/core/models/tariff.model';
 import { ORGANIZACION_PRUEBA, USUARIO_PRUEBA } from './session';
+import { OpcionesOlaD, SimulacionOlaD } from './ola-d-mocks';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
 export const BL_PRUEBA: BillOfLading = {
@@ -200,23 +200,6 @@ const NOTIFICACIONES: NotificationItem[] = [
     body: 'El acceso sobre HLCU0000001 fue revocado porque se revocó o venció el acceso del que dependía.',
     isRead: false,
     createdAt: '2026-10-04T10:00:00Z',
-  },
-];
-
-const RECIBOS: Receipt[] = [
-  {
-    id: 'r0000000-0000-4000-8000-000000000001',
-    receiptNumber: 'REC-CL-2026-000045',
-    paymentId: PAGOS[0].id,
-    paymentNumber: PAGOS[0].paymentNumber,
-    amount: 2450,
-    taxAmount: 0,
-    totalAmount: 2450,
-    currency: 'USD',
-    clientName: USUARIO_PRUEBA.name,
-    clientTaxId: USUARIO_PRUEBA.taxId,
-    country: 'CL',
-    issuedAt: '2026-09-25T13:15:00Z',
   },
 ];
 
@@ -1496,7 +1479,6 @@ const HISTORIAL_REGLA: InternalChargeRuleChange[] = [
 const RESPUESTAS_OLA_C: Record<string, unknown> = {
   ...Object.fromEntries(Object.entries(CARGOS_OLA_C).map(([bl, c]) => [`charges/${bl}`, c])),
   ...Object.fromEntries(Object.entries(DEMURRAGE_OLA_C).map(([bl, d]) => [`demurrage/${bl}/status`, d])),
-  'organizations/me/commercial-conditions': condiciones({ hasCredit: true, creditDays: 30, creditConcepts: ['LOCAL_CHARGES', 'MHD'], creditValidFrom: '2026-01-01', ipoExcluded: true }),
   'exchange-rates': tipoDeCambio,
   [`warehouse-changes/quote/${BL_PRUEBA.blNumber}`]: COTIZACION_TARIFAS,
   [`warehouse-changes/quote/${BL_CAMBIO_GRATIS}`]: COTIZACION_GRATIS,
@@ -1592,7 +1574,6 @@ const RESPUESTAS: Record<string, RespuestaGet> = {
   'payments/my': PAGOS,
   'notifications/unread-count': { count: NOTIFICACIONES.filter((n) => !n.isRead).length },
   notifications: NOTIFICACIONES,
-  'receipts/my': RECIBOS,
   shipments: buscarEmbarques,
   ...Object.fromEntries(Object.entries(DETALLES).map(([bl, detalle]) => [`shipments/${bl}`, detalle])),
   'organizations/me': ORGANIZACION_PRUEBA,
@@ -1748,14 +1729,20 @@ const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo
 /**
  * Intercepta /api/v1/**: rutas conocidas con datos ficticios; cualquier otra GET responde [].
  * El avance de la solicitud masiva (Ola C) cambia con cada consulta de la página.
+ * Ola D: el carro, los pagos, las facturas y la configuración de pagos los responde una simulación con
+ * estado por página (ola-d-mocks.ts); `opciones` activa el crédito (M5-07), el bloqueo de pagos (M8-07)
+ * o cierres sin respuesta (NF-01).
  */
-export async function simularApi(page: Page): Promise<void> {
+export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promise<void> {
   let consultasLote = 0;
+  const olaD = new SimulacionOlaD(opciones);
   await page.route('**/api/v1/**', async (route: Route) => {
     const request = route.request();
     const url = new URL(request.url());
     const ruta = url.pathname.replace(/^.*\/api\/v1\//, '').replace(/\/$/, '');
     const metodo = request.method();
+
+    if (await olaD.responder(route, ruta, metodo, url)) return;
 
     if (metodo !== 'GET') {
       let escritura: Escritura | undefined = ESCRITURAS[`${metodo} ${ruta}`];

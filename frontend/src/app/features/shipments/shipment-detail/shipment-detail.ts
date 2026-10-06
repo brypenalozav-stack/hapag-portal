@@ -6,6 +6,7 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ShipmentService } from '../../../core/services/shipment.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
+import { CartService } from '../../../core/services/cart.service';
 import { PERMISSIONS } from '../../../core/constants/app.constants';
 import { apiErrorKey } from '../../../core/http/api-error';
 import { SHIPMENT_ACTIONS, ShipmentDetail } from '../../../core/models/shipment.model';
@@ -25,6 +26,7 @@ import { AccessSourceBadgeComponent } from '../../../shared/components/access-so
 import { ShipmentAccessComponent } from '../../access/shipment-access/shipment-access';
 import { GRANT_ERRORS } from '../../access/shared/access-errors';
 import { ChargesPanelComponent } from '../../charges/charges-panel/charges-panel';
+import { AddToCartDialogComponent, AddToCartTarget } from '../../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
 
 /** Orígenes del acceso con los que se muestra la sección "Accesos" del BL. */
 const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
@@ -37,6 +39,7 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
  * autoasociación a un BL visto por acceso abierto (M1-18) con el aviso previo al pago, y la
  * sección "Accesos" del BL (M1-12, M1-16). Ola C: los cargos locales se muestran con las reglas de
  * Nexus aplicadas (exenciones, IPO por crédito, carta FFWW) y la acción que corresponde a cada uno.
+ * Ola D: el flete pendiente se paga desde el carro (M5-01), con el RUT de facturación elegido al agregarlo.
  */
 @Component({
   selector: 'app-shipment-detail',
@@ -44,7 +47,7 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
   imports: [
     RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, CodeLabelPipe,
     StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
-    AccessSourceBadgeComponent, ShipmentAccessComponent, ChargesPanelComponent,
+    AccessSourceBadgeComponent, ShipmentAccessComponent, ChargesPanelComponent, AddToCartDialogComponent,
   ],
   templateUrl: './shipment-detail.html',
   styleUrl: './shipment-detail.scss',
@@ -53,6 +56,7 @@ export class ShipmentDetailComponent implements OnInit {
   private readonly service = inject(ShipmentService);
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
+  readonly cart = inject(CartService);
   private readonly destroyRef = inject(DestroyRef);
 
   blNumber = input.required<string>();
@@ -66,6 +70,7 @@ export class ShipmentDetailComponent implements OnInit {
   /** NF-11: la consulta falló con HTTP 5xx o sin conexión. */
   loadFailed = signal(false);
 
+  addTargets = signal<AddToCartTarget[] | null>(null);
   associating = signal(false);
   associateError = signal('');
 
@@ -98,6 +103,17 @@ export class ShipmentDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+  }
+
+  /** Agrega el flete al carro (M5-01): el servidor valida el permiso, la asociación (M1-18) y la moneda. */
+  addFreightToCart(): void {
+    const s = this.shipment();
+    if (!s) return;
+    this.addTargets.set([{ itemType: 'Freight', sourceId: s.id, label: translate('shipments.detail.freight.cartLabel', { bl: s.blNumber }) }]);
+  }
+
+  onAddClosed(): void {
+    this.addTargets.set(null);
   }
 
   /** Autoasociación (M1-18): el BL queda guardado en el listado de la organización. */

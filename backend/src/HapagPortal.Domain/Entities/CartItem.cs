@@ -40,7 +40,31 @@ public sealed class CartItem : GuidEntity
 
     public Guid AddedByUserId { get; set; }
     public DateTime AddedAt { get; set; }
-    public Guid? LockedByPaymentId { get; set; }
+    public Guid? LockedByPaymentId { get; private set; }
+
+    /// <summary>
+    /// Token de concurrencia optimista: cambia en cada bloqueo, desbloqueo o conversión. Dos cierres
+    /// simultáneos del mismo sub-carro (aunque usen claves de idempotencia distintas) leen el mismo valor;
+    /// solo el primero en guardar bloquea los ítems y el otro recibe un conflicto (NF-01).
+    /// </summary>
+    public Guid ConcurrencyStamp { get; private set; } = Guid.NewGuid();
 
     public Cart Cart { get; set; } = null!;
+
+    /// <summary>El ítem queda reservado para el pago en curso (no se puede quitar ni convertir).</summary>
+    public void LockFor(Guid paymentId)
+    {
+        LockedByPaymentId = paymentId;
+        Touch();
+    }
+
+    /// <summary>El pago falló o se anuló: el ítem vuelve a estar disponible en el carro.</summary>
+    public void Unlock()
+    {
+        LockedByPaymentId = null;
+        Touch();
+    }
+
+    /// <summary>Renueva el token de concurrencia tras modificar el ítem.</summary>
+    public void Touch() => ConcurrencyStamp = Guid.NewGuid();
 }

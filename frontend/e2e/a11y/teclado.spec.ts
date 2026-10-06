@@ -74,8 +74,9 @@ for (const ruta of [
   '/shipments',
   `/shipments/${BL_PRUEBA.blNumber}`,
   '/organization',
-  '/payments',
-  '/receipts',
+  '/payment-history',
+  '/invoices',
+  '/cart',
 ]) {
   test(`cada th de cabecera tiene scope y cada tabla tiene caption [${ruta}]`, async ({ page }) => {
     await abrir(page, ruta);

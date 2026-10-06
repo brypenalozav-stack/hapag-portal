@@ -177,6 +177,6 @@ public static class PaymentLifecycle
             .ToListAsync(cancellationToken);
 
         foreach (var item in items)
-            item.LockedByPaymentId = null;
+            item.Unlock();
     }
 }

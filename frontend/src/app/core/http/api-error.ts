@@ -18,3 +18,10 @@ export function apiErrorKey(err: unknown, known: Record<string, string>, fallbac
   const code = apiErrorCode(err);
   return (code && known[code]) || fallback;
 }
+
+/** Detalle (`detail`) de un ProblemDetails del backend; null si no viene. */
+export function apiErrorDetail(err: unknown): string | null {
+  if (!(err instanceof HttpErrorResponse)) return null;
+  const detail = (err.error as { detail?: unknown } | null)?.detail;
+  return typeof detail === 'string' && detail.trim() !== '' ? detail : null;
+}

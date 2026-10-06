@@ -64,13 +64,18 @@ export const ORGANIZACION_ADMIN: OrganizationSummary = {
   canOperate: true,
 };
 
-/** Permisos internos de la Ola A (M8-04, M8-06, M1-11) y los mantenedores de la Ola C (M8-01). */
+/**
+ * Permisos internos de la Ola A (M8-04, M8-06, M1-11), los mantenedores de la Ola C (M8-01) y, en la
+ * Ola D, el bloqueo de pagos (M8-07) y las herramientas de Finanzas (M5-02, NF-03, NF-04).
+ */
 export const PERMISOS_ADMIN = [
   'shipments.view-all',
   'organizations.review',
   'organizations.ar-check',
   'access-matrix.manage',
   'maintainers.manage',
+  'payment-blocks.manage',
+  'payments.finance',
 ];
 
 export type Idioma = 'es' | 'en';

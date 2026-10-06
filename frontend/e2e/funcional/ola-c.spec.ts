@@ -19,6 +19,7 @@ import { sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
  * Fase 1, Ola C (pruebas funcionales con el backend simulado):
  * - M4-01 / M4-02: con todos los cargos exentos según Nexus, "Aplicar reglas" completa el proceso
  *   sin pasar por el carro, con la trazabilidad a la condición de Nexus.
+ * (Agregar al carro y pagar se prueban con el carro real de la Ola D en ola-d.spec.ts.)
  * - M4-03 / M8-02: el IPO no aparece para un pagador con crédito.
  * - M4-04 / M8-03: la carta de responsabilidad FFWW bloquea las acciones.
  * - NF-11: con Nexus caído no se muestran cargos como definitivos.
@@ -68,8 +69,8 @@ test('con todo exento según Nexus, aplicar reglas completa el proceso sin carro
   await expect(page.locator(POLITE)).toHaveText(confirmacion);
   await expect(gateIn).toContainText('Aplicada el');
   await expect(page.getByRole('button', { name: 'Aplicar exenciones y completar' })).toHaveCount(0);
-  // Nada quedó guardado para el carro (M4-02: sin boleta de valor cero).
-  expect(await page.evaluate(() => sessionStorage.getItem('hl_cart_intent'))).toBeNull();
+  // Nada se agregó al carro (M4-02: sin boleta de valor cero): sigue con los 3 ítems iniciales.
+  await expect(page.getByRole('link', { name: 'Carro de compra, 3 ítems' })).toBeVisible();
 });
 
 test('el IPO no aparece para un pagador con crédito y sí para uno sin crédito (M4-03, M8-02)', async ({ page }) => {
@@ -110,23 +111,14 @@ test('con Nexus caído no se muestran cargos como definitivos (NF-11)', async ({
   await expect(page.locator('app-charges-panel table')).toHaveCount(0);
 });
 
-test('agregar al carro solo guarda la intención para la Ola D', async ({ page }) => {
-  await abrirConSesion(page, `/charges/${BL_PRUEBA.blNumber}`);
-
-  await page.getByRole('button', { name: 'Agregar IPO al carro' }).click();
-  await expect(page.locator(POLITE)).toHaveText('IPO quedó guardado para el carro de compra.');
-  await expect(page.locator('app-charges-panel table tbody tr').filter({ hasText: 'IPO' })).toContainText('Guardado para el carro');
-  const guardado = JSON.parse((await page.evaluate(() => sessionStorage.getItem('hl_cart_intent'))) ?? '[]');
-  expect(guardado).toEqual([expect.objectContaining({ conceptCode: 'IPO', amount: 150, currency: 'USD', blNumber: BL_PRUEBA.blNumber })]);
-});
-
 test('con factura de demurrage emitida no hay calculadora; sin cálculo sí (M3-18)', async ({ page }) => {
   await abrirConSesion(page, `/demurrage/${BL_DEM_FACTURADO}`);
 
   await expect(page.getByTestId('demurrage-state')).toHaveText('Estado: Facturado con deuda vigente');
   const facturas = page.getByRole('table', { name: 'Facturas de demurrage con deuda vigente' });
   await expect(facturas.getByRole('row').filter({ hasText: 'FAC-DEM-2026-0915' })).toContainText('CLP');
-  await expect(page.getByRole('link', { name: 'Pagar factura' })).toBeVisible();
+  // Ola D: la factura se paga desde el carro (botón que abre el diálogo de agregar).
+  await expect(page.getByRole('button', { name: 'Pagar factura FAC-DEM-2026-0915' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Calcular demurrage' })).toHaveCount(0);
   await expect(page.locator('app-demurrage-calculator')).toHaveCount(0);
   await expect(page.getByTestId('demurrage-calculator-blocked')).toBeVisible();
@@ -158,8 +150,12 @@ test('demoras anticipadas de Bolivia: CLD bloqueado, tipo de cambio y cargo para
   await page.getByRole('button', { name: 'Generar cargo de demoras anticipadas' }).click();
   await envio;
   await expect(page.locator(POLITE)).toHaveText('Se generó el cargo de demoras anticipadas.');
+  // Ola D: el cargo se agrega al carro con su RUT de facturación y moneda de pago (M5-09, M5-04).
   await page.getByRole('button', { name: 'Agregar demoras anticipadas al carro' }).click();
-  await expect(page.locator(POLITE)).toHaveText('Demoras anticipadas quedó guardado para el carro de compra.');
+  const dialogo = page.getByRole('dialog', { name: 'Agregar al carro' });
+  await expect(dialogo.getByLabel('Moneda de pago (obligatorio)')).toHaveValue('USD');
+  await dialogo.getByRole('button', { name: 'Agregar al carro' }).click();
+  await expect(page.locator(POLITE)).toHaveText('Demoras anticipadas se agregó al carro en USD.');
 });
 
 test('el cambio de almacén gratuito se completa sin cobro (M3-04)', async ({ page }) => {
@@ -321,7 +317,10 @@ test('reglas internas: alta con RUT o Match Code obligatorio e historial (M3-04,
 });
 
 test('Mi organización muestra el crédito y la condición FFWW leídos de Nexus (M8-02, M8-03)', async ({ page }) => {
-  await abrirConSesion(page, '/organization');
+  await simularApi(page, { credito: true });
+  await sembrarSesion(page, { lang: 'es' });
+  await page.goto('/organization');
+  await expect(page.locator('app-loading-spinner')).toHaveCount(0);
 
   const seccion = page.getByRole('region', { name: 'Condiciones comerciales (Nexus)' });
   await expect(seccion.getByTestId('commercial-conditions-credit')).toHaveText('Con crédito a 30 días');

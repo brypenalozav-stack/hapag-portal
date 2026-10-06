@@ -8,6 +8,7 @@ import { LocaleService } from '../../../core/services/locale.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-navbar',
@@ -20,6 +21,8 @@ export class NavbarComponent implements OnInit {
   readonly auth = inject(AuthService);
   readonly notifications = inject(NotificationService);
   readonly locale = inject(LocaleService);
+  /** Carro de compra (M5-01) o, para clientes con crédito, pago desde la cuenta (M5-07). */
+  readonly cart = inject(CartService);
   private readonly organizations = inject(OrganizationService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);

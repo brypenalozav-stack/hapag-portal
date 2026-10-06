@@ -46,6 +46,10 @@ internal sealed class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
         builder.Property(e => e.BillingTaxId).HasMaxLength(20).IsRequired();
         builder.Property(e => e.BillingName).HasMaxLength(200).IsRequired();
 
+        // Concurrencia optimista (NF-01): dos cierres simultáneos del mismo sub-carro con claves distintas
+        // no pueden bloquear los mismos ítems; el UPDATE del segundo no encuentra el token leído y falla.
+        builder.Property(e => e.ConcurrencyStamp).IsConcurrencyToken();
+
         // Un mismo cargo una sola vez por carro (M5-01).
         builder.HasIndex(e => new { e.CartId, e.ItemType, e.SourceId }).IsUnique();
         builder.HasIndex(e => e.LockedByPaymentId);

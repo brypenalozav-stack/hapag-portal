@@ -4,7 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ChargesService } from '../../../core/services/charges.service';
-import { CartIntentService } from '../../../core/services/cart-intent.service';
+import { CartService } from '../../../core/services/cart.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { ProcessRequirement, RuledCharge, ShipmentCharges } from '../../../core/models/charges.model';
 import { apiErrorKey } from '../../../core/http/api-error';
@@ -24,6 +24,7 @@ import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { AddToCartDialogComponent, AddToCartTarget } from '../../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
 
 /** Color del resultado de las reglas con las variantes de .hl-badge. */
 const OUTCOME_CLASS: Record<string, string> = {
@@ -49,21 +50,22 @@ interface ApplyOutcome {
  * - la carta de responsabilidad FFWW bloquea el avance (M4-04, M8-03; su generación es la Ola E);
  * - el monto en moneda local con el tipo de cambio de Nexus (M5-05);
  * - si Nexus no responde, no se presentan los cargos como definitivos (NF-11).
- * "Agregar al carro" solo guarda la intención para el carro de la Ola D.
+ * "Agregar al carro" (Ola D) valida el cargo en el servidor y pide el RUT de facturación y la moneda de
+ * pago (M5-01, M5-09, M5-04); los clientes con crédito pagan desde su cuenta (M5-07).
  */
 @Component({
   selector: 'app-charges-panel',
   standalone: true,
   imports: [
     RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe,
-    LoadingSpinnerComponent, StateMessageComponent,
+    LoadingSpinnerComponent, StateMessageComponent, AddToCartDialogComponent,
   ],
   templateUrl: './charges-panel.html',
   styleUrl: './charges-panel.scss',
 })
 export class ChargesPanelComponent {
   private readonly service = inject(ChargesService);
-  private readonly cart = inject(CartIntentService);
+  readonly cart = inject(CartService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -86,8 +88,8 @@ export class ChargesPanelComponent {
   applying = signal(false);
   applyError = signal('');
   applyOutcome = signal<ApplyOutcome | null>(null);
-  /** Cargos guardados para el carro en esta vista (para mostrar "Guardado para el carro"). */
-  private readonly savedIds = signal<Set<string>>(new Set());
+  /** Cargo que se está agregando al carro (diálogo con RUT de facturación y moneda). */
+  addTargets = signal<AddToCartTarget[] | null>(null);
 
   private readonly outcomeHeading = viewChild<ElementRef<HTMLElement>>('outcomeHeading');
 
@@ -103,11 +105,11 @@ export class ChargesPanelComponent {
       && d.charges.some((c) => c.status === 'Pending' && !!c.exemption && !c.exemption.appliedAt);
   });
 
-  /** Cargos a pagar que se pueden guardar para el carro (acción AddToCart sin bloqueo). */
+  /** Cargos a pagar que se pueden agregar al carro (acción Pagar o AddToCart sin bloqueo). */
   cartableCharges = computed(() => {
     const d = this.data();
     if (!d || !d.canProceed) return [];
-    return d.charges.filter((c) => c.action === 'AddToCart' && !c.actionBlockedReason);
+    return d.charges.filter((c) => (c.action === 'AddToCart' || c.action === 'Pay') && !c.actionBlockedReason);
   });
 
   constructor() {
@@ -176,25 +178,17 @@ export class ChargesPanelComponent {
     });
   }
 
-  /** Guarda el cargo para el carro de la Ola D; aquí no se arma el carro ni se paga. */
+  /** Abre el diálogo para agregar el cargo al carro (M5-01, M5-09). */
   addToCart(charge: RuledCharge): void {
-    const d = this.data();
-    if (!d) return;
-    this.cart.add([
-      {
-        chargeId: charge.chargeId,
-        blNumber: d.blNumber,
-        conceptCode: charge.conceptCode,
-        amount: charge.payableTotal,
-        currency: charge.currency,
-      },
-    ]);
-    this.savedIds.update((ids) => new Set(ids).add(charge.chargeId));
-    this.announcer.announce(translate('charges.panel.cart.saved', { concept: this.conceptLabel(charge) }));
+    this.addTargets.set([{ itemType: 'LocalCharge', sourceId: charge.chargeId, label: this.conceptLabel(charge) }]);
+  }
+
+  onAddClosed(): void {
+    this.addTargets.set(null);
   }
 
   isSaved(charge: RuledCharge): boolean {
-    return this.savedIds().has(charge.chargeId) || this.cart.has(charge.chargeId);
+    return this.cart.contains('LocalCharge', charge.chargeId);
   }
 
   outcomeClass(outcome: string): string {

@@ -324,7 +324,28 @@ internal static class CartConversion
         item.ExchangeRate = converted ? quote.Value.Rate : null;
         item.RateEffectiveDate = converted ? quote.Value.EffectiveDate : null;
         item.RateSource = converted ? quote.Value.Source : null;
+        item.Touch();
         return Result.Success();
+    }
+}
+
+/// <summary>
+/// Guardado de cambios sobre ítems del carro: si un cierre los bloqueó (o los cambió) entre la lectura y el
+/// guardado, el token de concurrencia del ítem lo detecta y se responde un conflicto en lugar de un error 500.
+/// </summary>
+internal static class CartConcurrency
+{
+    public static async Task<Result> SaveAsync(IApplicationDbContext dbContext, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return Result.Success();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Result.Failure(DomainErrors.Cart.Conflict);
+        }
     }
 }
 
@@ -353,7 +374,9 @@ public sealed class RemoveCartItemCommandHandler(
             return Result<CartDto>.Failure(DomainErrors.Cart.ItemLocked);
 
         dbContext.CartItems.Remove(item);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        var saved = await CartConcurrency.SaveAsync(dbContext, cancellationToken);
+        if (saved.IsFailure)
+            return Result<CartDto>.Failure(saved.Error);
 
         return Result<CartDto>.Success(await viewBuilder.BuildAsync(cart, organizationId, cancellationToken));
     }
@@ -393,7 +416,10 @@ public sealed class ChangeCartItemCurrencyCommandHandler(
         if (conversion.IsFailure)
             return Result<CartDto>.Failure(conversion.Error);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        var saved = await CartConcurrency.SaveAsync(dbContext, cancellationToken);
+        if (saved.IsFailure)
+            return Result<CartDto>.Failure(saved.Error);
+
         return Result<CartDto>.Success(await viewBuilder.BuildAsync(cart, organizationId, cancellationToken));
     }
 }
@@ -427,7 +453,10 @@ public sealed class ClearCartCommandHandler(
         foreach (var item in items)
             dbContext.CartItems.Remove(item);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        var saved = await CartConcurrency.SaveAsync(dbContext, cancellationToken);
+        if (saved.IsFailure)
+            return Result<CartDto>.Failure(saved.Error);
+
         return Result<CartDto>.Success(await viewBuilder.BuildAsync(cart, organizationId, cancellationToken));
     }
 }

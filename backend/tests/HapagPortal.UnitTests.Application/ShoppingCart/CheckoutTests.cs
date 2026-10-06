@@ -62,6 +62,8 @@ public sealed class CheckoutTests
         payment.PayerTaxId.Should().Be(OwnTaxId);
         payment.CreatedByUserId.Should().Be(_f.Owner.User.Id);
         payment.ExternalReference.Should().Be(payment.PaymentNumber);
+        payment.OnBehalfOfClientId.Should().BeNull();
+        payment.AccessGrantId.Should().BeNull();
         payment.ProviderReference.Should().Be($"PRV-{payment.PaymentNumber}");
         _f.Db.PaymentDetailList.Select(d => (d.ConceptType, d.SourceId, d.BillingTaxId)).Should().BeEquivalentTo(new[]
         {
@@ -106,6 +108,73 @@ public sealed class CheckoutTests
 
         other.Error.Code.Should().Be("PaymentIdempotency.AlreadyExists");
         _f.Db.PaymentList.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task ConcurrentCheckout_WithAnotherKey_ShouldConflict_WithoutCallingThePlatform()
+    {
+        await FillCartAsync();
+        var stamps = _f.Db.CartItemList.ToDictionary(i => i.Id, i => i.ConcurrencyStamp);
+        // Otra solicitud (con otra clave) bloqueó los mismos ítems entre la lectura y el guardado: el UPDATE
+        // con el token leído no encuentra la fila y EF lanza DbUpdateConcurrencyException.
+        _f.Db.NextSaveChangesException = new Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException("0 rows affected");
+
+        var result = await CheckoutAsync(key: "key-concurrent");
+
+        result.Error.Code.Should().Be("Cart.Conflict");
+        _f.Khipu.Requests.Should().BeEmpty();
+        // En memoria el cierre ya había intentado bloquear los ítems con un token nuevo (la base lo revierte).
+        _f.Db.CartItemList.Where(i => i.PaymentCurrency == "CLP")
+            .Should().OnlyContain(i => i.ConcurrencyStamp != stamps[i.Id]);
+    }
+
+    [Fact]
+    public async Task Checkout_ShouldRenewTheConcurrencyStampOfTheLockedItems()
+    {
+        await FillCartAsync();
+        var usd = _f.Db.CartItemList.Single(i => i.PaymentCurrency == "USD");
+        var stamps = _f.Db.CartItemList.ToDictionary(i => i.Id, i => i.ConcurrencyStamp);
+
+        (await CheckoutAsync()).IsSuccess.Should().BeTrue();
+
+        _f.Db.CartItemList.Where(i => i.PaymentCurrency == "CLP").Should().OnlyContain(i => i.ConcurrencyStamp != stamps[i.Id]);
+        usd.ConcurrencyStamp.Should().Be(stamps[usd.Id]);
+    }
+
+    [Fact]
+    public async Task RemovingAnItemLockedConcurrently_ShouldConflict_InsteadOfFailingTheRequest()
+    {
+        await FillCartAsync();
+        var item = _f.Db.CartItemList.First();
+        _f.Db.NextSaveChangesException = new Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException("0 rows affected");
+        var resolver = _f.Resolver(_f.Owner);
+
+        var result = await new RemoveCartItemCommandHandler(_f.Db, _f.Owner.CurrentUser, resolver, new CartViewBuilder(_f.Db, resolver))
+            .Handle(new RemoveCartItemCommand(item.Id), CancellationToken.None);
+
+        result.Error.Code.Should().Be("Cart.Conflict");
+    }
+
+    [Fact]
+    public async Task MandateCheckout_ShouldIdentifyTheMandatorAndTheMandatary()
+    {
+        var bl = _f.Rules.OwnBl("BL-MANDATE-PAY");
+        var charge = _f.Rules.AddCharge(bl, ChargeConceptCodes.Thc, 185000m);
+        var agency = _f.NewActor(OrganizationTypes.FreightForwarder);
+        var grant = ThirdPartyTestData.AddGrant(_f.Db, _f.Owner.Organization, agency.Organization, bl,
+            [ShipmentActionCodes.ViewShipment, ShipmentActionCodes.PayMandatoryLocalCharges], isMandate: true);
+        (await _f.Add(agency).Handle(
+            new AddCartItemCommand(PayableItemTypes.LocalCharge, charge.Id, null, OwnTaxId, null), CancellationToken.None))
+            .IsSuccess.Should().BeTrue();
+
+        var result = await _f.CheckoutCart(agency).Handle(
+            new CheckoutCartCommand(CountryCodes.Chile, "CLP", PaymentMethodCodes.Khipu, "key-mandate"), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        var payment = _f.Db.PaymentList.Single();
+        payment.ClientId.Should().Be(agency.Organization.Id);              // mandatario que ejecutó
+        payment.OnBehalfOfClientId.Should().Be(_f.Owner.Organization.Id);  // mandante (NF-14)
+        payment.AccessGrantId.Should().Be(grant.Id);
     }
 
     [Fact]

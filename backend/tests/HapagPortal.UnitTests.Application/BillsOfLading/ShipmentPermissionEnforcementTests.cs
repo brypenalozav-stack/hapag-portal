@@ -6,11 +6,9 @@ using HapagPortal.Application.BillsOfLading.Read.GetByNumber;
 using HapagPortal.Application.BillsOfLading.Read.GetMyBLs;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Demurrage.Read.GetByBL;
-using HapagPortal.Application.Payments.Create;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
-using NSubstitute;
 
 /// <summary>La matriz de M1-11 se aplica en el servidor en todas las consultas por BL (NF-05).</summary>
 public sealed class ShipmentPermissionEnforcementTests
@@ -88,38 +86,6 @@ public sealed class ShipmentPermissionEnforcementTests
             .Handle(new GetDemurrageByBLQuery("BL-FOREIGN"), CancellationToken.None);
 
         result.Error.Code.Should().Be("BillOfLading.NotFound");
-    }
-
-    [Fact]
-    public async Task CreatePayment_ShipperFreight_ShouldBeForbidden()
-    {
-        var bl = AccessTestData.AddBl(_db, AccessTestData.AddOrganization(_db).Id, "BL-SHIP");
-        AccessTestData.AddRole(_db, bl, _org, ShipmentRoleCodes.Shipper);
-        var gateway = Substitute.For<IPaymentGatewayService>();
-        var handler = new CreatePaymentCommandHandler(_db, gateway, _currentUser, _evaluator);
-
-        var result = await handler.Handle(
-            new CreatePaymentCommand(bl.Id, "Freight", "Cash", null, null, "CL"), CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be("Error.Forbidden");
-        _db.PaymentList.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task CreatePayment_ViewerProfile_ShouldBeForbidden()
-    {
-        var viewer = AccessTestData.AddMember(_db, _org, profile: RoleCodes.OrgViewer);
-        var viewerUser = AccessTestData.CurrentUser(viewer); // sin shipments.operate
-        var bl = AccessTestData.AddBl(_db, _org.Id, "BL-OWN");
-        var handler = new CreatePaymentCommandHandler(
-            _db, Substitute.For<IPaymentGatewayService>(), viewerUser, AccessTestData.Evaluator(_db, viewerUser));
-
-        var result = await handler.Handle(
-            new CreatePaymentCommand(bl.Id, "Freight", "Cash", null, null, "CL"), CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be("Error.Forbidden");
     }
 
     [Fact]

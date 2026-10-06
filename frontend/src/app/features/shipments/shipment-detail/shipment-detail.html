@@ -128,9 +128,13 @@
         <span class="fs-5 fw-bold">{{ freight.amount | hlCurrency: freight.currency }}</span>
         <app-status-badge [status]="freight.status" />
         @if (canPayFreight() && freight.status.toUpperCase() === 'PENDING') {
-          <a [routerLink]="['/payments/new', s.id]" [queryParams]="{ type: 'FREIGHT' }" class="btn btn-hl-orange ms-auto">
-            {{ 'shipments.detail.freight.pay' | transloco }}
-          </a>
+          @if (cart.contains('Freight', s.id)) {
+            <span class="small fw-semibold ms-auto">{{ 'shipments.detail.freight.inCart' | transloco }}</span>
+          } @else if (cart.accountPaymentsEnabled()) {
+            <a routerLink="/account-payments" class="btn btn-outline-secondary ms-auto">{{ 'shipments.detail.freight.accountPayments' | transloco }}</a>
+          } @else if (cart.cartEnabled()) {
+            <button type="button" class="btn btn-hl-orange ms-auto" (click)="addFreightToCart()">{{ 'shipments.detail.freight.addToCart' | transloco }}</button>
+          }
         }
       </div>
     </section>
@@ -274,4 +278,8 @@
       </a>
     </section>
   }
+}
+
+@if (addTargets(); as targets) {
+  <app-add-to-cart-dialog [targets]="targets" (closed)="onAddClosed()" />
 }

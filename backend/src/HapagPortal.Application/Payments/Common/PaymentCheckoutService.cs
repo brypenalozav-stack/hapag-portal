@@ -162,7 +162,7 @@ public sealed class PaymentCheckoutService(
             }
 
             if (line.CartItem is not null)
-                line.CartItem.LockedByPaymentId = payment.Id;
+                line.CartItem.LockFor(payment.Id);
         }
 
         payment.Amount = details.Sum(d => d.Amount);
@@ -191,6 +191,12 @@ public sealed class PaymentCheckoutService(
         {
             // NF-12: el pago existe con estado claro antes de hablar con la plataforma.
             await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Otro cierre (con otra clave) bloqueó o cambió los mismos ítems entre la lectura y el guardado:
+            // el token de concurrencia del ítem lo detecta, este pago no se crea y no se llama a la plataforma.
+            return Result<CheckoutResultDto>.Failure(DomainErrors.Cart.Conflict);
         }
         catch (DbUpdateException)
         {

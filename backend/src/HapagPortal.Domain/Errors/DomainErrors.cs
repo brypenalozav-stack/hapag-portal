@@ -137,6 +137,13 @@ public static class DomainErrors
         public static readonly Error ItemLocked =
             new("Cart.ItemLocked", "The item belongs to a payment in progress and cannot be changed.");
 
+        /// <summary>
+        /// Otro cierre bloqueó o cambió los mismos ítems al mismo tiempo (concurrencia optimista): no se cobró
+        /// nada en esta solicitud. Revisar el historial de pagos y recargar el carro.
+        /// </summary>
+        public static readonly Error Conflict =
+            new("Cart.Conflict", "The cart items were locked or changed by another payment request at the same time. Nothing was charged by this request: reload the cart and check your payment history.");
+
         public static Error InvalidItem(string blOrConcept, Error inner) =>
             new(inner.Code, $"{blOrConcept}: {inner.Message}");
     }

@@ -216,6 +216,8 @@ export const CHARGE_CONCEPT_KEYS: Record<string, string> = {
   ADVANCE_DEMURRAGE_BO: 'common.chargeConcept.advanceDemurrageBo',
   WAREHOUSE_CHANGE: 'common.chargeConcept.warehouseChange',
   LATE_ARRIVAL: 'common.chargeConcept.lateArrival',
+  FREIGHT: 'common.chargeConcept.freight',
+  INVOICE: 'common.chargeConcept.invoice',
 };
 
 /** Resultado de las reglas sobre un cargo (M4-01 a M4-03). */
@@ -351,4 +353,168 @@ export const CHARGE_ERRORS: Record<string, string> = {
   'ExchangeRate.NotFound': 'common.chargeErrors.exchangeRateNotFound',
   'ExchangeRate.NotApproved': 'common.chargeErrors.exchangeRateNotApproved',
   'Error.Forbidden': 'common.chargeErrors.forbidden',
+};
+
+// ---------------------------------------------------------------------------
+// Fase 1, Ola D: carro, pagos, facturas, historial y configuración de pagos.
+// ---------------------------------------------------------------------------
+
+/** Tipo de servicio de un ítem del carro o de un pago (M5-01). */
+export const PAYABLE_ITEM_TYPE_KEYS: Record<string, string> = {
+  LocalCharge: 'common.payableItemType.localCharge',
+  Freight: 'common.payableItemType.freight',
+  Demurrage: 'common.payableItemType.demurrage',
+  WarehouseChange: 'common.payableItemType.warehouseChange',
+  Invoice: 'common.payableItemType.invoice',
+};
+
+/** Estado único de un pago (NF-02). */
+export const PAYMENT_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.paymentStatus.pending',
+  Processing: 'common.paymentStatus.processing',
+  PendingVerification: 'common.paymentStatus.pendingVerification',
+  Confirmed: 'common.paymentStatus.confirmed',
+  Failed: 'common.paymentStatus.failed',
+  Cancelled: 'common.paymentStatus.cancelled',
+};
+
+/** Variante de .hl-badge por estado de pago (el texto acompaña siempre al color). */
+export const PAYMENT_STATUS_CLASS: Record<string, string> = {
+  Pending: 'hl-badge--pending',
+  Processing: 'hl-badge--processing',
+  PendingVerification: 'hl-badge--processing',
+  Confirmed: 'hl-badge--confirmed',
+  Failed: 'hl-badge--failed',
+  Cancelled: 'hl-badge--failed',
+};
+
+export const PAYMENT_ORIGIN_KEYS: Record<string, string> = {
+  Cart: 'common.paymentOrigin.cart',
+  Account: 'common.paymentOrigin.account',
+  Legacy: 'common.paymentOrigin.legacy',
+};
+
+/** Motivo de un pago fallido (NF-12). */
+export const PAYMENT_FAILURE_REASON_KEYS: Record<string, string> = {
+  PROVIDER_UNAVAILABLE: 'common.paymentFailureReason.providerUnavailable',
+  PROVIDER_REJECTED: 'common.paymentFailureReason.providerRejected',
+};
+
+/** Por qué el cliente no puede anular un pago (M5-02). */
+export const CANCEL_DENIED_REASON_KEYS: Record<string, string> = {
+  SLIP_ISSUED: 'common.cancelDeniedReason.slipIssued',
+  IN_PROGRESS: 'common.cancelDeniedReason.inProgress',
+  FINAL: 'common.cancelDeniedReason.final',
+};
+
+export const PAYMENT_METHOD_KIND_KEYS: Record<string, string> = {
+  Online: 'common.paymentMethodKind.online',
+  Deposit: 'common.paymentMethodKind.deposit',
+};
+
+/** Origen de un RUT de facturación habilitado (M5-09). */
+export const BILLING_OPTION_SOURCE_KEYS: Record<string, string> = {
+  Own: 'common.billingOptionSource.own',
+  Grant: 'common.billingOptionSource.grant',
+  Invoice: 'common.billingOptionSource.invoice',
+};
+
+export const INVOICE_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.invoiceStatus.pending',
+  Overdue: 'common.invoiceStatus.overdue',
+  Paid: 'common.invoiceStatus.paid',
+  Cancelled: 'common.invoiceStatus.cancelled',
+};
+
+export const INVOICE_STATUS_CLASS: Record<string, string> = {
+  Pending: 'hl-badge--pending',
+  Overdue: 'hl-badge--failed',
+  Paid: 'hl-badge--confirmed',
+  Cancelled: 'hl-badge--processing',
+};
+
+export const INVOICE_DOCUMENT_TYPE_KEYS: Record<string, string> = {
+  Invoice: 'common.invoiceDocumentType.invoice',
+  ExemptInvoice: 'common.invoiceDocumentType.exemptInvoice',
+  CreditNote: 'common.invoiceDocumentType.creditNote',
+  DebitNote: 'common.invoiceDocumentType.debitNote',
+};
+
+/** Estado de una ventana de bloqueo de pagos (M8-07). */
+export const BLOCK_WINDOW_STATUS_KEYS: Record<string, string> = {
+  Scheduled: 'common.blockWindowStatus.scheduled',
+  Active: 'common.blockWindowStatus.active',
+  Ended: 'common.blockWindowStatus.ended',
+  Cancelled: 'common.blockWindowStatus.cancelled',
+};
+
+/** Paso posterior a la confirmación y su estado en la cola recuperable (NF-03). */
+export const PAYMENT_OPERATION_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.paymentOperationStatus.pending',
+  Succeeded: 'common.paymentOperationStatus.succeeded',
+  Stuck: 'common.paymentOperationStatus.stuck',
+};
+
+export const PAYMENT_OPERATION_JOB_KEYS: Record<string, string> = {
+  Release: 'common.paymentOperationJob.release',
+  Notify: 'common.paymentOperationJob.notify',
+};
+
+/** Estado de conciliación de un pago (NF-04). */
+export const RECONCILIATION_STATUS_KEYS: Record<string, string> = {
+  Matched: 'common.reconciliationStatus.matched',
+  MissingReceipt: 'common.reconciliationStatus.missingReceipt',
+  MissingTransactionReference: 'common.reconciliationStatus.missingTransactionReference',
+  NotSettled: 'common.reconciliationStatus.notSettled',
+};
+
+/**
+ * Códigos de error del backend de la Ola D → claves Transloco. Incluye los de la Ola C que pueden
+ * llegar al agregar o pagar (Nexus caído, tipo de cambio). Los textos del servidor vienen en inglés.
+ */
+export const PAYMENT_ERRORS: Record<string, string> = {
+  'Error.Forbidden': 'common.paymentErrors.forbidden',
+  'ChargeRules.ConditionsUnavailable': 'common.paymentErrors.conditionsUnavailable',
+  'Cart.CreditCustomer': 'common.paymentErrors.creditCustomer',
+  'PayableItem.NotFound': 'common.paymentErrors.itemNotFound',
+  'Cart.AssociationRequired': 'common.paymentErrors.associationRequired',
+  'Cart.ResponsibilityLetterRequired': 'common.paymentErrors.responsibilityLetterRequired',
+  'Cart.AlreadyPaid': 'common.paymentErrors.alreadyPaid',
+  'Cart.ZeroValue': 'common.paymentErrors.zeroValue',
+  'Cart.NotPayable': 'common.paymentErrors.notPayable',
+  'Cart.PayDemurrageInvoice': 'common.paymentErrors.payDemurrageInvoice',
+  'Cart.ItemInPayment': 'common.paymentErrors.itemInPayment',
+  'Cart.NoPaymentCurrency': 'common.paymentErrors.noPaymentCurrency',
+  'Cart.CurrencyNotAllowed': 'common.paymentErrors.currencyNotAllowed',
+  'Cart.BillingTaxIdNotAllowed': 'common.paymentErrors.billingTaxIdNotAllowed',
+  'CartItem.AlreadyExists': 'common.paymentErrors.duplicate',
+  'CartItem.NotFound': 'common.paymentErrors.cartItemNotFound',
+  'Cart.ItemLocked': 'common.paymentErrors.itemLocked',
+  'Cart.Empty': 'common.paymentErrors.empty',
+  'Cart.Conflict': 'common.paymentErrors.conflict',
+  'ExchangeRate.NotFound': 'common.paymentErrors.exchangeRateNotFound',
+  'ExchangeRate.NotApproved': 'common.paymentErrors.exchangeRateNotApproved',
+  'Payment.Blocked': 'common.paymentErrors.blocked',
+  'PaymentMethod.NotAvailable': 'common.paymentErrors.methodNotAvailable',
+  'Payment.ProviderUnavailable': 'common.paymentErrors.providerUnavailable',
+  'PaymentIdempotency.AlreadyExists': 'common.paymentErrors.idempotencyConflict',
+  'Payment.SlipAlreadyIssued': 'common.paymentErrors.slipAlreadyIssued',
+  'Payment.InProgress': 'common.paymentErrors.inProgress',
+  'Payment.AlreadyConfirmed': 'common.paymentErrors.alreadyConfirmed',
+  'Payment.AlreadyCancelled': 'common.paymentErrors.alreadyCancelled',
+  'Payment.NotFound': 'common.paymentErrors.paymentNotFound',
+  'Payment.ReceiptNotAvailable': 'common.paymentErrors.receiptNotAvailable',
+  'AccountPayment.NotCreditCustomer': 'common.paymentErrors.notCreditCustomer',
+  'AccountPayment.MixedCountries': 'common.paymentErrors.mixedCountries',
+  'Invoice.PdfNotAvailable': 'common.paymentErrors.pdfNotAvailable',
+  'Invoice.FolioRequired': 'common.paymentErrors.folioRequired',
+  'Integration.Unavailable': 'common.paymentErrors.sourceUnavailable',
+  'PaymentMethod.ProviderRequired': 'common.paymentErrors.providerRequired',
+  'PaymentMethod.AlreadyExists': 'common.paymentErrors.methodExists',
+  'PaymentBlockWindow.AlreadyEnded': 'common.paymentErrors.windowEnded',
+  'PaymentBlockWindow.AlreadyStarted': 'common.paymentErrors.windowStarted',
+  'PaymentOperation.NotRetryable': 'common.paymentErrors.operationNotRetryable',
+  'Payment.InvalidTransition': 'common.paymentErrors.invalidTransition',
+  'Payment.NotDeposit': 'common.paymentErrors.notDeposit',
+  'Invoice.NotFound': 'common.paymentErrors.invoiceNotFound',
 };

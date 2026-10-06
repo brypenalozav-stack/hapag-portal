@@ -21,6 +21,7 @@ import {
   TARIFA_TRAMOS,
   simularApi,
 } from '../fixtures/api-mocks';
+import { OpcionesOlaD, PAGO } from '../fixtures/ola-d-mocks';
 import { IDIOMAS, Idioma, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
 
 /**
@@ -40,6 +41,10 @@ import { IDIOMAS, Idioma, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } fro
  * caído), demurrage en cada estado de M3-18 y las demoras anticipadas de Bolivia, cotización del
  * cambio de almacén (tarifas y gratuito), avance de la solicitud masiva y, con sesión interna, los
  * mantenedores de tarifas (listado, editor con tramos e historial) y de reglas internas.
+ * Fase 1, Ola D: carro con dos monedas, diálogo de agregar al carro, confirmación del pago, carro con
+ * los pagos bloqueados, estados del resultado del pago, pago desde la cuenta (crédito), facturas,
+ * historial de pagos y su detalle y, con sesión interna, los mantenedores de monedas, medios y bloqueos
+ * de pago y las herramientas de Finanzas. El listado de pagos y el pago por BL anteriores se retiraron.
  */
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -69,7 +74,23 @@ function pestanaAccesos(id: string): (page: Page) => Promise<void> {
   };
 }
 
-const PANTALLAS: { id: string; ruta: string; sesion: Sesion; preparar?: (page: Page) => Promise<void> }[] = [
+/** Elige el primer medio de pago del carro en CLP y abre la confirmación (M5-03, WCAG 3.3.4). */
+async function confirmarCarro(page: Page): Promise<void> {
+  const grupo = page.getByTestId('cart-group-CL-CLP');
+  await grupo.locator('input[type="radio"]').first().check();
+  await grupo.locator('button.btn-hl-orange').first().click();
+  await expect(page.getByTestId('cart-confirm-pay')).toBeVisible();
+}
+
+/** Abre el historial de la primera fila de un mantenedor de pagos (botón en la posición indicada). */
+function abrirHistorial(titulo: string, boton: number): (page: Page) => Promise<void> {
+  return async (page) => {
+    await page.locator('main table tbody tr').first().locator('button').nth(boton).click();
+    await expect(page.locator(titulo)).toBeFocused();
+  };
+}
+
+const PANTALLAS: { id: string; ruta: string; sesion: Sesion; opciones?: OpcionesOlaD; preparar?: (page: Page) => Promise<void> }[] = [
   { id: 'login', ruta: '/login', sesion: 'ninguna' },
   { id: 'register', ruta: '/register', sesion: 'ninguna' },
   { id: 'register-join', ruta: '/register/join', sesion: 'ninguna' },
@@ -79,8 +100,6 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion; preparar?: (page: P
   { id: 'shipment-detail-export', ruta: `/shipments/${BL_EXPORTACION}`, sesion: 'cliente' },
   { id: 'shipment-detail-no-freight', ruta: `/shipments/${BL_SIN_FLETE}`, sesion: 'cliente' },
   { id: 'organization', ruta: '/organization', sesion: 'cliente' },
-  { id: 'payment-list', ruta: '/payments', sesion: 'cliente' },
-  { id: 'payment-form', ruta: `/payments/new/${BL_PRUEBA.id}`, sesion: 'cliente' },
   { id: 'admin-organizations', ruta: '/admin/organizations', sesion: 'admin' },
   { id: 'admin-organization-review', ruta: `/admin/organizations/${ORGANIZACION_EN_REVISION}`, sesion: 'admin' },
   { id: 'admin-access-matrix', ruta: '/admin/access-matrix', sesion: 'admin' },
@@ -168,10 +187,53 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion; preparar?: (page: P
       await expect(page.locator('form:has(#rule-type) .alert-danger')).toBeFocused();
     },
   },
+  // Ola D
+  { id: 'cart-two-currencies', ruta: '/cart', sesion: 'cliente' },
+  { id: 'cart-confirm', ruta: '/cart', sesion: 'cliente', preparar: confirmarCarro },
+  { id: 'cart-blocked', ruta: '/cart', sesion: 'cliente', opciones: { bloqueo: true } },
+  {
+    id: 'cart-add-dialog',
+    ruta: `/charges/${BL_PRUEBA.blNumber}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.locator('app-charges-panel table tbody tr').filter({ hasText: 'IPO' }).locator('button').click();
+      await expect(page.locator('#add-to-cart-billing')).toBeVisible();
+    },
+  },
+  { id: 'payment-result-confirmed', ruta: `/payments/${PAGO.CONFIRMADO}/result`, sesion: 'cliente' },
+  { id: 'payment-result-failed', ruta: `/payments/${PAGO.FALLIDO}/result`, sesion: 'cliente' },
+  { id: 'payment-result-processing', ruta: `/payments/${PAGO.EN_PROCESO}/result`, sesion: 'cliente' },
+  { id: 'payment-result-slip-issued', ruta: `/payments/${PAGO.BOLETA_EMITIDA}/result`, sesion: 'cliente' },
+  {
+    id: 'account-payments',
+    ruta: '/account-payments',
+    sesion: 'cliente',
+    opciones: { credito: true },
+    preparar: async (page) => {
+      await page.locator('#account-payments-all').check();
+      await expect(page.locator('#account-payments-currency')).toBeVisible();
+    },
+  },
+  { id: 'invoices', ruta: '/invoices', sesion: 'cliente' },
+  { id: 'payment-history', ruta: '/payment-history', sesion: 'cliente' },
+  { id: 'payment-history-detail', ruta: `/payment-history/${PAGO.MANDATO}`, sesion: 'cliente' },
+  { id: 'admin-payment-currencies', ruta: '/admin/payment-currencies', sesion: 'admin', preparar: abrirHistorial('#currencies-history-title', 1) },
+  {
+    id: 'admin-payment-methods',
+    ruta: '/admin/payment-methods',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.locator('.hl-page-header button').click();
+      await page.locator('form:has(#method-code) button[type="submit"]').click();
+      await expect(page.locator('form:has(#method-code) .alert-danger')).toBeFocused();
+    },
+  },
+  { id: 'admin-payment-blocks', ruta: '/admin/payment-blocks', sesion: 'admin', preparar: abrirHistorial('#block-history-title', 2) },
+  { id: 'admin-payments-finance', ruta: '/admin/payments-finance', sesion: 'admin' },
 ];
 
-async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma): Promise<void> {
-  await simularApi(page);
+async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opciones?: OpcionesOlaD): Promise<void> {
+  await simularApi(page, opciones);
   if (sesion === 'cliente') {
     await sembrarSesion(page, { lang });
   } else if (sesion === 'admin') {
@@ -189,7 +251,7 @@ async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma): Pr
 for (const lang of IDIOMAS) {
   for (const p of PANTALLAS) {
     test(`axe: ${p.id} [${lang}]`, async ({ page }) => {
-      await abrir(page, p.ruta, p.sesion, lang);
+      await abrir(page, p.ruta, p.sesion, lang, p.opciones);
       await p.preparar?.(page);
       await expect(page).toHaveURL(new RegExp(`${p.ruta}$`));
       await expect(page.locator('html')).toHaveAttribute('lang', lang);

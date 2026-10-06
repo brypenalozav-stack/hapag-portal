@@ -6,7 +6,6 @@ using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Payments.Commands.Cancel;
 using HapagPortal.Application.Payments.Commands.Confirm;
 using HapagPortal.Application.Payments.Commands.Webhooks;
-using HapagPortal.Application.Payments.Create;
 using HapagPortal.Application.Payments.Read.GetById;
 using HapagPortal.Application.Payments.Read.GetMyPayments;
 using HapagPortal.Domain.Results;
@@ -31,22 +30,6 @@ public sealed class PaymentsControllerTests
         new(Guid.NewGuid(), "PAY-001", "Freight", "CreditCard", 1000m, 190m, 1190m,
             "CLP", "Confirmed", "BL-001", Guid.NewGuid(), Guid.NewGuid(),
             "Test Client", "CL", null, DateTime.UtcNow, null, []);
-
-    [Fact]
-    public async Task Create_Success_ShouldReturnCreatedAtAction()
-    {
-        var command = new CreatePaymentCommand(
-            Guid.NewGuid(), "Freight", "CreditCard", null, null, "CL");
-        var dto = CreatePaymentDto();
-
-        _sender.Send(command, Arg.Any<CancellationToken>())
-            .Returns(Result<PaymentResponseDto>.Success(dto));
-
-        var result = await _controller.Create(command, CancellationToken.None);
-
-        var createdResult = result.Should().BeOfType<CreatedAtActionResult>().Subject;
-        createdResult.Value.Should().Be(dto);
-    }
 
     [Fact]
     public async Task GetById_Success_ShouldReturnOk()

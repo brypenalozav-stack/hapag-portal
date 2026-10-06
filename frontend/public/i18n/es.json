@@ -1,4 +1,59 @@
 {
+  "accountPayments": {
+    "checkout": {
+      "created": "Pago {{ number }} creado.",
+      "error": "No se pudo iniciar el pago. Intente nuevamente.",
+      "sending": "Enviando el pago…",
+      "uncertain": "No pudimos confirmar si el pago se recibió. Reintente: la misma solicitud nunca se cobra dos veces."
+    },
+    "conditions": "{{ name }} ({{ taxId }}): condición de crédito a {{ days }} días según Nexus.",
+    "empty": "No hay cargos ni facturas pendientes.",
+    "errors": {
+      "load": "No se pudieron cargar los pendientes de pago."
+    },
+    "goToCart": "Ir al carro de compra",
+    "items": {
+      "billingEntry": "{{ name }} ({{ taxId }})",
+      "booking": "Booking {{ booking }}",
+      "caption": "Cargos, fletes, demurrage, cambios de almacén y facturas pendientes",
+      "col": {
+        "amount": "Monto",
+        "billing": "Facturación",
+        "reference": "BL o booking",
+        "service": "Servicio"
+      },
+      "evaluatedAt": "Consultado el {{ date }}",
+      "pendingTotal": "Total pendiente en {{ currency }}",
+      "selectAll": "Elegir todos",
+      "selectLabel": "Elegir {{ concept }} {{ bl }}",
+      "title": "Pendientes de pago"
+    },
+    "notCredit": "Su organización no tiene condición de crédito en Nexus: pague desde el carro de compra.",
+    "pay": {
+      "back": "Volver",
+      "confirm": "Confirmar pago",
+      "confirmText": "{count, plural, one {# ítem} other {# ítems}} en {{ currency }} con {{ method }}, en un solo pago.",
+      "confirmTitle": "Confirme el pago",
+      "conversion": "Los montos en otras monedas se convierten a {{ currency }} con el tipo de cambio de Nexus del día.",
+      "currency": "Moneda de pago",
+      "currencyHelp": "Solo las monedas habilitadas para todos los ítems elegidos.",
+      "disabledBlocked": "No se puede pagar mientras los pagos estén suspendidos.",
+      "help": "Elija los ítems, la moneda y el medio de pago. Antes de pagar verá un resumen para confirmar.",
+      "method": "Medio de pago",
+      "methodOption": "{{ name }} ({{ kind }})",
+      "mixedCountries": "Eligió ítems de países distintos: un pago es de un solo país. Desmarque los de otro país.",
+      "noCurrency": "Los ítems elegidos no tienen una moneda de pago en común: páguelos por separado.",
+      "noMethods": "No hay medios de pago habilitados para esta moneda.",
+      "review": "{count, plural, =0 {Revisar y pagar} one {Revisar y pagar # ítem} other {Revisar y pagar # ítems}}",
+      "selection": "{count, plural, =0 {No hay ítems elegidos.} one {# ítem elegido.} other {# ítems elegidos.}}",
+      "title": "Pagar lo elegido",
+      "totals": "Montos elegidos"
+    },
+    "readOnly": "Su perfil es de consulta: puede ver los pendientes, pero no pagar.",
+    "retry": "Reintentar",
+    "subtitle": "Para clientes con condición de crédito: elija los cargos y facturas pendientes y páguelos en un solo pago.",
+    "title": "Pagar desde mi cuenta"
+  },
   "admin": {
     "accessMatrix": {
       "action": {
@@ -275,6 +330,77 @@
       "viewBoard": "Ver tablero",
       "viewRules": "Ver reglas"
     },
+    "finance": {
+      "cancel": {
+        "back": "Volver",
+        "button": "Anular",
+        "buttonLabel": "Anular el pago {{ number }}",
+        "confirm": "Anular pago",
+        "done": "Pago {{ number }} anulado. Los ítems volvieron al carro del cliente.",
+        "error": "No se pudo anular el pago.",
+        "reason": "Motivo de la anulación (obligatorio)",
+        "reasonHelp": "Queda registrado con su usuario, la fecha y el rol Finanzas.",
+        "reasonRequired": "Indique el motivo de la anulación.",
+        "title": "Anular el pago {{ number }}"
+      },
+      "errors": {
+        "load": "No se pudo cargar la información."
+      },
+      "operations": {
+        "attempts": "{{ attempts }} de {{ max }}",
+        "caption": "Operaciones de liberación y aviso",
+        "col": {
+          "actions": "Acciones",
+          "attempts": "Intentos",
+          "error": "Último error",
+          "job": "Operación",
+          "next": "Próximo intento",
+          "payment": "Pago",
+          "status": "Estado"
+        },
+        "defaultStatus": "Detenidas y en reintento",
+        "empty": "No hay operaciones detenidas.",
+        "filters": "Filtro de operaciones",
+        "retried": "Operación del pago {{ number }} reintentada: {{ status }}.",
+        "retry": "Reintentar",
+        "retryError": "No se pudo reintentar la operación.",
+        "retryLabel": "Reintentar {{ job }} del pago {{ number }}",
+        "search": "Buscar",
+        "status": "Estado",
+        "title": "Operaciones posteriores al pago"
+      },
+      "reconciliation": {
+        "all": "Todos",
+        "caption": "Pagos del período con su estado de conciliación",
+        "col": {
+          "actions": "Acciones",
+          "dates": "Fechas",
+          "document": "Comprobante o boleta",
+          "method": "Medio",
+          "payment": "Pago",
+          "reconciliation": "Conciliación",
+          "references": "Referencias",
+          "status": "Estado",
+          "total": "Total"
+        },
+        "confirmed": "Confirmado: {{ date }}",
+        "country": "País",
+        "created": "Creado: {{ date }}",
+        "empty": "No hay pagos en el período.",
+        "external": "Portal: {{ value }}",
+        "filters": "Filtros de conciliación",
+        "from": "Desde",
+        "payer": "{{ country }}, pagador {{ taxId }}",
+        "provider": "Plataforma: {{ value }}",
+        "search": "Buscar",
+        "status": "Estado del pago",
+        "title": "Conciliación de pagos",
+        "to": "Hasta",
+        "transaction": "Transacción: {{ value }}"
+      },
+      "subtitle": "Operaciones detenidas, conciliación y anulación de boletas emitidas.",
+      "title": "Finanzas: pagos"
+    },
     "internalRules": {
       "form": {
         "accountName": "Razón social (opcional)",
@@ -497,6 +623,217 @@
       },
       "subtitle": "Creación de clientes nuevos y asignación de Match Code (validación, control con AR y aprobación)",
       "title": "Organizaciones"
+    },
+    "paymentBlocks": {
+      "allCountries": "Todos los países",
+      "cancel": "Cancelar ventana",
+      "cancelLabel": "Cancelar la ventana: {{ reason }}",
+      "cancelled": "Ventana cancelada. El cambio quedó en el registro.",
+      "caption": "Ventanas de bloqueo de pagos",
+      "changedBy": "{{ user }}, {{ date }}",
+      "col": {
+        "actions": "Acciones",
+        "changed": "Último cambio",
+        "country": "País",
+        "message": "Mensaje al cliente",
+        "reason": "Motivo",
+        "status": "Estado",
+        "window": "Ventana"
+      },
+      "edit": "Editar",
+      "editLabel": "Editar la ventana: {{ reason }}",
+      "empty": "No hay ventanas de bloqueo.",
+      "end": "Terminar ahora",
+      "endLabel": "Terminar ahora la ventana: {{ reason }}",
+      "ended": "Ventana terminada. Los pagos vuelven a estar disponibles.",
+      "errors": {
+        "cancel": "No se pudo cancelar la ventana.",
+        "load": "No se pudieron cargar las ventanas."
+      },
+      "filters": {
+        "any": "Cualquiera",
+        "country": "País",
+        "includeCancelled": "Incluir canceladas",
+        "label": "Filtros de ventanas de bloqueo",
+        "search": "Buscar"
+      },
+      "form": {
+        "cancel": "Cancelar",
+        "clientMessage": "Mensaje al cliente",
+        "clientMessageHelp": "Se muestra a los clientes mientras dure el bloqueo.",
+        "country": "País u operación",
+        "create": "Crear ventana",
+        "createTitle": "Nueva ventana de bloqueo",
+        "created": "Ventana creada. El cambio quedó en el registro.",
+        "editTitle": "Editar ventana de bloqueo",
+        "endDate": "Fecha de término",
+        "endTime": "Hora de término",
+        "errors": {
+          "endBeforeStart": "El término debe ser posterior al inicio.",
+          "endDate": "Indique la fecha de término.",
+          "endTime": "Indique la hora de término.",
+          "message": "Indique el mensaje que verá el cliente.",
+          "reason": "Indique el motivo del bloqueo.",
+          "startDate": "Indique la fecha de inicio.",
+          "startTime": "Indique la hora de inicio.",
+          "submit": "No se pudo guardar la ventana.",
+          "summaryTitle": "Revise los siguientes campos"
+        },
+        "reason": "Motivo (interno)",
+        "reasonHelp": "Por ejemplo: cierre contable mensual.",
+        "save": "Guardar cambios",
+        "startDate": "Fecha de inicio",
+        "startTime": "Hora de inicio",
+        "timeHelp": "Fechas y horas en la hora local del país; con \"Todos los países\", en la hora local de cada uno.",
+        "updated": "Ventana actualizada. El cambio quedó en el registro."
+      },
+      "history": "Historial",
+      "historyCaption": "Registro de cambios de la ventana",
+      "historyClose": "Cerrar historial",
+      "historyEmpty": "Sin cambios registrados.",
+      "historyLabel": "Ver el historial de la ventana: {{ reason }}",
+      "historyTitle": "Historial de la ventana: {{ reason }}",
+      "localTime": "Hora local de cada país",
+      "new": "Nueva ventana",
+      "snapshot": {
+        "active": "Vigente"
+      },
+      "subtitle": "Ventanas en que no se puede pagar en el portal (M8-07). Se activan y terminan solas; la consulta sigue disponible.",
+      "title": "Bloqueo programado de pagos",
+      "window": "Del {{ startDate }} {{ startTime }} al {{ endDate }} {{ endTime }}"
+    },
+    "paymentConfig": {
+      "history": {
+        "col": {
+          "action": "Acción",
+          "current": "Valor nuevo",
+          "date": "Fecha",
+          "previous": "Valor anterior",
+          "user": "Usuario"
+        },
+        "field": "{{ field }}: {{ value }}",
+        "no": "No",
+        "none": "Sin valor",
+        "yes": "Sí"
+      }
+    },
+    "paymentCurrencies": {
+      "caption": "Monedas habilitadas por concepto",
+      "col": {
+        "actions": "Acciones",
+        "concept": "Concepto",
+        "currencies": "Monedas habilitadas",
+        "source": "Regla"
+      },
+      "configured": "Configurada",
+      "default": "Por defecto",
+      "edit": "Editar",
+      "editLabel": "Editar las monedas de {{ concept }}",
+      "empty": "No hay conceptos para este país.",
+      "errors": {
+        "load": "No se pudieron cargar las monedas.",
+        "required": "Elija al menos una moneda o vuelva a la regla por defecto.",
+        "save": "No se pudo guardar el cambio."
+      },
+      "filters": {
+        "country": "País",
+        "label": "Filtro de monedas de pago",
+        "search": "Ver"
+      },
+      "form": {
+        "cancel": "Cancelar",
+        "chileRules": "En Chile se aplican además las reglas de Finanzas: CLP siempre habilitado, cargos en EUR solo en CLP y cargos en BOB no se pagan en BOB.",
+        "legend": "Monedas habilitadas",
+        "save": "Guardar",
+        "title": "Monedas de {{ concept }} en {{ country }}"
+      },
+      "history": "Historial",
+      "historyCaption": "Registro de cambios de las monedas",
+      "historyClose": "Cerrar historial",
+      "historyEmpty": "Sin cambios registrados.",
+      "historyLabel": "Ver el historial de {{ concept }}",
+      "historyTitle": "Historial de {{ concept }} en {{ country }}",
+      "reset": "{{ concept }} volvió a la regla por defecto.",
+      "resetButton": "Volver al defecto",
+      "resetLabel": "Volver a la regla por defecto en {{ concept }}",
+      "saved": "Monedas de {{ concept }} guardadas. El cambio quedó en el registro.",
+      "snapshot": {
+        "concept": "Concepto",
+        "country": "País",
+        "currency": "Moneda",
+        "enabled": "Habilitada"
+      },
+      "subtitle": "Monedas en que se puede pagar cada concepto de cobro en cada país (M5-04). Sin configuración: moneda del cargo y moneda local.",
+      "title": "Monedas de pago por concepto"
+    },
+    "paymentMethods": {
+      "caption": "Medios de pago configurados",
+      "col": {
+        "actions": "Acciones",
+        "currencies": "Monedas",
+        "kind": "Tipo",
+        "method": "Medio",
+        "order": "Orden",
+        "provider": "Plataforma",
+        "status": "Estado"
+      },
+      "disable": "Deshabilitar",
+      "disableLabel": "Deshabilitar {{ name }}",
+      "disabled": "{{ name }} quedó deshabilitado.",
+      "disabledStatus": "Deshabilitado",
+      "edit": "Editar",
+      "editLabel": "Editar {{ name }}",
+      "empty": "No hay medios de pago para este país.",
+      "enabled": "Habilitado",
+      "errors": {
+        "disable": "No se pudo deshabilitar el medio.",
+        "load": "No se pudieron cargar los medios de pago."
+      },
+      "filters": {
+        "country": "País",
+        "includeDisabled": "Incluir deshabilitados",
+        "label": "Filtros de medios de pago",
+        "search": "Buscar"
+      },
+      "form": {
+        "cancel": "Cancelar",
+        "code": "Código",
+        "codeHelp": "Letras, números y guion bajo; por ejemplo KHIPU. No cambia después de crearlo.",
+        "country": "País",
+        "create": "Crear medio",
+        "createTitle": "Nuevo medio de pago",
+        "created": "Medio {{ name }} creado.",
+        "currencies": "Monedas",
+        "description": "Descripción para el cliente",
+        "editTitle": "Editar medio de pago",
+        "enabled": "Habilitado",
+        "errors": {
+          "code": "Indique un código de 2 a 40 letras, números o guion bajo.",
+          "currencies": "Elija al menos una moneda.",
+          "name": "Indique el nombre.",
+          "order": "El orden debe ser un número entero, por ejemplo 10.",
+          "provider": "Un medio en línea necesita su plataforma de pago.",
+          "submit": "No se pudo guardar el medio de pago.",
+          "summaryTitle": "Revise los siguientes campos"
+        },
+        "kind": "Tipo",
+        "name": "Nombre",
+        "order": "Orden de presentación",
+        "provider": "Plataforma de pago",
+        "providerHelp": "Para reemplazar la plataforma de un medio, elija otra registrada.",
+        "providerPlaceholder": "Elija la plataforma",
+        "save": "Guardar cambios",
+        "updated": "Medio {{ name }} actualizado. El cambio quedó en el registro."
+      },
+      "history": "Historial",
+      "historyCaption": "Registro de cambios del medio de pago",
+      "historyClose": "Cerrar historial",
+      "historyEmpty": "Sin cambios registrados.",
+      "historyLabel": "Ver el historial de {{ name }}",
+      "historyTitle": "Historial de {{ name }}",
+      "new": "Nuevo medio",
+      "subtitle": "Medios disponibles por país y moneda (M5-03): en línea con su plataforma o depósito con boleta.",
+      "title": "Medios de pago"
     },
     "reports": {
       "caption": "Resultado del reporte",
@@ -845,18 +1182,93 @@
       "title": "Nueva Contraseña"
     }
   },
+  "cart": {
+    "checkout": {
+      "back": "Volver",
+      "billingEntry": "{{ name }} ({{ taxId }})",
+      "confirm": "Confirmar pago de {{ total }}",
+      "confirmBilling": "Facturación: {{ billing }}",
+      "confirmItems": "{count, plural, one {# ítem} other {# ítems}} en un solo pago",
+      "confirmMethod": "Medio de pago: {{ method }}",
+      "confirmTitle": "Confirme el pago",
+      "confirmTotal": "Total: {{ total }}",
+      "created": "Pago {{ number }} creado.",
+      "disabledBlocked": "No se puede pagar mientras los pagos estén suspendidos.",
+      "disabledNoItems": "Todos los ítems están en un pago en curso.",
+      "disabledNoMethods": "No hay medios de pago habilitados para esta moneda.",
+      "disabledReadOnly": "Su perfil de consulta no puede pagar.",
+      "error": "No se pudo iniciar el pago. Revise el carro e intente nuevamente.",
+      "method": "Medio de pago",
+      "methodOption": "{{ name }} ({{ kind }})",
+      "methodRequired": "Elija un medio de pago.",
+      "noMethods": "No hay medios de pago habilitados para esta moneda.",
+      "retry": "Reintentar pago de {{ total }}",
+      "review": "Revisar y pagar {{ total }}",
+      "sending": "Enviando el pago…",
+      "uncertain": "No pudimos confirmar si el pago se recibió. Reintente: la misma solicitud nunca se cobra dos veces."
+    },
+    "col": {
+      "actions": "Acciones",
+      "billing": "Facturación",
+      "chargeAmount": "Monto del cargo",
+      "paymentAmount": "Monto a pagar",
+      "paymentCurrency": "Moneda de pago",
+      "reference": "BL o booking",
+      "service": "Servicio"
+    },
+    "creditCustomer": "Su organización tiene condición de crédito: sus cargos se pagan desde \"Pagar desde mi cuenta\", no desde el carro.",
+    "empty": "El carro está vacío.",
+    "emptyInvoices": "Ver mis facturas",
+    "emptyShipments": "Buscar cargos en mis embarques",
+    "errors": {
+      "convert": "No se pudo cambiar la moneda.",
+      "load": "No se pudo cargar el carro.",
+      "remove": "No se pudo quitar del carro."
+    },
+    "goToAccountPayments": "Ir a Pagar desde mi cuenta",
+    "group": {
+      "caption": "Ítems a pagar en {{ currency }}",
+      "clear": "Vaciar",
+      "clearCancel": "No",
+      "clearConfirm": "Sí, vaciar",
+      "clearLabel": "Vaciar el carro en {{ currency }}",
+      "clearQuestion": "¿Quitar todos los ítems en {{ currency }}?",
+      "cleared": "Se vació el carro en {{ currency }}.",
+      "count": "{count, plural, one {# ítem} other {# ítems}}",
+      "locked": "{count, plural, one {# ítem está en un pago en curso y no entra en este pago.} other {# ítems están en un pago en curso y no entran en este pago.}}",
+      "lockedLink": "Ver historial de pagos",
+      "subtotal": "Subtotal en {{ currency }}",
+      "title": "Pago en {{ currency }}, {{ country }}"
+    },
+    "item": {
+      "bl": "BL {{ bl }}",
+      "booking": "Booking {{ booking }}",
+      "converted": "{{ concept }} pasó al carro en {{ currency }}.",
+      "currencyLabel": "Moneda de pago de {{ concept }}",
+      "locked": "En un pago en curso",
+      "rate": "Tipo de cambio {{ from }}→{{ to }}: {{ rate }}, vigente al {{ date }} ({{ source }})",
+      "remove": "Quitar",
+      "removeLabel": "Quitar {{ concept }} del carro",
+      "removed": "{{ concept }} se quitó del carro.",
+      "taxId": "RUT {{ taxId }}"
+    },
+    "notClient": "El carro es de los usuarios de organizaciones clientes: los usuarios internos no pagan desde el portal.",
+    "readOnly": "Su perfil es de consulta: puede ver el carro, pero no pagar ni cambiar monedas.",
+    "subtitle": "Un carro por moneda de pago: cada uno con su subtotal y su propio pago.",
+    "summary": "{count, plural, one {# ítem} other {# ítems}} en {groups, plural, one {# moneda de pago} other {# monedas de pago}}",
+    "title": "Carro de compra"
+  },
   "charges": {
     "initial": "Ingrese un número de BL para ver sus cargos locales.",
     "panel": {
       "action": {
+        "accountPayments": "Pagar desde mi cuenta",
         "addToCart": "Agregar al carro",
         "addToCartLabel": "Agregar {{ concept }} al carro",
         "blockedByLetter": "Bloqueado: falta la carta de responsabilidad",
         "calculate": "Calcular",
-        "none": "Sin acción",
-        "pay": "Pagar",
-        "payLabel": "Pagar {{ concept }}",
-        "saved": "Guardado para el carro"
+        "inCart": "En el carro",
+        "none": "Sin acción"
       },
       "apply": {
         "button": "Aplicar exenciones de Nexus",
@@ -871,8 +1283,7 @@
       },
       "caption": "Cargos locales del BL {{ bl }} con el resultado de las reglas",
       "cart": {
-        "comingSoon": "El carro de compra se habilitará próximamente: los cargos que agregue quedan guardados en esta sesión.",
-        "saved": "{{ concept }} quedó guardado para el carro de compra."
+        "viewCart": "{count, plural, =0 {Ver el carro de compra} one {Ver el carro de compra (# ítem)} other {Ver el carro de compra (# ítems)}}"
       },
       "col": {
         "action": "Acción",
@@ -997,8 +1408,24 @@
       "paid": "Pagadas",
       "pending": "Pendiente de pago"
     },
+    "billingOptionSource": {
+      "grant": "mandante del acceso otorgado",
+      "invoice": "facturado en la factura",
+      "own": "mi organización"
+    },
+    "blockWindowStatus": {
+      "active": "Activa",
+      "cancelled": "Cancelada",
+      "ended": "Terminada",
+      "scheduled": "Programada"
+    },
     "brand": {
       "tagline": "SHIPPING & LOGISTICS"
+    },
+    "cancelDeniedReason": {
+      "final": "El pago ya está cerrado.",
+      "inProgress": "El pago está en proceso en la plataforma: no puede anularse desde el portal.",
+      "slipIssued": "La boleta ya fue emitida: no puede anularla desde el portal. Si necesita anularla, contacte a Finanzas."
     },
     "chargeBlockedReason": {
       "associationRequired": "Debe asociarse al BL antes de operar",
@@ -1010,8 +1437,10 @@
       "blFee": "Emisión de BL",
       "demurrage": "Demurrage",
       "eds": "EDS",
+      "freight": "Flete",
       "gateIn": "Gate In",
       "gateOut": "Gate Out",
+      "invoice": "Factura",
       "ipo": "IPO",
       "isps": "ISPS",
       "lateArrival": "Llegada tardía",
@@ -1088,6 +1517,18 @@
       "advanceDemurrageRequired": "Demoras anticipadas obligatorias (Bolivia)",
       "freeWarehouseChange": "Cambio de almacén gratuito"
     },
+    "invoiceDocumentType": {
+      "creditNote": "Nota de crédito",
+      "debitNote": "Nota de débito",
+      "exemptInvoice": "Factura exenta",
+      "invoice": "Factura"
+    },
+    "invoiceStatus": {
+      "cancelled": "Anulada",
+      "overdue": "Vencida",
+      "paid": "Pagada",
+      "pending": "Pendiente"
+    },
     "maintainerAction": {
       "created": "Creación",
       "deactivated": "Desactivación",
@@ -1119,6 +1560,98 @@
       "customsAgency": "Agencia de aduanas (AGA)",
       "freightForwarder": "Freight forwarder (FFWW)",
       "internal": "Hapag-Lloyd"
+    },
+    "payableItemType": {
+      "demurrage": "Demurrage",
+      "freight": "Flete",
+      "invoice": "Factura",
+      "localCharge": "Cargo local",
+      "warehouseChange": "Cambio de almacén"
+    },
+    "paymentErrors": {
+      "alreadyCancelled": "El pago ya está anulado.",
+      "alreadyConfirmed": "El pago ya está confirmado.",
+      "alreadyPaid": "El ítem ya está pagado.",
+      "associationRequired": "Debe asociarse al BL antes de agregar sus cargos al carro (vista por acceso abierto).",
+      "billingTaxIdNotAllowed": "El RUT de facturación no está habilitado para este ítem.",
+      "blocked": "Los pagos están suspendidos temporalmente. Puede seguir consultando.",
+      "blockedWithMessage": "Los pagos están suspendidos temporalmente: {{ message }}",
+      "cartItemNotFound": "El ítem ya no está en el carro.",
+      "conditionsUnavailable": "Nexus no está disponible: no se pueden validar las condiciones comerciales. No se agregó ni se cobró nada. Intente más tarde.",
+      "conflict": "Otra solicitud de pago bloqueó o cambió estos ítems al mismo tiempo. Esta solicitud no cobró nada: revise el historial de pagos y el carro.",
+      "creditCustomer": "Su organización tiene condición de crédito: pague desde \"Pagar desde mi cuenta\".",
+      "currencyNotAllowed": "La moneda elegida no está habilitada para este concepto. Elija otra de la lista.",
+      "duplicate": "El ítem ya está en el carro.",
+      "empty": "No hay ítems por pagar en esta moneda.",
+      "exchangeRateNotApproved": "El tipo de cambio de hoy aún no está aprobado para transacciones.",
+      "exchangeRateNotFound": "Nexus no informa el tipo de cambio de hoy: no se puede convertir la moneda.",
+      "folioRequired": "Solo se pueden descargar juntas facturas con folio SII emitido.",
+      "forItem": "{{ item }}: {{ message }}",
+      "forbidden": "Su perfil u organización no puede pagar este ítem.",
+      "idempotencyConflict": "Esta solicitud de pago ya se usó con otros datos. Revise el historial antes de reintentar.",
+      "inProgress": "El pago está en proceso en la plataforma: no puede anularse.",
+      "invalidTransition": "El pago cambió de estado: recargue la página.",
+      "invoiceNotFound": "No encontramos la factura.",
+      "itemInPayment": "El ítem está en un pago en curso. Revise el historial de pagos.",
+      "itemLocked": "El ítem está en un pago en curso y no se puede modificar.",
+      "itemNotFound": "No encontramos el ítem entre los que puede pagar.",
+      "methodExists": "Ya existe un medio con ese código en el país.",
+      "methodNotAvailable": "El medio de pago no está disponible para esta moneda. Elija otro.",
+      "mixedCountries": "Los ítems elegidos son de países distintos: páguelos por separado.",
+      "noPaymentCurrency": "El ítem no tiene una moneda de pago habilitada.",
+      "notCreditCustomer": "Su organización no tiene condición de crédito: use el carro de compra.",
+      "notDeposit": "Solo los pagos por depósito tienen boleta.",
+      "notPayable": "El ítem no se puede pagar en el portal.",
+      "operationNotRetryable": "La operación ya terminó: no hay nada que reintentar.",
+      "payDemurrageInvoice": "La línea de demurrage ya está facturada: pague la factura.",
+      "paymentNotFound": "No encontramos el pago.",
+      "pdfNotAvailable": "La factura aún no tiene folio SII: el PDF no está disponible.",
+      "providerRequired": "Un medio en línea necesita una plataforma de pago registrada.",
+      "providerUnavailable": "La plataforma de pago no respondió. No se realizó ningún cobro y los ítems siguen en el carro: puede reintentar.",
+      "receiptNotAvailable": "El comprobante aún no está disponible.",
+      "responsibilityLetterRequired": "Falta la carta de responsabilidad del freight forwarder: no se puede pagar este BL todavía.",
+      "slipAlreadyIssued": "La boleta ya fue emitida: no puede anularla desde el portal.",
+      "sourceUnavailable": "La fuente de información no respondió. No se guardó ningún cambio: intente más tarde.",
+      "unavailable": "El servicio no está disponible en este momento. Intente más tarde.",
+      "windowEnded": "La ventana ya terminó: revise la fecha y hora de término.",
+      "windowStarted": "La ventana ya comenzó: no se puede modificar. Puede terminarla antes.",
+      "zeroValue": "El ítem no tiene monto por pagar (por ejemplo, está exento): no se agrega al carro."
+    },
+    "paymentFailureReason": {
+      "providerRejected": "La plataforma de pago rechazó el pago. No se realizó ningún cobro.",
+      "providerUnavailable": "La plataforma de pago no respondió. No se realizó ningún cobro."
+    },
+    "paymentMethodKind": {
+      "deposit": "Depósito con boleta",
+      "online": "En línea"
+    },
+    "paymentOperationJob": {
+      "notify": "Aviso al pagador",
+      "release": "Liberación del servicio"
+    },
+    "paymentOperationStatus": {
+      "pending": "En reintento",
+      "stuck": "Detenida",
+      "succeeded": "Completada"
+    },
+    "paymentOrigin": {
+      "account": "Pago desde mi cuenta",
+      "cart": "Carro de compra",
+      "legacy": "Pago por BL (anterior)"
+    },
+    "paymentStatus": {
+      "cancelled": "Anulado",
+      "confirmed": "Confirmado",
+      "failed": "Fallido, sin cobro",
+      "pending": "Pendiente",
+      "pendingVerification": "Boleta emitida, en verificación",
+      "processing": "En proceso en la plataforma"
+    },
+    "reconciliationStatus": {
+      "matched": "Conciliado",
+      "missingReceipt": "Falta el comprobante",
+      "missingTransactionReference": "Falta la referencia de la transacción",
+      "notSettled": "Sin abono confirmado"
     },
     "requirementStatus": {
       "fulfilled": "cumplido",
@@ -1264,10 +1797,10 @@
         "help": "El demurrage está calculado y no pagado. Detalle del cálculo:"
       },
       "cart": {
-        "conceptSaved": "{{ concept }} quedó guardado para el carro de compra.",
-        "linesSaved": "{count, plural, one {Se guardó # línea de demurrage para el carro de compra.} other {Se guardaron # líneas de demurrage para el carro de compra.}}",
-        "linesSavedNote": "Las líneas calculadas quedaron guardadas para el carro de compra, que se habilitará próximamente.",
-        "saved": "Guardado para el carro"
+        "accountPayments": "Pagar desde mi cuenta",
+        "inCart": "En el carro",
+        "lineLabel": "Demurrage del contenedor {{ container }}",
+        "linesInCart": "Las líneas calculadas están en el carro."
       },
       "concepts": {
         "add": "Agregar al carro",
@@ -1296,7 +1829,8 @@
           "invoice": "Factura"
         },
         "help": "El BL tiene demurrage facturado con deuda vigente.",
-        "pay": "Pagar factura"
+        "pay": "Pagar factura",
+        "payLabel": "Pagar factura {{ invoice }}"
       },
       "lines": {
         "caption": "Detalle del cálculo de demurrage por contenedor",
@@ -1366,6 +1900,77 @@
     "searchPlaceholder": "Buscar pregunta...",
     "subtitle": "Encuentre respuestas a las consultas más comunes",
     "title": "Preguntas Frecuentes"
+  },
+  "invoices": {
+    "addToCart": "Agregar al carro",
+    "addToCartLabel": "Agregar la factura {{ number }} al carro",
+    "booking": "Booking {{ booking }}",
+    "caption": "Facturas de {{ name }}",
+    "cartLabel": "Factura {{ number }}",
+    "col": {
+      "actions": "Acciones",
+      "amount": "Monto",
+      "currency": "Moneda",
+      "documentType": "Tipo",
+      "dueDate": "Vencimiento",
+      "issueDate": "Emisión",
+      "legalName": "Razón social",
+      "reference": "BL o booking",
+      "select": "Elegir",
+      "siiNumber": "N.° SII",
+      "sourceNumber": "N.° sistema de origen",
+      "status": "Estado",
+      "taxId": "RUT"
+    },
+    "count": "{count, plural, one {# factura} other {# facturas}}",
+    "download": {
+      "error": "No se pudo descargar.",
+      "pdf": "PDF",
+      "pdfDone": "Factura {{ number }} descargada.",
+      "pdfLabel": "Descargar el PDF de la factura {{ number }}",
+      "zip": "{count, plural, =0 {Descargar seleccionadas} one {Descargar # factura} other {Descargar # facturas}}",
+      "zipDone": "{count, plural, one {Se descargó # factura.} other {Se descargaron # facturas.}}",
+      "zipHelp": "La descarga múltiple (zip) admite hasta {{ max }} facturas con folio SII emitido."
+    },
+    "empty": "No hay facturas con estos filtros.",
+    "errors": {
+      "forbidden": "No tiene acceso a las facturas de esa organización.",
+      "load": "No se pudieron cargar las facturas."
+    },
+    "filters": {
+      "all": "Todos",
+      "bl": "BL",
+      "booking": "Booking",
+      "clear": "Limpiar",
+      "currency": "Moneda",
+      "documentType": "Tipo de documento",
+      "from": "Emitidas desde",
+      "label": "Filtros de facturas",
+      "search": "Buscar",
+      "status": "Estado",
+      "to": "Emitidas hasta"
+    },
+    "inCart": "En el carro",
+    "lastUpdated": "Última actualización: {{ date }}",
+    "noFolio": "Sin folio",
+    "organization": "Organización",
+    "organizationOption": "{{ name }} ({{ taxId }})",
+    "organizationSingle": "Organización: {{ name }} ({{ taxId }})",
+    "pagination": {
+      "label": "Páginas de facturas",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "status": "Página {{ page }} de {{ pages }} ({{ total }} facturas)"
+    },
+    "refresh": {
+      "button": "Actualizar",
+      "done": "Facturas actualizadas: {{ checked }} revisadas, {{ updated }} con cambios.",
+      "error": "No se pudieron actualizar las facturas."
+    },
+    "selectDisabledLabel": "La factura {{ number }} no tiene folio SII: no se puede descargar",
+    "selectLabel": "Elegir la factura {{ number }} para descargar",
+    "subtitle": "Facturas locales de las organizaciones a las que tiene acceso, sin mezclarlas entre sí.",
+    "title": "Facturas"
   },
   "notifications": {
     "empty": "No tienes notificaciones.",
@@ -1539,103 +2144,164 @@
       "updated": "Usuario {{ email }} actualizado."
     }
   },
-  "payments": {
-    "form": {
-      "breadcrumbCurrent": "Nuevo Pago",
-      "breadcrumbLabel": "Ruta de navegación",
-      "breadcrumbList": "Pagos",
-      "dataTitle": "Datos del Pago",
-      "errors": {
-        "loadBl": "Error al cargar la informacion del BL.",
-        "submit": "Error al procesar el pago."
-      },
-      "method": "Método de Pago",
-      "methodRequired": "Seleccione un método de pago.",
-      "methods": {
-        "bankTransfer": {
-          "hint": "Transferencia directa a cuenta Hapag-Lloyd",
-          "label": "Transferencia Bancaria"
-        },
-        "creditCard": {
-          "hint": "Visa, Mastercard, American Express",
-          "label": "Tarjeta de Credito"
-        },
-        "creditLine": {
-          "hint": "Cargo a su línea de crédito aprobada",
-          "label": "Linea de Credito"
-        },
-        "qr": {
-          "hint": "Pago mediante código QR",
-          "label": "Pago QR"
-        }
-      },
-      "submit": "Confirmar Pago",
-      "success": {
-        "message": "Su pago ha sido registrado y está pendiente de confirmación.",
-        "redirect": "Redirigiendo a la lista de pagos...",
-        "title": "Pago Registrado Exitosamente"
-      },
-      "summary": {
-        "bl": "Bill of Lading",
-        "subtotal": "Subtotal",
-        "tax": "IVA ({{ rate }}%)",
-        "title": "Resumen",
-        "total": "Total",
-        "vesselVoyage": "Nave / Viaje"
-      },
-      "title": "Nuevo Pago",
-      "type": "Tipo de Pago",
-      "typeOption": {
-        "demurrage": "Demurrage",
-        "freight": "Flete",
-        "localCharges": "Cargos Locales"
-      }
+  "paymentHistory": {
+    "bookings": "Booking {{ bookings }}",
+    "caption": "Pagos hechos en el portal",
+    "col": {
+      "actions": "Acciones",
+      "billing": "RUT de facturación",
+      "currency": "Moneda",
+      "date": "Fecha",
+      "document": "Comprobante o boleta",
+      "method": "Medio de pago",
+      "payer": "RUT pagador",
+      "reference": "BL o booking",
+      "status": "Estado",
+      "total": "Total"
     },
-    "list": {
-      "caption": "Listado de pagos",
+    "count": "{count, plural, one {# pago} other {# pagos}}",
+    "detail": "Detalle",
+    "detailLabel": "Ver el detalle de {{ number }}",
+    "detailPage": {
+      "billing": "RUT de facturación",
+      "booking": "Booking {{ booking }}",
+      "breadcrumbCurrent": "Detalle del pago",
+      "breadcrumbLabel": "Ruta de navegación",
+      "breadcrumbList": "Historial de pagos",
       "col": {
-        "actions": "Acciones",
+        "amount": "Monto pagado",
+        "billing": "Facturación",
+        "original": "Monto original",
+        "reference": "BL o booking",
+        "service": "Servicio"
+      },
+      "date": "Fecha del pago",
+      "document": "Documento {{ number }}",
+      "executedBy": "Ejecutado por",
+      "items": "Documentos y conceptos pagados",
+      "itemsCaption": "Ítems incluidos en el pago",
+      "method": "Medio de pago",
+      "notFound": "No encontramos el pago en el historial de su organización.",
+      "onBehalfOf": "Por mandato de",
+      "origin": "Origen",
+      "parties": "Pagador y facturación",
+      "party": "{{ name }} ({{ taxId }})",
+      "payer": "Pagador (RUT que pagó)",
+      "paymentNumber": "N.° de pago",
+      "rate": "Tipo de cambio {{ rate }}",
+      "receipt": "Comprobante",
+      "slip": "Boleta",
+      "statusHistory": "Ver historial de estados",
+      "title": "Detalle del pago",
+      "total": "Total"
+    },
+    "empty": "No hay pagos con estos filtros.",
+    "errors": {
+      "load": "No se pudo cargar el historial de pagos."
+    },
+    "filters": {
+      "all": "Todos",
+      "bl": "BL",
+      "clear": "Limpiar",
+      "from": "Desde",
+      "label": "Filtros del historial",
+      "search": "Buscar",
+      "status": "Estado",
+      "to": "Hasta"
+    },
+    "pagination": {
+      "label": "Páginas del historial",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "status": "Página {{ page }} de {{ pages }} ({{ total }} pagos)"
+    },
+    "payerDiffers": "Distinto del pagador",
+    "receipt": {
+      "button": "Descargar",
+      "done": "{{ number }} descargado.",
+      "error": "No se pudo descargar el comprobante.",
+      "label": "Descargar {{ number }}"
+    },
+    "subtitle": "Pagos hechos en el portal por su organización, como pagadora o como mandante, con su boleta o comprobante.",
+    "title": "Historial de pagos"
+  },
+  "paymentResult": {
+    "announce": {
+      "cancelled": "Pago {{ number }} anulado. No hubo cobro.",
+      "confirmed": "Pago {{ number }} confirmado. Comprobante {{ receipt }}.",
+      "failed": "El pago {{ number }} no se realizó. No hubo cobro.",
+      "slipIssued": "Boleta {{ slip }} del pago {{ number }} emitida. Finanzas verificará el depósito.",
+      "status": "Pago {{ number }}: {{ status }}."
+    },
+    "backToCart": "Volver al carro",
+    "breadcrumbCurrent": "Resultado del pago",
+    "breadcrumbHistory": "Historial de pagos",
+    "breadcrumbLabel": "Ruta de navegación",
+    "cancel": {
+      "button": "Anular pago",
+      "confirm": "Sí, anular",
+      "error": "No se pudo anular el pago.",
+      "keep": "No, mantener",
+      "question": "¿Anular el pago? Los ítems volverán al carro."
+    },
+    "cancelled": {
+      "text": "No se realizó ningún cobro. Los ítems volvieron al carro.",
+      "title": "Pago anulado"
+    },
+    "confirmed": {
+      "releasePending": "La liberación de los servicios pagados se está procesando.",
+      "text": "Se cobró {{ total }}. Comprobante {{ receipt }}.",
+      "title": "Pago confirmado"
+    },
+    "failed": {
+      "generic": "El pago falló.",
+      "noCharge": "No se realizó ningún cobro. Los ítems volvieron al carro.",
+      "title": "El pago no se realizó"
+    },
+    "history": {
+      "caption": "Cambios de estado del pago con fecha y hora",
+      "col": {
+        "by": "Registrado por",
+        "date": "Fecha y hora",
+        "reason": "Motivo",
+        "status": "Estado"
+      },
+      "title": "Historial de estados"
+    },
+    "items": {
+      "caption": "Ítems incluidos en el pago",
+      "col": {
         "amount": "Monto",
-        "bl": "BL",
-        "currency": "Moneda",
-        "date": "Fecha",
-        "method": "Metodo",
-        "number": "Numero",
-        "status": "Estado",
-        "type": "Tipo"
+        "billing": "RUT de facturación",
+        "bl": "BL o booking",
+        "service": "Servicio"
       },
-      "empty": "No se encontraron pagos.",
-      "filter": {
-        "all": "Todos",
-        "confirmed": "Confirmados",
-        "failed": "Fallidos",
-        "pending": "Pendientes"
-      },
-      "filterBy": "Filtrar por estado:",
-      "loadError": "Error al cargar los pagos.",
-      "method": {
-        "bankDeposit": "Depósito Bancario",
-        "bankTransfer": "Transferencia",
-        "cash": "Efectivo",
-        "check": "Cheque",
-        "creditCard": "Tarjeta de Crédito",
-        "creditLine": "Línea de Crédito",
-        "debitCard": "Tarjeta de Débito",
-        "deposit": "Depósito",
-        "khipu": "Khipu",
-        "qr": "Pago QR",
-        "webPay": "WebPay"
-      },
-      "subtitle": "Historial y estado de sus pagos",
-      "title": "Pagos",
-      "type": {
-        "combined": "Combinado",
-        "demurrage": "Demurrage",
-        "freight": "Flete",
-        "localCharges": "Cargos Locales"
-      },
-      "viewReceipt": "Ver Recibo"
-    }
+      "createdAt": "Creado",
+      "method": "Medio de pago",
+      "reference": "Referencia",
+      "title": "Detalle del pago",
+      "total": "Total"
+    },
+    "loadError": "No se pudo consultar el estado del pago.",
+    "notFound": "No encontramos el pago entre los de su organización.",
+    "paymentTitle": "Pago {{ number }}",
+    "processing": {
+      "checkAgain": "Consultar de nuevo",
+      "stillWaiting": "La plataforma aún no confirma. Puede consultar de nuevo o revisar el historial de pagos más tarde.",
+      "text": "Aún no hay confirmación del cobro. Esta página se actualiza sola; no vuelva a pagar.",
+      "title": "Esperando la confirmación de la plataforma de pago"
+    },
+    "slip": {
+      "error": "No se pudo emitir la boleta.",
+      "issue": "Emitir boleta",
+      "issued": "Boleta {{ slip }} emitida el {{ date }} por {{ total }}.",
+      "issuedTitle": "Boleta emitida",
+      "pendingText": "Boleta {{ slip }} por {{ total }}. Al emitirla podrá depositar; desde ese momento ya no podrá anularla desde el portal.",
+      "pendingTitle": "Boleta de depósito por emitir",
+      "verification": "Finanzas confirmará el pago al verificar el depósito. La boleta ya no puede anularse desde el portal."
+    },
+    "title": "Resultado del pago",
+    "viewReceipt": "Ver comprobante y detalle"
   },
   "profile": {
     "accountType": "Tipo de Cuenta",
@@ -1657,23 +2323,6 @@
       "agent": "Agente",
       "client": "Cliente"
     }
-  },
-  "receipts": {
-    "caption": "Listado de comprobantes de pago",
-    "col": {
-      "amount": "Monto",
-      "client": "Cliente",
-      "country": "País",
-      "date": "Fecha",
-      "paymentNumber": "N° Pago",
-      "receiptNumber": "N° Comprobante",
-      "tax": "Impuesto",
-      "total": "Total"
-    },
-    "empty": "No tiene comprobantes emitidos.",
-    "loadError": "Error al cargar los comprobantes.",
-    "subtitle": "Historial de comprobantes de pago emitidos",
-    "title": "Comprobantes"
   },
   "serviceOrders": {
     "cancel": "Cancelar",
@@ -1717,6 +2366,37 @@
     }
   },
   "shared": {
+    "addToCart": {
+      "added": "{count, plural, one {{{ label }} se agregó al carro en {{ currency }}.} other {Se agregaron # ítems al carro en {{ currency }}.}}",
+      "billing": "RUT de facturación (obligatorio)",
+      "billingHelp": "Solo se muestran los RUT que tiene habilitados. El documento tributario se emitirá a este RUT.",
+      "billingOption": "{{ name }} ({{ taxId }}), {{ source }}",
+      "billingPlaceholder": "Elija el RUT de facturación",
+      "bl": "BL {{ bl }}",
+      "booking": "Booking {{ booking }}",
+      "cancel": "Cancelar",
+      "caption": "Ítems que se agregarán al carro",
+      "close": "Cerrar",
+      "col": {
+        "amount": "Monto",
+        "reference": "BL o booking",
+        "service": "Servicio"
+      },
+      "currency": "Moneda de pago (obligatorio)",
+      "currencyHelp": "Solo las monedas habilitadas para este concepto. El ítem queda en el carro de esa moneda.",
+      "errors": {
+        "billingRequired": "Elija el RUT de facturación.",
+        "currencyRequired": "Elija la moneda de pago.",
+        "load": "No se pudo validar el ítem. Intente nuevamente.",
+        "noCommonBilling": "Los ítems no comparten un RUT de facturación habilitado: agréguelos por separado.",
+        "noCommonCurrency": "Los ítems no comparten una moneda de pago habilitada: agréguelos por separado.",
+        "submit": "No se pudo agregar al carro. Intente nuevamente.",
+        "summaryTitle": "Revise los siguientes campos"
+      },
+      "submit": "Agregar al carro",
+      "title": "Agregar al carro",
+      "validating": "Validando el ítem…"
+    },
     "exchangeRate": {
       "note": "Tipo de cambio {{ from }}→{{ to }}: {{ rate }}, vigente al {{ date }} (fuente {{ source }}).",
       "unavailable": "No se pudo obtener el tipo de cambio {{ from }}→{{ to }} desde Nexus."
@@ -1725,6 +2405,8 @@
       "label": "Cargando..."
     },
     "navbar": {
+      "accountPayments": "Pagar desde mi cuenta",
+      "cartCount": "{count, plural, =0 {Carro de compra, vacío} one {Carro de compra, # ítem} other {Carro de compra, # ítems}}",
       "country": {
         "bo": "BO, Bolivia",
         "changed": "País de operación cambiado a {{ country }}.",
@@ -1747,23 +2429,34 @@
       "tagline": "PORTAL DE SERVICIOS",
       "userMenu": "Menú de usuario: {{ name }}"
     },
+    "paymentBlock": {
+      "consultAvailable": "Mientras tanto puede consultar su información y preparar el carro; no se puede pagar.",
+      "title": "Pagos suspendidos temporalmente",
+      "until": "Hasta el {{ date }} a las {{ time }} ({{ zone }})."
+    },
     "sidebar": {
       "label": "Menú principal",
       "link": {
         "accessMatrix": "Matriz de accesos",
+        "accountPayments": "Pagar desde mi cuenta",
         "adminOrganizations": "Organizaciones",
         "audit": "Auditoría",
         "blImport": "Carga de BL",
+        "cart": "Carro de compra",
         "customs": "Transmisión Aduana",
         "dashboard": "Dashboard",
         "deadlines": "Control de Plazos",
         "demurrage": "Demurrage",
         "faq": "FAQ",
         "internalRules": "Reglas de cobro",
+        "invoices": "Facturas",
         "localCharges": "Cargos Locales",
         "organization": "Mi organización",
-        "payments": "Pagos",
-        "receipts": "Comprobantes",
+        "paymentBlocks": "Bloqueo de pagos",
+        "paymentCurrencies": "Monedas de pago",
+        "paymentHistory": "Historial de pagos",
+        "paymentMethods": "Medios de pago",
+        "paymentsFinance": "Finanzas: pagos",
         "reports": "Reportes",
         "serviceOrders": "Órdenes de Servicio",
         "shipments": "Embarques",
@@ -1882,7 +2575,10 @@
         "title": "Demurrage"
       },
       "freight": {
-        "pay": "Pagar flete",
+        "accountPayments": "Pagar desde mi cuenta",
+        "addToCart": "Agregar flete al carro",
+        "cartLabel": "Flete del BL {{ bl }}",
+        "inCart": "El flete está en el carro.",
         "title": "Flete"
       },
       "general": {
@@ -2427,14 +3123,19 @@
       "quote": "Consultar condiciones",
       "quoteError": "No se pudieron consultar las condiciones del cambio de almacén.",
       "result": {
+        "accountPayments": "Pagar desde mi cuenta",
+        "addToCart": "Agregar al carro",
         "another": "Hacer otra solicitud",
+        "cartLabel": "Cambio de almacén del BL {{ bl }}",
         "free": "El cambio de almacén del BL {{ bl }} de {{ from }} a {{ to }} quedó completado sin cobro y sin intervención de Customer Service.",
         "freeAnnouncement": "Cambio de almacén del BL {{ bl }} completado sin cobro.",
         "freeTitle": "Cambio de almacén completado",
+        "inCart": "El cambio de almacén está en el carro.",
         "pending": "La solicitud del BL {{ bl }} quedó registrada por {{ amount }}. El pago se hará desde el carro de compra, que se habilitará próximamente.",
         "pendingAnnouncement": "Solicitud de cambio de almacén del BL {{ bl }} registrada, pendiente de pago.",
         "pendingTitle": "Solicitud registrada, pendiente de pago",
-        "status": "Estado: {{ status }}. Registrada el {{ date }}."
+        "status": "Estado: {{ status }}. Registrada el {{ date }}.",
+        "viewCart": "Ver el carro"
       },
       "submit": "Solicitar cambio de almacén",
       "submitFree": "Solicitar cambio gratuito",

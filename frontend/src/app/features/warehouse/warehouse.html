@@ -23,7 +23,20 @@
         {{ 'warehouse.single.result.status' | transloco: { status: (r.status | codeLabel: statusKeys), date: (r.createdAt | hlDate: 'datetime') } }}
       </p>
     </div>
-    <button type="button" class="btn btn-outline-secondary" (click)="newRequest()">{{ 'warehouse.single.result.another' | transloco }}</button>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      @if (r.requiresPayment && r.status === 'Pending') {
+        <!-- Ola D: el cambio tarifado se paga desde el carro (M5-01) -->
+        @if (cart.contains('WarehouseChange', r.id)) {
+          <span class="small fw-semibold">{{ 'warehouse.single.result.inCart' | transloco }}</span>
+          <a routerLink="/cart" class="btn btn-outline-secondary">{{ 'warehouse.single.result.viewCart' | transloco }}</a>
+        } @else if (cart.accountPaymentsEnabled()) {
+          <a routerLink="/account-payments" class="btn btn-hl-orange">{{ 'warehouse.single.result.accountPayments' | transloco }}</a>
+        } @else if (cart.cartEnabled()) {
+          <button type="button" class="btn btn-hl-orange" (click)="addToCart(r)">{{ 'warehouse.single.result.addToCart' | transloco }}</button>
+        }
+      }
+      <button type="button" class="btn btn-outline-secondary" (click)="newRequest()">{{ 'warehouse.single.result.another' | transloco }}</button>
+    </div>
   } @else {
     <form class="row g-3 align-items-end mb-3" (submit)="loadQuote($event)">
       <div class="col-md-5">
@@ -225,3 +238,7 @@
     </button>
   </form>
 </section>
+
+@if (addTargets(); as targets) {
+  <app-add-to-cart-dialog [targets]="targets" (closed)="onAddClosed()" />
+}

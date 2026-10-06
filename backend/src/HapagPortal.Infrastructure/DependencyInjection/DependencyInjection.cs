@@ -46,7 +46,6 @@ public static partial class DependencyInjectionExtensions
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddTransient<IEmailService, EmailService>();
-        services.AddTransient<IPaymentGatewayService, PaymentGatewayService>();
         services.AddTransient<ICustomsTransmitter, StubCustomsTransmitter>();
         services.AddScoped<INotificationPublisher, NotificationPublisher>();
         services.AddSingleton<IWebhookAuthenticator, WebhookAuthenticator>();

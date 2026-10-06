@@ -147,19 +147,19 @@
                       <span class="small">{{ 'charges.panel.action.blockedByLetter' | transloco }}</span>
                     } @else if (charge.actionBlockedReason) {
                       <span class="small">{{ charge.actionBlockedReason | codeLabel: blockedKeys }}</span>
-                    } @else if (charge.action === 'Pay') {
-                      <a [routerLink]="['/payments/new', d.blId]" [queryParams]="{ type: 'LOCAL_CHARGES' }" class="btn btn-sm btn-hl-orange"
-                         [attr.aria-label]="'charges.panel.action.payLabel' | transloco: { concept: (charge.conceptCode | codeLabel: conceptKeys) }">
-                        {{ 'charges.panel.action.pay' | transloco }}
-                      </a>
-                    } @else if (charge.action === 'AddToCart') {
+                    } @else if (charge.action === 'Pay' || charge.action === 'AddToCart') {
                       @if (isSaved(charge)) {
-                        <span class="small fw-semibold">{{ 'charges.panel.action.saved' | transloco }}</span>
-                      } @else {
+                        <span class="small fw-semibold">{{ 'charges.panel.action.inCart' | transloco }}</span>
+                      } @else if (cart.accountPaymentsEnabled()) {
+                        <a routerLink="/account-payments" class="small">{{ 'charges.panel.action.accountPayments' | transloco }}</a>
+                      } @else if (cart.cartEnabled()) {
                         <button type="button" class="btn btn-sm btn-hl-orange" (click)="addToCart(charge)"
                                 [attr.aria-label]="'charges.panel.action.addToCartLabel' | transloco: { concept: (charge.conceptCode | codeLabel: conceptKeys) }">
                           {{ 'charges.panel.action.addToCart' | transloco }}
                         </button>
+                      } @else {
+                        <span aria-hidden="true">—</span>
+                        <span class="visually-hidden">{{ 'charges.panel.action.none' | transloco }}</span>
                       }
                     } @else if (charge.action === 'Calculate') {
                       <a [routerLink]="['/demurrage', d.blNumber]" class="btn btn-sm btn-outline-secondary">{{ 'charges.panel.action.calculate' | transloco }}</a>
@@ -201,8 +201,8 @@
             </div>
           }
 
-          @if (cartableCharges().length > 0) {
-            <p class="small text-muted mb-0">{{ 'charges.panel.cart.comingSoon' | transloco }}</p>
+          @if (cartableCharges().length > 0 && cart.cartEnabled()) {
+            <p class="small mb-0"><a routerLink="/cart">{{ 'charges.panel.cart.viewCart' | transloco: { count: cart.count() } }}</a></p>
           }
           <p class="small text-muted mb-0 mt-2">
             {{ 'charges.panel.evaluatedAt' | transloco: { date: (d.evaluatedAt | hlDate: 'datetime' : d.timeZone) } }}
@@ -212,3 +212,7 @@
     }
   }
 </section>
+
+@if (addTargets(); as targets) {
+  <app-add-to-cart-dialog [targets]="targets" (closed)="onAddClosed()" />
+}

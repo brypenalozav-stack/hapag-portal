@@ -4,7 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { DemurrageService } from '../../../core/services/demurrage.service';
-import { CartIntentService } from '../../../core/services/cart-intent.service';
+import { CartService } from '../../../core/services/cart.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { DemurrageConceptCharge, DemurrageLine, DemurrageStatus } from '../../../core/models/demurrage.model';
 import { apiErrorKey } from '../../../core/http/api-error';
@@ -24,6 +24,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { DemurrageCalculatorComponent } from '../demurrage-calculator/demurrage-calculator';
+import { AddToCartDialogComponent, AddToCartTarget } from '../../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
 
 /** Moneda local de cada país: la conversión de demoras anticipadas en USD se informa en ella (M5-05). */
 const COUNTRY_CURRENCY: Record<string, string> = { CL: 'CLP', BO: 'BOB' };
@@ -34,20 +35,22 @@ const COUNTRY_CURRENCY: Record<string, string> = { CL: 'CLP', BO: 'BOB' };
  * demurrage → mensaje de que no registra deuda). La calculadora no se habilita si existe factura.
  * También muestra MHD y otros conceptos de la pestaña (M3-02) y, en Bolivia, las demoras
  * anticipadas que bloquean el CLD hasta su pago (M3-16).
+ * Ola D: pagar la factura, las líneas calculadas, el MHD y las demoras anticipadas pasa por el carro
+ * (M5-01), con el RUT de facturación y la moneda elegidos al agregar (M5-09, M5-04).
  */
 @Component({
   selector: 'app-demurrage-panel',
   standalone: true,
   imports: [
     RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent,
-    StateMessageComponent, ExchangeRateNoteComponent, DemurrageCalculatorComponent,
+    StateMessageComponent, ExchangeRateNoteComponent, DemurrageCalculatorComponent, AddToCartDialogComponent,
   ],
   templateUrl: './demurrage-panel.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
 export class DemurragePanelComponent {
   private readonly service = inject(DemurrageService);
-  private readonly cart = inject(CartIntentService);
+  readonly cart = inject(CartService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -69,8 +72,8 @@ export class DemurragePanelComponent {
   calculatorOpen = signal(false);
   advanceBusy = signal(false);
   advanceError = signal('');
-  /** Conceptos y líneas guardados para el carro en esta vista. */
-  private readonly savedIds = signal<Set<string>>(new Set());
+  /** Ítems que se están agregando al carro (diálogo con RUT de facturación y moneda). */
+  addTargets = signal<AddToCartTarget[] | null>(null);
 
   /** Moneda local del país del BL. */
   localCurrency = computed(() => COUNTRY_CURRENCY[this.data()?.country ?? 'CL'] ?? 'CLP');
@@ -127,48 +130,37 @@ export class DemurragePanelComponent {
     this.calculatorOpen.set(false);
   }
 
-  /** Guarda las líneas calculadas para el carro de la Ola D. */
+  /** Agrega al carro las líneas calculadas y no pagadas (una por contenedor). */
   addLinesToCart(): void {
-    const d = this.data();
-    if (!d) return;
     const lines = this.pendingLines();
-    this.cart.add(lines.map((l) => ({
-      chargeId: l.id,
-      blNumber: d.blNumber,
-      conceptCode: 'DEMURRAGE',
-      amount: l.totalAmount,
-      currency: l.currency,
+    this.addTargets.set(lines.map((l) => ({
+      itemType: 'Demurrage' as const,
+      sourceId: l.id,
+      label: translate('demurrage.panel.cart.lineLabel', { container: l.containerNumber }),
     })));
-    this.savedIds.update((ids) => {
-      const next = new Set(ids);
-      lines.forEach((l) => next.add(l.id));
-      return next;
-    });
-    this.announcer.announce(translate('demurrage.panel.cart.linesSaved', { count: lines.length }));
   }
 
   linesSaved(): boolean {
     const lines = this.pendingLines();
-    return lines.length > 0 && lines.every((l) => this.savedIds().has(l.id) || this.cart.has(l.id));
+    return lines.length > 0 && lines.every((l) => this.cart.contains('Demurrage', l.id));
+  }
+
+  /** Paga la factura de demurrage desde el carro, por su número (M3-18). */
+  payInvoice(invoiceNumber: string): void {
+    this.addTargets.set([{ itemType: 'Invoice', reference: invoiceNumber, label: invoiceNumber }]);
   }
 
   addConceptToCart(concept: DemurrageConceptCharge): void {
-    const d = this.data();
-    if (!d) return;
-    this.cart.add([{
-      chargeId: concept.chargeId,
-      blNumber: d.blNumber,
-      conceptCode: concept.conceptCode,
-      amount: concept.payableTotal,
-      currency: concept.currency,
-    }]);
-    this.savedIds.update((ids) => new Set(ids).add(concept.chargeId));
     const key = CHARGE_CONCEPT_KEYS[concept.conceptCode];
-    this.announcer.announce(translate('demurrage.panel.cart.conceptSaved', { concept: key ? translate(key) : concept.conceptName }));
+    this.addTargets.set([{ itemType: 'LocalCharge', sourceId: concept.chargeId, label: key ? translate(key) : concept.conceptName }]);
   }
 
   isSaved(chargeId: string | null | undefined): boolean {
-    return !!chargeId && (this.savedIds().has(chargeId) || this.cart.has(chargeId));
+    return this.cart.contains('LocalCharge', chargeId);
+  }
+
+  onAddClosed(): void {
+    this.addTargets.set(null);
   }
 
   /** Genera el cargo de demoras anticipadas (idempotente) para pagarlo antes del CLD (M3-16). */
@@ -191,17 +183,8 @@ export class DemurragePanelComponent {
   }
 
   addAdvanceToCart(): void {
-    const d = this.data();
-    const advance = d?.advance;
-    if (!d || !advance?.chargeId) return;
-    this.cart.add([{
-      chargeId: advance.chargeId,
-      blNumber: d.blNumber,
-      conceptCode: 'ADVANCE_DEMURRAGE_BO',
-      amount: advance.amount ?? 0,
-      currency: advance.currency ?? 'USD',
-    }]);
-    this.savedIds.update((ids) => new Set(ids).add(advance.chargeId as string));
-    this.announcer.announce(translate('demurrage.panel.cart.conceptSaved', { concept: translate('common.chargeConcept.advanceDemurrageBo') }));
+    const chargeId = this.data()?.advance.chargeId;
+    if (!chargeId) return;
+    this.addTargets.set([{ itemType: 'LocalCharge', sourceId: chargeId, label: translate('common.chargeConcept.advanceDemurrageBo') }]);
   }
 }
