@@ -27,6 +27,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
     canActivate: [authGuard],
+    data: { preload: true },
   },
   // Listado y detalle de embarques (M2-06, M2-07); reemplazan a la consulta de BL.
   {
@@ -34,12 +35,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/shipments/shipment-list/shipment-list').then((m) => m.ShipmentListComponent),
     canActivate: [authGuard],
+    data: { preload: true },
   },
   {
     path: 'shipments/:blNumber',
     loadComponent: () =>
       import('./features/shipments/shipment-detail/shipment-detail').then((m) => m.ShipmentDetailComponent),
     canActivate: [authGuard],
+    data: { preload: true },
   },
   // Ola E: repositorio documental del embarque en su propia página (M6-09), para enlaces directos.
   {
@@ -76,6 +79,7 @@ export const routes: Routes = [
     path: 'cart',
     loadComponent: () => import('./features/cart/cart').then((m) => m.CartComponent),
     canActivate: [authGuard],
+    data: { preload: true },
   },
   {
     path: 'account-payments',
@@ -93,6 +97,7 @@ export const routes: Routes = [
     path: 'invoices',
     loadComponent: () => import('./features/invoices/invoices').then((m) => m.InvoicesComponent),
     canActivate: [authGuard],
+    data: { preload: true },
   },
   // Fase 2, Ola H: estado de cuenta en línea con pago por carro o forma de pago por ítem con crédito (M7-03, M5-10).
   {
@@ -100,6 +105,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/account-statement/account-statement').then((m) => m.AccountStatementComponent),
     canActivate: [authGuard],
+    data: { preload: true },
   },
   // Fase 2, Ola H: refacturación IAO con pérdida de IVA (M3-11). La aceptación de la nueva razón social es pública: se
   // abre desde el enlace de un solo uso enviado a su correo, sin sesión.
@@ -125,6 +131,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/payment-history/payment-history').then((m) => m.PaymentHistoryComponent),
     canActivate: [authGuard],
+    data: { preload: true },
   },
   {
     path: 'payment-history/:id',

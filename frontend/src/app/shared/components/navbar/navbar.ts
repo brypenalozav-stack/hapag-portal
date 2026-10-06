@@ -1,8 +1,8 @@
-import { Component, DestroyRef, computed, inject, input, output, signal, OnInit } from '@angular/core';
+import { Component, DestroyRef, ElementRef, computed, inject, input, output, signal, viewChild, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
-import { switchMap } from 'rxjs';
+import { filter, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -18,6 +18,10 @@ import { ToastService } from '../../../core/services/toast.service';
   imports: [RouterLink, TranslocoPipe],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
+  host: {
+    '(document:click)': 'onDocumentClick($event)',
+    '(document:keydown.escape)': 'onEscape()',
+  },
 })
 export class NavbarComponent implements OnInit {
   readonly auth = inject(AuthService);
@@ -76,6 +80,39 @@ export class NavbarComponent implements OnInit {
         this.announcer.announce(translate('shared.navbar.country.error'), 'assertive');
       },
     });
+  }
+
+  /** Menú del usuario (correo, organización, perfil y salir). */
+  readonly userMenuOpen = signal(false);
+  private readonly userMenuButton = viewChild<ElementRef<HTMLButtonElement>>('userMenuButton');
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  constructor() {
+    // Elegir una opción navega: el menú se cierra con la navegación.
+    inject(Router)
+      .events.pipe(filter((e) => e instanceof NavigationEnd), takeUntilDestroyed())
+      .subscribe(() => this.userMenuOpen.set(false));
+  }
+
+  toggleUserMenu(): void {
+    this.userMenuOpen.update((open) => !open);
+  }
+
+  closeUserMenu(): void {
+    this.userMenuOpen.set(false);
+  }
+
+  onDocumentClick(event: MouseEvent): void {
+    if (this.userMenuOpen() && !this.host.nativeElement.querySelector('.hl-user-menu')?.contains(event.target as Node)) {
+      this.userMenuOpen.set(false);
+    }
+  }
+
+  /** Esc cierra el menú y devuelve el foco a su botón (WCAG 2.1.2). */
+  onEscape(): void {
+    if (!this.userMenuOpen()) return;
+    this.userMenuOpen.set(false);
+    this.userMenuButton()?.nativeElement.focus();
   }
 
   /** Cambia el tema y lo anuncia; la preferencia se conserva entre sesiones (hl_theme). */

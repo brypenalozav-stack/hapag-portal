@@ -61,3 +61,23 @@ test('el cliente no ve Operación ni Administración; el administrador sí', asy
   await expect(menuAdmin.getByRole('link', { name: 'Usuarios' })).toBeVisible();
   await admin.close();
 });
+
+test('menú del usuario sin Bootstrap JS: abre con clic, Esc cierra y devuelve el foco, navegar lo cierra', async ({ page }) => {
+  await simularApi(page);
+  await sembrarSesion(page, { lang: 'es' });
+  await page.goto('/dashboard');
+  const boton = page.locator('header button[aria-controls="hl-user-menu"]');
+  const lista = page.locator('#hl-user-menu');
+
+  await boton.click();
+  await expect(boton).toHaveAttribute('aria-expanded', 'true');
+  await expect(lista).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(lista).toBeHidden();
+  await expect(boton).toBeFocused();
+
+  await boton.click();
+  await lista.getByRole('link', { name: 'Mi perfil' }).click();
+  await expect(page).toHaveURL(/\/profile$/);
+  await expect(lista).toBeHidden();
+});
