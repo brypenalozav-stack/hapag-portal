@@ -842,6 +842,32 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             SealNumber = "SL-030404",
                             Status = "Discharged",
                             Weight = 17200m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000015"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000012"),
+                            ContainerNumber = "HLXU3045001",
+                            ContainerType = "40HC",
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-045001",
+                            Status = "Discharged",
+                            Weight = 25100m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000016"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000013"),
+                            ContainerNumber = "HLXU3045002",
+                            ContainerType = "20DV",
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-045002",
+                            Status = "Discharged",
+                            Weight = 17900m
                         });
                 });
 
@@ -1342,6 +1368,59 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Status = "Arrived",
                             Vessel = "Santos Express",
                             Voyage = "2609N"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000012"),
+                            BLNumber = "HLCUSAI260501240",
+                            BookingNumber = "HLCUBKG2605124",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Consignee = "Importadora Demo SpA",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 10, 2, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 8, 28, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FreightAmount = 4800m,
+                            FreightCurrency = "USD",
+                            FreightPaidAt = new DateTime(2026, 10, 3, 15, 0, 0, 0, DateTimeKind.Utc),
+                            FreightTerms = "Collect",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            NotifyParty = "Agencia Marítima del Pacífico Ltda",
+                            PlaceOfDelivery = "Santiago, Chile",
+                            PortOfDischarge = "San Antonio (CLSAI)",
+                            PortOfLoading = "Yokohama (JPYOK)",
+                            ShipmentType = "Import",
+                            Shipper = "Yokohama Machinery Co.",
+                            Status = "Arrived",
+                            Vessel = "Cartagena Express",
+                            Voyage = "2611E"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000013"),
+                            BLNumber = "HLCUVAP260501350",
+                            BookingNumber = "HLCUBKG2605135",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000070"),
+                            Consignee = "Global Forwarding Chile SpA",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 8, 30, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FreightAmount = 2900m,
+                            FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            PlaceOfDelivery = "Valparaiso, Chile",
+                            PortOfDischarge = "Valparaiso (CLVAP)",
+                            PortOfLoading = "Shanghai (CNSHA)",
+                            ShipmentType = "Import",
+                            Shipper = "Shanghai Furniture Ltd",
+                            Status = "Arrived",
+                            Vessel = "Callao Express",
+                            Voyage = "2611N"
                         });
                 });
 
@@ -1981,6 +2060,20 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             DisplayOrder = 140,
                             IsActive = true,
                             Name = "Late Arrival",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("3f585118-c4e9-dfe7-55a8-9ccdf3ad7b01"),
+                            Category = "Service",
+                            Code = "TRANSSHIPMENT_CERT",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 150,
+                            IsActive = true,
+                            Name = "Certificado de transbordo",
                             NexusExemptible = false,
                             NexusTariff = false
                         });
@@ -4586,6 +4679,54 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TaxAmount = 11400m,
                             TaxRate = 19m,
                             TotalAmount = 71400m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000023"),
+                            Amount = 185000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000013"),
+                            ChargeType = "THC",
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Terminal Handling Charge - 20DV (Valparaíso)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 35150m,
+                            TaxRate = 19m,
+                            TotalAmount = 220150m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000024"),
+                            Amount = 35000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000006"),
+                            ChargeType = "TRANSSHIPMENT_CERT",
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Certificado de transbordo",
+                            IsTaxable = true,
+                            Status = "Paid",
+                            TaxAmount = 6650m,
+                            TaxRate = 19m,
+                            TotalAmount = 41650m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000025"),
+                            Amount = 150m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000005"),
+                            ChargeType = "ADVANCE_DEMURRAGE_BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "USD",
+                            Description = "Demoras anticipadas (1 contenedor(es))",
+                            IsTaxable = false,
+                            Status = "Paid",
+                            TaxAmount = 0m,
+                            TaxRate = 0m,
+                            TotalAmount = 150m
                         });
                 });
 
@@ -4713,6 +4854,16 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             EntityId = new Guid("eeeeeeee-0014-0014-0014-000000000008"),
                             Maintainer = "Tariff",
                             NewValue = "{\"conceptCode\":\"ADVANCE_DEMURRAGE_BO\",\"code\":null,\"country\":\"BO\",\"currency\":\"USD\",\"containerType\":null,\"description\":\"Demoras anticipadas por contenedor\",\"amount\":150,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-01-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("65387c59-9c85-0b9a-cbfb-175c8bde0570"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 9, 30, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("eeeeeeee-0014-0014-0014-000000000009"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"TRANSSHIPMENT_CERT\",\"code\":null,\"country\":\"CL\",\"currency\":\"CLP\",\"containerType\":null,\"description\":\"Certificado de transbordo (M6-01)\",\"amount\":35000,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
                         },
                         new
                         {
@@ -10477,6 +10628,381 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.ToTable("ShipmentAssociations", (string)null);
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AccessGrantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BookingNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ContainerNumbers")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("ContentHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DocumentNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("GenerationKey")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<DateTime>("IssuedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IssuedByEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("IssuedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("IssuedForOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("OnBehalfOfOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid?>("PaymentDetailId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RecipientEmails")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("RetainUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SignatureId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SignatureLevel")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("SignatureProvider")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("SignedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("StorageKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TemplateJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("TermsAcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TermsVersion")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("ValidUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("VerificationCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentNumber")
+                        .IsUnique();
+
+                    b.HasIndex("GenerationKey")
+                        .IsUnique()
+                        .HasFilter("\"GenerationKey\" IS NOT NULL");
+
+                    b.HasIndex("PaymentId");
+
+                    b.HasIndex("BillOfLadingId", "DocumentType", "IssuedAt");
+
+                    b.HasIndex("IssuedForOrganizationId", "DocumentType", "Status");
+
+                    b.ToTable("ShipmentDocuments", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0018-0018-0018-000000000001"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000006"),
+                            BlNumber = "HLCUSAI260300610",
+                            BookingNumber = "HLCUBKG2603061",
+                            ContainerNumbers = "HLXU2023001",
+                            ContentType = "application/pdf",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 4, 13, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DeliveredAt = new DateTime(2026, 10, 4, 13, 0, 0, 0, DateTimeKind.Utc),
+                            DocumentNumber = "CTB-20261004-5A1B2C3D",
+                            DocumentType = "TransshipmentCertificate",
+                            FileName = "certificado-transbordo-CTB-20261004-5A1B2C3D.pdf",
+                            IssuedAt = new DateTime(2026, 10, 4, 13, 0, 0, 0, DateTimeKind.Utc),
+                            IssuedForOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Origin = "Seed",
+                            RecipientEmails = "demo@importadorademo.cl",
+                            RetainUntil = new DateTime(2036, 10, 4, 13, 0, 0, 0, DateTimeKind.Utc),
+                            SizeBytes = 0L,
+                            Status = "Issued",
+                            TemplateJson = "{\"title\":\"Certificado de transbordo\",\"subtitle\":\"Operaci\\u00F3n de exportaci\\u00F3n\",\"issuer\":\"Hapag-Lloyd Chile SpA\",\"issuerDetail\":\"Agente de Hapag-Lloyd AG - Operaci\\u00F3n Chile\",\"documentNumber\":\"CTB-20261004-5A1B2C3D\",\"issuedAt\":\"2026-10-04T13:00:00Z\",\"timeZoneId\":\"America/Santiago\",\"references\":[{\"label\":\"BL\",\"value\":\"HLCUSAI260300610\"},{\"label\":\"Booking\",\"value\":\"HLCUBKG2603061\"},{\"label\":\"Operaci\\u00F3n\",\"value\":\"Exportaci\\u00F3n\"},{\"label\":\"Pa\\u00EDs\",\"value\":\"CL\"},{\"label\":\"Nave / viaje\",\"value\":\"Valparaiso Express / 2610S\"},{\"label\":\"Ruta\",\"value\":\"San Antonio (CLSAI) - Rotterdam (NLRTM)\"}],\"sections\":[{\"heading\":\"Partes\",\"fields\":[{\"label\":\"Shipper\",\"value\":\"Importadora Demo SpA\"},{\"label\":\"Consignee\",\"value\":\"Fruit Import BV\"},{\"label\":\"Notify\",\"value\":null}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Cliente\",\"fields\":[{\"label\":\"Raz\\u00F3n social\",\"value\":\"Importadora Demo SpA\"},{\"label\":\"RUT / NIT\",\"value\":\"76123456-7\"},{\"label\":\"Pago\",\"value\":null}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Unidades\",\"fields\":null,\"table\":{\"headers\":[\"Contenedor\",\"Tipo\",\"Sello\",\"Peso (kg)\",\"Estado\"],\"rows\":[[\"HLXU2023001\",\"40RF\",\"SL-020301\",\"26.800,00\",\"GateIn\"]],\"numericColumns\":[3]},\"paragraphs\":null},{\"heading\":\"Certificaci\\u00F3n\",\"fields\":null,\"table\":null,\"paragraphs\":[\"Hapag-Lloyd Chile SpA certifica que la carga amparada en el BL HLCUSAI260300610, transportada en la nave Valparaiso Express viaje 2610S, con origen en San Antonio (CLSAI) y destino Rotterdam, Netherlands, fue objeto de transbordo en el puerto de Rotterdam (NLRTM) en las unidades individualizadas en este documento.\",\"Se emite a solicitud del interesado para los fines que estime convenientes.\"]}],\"verificationCode\":\"EF67-5D1A-FCD1-C29B\",\"signatureNote\":\"Documento firmado electr\\u00F3nicamente. La validez de la firma se acredita seg\\u00FAn el mecanismo publicado por Hapag-Lloyd.\",\"footer\":\"Documento emitido por el Portal de Clientes de Hapag-Lloyd. Verifique su emisi\\u00F3n con el c\\u00F3digo indicado.\"}",
+                            VerificationCode = "EF67-5D1A-FCD1-C29B"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0018-0018-0018-000000000002"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000001"),
+                            BlNumber = "HLCUVAL250100123",
+                            BookingNumber = "HLCUBKG2501001",
+                            ContainerNumbers = "HLXU1234567,HLXU7654321",
+                            ContentType = "application/pdf",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 3, 16, 30, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            DeliveredAt = new DateTime(2026, 10, 3, 16, 30, 0, 0, DateTimeKind.Utc),
+                            DocumentNumber = "CBL-20261003-7E8F9A0B",
+                            DocumentType = "BlCopyNonValued",
+                            FileName = "copia-bl-no-valorada-CBL-20261003-7E8F9A0B.pdf",
+                            IssuedAt = new DateTime(2026, 10, 3, 16, 30, 0, 0, DateTimeKind.Utc),
+                            IssuedByEmail = "demo@importadorademo.cl",
+                            IssuedForOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Origin = "Seed",
+                            RecipientEmails = "demo@importadorademo.cl",
+                            RetainUntil = new DateTime(2036, 10, 3, 16, 30, 0, 0, DateTimeKind.Utc),
+                            SizeBytes = 0L,
+                            Status = "Issued",
+                            TemplateJson = "{\"title\":\"Copia de BL - no valorada\",\"subtitle\":\"Copia informativa, no negociable\",\"issuer\":\"Hapag-Lloyd Chile SpA\",\"issuerDetail\":\"Agente de Hapag-Lloyd AG - Operaci\\u00F3n Chile\",\"documentNumber\":\"CBL-20261003-7E8F9A0B\",\"issuedAt\":\"2026-10-03T16:30:00Z\",\"timeZoneId\":\"America/Santiago\",\"references\":[{\"label\":\"BL\",\"value\":\"HLCUVAL250100123\"},{\"label\":\"Booking\",\"value\":\"HLCUBKG2501001\"},{\"label\":\"Operaci\\u00F3n\",\"value\":\"Importaci\\u00F3n\"},{\"label\":\"Pa\\u00EDs\",\"value\":\"CL\"},{\"label\":\"Nave / viaje\",\"value\":\"Hamburg Express / 025E\"},{\"label\":\"Ruta\",\"value\":\"Shanghai (CNSHA) - San Antonio (CLSAI)\"}],\"sections\":[{\"heading\":\"Partes\",\"fields\":[{\"label\":\"Shipper\",\"value\":\"Shanghai Electronics Co. Ltd\"},{\"label\":\"Consignee\",\"value\":\"Importadora Demo SpA\"},{\"label\":\"Notify\",\"value\":\"Agencia Mar\\u00EDtima del Pac\\u00EDfico Ltda\"}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Transporte\",\"fields\":[{\"label\":\"Nave / viaje\",\"value\":\"Hamburg Express / 025E\"},{\"label\":\"Puerto de carga\",\"value\":\"Shanghai (CNSHA)\"},{\"label\":\"Puerto de descarga\",\"value\":\"San Antonio (CLSAI)\"},{\"label\":\"Lugar de entrega\",\"value\":\"Santiago, Chile\"},{\"label\":\"ETD\",\"value\":\"01-03-2026\"},{\"label\":\"ETA\",\"value\":\"05-04-2026\"},{\"label\":\"Tipo de BL\",\"value\":null},{\"label\":\"Incoterm\",\"value\":null}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Unidades\",\"fields\":null,\"table\":{\"headers\":[\"Contenedor\",\"Tipo\",\"Sello\",\"Peso (kg)\",\"Estado\"],\"rows\":[[\"HLXU1234567\",\"40HC\",\"SL-001234\",\"24.500,00\",\"Discharged\"],[\"HLXU7654321\",\"20DV\",\"SL-005678\",\"18.200,00\",\"Discharged\"]],\"numericColumns\":[3]},\"paragraphs\":null},{\"heading\":\"Mercanc\\u00EDa\",\"fields\":null,\"table\":null,\"paragraphs\":[\"Sin detalle de mercanc\\u00EDa registrado.\"]},{\"heading\":\"Valores comerciales\",\"fields\":null,\"table\":null,\"paragraphs\":[\"Copia no valorada: no incluye el flete ni los cargos del embarque.\"]},{\"heading\":\"Solicitud\",\"fields\":[{\"label\":\"Solicitada por\",\"value\":\"Importadora Demo SpA (demo@importadorademo.cl)\"}],\"table\":null,\"paragraphs\":null}],\"verificationCode\":\"90FF-9F4C-557C-3C9D\",\"signatureNote\":null,\"footer\":\"Documento emitido por el Portal de Clientes de Hapag-Lloyd. Verifique su emisi\\u00F3n con el c\\u00F3digo indicado.\"}",
+                            VerificationCode = "90FF-9F4C-557C-3C9D"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0018-0018-0018-000000000003"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000012"),
+                            BlNumber = "HLCUSAI260501240",
+                            BookingNumber = "HLCUBKG2605124",
+                            ContainerNumbers = "HLXU3045001",
+                            ContentType = "application/pdf",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 3, 15, 5, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DocumentNumber = "CCO-20261003-1C2D3E4F",
+                            DocumentType = "CollectReceipt",
+                            FileName = "comprobante-collect-CCO-20261003-1C2D3E4F.pdf",
+                            IssuedAt = new DateTime(2026, 10, 3, 15, 5, 0, 0, DateTimeKind.Utc),
+                            IssuedForOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            Origin = "Seed",
+                            RetainUntil = new DateTime(2036, 10, 3, 15, 5, 0, 0, DateTimeKind.Utc),
+                            SizeBytes = 0L,
+                            Status = "Issued",
+                            TemplateJson = "{\"title\":\"Comprobante de flete Collect\",\"subtitle\":null,\"issuer\":\"Hapag-Lloyd Chile SpA\",\"issuerDetail\":\"Agente de Hapag-Lloyd AG - Operaci\\u00F3n Chile\",\"documentNumber\":\"CCO-20261003-1C2D3E4F\",\"issuedAt\":\"2026-10-03T15:05:00Z\",\"timeZoneId\":\"America/Santiago\",\"references\":[{\"label\":\"BL\",\"value\":\"HLCUSAI260501240\"},{\"label\":\"Booking\",\"value\":\"HLCUBKG2605124\"},{\"label\":\"Operaci\\u00F3n\",\"value\":\"Importaci\\u00F3n\"},{\"label\":\"Pa\\u00EDs\",\"value\":\"CL\"},{\"label\":\"Nave / viaje\",\"value\":\"Cartagena Express / 2611E\"},{\"label\":\"Ruta\",\"value\":\"Yokohama (JPYOK) - San Antonio (CLSAI)\"}],\"sections\":[{\"heading\":\"Partes\",\"fields\":[{\"label\":\"Shipper\",\"value\":\"Yokohama Machinery Co.\"},{\"label\":\"Consignee\",\"value\":\"Importadora Demo SpA\"},{\"label\":\"Notify\",\"value\":\"Agencia Mar\\u00EDtima del Pac\\u00EDfico Ltda\"}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Pago del flete\",\"fields\":[{\"label\":\"Condici\\u00F3n del flete\",\"value\":\"Collect\"},{\"label\":\"Monto pagado\",\"value\":\"4.800,00 USD\"},{\"label\":\"Pagador\",\"value\":\"Agencia Mar\\u00EDtima del Pac\\u00EDfico Ltda\"},{\"label\":\"RUT / NIT del pagador\",\"value\":\"96555444-3\"},{\"label\":\"Pago\",\"value\":null},{\"label\":\"Comprobante de pago\",\"value\":null},{\"label\":\"Fecha de pago\",\"value\":\"03-10-2026 12:00 (America/Santiago)\"}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Unidades\",\"fields\":null,\"table\":{\"headers\":[\"Contenedor\",\"Tipo\",\"Sello\",\"Peso (kg)\",\"Estado\"],\"rows\":[[\"HLXU3045001\",\"40HC\",\"SL-045001\",\"25.100,00\",\"Discharged\"]],\"numericColumns\":[3]},\"paragraphs\":null}],\"verificationCode\":\"B3D6-27E7-7995-FF24\",\"signatureNote\":null,\"footer\":\"Documento emitido por el Portal de Clientes de Hapag-Lloyd. Verifique su emisi\\u00F3n con el c\\u00F3digo indicado.\"}",
+                            VerificationCode = "B3D6-27E7-7995-FF24"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0018-0018-0018-000000000004"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000013"),
+                            BlNumber = "HLCUVAP260501350",
+                            BookingNumber = "HLCUBKG2605135",
+                            ContainerNumbers = "HLXU3045002",
+                            ContentType = "application/pdf",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 2, 14, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "ffww@globalforwarding.cl",
+                            DocumentNumber = "CRE-20261002-9F8E7D6C",
+                            DocumentType = "ResponsibilityLetter",
+                            FileName = "carta-responsabilidad-CRE-20261002-9F8E7D6C.pdf",
+                            IssuedAt = new DateTime(2026, 10, 2, 14, 0, 0, 0, DateTimeKind.Utc),
+                            IssuedByEmail = "ffww@globalforwarding.cl",
+                            IssuedForOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000070"),
+                            Origin = "Seed",
+                            RetainUntil = new DateTime(2036, 10, 2, 14, 0, 0, 0, DateTimeKind.Utc),
+                            SizeBytes = 0L,
+                            Status = "Issued",
+                            TemplateJson = "{\"title\":\"Carta de responsabilidad\",\"subtitle\":\"T\\u00E9rminos CARTA-RESP-2026-10\",\"issuer\":\"Hapag-Lloyd Chile SpA\",\"issuerDetail\":\"Agente de Hapag-Lloyd AG - Operaci\\u00F3n Chile\",\"documentNumber\":\"CRE-20261002-9F8E7D6C\",\"issuedAt\":\"2026-10-02T14:00:00Z\",\"timeZoneId\":\"America/Santiago\",\"references\":[{\"label\":\"BL\",\"value\":\"HLCUVAP260501350\"},{\"label\":\"Booking\",\"value\":\"HLCUBKG2605135\"},{\"label\":\"Operaci\\u00F3n\",\"value\":\"Importaci\\u00F3n\"},{\"label\":\"Pa\\u00EDs\",\"value\":\"CL\"},{\"label\":\"Nave / viaje\",\"value\":\"Callao Express / 2611N\"},{\"label\":\"Ruta\",\"value\":\"Shanghai (CNSHA) - Valparaiso (CLVAP)\"}],\"sections\":[{\"heading\":\"Organizaci\\u00F3n responsable\",\"fields\":[{\"label\":\"Raz\\u00F3n social\",\"value\":\"Global Forwarding Chile SpA\"},{\"label\":\"RUT / NIT\",\"value\":\"76000003-3\"}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Firmante\",\"fields\":[{\"label\":\"Nombre\",\"value\":\"Felipe Forwarder\"},{\"label\":\"Documento de identidad\",\"value\":\"12.345.678-5\"},{\"label\":\"Cargo\",\"value\":\"Gerente de Operaciones\"},{\"label\":\"Correo de contacto\",\"value\":\"ffww@globalforwarding.cl\"},{\"label\":\"Tel\\u00E9fono\",\"value\":null}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Unidades\",\"fields\":null,\"table\":{\"headers\":[\"Contenedor\",\"Tipo\",\"Sello\",\"Peso (kg)\",\"Estado\"],\"rows\":[[\"HLXU3045002\",\"20DV\",\"SL-045002\",\"17.900,00\",\"Discharged\"]],\"numericColumns\":[3]},\"paragraphs\":null},{\"heading\":\"Declaraci\\u00F3n\",\"fields\":[{\"label\":\"Mercanc\\u00EDa\",\"value\":\"Muebles de madera\"},{\"label\":\"Observaciones\",\"value\":null}],\"table\":null,\"paragraphs\":[\"El firmante, en representaci\\u00F3n de la organizaci\\u00F3n indicada, declara que los datos ingresados son ver\\u00EDdicos y asume ante Hapag-Lloyd la responsabilidad por la carga amparada en el BL individualizado, incluidos los cargos, demoras y perjuicios que se originen por su retiro y manipulaci\\u00F3n, liberando a Hapag-Lloyd de toda responsabilidad frente al consignatario final y a terceros.\",\"T\\u00E9rminos aceptados en el portal el 02-10-2026 11:00 (America/Santiago) (versi\\u00F3n CARTA-RESP-2026-10).\"]}],\"verificationCode\":\"94E7-43DA-1F4E-8AA7\",\"signatureNote\":null,\"footer\":\"Documento emitido por el Portal de Clientes de Hapag-Lloyd. Verifique su emisi\\u00F3n con el c\\u00F3digo indicado.\"}",
+                            TermsAcceptedAt = new DateTime(2026, 10, 2, 14, 0, 0, 0, DateTimeKind.Utc),
+                            TermsVersion = "CARTA-RESP-2026-10",
+                            VerificationCode = "94E7-43DA-1F4E-8AA7"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentDocumentEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("OnBehalfOfOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Recipient")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("ShipmentDocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "OccurredAt");
+
+                    b.HasIndex("ShipmentDocumentId", "OccurredAt");
+
+                    b.ToTable("ShipmentDocumentEvents", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("93928381-c81e-f01c-77a0-ab21529781c6"),
+                            Channel = "System",
+                            EventType = "Issued",
+                            OccurredAt = new DateTime(2026, 10, 4, 13, 0, 0, 0, DateTimeKind.Utc),
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            ShipmentDocumentId = new Guid("ffffffff-0018-0018-0018-000000000001")
+                        },
+                        new
+                        {
+                            Id = new Guid("81704c0f-1990-fcac-1ea8-2a34ced3fb44"),
+                            Channel = "Portal",
+                            EventType = "Issued",
+                            OccurredAt = new DateTime(2026, 10, 3, 16, 30, 0, 0, DateTimeKind.Utc),
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            ShipmentDocumentId = new Guid("ffffffff-0018-0018-0018-000000000002"),
+                            UserEmail = "demo@importadorademo.cl"
+                        },
+                        new
+                        {
+                            Id = new Guid("c63bfeee-1240-a9e9-1e0a-56b43357013b"),
+                            Channel = "System",
+                            EventType = "Issued",
+                            OccurredAt = new DateTime(2026, 10, 3, 15, 5, 0, 0, DateTimeKind.Utc),
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            ShipmentDocumentId = new Guid("ffffffff-0018-0018-0018-000000000003")
+                        },
+                        new
+                        {
+                            Id = new Guid("853b0d16-b00e-352a-fa93-99c6d48f2438"),
+                            Channel = "Portal",
+                            EventType = "Issued",
+                            OccurredAt = new DateTime(2026, 10, 2, 14, 0, 0, 0, DateTimeKind.Utc),
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000070"),
+                            ShipmentDocumentId = new Guid("ffffffff-0018-0018-0018-000000000004"),
+                            UserEmail = "ffww@globalforwarding.cl"
+                        });
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -10627,6 +11153,36 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000011"),
                             ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000070"),
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Consignee",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("464a1f72-cc7e-cb5e-aab3-e55e60f9a7bd"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000012"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Consignee",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("6195e2af-bf9f-a6ca-ff6f-e3311b80ac45"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000012"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "CustomsAgency",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("e3596ff0-7c41-8ca2-284a-837b029aed7f"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000013"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000070"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "SYSTEM",
                             Role = "Consignee",
                             Source = "Seed"
@@ -10840,6 +11396,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TierMode = "Flat",
                             TierUnit = "None",
                             ValidFrom = new DateOnly(2026, 1, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("eeeeeeee-0014-0014-0014-000000000009"),
+                            Amount = 35000m,
+                            ConceptCode = "TRANSSHIPMENT_CERT",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 9, 30, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Certificado de transbordo (M6-01)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
+                            ValidFrom = new DateOnly(2026, 10, 1)
                         });
                 });
 
@@ -12132,6 +12703,28 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("Client");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentDocument", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
+                        .WithMany()
+                        .HasForeignKey("BillOfLadingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BillOfLading");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentDocumentEvent", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ShipmentDocument", "ShipmentDocument")
+                        .WithMany("Events")
+                        .HasForeignKey("ShipmentDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ShipmentDocument");
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentRole", b =>
                 {
                     b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
@@ -12292,6 +12885,11 @@ namespace HapagPortal.DatabaseMigrations.Migrations
             modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentAction", b =>
                 {
                     b.Navigation("Rules");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentDocument", b =>
+                {
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.Tariff", b =>

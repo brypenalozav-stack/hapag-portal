@@ -211,6 +211,20 @@ public static class SeedDataIds
     public static readonly Guid InvoiceCreditCustomer01 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000009");
     public static readonly Guid InvoiceCreditCustomer02 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000010");
 
+    // Fase 1 Ola E — documentos del embarque, BL de Collect para la agencia y BL del FFWW con carta
+    public static readonly Guid BL12 = Guid.Parse("11111111-0007-0007-0007-000000000012");
+    public static readonly Guid BL13 = Guid.Parse("11111111-0007-0007-0007-000000000013");
+    public static readonly Guid Container15 = Guid.Parse("22222222-0008-0008-0008-000000000015");
+    public static readonly Guid Container16 = Guid.Parse("22222222-0008-0008-0008-000000000016");
+    public static readonly Guid LocalCharge23 = Guid.Parse("33333333-0009-0009-0009-000000000023");
+    public static readonly Guid LocalCharge24 = Guid.Parse("33333333-0009-0009-0009-000000000024");
+    public static readonly Guid LocalCharge25 = Guid.Parse("33333333-0009-0009-0009-000000000025");
+    public static readonly Guid TariffTransshipmentCL = Guid.Parse("EEEEEEEE-0014-0014-0014-000000000009");
+    public static readonly Guid DocumentTransshipmentBL06 = Guid.Parse("FFFFFFFF-0018-0018-0018-000000000001");
+    public static readonly Guid DocumentBlCopyBL01 = Guid.Parse("FFFFFFFF-0018-0018-0018-000000000002");
+    public static readonly Guid DocumentCollectBL12 = Guid.Parse("FFFFFFFF-0018-0018-0018-000000000003");
+    public static readonly Guid DocumentLetterBL13 = Guid.Parse("FFFFFFFF-0018-0018-0018-000000000004");
+
     // Audit Logs
     public static readonly Guid AuditLog01 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000001");
     public static readonly Guid AuditLog02 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000002");

@@ -5,12 +5,16 @@ namespace HapagPortal.Application.Common.Interfaces;
 /// <summary>Firma electrónica de documentos emitidos por el portal (CT-SIGN, <c>POST /sign</c>).</summary>
 public interface IDocumentSigner
 {
+    /// <summary>Proveedor de la firma, registrado con cada documento firmado.</summary>
+    string Provider { get; }
+
     Task<Result<SignedDocument>> SignAsync(
         SignDocumentRequest request,
         CancellationToken cancellationToken = default);
 }
 
-/// <summary>Documento PDF a firmar. <c>DocumentType</c>: TRANSSHIPMENT_CERTIFICATE, FREIGHT_CERTIFICATE o NO_DEBT_CERTIFICATE.</summary>
+/// <summary>Documento PDF a firmar. <c>DocumentType</c>: TRANSSHIPMENT_CERTIFICATE, FREIGHT_CERTIFICATE o NO_DEBT_CERTIFICATE
+/// (<c>SignatureDocumentTypes</c>).</summary>
 public sealed record SignDocumentRequest(
     byte[] Content,
     string DocumentType,

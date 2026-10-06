@@ -5,6 +5,7 @@ using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Common.Models;
+using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.Lifecycle;
 using HapagPortal.Domain.Charges;
@@ -32,7 +33,7 @@ public sealed record GetPaymentHistoryItemQuery(Guid PaymentId) : IQuery<Payment
 
 public sealed record PaymentReceiptFileDto(byte[] Content, string FileName);
 
-/// <summary>Boleta o comprobante del pago (PDF de marcador hasta la Ola E).</summary>
+/// <summary>Boleta o comprobante del pago en PDF (plantilla común de documentos, Ola E).</summary>
 public sealed record GetPaymentReceiptQuery(Guid PaymentId) : IQuery<PaymentReceiptFileDto>;
 
 public sealed class GetPaymentHistoryQueryValidator : AbstractValidator<GetPaymentHistoryQuery>
@@ -233,7 +234,9 @@ public sealed class GetPaymentHistoryItemQueryHandler(
 public sealed class GetPaymentReceiptQueryHandler(
     IApplicationDbContext dbContext,
     IShipmentAccessEvaluator accessEvaluator,
-    ICurrentUserService currentUserService)
+    ICurrentUserService currentUserService,
+    IPdfDocumentRenderer renderer,
+    DocumentSettings settings)
     : IQueryHandler<GetPaymentReceiptQuery, PaymentReceiptFileDto>
 {
     public async Task<Result<PaymentReceiptFileDto>> Handle(GetPaymentReceiptQuery request, CancellationToken cancellationToken)
@@ -248,8 +251,7 @@ public sealed class GetPaymentReceiptQueryHandler(
         if (number is null)
             return Result<PaymentReceiptFileDto>.Failure(DomainErrors.PaymentFlow.ReceiptNotAvailable);
 
-        // PDF de marcador: la generación documental (PDFsharp/MigraDoc) es de la Ola E.
-        var content = System.Text.Encoding.ASCII.GetBytes($"%PDF-1.4\n% Hapag-Lloyd placeholder {number}\n%%EOF\n");
+        var content = await PortalPdfs.PaymentReceiptAsync(dbContext, renderer, settings, payment, number, cancellationToken);
         return Result<PaymentReceiptFileDto>.Success(new PaymentReceiptFileDto(content, $"{number}.pdf"));
     }
 }

@@ -209,6 +209,44 @@ public static class DomainErrors
             new("Invoice.FolioRequired", "Only invoices with an issued tax folio can be downloaded together.");
     }
 
+    /// <summary>Repositorio y emisión de documentos del embarque (M6-01 a M6-09, Ola E).</summary>
+    public static class ShipmentDocument
+    {
+        public static Error NotFound(Guid id) =>
+            new("ShipmentDocument.NotFound", $"The document '{id}' was not found.");
+
+        /// <summary>El registro existe pero su archivo no está en el almacenamiento.</summary>
+        public static readonly Error ContentNotFound =
+            new("ShipmentDocumentContent.NotFound", "The document file is not available in the storage.");
+
+        public static readonly Error NoRecipient =
+            new("ShipmentDocument.NoRecipient", "The organization has no registered email to send the document to.");
+
+        public static Error NotAvailable(string documentType, string country) =>
+            new("ShipmentDocument.NotAvailable", $"The document '{documentType}' is not available for the '{country}' operation.");
+    }
+
+    /// <summary>Carta de responsabilidad (M6-06).</summary>
+    public static class ResponsibilityLetter
+    {
+        public static readonly Error TermsNotAccepted =
+            new("ResponsibilityLetter.TermsNotAccepted", "The terms of the responsibility letter must be accepted.");
+
+        public static Error TermsVersionMismatch(string current) =>
+            new("ResponsibilityLetter.TermsVersionMismatch", $"The accepted terms are not the current version '{current}'.");
+    }
+
+    /// <summary>Certificado de libre deuda (M6-07).</summary>
+    public static class NoDebtCertificate
+    {
+        public static readonly Error NotApplicable =
+            new("NoDebtCertificate.NotApplicable", "The no-debt certificate is only issued for Bolivia import shipments.");
+
+        /// <summary>El detalle enumera los bloqueos (código y referencias) para presentarlos al cliente.</summary>
+        public static Error DebtPending(string blockers) =>
+            new("NoDebtCertificate.DebtPending", $"The shipment has pending debt: {blockers}");
+    }
+
     public static class LocalCharge
     {
         public static Error NotFound(Guid id) =>

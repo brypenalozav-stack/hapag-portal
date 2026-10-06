@@ -1,6 +1,7 @@
 namespace HapagPortal.Application.Payments.PostProcessing;
 
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Documents.PostPayment;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 /// <summary>
 /// Paso posterior a la confirmación de un pago (NF-03). Debe ser idempotente: se reintenta si falla. La
-/// generación documental de la Ola E se agrega como otro paso registrado en el contenedor.
+/// generación documental (Ola E) es el paso <c>Documents</c>, que encola la liberación.
 /// </summary>
 public interface IPaymentPostStep
 {
@@ -20,7 +21,8 @@ public interface IPaymentPostStep
 /// <summary>
 /// Liberación: marca pagada la fuente de cada ítem (recargo, flete, línea de demurrage, cambio de almacén
 /// o factura y, con ella, las líneas de demurrage facturadas) con la misma lógica para cualquier cliente,
-/// también el de crédito (M5-07). Una fuente inexistente detiene el paso para resolución interna.
+/// también el de crédito (M5-07). Una fuente inexistente detiene el paso para resolución interna. Si algún
+/// ítem liberado emite un documento (M6-01, M6-03, M6-04), encola una sola vez el paso <c>Documents</c>.
 /// </summary>
 public sealed class ReleasePaymentItemsStep(IApplicationDbContext dbContext) : IPaymentPostStep
 {
@@ -95,6 +97,13 @@ public sealed class ReleasePaymentItemsStep(IApplicationDbContext dbContext) : I
             }
 
             detail.ReleasedAt = now;
+        }
+
+        if (await PaymentDocumentRules.IssuesDocumentsAsync(dbContext, details, cancellationToken)
+            && !await dbContext.PaymentOutboxMessages.AnyAsync(
+                m => m.PaymentId == payment.Id && m.JobType == PaymentOutboxJobTypes.Documents, cancellationToken))
+        {
+            PaymentLifecycle.Enqueue(dbContext, payment.Id, PaymentOutboxJobTypes.Documents, now);
         }
     }
 

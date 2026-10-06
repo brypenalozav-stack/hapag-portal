@@ -12,6 +12,8 @@ namespace HapagPortal.Infrastructure.Integrations.Signature;
 /// </summary>
 public sealed class DummyDocumentSigner(ILogger<DummyDocumentSigner> logger) : IDocumentSigner
 {
+    public string Provider => "Dummy";
+
     public Task<Result<SignedDocument>> SignAsync(
         SignDocumentRequest request,
         CancellationToken cancellationToken = default)

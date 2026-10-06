@@ -29,9 +29,13 @@ public static class IntegrationSystems
     public static readonly IReadOnlyList<string> WithRealAdapter = [Nexus, Fis, Khipu, BancoChile, DbNet, Tracking];
 }
 
-/// <summary>Valores admitidos en <c>Integrations:&lt;Sistema&gt;:Mode</c>.</summary>
+/// <summary>
+/// Valores admitidos en <c>Integrations:&lt;Sistema&gt;:Mode</c>. <see cref="Local"/> solo aplica a Storage:
+/// archivos en disco (<c>Integrations:Storage:LocalPath</c>) para que los documentos persistan.
+/// </summary>
 public static class IntegrationModes
 {
     public const string Dummy = "Dummy";
     public const string Real = "Real";
+    public const string Local = "Local";
 }

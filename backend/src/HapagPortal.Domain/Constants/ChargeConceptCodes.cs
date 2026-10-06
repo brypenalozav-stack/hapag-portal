@@ -21,6 +21,9 @@ public static class ChargeConceptCodes
     // Servicio con tarifa por tramos de tiempo desde el plazo (M3-08, M8-01): ejemplo de tramos horarios.
     public const string LateArrival = "LATE_ARRIVAL";
 
+    // Servicio pagado que emite el certificado de transbordo al confirmarse el pago (M6-01, Ola E).
+    public const string TransshipmentCertificate = "TRANSSHIPMENT_CERT";
+
     // Recargos de origen ya presentes en los datos (semilla e importación).
     public const string Thc = "THC";
     public const string ThcReefer = "THC_RF";

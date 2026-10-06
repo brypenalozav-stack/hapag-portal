@@ -52,8 +52,11 @@ public sealed class ThirdPartyAccessSeedTests : IDisposable
         var bls = await evaluator.FilterAccessible(_context.BillsOfLading.AsNoTracking(), scope).ToListAsync();
         var sources = await evaluator.GetAccessSourcesAsync(scope, bls);
 
-        bls.Select(b => b.BLNumber).Should().BeEquivalentTo(["HLCUVAL250100123", "HLCUVAL250200456"]);
-        sources.Values.Should().OnlyContain(s => s == ShipmentAccessSources.Grant);
+        // BL01 y BL02 por acceso otorgado; BL12 (Ola E) porque la agencia es parte del embarque (Collect, M6-04).
+        bls.Select(b => b.BLNumber).Should().BeEquivalentTo(["HLCUVAL250100123", "HLCUVAL250200456", "HLCUSAI260501240"]);
+        sources[SeedDataIds.BL01].Should().Be(ShipmentAccessSources.Grant);
+        sources[SeedDataIds.BL02].Should().Be(ShipmentAccessSources.Grant);
+        sources[SeedDataIds.BL12].Should().Be(ShipmentAccessSources.Own);
     }
 
     [Fact]

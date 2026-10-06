@@ -4,6 +4,7 @@ using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Access;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Demurrage.Common;
+using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.ExchangeRates.Common;
 using HapagPortal.Application.Tariffs.Common;
 using HapagPortal.Application.WarehouseChanges.Common;
@@ -76,7 +77,7 @@ public sealed class ChargeRulesFixture
     public ExchangeRateService ExchangeRates() => new(Db, Rates);
 
     public ChargeRulesService ChargeRules() =>
-        new(Db, Exemptions, Credit, ExchangeRates(), new PendingResponsibilityLetterStatus());
+        new(Db, Exemptions, Credit, ExchangeRates(), new ResponsibilityLetterStatus(Db));
 
     public TariffResolver TariffResolver() => new(Db, NexusTariffs);
 

@@ -91,12 +91,14 @@ public static class PaymentCancellationRoles
 
 /// <summary>
 /// Pasos posteriores a la confirmación del pago, ejecutados por la cola recuperable (NF-03): liberar
-/// los ítems pagados y avisar al cliente. Ola E agrega la generación documental como otro paso.
+/// los ítems pagados y avisar al cliente. <see cref="Documents"/> lo encola la liberación cuando un ítem
+/// pagado emite un documento (certificado de transbordo, cupón de Gate Out, comprobante Collect).
 /// </summary>
 public static class PaymentOutboxJobTypes
 {
     public const string Release = "Release";
     public const string Notify = "Notify";
+    public const string Documents = "Documents";
 }
 
 /// <summary>

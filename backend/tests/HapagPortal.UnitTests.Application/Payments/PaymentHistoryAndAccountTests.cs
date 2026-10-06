@@ -3,6 +3,7 @@ namespace HapagPortal.UnitTests.Application.Payments;
 using FluentAssertions;
 using HapagPortal.Application.AccountPayments;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Payments.Commands.Confirm;
 using HapagPortal.Application.Payments.Commands.Webhooks;
 using HapagPortal.Application.Payments.History;
@@ -65,9 +66,9 @@ public sealed class PaymentHistoryAndAccountTests
 
         var onlyConfirmed = await History(_f.Owner).Handle(new GetPaymentHistoryQuery(Status: PaymentStatus.Confirmed), CancellationToken.None);
         var byBl = await History(_f.Owner).Handle(new GetPaymentHistoryQuery(BlNumber: "bl-rcpt"), CancellationToken.None);
-        var receipt = await new GetPaymentReceiptQueryHandler(_f.Db, _f.Owner.Evaluator(_f.Db), _f.Owner.CurrentUser)
+        var receipt = await new GetPaymentReceiptQueryHandler(_f.Db, _f.Owner.Evaluator(_f.Db), _f.Owner.CurrentUser, new FakePdfDocumentRenderer(), new DocumentSettings())
             .Handle(new GetPaymentReceiptQuery(confirmed.Id), CancellationToken.None);
-        var noReceipt = await new GetPaymentReceiptQueryHandler(_f.Db, _f.Owner.Evaluator(_f.Db), _f.Owner.CurrentUser)
+        var noReceipt = await new GetPaymentReceiptQueryHandler(_f.Db, _f.Owner.Evaluator(_f.Db), _f.Owner.CurrentUser, new FakePdfDocumentRenderer(), new DocumentSettings())
             .Handle(new GetPaymentReceiptQuery(pending.Id), CancellationToken.None);
 
         onlyConfirmed.Value.Items.Select(i => i.Id).Should().Equal(confirmed.Id);

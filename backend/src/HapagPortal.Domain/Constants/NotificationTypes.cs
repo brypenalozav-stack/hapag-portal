@@ -21,4 +21,7 @@ public static class NotificationTypes
 
     // Pagos (M5-01, NF-03)
     public const string PaymentConfirmed = "PaymentConfirmed";
+
+    // Documentos del embarque (M6-01, M6-03, M6-04)
+    public const string DocumentIssued = "DocumentIssued";
 }

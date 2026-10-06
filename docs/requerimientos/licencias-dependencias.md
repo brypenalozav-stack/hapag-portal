@@ -56,3 +56,8 @@ Cada fase que agrega una dependencia registra aquí el nombre, la **versión exa
 | cosmiconfig 8.3.6 y sus transitivas (js-yaml 4.3.2, import-fresh, parse-json, etc.: MIT; argparse 2.0.1: Python-2.0), vía @jsverse/transloco-utils; solo Node, no entran al bundle | 8.3.6 | `frontend/package-lock.json` | MIT / Python-2.0 | 5b |
 | @jsverse/transloco-keys-manager | 8.1.1 | `frontend/package.json` (devDependencies) | MIT | 5b |
 | Transitivas de @jsverse/transloco-keys-manager (cheerio, glob, ora, chalk, cosmiconfig 9.0.2, @jsverse/angular-utils 1.0.0-beta.6, etc.: MIT; css-select, css-what, cheerio-select, entities: BSD-2-Clause; flat 6.0.1, ieee754: BSD-3-Clause) | según `package-lock.json` | `frontend/package-lock.json` (dev) | MIT / BSD-2-Clause / BSD-3-Clause | 5b |
+| PDFsharp-MigraDoc (MigraDoc.DocumentObjectModel y MigraDoc.Rendering: generación de PDF de los documentos del embarque; no QuestPDF ni iText) | 6.2.4 | `backend/src/HapagPortal.Infrastructure/HapagPortal.Infrastructure.csproj` | MIT | Fase 1 Ola E |
+| PDFsharp (transitiva de PDFsharp-MigraDoc: PdfSharp, PdfSharp.Shared, PdfSharp.System y demás ensamblados PdfSharp.*) | 6.2.4 | `HapagPortal.Infrastructure` | MIT | Fase 1 Ola E |
+| System.Security.Cryptography.Pkcs (transitiva de PDFsharp) | 8.0.1 | `HapagPortal.Infrastructure` | MIT | Fase 1 Ola E |
+| Microsoft.Extensions.Logging.Abstractions (transitiva de PDFsharp, pide ≥ 8.0.3; se resuelve la del proyecto) | 9.0.10 | `HapagPortal.Infrastructure` | MIT | Fase 1 Ola E |
+| Liberation Sans (Regular, Bold, Italic, BoldItalic; fuente incrustada en los PDF, licencia en `Documents/Fonts/LICENSE-LiberationFonts-OFL-1.1.txt`) | 2.1.5 | `backend/src/HapagPortal.Infrastructure/Documents/Fonts/` (recurso incrustado) | OFL-1.1 | Fase 1 Ola E |

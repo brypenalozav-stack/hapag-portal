@@ -63,6 +63,8 @@ public interface IApplicationDbContext
     DbSet<PaymentMethodConfig> PaymentMethodConfigs { get; }
     DbSet<PaymentBlockWindow> PaymentBlockWindows { get; }
     DbSet<CustomerInvoice> CustomerInvoices { get; }
+    DbSet<ShipmentDocument> ShipmentDocuments { get; }
+    DbSet<ShipmentDocumentEvent> ShipmentDocumentEvents { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

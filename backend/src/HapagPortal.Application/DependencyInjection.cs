@@ -4,6 +4,8 @@ using FluentValidation;
 using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Access;
 using HapagPortal.Application.Demurrage.Common;
+using HapagPortal.Application.Documents.Common;
+using HapagPortal.Application.Documents.PostPayment;
 using HapagPortal.Application.ExchangeRates.Common;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.PostProcessing;
@@ -28,7 +30,6 @@ public static class DependencyInjection
         services.AddScoped<IChargeRulesService, ChargeRulesService>();
         services.AddScoped<ITariffResolver, TariffResolver>();
         services.AddScoped<IExchangeRateService, ExchangeRateService>();
-        services.AddScoped<IResponsibilityLetterStatus, PendingResponsibilityLetterStatus>();
         services.AddScoped<DemurrageStatusBuilder>();
         services.AddScoped<WarehouseChangeService>();
 
@@ -39,6 +40,13 @@ public static class DependencyInjection
         services.AddScoped<PaymentPostProcessor>();
         services.AddScoped<IPaymentPostStep, ReleasePaymentItemsStep>();
         services.AddScoped<IPaymentPostStep, NotifyPaymentStep>();
+
+        // Fase 1 Ola E: documentos del embarque (M6), su emisión tras el pago y la carta FFWW (M4-04).
+        // DocumentSettings lo registra Infrastructure desde la sección "Documents" de la configuración.
+        services.AddScoped<ShipmentDocumentService>();
+        services.AddScoped<NoDebtEvaluator>();
+        services.AddScoped<IResponsibilityLetterStatus, ResponsibilityLetterStatus>();
+        services.AddScoped<IPaymentPostStep, GeneratePaymentDocumentsStep>();
 
         services.AddMediatR(config =>
         {

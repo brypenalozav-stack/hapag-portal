@@ -64,6 +64,8 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<PaymentMethodConfig> PaymentMethodConfigList { get; } = [];
     public List<PaymentBlockWindow> PaymentBlockWindowList { get; } = [];
     public List<CustomerInvoice> CustomerInvoiceList { get; } = [];
+    public List<ShipmentDocument> ShipmentDocumentList { get; } = [];
+    public List<ShipmentDocumentEvent> ShipmentDocumentEventList { get; } = [];
 
     public DbSet<Client> Clients => MockDbSetHelper.CreateMockDbSet(ClientList);
     public DbSet<User> Users => MockDbSetHelper.CreateMockDbSet(UserList);
@@ -123,6 +125,8 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<PaymentMethodConfig> PaymentMethodConfigs => MockDbSetHelper.CreateMockDbSet(PaymentMethodConfigList);
     public DbSet<PaymentBlockWindow> PaymentBlockWindows => MockDbSetHelper.CreateMockDbSet(PaymentBlockWindowList);
     public DbSet<CustomerInvoice> CustomerInvoices => MockDbSetHelper.CreateMockDbSet(CustomerInvoiceList);
+    public DbSet<ShipmentDocument> ShipmentDocuments => MockDbSetHelper.CreateMockDbSet(ShipmentDocumentList);
+    public DbSet<ShipmentDocumentEvent> ShipmentDocumentEvents => MockDbSetHelper.CreateMockDbSet(ShipmentDocumentEventList);
 
     public int SaveChangesCallCount { get; private set; }
 

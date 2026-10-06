@@ -26,15 +26,17 @@ public static partial class DependencyInjectionExtensions
     /// (<c>Dummy</c> por defecto). Con <c>Mode=Real</c>, Nexus, Fis, Khipu, BancoChile, DbNet y Tracking
     /// usan su cliente HTTP con logging (NF-27) y resiliencia; Santander, Bci, Signature y Storage no
     /// tienen cliente Real y, como un modo desconocido o un <c>BaseUrl</c> inválido, detienen el arranque
-    /// con <see cref="InvalidOperationException"/>.
+    /// con <see cref="InvalidOperationException"/>. Storage admite además <c>Mode=Local</c>: archivos en
+    /// <c>Integrations:Storage:LocalPath</c> (por defecto bajo LocalApplicationData) que persisten entre reinicios.
     /// </summary>
     public static IServiceCollection AddIntegrations(
         this IServiceCollection services,
         IConfiguration configuration)
     {
         // Se validan todos los sistemas antes de registrar nada, para fallar en el arranque.
+        var localStorage = IsLocalStorage(configuration);
         var realSystems = IntegrationSystems.All
-            .Where(system => IsRealMode(configuration, system))
+            .Where(system => !(localStorage && system == IntegrationSystems.Storage) && IsRealMode(configuration, system))
             .ToHashSet(StringComparer.Ordinal);
 
         services.AddMetrics();
@@ -104,7 +106,18 @@ public static partial class DependencyInjectionExtensions
         }
 
         services.AddSingleton<IDocumentSigner, DummyDocumentSigner>();
-        services.AddSingleton<IFileStorage, DummyFileStorage>();
+
+        if (localStorage)
+        {
+            var root = configuration[$"Integrations:{IntegrationSystems.Storage}:LocalPath"];
+            services.AddSingleton<IFileStorage>(sp => new LocalFileStorage(
+                string.IsNullOrWhiteSpace(root) ? LocalFileStorage.DefaultRoot() : root,
+                sp.GetRequiredService<ILogger<LocalFileStorage>>()));
+        }
+        else
+        {
+            services.AddSingleton<IFileStorage, DummyFileStorage>();
+        }
 
         if (realSystems.Contains(IntegrationSystems.Tracking))
         {
@@ -168,6 +181,12 @@ public static partial class DependencyInjectionExtensions
 
         return new Uri(baseUrl.EndsWith('/') ? baseUrl : baseUrl + "/", UriKind.Absolute);
     }
+
+    private static bool IsLocalStorage(IConfiguration configuration) =>
+        string.Equals(
+            configuration[$"Integrations:{IntegrationSystems.Storage}:Mode"],
+            IntegrationModes.Local,
+            StringComparison.OrdinalIgnoreCase);
 
     private static bool IsRealMode(IConfiguration configuration, string system)
     {

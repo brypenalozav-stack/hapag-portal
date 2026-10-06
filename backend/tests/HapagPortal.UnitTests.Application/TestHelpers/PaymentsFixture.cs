@@ -3,6 +3,7 @@ namespace HapagPortal.UnitTests.Application.TestHelpers;
 using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Access;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.PostProcessing;
 using HapagPortal.Application.ShoppingCart;
@@ -49,7 +50,7 @@ public sealed class PaymentsFixture
     }
 
     public PayableItemResolver Resolver(Actor actor) =>
-        new(Db, actor.Evaluator(Db), Rules.ChargeRules(), Rules.DemurrageStatus(), new PendingResponsibilityLetterStatus());
+        new(Db, actor.Evaluator(Db), Rules.ChargeRules(), Rules.DemurrageStatus(), new ResponsibilityLetterStatus(Db));
 
     public AddCartItemCommandHandler Add(Actor? actor = null)
     {
