@@ -71,7 +71,7 @@ Fase 0 (M1-19, M2-08, M3-03, M7-04) queda para después, por estar "en revisión
 
 | Ola | Rama | Estado |
 |---|---|---|
-| G | `feature/fase2-ola-g-servicios-on-demand` | En curso |
-| H | — | Pendiente |
+| G | `feature/fase2-ola-g-servicios-on-demand` | Hecha: backend `438d13b`, frontend (commit de la ola) |
+| H | `feature/fase2-ola-h-finanzas` | En curso |
 | I | — | Pendiente |
 | J | — | Pendiente |
