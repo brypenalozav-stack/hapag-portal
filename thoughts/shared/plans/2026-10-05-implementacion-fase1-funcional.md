@@ -52,6 +52,6 @@ El plan anterior dejó la base: especificación v4, contratos e integraciones co
 | A | `feature/fase1-ola-a-organizacion-acceso` | Hecha: backend `7f6edda`, frontend `8830e6b` |
 | B | `feature/fase1-ola-b-accesos-terceros` | Hecha: backend `e433887`, frontend `bd14053`; probada contra PostgreSQL real (18/18) |
 | C | `feature/fase1-ola-c-reglas-cobros` | Hecha: backend `c37cf65`, frontend y limpieza `f2d6a4c` |
-| D | `feature/fase1-ola-d-carro-pagos` | En curso |
-| E | — | Pendiente |
+| D | `feature/fase1-ola-d-carro-pagos` | Hecha: backend `f20f9c7`, frontend y concurrencia `c69c5dd` |
+| E | `feature/fase1-ola-e-documentos` | En curso |
 | F | — | Pendiente |
