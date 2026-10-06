@@ -54,7 +54,86 @@ export const SHIPMENT_OPERATION_KEYS: Record<string, string> = {
 
 export const SHIPMENT_ACCESS_SOURCE_KEYS: Record<string, string> = {
   Own: 'common.accessSource.own',
+  Grant: 'common.accessSource.grant',
+  SelfAssociated: 'common.accessSource.selfAssociated',
+  OpenAccess: 'common.accessSource.openAccess',
   Admin: 'common.accessSource.admin',
+};
+
+/** Estado de un acceso otorgado (M1-14, M1-22, M1-03, M1-20). */
+export const ACCESS_GRANT_STATUS_KEYS: Record<string, string> = {
+  PendingAcceptance: 'common.accessGrantStatus.pendingAcceptance',
+  Active: 'common.accessGrantStatus.active',
+  Expired: 'common.accessGrantStatus.expired',
+  Revoked: 'common.accessGrantStatus.revoked',
+  Reconciled: 'common.accessGrantStatus.reconciled',
+};
+
+/** Origen del acceso: `grantType` y, si es mandato, la clave `Mandate` (M1-03). */
+export const ACCESS_ORIGIN_KEYS: Record<string, string> = {
+  Individual: 'common.accessOrigin.individual',
+  Bulk: 'common.accessOrigin.bulk',
+  Default: 'common.accessOrigin.default',
+  EarlyBooking: 'common.accessOrigin.earlyBooking',
+  Mandate: 'common.accessOrigin.mandate',
+};
+
+export const ACCESS_VALIDITY_TYPE_KEYS: Record<string, string> = {
+  Indefinite: 'common.accessValidityType.indefinite',
+  Duration: 'common.accessValidityType.duration',
+  UntilDate: 'common.accessValidityType.untilDate',
+};
+
+export const ACCESS_END_REASON_KEYS: Record<string, string> = {
+  Manual: 'common.accessEndReason.manual',
+  Expired: 'common.accessEndReason.expired',
+  Cascade: 'common.accessEndReason.cascade',
+  Reconciled: 'common.accessEndReason.reconciled',
+};
+
+export const ACCESS_DIRECTION_KEYS: Record<string, string> = {
+  Given: 'common.accessDirection.given',
+  Received: 'common.accessDirection.received',
+};
+
+export const WIDENING_STATUS_KEYS: Record<string, string> = {
+  Active: 'common.wideningStatus.active',
+  Revoked: 'common.wideningStatus.revoked',
+};
+
+/** Tipo de evento de la auditoría de accesos (M1-23). */
+export const ACCESS_AUDIT_EVENT_KEYS: Record<string, string> = {
+  GrantCreated: 'common.accessAuditEvent.grantCreated',
+  GrantPermissionsChanged: 'common.accessAuditEvent.grantPermissionsChanged',
+  GrantValidityChanged: 'common.accessAuditEvent.grantValidityChanged',
+  GrantRevoked: 'common.accessAuditEvent.grantRevoked',
+  GrantExpired: 'common.accessAuditEvent.grantExpired',
+  GrantRevokedByCascade: 'common.accessAuditEvent.grantRevokedByCascade',
+  MandateTermsAccepted: 'common.accessAuditEvent.mandateTermsAccepted',
+  BookingAccessLinked: 'common.accessAuditEvent.bookingAccessLinked',
+  BookingAccessReconciled: 'common.accessAuditEvent.bookingAccessReconciled',
+  OpenAccessEnabled: 'common.accessAuditEvent.openAccessEnabled',
+  OpenAccessDisabled: 'common.accessAuditEvent.openAccessDisabled',
+  OpenAccessPermissionsChanged: 'common.accessAuditEvent.openAccessPermissionsChanged',
+  SelfAssociated: 'common.accessAuditEvent.selfAssociated',
+  WideningCreated: 'common.accessAuditEvent.wideningCreated',
+  WideningRevoked: 'common.accessAuditEvent.wideningRevoked',
+  WideningRevokedByCascade: 'common.accessAuditEvent.wideningRevokedByCascade',
+  DefaultGranteeAdded: 'common.accessAuditEvent.defaultGranteeAdded',
+  DefaultGranteeUpdated: 'common.accessAuditEvent.defaultGranteeUpdated',
+  DefaultGranteeRemoved: 'common.accessAuditEvent.defaultGranteeRemoved',
+};
+
+/**
+ * Título traducido de las notificaciones por tipo (bandeja). Los tipos sin clave muestran el
+ * título que envía el servidor.
+ */
+export const NOTIFICATION_TYPE_KEYS: Record<string, string> = {
+  AccessGranted: 'notifications.type.accessGranted',
+  AccessUpdated: 'notifications.type.accessUpdated',
+  AccessRevoked: 'notifications.type.accessRevoked',
+  AccessExpired: 'notifications.type.accessExpired',
+  AccessRevokedByCascade: 'notifications.type.accessRevokedByCascade',
 };
 
 /** Texto corto del nivel (O, X, X (o)) y su descripción (lectura de las matrices de M1-11). */

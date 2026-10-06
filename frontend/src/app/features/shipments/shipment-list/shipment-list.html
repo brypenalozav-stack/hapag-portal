@@ -16,6 +16,22 @@
   }
 </div>
 
+<!-- Búsqueda por número exacto de BL: abre el detalle, también con acceso abierto (M1-17) -->
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'shipments.list.openBl.label' | transloco" (submit)="openByNumber($event)">
+  <label for="shipments-open-bl" class="form-label small fw-semibold">{{ 'shipments.list.openBl.field' | transloco }}</label>
+  <div class="d-flex flex-wrap gap-2">
+    <input id="shipments-open-bl" type="search" class="form-control w-auto flex-grow-1" [formControl]="openBl" autocomplete="off"
+           [class.is-invalid]="openBlSubmitted() && !openBl.value.trim()"
+           [attr.aria-invalid]="openBlSubmitted() && !openBl.value.trim() ? true : null"
+           aria-describedby="shipments-open-bl-help shipments-open-bl-error" />
+    <button type="submit" class="btn btn-outline-secondary">{{ 'shipments.list.openBl.submit' | transloco }}</button>
+  </div>
+  <div id="shipments-open-bl-help" class="form-text">{{ 'shipments.list.openBl.help' | transloco }}</div>
+  @if (openBlSubmitted() && !openBl.value.trim()) {
+    <div id="shipments-open-bl-error" class="invalid-feedback d-block">{{ 'shipments.list.openBl.required' | transloco }}</div>
+  }
+</form>
+
 <!-- Filtros (M2-06): BL, booking, nave, viaje, estado y país -->
 <form class="hl-card p-3 mb-4" [formGroup]="filters" (ngSubmit)="search()" role="search"
       [attr.aria-label]="'shipments.list.filters.label' | transloco">
@@ -81,6 +97,7 @@
             <th scope="col">{{ 'shipments.list.col.status' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.operation' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.country' | transloco }}</th>
+            <th scope="col">{{ 'shipments.list.col.accessSource' | transloco }}</th>
           </tr>
         </thead>
         <tbody>
@@ -100,6 +117,7 @@
               </td>
               <td>{{ shipment.operation | codeLabel: operationKeys }}</td>
               <td><app-country-badge [country]="shipment.country" /></td>
+              <td><app-access-source-badge [source]="shipment.accessSource" /></td>
             </tr>
           }
         </tbody>

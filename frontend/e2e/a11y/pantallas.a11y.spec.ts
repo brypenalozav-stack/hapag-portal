@@ -3,6 +3,7 @@ import path from 'path';
 import { test, expect, Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {
+  BL_ACCESO_ABIERTO,
   BL_EXPORTACION,
   BL_PRUEBA,
   BL_SIN_FLETE,
@@ -20,6 +21,10 @@ import { IDIOMAS, Idioma, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } fro
  * Fase 1, Ola A: registro y solicitud de vinculación, embarques (M2-06, M2-07), Mi organización
  * (M1-02, M1-07, M1-08) y, con sesión de administrador interno, organizaciones (M8-04) y matriz de
  * accesos (M1-11). La consulta de BL (/bills-of-lading) redirige a /shipments.
+ * Fase 1, Ola B: vista única de accesos y permisos de Mi organización (M1-24) con sus pestañas
+ * (accesos, terceros por defecto, acceso abierto, acceso por booking y auditoría), el diálogo de
+ * otorgamiento abierto, el detalle con la sección "Accesos" y el BL visto por acceso abierto
+ * (M1-17, M1-18) y la bandeja de notificaciones. `preparar` lleva la pantalla al estado a revisar.
  */
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -30,7 +35,17 @@ const LINEA_BASE: Record<string, string[]> = JSON.parse(
 
 type Sesion = 'ninguna' | 'cliente' | 'admin';
 
-const PANTALLAS: { id: string; ruta: string; sesion: Sesion }[] = [
+/** Abre una pestaña de la vista única de accesos (M1-24) por su id. */
+function pestanaAccesos(id: string): (page: Page) => Promise<void> {
+  return async (page) => {
+    const pestana = page.locator(`#access-tab-${id}`);
+    await pestana.click();
+    await expect(pestana).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  };
+}
+
+const PANTALLAS: { id: string; ruta: string; sesion: Sesion; preparar?: (page: Page) => Promise<void> }[] = [
   { id: 'login', ruta: '/login', sesion: 'ninguna' },
   { id: 'register', ruta: '/register', sesion: 'ninguna' },
   { id: 'register-join', ruta: '/register/join', sesion: 'ninguna' },
@@ -45,6 +60,23 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion }[] = [
   { id: 'admin-organizations', ruta: '/admin/organizations', sesion: 'admin' },
   { id: 'admin-organization-review', ruta: `/admin/organizations/${ORGANIZACION_EN_REVISION}`, sesion: 'admin' },
   { id: 'admin-access-matrix', ruta: '/admin/access-matrix', sesion: 'admin' },
+  // Ola B
+  {
+    id: 'organization-grant-dialog',
+    ruta: '/organization',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.locator('app-access-grants').getByRole('button', { name: /^(Otorgar acceso|Grant access)$/ }).click();
+      await expect(page.getByRole('dialog')).toBeVisible();
+      await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+    },
+  },
+  { id: 'organization-access-defaults', ruta: '/organization', sesion: 'cliente', preparar: pestanaAccesos('defaults') },
+  { id: 'organization-open-access', ruta: '/organization', sesion: 'cliente', preparar: pestanaAccesos('openAccess') },
+  { id: 'organization-early-booking', ruta: '/organization', sesion: 'cliente', preparar: pestanaAccesos('earlyBooking') },
+  { id: 'organization-access-audit', ruta: '/organization', sesion: 'cliente', preparar: pestanaAccesos('audit') },
+  { id: 'shipment-detail-open-access', ruta: `/shipments/${BL_ACCESO_ABIERTO}`, sesion: 'cliente' },
+  { id: 'notifications', ruta: '/notifications', sesion: 'cliente' },
 ];
 
 async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma): Promise<void> {
@@ -67,6 +99,7 @@ for (const lang of IDIOMAS) {
   for (const p of PANTALLAS) {
     test(`axe: ${p.id} [${lang}]`, async ({ page }) => {
       await abrir(page, p.ruta, p.sesion, lang);
+      await p.preparar?.(page);
       await expect(page).toHaveURL(new RegExp(`${p.ruta}$`));
       await expect(page.locator('html')).toHaveAttribute('lang', lang);
 

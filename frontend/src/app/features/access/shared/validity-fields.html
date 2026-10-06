@@ -1,0 +1,61 @@
+<fieldset class="mb-3" [attr.aria-describedby]="idPrefix() + '-validity-help'">
+  <legend class="form-label small fw-semibold mb-1">{{ 'thirdPartyAccess.validity.legend' | transloco }}</legend>
+  <div [id]="idPrefix() + '-validity-help'" class="form-text mt-0 mb-2">
+    {{ (requireEnd() ? 'thirdPartyAccess.validity.helpMandate' : 'thirdPartyAccess.validity.help') | transloco }}
+  </div>
+  <div class="d-flex flex-wrap gap-3">
+    @for (type of types; track type) {
+      <div class="form-check">
+        <input class="form-check-input" type="radio" [id]="idPrefix() + '-validity-' + type" [name]="idPrefix() + '-validity'"
+               [value]="type" [checked]="value().validityType === type"
+               [disabled]="requireEnd() && type === 'Indefinite'"
+               [attr.aria-invalid]="errors().validityType ? true : null"
+               [attr.aria-describedby]="errors().validityType ? idPrefix() + '-validity-error' : null"
+               (change)="setType(type)" />
+        <label class="form-check-label" [for]="idPrefix() + '-validity-' + type">{{ type | codeLabel: typeKeys }}</label>
+      </div>
+    }
+  </div>
+  @if (errors().validityType; as error) {
+    <div [id]="idPrefix() + '-validity-error'" class="invalid-feedback d-block">{{ error | transloco }}</div>
+  }
+
+  <div class="row g-3 mt-0">
+    @if (showStart()) {
+      <div class="col-sm-6">
+        <label [for]="idPrefix() + '-valid-from'" class="form-label small fw-semibold">{{ 'thirdPartyAccess.validity.validFrom' | transloco }}</label>
+        <input [id]="idPrefix() + '-valid-from'" type="date" class="form-control" [min]="today" [value]="value().validFrom"
+               [attr.aria-describedby]="idPrefix() + '-valid-from-help'" (change)="setValidFrom($event)" />
+        <div [id]="idPrefix() + '-valid-from-help'" class="form-text">{{ 'thirdPartyAccess.validity.validFromHelp' | transloco }}</div>
+      </div>
+    }
+    @if (value().validityType === 'Duration') {
+      <div class="col-sm-6">
+        <label [for]="idPrefix() + '-duration'" class="form-label small fw-semibold">{{ 'thirdPartyAccess.validity.durationDays' | transloco }}</label>
+        <input [id]="idPrefix() + '-duration'" type="number" class="form-control" required inputmode="numeric"
+               [min]="minDays" [max]="maxDays" step="1" [value]="value().durationDays ?? ''"
+               [class.is-invalid]="!!errors().durationDays" [attr.aria-invalid]="errors().durationDays ? true : null"
+               [attr.aria-describedby]="idPrefix() + '-duration-help' + (errors().durationDays ? ' ' + idPrefix() + '-duration-error' : '')"
+               (input)="setDuration($event)" />
+        <div [id]="idPrefix() + '-duration-help'" class="form-text">{{ 'thirdPartyAccess.validity.durationHelp' | transloco: { min: minDays, max: maxDays } }}</div>
+        @if (errors().durationDays; as error) {
+          <div [id]="idPrefix() + '-duration-error'" class="invalid-feedback">{{ error | transloco: { min: minDays, max: maxDays } }}</div>
+        }
+      </div>
+    }
+    @if (value().validityType === 'UntilDate') {
+      <div class="col-sm-6">
+        <label [for]="idPrefix() + '-valid-to'" class="form-label small fw-semibold">{{ 'thirdPartyAccess.validity.validTo' | transloco }}</label>
+        <input [id]="idPrefix() + '-valid-to'" type="date" class="form-control" required [min]="value().validFrom || today"
+               [value]="value().validTo"
+               [class.is-invalid]="!!errors().validTo" [attr.aria-invalid]="errors().validTo ? true : null"
+               [attr.aria-describedby]="idPrefix() + '-valid-to-help' + (errors().validTo ? ' ' + idPrefix() + '-valid-to-error' : '')"
+               (change)="setValidTo($event)" />
+        <div [id]="idPrefix() + '-valid-to-help'" class="form-text">{{ 'thirdPartyAccess.validity.validToHelp' | transloco }}</div>
+        @if (errors().validTo; as error) {
+          <div [id]="idPrefix() + '-valid-to-error'" class="invalid-feedback">{{ error | transloco }}</div>
+        }
+      </div>
+    }
+  </div>
+</fieldset>

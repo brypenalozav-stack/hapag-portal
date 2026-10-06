@@ -1,0 +1,94 @@
+<div class="p-3">
+  <h3 class="h6 fw-bold mb-1">{{ 'thirdPartyAccess.audit.title' | transloco }}</h3>
+  <p class="small text-muted">{{ 'thirdPartyAccess.audit.help' | transloco }}</p>
+
+  <form role="search" [attr.aria-label]="'thirdPartyAccess.audit.filters.label' | transloco" (ngSubmit)="search()">
+    <div class="row g-2 align-items-end">
+      <div class="col-sm-6 col-lg-4">
+        <label for="access-audit-bl" class="form-label small fw-semibold">{{ 'thirdPartyAccess.audit.filters.blNumber' | transloco }}</label>
+        <input id="access-audit-bl" type="search" class="form-control" name="blNumber" autocomplete="off" [(ngModel)]="blNumber" />
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <label for="access-audit-booking" class="form-label small fw-semibold">{{ 'thirdPartyAccess.audit.filters.bookingNumber' | transloco }}</label>
+        <input id="access-audit-booking" type="search" class="form-control" name="bookingNumber" autocomplete="off" [(ngModel)]="bookingNumber" />
+      </div>
+      <div class="col-lg-4 d-flex gap-2">
+        <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'thirdPartyAccess.audit.filters.search' | transloco }}</button>
+        <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clear()">{{ 'thirdPartyAccess.audit.filters.clear' | transloco }}</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+@if (error()) {
+  <div class="alert alert-warning py-2 mx-3" role="alert">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (entries().length === 0) {
+  @if (!error()) {
+    <app-state-message kind="empty" [messageKey]="'thirdPartyAccess.audit.empty'" />
+  }
+} @else {
+  <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'thirdPartyAccess.audit.caption' | transloco">
+    <table class="hl-table">
+      <caption class="visually-hidden">{{ 'thirdPartyAccess.audit.caption' | transloco }}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ 'thirdPartyAccess.audit.col.occurredAt' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.audit.col.event' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.audit.col.reference' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.audit.col.grantor' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.audit.col.grantee' | transloco }}</th>
+          <th scope="col">{{ 'thirdPartyAccess.audit.col.user' | transloco }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of entries(); track entry.id) {
+          <tr>
+            <td>{{ entry.occurredAt | hlDate: 'datetimeSeconds' }}</td>
+            <td class="fw-semibold">{{ entry.eventType | codeLabel: eventKeys }}</td>
+            <td>
+              @if (entry.blNumber) {
+                <span class="d-block">{{ 'thirdPartyAccess.audit.blLabel' | transloco: { bl: entry.blNumber } }}</span>
+              }
+              @if (entry.bookingNumber) {
+                <span class="d-block small">{{ 'thirdPartyAccess.audit.bookingLabel' | transloco: { booking: entry.bookingNumber } }}</span>
+              }
+              @if (!entry.blNumber && !entry.bookingNumber) {
+                <span>—</span>
+              }
+            </td>
+            <td>{{ entry.grantor?.name ?? '—' }}</td>
+            <td>{{ entry.grantee?.name ?? '—' }}</td>
+            <td>
+              @if (entry.actorUserId) {
+                <span class="d-block">{{ entry.actorEmail ?? '—' }}</span>
+                @if (entry.actorOrganization) {
+                  <span class="d-block small text-muted">{{ entry.actorOrganization.name }}</span>
+                }
+              } @else {
+                {{ 'thirdPartyAccess.audit.system' | transloco }}
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'thirdPartyAccess.audit.pagination.label' | transloco">
+    <span class="small text-muted">{{ 'thirdPartyAccess.audit.pagination.showing' | transloco: { shown: entries().length, total: total() } }}</span>
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">
+        {{ 'thirdPartyAccess.audit.pagination.previous' | transloco }}
+      </button>
+      <span class="small">{{ 'thirdPartyAccess.audit.pagination.page' | transloco: { page: page(), pages: totalPages() } }}</span>
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="changePage(1)">
+        {{ 'thirdPartyAccess.audit.pagination.next' | transloco }}
+      </button>
+    </div>
+  </nav>
+}

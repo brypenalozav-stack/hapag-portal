@@ -1,0 +1,181 @@
+<section class="hl-card mb-4" aria-labelledby="shipment-access-title">
+  <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <h2 id="shipment-access-title" class="h5 fw-bold mb-1">{{ 'shipments.detail.access.title' | transloco }}</h2>
+      <p class="small text-muted mb-0">{{ 'shipments.detail.access.help' | transloco }}</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a routerLink="/organization" fragment="accesos-y-permisos" class="btn btn-sm btn-outline-secondary">{{ 'shipments.detail.access.manageAll' | transloco }}</a>
+      @if (canManage()) {
+        <button type="button" class="btn btn-sm btn-hl-orange" (click)="openGrant($event)">{{ 'shipments.detail.access.grant' | transloco }}</button>
+      }
+    </div>
+  </div>
+
+  <!-- Quién tiene acceso a este BL -->
+  <div class="p-3">
+    <h3 class="h6 fw-bold">{{ 'shipments.detail.access.grantsTitle' | transloco }}</h3>
+    @if (grantsLoading()) {
+      <app-loading-spinner />
+    } @else if (grantsHidden()) {
+      <p class="small text-muted mb-0">{{ 'shipments.detail.access.grantsHidden' | transloco }}</p>
+    } @else if (grantsError()) {
+      <div class="alert alert-warning py-2 mb-0" role="alert">{{ grantsError() }}</div>
+    } @else if (grants().length === 0) {
+      <p class="small text-muted mb-0" role="status">{{ 'shipments.detail.access.grantsEmpty' | transloco }}</p>
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'shipments.detail.access.grantsCaption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'shipments.detail.access.grantsCaption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'shipments.detail.access.col.grantee' | transloco }}</th>
+              <th scope="col">{{ 'shipments.detail.access.col.grantor' | transloco }}</th>
+              <th scope="col">{{ 'shipments.detail.access.col.validity' | transloco }}</th>
+              <th scope="col">{{ 'shipments.detail.access.col.permissions' | transloco }}</th>
+              <th scope="col">{{ 'shipments.detail.access.col.status' | transloco }}</th>
+              <th scope="col">{{ 'shipments.detail.access.col.origin' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (grant of grants(); track grant.id) {
+              <tr>
+                <td class="fw-semibold">{{ grant.grantee.name }}</td>
+                <td>{{ grant.grantor.name }}</td>
+                <td>
+                  {{ grant.validTo
+                    ? ('shipments.detail.access.validityRange' | transloco: { from: (grant.validFrom | hlDate), to: (grant.validTo | hlDate) })
+                    : ('shipments.detail.access.validityOpen' | transloco: { from: (grant.validFrom | hlDate) }) }}
+                </td>
+                <td>
+                  <details>
+                    <summary class="small">{{ 'shipments.detail.access.permissionsCount' | transloco: { count: grant.effectiveActionCodes.length } }}</summary>
+                    <ul class="small mb-0 ps-3">
+                      @for (code of grant.effectiveActionCodes; track code) {
+                        <li>{{ code | codeLabel: actionKeys }}</li>
+                      }
+                    </ul>
+                  </details>
+                </td>
+                <td>{{ grant.status | codeLabel: statusKeys }}</td>
+                <td>{{ originCode(grant) | codeLabel: originKeys }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <!-- Ampliación de visibilidad entre roles (M1-16) -->
+  @if (!wideningsHidden()) {
+    <div class="p-3 border-top">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <div>
+          <h3 class="h6 fw-bold mb-1">{{ 'shipments.detail.access.widenings.title' | transloco }}</h3>
+          <p class="small text-muted mb-0">{{ 'shipments.detail.access.widenings.help' | transloco }}</p>
+        </div>
+        @if (canManage() && targetRoles().length > 0 && !wideningFormOpen()) {
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openWideningForm()">{{ 'shipments.detail.access.widenings.add' | transloco }}</button>
+        }
+      </div>
+
+      @if (wideningFormOpen()) {
+        <form class="border rounded p-3 mb-3" novalidate (submit)="submitWidening($event)">
+          @if (wideningFormError()) {
+            <div class="alert alert-danger py-2" role="alert">{{ wideningFormError() }}</div>
+          }
+          <div class="mb-3">
+            <label for="widening-target-role" class="form-label small fw-semibold">{{ 'shipments.detail.access.widenings.targetRole' | transloco }}</label>
+            <select id="widening-target-role" class="form-select" required
+                    [class.is-invalid]="wideningSubmitted() && !targetRole()" [attr.aria-invalid]="wideningSubmitted() && !targetRole() ? true : null"
+                    aria-describedby="widening-target-role-error" (change)="onTargetRoleChange($event)">
+              <option value="" [selected]="targetRole() === ''">{{ 'shipments.detail.access.widenings.selectRole' | transloco }}</option>
+              @for (role of targetRoles(); track role) {
+                <option [value]="role" [selected]="targetRole() === role">{{ role | codeLabel: roleKeys }}</option>
+              }
+            </select>
+            <div id="widening-target-role-error" class="invalid-feedback">{{ 'shipments.detail.access.widenings.roleRequired' | transloco }}</div>
+          </div>
+          <fieldset class="mb-3" aria-describedby="widening-actions-help">
+            <legend class="form-label small fw-semibold mb-1">{{ 'shipments.detail.access.widenings.actions' | transloco }}</legend>
+            <div id="widening-actions-help" class="form-text mt-0 mb-2">{{ 'shipments.detail.access.widenings.actionsHelp' | transloco }}</div>
+            @if (wideningActionsLoading()) {
+              <app-loading-spinner />
+            } @else {
+              @for (action of widenable(); track action.code) {
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" [id]="'widening-action-' + action.code"
+                         [checked]="wideningCodes().has(action.code)" (change)="toggleWideningCode(action.code, $event)" />
+                  <label class="form-check-label" [for]="'widening-action-' + action.code">{{ action.code | codeLabel: actionKeys }}</label>
+                </div>
+              } @empty {
+                <p class="small text-muted mb-0">{{ 'shipments.detail.access.widenings.noActions' | transloco }}</p>
+              }
+            }
+            @if (wideningSubmitted() && wideningCodes().size === 0) {
+              <div class="invalid-feedback d-block">{{ 'shipments.detail.access.widenings.actionsRequired' | transloco }}</div>
+            }
+          </fieldset>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary" (click)="cancelWidening()">{{ 'shipments.detail.access.widenings.cancel' | transloco }}</button>
+            <button type="submit" class="btn btn-hl-orange" [disabled]="wideningSaving()">{{ 'shipments.detail.access.widenings.save' | transloco }}</button>
+          </div>
+        </form>
+      }
+
+      @if (wideningsError()) {
+        <div class="alert alert-warning py-2" role="alert">{{ wideningsError() }}</div>
+      }
+      @if (wideningsLoading()) {
+        <app-loading-spinner />
+      } @else if (widenings().length === 0) {
+        <p class="small text-muted mb-0">{{ 'shipments.detail.access.widenings.empty' | transloco }}</p>
+      } @else {
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'shipments.detail.access.widenings.caption' | transloco">
+          <table class="hl-table">
+            <caption class="visually-hidden">{{ 'shipments.detail.access.widenings.caption' | transloco }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'shipments.detail.access.widenings.col.data' | transloco }}</th>
+                <th scope="col">{{ 'shipments.detail.access.widenings.col.targetRole' | transloco }}</th>
+                <th scope="col">{{ 'shipments.detail.access.widenings.col.grantor' | transloco }}</th>
+                <th scope="col">{{ 'shipments.detail.access.widenings.col.createdAt' | transloco }}</th>
+                <th scope="col">{{ 'shipments.detail.access.widenings.col.status' | transloco }}</th>
+                @if (canManage()) {
+                  <th scope="col">{{ 'shipments.detail.access.widenings.col.actions' | transloco }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (widening of widenings(); track widening.id) {
+                <tr>
+                  <td class="fw-semibold">{{ widening.actionCode | codeLabel: actionKeys }}</td>
+                  <td>{{ widening.targetRole | codeLabel: roleKeys }}</td>
+                  <td>{{ widening.grantor.name }}</td>
+                  <td>{{ widening.createdAt | hlDate }}</td>
+                  <td>{{ widening.status | codeLabel: wideningStatusKeys }}</td>
+                  @if (canManage()) {
+                    <td>
+                      @if (widening.canRevoke && widening.status === 'Active') {
+                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                [attr.aria-label]="'shipments.detail.access.widenings.revokeLabel' | transloco: { data: (widening.actionCode | codeLabel: actionKeys), role: (widening.targetRole | codeLabel: roleKeys) }"
+                                (click)="revokeWidening(widening)">
+                          {{ 'shipments.detail.access.widenings.revoke' | transloco }}
+                        </button>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</section>
+
+@if (dialogOpen()) {
+  <app-grant-dialog [presetBlNumber]="shipment().blNumber" (closed)="onDialogClosed($event)" />
+}

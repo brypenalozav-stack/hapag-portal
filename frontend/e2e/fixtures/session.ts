@@ -32,8 +32,8 @@ export const ORGANIZACION_PRUEBA: OrganizationSummary = {
   canOperate: true,
 };
 
-/** Permisos del perfil administrador de organización (claim `permission` del JWT). */
-export const PERMISOS_ORG_ADMIN = ['org.users.manage', 'org.requests.approve', 'shipments.operate'];
+/** Permisos del perfil administrador de organización (claim `permission` del JWT); Ola B agrega org.access.manage. */
+export const PERMISOS_ORG_ADMIN = ['org.users.manage', 'org.requests.approve', 'shipments.operate', 'org.access.manage'];
 
 /** Administrador interno de Hapag-Lloyd (M8-06). */
 export const USUARIO_ADMIN: Client = {

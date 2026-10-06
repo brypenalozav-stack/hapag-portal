@@ -12,6 +12,7 @@ import { CountryBadgeComponent } from '../../../shared/components/country-badge/
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
+import { AccessSourceBadgeComponent } from '../../../shared/components/access-source-badge/access-source-badge';
 
 /** Filtros de texto del listado (M2-06), reflejados en los query params. */
 const TEXT_FILTERS = ['blNumber', 'bookingNumber', 'vessel', 'voyage', 'status'] as const;
@@ -23,6 +24,8 @@ const ALL_OPERATIONS = 'ALL';
  * Listado único de embarques (M2-06): todos los BL y bookings accesibles por el usuario, con
  * filtros por BL, booking, nave, viaje, estado y país, y separación importación/exportación
  * (M2-07) que se mantiene durante la navegación (ShipmentOperationService y query params).
+ * Incluye los BL recibidos por acceso y los autoasociados, con el origen del acceso, y la búsqueda
+ * por número exacto, que abre el detalle y permite ver un BL con acceso abierto (M1-17).
  */
 @Component({
   selector: 'app-shipment-list',
@@ -30,6 +33,7 @@ const ALL_OPERATIONS = 'ALL';
   imports: [
     ReactiveFormsModule, RouterLink, TranslocoPipe, CodeLabelPipe,
     StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
+    AccessSourceBadgeComponent,
   ],
   templateUrl: './shipment-list.html',
   styles: [':host { display: block; }'],
@@ -60,6 +64,10 @@ export class ShipmentListComponent {
     status: [''],
     country: ['' as 'CL' | 'BO' | ''],
   });
+
+  /** Número exacto de un BL para abrir su detalle, también por acceso abierto (M1-17). */
+  openBl = this.fb.nonNullable.control('');
+  openBlSubmitted = signal(false);
 
   shipments = signal<ShipmentListItem[]>([]);
   total = signal(0);
@@ -112,6 +120,15 @@ export class ShipmentListComponent {
 
   search(): void {
     this.navigate(1);
+  }
+
+  /** Abre el detalle del BL ingresado; el servidor valida el acceso (propio, otorgado o abierto). */
+  openByNumber(event: Event): void {
+    event.preventDefault();
+    this.openBlSubmitted.set(true);
+    const blNumber = this.openBl.value.trim().toUpperCase();
+    if (!blNumber) return;
+    this.router.navigate(['/shipments', blNumber]);
   }
 
   clearFilters(): void {

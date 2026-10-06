@@ -713,6 +713,44 @@
     }
   },
   "common": {
+    "accessAuditEvent": {
+      "bookingAccessLinked": "Booking access linked to the BL",
+      "bookingAccessReconciled": "Booking access reconciled with the official role",
+      "defaultGranteeAdded": "Default third party added",
+      "defaultGranteeRemoved": "Default third party removed",
+      "defaultGranteeUpdated": "Default third party changed",
+      "grantCreated": "Access granted",
+      "grantExpired": "Automatic revocation on expiry",
+      "grantPermissionsChanged": "Permissions changed",
+      "grantRevoked": "Manual revocation",
+      "grantRevokedByCascade": "Cascade revocation",
+      "grantValidityChanged": "Validity changed",
+      "mandateTermsAccepted": "Mandate terms accepted",
+      "openAccessDisabled": "Open access disabled",
+      "openAccessEnabled": "Open access enabled",
+      "openAccessPermissionsChanged": "Open access permissions changed",
+      "selfAssociated": "Self-association with the BL",
+      "wideningCreated": "Visibility widening granted",
+      "wideningRevoked": "Visibility widening revoked",
+      "wideningRevokedByCascade": "Visibility widening revoked by cascade"
+    },
+    "accessDirection": {
+      "given": "Granted by my organization",
+      "received": "Received by my organization"
+    },
+    "accessEndReason": {
+      "cascade": "Cascade revocation",
+      "expired": "Automatic revocation on expiry",
+      "manual": "Manual revocation",
+      "reconciled": "Replaced by the official BL role"
+    },
+    "accessGrantStatus": {
+      "active": "Active",
+      "expired": "Expired",
+      "pendingAcceptance": "Pending acceptance",
+      "reconciled": "Reconciled with the official role",
+      "revoked": "Revoked"
+    },
     "accessLevel": {
       "allowed": "O",
       "allowedHelp": "O: the role can perform the action and the permission can be withdrawn",
@@ -721,9 +759,24 @@
       "onGrant": "X (o)",
       "onGrantHelp": "X (o): the role cannot perform the action unless the permission is expressly granted"
     },
+    "accessOrigin": {
+      "bulk": "Bulk",
+      "default": "Default",
+      "earlyBooking": "By booking",
+      "individual": "Individual",
+      "mandate": "Mandate"
+    },
     "accessSource": {
       "admin": "Hapag-Lloyd administrator",
-      "own": "Own"
+      "grant": "Granted access",
+      "openAccess": "Open access",
+      "own": "Own",
+      "selfAssociated": "Self-associated"
+    },
+    "accessValidityType": {
+      "duration": "Number of days",
+      "indefinite": "No end date",
+      "untilDate": "Until a date"
     },
     "brand": {
       "tagline": "SHIPPING & LOGISTICS"
@@ -775,6 +828,10 @@
       "customsAgency": "Customs broker",
       "shipper": "Shipper (SH)",
       "thirdParty": "Third party"
+    },
+    "wideningStatus": {
+      "active": "Active",
+      "revoked": "Revoked"
     }
   },
   "dashboard": {
@@ -917,7 +974,14 @@
     "markRead": "Mark as read",
     "new": "New",
     "subtitle": "Operational alerts addressed to you or your roles",
-    "title": "Notifications"
+    "title": "Notifications",
+    "type": {
+      "accessExpired": "Shipment access expired",
+      "accessGranted": "Shipment access granted",
+      "accessRevoked": "Shipment access revoked",
+      "accessRevokedByCascade": "Access revoked by cascade",
+      "accessUpdated": "Shipment access changed"
+    }
   },
   "organization": {
     "data": {
@@ -1296,9 +1360,70 @@
   },
   "shipments": {
     "detail": {
+      "access": {
+        "col": {
+          "grantee": "Recipient",
+          "grantor": "Grantor",
+          "origin": "Origin",
+          "permissions": "Permissions",
+          "status": "Status",
+          "validity": "Validity"
+        },
+        "grant": "Grant access to this BL",
+        "grantsCaption": "Access granted on this BL",
+        "grantsEmpty": "No one has granted access to this BL.",
+        "grantsError": "The access of this BL could not be loaded.",
+        "grantsHidden": "Your organization cannot view the access of this BL.",
+        "grantsTitle": "Organizations with granted access",
+        "help": "Who has access to this BL and which data is widened to other roles.",
+        "manageAll": "View all access",
+        "permissionsCount": "{count, plural, one {# permission} other {# permissions}}",
+        "title": "Access",
+        "validityOpen": "From {{ from }}, no end date",
+        "validityRange": "From {{ from }} to {{ to }}",
+        "widenings": {
+          "actions": "Data to widen",
+          "actionsHelp": "Only information data your organization sees on this BL.",
+          "actionsRequired": "Choose at least one data item.",
+          "add": "Widen visibility",
+          "cancel": "Cancel",
+          "caption": "Visibility widenings of this BL",
+          "col": {
+            "actions": "Actions",
+            "createdAt": "Date",
+            "data": "Data",
+            "grantor": "Granted by",
+            "status": "Status",
+            "targetRole": "Role"
+          },
+          "createError": "Visibility could not be widened. Please try again.",
+          "created": "{count, plural, one {# visibility widening created.} other {# visibility widenings created.}}",
+          "empty": "There are no active visibility widenings.",
+          "help": "Let another role on this BL see data that is not available to it by default. It never exceeds what your organization sees.",
+          "noActions": "There is no data you can widen on this BL.",
+          "revoke": "Revoke",
+          "revokeError": "The widening could not be revoked. Please try again.",
+          "revokeLabel": "Revoke the widening of {{ data }} for {{ role }}",
+          "revoked": "Visibility widening revoked.",
+          "roleRequired": "Choose the role you are widening visibility to.",
+          "save": "Save widening",
+          "selectRole": "Select a role",
+          "targetRole": "Role that will receive the visibility",
+          "title": "Visibility widening between roles"
+        },
+        "wideningsError": "The visibility widenings could not be loaded."
+      },
       "actions": {
         "title": "Requests",
         "warehouseChange": "Request warehouse change"
+      },
+      "associate": {
+        "button": "Associate me with this BL",
+        "done": "Your organization is now associated with BL {{ bl }}.",
+        "error": "The BL could not be associated. Please try again.",
+        "help": "You are viewing this BL through open access. Once associated, it is saved in your shipment list and you will not need to search for it again.",
+        "paymentNotice": "To pay or add this BL's charges to the cart, you must first associate with it.",
+        "title": "Associate me with this BL"
       },
       "breadcrumbLabel": "Breadcrumb",
       "breadcrumbList": "Shipments",
@@ -1390,6 +1515,7 @@
     "list": {
       "caption": "Accessible shipments",
       "col": {
+        "accessSource": "Access source",
         "blNumber": "BL",
         "bookingNumber": "Booking",
         "country": "Country",
@@ -1412,6 +1538,13 @@
         "voyage": "Voyage"
       },
       "loadError": "The shipment list could not be loaded.",
+      "openBl": {
+        "field": "Find a BL by number",
+        "help": "Enter the exact BL number. If the customer has open access enabled, you will see the information it allows even if the BL is not in your list.",
+        "label": "Open a BL by its number",
+        "required": "Enter the BL number you want to view.",
+        "submit": "Open BL"
+      },
       "operation": {
         "all": "All",
         "export": "Export",
@@ -1443,6 +1576,344 @@
     "processing": "Processing",
     "rejected": "Rejected",
     "released": "Released"
+  },
+  "thirdPartyAccess": {
+    "audit": {
+      "blLabel": "BL {{ bl }}",
+      "bookingLabel": "Booking {{ booking }}",
+      "caption": "Access audit events",
+      "col": {
+        "event": "Event",
+        "grantee": "Recipient",
+        "grantor": "Grantor",
+        "occurredAt": "Date and time",
+        "reference": "BL or booking",
+        "user": "User"
+      },
+      "empty": "There are no access events recorded.",
+      "filters": {
+        "blNumber": "BL number",
+        "bookingNumber": "Booking number",
+        "clear": "Clear",
+        "label": "Filter the access audit",
+        "search": "Search"
+      },
+      "forbidden": "Your organization cannot view the access audit of that shipment.",
+      "help": "History of grants, validity or permission changes, manual, automatic and cascade revocations, and open access changes. Without filters it shows the events of your organization.",
+      "loadError": "The access audit could not be loaded.",
+      "notFound": "The BL or booking was not found.",
+      "pagination": {
+        "label": "Audit pagination",
+        "next": "Next",
+        "page": "Page {{ page }} of {{ pages }}",
+        "previous": "Previous",
+        "showing": "Showing {{ shown }} of {{ total }} events"
+      },
+      "system": "System (automatic)",
+      "title": "Access audit"
+    },
+    "defaults": {
+      "add": "Add default third party",
+      "added": "{{ name }} added as a default third party.",
+      "baseLevel": "Base level of the access matrix",
+      "cancel": "Cancel",
+      "caption": "Third parties that receive access by default",
+      "col": {
+        "actions": "Actions",
+        "duration": "Duration",
+        "grantee": "Third party",
+        "permissions": "Permissions",
+        "updatedAt": "Last change"
+      },
+      "confirmDelete": "Remove",
+      "days": "{count, plural, one {# day} other {# days}}",
+      "delete": "Remove",
+      "deleteHelp": "It will no longer receive access to new BLs. Access already granted is kept.",
+      "deleteLabel": "Remove {{ name }} from the default third parties",
+      "deleteTitle": "Remove {{ name }} from the default third parties",
+      "duration": "Access duration in days (optional)",
+      "durationHelp": "Between {{ min }} and {{ max }} days. Empty: no end date.",
+      "edit": "Edit",
+      "editLabel": "Edit the default third party {{ name }}",
+      "editTitle": "Edit the default third party {{ name }}",
+      "empty": "There are no default third parties.",
+      "errors": {
+        "delete": "The default third party could not be removed. Please try again.",
+        "duration": "Enter a whole number of days between {{ min }} and {{ max }}, or leave it empty.",
+        "granteeRequired": "Choose the third party that will receive the access.",
+        "load": "Default third parties could not be loaded.",
+        "save": "The default third party could not be saved. Please try again."
+      },
+      "help": "They automatically receive access to every new BL of your organization, limited to what you have on that BL. Changing this setting does not alter access already granted; for a specific shipment, edit or revoke its access in the Access tab.",
+      "newTitle": "New default third party",
+      "noEnd": "No end date",
+      "permissionsCount": "{count, plural, one {# chosen permission} other {# chosen permissions}}",
+      "permissionsPending": "Choose the recipient to see the permissions you can grant.",
+      "removed": "{{ name }} is no longer a default third party.",
+      "save": "Save",
+      "title": "Default third parties",
+      "updated": "Default third party {{ name }} updated."
+    },
+    "earlyBooking": {
+      "booking": "Booking number",
+      "bookingRequired": "Enter the booking number.",
+      "done": "Access to booking {{ booking }} granted to {{ name }}. It is listed in the Access tab.",
+      "error": "The booking access could not be granted. Please try again.",
+      "granteeRequired": "Choose the recipient of the access.",
+      "help": "Give visibility of the booking to the future shipper (or consignee) before the BL exists. When the BL is issued, the access is kept or reconciled with the official role.",
+      "permissionsPending": "Choose the recipient to see the permissions you can grant.",
+      "role": "Role they will have in the shipment",
+      "roleHelp": "The third party role is only available for a freight forwarder (FFWW).",
+      "submit": "Grant booking access",
+      "title": "Early access by booking"
+    },
+    "errors": {
+      "alreadyAssociated": "Your organization is already associated with this BL.",
+      "blNotFound": "The BL was not found or your organization has no access to it.",
+      "defaultExists": "That organization is already a default third party.",
+      "defaultNotFound": "The default third party no longer exists.",
+      "earlyBookingNotAllowed": "Only the customer of the booking can grant early access.",
+      "earlyBookingRecipient": "The recipient cannot receive the chosen role. The third party role only applies to a freight forwarder (FFWW).",
+      "exceedsGrantorLevel": "You cannot grant a permission your organization does not have on that shipment.",
+      "forbidden": "Your profile does not have permission for this operation.",
+      "grantNotFound": "The access no longer exists.",
+      "granteeNotFound": "The chosen organization cannot receive access.",
+      "invalidTargetRole": "The chosen role is not valid: it must differ from yours.",
+      "invalidValidity": "The validity is not valid. Check the dates or the number of days.",
+      "notAllowed": "Your organization cannot grant, change or revoke access on this shipment.",
+      "notGrantable": "One of the chosen permissions cannot be granted to this recipient.",
+      "notOpen": "The access is no longer active and cannot be changed.",
+      "notPendingAcceptance": "The mandate is no longer pending acceptance.",
+      "notWidenable": "One of the chosen data items cannot be widened for that role.",
+      "openAccessNotAllowed": "Your organization cannot configure open access by BL number.",
+      "openAccessNotAvailable": "Association is only available for a BL viewed through open access.",
+      "selfGrant": "You cannot grant access to your own organization.",
+      "termsVersionMismatch": "The mandate terms have changed. Open the form again and accept the current version.",
+      "unknownActions": "One of the chosen permissions no longer exists. Open the form again.",
+      "wideningNotFound": "The widening no longer exists."
+    },
+    "grantDialog": {
+      "cancel": "Cancel",
+      "close": "Close",
+      "errors": {
+        "granteeRequired": "Choose the recipient of the access.",
+        "mandatePermissions": "A mandate requires at least one permission besides viewing.",
+        "missingBooking": "Some selected shipments have no booking. Grant them by BL or remove them from the selection.",
+        "referencesRequired": "Select at least one shipment.",
+        "submit": "The access could not be granted. Please try again.",
+        "summaryTitle": "Check the following fields:",
+        "tooManyReferences": "You can grant access to at most {{ maxReferences }} shipments at a time."
+      },
+      "help": "Set the recipient, shipments, validity and permissions in a single step. Granting does not change your default settings.",
+      "mandate": {
+        "accept": "I accept the mandate terms (version {{ version }})",
+        "acceptHelp": "If you do not accept them now, the mandate stays pending and does not enable operations until accepted.",
+        "help": "A mandate authorizes the third party to pay or carry out procedures on behalf of your organization. It requires explicit permissions, a validity with an end and acceptance of the terms.",
+        "label": "Grant as a digital mandate",
+        "termsError": "The mandate terms could not be loaded.",
+        "termsTitle": "{{ title }} (version {{ version }})"
+      },
+      "permissionsPending": "Choose the recipient to see the permissions you can grant.",
+      "result": {
+        "created": "Created",
+        "done": "Done",
+        "modified": "Changed",
+        "pendingMandate": "The mandate is pending terms acceptance and does not enable operations until they are accepted.",
+        "skipped": "Skipped",
+        "skippedItem": "{{ reference }}: {{ reason }}",
+        "skippedTitle": "Skipped shipments",
+        "summary": "{updated} of {requested} records updated: {created} created, {modified} changed and {skipped} skipped.",
+        "title": "Grant result",
+        "updated": "Records updated"
+      },
+      "shipments": {
+        "byBl": "BL number",
+        "byBooking": "Booking number",
+        "caption": "Shipments available to grant access",
+        "clear": "Clear selection",
+        "col": {
+          "bl": "BL",
+          "booking": "Booking",
+          "select": "Select",
+          "vessel": "Vessel"
+        },
+        "empty": "No shipments match.",
+        "filter": "Filter by BL number",
+        "fixed": "Shipment: BL {{ bl }}",
+        "help": "Select one or more shipments; with several, the access is applied to all of them in a single action.",
+        "legend": "Shipments",
+        "more": "Showing {{ shown }} of {{ total }}. Filter by BL number to find others.",
+        "referenceKind": "Grant the access by",
+        "search": "Filter shipments",
+        "selectAll": "Select visible",
+        "selectLabel": "Select BL {{ bl }}",
+        "selectedCount": "{count, plural, =0 {No shipments selected} one {# shipment selected} other {# shipments selected}}"
+      },
+      "submit": "{count, plural, =0 {Grant access} one {Grant access to # shipment} other {Grant access to # shipments}}",
+      "title": "Grant access",
+      "titleForBl": "Grant access to BL {{ bl }}"
+    },
+    "granteePicker": {
+      "allTypes": "All types",
+      "change": "Change recipient",
+      "choose": "Choose",
+      "chooseLabel": "Choose {{ name }}",
+      "error": "Recipients could not be searched. Please try again.",
+      "help": "Search the organization by legal name or tax ID (RUT / NIT). Only approved organizations are listed.",
+      "legend": "Recipient",
+      "noResults": "No organizations match that search.",
+      "resultCount": "{count, plural, =0 {No organizations found} one {# organization found} other {# organizations found}}",
+      "resultDetail": "{{ taxId }} · {{ type }} · {{ country }}",
+      "resultsLabel": "Organizations found",
+      "search": "Legal name or tax ID (RUT / NIT)",
+      "searchButton": "Search recipient",
+      "selected": "Recipient: {{ name }} ({{ taxId }}, {{ type }})",
+      "type": "Organization type"
+    },
+    "grants": {
+      "accept": {
+        "button": "Accept terms",
+        "cancel": "Cancel",
+        "checkbox": "I accept the mandate terms (version {{ version }})",
+        "confirm": "Activate mandate",
+        "done": "Mandate for {{ name }} activated.",
+        "error": "The mandate could not be activated. Please try again.",
+        "termsError": "The mandate terms could not be loaded.",
+        "termsTitle": "{{ title }} (version {{ version }})",
+        "title": "Accept the terms of the mandate for {{ name }} on {{ reference }}"
+      },
+      "acceptLabel": "Accept terms of the mandate for {{ name }} on {{ reference }}",
+      "baseLevel": "{count, plural, one {Base level (# permission)} other {Base level (# permissions)}}",
+      "blLabel": "BL {{ bl }}",
+      "bookingLabel": "Booking {{ booking }}",
+      "caption": "Access granted and received by the organization",
+      "col": {
+        "actions": "Actions",
+        "end": "End",
+        "grantee": "Recipient",
+        "grantor": "Grantor",
+        "origin": "Origin",
+        "permissions": "Permissions",
+        "reference": "BL or booking",
+        "start": "Start",
+        "status": "Status"
+      },
+      "edit": {
+        "button": "Edit",
+        "cancel": "Cancel",
+        "error": "The access could not be updated. Please try again.",
+        "noChanges": "There are no changes to save.",
+        "save": "Save changes",
+        "saved": "Access of {{ name }} to {{ reference }} updated.",
+        "title": "Edit the access of {{ name }} to {{ reference }}"
+      },
+      "editLabel": "Edit the access of {{ name }} to {{ reference }}",
+      "empty": "No access matches the filters.",
+      "errors": {
+        "load": "Access could not be loaded."
+      },
+      "filters": {
+        "allDirections": "Granted and received",
+        "allStatuses": "All statuses",
+        "clear": "Clear",
+        "direction": "Direction",
+        "label": "Filter access",
+        "reference": "BL or booking",
+        "search": "Filter",
+        "status": "Status"
+      },
+      "grant": "Grant access",
+      "help": "Recipient, validity and permissions of each access. An access without explicit permissions applies the base level of the access matrix.",
+      "noEnd": "No end date",
+      "pagination": {
+        "label": "Access pagination",
+        "next": "Next",
+        "page": "Page {{ page }} of {{ pages }}",
+        "previous": "Previous",
+        "showing": "Showing {{ shown }} of {{ total }} access entries"
+      },
+      "permissionsCount": "{count, plural, one {# chosen permission} other {# chosen permissions}}",
+      "revoke": {
+        "bulkTitle": "{count, plural, one {Revoke # access} other {Revoke # access entries}}",
+        "button": "Revoke",
+        "cancel": "Cancel",
+        "cascadeWarning": "Revoking also revokes, by cascade, the access and visibility widenings that depend on this access. All affected organizations will be notified.",
+        "confirm": "Confirm revocation",
+        "done": "Revocation finished: {revoked, plural, one {# access revoked} other {# access entries revoked}}, {cascade, plural, one {# by cascade} other {# by cascade}} and {widenings, plural, one {# widening removed} other {# widenings removed}}.",
+        "error": "The access could not be revoked. Please try again.",
+        "reason": "Reason (optional)",
+        "title": "Revoke the access of {{ name }} to {{ reference }}"
+      },
+      "revokeLabel": "Revoke the access of {{ name }} to {{ reference }}",
+      "revokeSelected": "{count, plural, =0 {Revoke selected} one {Revoke # selected} other {Revoke # selected}}",
+      "selectAll": "Select all access you can revoke",
+      "selectLabel": "Select the access of {{ name }} to {{ reference }}",
+      "selectedCount": "{count, plural, =0 {No access selected} one {# access selected} other {# access entries selected}}",
+      "title": "Granted and received access"
+    },
+    "management": {
+      "help": "One place for who can access your shipments and what they can see or do: granted and received access, default third parties, open access by BL number, booking access and audit.",
+      "readOnly": "Your profile can view access but cannot grant, change or revoke it. If the permission was just assigned to you, sign out and sign in again.",
+      "tabs": {
+        "audit": "Audit",
+        "defaults": "Default third parties",
+        "earlyBooking": "Booking access",
+        "grants": "Access",
+        "openAccess": "Open access"
+      },
+      "tabsLabel": "Access and permissions sections",
+      "title": "Access and permissions"
+    },
+    "openAccess": {
+      "changedAt": "Last change: {{ date }}.",
+      "effective": "Permissions it enables today:",
+      "errors": {
+        "load": "The open access settings could not be loaded.",
+        "save": "The open access settings could not be saved. Please try again."
+      },
+      "help": "When enabled, any user who enters the number of one of your BLs sees the information these permissions allow, without a prior grant. It is a single set of permissions for everyone; to give someone a wider scope, grant them individual access.",
+      "notAvailable": "Your organization cannot configure open access.",
+      "save": "Save settings",
+      "savedDisabled": "Open access disabled.",
+      "savedEnabled": "Open access enabled.",
+      "stateDisabled": "Open access is disabled: only third parties with granted access can view your BLs.",
+      "stateEnabled": "Open access is enabled.",
+      "title": "Open access by BL number",
+      "toggle": "Enable open access by BL number",
+      "toggleHelp": "You can enable or disable it at any time. It never enables access administration actions."
+    },
+    "permissions": {
+      "administration": "Administration",
+      "alwaysIncluded": "Always included.",
+      "base": "Base level of the access matrix",
+      "baseEmpty": "Only viewing the shipment.",
+      "baseIncludes": "The base level includes:",
+      "custom": "Choose permissions",
+      "empty": "There are no permissions available to grant.",
+      "help": "Without explicit permissions, the third party receives the base level of the access matrix. You can only enable what your organization has.",
+      "helpMandate": "A mandate requires explicitly choosing the operations the representative can perform.",
+      "information": "Shipment information and operations",
+      "legend": "Permissions",
+      "notGrantable": "Not available: it cannot be granted to this recipient.",
+      "notOwned": "Not available: your organization does not have this permission."
+    },
+    "validity": {
+      "durationDays": "Number of days",
+      "durationHelp": "Between {{ min }} and {{ max }} days from the start.",
+      "errors": {
+        "duration": "Enter a whole number of days between {{ min }} and {{ max }}.",
+        "endRequired": "A mandate cannot be indefinite. Choose a number of days or an end date.",
+        "untilBeforeStart": "The end date cannot be before the start date or today.",
+        "untilRequired": "Enter the end date of the access."
+      },
+      "help": "When the validity ends, the access is revoked automatically, with no manual action.",
+      "helpMandate": "A mandate requires a validity with an end (for example, six months or one year).",
+      "legend": "Validity",
+      "validFrom": "Start date (optional)",
+      "validFromHelp": "Leave it empty to start the access now.",
+      "validTo": "Valid until",
+      "validToHelp": "The access ends at the end of that day."
+    }
   },
   "warehouse": {
     "amount": "Amount",

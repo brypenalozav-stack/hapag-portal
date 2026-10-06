@@ -18,8 +18,11 @@ export const SHIPMENT_ROLES: readonly ShipmentRole[] = [
   'Carrier',
 ];
 
-/** Origen del acceso del usuario al embarque. */
-export type ShipmentAccessSource = 'Own' | 'Admin';
+/**
+ * Origen del acceso del usuario al embarque: propio, acceso otorgado (M1-12), autoasociado (M1-18),
+ * acceso abierto por número de BL (M1-17) o administrador interno.
+ */
+export type ShipmentAccessSource = 'Own' | 'Grant' | 'SelfAssociated' | 'OpenAccess' | 'Admin';
 
 /** Fila del listado único de embarques (M2-06, M2-07). */
 export interface ShipmentListItem {
@@ -80,6 +83,10 @@ export interface ShipmentDetail {
   accessSource: ShipmentAccessSource;
   allowedActions: string[];
   canOperate: boolean;
+  /** El BL se ve por acceso abierto y la organización puede asociarse a él (M1-18). */
+  canSelfAssociate: boolean;
+  /** Agencia o transportista que ve el BL solo por acceso abierto: debe asociarse antes de pagar (M1-18). */
+  requiresAssociationForPayment: boolean;
   freight: ShipmentFreight | null;
   containers: BLContainer[];
   localCharges: LocalCharge[] | null;

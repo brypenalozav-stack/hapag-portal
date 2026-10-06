@@ -18,6 +18,17 @@ import type {
   OrganizationUser,
 } from '../../src/app/core/models/organization.model';
 import type { AccessMatrixAction, AccessMatrixLevel } from '../../src/app/core/models/access-matrix.model';
+import type {
+  AccessAuditEntry,
+  AccessGrant,
+  DefaultGrantee,
+  GrantAccessResult,
+  GrantableAction,
+  GranteeOrganization,
+  OpenAccessSetting,
+  OrganizationRef,
+  VisibilityWidening,
+} from '../../src/app/core/models/access.model';
 import { ORGANIZACION_PRUEBA, USUARIO_PRUEBA } from './session';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
@@ -162,6 +173,14 @@ const NOTIFICACIONES: NotificationItem[] = [
     isRead: false,
     createdAt: '2026-09-25T13:12:00Z',
   },
+  {
+    id: 'n0000000-0000-4000-8000-000000000002',
+    type: 'AccessRevokedByCascade',
+    title: 'Acceso revocado en cadena',
+    body: 'El acceso sobre HLCU0000001 fue revocado porque se revocó o venció el acceso del que dependía.',
+    isRead: false,
+    createdAt: '2026-10-04T10:00:00Z',
+  },
 ];
 
 const RECIBOS: Receipt[] = [
@@ -190,6 +209,8 @@ const RECIBOS: Receipt[] = [
 export const BL_EXPORTACION = 'HLCUSAI260300610';
 /** BL donde la organización es solo shipper: la matriz no le muestra el flete (bloque null). */
 export const BL_SIN_FLETE = 'HLCUVAP260300720';
+/** Ola B: BL ajeno con acceso abierto activo (M1-17, M1-18); no aparece en el listado. */
+export const BL_ACCESO_ABIERTO = 'HLCUVAP260399999';
 
 const EMBARQUES: ShipmentListItem[] = [
   {
@@ -256,8 +277,8 @@ const EMBARQUES: ShipmentListItem[] = [
     portOfDischarge: 'Arica',
     etd: '2026-08-20T10:00:00Z',
     eta: '2026-09-28T08:00:00Z',
-    roles: ['Consignee'],
-    accessSource: 'Own',
+    roles: ['ThirdParty'],
+    accessSource: 'Grant',
     hasPendingCharges: false,
   },
 ];
@@ -283,6 +304,8 @@ function detalleBase(item: ShipmentListItem): ShipmentDetail {
     accessSource: item.accessSource,
     allowedActions: [],
     canOperate: true,
+    canSelfAssociate: false,
+    requiresAssociationForPayment: false,
     freight: null,
     containers: BL_PRUEBA.containers,
     localCharges: null,
@@ -329,6 +352,23 @@ const DETALLES: Record<string, ShipmentDetail> = {
     ...detalleBase(EMBARQUES[2]),
     allowedActions: ['shipment.view', 'local-charges-mandatory.pay'],
     localCharges: [],
+  },
+  // Ola B: BL de otro cliente visto solo por acceso abierto (M1-17); permite autoasociarse (M1-18).
+  [BL_ACCESO_ABIERTO]: {
+    ...detalleBase({
+      ...EMBARQUES[0],
+      id: '3f0c2a1e-0000-4000-8000-000000000009',
+      blNumber: BL_ACCESO_ABIERTO,
+      bookingNumber: 'BKG26030099',
+      roles: [],
+      accessSource: 'OpenAccess',
+    }),
+    allowedActions: ['shipment.view', 'tracking.view'],
+    canOperate: false,
+    canSelfAssociate: true,
+    requiresAssociationForPayment: true,
+    shipper: null,
+    consignee: null,
   },
 };
 
@@ -525,6 +565,295 @@ const MATRIZ: AccessMatrixAction[] = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// Fase 1, Ola B: accesos a terceros (M1-03, M1-12 a M1-24).
+// ---------------------------------------------------------------------------
+
+const ORG_PROPIA: OrganizationRef = {
+  id: ORGANIZACION_PRUEBA.id,
+  name: ORGANIZACION_PRUEBA.name,
+  organizationType: 'Customer',
+  country: 'CL',
+};
+
+/** Agencia de aduanas que recibe los accesos de la organización de prueba. */
+export const AGENCIA: GranteeOrganization = {
+  id: 'c1000000-0000-4000-8000-000000000001',
+  name: 'Agencia Marítima del Pacífico',
+  taxId: '76.555.444-3',
+  organizationType: 'CustomsAgency',
+  country: 'CL',
+};
+
+const TRANSPORTISTA: GranteeOrganization = {
+  id: 'c1000000-0000-4000-8000-000000000002',
+  name: 'Transportes Cordillera Ltda.',
+  taxId: '77.111.222-3',
+  organizationType: 'Carrier',
+  country: 'CL',
+};
+
+const ORG_PACIFIC: OrganizationRef = {
+  id: 'c1000000-0000-4000-8000-000000000003',
+  name: 'Pacific Trading S.A.',
+  organizationType: 'Customer',
+  country: 'CL',
+};
+
+const DESTINATARIOS: GranteeOrganization[] = [AGENCIA, TRANSPORTISTA];
+
+function referencia(org: GranteeOrganization): OrganizationRef {
+  return { id: org.id, name: org.name, organizationType: org.organizationType, country: org.country };
+}
+
+function acceso(datos: Partial<AccessGrant> & Pick<AccessGrant, 'id'>): AccessGrant {
+  return {
+    direction: 'Given',
+    grantor: ORG_PROPIA,
+    grantee: referencia(AGENCIA),
+    grantorRole: 'Customer',
+    billOfLadingId: BL_PRUEBA.id,
+    blNumber: BL_PRUEBA.blNumber,
+    bookingNumber: 'BKG26030010',
+    grantType: 'Individual',
+    intendedRole: null,
+    hasExplicitPermissions: false,
+    actionCodes: null,
+    effectiveActionCodes: ['shipment.view', 'release-requirements.view', 'tracking.view'],
+    validityType: 'UntilDate',
+    validFrom: '2026-10-01T12:00:00Z',
+    validTo: '2027-03-31T23:59:59Z',
+    durationDays: null,
+    status: 'Active',
+    isEffective: true,
+    isMandate: false,
+    termsVersion: null,
+    termsAcceptedAt: null,
+    parentGrantId: null,
+    defaultGranteeId: null,
+    createdAt: '2026-10-01T12:00:00Z',
+    endedAt: null,
+    endReason: null,
+    canEdit: true,
+    ...datos,
+  };
+}
+
+/** Acceso individual con permisos limitados que la organización otorgó a la agencia. */
+export const ACCESO_AGENCIA = acceso({
+  id: 'a1000000-0000-4000-8000-000000000001',
+  hasExplicitPermissions: true,
+  actionCodes: ['shipment.view', 'tracking.view', 'import-demurrage.pay'],
+  effectiveActionCodes: ['shipment.view', 'tracking.view', 'import-demurrage.pay'],
+});
+
+const ACCESOS: AccessGrant[] = [
+  ACCESO_AGENCIA,
+  // Mandato pendiente de aceptación de términos (M1-03).
+  acceso({
+    id: 'a1000000-0000-4000-8000-000000000002',
+    billOfLadingId: '3f0c2a1e-0000-4000-8000-000000000006',
+    blNumber: BL_EXPORTACION,
+    bookingNumber: 'BKG26030061',
+    hasExplicitPermissions: true,
+    actionCodes: ['shipment.view', 'freight.pay'],
+    effectiveActionCodes: [],
+    status: 'PendingAcceptance',
+    isEffective: false,
+    isMandate: true,
+  }),
+  // Acceso recibido de otra organización (sin edición).
+  acceso({
+    id: 'a1000000-0000-4000-8000-000000000003',
+    direction: 'Received',
+    grantor: ORG_PACIFIC,
+    grantee: ORG_PROPIA,
+    billOfLadingId: '3f0c2a1e-0000-4000-8000-000000000008',
+    blNumber: 'HLCUARI260300830',
+    bookingNumber: 'BKG26030083',
+    grantType: 'Default',
+    validityType: 'Indefinite',
+    validTo: null,
+    canEdit: false,
+  }),
+  // Acceso revocado en cadena (M1-22).
+  acceso({
+    id: 'a1000000-0000-4000-8000-000000000004',
+    grantee: referencia(TRANSPORTISTA),
+    status: 'Revoked',
+    isEffective: false,
+    endedAt: '2026-10-03T09:00:00Z',
+    endReason: 'Cascade',
+    parentGrantId: 'a1000000-0000-4000-8000-000000000009',
+    canEdit: false,
+  }),
+];
+
+/** GET /access/grants con dirección, estado y BL o booking. */
+function buscarAccesos(url: URL): PagedResult<AccessGrant> {
+  const direccion = url.searchParams.get('direction');
+  const estado = url.searchParams.get('status');
+  const ref = url.searchParams.get('reference')?.trim().toLowerCase() ?? '';
+  return paginar(
+    ACCESOS.filter(
+      (a) =>
+        (!direccion || a.direction === direccion) &&
+        (!estado || a.status === estado) &&
+        (!ref || (a.blNumber ?? '').toLowerCase().includes(ref) || (a.bookingNumber ?? '').toLowerCase().includes(ref)),
+    ),
+    url,
+  );
+}
+
+/** Acciones del selector de permisos: lo que el otorgante posee y lo que el tercero puede recibir. */
+const ACCIONES_OTORGABLES: GrantableAction[] = [
+  { code: 'shipment.view', name: 'Ver BL', category: 'Information', kind: 'View', grantorHas: true, grantable: true, includedInBaseLevel: true },
+  { code: 'release-requirements.view', name: 'Requisitos', category: 'Information', kind: 'View', grantorHas: true, grantable: true, includedInBaseLevel: true },
+  { code: 'tracking.view', name: 'Seguimiento', category: 'Information', kind: 'View', grantorHas: true, grantable: true, includedInBaseLevel: true },
+  { code: 'freight.pay', name: 'Flete', category: 'Information', kind: 'Operate', grantorHas: true, grantable: true, includedInBaseLevel: false },
+  { code: 'import-demurrage.pay', name: 'Demurrage', category: 'Information', kind: 'Operate', grantorHas: true, grantable: true, includedInBaseLevel: false },
+  // El otorgante no lo posee: aparece deshabilitado (M1-12, M1-15).
+  { code: 'responsibility-letter.generate', name: 'Carta', category: 'Information', kind: 'Operate', grantorHas: false, grantable: false, includedInBaseLevel: false },
+  { code: 'access.grant', name: 'Otorgar acceso', category: 'Administration', kind: 'Operate', grantorHas: true, grantable: false, includedInBaseLevel: false },
+];
+
+const DEFECTO: DefaultGrantee[] = [
+  {
+    id: 'd1000000-0000-4000-8000-000000000001',
+    grantee: referencia(AGENCIA),
+    actionCodes: null,
+    durationDays: 180,
+    createdAt: '2026-09-01T12:00:00Z',
+    modifiedAt: null,
+  },
+];
+
+const ACCESO_ABIERTO: OpenAccessSetting = {
+  isEnabled: false,
+  actionCodes: null,
+  effectiveActionCodes: ['shipment.view', 'tracking.view'],
+  canManage: true,
+  changedAt: null,
+};
+
+const AUDITORIA: AccessAuditEntry[] = [
+  {
+    id: 'e1000000-0000-4000-8000-000000000001',
+    occurredAt: '2026-10-01T12:00:00Z',
+    eventType: 'GrantCreated',
+    billOfLadingId: BL_PRUEBA.id,
+    blNumber: BL_PRUEBA.blNumber,
+    bookingNumber: 'BKG26030010',
+    accessGrantId: ACCESO_AGENCIA.id,
+    visibilityWideningId: null,
+    grantor: ORG_PROPIA,
+    grantee: referencia(AGENCIA),
+    actorUserId: 'u0000000-0000-4000-8000-000000000001',
+    actorEmail: USUARIO_PRUEBA.email,
+    actorOrganization: ORG_PROPIA,
+    details: null,
+  },
+  {
+    id: 'e1000000-0000-4000-8000-000000000002',
+    occurredAt: '2026-10-03T09:00:00Z',
+    eventType: 'GrantRevokedByCascade',
+    billOfLadingId: BL_PRUEBA.id,
+    blNumber: BL_PRUEBA.blNumber,
+    bookingNumber: 'BKG26030010',
+    accessGrantId: 'a1000000-0000-4000-8000-000000000004',
+    visibilityWideningId: null,
+    grantor: ORG_PROPIA,
+    grantee: referencia(TRANSPORTISTA),
+    actorUserId: null,
+    actorEmail: null,
+    actorOrganization: null,
+    details: null,
+  },
+  {
+    id: 'e1000000-0000-4000-8000-000000000003',
+    occurredAt: '2026-10-04T15:30:00Z',
+    eventType: 'OpenAccessEnabled',
+    billOfLadingId: null,
+    blNumber: null,
+    bookingNumber: null,
+    accessGrantId: null,
+    visibilityWideningId: null,
+    grantor: null,
+    grantee: null,
+    actorUserId: 'u0000000-0000-4000-8000-000000000001',
+    actorEmail: USUARIO_PRUEBA.email,
+    actorOrganization: ORG_PROPIA,
+    details: null,
+  },
+  {
+    id: 'e1000000-0000-4000-8000-000000000004',
+    occurredAt: '2026-10-05T08:00:00Z',
+    eventType: 'GrantExpired',
+    billOfLadingId: '3f0c2a1e-0000-4000-8000-000000000006',
+    blNumber: BL_EXPORTACION,
+    bookingNumber: 'BKG26030061',
+    accessGrantId: 'a1000000-0000-4000-8000-000000000005',
+    visibilityWideningId: null,
+    grantor: ORG_PROPIA,
+    grantee: referencia(AGENCIA),
+    actorUserId: null,
+    actorEmail: null,
+    actorOrganization: null,
+    details: null,
+  },
+];
+
+/** GET /access/audit con BL o booking. */
+function buscarAuditoria(url: URL): PagedResult<AccessAuditEntry> {
+  const bl = url.searchParams.get('blNumber')?.trim().toLowerCase() ?? '';
+  const booking = url.searchParams.get('bookingNumber')?.trim().toLowerCase() ?? '';
+  return paginar(
+    AUDITORIA.filter(
+      (e) =>
+        (!bl || (e.blNumber ?? '').toLowerCase() === bl) &&
+        (!booking || (e.bookingNumber ?? '').toLowerCase() === booking),
+    ),
+    url,
+  );
+}
+
+const AMPLIACIONES: VisibilityWidening[] = [
+  {
+    id: 'w1000000-0000-4000-8000-000000000001',
+    billOfLadingId: BL_PRUEBA.id,
+    blNumber: BL_PRUEBA.blNumber,
+    grantor: ORG_PROPIA,
+    grantorRole: 'Consignee',
+    targetRole: 'Shipper',
+    actionCode: 'freight.pay',
+    originGrantId: null,
+    status: 'Active',
+    createdAt: '2026-10-02T12:00:00Z',
+    endedAt: null,
+    endReason: null,
+    canRevoke: true,
+  },
+];
+
+/** Resultado del otorgamiento: uno individual o el masivo con un omitido (M1-12). */
+function resultadoOtorgamiento(cuerpo: { blNumbers?: string[]; bookingNumbers?: string[] }): GrantAccessResult {
+  const referencias = [...(cuerpo.blNumbers ?? []), ...(cuerpo.bookingNumbers ?? [])];
+  const omitidas = referencias.filter((r) => r === BL_SIN_FLETE);
+  const aplicadas = referencias.filter((r) => r !== BL_SIN_FLETE);
+  return {
+    requested: referencias.length,
+    updated: aplicadas.length,
+    created: Math.max(aplicadas.length - 1, aplicadas.length === 1 ? 1 : 0),
+    modified: aplicadas.length > 1 ? 1 : 0,
+    skipped: omitidas.map((reference) => ({
+      reference,
+      code: 'AccessGrant.ExceedsGrantorLevel',
+      message: 'The grantor does not hold one of the requested actions on this shipment.',
+    })),
+    grants: aplicadas.map((bl, i) => acceso({ id: `a2000000-0000-4000-8000-00000000000${i}`, blNumber: bl })),
+  };
+}
+
 type RespuestaGet = unknown | ((url: URL) => unknown);
 
 /** Respuestas por ruta relativa a /api/v1/ (método GET); una función recibe la URL con sus query params. */
@@ -553,10 +882,31 @@ const RESPUESTAS: Record<string, RespuestaGet> = {
   },
   [`admin/organizations/${ORGANIZACION_EN_REVISION}`]: DETALLE_ORGANIZACION_ADMIN,
   'access-matrix': MATRIZ,
+  // Ola B
+  'access/grants': buscarAccesos,
+  'access/grantees': (url: URL) => {
+    const texto = url.searchParams.get('search')?.trim().toLowerCase() ?? '';
+    const tipo = url.searchParams.get('organizationType');
+    return DESTINATARIOS.filter(
+      (d) => (!tipo || d.organizationType === tipo) && (!texto || d.name.toLowerCase().includes(texto) || d.taxId.includes(texto)),
+    );
+  },
+  'access/grantable-actions': ACCIONES_OTORGABLES,
+  'access/mandate-terms': {
+    version: 'MANDATO-2026-10',
+    title: 'Mandato digital',
+    summary: 'El mandatario actúa en representación del mandante dentro del alcance y la vigencia indicados.',
+  },
+  'access/defaults': DEFECTO,
+  'access/open-access': ACCESO_ABIERTO,
+  'access/audit': buscarAuditoria,
+  [`shipments/${BL_PRUEBA.blNumber}/visibility-widenings`]: AMPLIACIONES,
 };
 
+type Escritura = { status: number; body?: unknown };
+
 /** Respuestas de escritura por `MÉTODO ruta`; el resto responde 200 sin cuerpo. */
-const ESCRITURAS: Record<string, { status: number; body?: unknown }> = {
+const ESCRITURAS: Record<string, Escritura> = {
   'POST auth/register': { status: 201, body: { ...USUARIO_PRUEBA, id: '7d1c2b3a-0000-4000-8000-000000000002' } },
   'POST auth/register/join': {
     status: 202,
@@ -577,7 +927,92 @@ const ESCRITURAS: Record<string, { status: number; body?: unknown }> = {
     status: 200,
     body: { country: 'BO', availableCountries: ['CL', 'BO'], canChange: true },
   },
+  // Ola B
+  'POST access/grants/revoke': { status: 200, body: { revoked: 2, cascadeRevoked: 0, wideningsRevoked: 0 } },
+  'POST access/defaults': {
+    status: 201,
+    body: { ...DEFECTO[0], id: 'd1000000-0000-4000-8000-000000000002', grantee: referencia(TRANSPORTISTA), durationDays: 90 },
+  },
+  'POST access/grants/early-booking': {
+    status: 200,
+    body: acceso({ id: 'a3000000-0000-4000-8000-000000000001', billOfLadingId: null, blNumber: null, bookingNumber: 'BKG26039999', grantType: 'EarlyBooking', intendedRole: 'Shipper' }),
+  },
 };
+
+/** Escrituras con parámetros en la ruta o que dependen del cuerpo enviado (Ola B). */
+const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo: unknown, m: RegExpMatchArray) => Escritura }[] = [
+  {
+    metodo: 'POST',
+    patron: /^access\/grants(\/bulk)?$/,
+    responder: (cuerpo) => ({ status: 200, body: resultadoOtorgamiento(cuerpo as { blNumbers?: string[] }) }),
+  },
+  {
+    metodo: 'POST',
+    patron: /^access\/grants\/([^/]+)\/revoke$/,
+    responder: () => ({ status: 200, body: { revoked: 1, cascadeRevoked: 2, wideningsRevoked: 1 } }),
+  },
+  {
+    metodo: 'POST',
+    patron: /^access\/grants\/([^/]+)\/accept-terms$/,
+    responder: (_c, m) => ({
+      status: 200,
+      body: { ...(ACCESOS.find((a) => a.id === m[1]) ?? ACCESO_AGENCIA), status: 'Active', isEffective: true, termsVersion: 'MANDATO-2026-10' },
+    }),
+  },
+  {
+    metodo: 'PUT',
+    patron: /^access\/grants\/([^/]+)$/,
+    responder: (cuerpo, m) => {
+      const actual = ACCESOS.find((a) => a.id === m[1]) ?? ACCESO_AGENCIA;
+      const cambios = cuerpo as { actionCodes?: string[]; validityType?: AccessGrant['validityType']; validTo?: string };
+      return {
+        status: 200,
+        body: {
+          ...actual,
+          ...(cambios.validityType ? { validityType: cambios.validityType, validTo: cambios.validTo ?? null } : {}),
+          ...(cambios.actionCodes ? { actionCodes: ['shipment.view', ...cambios.actionCodes], effectiveActionCodes: ['shipment.view', ...cambios.actionCodes] } : {}),
+        },
+      };
+    },
+  },
+  {
+    metodo: 'PUT',
+    patron: /^access\/defaults\/([^/]+)$/,
+    responder: (cuerpo) => ({ status: 200, body: { ...DEFECTO[0], ...(cuerpo as object), modifiedAt: '2026-10-05T12:00:00Z' } }),
+  },
+  { metodo: 'DELETE', patron: /^access\/defaults\/([^/]+)$/, responder: () => ({ status: 204 }) },
+  {
+    metodo: 'PUT',
+    patron: /^access\/open-access$/,
+    responder: (cuerpo) => {
+      const c = cuerpo as { isEnabled: boolean; actionCodes?: string[] };
+      return {
+        status: 200,
+        body: {
+          ...ACCESO_ABIERTO,
+          isEnabled: c.isEnabled,
+          actionCodes: c.actionCodes ?? null,
+          effectiveActionCodes: c.actionCodes ? ['shipment.view', ...c.actionCodes] : ACCESO_ABIERTO.effectiveActionCodes,
+          changedAt: '2026-10-05T12:00:00Z',
+        },
+      };
+    },
+  },
+  {
+    metodo: 'POST',
+    patron: /^shipments\/([^/]+)\/associate$/,
+    responder: (_c, m) => ({
+      status: 200,
+      body: { billOfLadingId: '3f0c2a1e-0000-4000-8000-000000000009', blNumber: m[1], associatedAt: '2026-10-05T12:00:00Z' },
+    }),
+  },
+  {
+    metodo: 'POST',
+    patron: /^shipments\/([^/]+)\/visibility-widenings$/,
+    responder: () => ({ status: 200, body: AMPLIACIONES }),
+  },
+  { metodo: 'POST', patron: /^shipments\/([^/]+)\/visibility-widenings\/([^/]+)\/revoke$/, responder: () => ({ status: 204 }) },
+];
 
 /** Intercepta /api/v1/**: rutas conocidas con datos ficticios; cualquier otra GET responde []. */
 export async function simularApi(page: Page): Promise<void> {
@@ -588,7 +1023,16 @@ export async function simularApi(page: Page): Promise<void> {
     const metodo = request.method();
 
     if (metodo !== 'GET') {
-      const escritura = ESCRITURAS[`${metodo} ${ruta}`];
+      let escritura: Escritura | undefined = ESCRITURAS[`${metodo} ${ruta}`];
+      if (!escritura) {
+        for (const d of ESCRITURAS_DINAMICAS) {
+          const m = d.metodo === metodo ? ruta.match(d.patron) : null;
+          if (m) {
+            escritura = d.responder(request.postDataJSON(), m);
+            break;
+          }
+        }
+      }
       await route.fulfill({
         status: escritura?.status ?? 200,
         contentType: 'application/json',

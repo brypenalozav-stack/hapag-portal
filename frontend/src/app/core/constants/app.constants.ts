@@ -54,6 +54,7 @@ export const API_ENDPOINTS = {
   ORGANIZATIONS_ME: 'organizations/me',
   ADMIN_ORGANIZATIONS: 'admin/organizations',
   ACCESS_MATRIX: 'access-matrix',
+  ACCESS: 'access',
 } as const;
 
 /**
@@ -71,4 +72,6 @@ export const PERMISSIONS = {
   CHECK_ORGANIZATIONS_AR: 'organizations.ar-check',
   /** Administrar la matriz base de accesos (M1-11). */
   MANAGE_ACCESS_MATRIX: 'access-matrix.manage',
+  /** Otorgar, editar y revocar accesos a terceros, defaults, acceso abierto y ampliaciones (M1-12 a M1-24). */
+  MANAGE_THIRD_PARTY_ACCESS: 'org.access.manage',
 } as const;

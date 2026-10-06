@@ -19,7 +19,7 @@
           <div>
             <div class="fw-semibold">
               @if (!n.isRead) { <span class="badge bg-primary me-2">{{ 'notifications.new' | transloco }}</span> }
-              {{ n.title }}
+              {{ typeKeys[n.type] ? (typeKeys[n.type] | transloco) : n.title }}
             </div>
             <div class="small text-muted">{{ n.body }}</div>
             <div class="small text-muted mt-1">{{ n.createdAt | hlDate:'datetime' }}</div>

@@ -94,13 +94,30 @@
       </div>
       <div class="col-sm-6 col-lg-3">
         <dt class="detail-label">{{ 'shipments.detail.parties.accessSource' | transloco }}</dt>
-        <dd class="detail-value">{{ s.accessSource | codeLabel: accessSourceKeys }}</dd>
+        <dd class="mb-0"><app-access-source-badge [source]="s.accessSource" /></dd>
       </div>
     </dl>
   </section>
 
   @if (!s.canOperate) {
     <div class="alert alert-info" role="note">{{ 'shipments.detail.readOnly' | transloco }}</div>
+  }
+
+  <!-- Acceso abierto: asociación al BL (M1-18), requisito previo para pagar como agencia o transportista -->
+  @if (s.requiresAssociationForPayment) {
+    <div class="alert alert-warning" role="note">{{ 'shipments.detail.associate.paymentNotice' | transloco }}</div>
+  }
+  @if (s.canSelfAssociate) {
+    <section class="hl-card p-4 mb-4" aria-labelledby="shipment-associate-title">
+      <h2 id="shipment-associate-title" class="section-title mb-2">{{ 'shipments.detail.associate.title' | transloco }}</h2>
+      <p class="small text-muted">{{ 'shipments.detail.associate.help' | transloco }}</p>
+      @if (associateError()) {
+        <div class="alert alert-danger py-2" role="alert">{{ associateError() }}</div>
+      }
+      <button type="button" class="btn btn-hl-orange" [disabled]="associating()" (click)="associate()">
+        {{ 'shipments.detail.associate.button' | transloco }}
+      </button>
+    </section>
   }
 
   <!-- Flete: solo si la matriz lo permite para el rol (bloque null = sin permiso) -->
@@ -279,6 +296,11 @@
         <app-state-message kind="empty" [messageKey]="'shipments.detail.serviceOrders.empty'" />
       }
     </section>
+  }
+
+  <!-- Accesos del BL: quién tiene acceso, otorgar y ampliaciones (M1-12, M1-16) -->
+  @if (showAccessSection()) {
+    <app-shipment-access [shipment]="s" [canManage]="canManageAccess()" />
   }
 
   <!-- Solicitudes de servicio habilitadas por la matriz y el perfil -->

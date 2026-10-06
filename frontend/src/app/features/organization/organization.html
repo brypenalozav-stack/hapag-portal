@@ -72,4 +72,8 @@
   @if (canManageUsers()) {
     <app-organization-users class="d-block mb-4" />
   }
+
+  @if (showAccess()) {
+    <app-access-management class="d-block mb-4" [canManage]="canManageAccess()" [organizationType]="org.organizationType" />
+  }
 }

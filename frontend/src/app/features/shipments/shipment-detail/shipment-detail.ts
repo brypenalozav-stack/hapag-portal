@@ -4,9 +4,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ShipmentService } from '../../../core/services/shipment.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
+import { PERMISSIONS } from '../../../core/constants/app.constants';
+import { apiErrorKey } from '../../../core/http/api-error';
 import { SHIPMENT_ACTIONS, ShipmentDetail } from '../../../core/models/shipment.model';
 import {
-  SHIPMENT_ACCESS_SOURCE_KEYS,
   SHIPMENT_OPERATION_KEYS,
   SHIPMENT_ROLE_KEYS,
 } from '../../../core/i18n/labels';
@@ -18,12 +21,20 @@ import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
+import { AccessSourceBadgeComponent } from '../../../shared/components/access-source-badge/access-source-badge';
+import { ShipmentAccessComponent } from '../../access/shipment-access/shipment-access';
+import { GRANT_ERRORS } from '../../access/shared/access-errors';
+
+/** Orígenes del acceso con los que se muestra la sección "Accesos" del BL. */
+const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
 
 /**
  * Detalle del embarque (M2-06) según los permisos del usuario (M1-11). Los bloques que la matriz
  * no habilita llegan en null y no se muestran; los botones de pagar y solicitar aparecen solo si
  * la acción está en `allowedActions` y el perfil puede operar (`canOperate`). En exportación
- * muestra las órdenes de servicio generadas (CL-EXP-13, BO-EXP-09).
+ * muestra las órdenes de servicio generadas (CL-EXP-13, BO-EXP-09). Ola B: origen del acceso,
+ * autoasociación a un BL visto por acceso abierto (M1-18) con el aviso previo al pago, y la
+ * sección "Accesos" del BL (M1-12, M1-16).
  */
 @Component({
   selector: 'app-shipment-detail',
@@ -31,25 +42,41 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
   imports: [
     RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, CodeLabelPipe,
     StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
+    AccessSourceBadgeComponent, ShipmentAccessComponent,
   ],
   templateUrl: './shipment-detail.html',
   styleUrl: './shipment-detail.scss',
 })
 export class ShipmentDetailComponent implements OnInit {
   private readonly service = inject(ShipmentService);
+  private readonly auth = inject(AuthService);
+  private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
 
   blNumber = input.required<string>();
 
   readonly roleKeys = SHIPMENT_ROLE_KEYS;
   readonly operationKeys = SHIPMENT_OPERATION_KEYS;
-  readonly accessSourceKeys = SHIPMENT_ACCESS_SOURCE_KEYS;
 
   shipment = signal<ShipmentDetail | null>(null);
   loading = signal(true);
   error = signal('');
   /** NF-11: la consulta falló con HTTP 5xx o sin conexión. */
   loadFailed = signal(false);
+
+  associating = signal(false);
+  associateError = signal('');
+
+  /** Gestionar accesos del BL: permiso org.access.manage del perfil (el servidor valida). */
+  canManageAccess = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_THIRD_PARTY_ACCESS));
+
+  /** Sección "Accesos": BL propio, otorgado o autoasociado de una organización aprobada (no el interno). */
+  showAccessSection = computed(() => {
+    const s = this.shipment();
+    const org = this.auth.organization();
+    return !!s && !!org && org.status === 'Approved' && org.organizationType !== 'Internal'
+      && ACCESS_SECTION_SOURCES.includes(s.accessSource);
+  });
 
   private readonly allowed = computed(() => {
     const s = this.shipment();
@@ -74,6 +101,27 @@ export class ShipmentDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+  }
+
+  /** Autoasociación (M1-18): el BL queda guardado en el listado de la organización. */
+  associate(): void {
+    const s = this.shipment();
+    if (!s) return;
+    this.associating.set(true);
+    this.associateError.set('');
+    this.service.associate(s.blNumber).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.associating.set(false);
+        this.announcer.announce(translate('shipments.detail.associate.done', { bl: s.blNumber }));
+        this.load();
+      },
+      error: (err) => {
+        this.associating.set(false);
+        const message = translate(apiErrorKey(err, GRANT_ERRORS, 'shipments.detail.associate.error'));
+        this.associateError.set(message);
+        this.announcer.announce(message, 'assertive');
+      },
+    });
   }
 
   load(): void {
