@@ -228,6 +228,19 @@ export const routes: Routes = [
       import('./features/notifications/notifications').then((m) => m.NotificationsComponent),
     canActivate: [authGuard],
   },
+  // Fase 2, Ola I: preferencias de correo de la bandeja (M1-25) y comunicados vigentes (M1-26).
+  {
+    path: 'notifications/preferences',
+    loadComponent: () =>
+      import('./features/notifications/notification-preferences').then((m) => m.NotificationPreferencesComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'announcements',
+    loadComponent: () =>
+      import('./features/announcements/announcements').then((m) => m.AnnouncementsComponent),
+    canActivate: [authGuard],
+  },
   {
     path: 'forgot-password',
     loadComponent: () =>
@@ -433,6 +446,53 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/service-definitions/service-definition-editor').then((m) => m.ServiceDefinitionEditorComponent),
     canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  // Fase 2, Ola I: área de administración unificada (M8-05), comunicados (M1-26), guías (M1-27), vista como cliente
+  // (M8-08), reportería de transacciones y excepciones (M9-01), Counter (M8-09) y vinculaciones con la matriz (M1-21).
+  {
+    path: 'admin',
+    pathMatch: 'full',
+    loadComponent: () => import('./features/admin/admin-home/admin-home').then((m) => m.AdminHomeComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.ADMIN_AREA)],
+  },
+  {
+    path: 'admin/announcements',
+    loadComponent: () =>
+      import('./features/admin/announcements/announcements-admin').then((m) => m.AnnouncementsAdminComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_ANNOUNCEMENTS)],
+  },
+  {
+    path: 'admin/guides',
+    loadComponent: () => import('./features/admin/guides/guides-admin').then((m) => m.GuidesAdminComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/impersonation',
+    loadComponent: () => import('./features/admin/impersonation/impersonation').then((m) => m.ImpersonationComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.USE_IMPERSONATION)],
+  },
+  {
+    path: 'admin/reports/transactions',
+    loadComponent: () =>
+      import('./features/admin/transaction-reports/transactions-report').then((m) => m.TransactionsReportComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.VIEW_TRANSACTIONS_REPORT)],
+  },
+  {
+    path: 'admin/reports/exceptions',
+    loadComponent: () =>
+      import('./features/admin/transaction-reports/exceptions-report').then((m) => m.ExceptionsReportComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.VIEW_TRANSACTIONS_REPORT)],
+  },
+  {
+    path: 'admin/counter',
+    loadComponent: () => import('./features/admin/counter/counter').then((m) => m.CounterComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_COUNTER)],
+  },
+  {
+    path: 'admin/organization-links',
+    loadComponent: () =>
+      import('./features/admin/organization-links/organization-links').then((m) => m.OrganizationLinksComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.REVIEW_ORGANIZATIONS)],
   },
   { path: '**', redirectTo: '/dashboard' },
 ];

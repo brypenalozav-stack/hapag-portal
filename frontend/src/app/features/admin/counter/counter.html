@@ -1,0 +1,257 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.counter.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.counter.subtitle' | transloco }}</p>
+</div>
+
+<!-- Registrar o editar por número de BL -->
+<form class="hl-card p-3 mb-3" [attr.aria-label]="'admin.counter.open.label' | transloco" (submit)="openByNumber($event)">
+  <label for="counter-open-bl" class="form-label small fw-semibold">{{ 'admin.counter.open.field' | transloco }}</label>
+  <div class="d-flex flex-wrap gap-2">
+    <input id="counter-open-bl" type="text" class="form-control w-auto flex-grow-1" autocomplete="off" name="openBl" aria-describedby="counter-open-help" [(ngModel)]="openBl" />
+    <button type="submit" class="btn btn-hl-orange" data-testid="counter-open">{{ 'admin.counter.open.submit' | transloco }}</button>
+  </div>
+  <div id="counter-open-help" class="form-text">{{ 'admin.counter.open.help' | transloco }}</div>
+</form>
+
+@if (detailError()) {
+  <div class="alert alert-danger py-2" role="alert" data-testid="counter-detail-error">{{ detailError() }}</div>
+}
+@if (detailLoading()) {
+  <app-loading-spinner />
+} @else if (detail(); as d) {
+  <section class="hl-card p-4 mb-4" aria-labelledby="counter-detail-title" data-testid="counter-detail">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+      <h2 #detailHeading id="counter-detail-title" class="section-title" tabindex="-1">{{ 'admin.counter.detail.title' | transloco: { bl: d.shipment.blNumber } }}</h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeDetail()">{{ 'admin.counter.detail.close' | transloco }}</button>
+    </div>
+    <dl class="row g-2 small mb-3">
+      <div class="col-sm-6 col-lg-3">
+        <dt>{{ 'admin.counter.detail.booking' | transloco }}</dt>
+        <dd class="mb-0">{{ d.shipment.bookingNumber ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt>{{ 'admin.counter.detail.operation' | transloco }}</dt>
+        <dd class="mb-0">{{ d.shipment.operation ? (d.shipment.operation | codeLabel: operationKeys) : '—' }} · {{ d.shipment.country }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt>{{ 'admin.counter.detail.vessel' | transloco }}</dt>
+        <dd class="mb-0">{{ d.shipment.vessel ?? '—' }} {{ d.shipment.voyage ?? '' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt>{{ 'admin.counter.detail.delivery' | transloco }}</dt>
+        <dd class="mb-0">{{ d.shipment.placeOfDelivery ?? d.shipment.portOfDischarge ?? '—' }}</dd>
+      </div>
+    </dl>
+
+    <!-- Lo que registra Nexus para el BL -->
+    @if (!d.sourceAvailable) {
+      <div class="alert alert-warning py-2" role="note" data-testid="counter-source-unavailable">{{ 'admin.counter.detail.sourceUnavailable' | transloco }}</div>
+    } @else if (d.source; as src) {
+      <p class="small" data-testid="counter-source">
+        {{ 'admin.counter.detail.source' | transloco: {
+          reference: src.sourceReference ?? '—',
+          exchange: src.exchangeDate ? (src.exchangeDate | hlDate: 'localDate') : ('admin.counter.no' | transloco),
+          hbl: (src.hblReceived ? 'admin.counter.yes' : 'admin.counter.no') | transloco,
+          deconsolidated: (src.deconsolidated ? 'admin.counter.yes' : 'admin.counter.no') | transloco
+        } }}
+      </p>
+    }
+
+    @if (d.record; as r) {
+      <div class="mb-3" data-testid="counter-sync">
+        <span class="hl-badge" [class]="syncClass[r.syncStatus] || 'hl-badge--processing'">{{ r.syncStatus | codeLabel: syncKeys }}</span>
+        @if (r.syncStatus === 'Synced' && r.syncedAt) {
+          <span class="small ms-2">{{ 'admin.counter.syncedAt' | transloco: { date: (r.syncedAt | hlDate: 'datetime'), reference: r.sourceReference ?? '—' } }}</span>
+        }
+        @if (r.syncStatus === 'Failed') {
+          <div class="alert alert-warning py-2 mt-2 mb-0 d-flex flex-wrap align-items-center gap-2" role="alert" data-testid="counter-sync-failed">
+            <span>{{ 'admin.counter.syncFailed' | transloco: { error: r.syncError ?? '—' } }}</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="retrying() === d.shipment.blNumber" (click)="retry(d.shipment.blNumber)" data-testid="counter-retry">{{ 'admin.counter.retry' | transloco }}</button>
+          </div>
+        }
+      </div>
+    }
+
+    <form novalidate aria-labelledby="counter-detail-title" (submit)="save($event)" data-testid="counter-form">
+      @if (errors().length > 0) {
+        <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="counter-errors-title">
+          <h3 id="counter-errors-title" class="h6 fw-bold">{{ 'admin.counter.form.errors.summaryTitle' | transloco }}</h3>
+          <ul class="mb-0">
+            @for (error of errors(); track error.key) {
+              <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+            }
+          </ul>
+        </div>
+      }
+      @if (saveError()) {
+        <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+      }
+      <div class="row g-3 mb-3">
+        <div class="col-sm-6 col-lg-3">
+          <label for="counter-country" class="form-label small fw-semibold">{{ 'admin.counter.form.country' | transloco }}</label>
+          <select id="counter-country" class="form-select" name="country" [(ngModel)]="form.country">
+            <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+            <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+          </select>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <label for="counter-exchange-date" class="form-label small fw-semibold">{{ 'admin.counter.form.exchangeDate' | transloco }}</label>
+          <input id="counter-exchange-date" type="date" class="form-control" name="exchangeDate" [max]="today" [attr.aria-invalid]="hasError('counter-exchange-date')"
+                 aria-describedby="counter-dates-help" [(ngModel)]="form.exchangeDate" />
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="form-check mb-1">
+            <input id="counter-hbl" type="checkbox" class="form-check-input" name="hblReceived" [(ngModel)]="form.hblReceived" />
+            <label for="counter-hbl" class="form-check-label small fw-semibold">{{ 'admin.counter.form.hblReceived' | transloco }}</label>
+          </div>
+          <label for="counter-hbl-date" class="form-label small">{{ 'admin.counter.form.hblReceivedAt' | transloco }}</label>
+          <input id="counter-hbl-date" type="date" class="form-control" name="hblReceivedAt" [max]="today" [disabled]="!form.hblReceived"
+                 [attr.aria-invalid]="hasError('counter-hbl-date')" aria-describedby="counter-dates-help" [(ngModel)]="form.hblReceivedAt" />
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="form-check mb-1">
+            <input id="counter-deconsolidated" type="checkbox" class="form-check-input" name="deconsolidated" [(ngModel)]="form.deconsolidated" />
+            <label for="counter-deconsolidated" class="form-check-label small fw-semibold">{{ 'admin.counter.form.deconsolidated' | transloco }}</label>
+          </div>
+          <label for="counter-deconsolidated-date" class="form-label small">{{ 'admin.counter.form.deconsolidatedAt' | transloco }}</label>
+          <input id="counter-deconsolidated-date" type="date" class="form-control" name="deconsolidatedAt" [max]="today" [disabled]="!form.deconsolidated"
+                 [attr.aria-invalid]="hasError('counter-deconsolidated-date')" aria-describedby="counter-dates-help" [(ngModel)]="form.deconsolidatedAt" />
+        </div>
+        <div class="col-12">
+          <div id="counter-dates-help" class="form-text">{{ 'admin.counter.form.datesHelp' | transloco }}</div>
+        </div>
+        <div class="col-12">
+          <label for="counter-notes" class="form-label small fw-semibold">{{ 'admin.counter.form.notes' | transloco }}</label>
+          <textarea id="counter-notes" class="form-control" rows="2" maxlength="500" name="notes" [(ngModel)]="form.notes"></textarea>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-hl-orange" [disabled]="saving()" data-testid="counter-save">{{ 'admin.counter.form.save' | transloco }}</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="openHistory(d.shipment.blNumber)">{{ 'admin.counter.history' | transloco }}</button>
+      </div>
+    </form>
+  </section>
+}
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.counter.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="counter-filter-bl" class="form-label small fw-semibold">{{ 'admin.counter.filters.blNumber' | transloco }}</label>
+      <input id="counter-filter-bl" type="text" class="form-control" name="blFilter" autocomplete="off" [(ngModel)]="blFilter" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="counter-filter-country" class="form-label small fw-semibold">{{ 'admin.counter.filters.country' | transloco }}</label>
+      <select id="counter-filter-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.counter.filters.all' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="counter-filter-sync" class="form-label small fw-semibold">{{ 'admin.counter.filters.sync' | transloco }}</label>
+      <select id="counter-filter-sync" class="form-select" name="syncStatus" [(ngModel)]="syncStatus">
+        <option value="">{{ 'admin.counter.filters.all' | transloco }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: syncKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="counter-filter-deconsolidated" class="form-label small fw-semibold">{{ 'admin.counter.filters.deconsolidated' | transloco }}</label>
+      <select id="counter-filter-deconsolidated" class="form-select" name="deconsolidated" [(ngModel)]="deconsolidated">
+        <option value="">{{ 'admin.counter.filters.all' | transloco }}</option>
+        <option value="true">{{ 'admin.counter.yes' | transloco }}</option>
+        <option value="false">{{ 'admin.counter.no' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <button type="submit" class="btn btn-outline-secondary">{{ 'admin.counter.filters.search' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (records().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.counter.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.counter.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.counter.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.counter.col.bl' | transloco }}</th>
+            <th scope="col">{{ 'admin.counter.col.country' | transloco }}</th>
+            <th scope="col">{{ 'admin.counter.col.exchange' | transloco }}</th>
+            <th scope="col">{{ 'admin.counter.col.hbl' | transloco }}</th>
+            <th scope="col">{{ 'admin.counter.col.deconsolidated' | transloco }}</th>
+            <th scope="col">{{ 'admin.counter.col.sync' | transloco }}</th>
+            <th scope="col">{{ 'admin.counter.col.recorded' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.counter.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of records(); track r.id) {
+            <tr [attr.data-testid]="'counter-row-' + r.blNumber">
+              <td class="fw-semibold">{{ r.blNumber }}</td>
+              <td>{{ r.country }}</td>
+              <td>{{ r.exchangeDate ? (r.exchangeDate | hlDate: 'localDate') : '—' }}</td>
+              <td>{{ r.hblReceived ? (r.hblReceivedAt ? (r.hblReceivedAt | hlDate: 'localDate') : ('admin.counter.yes' | transloco)) : ('admin.counter.no' | transloco) }}</td>
+              <td>{{ r.deconsolidated ? (r.deconsolidatedAt ? (r.deconsolidatedAt | hlDate: 'localDate') : ('admin.counter.yes' | transloco)) : ('admin.counter.no' | transloco) }}</td>
+              <td>
+                <span class="hl-badge" [class]="syncClass[r.syncStatus] || 'hl-badge--processing'">{{ r.syncStatus | codeLabel: syncKeys }}</span>
+                @if (r.syncStatus === 'Failed' && r.syncError) {
+                  <span class="d-block small">{{ r.syncError }}</span>
+                }
+              </td>
+              <td class="small">{{ 'admin.counter.recordedBy' | transloco: { date: ((r.recordedAt ?? r.createdAt) | hlDate: 'datetime'), user: r.recordedBy ?? r.createdBy ?? '' } }}</td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openRecord(r.blNumber)"
+                          [attr.aria-label]="'admin.counter.editLabel' | transloco: { bl: r.blNumber }">{{ 'admin.counter.edit' | transloco }}</button>
+                  @if (r.syncStatus === 'Failed') {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="retrying() === r.blNumber" (click)="retry(r.blNumber)"
+                            [attr.aria-label]="'admin.counter.retryLabel' | transloco: { bl: r.blNumber }">{{ 'admin.counter.retry' | transloco }}</button>
+                  }
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(r.blNumber)"
+                          [attr.aria-label]="'admin.counter.historyLabel' | transloco: { bl: r.blNumber }">{{ 'admin.counter.history' | transloco }}</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'admin.counter.pagination.label' | transloco">
+      <span class="small text-muted">{{ 'admin.counter.pagination.showing' | transloco: { shown: records().length, total: total() } }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">{{ 'admin.counter.pagination.previous' | transloco }}</button>
+        <span class="small">{{ 'admin.counter.pagination.page' | transloco: { page: page(), pages: totalPages } }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">{{ 'admin.counter.pagination.next' | transloco }}</button>
+      </div>
+    </nav>
+  </div>
+}
+
+@if (historyBl(); as bl) {
+  <section class="hl-card mb-4" aria-labelledby="counter-history-title" data-testid="counter-history">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #historyHeading id="counter-history-title" class="section-title" tabindex="-1">{{ 'admin.counter.historyTitle' | transloco: { bl: bl } }}</h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeHistory()">{{ 'admin.counter.historyClose' | transloco }}</button>
+    </div>
+    @if (historyLoading()) {
+      <app-loading-spinner />
+    } @else if (history().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.counter.historyEmpty'" />
+    } @else {
+      <app-change-log [changes]="history()" [captionKey]="'admin.counter.historyCaption'" [fieldKeys]="snapshotKeys" />
+    }
+  </section>
+}

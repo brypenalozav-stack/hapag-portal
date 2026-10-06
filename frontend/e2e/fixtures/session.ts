@@ -67,7 +67,8 @@ export const ORGANIZACION_ADMIN: OrganizationSummary = {
 /**
  * Permisos internos de la Ola A (M8-04, M8-06, M1-11), los mantenedores de la Ola C (M8-01) y, en la
  * Ola D, el bloqueo de pagos (M8-07) y las herramientas de Finanzas (M5-02, NF-03, NF-04). Fase 2, Ola G: la bandeja de
- * solicitudes de servicios on demand.
+ * solicitudes de servicios on demand. Fase 2, Ola I: área de administración, vista como cliente, comunicados, Counter y
+ * reportería de transacciones.
  */
 export const PERMISOS_ADMIN = [
   'shipments.view-all',
@@ -78,6 +79,11 @@ export const PERMISOS_ADMIN = [
   'payment-blocks.manage',
   'payments.finance',
   'service-requests.process',
+  'admin-area.access',
+  'impersonation.use',
+  'announcements.manage',
+  'counter.manage',
+  'transactions-report.view',
 ];
 
 export type Idioma = 'es' | 'en';

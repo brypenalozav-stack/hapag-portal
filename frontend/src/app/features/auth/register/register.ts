@@ -8,7 +8,8 @@ import { LiveAnnouncerService } from '../../../core/services/live-announcer.serv
 import { VALIDATION } from '../../../core/constants/app.constants';
 import { OrganizationType, REGISTRABLE_ORGANIZATION_TYPES } from '../../../core/models/organization.model';
 import { ORGANIZATION_TYPE_KEYS } from '../../../core/i18n/labels';
-import { apiErrorKey } from '../../../core/http/api-error';
+import { apiErrorCode, apiErrorKey } from '../../../core/http/api-error';
+import { PRE_CREATED_ACCOUNT_EXISTS, PreCreatedNoticeComponent } from '../pre-created-notice/pre-created-notice';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 
 /** Errores del registro con texto propio; el resto muestra el mensaje genérico. */
@@ -25,7 +26,7 @@ const REGISTER_ERRORS: Record<string, string> = {
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, CodeLabelPipe],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, PreCreatedNoticeComponent],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -59,6 +60,8 @@ export class RegisterComponent {
 
   loading = signal(false);
   error = signal('');
+  /** Ya existe una cuenta pre-creada por un cliente para el correo o el RUT (M1-09): se dirige al ingreso. */
+  preCreated = signal(false);
   /** Razón social de la organización registrada: muestra el resultado pendiente de aprobación. */
   registeredName = signal<string | null>(null);
 
@@ -99,6 +102,7 @@ export class RegisterComponent {
 
     this.loading.set(true);
     this.error.set('');
+    this.preCreated.set(false);
 
     const raw = this.form.getRawValue();
     const payload = {
@@ -125,6 +129,11 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.loading.set(false);
+        if (apiErrorCode(err) === PRE_CREATED_ACCOUNT_EXISTS) {
+          this.preCreated.set(true);
+          this.announcer.announce(translate('auth.preCreated.title'), 'assertive');
+          return;
+        }
         this.error.set(translate(apiErrorKey(err, REGISTER_ERRORS, 'auth.register.error')));
       },
     });

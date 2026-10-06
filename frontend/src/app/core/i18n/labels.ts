@@ -17,6 +17,7 @@ export const ORGANIZATION_STATUS_KEYS: Record<string, string> = {
   PendingArCheck: 'common.organizationStatus.pendingArCheck',
   Approved: 'common.organizationStatus.approved',
   Rejected: 'common.organizationStatus.rejected',
+  PreCreated: 'common.organizationStatus.preCreated',
 };
 
 export const MEMBERSHIP_STATUS_KEYS: Record<string, string> = {
@@ -58,6 +59,7 @@ export const SHIPMENT_ACCESS_SOURCE_KEYS: Record<string, string> = {
   SelfAssociated: 'common.accessSource.selfAssociated',
   OpenAccess: 'common.accessSource.openAccess',
   Admin: 'common.accessSource.admin',
+  Parent: 'common.accessSource.parent',
 };
 
 /** Estado de un acceso otorgado (M1-14, M1-22, M1-03, M1-20). */
@@ -67,6 +69,7 @@ export const ACCESS_GRANT_STATUS_KEYS: Record<string, string> = {
   Expired: 'common.accessGrantStatus.expired',
   Revoked: 'common.accessGrantStatus.revoked',
   Reconciled: 'common.accessGrantStatus.reconciled',
+  PendingActivation: 'common.accessGrantStatus.pendingActivation',
 };
 
 /** Origen del acceso: `grantType` y, si es mandato, la clave `Mandate` (M1-03). */
@@ -122,6 +125,16 @@ export const ACCESS_AUDIT_EVENT_KEYS: Record<string, string> = {
   DefaultGranteeAdded: 'common.accessAuditEvent.defaultGranteeAdded',
   DefaultGranteeUpdated: 'common.accessAuditEvent.defaultGranteeUpdated',
   DefaultGranteeRemoved: 'common.accessAuditEvent.defaultGranteeRemoved',
+  // Fase 2, Ola I: transportistas pre-creados (M1-09) y empresa matriz (M1-21).
+  CarrierPreCreated: 'common.accessAuditEvent.carrierPreCreated',
+  CarrierActivated: 'common.accessAuditEvent.carrierActivated',
+  GrantActivated: 'common.accessAuditEvent.grantActivated',
+  ParentLinkRequested: 'common.accessAuditEvent.parentLinkRequested',
+  ParentLinkApproved: 'common.accessAuditEvent.parentLinkApproved',
+  ParentLinkRejected: 'common.accessAuditEvent.parentLinkRejected',
+  ParentLinkRemoved: 'common.accessAuditEvent.parentLinkRemoved',
+  ParentVisibilityEnabled: 'common.accessAuditEvent.parentVisibilityEnabled',
+  ParentVisibilityDisabled: 'common.accessAuditEvent.parentVisibilityDisabled',
 };
 
 /**
@@ -151,6 +164,23 @@ export const NOTIFICATION_TYPE_KEYS: Record<string, string> = {
   ReinvoicingAccepted: 'notifications.type.reinvoicingAccepted',
   ReinvoicingDeclined: 'notifications.type.reinvoicingDeclined',
   InvoiceReissued: 'notifications.type.invoiceReissued',
+  // Fase 2, Ola I: el resto del catálogo de la bandeja (M1-25), comunicados, empresa matriz y transportistas.
+  DeadlineAtRisk: 'notifications.type.deadlineAtRisk',
+  DeadlineOverdue: 'notifications.type.deadlineOverdue',
+  TransmissionRejected: 'notifications.type.transmissionRejected',
+  TransmissionError: 'notifications.type.transmissionError',
+  JoinRequestReceived: 'notifications.type.joinRequestReceived',
+  JoinRequestApproved: 'notifications.type.joinRequestApproved',
+  JoinRequestRejected: 'notifications.type.joinRequestRejected',
+  OrganizationApproved: 'notifications.type.organizationApproved',
+  OrganizationRejected: 'notifications.type.organizationRejected',
+  PaymentConfirmed: 'notifications.type.paymentConfirmed',
+  AnnouncementPublished: 'notifications.type.announcementPublished',
+  ParentLinkRequested: 'notifications.type.parentLinkRequested',
+  ParentLinkApproved: 'notifications.type.parentLinkApproved',
+  ParentLinkRejected: 'notifications.type.parentLinkRejected',
+  ParentVisibilityChanged: 'notifications.type.parentVisibilityChanged',
+  CarrierActivated: 'notifications.type.carrierActivated',
 };
 
 /** Texto corto del nivel (O, X, X (o)) y su descripción (lectura de las matrices de M1-11). */
@@ -359,6 +389,10 @@ export const MAINTAINER_ACTION_KEYS: Record<string, string> = {
   Created: 'common.maintainerAction.created',
   Updated: 'common.maintainerAction.updated',
   Deactivated: 'common.maintainerAction.deactivated',
+  // Fase 2, Ola I: comunicados (M1-26).
+  Published: 'common.maintainerAction.published',
+  Unpublished: 'common.maintainerAction.unpublished',
+  Deleted: 'common.maintainerAction.deleted',
 };
 
 /**
@@ -1200,4 +1234,222 @@ export const REINVOICING_ERRORS: Record<string, string> = {
   'ExchangeRate.NotFound': 'common.reinvoicingErrors.exchangeRateNotFound',
   'Integration.Unavailable': 'common.reinvoicingErrors.sourceUnavailable',
   'Error.Forbidden': 'common.reinvoicingErrors.forbidden',
+};
+
+// ---------------------------------------------------------------------------
+// Fase 2, Ola I: bandeja de notificaciones (M1-25), comunicados (M1-26), modo guía (M1-27), área de administración
+// (M8-05), vista como cliente (M8-08), reportería (M9-01), Counter (M8-09), contactos (M1-06), transportistas
+// pre-creados (M1-09) y empresa matriz (M1-21).
+// ---------------------------------------------------------------------------
+
+/** Módulo de origen de una notificación (filtros de la bandeja). */
+export const NOTIFICATION_MODULE_KEYS: Record<string, string> = {
+  Organization: 'notifications.module.organization',
+  Access: 'notifications.module.access',
+  Payments: 'notifications.module.payments',
+  Documents: 'notifications.module.documents',
+  Services: 'notifications.module.services',
+  Finance: 'notifications.module.finance',
+  Customs: 'notifications.module.customs',
+  Deadlines: 'notifications.module.deadlines',
+  Announcements: 'notifications.module.announcements',
+  Administration: 'notifications.module.administration',
+  General: 'notifications.module.general',
+};
+
+/** Texto del botón o enlace de la acción de una notificación. */
+export const NOTIFICATION_ACTION_KEYS: Record<string, string> = {
+  ApproveJoinRequest: 'notifications.action.approveJoinRequest',
+  ReviewOrganization: 'notifications.action.reviewOrganization',
+  ReviewParentLink: 'notifications.action.reviewParentLink',
+  VerifyDepositProof: 'notifications.action.verifyDepositProof',
+  UploadDepositProof: 'notifications.action.uploadDepositProof',
+  OpenPayment: 'notifications.action.openPayment',
+  OpenServiceRequest: 'notifications.action.openServiceRequest',
+  OpenShipment: 'notifications.action.openShipment',
+  OpenDocument: 'notifications.action.openDocument',
+  OpenAccessGrants: 'notifications.action.openAccessGrants',
+  OpenAnnouncement: 'notifications.action.openAnnouncement',
+  OpenInvoice: 'notifications.action.openInvoice',
+};
+
+/** Gestión a la que corresponde una notificación (M1-25: identifica el embarque o la gestión). */
+export const NOTIFICATION_ENTITY_KEYS: Record<string, string> = {
+  Shipment: 'notifications.entity.shipment',
+  Organization: 'notifications.entity.organization',
+  JoinRequest: 'notifications.entity.joinRequest',
+  AccessGrant: 'notifications.entity.accessGrant',
+  Payment: 'notifications.entity.payment',
+  ShipmentDocument: 'notifications.entity.shipmentDocument',
+  ServiceRequest: 'notifications.entity.serviceRequest',
+  DepositProof: 'notifications.entity.depositProof',
+  CustomsTransmission: 'notifications.entity.customsTransmission',
+  Deadline: 'notifications.entity.deadline',
+  Announcement: 'notifications.entity.announcement',
+  ParentLink: 'notifications.entity.parentLink',
+  CarrierPreRegistration: 'notifications.entity.carrierPreRegistration',
+};
+
+export const ANNOUNCEMENT_OPERATION_KEYS: Record<string, string> = {
+  Import: 'common.announcementOperation.import',
+  Export: 'common.announcementOperation.export',
+  Both: 'common.announcementOperation.both',
+};
+
+export const ANNOUNCEMENT_SEVERITY_KEYS: Record<string, string> = {
+  Info: 'common.announcementSeverity.info',
+  Important: 'common.announcementSeverity.important',
+};
+
+export const ANNOUNCEMENT_STATUS_KEYS: Record<string, string> = {
+  Draft: 'common.announcementStatus.draft',
+  Published: 'common.announcementStatus.published',
+  Unpublished: 'common.announcementStatus.unpublished',
+};
+
+export const ANNOUNCEMENT_STATUS_CLASS: Record<string, string> = {
+  Draft: 'hl-badge--pending',
+  Published: 'hl-badge--active',
+  Unpublished: 'hl-badge--processing',
+};
+
+export const GUIDE_AUDIENCE_KEYS: Record<string, string> = {
+  Client: 'common.guideAudience.client',
+  Internal: 'common.guideAudience.internal',
+  All: 'common.guideAudience.all',
+};
+
+export const IMPERSONATION_STATUS_KEYS: Record<string, string> = {
+  Active: 'common.impersonationStatus.active',
+  Ended: 'common.impersonationStatus.ended',
+  Expired: 'common.impersonationStatus.expired',
+};
+
+export const IMPERSONATION_STATUS_CLASS: Record<string, string> = {
+  Active: 'hl-badge--active',
+  Ended: 'hl-badge--processing',
+  Expired: 'hl-badge--pending',
+};
+
+export const IMPERSONATION_END_REASON_KEYS: Record<string, string> = {
+  Manual: 'common.impersonationEndReason.manual',
+  Logout: 'common.impersonationEndReason.logout',
+  Expired: 'common.impersonationEndReason.expired',
+  Replaced: 'common.impersonationEndReason.replaced',
+  Admin: 'common.impersonationEndReason.admin',
+};
+
+export const IMPERSONATION_REQUEST_ACTION_KEYS: Record<string, string> = {
+  Started: 'common.impersonationRequestAction.started',
+  Request: 'common.impersonationRequestAction.request',
+  BlockedWrite: 'common.impersonationRequestAction.blockedWrite',
+  Ended: 'common.impersonationRequestAction.ended',
+};
+
+export const TRANSACTION_CATEGORY_KEYS: Record<string, string> = {
+  LocalCharge: 'common.transactionCategory.localCharge',
+  OnDemandService: 'common.transactionCategory.onDemandService',
+  Demurrage: 'common.transactionCategory.demurrage',
+  Freight: 'common.transactionCategory.freight',
+  WarehouseChange: 'common.transactionCategory.warehouseChange',
+  Invoice: 'common.transactionCategory.invoice',
+  Other: 'common.transactionCategory.other',
+};
+
+export const EXCEPTION_TYPE_KEYS: Record<string, string> = {
+  GateInExemption: 'common.exceptionType.gateInExemption',
+  EdsExemption: 'common.exceptionType.edsExemption',
+  GateOutExemption: 'common.exceptionType.gateOutExemption',
+  OtherExemption: 'common.exceptionType.otherExemption',
+  IpoExclusion: 'common.exceptionType.ipoExclusion',
+  FreeWarehouseChange: 'common.exceptionType.freeWarehouseChange',
+  CreditImputation: 'common.exceptionType.creditImputation',
+};
+
+export const COUNTER_SYNC_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.counterSyncStatus.pending',
+  Synced: 'common.counterSyncStatus.synced',
+  Failed: 'common.counterSyncStatus.failed',
+};
+
+export const COUNTER_SYNC_STATUS_CLASS: Record<string, string> = {
+  Pending: 'hl-badge--pending',
+  Synced: 'hl-badge--confirmed',
+  Failed: 'hl-badge--failed',
+};
+
+export const CONTACT_REPORT_TYPE_KEYS: Record<string, string> = {
+  ARRIVAL_NOTICE: 'common.contactReportType.arrivalNotice',
+  BL_COPIES: 'common.contactReportType.blCopies',
+  INVOICES: 'common.contactReportType.invoices',
+  FREE_TIME: 'common.contactReportType.freeTime',
+  DEMURRAGE: 'common.contactReportType.demurrage',
+  BOOKING_CONFIRMATION: 'common.contactReportType.bookingConfirmation',
+};
+
+export const CONTACT_CHANGE_STATUS_KEYS: Record<string, string> = {
+  Propagated: 'common.contactChangeStatus.propagated',
+  Failed: 'common.contactChangeStatus.failed',
+};
+
+export const CARRIER_PRE_REGISTRATION_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.carrierPreRegistrationStatus.pending',
+  Activated: 'common.carrierPreRegistrationStatus.activated',
+};
+
+export const PARENT_LINK_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.parentLinkStatus.pending',
+  Active: 'common.parentLinkStatus.active',
+  Rejected: 'common.parentLinkStatus.rejected',
+  Removed: 'common.parentLinkStatus.removed',
+};
+
+export const PARENT_LINK_STATUS_CLASS: Record<string, string> = {
+  Pending: 'hl-badge--pending',
+  Active: 'hl-badge--active',
+  Rejected: 'hl-badge--rejected',
+  Removed: 'hl-badge--processing',
+};
+
+/**
+ * Códigos de error de la Ola I (Fase 2) → claves Transloco. Los textos del servidor vienen en inglés y no se muestran
+ * tal cual.
+ */
+export const ADMINISTRATION_ERRORS: Record<string, string> = {
+  'Error.Forbidden': 'common.adminErrors.forbidden',
+  'Impersonation.ReadOnly': 'common.adminErrors.impersonationReadOnly',
+  'Impersonation.Ended': 'common.adminErrors.impersonationEnded',
+  'Impersonation.Nested': 'common.adminErrors.impersonationNested',
+  'Impersonation.TargetNotAllowed': 'common.adminErrors.impersonationTargetNotAllowed',
+  'Impersonation.TargetNotFound': 'common.adminErrors.impersonationTargetNotFound',
+  'Impersonation.NotInternalActor': 'common.adminErrors.impersonationNotInternalActor',
+  'Impersonation.NotActive': 'common.adminErrors.impersonationNotActive',
+  'Notification.NotFound': 'common.adminErrors.notificationNotFound',
+  'Notification.UnknownType': 'common.adminErrors.notificationUnknownType',
+  'Notification.EmailNotAvailable': 'common.adminErrors.notificationEmailNotAvailable',
+  'Notification.EmailMandatory': 'common.adminErrors.notificationEmailMandatory',
+  'Announcement.NotFound': 'common.adminErrors.announcementNotFound',
+  'Announcement.InvalidTransition': 'common.adminErrors.announcementInvalidTransition',
+  'Announcement.Expired': 'common.adminErrors.announcementExpired',
+  'Guide.NotFound': 'common.adminErrors.guideNotFound',
+  'Guide.AlreadyExists': 'common.adminErrors.guideAlreadyExists',
+  'Counter.AlreadySynced': 'common.adminErrors.counterAlreadySynced',
+  'Counter.Invalid': 'common.adminErrors.counterInvalid',
+  'BillOfLading.NotFound': 'common.adminErrors.blNotFound',
+  'ContactList.NotAllowed': 'common.adminErrors.contactListNotAllowed',
+  'ContactList.MatchCodeRequired': 'common.adminErrors.contactListMatchCodeRequired',
+  'CarrierPreCreation.AlreadyActivated': 'common.adminErrors.carrierAlreadyActivated',
+  'CarrierPreCreation.AlreadyRegistered': 'common.adminErrors.carrierAlreadyRegistered',
+  'CarrierPreCreation.NotACarrier': 'common.adminErrors.carrierNotACarrier',
+  'CarrierPreCreation.EmailInUse': 'common.adminErrors.carrierEmailInUse',
+  'CarrierPreCreation.NotAllowed': 'common.adminErrors.carrierNotAllowed',
+  'ParentLink.NotAllowed': 'common.adminErrors.parentLinkNotAllowed',
+  'ParentLink.AlreadyExists': 'common.adminErrors.parentLinkAlreadyExists',
+  'ParentLink.SelfLink': 'common.adminErrors.parentLinkSelfLink',
+  'ParentLink.InvalidParent': 'common.adminErrors.parentLinkInvalidParent',
+  'ParentLink.Cycle': 'common.adminErrors.parentLinkCycle',
+  'ParentLink.NotPending': 'common.adminErrors.parentLinkNotPending',
+  'ParentLink.NotActive': 'common.adminErrors.parentLinkNotActive',
+  'Integration.Unavailable': 'common.adminErrors.sourceUnavailable',
+  'Integration.Timeout': 'common.adminErrors.sourceUnavailable',
 };

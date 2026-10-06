@@ -16,6 +16,7 @@ import {
   OrganizationSummary,
 } from '../models/organization.model';
 import { ROLES, INTERNAL_ROLES, COUNTRIES, API_ENDPOINTS } from '../constants/app.constants';
+import { ImpersonationSession, ImpersonationStarted } from '../models/administration.model';
 
 /** Claim del JWT con los permisos del usuario (HasPermission en el servidor). */
 const PERMISSION_CLAIM = 'permission';
@@ -48,6 +49,9 @@ export class AuthService {
   private readonly REFRESH_TOKEN_KEY = 'hl_refresh_token';
   private readonly USER_KEY = 'hl_user';
   private readonly ORGANIZATION_KEY = 'hl_organization';
+  /** Vista como cliente (M8-08): sesión en curso y la sesión del administrador guardada para restaurarla. */
+  private readonly IMPERSONATION_KEY = 'hl_impersonation';
+  private readonly ADMIN_SESSION_KEY = 'hl_admin_session';
 
   currentUser = signal<Client | null>(this.loadUser());
 
@@ -55,6 +59,12 @@ export class AuthService {
   organization = signal<OrganizationSummary | null>(this.loadOrganization());
 
   private readonly token = signal<string | null>(localStorage.getItem(this.TOKEN_KEY));
+
+  /** Sesión de vista como cliente en curso (M8-08); null fuera de ella. */
+  impersonation = signal<ImpersonationSession | null>(this.loadImpersonation());
+
+  /** El administrador ve el portal como un cliente, en solo lectura (M8-08). */
+  isImpersonating = computed(() => !!this.impersonation());
 
   isAuthenticated = computed(() => !!this.currentUser() && !!this.token());
 
@@ -136,6 +146,21 @@ export class AuthService {
       this.clearSession();
       return;
     }
+    if (this.isImpersonating()) {
+      // Con el token de la vista como cliente, /auth/logout termina la sesión de impersonación (M8-08); después se
+      // restaura la del administrador y se cierra también.
+      this.api
+        .post<void>(API_ENDPOINTS.AUTH_LOGOUT, {})
+        .pipe(
+          catchError(() => of(undefined)),
+          finalize(() => {
+            this.restoreAdminSession();
+            this.logout();
+          }),
+        )
+        .subscribe();
+      return;
+    }
     const refreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
     this.api
       .post<void>(API_ENDPOINTS.AUTH_LOGOUT, refreshToken ? { refreshToken } : {})
@@ -152,10 +177,67 @@ export class AuthService {
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.ORGANIZATION_KEY);
+    localStorage.removeItem(this.IMPERSONATION_KEY);
+    localStorage.removeItem(this.ADMIN_SESSION_KEY);
     this.token.set(null);
     this.currentUser.set(null);
     this.organization.set(null);
+    this.impersonation.set(null);
     this.router.navigate(['/login']);
+  }
+
+  /**
+   * Inicia la vista como cliente (M8-08): guarda la sesión del administrador y usa las credenciales del cliente que
+   * entrega el servidor (sin refresh token; vencen con la sesión de impersonación).
+   */
+  beginImpersonation(started: ImpersonationStarted): void {
+    if (!this.isImpersonating()) {
+      const backup = {
+        token: localStorage.getItem(this.TOKEN_KEY),
+        refreshToken: localStorage.getItem(this.REFRESH_TOKEN_KEY),
+        user: localStorage.getItem(this.USER_KEY),
+        organization: localStorage.getItem(this.ORGANIZATION_KEY),
+      };
+      localStorage.setItem(this.ADMIN_SESSION_KEY, JSON.stringify(backup));
+    }
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    this.storeSession({ ...started.auth, refreshToken: '' });
+    this.setImpersonation(started.session);
+  }
+
+  /** Actualiza la sesión de vista como cliente (p. ej. tras GET /impersonation/current). */
+  setImpersonation(session: ImpersonationSession | null): void {
+    if (session) {
+      localStorage.setItem(this.IMPERSONATION_KEY, JSON.stringify(session));
+    } else {
+      localStorage.removeItem(this.IMPERSONATION_KEY);
+    }
+    this.impersonation.set(session);
+  }
+
+  /** Termina la vista como cliente en el navegador y vuelve a la sesión guardada del administrador. */
+  restoreAdminSession(): void {
+    const raw = localStorage.getItem(this.ADMIN_SESSION_KEY);
+    localStorage.removeItem(this.ADMIN_SESSION_KEY);
+    this.setImpersonation(null);
+    let backup: { token: string | null; refreshToken: string | null; user: string | null; organization: string | null } | null = null;
+    try {
+      backup = raw ? JSON.parse(raw) : null;
+    } catch {
+      backup = null;
+    }
+    if (!backup?.token || !backup.user) {
+      this.clearSession();
+      return;
+    }
+    const restore = (key: string, value: string | null) => (value ? localStorage.setItem(key, value) : localStorage.removeItem(key));
+    restore(this.TOKEN_KEY, backup.token);
+    restore(this.REFRESH_TOKEN_KEY, backup.refreshToken);
+    restore(this.USER_KEY, backup.user);
+    restore(this.ORGANIZATION_KEY, backup.organization);
+    this.token.set(backup.token);
+    this.currentUser.set(this.loadUser());
+    this.organization.set(this.loadOrganization());
   }
 
   getToken(): string | null {
@@ -188,6 +270,16 @@ export class AuthService {
       return JSON.parse(raw) as Client;
     } catch (e: unknown) {
       console.warn('Failed to parse stored user data:', e instanceof Error ? e.message : e);
+      return null;
+    }
+  }
+
+  private loadImpersonation(): ImpersonationSession | null {
+    const raw = localStorage.getItem(this.IMPERSONATION_KEY);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as ImpersonationSession;
+    } catch {
       return null;
     }
   }

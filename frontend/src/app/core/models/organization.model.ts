@@ -10,7 +10,8 @@ export const REGISTRABLE_ORGANIZATION_TYPES: readonly OrganizationType[] = [
 ];
 
 /** Estado del registro (M1-07 / M8-04): solo `Approved` opera. */
-export type OrganizationStatus = 'PendingValidation' | 'PendingArCheck' | 'Approved' | 'Rejected';
+/** `PreCreated`: transportista pre-creado por un cliente; pasa a `Approved` en su primer ingreso (Fase 2, Ola I, M1-09). */
+export type OrganizationStatus = 'PendingValidation' | 'PendingArCheck' | 'Approved' | 'Rejected' | 'PreCreated';
 
 export const ORGANIZATION_STATUSES: readonly OrganizationStatus[] = [
   'PendingValidation',

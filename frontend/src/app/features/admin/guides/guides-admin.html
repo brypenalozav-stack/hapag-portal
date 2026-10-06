@@ -1,0 +1,210 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.guides.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.guides.subtitle' | transloco }}</p>
+  </div>
+  <button type="button" class="btn btn-hl-orange" (click)="openCreate()">{{ 'admin.guides.new' | transloco }}</button>
+</div>
+
+@if (formOpen()) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="guide-form-title" (submit)="submit($event)" data-testid="guide-form">
+    <h2 #formHeading id="guide-form-title" class="section-title mb-3" tabindex="-1">
+      {{ (editing() ? 'admin.guides.form.editTitle' : 'admin.guides.form.createTitle') | transloco }}
+    </h2>
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="guide-errors-title">
+        <h3 id="guide-errors-title" class="h6 fw-bold">{{ 'admin.guides.form.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track error.fieldId + error.key) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco: (error.params ?? {}) }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+    <div class="row g-3 mb-3">
+      <div class="col-md-3">
+        <label for="guide-code" class="form-label small fw-semibold">{{ 'admin.guides.form.code' | transloco }}</label>
+        <input id="guide-code" type="text" class="form-control" autocomplete="off" required aria-describedby="guide-code-help" [readonly]="!!editing()"
+               [attr.aria-invalid]="hasError('guide-code')" [(ngModel)]="form.code" [ngModelOptions]="{ standalone: true }" />
+        <div id="guide-code-help" class="form-text">{{ 'admin.guides.form.codeHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-3">
+        <label for="guide-route" class="form-label small fw-semibold">{{ 'admin.guides.form.route' | transloco }}</label>
+        <input id="guide-route" type="text" class="form-control" autocomplete="off" required aria-describedby="guide-route-help"
+               [attr.aria-invalid]="hasError('guide-route')" [(ngModel)]="form.route" [ngModelOptions]="{ standalone: true }" />
+        <div id="guide-route-help" class="form-text">{{ 'admin.guides.form.routeHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-3">
+        <label for="guide-audience" class="form-label small fw-semibold">{{ 'admin.guides.form.audience' | transloco }}</label>
+        <select id="guide-audience" class="form-select" [(ngModel)]="form.audience" [ngModelOptions]="{ standalone: true }">
+          @for (a of audiences; track a) {
+            <option [value]="a">{{ a | codeLabel: audienceKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="guide-order" class="form-label small fw-semibold">{{ 'admin.guides.form.displayOrder' | transloco }}</label>
+        <input id="guide-order" type="number" min="1" class="form-control" [(ngModel)]="form.displayOrder" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-1">
+        <div class="form-check mt-md-4">
+          <input id="guide-active" type="checkbox" class="form-check-input" [(ngModel)]="form.isActive" [ngModelOptions]="{ standalone: true }" />
+          <label for="guide-active" class="form-check-label">{{ 'admin.guides.form.active' | transloco }}</label>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label for="guide-name-es" class="form-label small fw-semibold">{{ 'admin.guides.form.nameEs' | transloco }}</label>
+        <input id="guide-name-es" type="text" class="form-control" lang="es" required [attr.aria-invalid]="hasError('guide-name-es')" [(ngModel)]="form.nameEs" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-6">
+        <label for="guide-name-en" class="form-label small fw-semibold">{{ 'admin.guides.form.nameEn' | transloco }}</label>
+        <input id="guide-name-en" type="text" class="form-control" lang="en" required [attr.aria-invalid]="hasError('guide-name-en')" [(ngModel)]="form.nameEn" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-6">
+        <label for="guide-description-es" class="form-label small fw-semibold">{{ 'admin.guides.form.descriptionEs' | transloco }}</label>
+        <textarea id="guide-description-es" class="form-control" rows="2" lang="es" [(ngModel)]="form.descriptionEs" [ngModelOptions]="{ standalone: true }"></textarea>
+      </div>
+      <div class="col-md-6">
+        <label for="guide-description-en" class="form-label small fw-semibold">{{ 'admin.guides.form.descriptionEn' | transloco }}</label>
+        <textarea id="guide-description-en" class="form-control" rows="2" lang="en" [(ngModel)]="form.descriptionEn" [ngModelOptions]="{ standalone: true }"></textarea>
+      </div>
+    </div>
+
+    <h3 class="h6 fw-bold">{{ 'admin.guides.form.stepsTitle' | transloco }}</h3>
+    <p class="small" id="guide-steps-help">{{ 'admin.guides.form.stepsHelp' | transloco }}</p>
+    <ol class="list-unstyled d-flex flex-column gap-3 mb-3" aria-describedby="guide-steps-help">
+      @for (step of form.steps; track $index; let i = $index; let first = $first; let last = $last) {
+        <li>
+          <fieldset class="border rounded p-3" [attr.data-testid]="'guide-step-' + i">
+            <legend class="float-none w-auto px-1 small fw-bold mb-0">{{ 'admin.guides.form.stepLegend' | transloco: { number: i + 1 } }}</legend>
+            <div class="row g-2">
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold" [for]="'guide-step-route-' + i">{{ 'admin.guides.form.stepRoute' | transloco }}</label>
+                <input type="text" class="form-control form-control-sm" autocomplete="off" [id]="'guide-step-route-' + i" [attr.aria-invalid]="hasError('guide-step-route-' + i)"
+                       [(ngModel)]="step.route" [ngModelOptions]="{ standalone: true }" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold" [for]="'guide-step-key-' + i">{{ 'admin.guides.form.stepKey' | transloco }}</label>
+                <input type="text" class="form-control form-control-sm" autocomplete="off" [id]="'guide-step-key-' + i" [attr.aria-invalid]="hasError('guide-step-key-' + i)"
+                       [attr.aria-describedby]="'guide-step-key-help-' + i" [(ngModel)]="step.elementKey" [ngModelOptions]="{ standalone: true }" />
+                <div class="form-text" [id]="'guide-step-key-help-' + i">{{ 'admin.guides.form.stepKeyHelp' | transloco }}</div>
+              </div>
+              <div class="col-md-4 d-flex flex-wrap align-items-end gap-1">
+                <button type="button" class="btn btn-sm btn-outline-secondary" [id]="'guide-step-up-' + i" [disabled]="first" (click)="moveStep(i, -1)"
+                        [attr.aria-label]="'admin.guides.form.moveUpLabel' | transloco: { number: i + 1 }">{{ 'admin.guides.form.moveUp' | transloco }}</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" [id]="'guide-step-down-' + i" [disabled]="last" (click)="moveStep(i, 1)"
+                        [attr.aria-label]="'admin.guides.form.moveDownLabel' | transloco: { number: i + 1 }">{{ 'admin.guides.form.moveDown' | transloco }}</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="removeStep(i)"
+                        [attr.aria-label]="'admin.guides.form.removeStepLabel' | transloco: { number: i + 1 }">{{ 'admin.guides.form.removeStep' | transloco }}</button>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold" [for]="'guide-step-title-es-' + i">{{ 'admin.guides.form.stepTitleEs' | transloco }}</label>
+                <input type="text" class="form-control form-control-sm" lang="es" [id]="'guide-step-title-es-' + i" [attr.aria-invalid]="hasError('guide-step-title-es-' + i)"
+                       [(ngModel)]="step.titleEs" [ngModelOptions]="{ standalone: true }" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold" [for]="'guide-step-title-en-' + i">{{ 'admin.guides.form.stepTitleEn' | transloco }}</label>
+                <input type="text" class="form-control form-control-sm" lang="en" [id]="'guide-step-title-en-' + i" [(ngModel)]="step.titleEn" [ngModelOptions]="{ standalone: true }" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold" [for]="'guide-step-text-es-' + i">{{ 'admin.guides.form.stepTextEs' | transloco }}</label>
+                <textarea class="form-control form-control-sm" rows="2" lang="es" [id]="'guide-step-text-es-' + i" [attr.aria-invalid]="hasError('guide-step-text-es-' + i)"
+                          [(ngModel)]="step.textEs" [ngModelOptions]="{ standalone: true }"></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold" [for]="'guide-step-text-en-' + i">{{ 'admin.guides.form.stepTextEn' | transloco }}</label>
+                <textarea class="form-control form-control-sm" rows="2" lang="en" [id]="'guide-step-text-en-' + i" [(ngModel)]="step.textEn" [ngModelOptions]="{ standalone: true }"></textarea>
+              </div>
+            </div>
+          </fieldset>
+        </li>
+      }
+    </ol>
+    <button id="guide-add-step" type="button" class="btn btn-sm btn-outline-secondary mb-3" (click)="addStep()">{{ 'admin.guides.form.addStep' | transloco }}</button>
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">{{ (editing() ? 'admin.guides.form.save' : 'admin.guides.form.create') | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'admin.guides.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (guides().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.guides.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.guides.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.guides.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.guides.col.name' | transloco }}</th>
+            <th scope="col">{{ 'admin.guides.col.route' | transloco }}</th>
+            <th scope="col">{{ 'admin.guides.col.audience' | transloco }}</th>
+            <th scope="col">{{ 'admin.guides.col.steps' | transloco }}</th>
+            <th scope="col">{{ 'admin.guides.col.version' | transloco }}</th>
+            <th scope="col">{{ 'admin.guides.col.status' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.guides.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (g of guides(); track g.id) {
+            <tr [attr.data-testid]="'guide-row-' + g.code">
+              <td>
+                <span class="fw-semibold d-block" lang="es">{{ g.nameEs }}</span>
+                <span class="small text-muted d-block" lang="en">{{ g.nameEn }}</span>
+                <span class="small">{{ g.code }}</span>
+              </td>
+              <td><span class="font-monospace">{{ g.route }}</span></td>
+              <td>{{ g.audience | codeLabel: audienceKeys }}</td>
+              <td>{{ g.steps.length }}</td>
+              <td>{{ g.version }}</td>
+              <td>
+                <span class="hl-badge" [class.hl-badge--active]="g.isActive" [class.hl-badge--processing]="!g.isActive">
+                  {{ (g.isActive ? 'admin.guides.active' : 'admin.guides.inactive') | transloco }}
+                </span>
+                <span class="d-block small">{{ 'admin.guides.modifiedBy' | transloco: { date: ((g.modifiedAt ?? g.createdAt) | hlDate: 'datetime'), user: g.modifiedBy ?? g.createdBy ?? '' } }}</span>
+              </td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(g)"
+                          [attr.aria-label]="'admin.guides.editLabel' | transloco: { name: g.nameEs }">{{ 'admin.guides.edit' | transloco }}</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(g)"
+                          [attr.aria-label]="'admin.guides.historyLabel' | transloco: { name: g.nameEs }">{{ 'admin.guides.history' | transloco }}</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="remove(g)"
+                          [attr.aria-label]="'admin.guides.removeLabel' | transloco: { name: g.nameEs }">{{ 'admin.guides.remove' | transloco }}</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
+
+@if (historyGuide(); as g) {
+  <section class="hl-card mb-4" aria-labelledby="guide-history-title" data-testid="guide-history">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #historyHeading id="guide-history-title" class="section-title" tabindex="-1">{{ 'admin.guides.historyTitle' | transloco: { name: g.nameEs } }}</h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeHistory()">{{ 'admin.guides.historyClose' | transloco }}</button>
+    </div>
+    @if (historyLoading()) {
+      <app-loading-spinner />
+    } @else if (history().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.guides.historyEmpty'" />
+    } @else {
+      <app-change-log [changes]="history()" [captionKey]="'admin.guides.historyCaption'" [fieldKeys]="snapshotKeys" />
+    }
+  </section>
+}

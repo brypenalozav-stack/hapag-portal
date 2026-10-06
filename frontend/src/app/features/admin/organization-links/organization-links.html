@@ -1,0 +1,104 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.organizationLinks.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.organizationLinks.subtitle' | transloco }}</p>
+</div>
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.organizationLinks.filters.label' | transloco" (ngSubmit)="load()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="links-status" class="form-label small fw-semibold">{{ 'admin.organizationLinks.filters.status' | transloco }}</label>
+      <select id="links-status" class="form-select" name="status" [(ngModel)]="status">
+        <option value="">{{ 'admin.organizationLinks.filters.all' | transloco }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <button type="submit" class="btn btn-outline-secondary">{{ 'admin.organizationLinks.filters.search' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert" data-testid="links-error">{{ actionError() }}</div>
+}
+
+@if (rejecting(); as link) {
+  <form class="hl-card p-3 mb-3" novalidate aria-labelledby="links-reject-title" (submit)="confirmReject($event)" data-testid="links-reject">
+    <h2 id="links-reject-title" class="h6 fw-bold">{{ 'admin.organizationLinks.reject.title' | transloco: { organization: link.organization.name, parent: link.parent.name } }}</h2>
+    <label for="links-reject-reason" class="form-label small fw-semibold">{{ 'admin.organizationLinks.reject.reason' | transloco }}</label>
+    <textarea #rejectField id="links-reject-reason" class="form-control" rows="2" name="rejectReason" required maxlength="500"
+              [attr.aria-invalid]="rejectError() ? true : null" [attr.aria-describedby]="rejectError() ? 'links-reject-error' : null" [(ngModel)]="rejectReason"></textarea>
+    @if (rejectError()) {
+      <div id="links-reject-error" class="hl-field-error">{{ 'admin.organizationLinks.reject.required' | transloco }}</div>
+    }
+    <div class="d-flex gap-2 mt-2">
+      <button type="submit" class="btn btn-danger" [disabled]="busyId() === link.id">{{ 'admin.organizationLinks.reject.confirm' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="cancelReject()">{{ 'admin.organizationLinks.reject.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (links().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.organizationLinks.empty'" />
+} @else {
+  <div class="hl-card">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.organizationLinks.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.organizationLinks.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.organizationLinks.col.organization' | transloco }}</th>
+            <th scope="col">{{ 'admin.organizationLinks.col.parent' | transloco }}</th>
+            <th scope="col">{{ 'admin.organizationLinks.col.requested' | transloco }}</th>
+            <th scope="col">{{ 'admin.organizationLinks.col.status' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.organizationLinks.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (l of links(); track l.id) {
+            <tr [attr.data-testid]="'link-' + l.id">
+              <td>
+                <span class="fw-semibold d-block">{{ l.organization.name }}</span>
+                <span class="small">{{ l.organization.organizationType | codeLabel: typeKeys }} · {{ l.organization.country }}</span>
+              </td>
+              <td>
+                <span class="fw-semibold d-block">{{ l.parent.name }}</span>
+                <span class="small">{{ l.parent.organizationType | codeLabel: typeKeys }} · {{ l.parent.country }}</span>
+              </td>
+              <td class="small">
+                {{ 'admin.organizationLinks.requestedBy' | transloco: { date: (l.requestedAt | hlDate: 'datetime'), user: l.requestedBy ?? '' } }}
+                @if (l.notes) { <span class="d-block">{{ l.notes }}</span> }
+                <span class="d-block">{{ (l.visibilityEnabled ? 'admin.organizationLinks.visibilityOn' : 'admin.organizationLinks.visibilityOff') | transloco }}</span>
+              </td>
+              <td>
+                <span class="hl-badge" [class]="statusClass[l.status] || 'hl-badge--processing'">{{ l.status | codeLabel: statusKeys }}</span>
+                @if (l.decidedAt) {
+                  <span class="d-block small">{{ 'admin.organizationLinks.decidedBy' | transloco: { date: (l.decidedAt | hlDate: 'datetime'), user: l.decidedBy ?? '' } }}</span>
+                }
+                @if (l.decisionNotes) { <span class="d-block small">{{ l.decisionNotes }}</span> }
+              </td>
+              <td>
+                @if (l.status === 'Pending') {
+                  <label class="form-label small fw-semibold mb-1" [for]="'link-notes-' + l.id">{{ 'admin.organizationLinks.notes' | transloco }}</label>
+                  <input type="text" class="form-control form-control-sm mb-1" [id]="'link-notes-' + l.id" [name]="'link-notes-' + l.id" [(ngModel)]="notesFor[l.id]" />
+                  <div class="d-flex flex-wrap gap-1">
+                    <button type="button" class="btn btn-sm btn-hl-green" [disabled]="busyId() === l.id" (click)="approve(l)"
+                            [attr.aria-label]="'admin.organizationLinks.approveLabel' | transloco: { organization: l.organization.name, parent: l.parent.name }">{{ 'admin.organizationLinks.approve' | transloco }}</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === l.id" (click)="startReject(l)"
+                            [attr.aria-label]="'admin.organizationLinks.rejectLabel' | transloco: { organization: l.organization.name, parent: l.parent.name }">{{ 'admin.organizationLinks.reject.open' | transloco }}</button>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

@@ -1,0 +1,77 @@
+// Modo guía (M1-27): barra para lanzar la guía de la pantalla y recuadro de cada paso sobre el elemento señalado.
+:host {
+  display: block;
+}
+
+.hl-guide-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.hl-guide-offer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--hl-border);
+  border-left: 4px solid var(--hl-blue);
+  border-radius: 0.5rem;
+  background-color: var(--hl-surface);
+}
+
+// El diálogo ocupa la pantalla y es transparente: el oscurecimiento lo da el recuadro del elemento (spotlight).
+.hl-guide {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+
+  &::backdrop {
+    background: transparent;
+  }
+}
+
+.hl-guide__spotlight {
+  position: fixed;
+  border-radius: 0.5rem;
+  outline: 3px solid var(--hl-focus);
+  outline-offset: 0;
+  box-shadow: 0 0 0 9999px rgb(0 0 0 / 45%);
+  pointer-events: none;
+  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
+
+.hl-guide__dim {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 45%);
+}
+
+.hl-guide__popover {
+  position: fixed;
+  padding: 1rem;
+  border: 1px solid var(--hl-border);
+  border-radius: 0.5rem;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 25%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-guide__spotlight {
+    transition: none;
+  }
+}

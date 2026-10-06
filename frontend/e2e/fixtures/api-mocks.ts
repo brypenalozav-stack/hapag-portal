@@ -60,6 +60,7 @@ import { SimulacionOlaE } from './ola-e-mocks';
 import { SimulacionOlaF } from './ola-f-mocks';
 import { SimulacionOlaG } from './ola-g-mocks';
 import { SimulacionOlaH } from './ola-h-mocks';
+import { OpcionesOlaI, SimulacionOlaI } from './ola-i-mocks';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
 export const BL_PRUEBA: BillOfLading = {
@@ -1745,20 +1746,25 @@ const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo
  * almacén los responde ola-g-mocks.ts, que registra en el carro de la Ola D los cargos que generan las solicitudes.
  * Fase 2, Ola H: estado de cuenta, cierre por ítem con crédito, comprobantes de depósito, anticipos, conceptos imputables,
  * refacturación IAO y los ajustes de la Ola G los responde ola-h-mocks.ts, que usa el carro y las facturas de la Ola D.
+ * Fase 2, Ola I: bandeja con acciones y preferencias, comunicados, guías, área de administración, vista como cliente
+ * (escrituras bloqueadas con su token), reportería, Counter, listas de contactos, transportistas pre-creados y empresa
+ * matriz los responde ola-i-mocks.ts, que además agrega al listado los BL de la filial y el Counter al detalle interno.
  */
-export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promise<void> {
+export async function simularApi(page: Page, opciones: OpcionesOlaD & OpcionesOlaI = {}): Promise<void> {
   let consultasLote = 0;
   const olaD = new SimulacionOlaD(opciones);
   const olaE = new SimulacionOlaE(olaD);
   const olaF = new SimulacionOlaF();
   const olaG = new SimulacionOlaG(olaD);
   const olaH = new SimulacionOlaH(olaD, opciones);
+  const olaI = new SimulacionOlaI(opciones);
   await page.route('**/api/v1/**', async (route: Route) => {
     const request = route.request();
     const url = new URL(request.url());
     const ruta = url.pathname.replace(/^.*\/api\/v1\//, '').replace(/\/$/, '');
     const metodo = request.method();
 
+    if (await olaI.responder(route, ruta, metodo, url)) return;
     if (await olaH.responder(route, ruta, metodo, url)) return;
     if (await olaG.responder(route, ruta, metodo, url)) return;
     if (await olaF.responder(route, ruta, metodo, url)) return;
@@ -1791,7 +1797,7 @@ export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promi
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(olaG.ajustar(ruta, olaF.ajustar(ruta, olaE.ajustar(ruta, cuerpo)))),
+      body: JSON.stringify(olaI.ajustarDetalle(ruta, request, olaI.ajustar(ruta, url, olaG.ajustar(ruta, olaF.ajustar(ruta, olaE.ajustar(ruta, cuerpo)))))),
     });
   });
 }

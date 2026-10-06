@@ -34,6 +34,12 @@ export class SidebarComponent {
   canUseFinance = computed(() => this.auth.hasPermission(PERMISSIONS.PAYMENTS_FINANCE));
   /** Bandeja de solicitudes de servicios on demand (Fase 2, Ola G). */
   canProcessServiceRequests = computed(() => this.auth.hasPermission(PERMISSIONS.PROCESS_SERVICE_REQUESTS));
+  /** Fase 2, Ola I: área de administración unificada (M8-05) y sus nuevas pantallas. */
+  canUseAdminArea = computed(() => this.auth.hasPermission(PERMISSIONS.ADMIN_AREA));
+  canManageAnnouncements = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_ANNOUNCEMENTS));
+  canManageCounter = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_COUNTER));
+  canUseImpersonation = computed(() => this.auth.hasPermission(PERMISSIONS.USE_IMPERSONATION));
+  canViewTransactionsReport = computed(() => this.auth.hasPermission(PERMISSIONS.VIEW_TRANSACTIONS_REPORT));
   closed = output<void>();
 
   onLinkClick(): void {

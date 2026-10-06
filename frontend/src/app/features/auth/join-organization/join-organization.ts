@@ -6,7 +6,8 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { VALIDATION } from '../../../core/constants/app.constants';
-import { apiErrorKey } from '../../../core/http/api-error';
+import { apiErrorCode, apiErrorKey } from '../../../core/http/api-error';
+import { PRE_CREATED_ACCOUNT_EXISTS, PreCreatedNoticeComponent } from '../pre-created-notice/pre-created-notice';
 
 const JOIN_ERRORS: Record<string, string> = {
   'Organization.NotFound': 'auth.join.errors.notFound',
@@ -20,7 +21,7 @@ const JOIN_ERRORS: Record<string, string> = {
 @Component({
   selector: 'app-join-organization',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, PreCreatedNoticeComponent],
   templateUrl: './join-organization.html',
   styleUrl: '../register/register.scss',
 })
@@ -48,6 +49,8 @@ export class JoinOrganizationComponent {
 
   loading = signal(false);
   error = signal('');
+  /** Ya existe una cuenta pre-creada por un cliente para el correo o el RUT (M1-09): se dirige al ingreso. */
+  preCreated = signal(false);
   /** Organización a la que se pidió unirse: muestra el resultado pendiente. */
   requestedOrganization = signal<string | null>(null);
 
@@ -70,6 +73,7 @@ export class JoinOrganizationComponent {
 
     this.loading.set(true);
     this.error.set('');
+    this.preCreated.set(false);
 
     const raw = this.form.getRawValue();
     this.auth.requestMembership({
@@ -90,6 +94,11 @@ export class JoinOrganizationComponent {
       },
       error: (err) => {
         this.loading.set(false);
+        if (apiErrorCode(err) === PRE_CREATED_ACCOUNT_EXISTS) {
+          this.preCreated.set(true);
+          this.announcer.announce(translate('auth.preCreated.title'), 'assertive');
+          return;
+        }
         this.error.set(translate(apiErrorKey(err, JOIN_ERRORS, 'auth.join.errors.generic')));
       },
     });

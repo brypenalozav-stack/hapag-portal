@@ -8,6 +8,10 @@
   <app-sidebar [isOpen]="sidebarOpen()" (closed)="closeSidebar()" />
 
   <main id="contenido-principal" class="hl-main-content" tabindex="-1">
+    <!-- Vista como cliente (M8-08): banner permanente mientras dura la sesión de impersonación -->
+    <app-impersonation-banner />
+    <!-- Modo guía (M1-27): guías de la pantalla actual -->
+    <app-guide-host />
     <router-outlet />
   </main>
 

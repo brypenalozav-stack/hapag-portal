@@ -15,6 +15,13 @@
 } @else if (error()) {
   <div class="alert alert-danger" role="alert">{{ error() }}</div>
 } @else if (shipment(); as s) {
+  @if (s.originOrganization; as origin) {
+    <!-- BL de una filial visto por la empresa matriz (Fase 2, Ola I, M1-21): solo consulta -->
+    <div class="alert alert-info" role="note" data-testid="shipment-origin-organization">
+      {{ 'shipments.detail.origin' | transloco: { name: origin.name, taxId: origin.taxId ?? '' } }}
+    </div>
+  }
+
   <!-- Datos generales -->
   <section class="hl-card p-4 mb-4" aria-labelledby="shipment-general-title">
     <h2 id="shipment-general-title" class="section-title mb-3">{{ 'shipments.detail.general.title' | transloco }}</h2>
@@ -103,6 +110,50 @@
           <dd class="detail-value">{{ publication.difuLocationCode ?? '—' }}</dd>
         </div>
       </dl>
+    </section>
+  }
+
+  <!-- Counter Bolivia/Ultramar (Fase 2, Ola I, M8-09): solo perfiles internos -->
+  @if (showCounter()) {
+    <section class="hl-card p-4 mb-4" aria-labelledby="shipment-counter-title" data-testid="shipment-counter">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 id="shipment-counter-title" class="section-title">{{ 'shipments.detail.counter.title' | transloco }}</h2>
+        @if (canManageCounter()) {
+          <a [routerLink]="['/admin/counter']" [queryParams]="{ bl: s.blNumber }" class="small">
+            {{ (s.counter ? 'shipments.detail.counter.edit' : 'shipments.detail.counter.register') | transloco }}
+          </a>
+        }
+      </div>
+      @if (s.counter; as counter) {
+        <dl class="row g-3 mb-0">
+          <div class="col-sm-6 col-lg-3">
+            <dt class="detail-label">{{ 'shipments.detail.counter.country' | transloco }}</dt>
+            <dd class="detail-value">{{ (counter.country === 'BO' ? 'common.country.bo' : 'common.country.cl') | transloco }}</dd>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <dt class="detail-label">{{ 'shipments.detail.counter.exchangeDate' | transloco }}</dt>
+            <dd class="detail-value">{{ counter.exchangeDate ? (counter.exchangeDate | hlDate: 'localDate') : ('shipments.detail.counter.notRecorded' | transloco) }}</dd>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <dt class="detail-label">{{ 'shipments.detail.counter.hbl' | transloco }}</dt>
+            <dd class="detail-value">{{ counter.hblReceived ? ('shipments.detail.counter.receivedOn' | transloco: { date: (counter.hblReceivedAt | hlDate: 'localDate') }) : ('shipments.detail.counter.no' | transloco) }}</dd>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <dt class="detail-label">{{ 'shipments.detail.counter.deconsolidated' | transloco }}</dt>
+            <dd class="detail-value">{{ counter.deconsolidated ? ('shipments.detail.counter.receivedOn' | transloco: { date: (counter.deconsolidatedAt | hlDate: 'localDate') }) : ('shipments.detail.counter.no' | transloco) }}</dd>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <dt class="detail-label">{{ 'shipments.detail.counter.sync' | transloco }}</dt>
+            <dd class="mb-0"><span class="hl-badge" [class]="counterSyncClass[counter.syncStatus] || 'hl-badge--processing'">{{ counter.syncStatus | codeLabel: counterSyncKeys }}</span></dd>
+          </div>
+          <div class="col-sm-6 col-lg-9">
+            <dt class="detail-label">{{ 'shipments.detail.counter.recorded' | transloco }}</dt>
+            <dd class="detail-value">{{ 'shipments.detail.counter.recordedBy' | transloco: { date: ((counter.recordedAt ?? counter.createdAt) | hlDate: 'datetime'), user: counter.recordedBy ?? counter.createdBy ?? '' } }}</dd>
+          </div>
+        </dl>
+      } @else {
+        <p class="mb-0 small" data-testid="shipment-counter-empty">{{ 'shipments.detail.counter.empty' | transloco }}</p>
+      }
     </section>
   }
 

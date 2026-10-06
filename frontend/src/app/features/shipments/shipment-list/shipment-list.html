@@ -64,6 +64,21 @@
         <option value="BO">{{ 'common.country.bo' | transloco }}</option>
       </select>
     </div>
+    @if (subsidiaries().length > 0) {
+      <!-- Empresa matriz (M1-21): una filial a la vez, para no mezclar la información -->
+      <div class="col-sm-6 col-lg-3">
+        <label for="shipments-filter-organization" class="form-label small fw-semibold">{{ 'shipments.list.filters.organization' | transloco }}</label>
+        <select id="shipments-filter-organization" class="form-select" formControlName="organizationId" data-testid="shipments-filter-organization">
+          <option value="">{{ 'shipments.list.filters.allOrganizations' | transloco }}</option>
+          @if (auth.organization(); as own) {
+            <option [value]="own.id">{{ 'shipments.list.filters.ownOrganization' | transloco: { name: own.name } }}</option>
+          }
+          @for (s of subsidiaries(); track s.id) {
+            <option [value]="s.id">{{ s.name }}</option>
+          }
+        </select>
+      </div>
+    }
     @if (auth.isInternal()) {
       <!-- Publicación por DIFU de destino final (M2-01): solo el administrador interno -->
       <div class="col-sm-6 col-lg-2">
@@ -110,6 +125,9 @@
             <th scope="col">{{ 'shipments.list.col.country' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.issuance' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.accessSource' | transloco }}</th>
+            @if (showOrigin()) {
+              <th scope="col">{{ 'shipments.list.col.originOrganization' | transloco }}</th>
+            }
             @if (auth.isInternal()) {
               <th scope="col">{{ 'shipments.list.col.publication' | transloco }}</th>
             }
@@ -144,6 +162,16 @@
                 }
               </td>
               <td><app-access-source-badge [source]="shipment.accessSource" /></td>
+              @if (showOrigin()) {
+                <td [attr.data-testid]="'origin-' + shipment.blNumber">
+                  @if (shipment.originOrganization; as origin) {
+                    <span class="d-block">{{ origin.name }}</span>
+                    @if (origin.taxId) { <span class="small text-muted">{{ origin.taxId }}</span> }
+                  } @else {
+                    {{ 'shipments.list.ownOrganization' | transloco }}
+                  }
+                </td>
+              }
               @if (auth.isInternal()) {
                 <td [attr.data-testid]="'publication-' + shipment.blNumber">
                   @if (shipment.publication; as publication) {

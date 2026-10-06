@@ -323,6 +323,96 @@
       "subtitle": "Base level of visibility and actions by role (M1-11). Changes apply immediately on the server.",
       "title": "Access matrix"
     },
+    "announcements": {
+      "caption": "Announcements",
+      "col": {
+        "actions": "Actions",
+        "published": "Publication",
+        "segment": "Audience",
+        "status": "Status",
+        "title": "Title",
+        "validity": "Validity"
+      },
+      "current": "Current: customers see it now",
+      "edit": "Edit",
+      "editLabel": "Edit {{ title }}",
+      "empty": "There are no announcements with these filters.",
+      "errors": {
+        "action": "The action on the announcement could not be completed.",
+        "load": "The announcements could not be loaded."
+      },
+      "filters": {
+        "all": "All",
+        "country": "Country",
+        "label": "Filter announcements",
+        "search": "Search",
+        "status": "Status"
+      },
+      "form": {
+        "bodyEn": "Text in English",
+        "bodyEs": "Text in Spanish",
+        "cancel": "Cancel",
+        "countries": "Operating countries",
+        "countriesHelp": "Choose one or both countries.",
+        "create": "Create announcement",
+        "createTitle": "New announcement",
+        "created": "Announcement created as a draft: {{ title }}.",
+        "createdPublished": "Announcement created and published: {{ title }}.",
+        "editTitle": "Edit announcement",
+        "errors": {
+          "bodyEn": "Enter the text in English.",
+          "bodyEs": "Enter the text in Spanish.",
+          "countries": "Choose at least one operating country.",
+          "submit": "The announcement could not be saved. Please try again.",
+          "summaryTitle": "Please review the following fields:",
+          "titleEn": "Enter the title in English.",
+          "titleEs": "Enter the title in Spanish.",
+          "validity": "The end date must be after the start date."
+        },
+        "notify": "Notify customers when published",
+        "notifyHelp": "Customers are notified once in the inbox and by email if they chose to.",
+        "operation": "Type of operation",
+        "preview": "Preview",
+        "previewEmpty": "No title",
+        "previewEn": "English",
+        "previewEs": "Spanish",
+        "previewTitle": "Announcement preview",
+        "publishNow": "Publish when saved",
+        "save": "Save changes",
+        "severity": "Importance",
+        "titleEn": "Title in English",
+        "titleEs": "Title in Spanish",
+        "updated": "Announcement updated: {{ title }}.",
+        "validFrom": "Valid from (optional)",
+        "validTo": "Valid until (optional)",
+        "validityHelp": "Local date and time. Without a start date it applies from publication; without an end date, until it is withdrawn."
+      },
+      "history": "History",
+      "historyCaption": "Announcement changes",
+      "historyClose": "Close history",
+      "historyEmpty": "The announcement has no recorded changes.",
+      "historyLabel": "History of {{ title }}",
+      "historyTitle": "Change log: {{ title }}",
+      "new": "New announcement",
+      "notPublished": "Not published",
+      "notified": "Notice sent on {{ date }}",
+      "publish": "Publish",
+      "publishLabel": "Publish {{ title }}",
+      "published": "Announcement published: {{ title }}.",
+      "publishedBy": "{{ date }} by {{ user }}",
+      "remove": "Delete",
+      "removeLabel": "Delete {{ title }}",
+      "removed": "Announcement deleted: {{ title }}.",
+      "subtitle": "Announcements to customers, targeted by country and type of operation, with validity and change log",
+      "title": "Announcements",
+      "unpublish": "Withdraw",
+      "unpublishLabel": "Withdraw {{ title }}",
+      "unpublished": "Announcement withdrawn: {{ title }}.",
+      "validity": "From {{ from }} to {{ to }}",
+      "validityOpenEnd": "withdrawal",
+      "validityOpenStart": "publication",
+      "willNotify": "Customers will be notified when it is published"
+    },
     "assistantKnowledge": {
       "form": {
         "articleTitle": "Title (required)",
@@ -532,6 +622,96 @@
       "select": "Select...",
       "subtitle": "Bulk upload with per-row customs validation",
       "title": "Bill of Lading Upload"
+    },
+    "counter": {
+      "caption": "Counter records",
+      "col": {
+        "actions": "Actions",
+        "bl": "BL",
+        "country": "Country",
+        "deconsolidated": "Devanned",
+        "exchange": "Exchange",
+        "hbl": "HBL received",
+        "recorded": "Recorded",
+        "sync": "Update to Nexus"
+      },
+      "detail": {
+        "booking": "Booking",
+        "close": "Close",
+        "delivery": "Destination",
+        "operation": "Operation and country",
+        "source": "In Nexus ({{ reference }}): exchange {{ exchange }}, HBL received: {{ hbl }}, devanned: {{ deconsolidated }}.",
+        "sourceUnavailable": "Nexus did not respond: what the source system records is not shown. You can still register; the update will be retried.",
+        "title": "Counter of BL {{ bl }}",
+        "vessel": "Vessel and voyage"
+      },
+      "edit": "Edit",
+      "editLabel": "Edit the Counter of BL {{ bl }}",
+      "empty": "There are no Counter records with these filters.",
+      "errors": {
+        "detail": "The BL record could not be opened.",
+        "load": "The records could not be loaded.",
+        "retry": "The update could not be retried."
+      },
+      "filters": {
+        "all": "All",
+        "blNumber": "BL contains",
+        "country": "Country",
+        "deconsolidated": "Devanned",
+        "label": "Filter records",
+        "search": "Search",
+        "sync": "Update to Nexus"
+      },
+      "form": {
+        "country": "Country of the operation",
+        "datesHelp": "Dates cannot be in the future. If you check HBL received or devanned without a date, today is recorded.",
+        "deconsolidated": "Devanned",
+        "deconsolidatedAt": "Devanning date",
+        "errors": {
+          "futureDeconsolidated": "The devanning date cannot be in the future.",
+          "futureExchange": "The BL exchange date cannot be in the future.",
+          "futureHbl": "The HBL receipt date cannot be in the future.",
+          "submit": "The record could not be saved. Please try again.",
+          "summaryTitle": "Please review the following fields:"
+        },
+        "exchangeDate": "BL exchange date",
+        "hblReceived": "HBL received",
+        "hblReceivedAt": "HBL receipt date",
+        "notes": "Notes (optional)",
+        "save": "Save and send to Nexus",
+        "saved": "Counter of BL {{ bl }} saved and sent to Nexus.",
+        "savedFailed": "Counter of BL {{ bl }} saved, but Nexus did not receive it. Retry the update."
+      },
+      "history": "History",
+      "historyCaption": "Counter record changes",
+      "historyClose": "Close history",
+      "historyEmpty": "The record has no changes.",
+      "historyLabel": "History of the Counter of BL {{ bl }}",
+      "historyTitle": "History of the Counter of BL {{ bl }}",
+      "no": "No",
+      "open": {
+        "field": "BL number",
+        "help": "Opens the BL record, even if it has no Counter data yet.",
+        "label": "Register or edit by BL",
+        "submit": "Open record"
+      },
+      "pagination": {
+        "label": "Records pagination",
+        "next": "Next",
+        "page": "Page {{ page }} of {{ pages }}",
+        "previous": "Previous",
+        "showing": "Showing {{ shown }} of {{ total }}"
+      },
+      "recordedBy": "{{ date }} by {{ user }}",
+      "retried": "Counter of BL {{ bl }} sent to Nexus.",
+      "retry": "Retry update",
+      "retryFailed": "Nexus still has not received the Counter of BL {{ bl }}.",
+      "retryLabel": "Retry the update to Nexus of BL {{ bl }}",
+      "subtitle": "BL exchange date, HBL receipt and devanning by BL, with the country of the operation; each record is sent to Nexus",
+      "syncFailed": "Nexus did not receive the record: {{ error }}",
+      "syncedAt": "Sent on {{ date }} ({{ reference }})",
+      "title": "Bolivia/Overseas Counter",
+      "yes": "Yes"
     },
     "creditRules": {
       "caption": "Concepts imputable to credit",
@@ -868,6 +1048,296 @@
       "subtitle": "Stuck operations, reconciliation and cancellation of issued payment slips.",
       "title": "Finance: payments"
     },
+    "guides": {
+      "active": "Active",
+      "caption": "Portal guides",
+      "col": {
+        "actions": "Actions",
+        "audience": "Audience",
+        "name": "Guide",
+        "route": "Screen",
+        "status": "Status",
+        "steps": "Steps",
+        "version": "Version"
+      },
+      "edit": "Edit",
+      "editLabel": "Edit {{ name }}",
+      "empty": "There are no guides.",
+      "errors": {
+        "load": "The guides could not be loaded.",
+        "remove": "The guide could not be deleted."
+      },
+      "form": {
+        "active": "Active",
+        "addStep": "Add step",
+        "audience": "Audience",
+        "cancel": "Cancel",
+        "code": "Code",
+        "codeHelp": "Lowercase letters, numbers and hyphens; it cannot be changed later.",
+        "create": "Create guide",
+        "createTitle": "New guide",
+        "created": "Guide created: {{ name }}.",
+        "descriptionEn": "Description in English (optional)",
+        "descriptionEs": "Description in Spanish (optional)",
+        "displayOrder": "Order",
+        "editTitle": "Edit guide",
+        "errors": {
+          "code": "Enter a code of 2 to 50 characters with lowercase letters, numbers and hyphens.",
+          "nameEn": "Enter the name in English.",
+          "nameEs": "Enter the name in Spanish.",
+          "route": "The screen must be a route starting with /.",
+          "stepKey": "Step {{ number }}: enter the element key.",
+          "stepRoute": "Step {{ number }}: the route must start with /.",
+          "stepText": "Step {{ number }}: enter the text in Spanish and English.",
+          "stepTitle": "Step {{ number }}: enter the title in Spanish and English.",
+          "steps": "Add at least one step.",
+          "submit": "The guide could not be saved. Please try again.",
+          "summaryTitle": "Please review the following fields:"
+        },
+        "moveDown": "Move down",
+        "moveDownLabel": "Move step {{ number }} down",
+        "moveUp": "Move up",
+        "moveUpLabel": "Move step {{ number }} up",
+        "nameEn": "Name in English",
+        "nameEs": "Name in Spanish",
+        "removeStep": "Remove",
+        "removeStepLabel": "Remove step {{ number }}",
+        "route": "Screen (route)",
+        "routeHelp": "Portal route where the guide is offered, for example /cart.",
+        "save": "Save changes",
+        "stepAdded": "Step {{ number }} added.",
+        "stepKey": "Element key",
+        "stepKeyHelp": "For example cart.checkout.",
+        "stepLegend": "Step {{ number }}",
+        "stepMoved": "Step {{ from }} moved to position {{ to }}.",
+        "stepRemoved": "Step {{ number }} removed.",
+        "stepRoute": "Step route",
+        "stepTextEn": "Text in English",
+        "stepTextEs": "Text in Spanish",
+        "stepTitleEn": "Title in English",
+        "stepTitleEs": "Title in Spanish",
+        "stepsHelp": "Each step points to a screen element by its key (data-guide-key attribute). Changing the steps offers the guide to users again.",
+        "stepsTitle": "Steps",
+        "updated": "Guide updated: {{ name }} (version {{ version }})."
+      },
+      "history": "History",
+      "historyCaption": "Guide changes",
+      "historyClose": "Close history",
+      "historyEmpty": "The guide has no recorded changes.",
+      "historyLabel": "History of {{ name }}",
+      "historyTitle": "Change log: {{ name }}",
+      "inactive": "Inactive",
+      "modifiedBy": "{{ date }} by {{ user }}",
+      "new": "New guide",
+      "remove": "Delete",
+      "removeLabel": "Delete {{ name }}",
+      "removed": "Guide deleted: {{ name }}.",
+      "subtitle": "Guide mode for each screen: steps, the element each one points to and texts in Spanish and English",
+      "title": "Portal guides"
+    },
+    "home": {
+      "auditNote": "Every change made in this area is recorded with the user, date and time.",
+      "counter": {
+        "activeGuides": "{count, plural, =0 {No active guides} one {# active guide} other {# active guides}}",
+        "activeLinks": "{count, plural, =0 {No active links} one {# active link} other {# active links}}",
+        "activeSessions": "{count, plural, =0 {No active sessions} one {# active session} other {# active sessions}}",
+        "counterRecords": "{count, plural, =0 {No records} one {# record} other {# records}}",
+        "currentAnnouncements": "{count, plural, =0 {No current announcements} one {# current announcement} other {# current announcements}}",
+        "depositProofsToVerify": "{count, plural, =0 {No proofs to verify} one {# proof to verify} other {# proofs to verify}}",
+        "drafts": "{count, plural, =0 {No drafts} one {# draft} other {# drafts}}",
+        "inProgress": "{count, plural, =0 {No requests in progress} one {# request in progress} other {# requests in progress}}",
+        "paymentsPendingVerification": "{count, plural, =0 {No payments to verify} one {# payment to verify} other {# payments to verify}}",
+        "pendingApproval": "{count, plural, =0 {No requests to approve} one {# request to approve} other {# requests to approve}}",
+        "pendingArCheck": "{count, plural, =0 {No pending AR checks} one {# pending AR check} other {# pending AR checks}}",
+        "pendingLinks": "{count, plural, =0 {No pending requests} one {# pending request} other {# pending requests}}",
+        "pendingValidation": "{count, plural, =0 {No organizations to validate} one {# organization to validate} other {# organizations to validate}}",
+        "preCreatedCarriers": "{count, plural, =0 {No pre-created hauliers} one {# pre-created haulier} other {# pre-created hauliers}}",
+        "scheduledBlocks": "{count, plural, =0 {No scheduled blocks} one {# scheduled block} other {# scheduled blocks}}",
+        "serviceDefinitions": "{count, plural, =0 {No on-demand services} one {# on-demand service} other {# on-demand services}}",
+        "stuckPostPaymentJobs": "{count, plural, =0 {No stuck operations} one {# stuck operation} other {# stuck operations}}",
+        "syncFailed": "{count, plural, =0 {No failed updates to Nexus} one {# failed update to Nexus} other {# failed updates to Nexus}}",
+        "tariffs": "{count, plural, =0 {No tariffs} one {# tariff} other {# tariffs}}"
+      },
+      "generatedAt": "Counters as of {{ date }}",
+      "link": {
+        "accessMatrix": "Access matrix",
+        "announcements": "Announcements",
+        "assistantKnowledge": "Knowledge base",
+        "assistantMailboxes": "Assistant mailboxes",
+        "audit": "Audit",
+        "blImport": "BL upload",
+        "counter": "Counter",
+        "creditImputationRules": "Credit imputation",
+        "customs": "Customs transmission",
+        "dangerousGoods": "Dangerous goods database",
+        "deadlines": "Deadline control",
+        "depositProofs": "Deposit proofs",
+        "exceptionsReport": "Applied exceptions",
+        "guides": "Portal guides",
+        "impersonation": "View the portal as a customer",
+        "internalRules": "Charge rules",
+        "operationalReports": "Operational reports",
+        "organizations": "Organizations queue",
+        "parentLinks": "Parent company link requests",
+        "paymentBlocks": "Payment blocks",
+        "paymentCurrencies": "Payment currencies",
+        "paymentMethods": "Payment methods",
+        "paymentsFinance": "Finance: payments",
+        "publicationRules": "Publication rules",
+        "serviceDefinitions": "On-demand services",
+        "serviceRequests": "Requests queue",
+        "settlements": "Advances and matching",
+        "tariffs": "Tariffs",
+        "transactionsReport": "Transactions by service",
+        "users": "Users"
+      },
+      "loadError": "The administration area could not be loaded.",
+      "section": {
+        "accessMatrix": {
+          "description": "Base permissions by role for each BL information and action.",
+          "title": "Access matrix"
+        },
+        "announcements": {
+          "description": "Announcements by country and type of operation.",
+          "title": "Announcements"
+        },
+        "audit": {
+          "description": "Log of user actions and of view-as-customer sessions.",
+          "title": "Audit"
+        },
+        "counter": {
+          "description": "BL exchange, HBL receipt and devanning (Bolivia and overseas).",
+          "title": "Counter"
+        },
+        "finance": {
+          "description": "Payments to verify, deposit proofs and advance payments.",
+          "title": "Finance"
+        },
+        "guides": {
+          "description": "Guide mode steps for each screen.",
+          "title": "Portal guides"
+        },
+        "impersonation": {
+          "description": "See the portal as a customer, read only, for support.",
+          "title": "View as customer"
+        },
+        "maintainers": {
+          "description": "Tariffs, charge rules, services, payment methods and currencies, and the assistant.",
+          "title": "Maintainers"
+        },
+        "operations": {
+          "description": "BL upload, customs transmission, deadlines and operational reports.",
+          "title": "Operations"
+        },
+        "organizations": {
+          "description": "Validation of new customers, AR check and Match Code.",
+          "title": "Organizations"
+        },
+        "parentLinks": {
+          "description": "Requests from subsidiaries to link to their parent company.",
+          "title": "Parent companies"
+        },
+        "paymentBlocks": {
+          "description": "Windows in which payments are not available.",
+          "title": "Payment blocks"
+        },
+        "reports": {
+          "description": "Transactions by service and exceptions applied to charges.",
+          "title": "Reporting"
+        },
+        "serviceRequests": {
+          "description": "Queue of on-demand service requests.",
+          "title": "Service requests"
+        },
+        "users": {
+          "description": "Portal users and their profiles.",
+          "title": "Users"
+        }
+      },
+      "subtitle": "Maintainers, queues and internal tools of the portal, with what is pending in each section",
+      "title": "Administration"
+    },
+    "impersonation": {
+      "audit": {
+        "caption": "Session requests",
+        "close": "Close log",
+        "col": {
+          "action": "Event",
+          "request": "Request",
+          "status": "Response",
+          "timestamp": "Date and time"
+        },
+        "empty": "The session has no recorded requests.",
+        "pagination": "Log pagination",
+        "title": "Log of the session of {{ name }} ({{ date }})"
+      },
+      "readOnlyNote": "The session is read only: the portal blocks payments, requests, data changes and permission management. It lasts 30 minutes and every request is recorded under your name.",
+      "sessions": {
+        "activity": "{requests, plural, =0 {No requests} one {# request} other {# requests}}; {blocked, plural, =0 {none blocked} one {# blocked} other {# blocked}}",
+        "allStatuses": "All",
+        "audit": "View log",
+        "auditLabel": "View the log of the session of {{ name }} on {{ date }}",
+        "caption": "View-as-customer sessions",
+        "col": {
+          "actions": "Actions",
+          "activity": "Activity",
+          "actor": "Administrator",
+          "reason": "Reason",
+          "started": "Start",
+          "status": "Status",
+          "subject": "Customer"
+        },
+        "empty": "There are no sessions with these filters.",
+        "end": "End",
+        "endLabel": "End the session of {{ name }}",
+        "ended": "Session of {{ name }} ended.",
+        "endedAt": "Ended {{ date }} ({{ minutes }} min)",
+        "errors": {
+          "end": "The session could not be ended.",
+          "load": "The sessions could not be loaded."
+        },
+        "filters": "Filter sessions",
+        "from": "From",
+        "next": "Next",
+        "page": "Page {{ page }} of {{ pages }}",
+        "pagination": "Sessions pagination",
+        "previous": "Previous",
+        "search": "Search",
+        "showing": "Showing {{ shown }} of {{ total }}",
+        "status": "Status",
+        "title": "Recorded sessions",
+        "to": "To"
+      },
+      "start": {
+        "errors": {
+          "organization": "Search for and choose the organization.",
+          "reason": "Enter the reason (at least 5 characters).",
+          "search": "The organizations could not be searched.",
+          "submit": "The session could not be started. Please try again.",
+          "summaryTitle": "Please review the following fields:",
+          "targets": "The users of the organization could not be loaded.",
+          "user": "Choose the user you want to view."
+        },
+        "lastLogin": "last sign-in on {{ date }}",
+        "neverLoggedIn": "never signed in",
+        "noOrganizations": "No approved organizations match that search.",
+        "noUsers": "{{ organization }} has no users.",
+        "notEligible": "Not eligible (inactive, pending or with an internal profile)",
+        "orgResults": "{count, plural, =0 {No organizations found.} one {# organization found.} other {# organizations found.}}",
+        "organization": "Organization",
+        "organizationHelp": "Search by legal name or tax ID (RUT / NIT); approved customer organizations only.",
+        "organizationOption": "{{ name }} ({{ taxId }}) · {{ type }} · {{ country }}",
+        "organizationResults": "Choose the organization",
+        "reason": "Reason",
+        "reasonHelp": "Enter the support case or ticket; it is stored in the session log.",
+        "search": "Search",
+        "submit": "Start view as customer",
+        "title": "Start a session",
+        "user": "User of {{ organization }}"
+      },
+      "subtitle": "See the portal with the same visibility and permissions as a customer user, for support and troubleshooting",
+      "title": "View as customer"
+    },
     "internalRules": {
       "form": {
         "accountName": "Legal name (optional)",
@@ -961,6 +1431,47 @@
         "open": "From {{ from }}, with no end date",
         "range": "{{ from }} to {{ to }}"
       }
+    },
+    "organizationLinks": {
+      "approve": "Approve",
+      "approveLabel": "Approve the link of {{ organization }} with {{ parent }}",
+      "approved": "Link approved: {{ organization }} with {{ parent }}.",
+      "caption": "Parent company links",
+      "col": {
+        "actions": "Actions",
+        "organization": "Subsidiary",
+        "parent": "Parent company",
+        "requested": "Request",
+        "status": "Status"
+      },
+      "decidedBy": "{{ date }} by {{ user }}",
+      "empty": "There are no links with these filters.",
+      "errors": {
+        "action": "The action could not be completed.",
+        "load": "The links could not be loaded."
+      },
+      "filters": {
+        "all": "All",
+        "label": "Filter requests",
+        "search": "Search",
+        "status": "Status"
+      },
+      "notes": "Approval note (optional)",
+      "reject": {
+        "cancel": "Cancel",
+        "confirm": "Reject link",
+        "open": "Reject",
+        "reason": "Reason",
+        "required": "Enter the reason for the rejection.",
+        "title": "Reject the link of {{ organization }} with {{ parent }}"
+      },
+      "rejectLabel": "Reject the link of {{ organization }} with {{ parent }}",
+      "rejected": "Link of {{ organization }} rejected.",
+      "requestedBy": "{{ date }} by {{ user }}",
+      "subtitle": "Requests from organizations for their parent company to see their BLs; approve them or reject them with a reason",
+      "title": "Parent company links",
+      "visibilityOff": "Without BL visibility",
+      "visibilityOn": "With BL visibility"
     },
     "organizations": {
       "caption": "Registered organizations",
@@ -1919,6 +2430,85 @@
         "range": "{{ from }} to {{ to }}"
       }
     },
+    "transactionReports": {
+      "col": {
+        "amount": "Amount",
+        "billing": "Billing tax ID",
+        "category": "Category",
+        "concept": "Concept",
+        "confirmedAt": "Confirmed",
+        "count": "Count",
+        "exceptionType": "Type",
+        "items": "Items",
+        "occurredAt": "Date",
+        "organization": "Customer",
+        "payment": "Payment",
+        "reference": "Reference",
+        "service": "Service",
+        "shipment": "Shipment",
+        "source": "Source",
+        "tax": "Tax",
+        "total": "Total",
+        "transactions": "Payments"
+      },
+      "errors": {
+        "export": "The report could not be exported. Please try again.",
+        "load": "The report could not be generated."
+      },
+      "exceptions": {
+        "detailCaption": "Exception detail",
+        "detailTitle": "Exception detail",
+        "empty": "There are no exceptions with these filters.",
+        "ipoUnavailable": "Nexus did not respond: IPO exclusions for credit could not be calculated and are not included in this report.",
+        "subtitle": "Gate In, EDS and Gate Out exemptions, IPO excluded for credit, free warehouse changes and credit imputations, with the shipment and the customer.",
+        "summaryCaption": "Summary of exceptions by type and currency",
+        "summaryTitle": "Summary by type",
+        "title": "Applied exceptions",
+        "toTransactions": "View transactions by service"
+      },
+      "exportCsv": "Export to CSV",
+      "exportXlsx": "Export to Excel",
+      "exported": "{{ name }} downloaded.",
+      "filters": {
+        "allCategories": "All categories",
+        "allCountries": "All countries",
+        "allCurrencies": "All currencies",
+        "allTypes": "All types",
+        "blNumber": "BL number",
+        "category": "Category",
+        "country": "Country",
+        "currency": "Currency",
+        "from": "From",
+        "label": "Filter the report",
+        "rangeHelp": "Without dates: from the first day of the current month to today, in the country's dates. Up to 366 days.",
+        "search": "Run report",
+        "service": "Service or concept",
+        "serviceHelp": "On-demand service or concept code, for example GATE_OUT.",
+        "to": "To",
+        "type": "Exception type"
+      },
+      "original": "Original: {{ amount }}",
+      "pagination": {
+        "label": "Detail pagination",
+        "next": "Next",
+        "page": "Page {{ page }} of {{ pages }}",
+        "previous": "Previous",
+        "showing": "Showing {{ shown }} of {{ total }}"
+      },
+      "range": "From {{ from }} to {{ to }} ({{ zone }}); generated on {{ date }}.",
+      "totalDetail": "{transactions, plural, one {# payment} other {# payments}}, {items, plural, one {# item} other {# items}}",
+      "totalIn": "Total in {{ currency }}",
+      "transactions": {
+        "detailCaption": "Transaction detail",
+        "detailTitle": "Transaction detail",
+        "empty": "There are no transactions with these filters.",
+        "subtitle": "Payments confirmed in the portal, organized by service. Credit imputations are reported as exceptions.",
+        "summaryCaption": "Summary of transactions by service and currency",
+        "summaryTitle": "Summary by service",
+        "title": "Transactions by service",
+        "toExceptions": "View applied exceptions"
+      }
+    },
     "users": {
       "caption": "Internal users",
       "col": {
@@ -1970,6 +2560,26 @@
       },
       "title": "User Search"
     }
+  },
+  "announcementsView": {
+    "dashboard": {
+      "title": "Announcements",
+      "viewAll": "{count, plural, one {View the announcement} other {View all # announcements}}"
+    },
+    "empty": "There are no current announcements for this country and operation.",
+    "filters": {
+      "allOperations": "Import and export",
+      "country": "Operating country",
+      "label": "Filter announcements",
+      "operation": "Operation",
+      "search": "Show announcements"
+    },
+    "loadError": "The announcements could not be loaded.",
+    "publishedAt": "Published on {{ date }}",
+    "segment": "For: {{ countries }} · {{ operation }}",
+    "subtitle": "Current operational information from Hapag-Lloyd for your country and type of operation",
+    "title": "Announcements",
+    "validTo": "valid until {{ date }}"
   },
   "app": {
     "footer": {
@@ -2046,6 +2656,13 @@
       "submit": "Log In",
       "subtitle": "Chile / Bolivia",
       "title": "Service Portal"
+    },
+    "preCreated": {
+      "body": "A Hapag-Lloyd customer already created your organization's profile with this email or tax ID. You do not need to register: sign in with the invitation you received by email to set your password.",
+      "goToLogin": "Go to sign in",
+      "resend": "Resend the invitation",
+      "resent": "If a pre-created account exists for that email, we sent a new invitation.",
+      "title": "An account already exists for this haulier"
     },
     "register": {
       "agentCode": "Broker Code",
@@ -2282,9 +2899,12 @@
     "accessAuditEvent": {
       "bookingAccessLinked": "Booking access linked to the BL",
       "bookingAccessReconciled": "Booking access reconciled with the official role",
+      "carrierActivated": "Haulier activated",
+      "carrierPreCreated": "Haulier pre-created",
       "defaultGranteeAdded": "Default third party added",
       "defaultGranteeRemoved": "Default third party removed",
       "defaultGranteeUpdated": "Default third party changed",
+      "grantActivated": "Access activated",
       "grantCreated": "Access granted",
       "grantExpired": "Automatic revocation on expiry",
       "grantPermissionsChanged": "Permissions changed",
@@ -2295,6 +2915,12 @@
       "openAccessDisabled": "Open access disabled",
       "openAccessEnabled": "Open access enabled",
       "openAccessPermissionsChanged": "Open access permissions changed",
+      "parentLinkApproved": "Parent link approved",
+      "parentLinkRejected": "Parent link rejected",
+      "parentLinkRemoved": "Parent link removed",
+      "parentLinkRequested": "Parent link requested",
+      "parentVisibilityDisabled": "Visibility for the parent turned off",
+      "parentVisibilityEnabled": "Visibility for the parent turned on",
       "selfAssociated": "Self-association with the BL",
       "wideningCreated": "Visibility widening granted",
       "wideningRevoked": "Visibility widening revoked",
@@ -2314,6 +2940,7 @@
       "active": "Active",
       "expired": "Expired",
       "pendingAcceptance": "Pending acceptance",
+      "pendingActivation": "Pending activation",
       "reconciled": "Reconciled with the official role",
       "revoked": "Revoked"
     },
@@ -2337,6 +2964,7 @@
       "grant": "Granted access",
       "openAccess": "Open access",
       "own": "Own",
+      "parent": "Subsidiary (parent)",
       "selfAssociated": "Self-associated"
     },
     "accessValidityType": {
@@ -2344,11 +2972,63 @@
       "indefinite": "No end date",
       "untilDate": "Until a date"
     },
+    "adminErrors": {
+      "announcementExpired": "The announcement's validity has ended: adjust the dates before publishing it.",
+      "announcementInvalidTransition": "The announcement is already in that status.",
+      "announcementNotFound": "The announcement no longer exists.",
+      "blNotFound": "The BL was not found.",
+      "carrierAlreadyActivated": "The haulier is already active: grant the access from Access and permissions.",
+      "carrierAlreadyRegistered": "That haulier already has an account in the portal: grant the access from Access and permissions.",
+      "carrierEmailInUse": "The email belongs to a user of another organization.",
+      "carrierNotACarrier": "The tax ID or email belongs to an organization that is not a haulier.",
+      "carrierNotAllowed": "Your type of organization cannot pre-create hauliers.",
+      "contactListMatchCodeRequired": "The lists become available once Hapag-Lloyd assigns your organization's Match Code.",
+      "contactListNotAllowed": "Your type of organization does not manage distribution lists.",
+      "counterAlreadySynced": "The record has already been sent to Nexus.",
+      "counterInvalid": "Check the dates: they cannot be in the future.",
+      "forbidden": "You do not have permission for this action.",
+      "guideAlreadyExists": "A guide with that code already exists.",
+      "guideNotFound": "The guide no longer exists.",
+      "impersonationEnded": "View as customer has ended.",
+      "impersonationNested": "You cannot start a view as customer inside another one.",
+      "impersonationNotActive": "The session is no longer active.",
+      "impersonationNotInternalActor": "Only authorized internal users can view the portal as a customer.",
+      "impersonationReadOnly": "View as customer is read only: this action is blocked.",
+      "impersonationTargetNotAllowed": "That user cannot be viewed as a customer (inactive, internal or from an internal organization).",
+      "impersonationTargetNotFound": "The user does not belong to the chosen organization.",
+      "notificationEmailMandatory": "This notice is always sent by email.",
+      "notificationEmailNotAvailable": "This notice is not sent by email.",
+      "notificationNotFound": "The notification no longer exists.",
+      "notificationUnknownType": "Unknown notification type.",
+      "parentLinkAlreadyExists": "There is already a pending or active link.",
+      "parentLinkCycle": "The link would create a cycle between organizations.",
+      "parentLinkInvalidParent": "The chosen organization cannot be a parent company.",
+      "parentLinkNotActive": "The link is not active.",
+      "parentLinkNotAllowed": "Your type of organization cannot link to a parent company.",
+      "parentLinkNotPending": "The request has already been reviewed.",
+      "parentLinkSelfLink": "An organization cannot be its own parent.",
+      "sourceUnavailable": "The source system did not respond. Please try again later.",
+      "unavailable": "The service is not available right now. Please try again in a few minutes."
+    },
     "advanceDemurrageStatus": {
       "notRequested": "Charge not generated",
       "notRequired": "Not required",
       "paid": "Paid",
       "pending": "Awaiting payment"
+    },
+    "announcementOperation": {
+      "both": "Import and export",
+      "export": "Export",
+      "import": "Import"
+    },
+    "announcementSeverity": {
+      "important": "Important",
+      "info": "Informational"
+    },
+    "announcementStatus": {
+      "draft": "Draft",
+      "published": "Published",
+      "unpublished": "Withdrawn"
     },
     "billingOptionSource": {
       "grant": "grantor of the access",
@@ -2368,6 +3048,10 @@
       "final": "The payment is already closed.",
       "inProgress": "The payment is being processed by the platform: it cannot be cancelled in the portal.",
       "slipIssued": "The payment slip has already been issued: you cannot cancel it in the portal. To cancel it, contact Finance."
+    },
+    "carrierPreRegistrationStatus": {
+      "activated": "Activated",
+      "pending": "Pending activation"
     },
     "chargeBlockedReason": {
       "associationRequired": "You must associate with the BL before operating",
@@ -2440,6 +3124,23 @@
       "paid": "Paid",
       "pending": "Pending"
     },
+    "contactChangeStatus": {
+      "failed": "Failed",
+      "propagated": "Sent to source"
+    },
+    "contactReportType": {
+      "arrivalNotice": "Arrival notice (AN)",
+      "blCopies": "BL copies",
+      "bookingConfirmation": "Booking confirmation",
+      "demurrage": "Demurrage",
+      "freeTime": "Free time",
+      "invoices": "Invoices"
+    },
+    "counterSyncStatus": {
+      "failed": "Failed",
+      "pending": "Pending",
+      "synced": "Sent"
+    },
     "country": {
       "bo": "Bolivia",
       "cl": "Chile"
@@ -2487,12 +3188,44 @@
       "registrationLetter": "Registration request letter",
       "taxCertificate": "Tax certificate"
     },
+    "exceptionType": {
+      "creditImputation": "Credit imputation",
+      "edsExemption": "EDS exemption",
+      "freeWarehouseChange": "Free warehouse change",
+      "gateInExemption": "Gate In exemption",
+      "gateOutExemption": "Gate Out exemption",
+      "ipoExclusion": "IPO excluded for credit",
+      "otherExemption": "Other exemption"
+    },
     "exemptionParty": {
       "finalClient": "Final client",
       "masterConsignee": "Master BL consignee"
     },
     "form": {
       "invalid": "The form has errors. Check the highlighted fields."
+    },
+    "guideAudience": {
+      "all": "Everyone",
+      "client": "Customers",
+      "internal": "Internal users"
+    },
+    "impersonationEndReason": {
+      "admin": "Ended from the administration area",
+      "expired": "Time expired",
+      "logout": "Signed out",
+      "manual": "Ended by the administrator",
+      "replaced": "Replaced by another session"
+    },
+    "impersonationRequestAction": {
+      "blockedWrite": "Blocked write",
+      "ended": "End",
+      "request": "Read",
+      "started": "Start"
+    },
+    "impersonationStatus": {
+      "active": "Active",
+      "ended": "Ended",
+      "expired": "Expired"
     },
     "internalRuleType": {
       "advanceDemurrageRequired": "Mandatory advance demurrage (Bolivia)",
@@ -2533,6 +3266,9 @@
     "maintainerAction": {
       "created": "Created",
       "deactivated": "Deactivated",
+      "deleted": "Deletion",
+      "published": "Publication",
+      "unpublished": "Withdrawal",
       "updated": "Updated"
     },
     "membershipStatus": {
@@ -2566,6 +3302,7 @@
       "approved": "Approved",
       "pendingArCheck": "Pending AR check",
       "pendingValidation": "Pending validation",
+      "preCreated": "Pre-created",
       "rejected": "Rejected"
     },
     "organizationType": {
@@ -2574,6 +3311,12 @@
       "customsAgency": "Customs broker",
       "freightForwarder": "Freight forwarder (FFWW)",
       "internal": "Hapag-Lloyd"
+    },
+    "parentLinkStatus": {
+      "active": "Active",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "removed": "Removed"
     },
     "payableItemType": {
       "demurrage": "Demurrage",
@@ -3014,6 +3757,15 @@
       "partiallyIssued": "Partially issued",
       "preTatc": "Pre-TATC",
       "unknown": "Unrecognized status"
+    },
+    "transactionCategory": {
+      "demurrage": "Demurrage",
+      "freight": "Freight",
+      "invoice": "Invoices",
+      "localCharge": "Local charges",
+      "onDemandService": "On-demand services",
+      "other": "Other",
+      "warehouseChange": "Warehouse change"
     },
     "transportDocumentType": {
       "bl": "BL (bill of lading)",
@@ -3718,12 +4470,125 @@
     "title": "Invoices"
   },
   "notifications": {
+    "action": {
+      "approveJoinRequest": "Review the request",
+      "openAccessGrants": "View access",
+      "openAnnouncement": "View announcements",
+      "openDocument": "View the documents",
+      "openInvoice": "View invoices",
+      "openPayment": "View the payment",
+      "openServiceRequest": "View the request",
+      "openShipment": "View the shipment",
+      "reviewOrganization": "Review the organization",
+      "reviewParentLink": "Review link",
+      "uploadDepositProof": "Upload the proof",
+      "verifyDepositProof": "Verify the proof"
+    },
+    "blLink": "View BL {{ bl }}",
+    "byModule": {
+      "item": "{{ module }}: {{ count }} unread",
+      "label": "Unread by module"
+    },
+    "count": "{count, plural, one {# notification} other {# notifications}}; {actionable, plural, =0 {none needs action} one {# needs action} other {# need action}}.",
+    "emailSent": "Also sent by email",
     "empty": "You have no notifications.",
+    "entity": {
+      "accessGrant": "Granted access",
+      "announcement": "Announcement",
+      "carrierPreRegistration": "Pre-created haulier",
+      "customsTransmission": "Customs transmission",
+      "deadline": "Deadline",
+      "depositProof": "Deposit proof",
+      "joinRequest": "Join request",
+      "organization": "Organization",
+      "parentLink": "Parent company link",
+      "payment": "Payment",
+      "serviceRequest": "Service request",
+      "shipment": "Shipment",
+      "shipmentDocument": "Shipment document"
+    },
+    "errors": {
+      "action": "The action could not be completed. The inbox now shows the current status.",
+      "markRead": "The notification could not be marked as read. Please try again."
+    },
+    "filters": {
+      "allModules": "All modules",
+      "allTypes": "All types",
+      "blNumber": "BL number",
+      "clear": "Clear",
+      "label": "Filter notifications",
+      "module": "Module",
+      "onlyActionable": "Only those that need action",
+      "onlyUnread": "Unread only",
+      "search": "Search",
+      "type": "Type"
+    },
+    "inline": {
+      "approve": "Approve",
+      "approveLabel": "Approve the request from {{ name }}",
+      "approveParent": "Approve link",
+      "approveParentLabel": "Approve the parent company link: {{ reference }}",
+      "joinApproved": "Request from {{ name }} approved.",
+      "joinRejected": "Request from {{ name }} rejected.",
+      "parentLinkApproved": "Parent company link approved: {{ reference }}.",
+      "profile": "Profile when approving",
+      "reject": "Reject",
+      "rejectLabel": "Reject the request from {{ name }}"
+    },
     "loadError": "Could not load the notifications.",
     "markAll": "Mark all as read",
+    "markAllModule": "Mark {{ module }} as read",
     "markRead": "Mark as read",
+    "markReadLabel": "Mark as read: {{ title }}",
+    "markedAll": "{count, plural, =0 {There were no unread notifications.} one {# notification marked as read.} other {# notifications marked as read.}}",
+    "markedRead": "Notification marked as read: {{ title }}.",
+    "module": {
+      "access": "Access",
+      "administration": "Administration",
+      "announcements": "Announcements",
+      "customs": "Customs",
+      "deadlines": "Deadlines",
+      "documents": "Documents",
+      "finance": "Finance",
+      "general": "General",
+      "organization": "Organization",
+      "payments": "Payments",
+      "services": "Services"
+    },
     "new": "New",
-    "subtitle": "Operational alerts addressed to you or your roles",
+    "preferences": {
+      "breadcrumbLabel": "Breadcrumb",
+      "caption": "{{ module }} notifications",
+      "changes": "{count, plural, =0 {No changes to save.} one {# change to save.} other {# changes to save.}}",
+      "col": {
+        "actions": "Actions",
+        "email": "Email",
+        "inbox": "Inbox",
+        "type": "Notification"
+      },
+      "defaultOff": "Not sent by email by default.",
+      "defaultOn": "Sent by email by default.",
+      "emailLabel": "Receive by email: {{ type }}",
+      "errors": {
+        "load": "The preferences could not be loaded.",
+        "save": "The preferences could not be saved. Please try again."
+      },
+      "inboxAlways": "Always",
+      "inboxOnly": "Inbox only: this notice is not sent by email.",
+      "mandatory": "Mandatory: this notice is always sent by email.",
+      "noChanges": "There are no changes to save.",
+      "note": "Some notices are always emailed because you need them even before you can sign in; others are inbox only. Both are shown locked with the reason.",
+      "reset": "Reset",
+      "resetLabel": "Reset to the default: {{ type }}",
+      "save": "Save preferences",
+      "saved": "{count, plural, one {# preference saved.} other {# preferences saved.}}",
+      "subtitle": "Choose which notifications you also receive by email. The portal inbox always receives them.",
+      "title": "Email preferences"
+    },
+    "preferencesLink": "Email preferences",
+    "resolved": "Already resolved.",
+    "resolvedAt": "Already resolved on {{ date }}.",
+    "subtitle": "Events from every module of the portal, with the actions you can take from each one",
     "title": "Notifications",
     "type": {
       "accessExpired": "Shipment access expired",
@@ -3731,11 +4596,25 @@
       "accessRevoked": "Shipment access revoked",
       "accessRevokedByCascade": "Access revoked by cascade",
       "accessUpdated": "Shipment access changed",
+      "announcementPublished": "New announcement",
+      "carrierActivated": "Pre-created haulier activated",
       "creditImputationRegistered": "Charges imputed to the credit line",
+      "deadlineAtRisk": "Deadline at risk",
+      "deadlineOverdue": "Deadline overdue",
       "depositProofRejected": "Deposit proof rejected",
       "depositProofSubmitted": "Deposit proof to verify",
       "documentIssued": "Shipment document issued",
       "invoiceReissued": "Invoice reissued to the new legal entity",
+      "joinRequestApproved": "Join request approved",
+      "joinRequestReceived": "New request to join the organization",
+      "joinRequestRejected": "Join request rejected",
+      "organizationApproved": "Organization registration approved",
+      "organizationRejected": "Organization registration rejected",
+      "parentLinkApproved": "Parent company link approved",
+      "parentLinkRejected": "Parent company link rejected",
+      "parentLinkRequested": "Parent company link request",
+      "parentVisibilityChanged": "Visibility for the parent company changed",
+      "paymentConfirmed": "Payment confirmed",
       "reinvoicingAccepted": "Re-invoicing accepted by the new legal entity",
       "reinvoicingDeclined": "Re-invoicing declined by the new legal entity",
       "serviceRequestApproved": "Service request approved",
@@ -3745,10 +4624,78 @@
       "serviceRequestPaid": "Service request paid",
       "serviceRequestPendingApproval": "Service request pending approval",
       "serviceRequestPendingPayment": "Service request pending payment",
-      "serviceRequestRejected": "Service request rejected"
+      "serviceRequestRejected": "Service request rejected",
+      "transmissionError": "Customs transmission error",
+      "transmissionRejected": "Customs transmission rejected"
     }
   },
   "organization": {
+    "carriers": {
+      "activatedAt": "Activated on {{ date }}",
+      "assign": {
+        "errors": {
+          "required": "Enter at least one BL or booking number.",
+          "submit": "The shipments could not be assigned."
+        },
+        "label": "Assign BLs or bookings to {{ name }}",
+        "open": "Assign BLs or bookings",
+        "submit": "Assign"
+      },
+      "caption": "Hauliers pre-created by your organization",
+      "col": {
+        "actions": "Actions",
+        "assignments": "Assigned BLs and bookings",
+        "carrier": "Haulier",
+        "status": "Status"
+      },
+      "duration": "Validity: {{ days }} days from activation",
+      "empty": "Your organization has not pre-created any hauliers.",
+      "errors": {
+        "resend": "The invitation could not be resent."
+      },
+      "form": {
+        "blNumbers": "BL numbers",
+        "bookingNumbers": "Booking numbers",
+        "cancel": "Cancel",
+        "country": "Country",
+        "duration": "Access validity in days (optional)",
+        "durationHelp": "Counted from the haulier's first sign-in; without a value, the access does not expire.",
+        "email": "Contact email",
+        "emailHelp": "They will receive the invitation to set their password.",
+        "errors": {
+          "duration": "The validity must be a whole number between 1 and 365 days.",
+          "email": "Enter a valid email, for example contact@haulier.com.",
+          "legalName": "Enter the legal name.",
+          "submit": "The haulier could not be pre-created. Please try again.",
+          "summaryTitle": "Please review the following fields:",
+          "taxId": "Enter the tax ID (RUT / NIT)."
+        },
+        "firstName": "Contact first name (optional)",
+        "lastName": "Contact last name (optional)",
+        "legalName": "Legal name",
+        "referencesHelp": "Separated by commas or one per line.",
+        "submit": "Pre-create and assign",
+        "taxId": "Tax ID (RUT / NIT)",
+        "taxIdHelp": "If a pre-created profile with this tax ID or email exists, it is reused.",
+        "title": "Pre-create haulier"
+      },
+      "help": "Create the profile of a haulier that does not have an account yet and assign BLs or bookings. On first sign-in it is linked to them.",
+      "invitedAt": "Invitation sent on {{ date }}",
+      "new": "Pre-create haulier",
+      "noAssignments": "No BLs or bookings assigned",
+      "resend": "Resend invitation",
+      "resendLabel": "Resend the invitation to {{ name }}",
+      "resent": "Invitation resent to {{ email }}.",
+      "result": {
+        "close": "Close",
+        "created": "{{ name }} pre-created; {assigned, plural, =0 {no shipments assigned} one {# shipment assigned} other {# shipments assigned}}.",
+        "invitationSent": "The invitation was sent to {{ email }}.",
+        "skipped": "{count, plural, one {# reference was not assigned:} other {# references were not assigned:}}",
+        "skippedItem": "{{ reference }}: {{ reason }}",
+        "updated": "{{ name }} updated; {assigned, plural, =0 {no new shipments} one {# shipment assigned} other {# shipments assigned}}."
+      },
+      "title": "Pre-created hauliers"
+    },
     "commercialConditions": {
       "credit": "Credit terms",
       "creditConcepts": "Concepts on credit",
@@ -3771,6 +4718,51 @@
       "unavailable": "Nexus is not available: we cannot show the commercial terms right now.",
       "validFrom": "From {{ from }}, with no end date",
       "validRange": "From {{ from }} to {{ to }}"
+    },
+    "contactLists": {
+      "cancel": "Cancel",
+      "caption": "Distribution lists by report type",
+      "col": {
+        "actions": "Actions",
+        "emails": "Emails",
+        "type": "Report",
+        "updated": "Last update"
+      },
+      "edit": "Edit",
+      "editLabel": "Edit the emails for {{ type }}",
+      "emailsField": "Emails for {{ type }}",
+      "emailsHelp": "One per line or separated by commas; up to {{ max }} emails.",
+      "errors": {
+        "invalid": "Check the format of these emails: {{ emails }}.",
+        "required": "Enter at least one email.",
+        "save": "The list could not be saved. Please try again.",
+        "sourceFailed": "The source system did not accept the change; the attempt was recorded in the history. Please try again later.",
+        "tooMany": "Enter at most {{ max }} emails."
+      },
+      "help": "Emails that receive each Hapag-Lloyd report (arrival notice, BL copies, invoices, free time and others). Changes are sent to the source system.",
+      "history": {
+        "all": "All",
+        "col": {
+          "date": "Date and user",
+          "new": "After",
+          "previous": "Before",
+          "status": "Result",
+          "type": "Report"
+        },
+        "empty": "No recorded changes.",
+        "filter": "Report",
+        "title": "Change history"
+      },
+      "matchCodeRequired": "The lists become available once Hapag-Lloyd assigns your organization's Match Code.",
+      "noEmails": "No emails registered",
+      "notAllowed": "Your type of organization does not manage distribution lists.",
+      "readOnly": "Your profile can view the lists; changing them requires an operating profile.",
+      "retry": "Retry",
+      "save": "Save",
+      "saved": "{{ type }}: list updated with {count, plural, one {# email} other {# emails}}.",
+      "title": "Contact distribution lists",
+      "unavailable": "We could not read the lists from the source system. They are not shown to avoid presenting outdated data.",
+      "updatedBy": "{{ date }} by {{ user }}"
     },
     "data": {
       "canOperate": "Can pay and request services",
@@ -3845,6 +4837,62 @@
       "title": "Requests to join the organization"
     },
     "loadError": "The organization could not be loaded.",
+    "parentCompany": {
+      "decidedAt": "reviewed on {{ date }}",
+      "errors": {
+        "remove": "The link could not be removed.",
+        "search": "The organizations could not be searched.",
+        "visibility": "The visibility could not be changed."
+      },
+      "help": "If your organization belongs to a group, link it to its parent company and decide whether the parent sees all your BLs, without assigning them one by one.",
+      "none": "Your organization is not linked to a parent company.",
+      "parent": "Parent: {{ name }}",
+      "pendingNote": "Hapag-Lloyd is reviewing the link. The parent will see your BLs once it is approved and visibility is on.",
+      "rejectedNote": "The link was rejected: {{ reason }}",
+      "remove": "Remove link",
+      "removeCancel": "Cancel",
+      "removeConfirm": "Yes, remove",
+      "removeQuestion": "Remove the link with {{ name }}? The parent stops seeing your BLs immediately.",
+      "removed": "Parent company link removed.",
+      "removedNote": "The link was removed; the parent no longer sees your BLs.",
+      "request": {
+        "candidate": "{{ name }} ({{ taxId }}) · {{ type }} · {{ country }}",
+        "choose": "Choose the parent company",
+        "enableVisibility": "Turn on visibility of my BLs when approved",
+        "errors": {
+          "parent": "Search for and choose the parent company.",
+          "submit": "The request could not be sent."
+        },
+        "noResults": "No organizations match that search.",
+        "notes": "Comment for Hapag-Lloyd (optional)",
+        "results": "{count, plural, =0 {No organizations found.} one {# organization found.} other {# organizations found.}}",
+        "search": "Search for the parent by tax ID or legal name",
+        "searchButton": "Search",
+        "searchHelp": "Only customer or freight forwarder organizations approved in the portal.",
+        "sent": "Request sent: Hapag-Lloyd will review the link with {{ name }}.",
+        "submit": "Send request",
+        "title": "Request a link to the parent company"
+      },
+      "requestedAt": "Requested on {{ date }} by {{ user }}",
+      "subsidiaries": {
+        "col": {
+          "actions": "Actions",
+          "organization": "Subsidiary",
+          "visibility": "Visibility"
+        },
+        "hidden": "Off",
+        "title": "Subsidiaries that give you visibility",
+        "viewShipments": "View the shipments of {{ name }}",
+        "visible": "On"
+      },
+      "title": "Parent company",
+      "visibility": "Allow {{ name }} to see all the BLs of my organization",
+      "visibilityChanged": "Last change: {{ date }} by {{ user }}.",
+      "visibilityHelpOff": "The parent does not see your BLs.",
+      "visibilityHelpOn": "The parent sees your BLs for viewing only: it cannot pay, request services or manage access.",
+      "visibilityOff": "Visibility off: {{ name }} no longer sees your organization's BLs.",
+      "visibilityOn": "Visibility on: {{ name }} sees your organization's BLs."
+    },
     "statusNotice": {
       "pending": "Your organization's registration is under review by Hapag-Lloyd. You will be able to pay and request services once it is approved; in the meantime, attach the supporting documents.",
       "rejected": "Your organization's registration was rejected. Contact Hapag-Lloyd for more information."
@@ -4779,6 +5827,33 @@
       "note": "Exchange rate {{ from }}→{{ to }}: {{ rate }}, effective {{ date }} (source {{ source }}).",
       "unavailable": "The {{ from }}→{{ to }} exchange rate could not be read from Nexus."
     },
+    "guide": {
+      "back": "Back",
+      "close": "Close guide",
+      "closed": "Guide closed: {{ name }}. You can view it again with the Guide button.",
+      "completed": "Guide completed: {{ name }}.",
+      "finish": "Finish",
+      "launch": "Guide",
+      "launchLabel": "View the guide: {{ name }}",
+      "next": "Next",
+      "notNow": "Not now",
+      "offerTitle": "Guide available: {{ name }}.",
+      "progress": "{{ name }}: step {{ step }} of {{ total }}",
+      "start": "Start guide",
+      "targetMissing": "The element for this step is not visible on the screen right now."
+    },
+    "impersonation": {
+      "blocked": "Action blocked: view as customer is read only.",
+      "blockedNotice": "{count, plural, one {Action blocked: view as customer is read only and does not allow payments, requests or data changes.} other {Actions blocked (#): view as customer is read only and does not allow payments, requests or data changes.}}",
+      "details": "{minutes, plural, =0 {The session ended} one {# minute left} other {# minutes left}} · Started by {{ actor }}",
+      "dismiss": "Dismiss notice",
+      "end": "End",
+      "endedExpired": "View as customer ended (it expired or another administrator closed it). You are back in your administrator session.",
+      "endedManual": "View as customer ended. You are back in your administrator session.",
+      "regionLabel": "View as customer",
+      "started": "Viewing the portal as {{ name }} of {{ organization }}, read only.",
+      "title": "Viewing as {{ name }} ({{ organization }}) — read only"
+    },
     "loadingSpinner": {
       "label": "Loading..."
     },
@@ -4801,7 +5876,7 @@
       "login": "Log In",
       "logout": "Log Out",
       "menu": "Navigation menu",
-      "notificationsCount": "{count, plural, =0 {Notifications} one {Notifications, # unread} other {Notifications, # unread}}",
+      "notificationsBell": "{count, plural, =0 {Notifications} one {Notifications, # unread} other {Notifications, # unread}}{actionable, plural, =0 {} one {, # needs action} other {, # need action}}",
       "organization": "My organization",
       "profile": "My Profile",
       "tagline": "SERVICE PORTAL",
@@ -4825,12 +5900,16 @@
         "accessMatrix": "Access matrix",
         "accountPayments": "Pay from my account",
         "accountStatement": "Statement of account",
+        "adminAnnouncements": "Announcements (manage)",
+        "adminHome": "Administration home",
         "adminOrganizations": "Organizations",
+        "announcements": "Announcements",
         "assistantKnowledge": "Knowledge base",
         "assistantMailboxes": "Assistant mailboxes",
         "audit": "Audit",
         "blImport": "BL Upload",
         "cart": "Cart",
+        "counter": "Counter",
         "creditImputationRules": "Credit imputation",
         "customs": "Customs Transmission",
         "dangerousGoods": "Dangerous goods",
@@ -4839,11 +5918,15 @@
         "deadlines": "Deadline Control",
         "demurrage": "Demurrage",
         "depositProofs": "Deposit proofs",
+        "exceptionsReport": "Exceptions report",
         "faq": "FAQ",
+        "guides": "Portal guides",
+        "impersonation": "View as customer",
         "internalRules": "Charge rules",
         "invoices": "Invoices",
         "localCharges": "Local Charges",
         "organization": "My organization",
+        "organizationLinks": "Parent companies",
         "paymentBlocks": "Payment blocks",
         "paymentCurrencies": "Payment currencies",
         "paymentHistory": "Payment history",
@@ -4859,10 +5942,12 @@
         "shipments": "Shipments",
         "tariffs": "Tariffs",
         "tatc": "Request TATC",
+        "transactionsReport": "Transactions report",
         "users": "Users",
         "warehouse": "Warehouse Change"
       },
       "section": {
+        "adminArea": "Administration area",
         "administration": "Administration",
         "charges": "Charges",
         "main": "Main",
@@ -4958,6 +6043,22 @@
         "empty": "The shipment has no registered containers.",
         "title": "{count, plural, =0 {Containers} one {Containers (#)} other {Containers (#)}}"
       },
+      "counter": {
+        "country": "Country of the operation",
+        "deconsolidated": "Devanned",
+        "edit": "Edit in Counter",
+        "empty": "The BL has no Counter record.",
+        "exchangeDate": "BL exchange date",
+        "hbl": "HBL received",
+        "no": "No",
+        "notRecorded": "Not recorded",
+        "receivedOn": "Yes, on {{ date }}",
+        "recorded": "Recorded",
+        "recordedBy": "{{ date }} by {{ user }}",
+        "register": "Register in Counter",
+        "sync": "Update to Nexus",
+        "title": "Counter"
+      },
       "demurrage": {
         "caption": "Shipment demurrage",
         "col": {
@@ -5011,6 +6112,7 @@
       },
       "loadError": "The shipment could not be loaded.",
       "notFound": "We could not find the shipment or you do not have access to it.",
+      "origin": "BL of the subsidiary {{ name }} ({{ taxId }}), visible to its parent company for viewing only.",
       "parties": {
         "accessSource": "Access source",
         "consignee": "Consignee (CN)",
@@ -5078,6 +6180,7 @@
         "country": "Country",
         "issuance": "Issuance",
         "operation": "Operation",
+        "originOrganization": "Origin organization",
         "publication": "Publication",
         "status": "Status",
         "vessel": "Vessel",
@@ -5086,11 +6189,14 @@
       "empty": "No shipments match the filters.",
       "filters": {
         "allCountries": "All",
+        "allOrganizations": "All (own and subsidiaries)",
         "blNumber": "BL",
         "bookingNumber": "Booking",
         "clear": "Clear filters",
         "country": "Country",
         "label": "Shipment filters",
+        "organization": "Organization",
+        "ownOrganization": "{{ name }} (own)",
         "published": "Publication",
         "publishedAll": "All",
         "publishedNo": "Not published",
@@ -5116,6 +6222,7 @@
         "import": "Import",
         "label": "Operation"
       },
+      "ownOrganization": "Own",
       "pagination": {
         "label": "Shipment pagination",
         "next": "Next",

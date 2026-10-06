@@ -27,6 +27,7 @@ import {
 import { apiErrorKey } from '../../core/http/api-error';
 import { CountryBadgeComponent } from '../../shared/components/country-badge/country-badge';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
+import { AnnouncementsBannerComponent } from '../../shared/components/announcements-banner/announcements-banner';
 import { StateMessageComponent, isServiceUnavailable } from '../../shared/components/state-message/state-message';
 import { AddToCartDialogComponent, AddToCartTarget } from '../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
 import { DisputeLinkComponent } from '../../shared/components/dispute-link/dispute-link';
@@ -90,6 +91,7 @@ const ICON = {
   imports: [
     FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe,
     CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent, AddToCartDialogComponent, DisputeLinkComponent,
+    AnnouncementsBannerComponent,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',

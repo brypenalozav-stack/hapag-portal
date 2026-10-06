@@ -44,6 +44,7 @@ import {
 } from '../fixtures/ola-g-mocks';
 import { ITEM } from '../fixtures/ola-d-mocks';
 import { PAGO_DEPOSITO, REFACTURACION, REFACTURACION_BORRADOR, TOKEN_ACEPTACION } from '../fixtures/ola-h-mocks';
+import { BL_COUNTER_FALLIDO, GUIA_CARRO, OpcionesOlaI, SESION_TERMINADA, TRANSPORTISTA, sembrarImpersonacion } from '../fixtures/ola-i-mocks';
 import { IDIOMAS, Idioma, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin, sembrarTema } from '../fixtures/session';
 
 /**
@@ -87,6 +88,12 @@ import { IDIOMAS, Idioma, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin
  * bandeja de Finanzas en la revisión, anticipos con el cruce manual, refacturación IAO (cotización con errores, factura no
  * elegible, borrador con errores, seguimiento), página pública de aceptación (errores y enlace no válido) y el mantenedor
  * de conceptos imputables a crédito (historial y formulario con errores).
+ * Fase 2, Ola I (tema claro y oscuro): bandeja con acciones pendientes y resueltas, preferencias de correo, comunicados del
+ * cliente y su mantenedor (historial, formulario con errores y vista previa), paso de la guía del carro abierto, área de
+ * administración, vista como cliente (registro de una sesión y banner con una escritura bloqueada), reportes de
+ * transacciones y excepciones, Counter (listado, registro con el envío fallido e historial), listas de contactos con un
+ * error, pre-creación de transportista con errores, empresa matriz (filial y matriz con el listado de embarques),
+ * revisión interna de vinculaciones con el rechazo abierto y la solicitud de vinculación con una cuenta pre-creada.
  */
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -95,7 +102,7 @@ const LINEA_BASE: Record<string, string[]> = JSON.parse(
   readFileSync(path.join(__dirname, 'axe-baseline.json'), 'utf-8'),
 );
 
-type Sesion = 'ninguna' | 'cliente' | 'admin';
+type Sesion = 'ninguna' | 'cliente' | 'admin' | 'impersonacion';
 
 /** Consulta la cotización del cambio de almacén de un BL (M3-04). */
 function cotizarCambio(bl: string): (page: Page) => Promise<void> {
@@ -538,7 +545,160 @@ const PANTALLAS_OLA_H: { id: string; ruta: string; sesion: Sesion; opciones?: Op
   },
 ];
 
-const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opciones?: OpcionesOlaD; preparar?: (page: Page) => Promise<void> }[] = [
+/** Fase 2, Ola I: bandeja, comunicados, guía, administración, vista como cliente, reportería, Counter y organización. */
+const PANTALLAS_OLA_I: { id: string; ruta: string; sesion: Sesion; opciones?: OpcionesOlaD & OpcionesOlaI; preparar?: (page: Page) => Promise<void> }[] = [
+  {
+    id: 'notifications-inbox',
+    ruta: '/notifications',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('notification-resolved-n1000000-0000-4000-8000-000000000002')).toBeVisible();
+      await expect(page.getByTestId('notifications-by-module')).toBeVisible();
+    },
+  },
+  { id: 'notifications-preferences', ruta: '/notifications/preferences', sesion: 'cliente' },
+  { id: 'announcements', ruta: '/announcements', sesion: 'cliente' },
+  { id: 'admin-announcements', ruta: '/admin/announcements', sesion: 'admin', preparar: abrirHistorial('#announcement-history-title', 2) },
+  {
+    id: 'admin-announcements-form',
+    ruta: '/admin/announcements',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.getByTestId('announcement-new').click();
+      await page.locator('#announcement-country-cl').uncheck();
+      await page.locator('form[data-testid="announcement-form"] button[type="submit"]').click();
+      await expect(page.locator('form[data-testid="announcement-form"] .alert-danger').first()).toBeFocused();
+      await page.getByTestId('announcement-preview-toggle').click();
+      await expect(page.getByTestId('announcement-preview')).toBeVisible();
+    },
+  },
+  {
+    id: 'guide-step-open',
+    ruta: '/cart',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId(`guide-launch-${GUIA_CARRO}`).click();
+      await expect(page.getByTestId('guide-step')).toBeVisible();
+      await expect(page.locator('#hl-guide-title')).toBeFocused();
+      await page.getByTestId('guide-next').click();
+      await expect(page.getByTestId('guide-progress')).toContainText('2');
+    },
+  },
+  { id: 'admin-home', ruta: '/admin', sesion: 'admin' },
+  {
+    id: 'admin-impersonation',
+    ruta: '/admin/impersonation',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.getByTestId(`impersonation-session-${SESION_TERMINADA}`).getByRole('button').first().click();
+      await expect(page.locator('#impersonation-audit-title')).toBeFocused();
+    },
+  },
+  {
+    id: 'impersonation-banner-blocked',
+    ruta: '/notifications',
+    sesion: 'impersonacion',
+    opciones: { impersonando: true },
+    preparar: async (page) => {
+      await expect(page.getByTestId('impersonation-banner')).toBeVisible();
+      await page.getByTestId('notifications-mark-all').click();
+      await expect(page.getByTestId('impersonation-blocked')).toBeVisible();
+    },
+  },
+  { id: 'admin-reports-transactions', ruta: '/admin/reports/transactions', sesion: 'admin' },
+  { id: 'admin-reports-exceptions', ruta: '/admin/reports/exceptions', sesion: 'admin' },
+  { id: 'admin-counter', ruta: '/admin/counter', sesion: 'admin' },
+  {
+    id: 'admin-counter-edit',
+    ruta: '/admin/counter',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.getByTestId(`counter-row-${BL_COUNTER_FALLIDO}`).getByRole('button').first().click();
+      await expect(page.getByTestId('counter-sync-failed')).toBeVisible();
+      await expect(page.locator('#counter-detail-title')).toBeFocused();
+    },
+  },
+  { id: 'admin-counter-history', ruta: '/admin/counter', sesion: 'admin', preparar: abrirHistorial('#counter-history-title', 1) },
+  {
+    id: 'organization-contact-lists',
+    ruta: '/organization',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId('contact-list-ARRIVAL_NOTICE').getByRole('button').click();
+      await page.locator('#contact-emails-ARRIVAL_NOTICE').fill('avisos@importadoraandes.cl, correo-no-valido');
+      await page.getByTestId('contact-list-ARRIVAL_NOTICE').locator('button[type="submit"]').click();
+      await expect(page.locator('#contact-emails-error-ARRIVAL_NOTICE')).toBeVisible();
+    },
+  },
+  {
+    id: 'organization-carriers-form',
+    ruta: '/organization',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId('carrier-new').click();
+      await page.getByTestId('carrier-submit').click();
+      await expect(page.locator('form[data-testid="carrier-form"] .alert-danger').first()).toBeFocused();
+    },
+  },
+  {
+    id: 'organization-parent-subsidiary',
+    ruta: '/organization',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('parent-link')).toBeVisible();
+      await expect(page.getByTestId('contact-lists-history')).toBeVisible();
+    },
+  },
+  {
+    id: 'organization-parent-parent',
+    ruta: '/organization',
+    sesion: 'cliente',
+    opciones: { matriz: true },
+    preparar: async (page) => {
+      await expect(page.getByTestId('parent-subsidiaries')).toBeVisible();
+      await page.locator('#parent-search').fill('Holding');
+      await page.getByTestId('parent-request').getByRole('button').first().click();
+      await expect(page.getByTestId('parent-request').locator('fieldset')).toBeVisible();
+    },
+  },
+  {
+    id: 'shipments-parent',
+    ruta: '/shipments',
+    sesion: 'cliente',
+    opciones: { matriz: true },
+    preparar: async (page) => {
+      await expect(page.getByTestId('shipments-filter-organization')).toBeVisible();
+      await expect(page.locator('[data-testid^="origin-"]').first()).toBeVisible();
+    },
+  },
+  {
+    id: 'admin-organization-links',
+    ruta: '/admin/organization-links',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.locator('main table tbody tr').first().getByRole('button').nth(1).click();
+      await page.getByTestId('links-reject').locator('button[type="submit"]').click();
+      await expect(page.locator('#links-reject-error')).toBeVisible();
+    },
+  },
+  {
+    id: 'register-join-pre-created',
+    ruta: '/register/join',
+    sesion: 'ninguna',
+    preparar: async (page) => {
+      await page.locator('#joinTaxId').fill(TRANSPORTISTA.taxId);
+      await page.locator('#joinFirstName').fill('Rodrigo');
+      await page.locator('#joinLastName').fill('Valdés');
+      await page.locator('#joinEmail').fill(TRANSPORTISTA.email);
+      await page.locator('#joinPassword').fill('Clave-Segura-2026');
+      await page.locator('#joinConfirmPassword').fill('Clave-Segura-2026');
+      await page.locator('form button[type="submit"]').click();
+      await expect(page.getByTestId('pre-created-notice')).toBeVisible();
+    },
+  },
+];
+
+const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opciones?: OpcionesOlaD & OpcionesOlaI; preparar?: (page: Page) => Promise<void> }[] = [
   { id: 'login', ruta: '/login', sesion: 'ninguna' },
   { id: 'register', ruta: '/register', sesion: 'ninguna' },
   { id: 'register-join', ruta: '/register/join', sesion: 'ninguna' },
@@ -737,15 +897,21 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opcion
   // Fase 2, Ola H, en tema claro y oscuro (M11-07)
   ...PANTALLAS_OLA_H,
   ...PANTALLAS_OLA_H.map((p) => ({ ...p, id: `${p.id}-dark`, tema: 'dark' as const })),
+  // Fase 2, Ola I, en tema claro y oscuro (M11-07)
+  ...PANTALLAS_OLA_I,
+  // La solicitud de vinculación (registro) no tiene variante oscura propia todavía: se revisa en tema claro.
+  ...PANTALLAS_OLA_I.filter((p) => p.sesion !== 'ninguna').map((p) => ({ ...p, id: `${p.id}-dark`, tema: 'dark' as const })),
 ];
 
-async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opciones?: OpcionesOlaD, tema: Tema = 'light'): Promise<void> {
+async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opciones?: OpcionesOlaD & OpcionesOlaI, tema: Tema = 'light'): Promise<void> {
   await simularApi(page, opciones);
   await sembrarTema(page, tema);
   if (sesion === 'cliente') {
     await sembrarSesion(page, { lang });
   } else if (sesion === 'admin') {
     await sembrarSesionAdmin(page, lang);
+  } else if (sesion === 'impersonacion') {
+    await sembrarImpersonacion(page, lang);
   } else {
     await sembrarIdioma(page, lang);
   }

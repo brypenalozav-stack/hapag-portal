@@ -1,0 +1,138 @@
+<section class="hl-card" aria-labelledby="parent-company-title" data-testid="parent-company">
+  <div class="card-header p-3">
+    <h2 id="parent-company-title" class="h5 fw-bold mb-1">{{ 'organization.parentCompany.title' | transloco }}</h2>
+    <p class="small text-muted mb-0">{{ 'organization.parentCompany.help' | transloco }}</p>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (view(); as v) {
+    <div class="p-3">
+      @if (actionError()) {
+        <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+      }
+
+      @if (v.link; as link) {
+        <!-- Vínculo de esta organización con su matriz -->
+        <div class="mb-3" data-testid="parent-link">
+          <p class="mb-1">
+            <span class="fw-semibold">{{ 'organization.parentCompany.parent' | transloco: { name: link.parent.name } }}</span>
+            <span class="hl-badge ms-2" [class]="statusClass[link.status] || 'hl-badge--processing'">{{ link.status | codeLabel: statusKeys }}</span>
+          </p>
+          <p class="small mb-1">
+            {{ 'organization.parentCompany.requestedAt' | transloco: { date: (link.requestedAt | hlDate: 'datetime'), user: link.requestedBy ?? '' } }}
+            @if (link.decidedAt) {
+              <span aria-hidden="true"> · </span>{{ 'organization.parentCompany.decidedAt' | transloco: { date: (link.decidedAt | hlDate: 'datetime') } }}
+            }
+          </p>
+          @if (link.status === 'Pending') {
+            <p class="small mb-1" role="note">{{ 'organization.parentCompany.pendingNote' | transloco }}</p>
+          } @else if (link.status === 'Rejected') {
+            <p class="small mb-1" role="note">{{ 'organization.parentCompany.rejectedNote' | transloco: { reason: link.decisionNotes ?? '—' } }}</p>
+          } @else if (link.status === 'Removed') {
+            <p class="small mb-1" role="note">{{ 'organization.parentCompany.removedNote' | transloco }}</p>
+          }
+
+          @if (link.status === 'Pending' || link.status === 'Active') {
+            <div class="form-check form-switch mt-2">
+              <input id="parent-visibility" class="form-check-input" type="checkbox" role="switch" [checked]="link.visibilityEnabled"
+                     [disabled]="!v.canManage || busy()" (change)="toggleVisibility($event)" aria-describedby="parent-visibility-help" />
+              <label for="parent-visibility" class="form-check-label">{{ 'organization.parentCompany.visibility' | transloco: { name: link.parent.name } }}</label>
+            </div>
+            <div id="parent-visibility-help" class="form-text">
+              {{ (link.visibilityEnabled ? 'organization.parentCompany.visibilityHelpOn' : 'organization.parentCompany.visibilityHelpOff') | transloco }}
+              @if (link.visibilityChangedAt) {
+                {{ 'organization.parentCompany.visibilityChanged' | transloco: { date: (link.visibilityChangedAt | hlDate: 'datetime'), user: link.visibilityChangedBy ?? '' } }}
+              }
+            </div>
+            @if (v.canManage) {
+              <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                @if (confirmingRemove()) {
+                  <span class="small">{{ 'organization.parentCompany.removeQuestion' | transloco: { name: link.parent.name } }}</span>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busy()" (click)="remove()">{{ 'organization.parentCompany.removeConfirm' | transloco }}</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelRemove()">{{ 'organization.parentCompany.removeCancel' | transloco }}</button>
+                } @else {
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="askRemove()">{{ 'organization.parentCompany.remove' | transloco }}</button>
+                }
+              </div>
+            }
+          }
+        </div>
+      } @else {
+        <p class="small mb-3" data-testid="parent-link-none">{{ 'organization.parentCompany.none' | transloco }}</p>
+      }
+
+      @if (canRequest()) {
+        <form class="border rounded p-3 mb-3" novalidate aria-labelledby="parent-request-title" (submit)="request($event)" data-testid="parent-request">
+          <h3 id="parent-request-title" class="h6 fw-bold mb-2">{{ 'organization.parentCompany.request.title' | transloco }}</h3>
+          @if (requestError()) {
+            <div class="alert alert-danger py-2" role="alert" data-testid="parent-request-error">{{ requestError() }}</div>
+          }
+          <label for="parent-search" class="form-label small fw-semibold">{{ 'organization.parentCompany.request.search' | transloco }}</label>
+          <div class="d-flex flex-wrap gap-2 mb-1">
+            <input id="parent-search" type="search" class="form-control w-auto flex-grow-1" name="search" autocomplete="off" aria-describedby="parent-search-help"
+                   [(ngModel)]="search" (keydown.enter)="$event.preventDefault(); searchCandidates()" />
+            <button type="button" class="btn btn-outline-secondary" [disabled]="searching()" (click)="searchCandidates()">{{ 'organization.parentCompany.request.searchButton' | transloco }}</button>
+          </div>
+          <div id="parent-search-help" class="form-text mb-2">{{ 'organization.parentCompany.request.searchHelp' | transloco }}</div>
+          @if (candidates(); as list) {
+            @if (list.length === 0) {
+              <p class="small" role="status">{{ 'organization.parentCompany.request.noResults' | transloco }}</p>
+            } @else {
+              <fieldset class="mb-2">
+                <legend class="form-label small fw-semibold mb-1">{{ 'organization.parentCompany.request.choose' | transloco }}</legend>
+                @for (c of list; track c.id) {
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="parentCandidate" [id]="'parent-candidate-' + c.id" [value]="c.id" [(ngModel)]="selectedParentId" />
+                    <label class="form-check-label" [for]="'parent-candidate-' + c.id">
+                      {{ 'organization.parentCompany.request.candidate' | transloco: { name: c.name, taxId: c.taxId, type: (c.organizationType | codeLabel: typeKeys), country: c.country } }}
+                    </label>
+                  </div>
+                }
+              </fieldset>
+            }
+          }
+          <div class="form-check mb-2">
+            <input id="parent-enable-visibility" type="checkbox" class="form-check-input" name="enableVisibility" [(ngModel)]="enableVisibility" />
+            <label for="parent-enable-visibility" class="form-check-label">{{ 'organization.parentCompany.request.enableVisibility' | transloco }}</label>
+          </div>
+          <label for="parent-notes" class="form-label small fw-semibold">{{ 'organization.parentCompany.request.notes' | transloco }}</label>
+          <textarea id="parent-notes" class="form-control mb-2" rows="2" maxlength="500" name="notes" [(ngModel)]="notes"></textarea>
+          <button type="submit" class="btn btn-hl-orange" [disabled]="busy()" data-testid="parent-request-submit">{{ 'organization.parentCompany.request.submit' | transloco }}</button>
+        </form>
+      }
+
+      @if (v.subsidiaries.length > 0) {
+        <!-- Esta organización es matriz: filiales que le dieron visibilidad -->
+        <h3 class="h6 fw-bold" id="parent-subsidiaries-title">{{ 'organization.parentCompany.subsidiaries.title' | transloco }}</h3>
+        <div class="table-responsive" tabindex="0" role="region" aria-labelledby="parent-subsidiaries-title">
+          <table class="hl-table" data-testid="parent-subsidiaries">
+            <caption class="visually-hidden">{{ 'organization.parentCompany.subsidiaries.title' | transloco }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'organization.parentCompany.subsidiaries.col.organization' | transloco }}</th>
+                <th scope="col">{{ 'organization.parentCompany.subsidiaries.col.visibility' | transloco }}</th>
+                <th scope="col"><span class="visually-hidden">{{ 'organization.parentCompany.subsidiaries.col.actions' | transloco }}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of v.subsidiaries; track s.id) {
+                <tr>
+                  <th scope="row" class="fw-semibold">{{ s.organization.name }}</th>
+                  <td>{{ (s.visibilityEnabled ? 'organization.parentCompany.subsidiaries.visible' : 'organization.parentCompany.subsidiaries.hidden') | transloco }}</td>
+                  <td>
+                    @if (s.visibilityEnabled) {
+                      <a [routerLink]="['/shipments']" [queryParams]="{ organizationId: s.organization.id }">{{ 'organization.parentCompany.subsidiaries.viewShipments' | transloco: { name: s.organization.name } }}</a>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</section>

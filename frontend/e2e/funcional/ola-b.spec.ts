@@ -275,7 +275,8 @@ test('auditoría de accesos filtrada por BL (M1-23)', async ({ page }) => {
 
 test('la bandeja muestra el título traducido de las notificaciones de acceso', async ({ page }) => {
   await abrirConSesion(page, '/notifications', 'en');
-  await expect(page.getByText('Access revoked by cascade')).toBeVisible();
+  // La bandeja de la Ola I también lista el tipo en el filtro: el título es el encabezado de la notificación.
+  await expect(page.getByRole('heading', { name: /Access revoked by cascade/ })).toBeVisible();
   await expect(page.getByText('Acceso revocado en cadena')).toHaveCount(0);
 });
 

@@ -11,6 +11,8 @@ import { PERMISSIONS } from '../../../core/constants/app.constants';
 import { apiErrorKey } from '../../../core/http/api-error';
 import { SHIPMENT_ACTIONS, ShipmentDetail } from '../../../core/models/shipment.model';
 import {
+  COUNTER_SYNC_STATUS_CLASS,
+  COUNTER_SYNC_STATUS_KEYS,
   PUBLICATION_REASON_KEYS,
   SHIPMENT_OPERATION_KEYS,
   SHIPMENT_ROLE_KEYS,
@@ -51,6 +53,8 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
  * (M2-09) y, para el administrador interno, la publicación del BL por DIFU de destino final (M2-01).
  * Fase 2, Ola G: sección "Servicios disponibles" con los servicios on demand del BL o booking que el usuario puede ver
  * (M2-03, M2-04), la estimación del cobro y el acceso a la solicitud; a pedido, los no disponibles con el motivo.
+ * Fase 2, Ola I: bloque Counter (canje, HBL y desconsolidado, M8-09) para perfiles internos y, para la empresa matriz, la
+ * organización de origen del BL de una filial, en solo consulta (M1-21).
  */
 @Component({
   selector: 'app-shipment-detail',
@@ -76,6 +80,8 @@ export class ShipmentDetailComponent implements OnInit {
   readonly roleKeys = SHIPMENT_ROLE_KEYS;
   readonly operationKeys = SHIPMENT_OPERATION_KEYS;
   readonly publicationReasonKeys = PUBLICATION_REASON_KEYS;
+  readonly counterSyncKeys = COUNTER_SYNC_STATUS_KEYS;
+  readonly counterSyncClass = COUNTER_SYNC_STATUS_CLASS;
 
   shipment = signal<ShipmentDetail | null>(null);
   loading = signal(true);
@@ -119,6 +125,10 @@ export class ShipmentDetailComponent implements OnInit {
 
   /** Publicación por DIFU (M2-01): solo la ve el administrador interno. */
   showPublication = computed(() => this.auth.isInternal() && !!this.shipment()?.publication);
+
+  /** Counter Bolivia/Ultramar (Fase 2, Ola I, M8-09): el servidor lo envía solo a perfiles internos. */
+  showCounter = computed(() => this.auth.isInternal() && !!this.shipment());
+  canManageCounter = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_COUNTER));
 
   /** Las ODS se consultan en exportación (CL-EXP-13, BO-EXP-09) o si el embarque ya tiene alguna. */
   showServiceOrders = computed(() => {

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
@@ -20,6 +20,8 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { AccessSourceBadgeComponent } from '../../../shared/components/access-source-badge/access-source-badge';
+import { OrganizationNetworkService } from '../../../core/services/organization-network.service';
+import { ParentLinkOrganization } from '../../../core/models/organization-network.model';
 
 /** Filtros de texto del listado (M2-06), reflejados en los query params. */
 const TEXT_FILTERS = ['blNumber', 'bookingNumber', 'vessel', 'voyage', 'status'] as const;
@@ -35,6 +37,8 @@ const ALL_OPERATIONS = 'ALL';
  * por número exacto, que abre el detalle y permite ver un BL con acceso abierto (M1-17).
  * Ola F: estado de emisión del documento de transporte (M2-02) y, solo para el administrador interno, la
  * publicación por DIFU con su motivo y el filtro de publicados / no publicados (M2-01).
+ * Fase 2, Ola I: la empresa matriz ve también los BL de sus filiales con la columna de organización de origen y un
+ * filtro por organización, para revisar una filial a la vez sin mezclar la información (M1-21).
  */
 @Component({
   selector: 'app-shipment-list',
@@ -53,6 +57,7 @@ export class ShipmentListComponent {
   private readonly router = inject(Router);
   private readonly service = inject(ShipmentService);
   private readonly operationService = inject(ShipmentOperationService);
+  private readonly network = inject(OrganizationNetworkService);
   private readonly destroyRef = inject(DestroyRef);
   readonly auth = inject(AuthService);
 
@@ -79,7 +84,14 @@ export class ShipmentListComponent {
     country: ['' as 'CL' | 'BO' | ''],
     /** Solo el administrador interno (M2-01): '' todos, 'true' publicados, 'false' no publicados. */
     published: ['' as '' | 'true' | 'false'],
+    /** Empresa matriz (M1-21): la propia organización o una filial visible. */
+    organizationId: [''],
   });
+
+  /** Filiales que dan visibilidad a esta organización (M1-21). */
+  subsidiaries = signal<ParentLinkOrganization[]>([]);
+  /** Columna de organización de origen: la matriz ve BL de sus filiales. */
+  showOrigin = computed(() => this.subsidiaries().length > 0 || this.shipments().some((s) => !!s.originOrganization));
 
   /** Número exacto de un BL para abrir su detalle, también por acceso abierto (M1-17). */
   openBl = this.fb.nonNullable.control('');
@@ -94,9 +106,20 @@ export class ShipmentListComponent {
   loadFailed = signal(false);
 
   constructor() {
+    this.loadSubsidiaries();
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.applyParams(params);
       this.load();
+    });
+  }
+
+  /** Filiales visibles para el filtro por organización (solo organizaciones de clientes aprobadas). */
+  private loadSubsidiaries(): void {
+    const org = this.auth.organization();
+    if (!org || org.status !== 'Approved' || (org.organizationType !== 'Customer' && org.organizationType !== 'FreightForwarder')) return;
+    this.network.getParentCompany().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (view) => this.subsidiaries.set((view.subsidiaries ?? []).filter((s) => s.visibilityEnabled).map((s) => s.organization)),
+      error: () => this.subsidiaries.set([]),
     });
   }
 
@@ -112,6 +135,7 @@ export class ShipmentListComponent {
     this.service.search({
       ...raw,
       published: this.auth.isInternal() && raw.published ? raw.published === 'true' : '',
+      organizationId: raw.organizationId,
       operation: this.operation(),
       page: this.page(),
       pageSize: this.pageSize,
@@ -173,6 +197,7 @@ export class ShipmentListComponent {
       page: page > 1 ? page : null,
       country: raw.country || null,
       published: this.auth.isInternal() && raw.published ? raw.published : null,
+      organizationId: raw.organizationId || null,
     };
     for (const key of TEXT_FILTERS) {
       queryParams[key] = raw[key].trim() || null;
@@ -199,6 +224,7 @@ export class ShipmentListComponent {
       status: params.get('status') ?? '',
       country: country === 'CL' || country === 'BO' ? country : '',
       published: published === 'true' || published === 'false' ? published : '',
+      organizationId: params.get('organizationId') ?? '',
     });
 
     const page = Number(params.get('page'));

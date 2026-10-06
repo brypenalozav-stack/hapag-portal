@@ -88,9 +88,11 @@
   --hl-emphasis: #{t.$hl-dark-text};
   --hl-link: #{t.$hl-dark-text};
 
-  // Botones de contorno: $secondary ($hl-dark) y el naranja no contrastan con las superficies oscuras.
+  // Botones de contorno: $secondary ($hl-dark), el naranja y el rojo de peligro no contrastan con las superficies oscuras
+  // (el texto del botón indica la acción destructiva).
   .btn-outline-secondary,
-  .btn-outline-primary {
+  .btn-outline-primary,
+  .btn-outline-danger {
     --bs-btn-color: #{t.$hl-dark-text};
     --bs-btn-border-color: #{t.$hl-dark-text};
     --bs-btn-hover-color: #{t.$hl-dark-bg};
@@ -204,6 +206,8 @@ h1, h2, h3, h4, h5, h6 {
   min-height: calc(100vh - var(--navbar-height));
   position: fixed;
   top: var(--navbar-height);
+  // Anclado abajo para que el menú se desplace cuando no cabe (el de los perfiles internos es largo).
+  bottom: 0;
   left: 0;
   z-index: 1020;
   overflow-y: auto;
