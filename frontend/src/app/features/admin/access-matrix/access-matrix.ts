@@ -3,7 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { concatMap, from, toArray } from 'rxjs';
 import { AccessMatrixService } from '../../../core/services/access-matrix.service';
-import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import {
   ACCESS_LEVELS,
   AccessLevel,
@@ -22,6 +21,7 @@ import {
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Cambio pendiente de guardar en una celda de la matriz. */
 interface PendingChange {
@@ -55,7 +55,7 @@ function cellKey(actionCode: string, role: string, organizationType: string | nu
 })
 export class AccessMatrixComponent implements OnInit {
   private readonly service = inject(AccessMatrixService);
-  private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly roles = SHIPMENT_ROLES;
@@ -169,7 +169,7 @@ export class AccessMatrixComponent implements OnInit {
         this.actions.update((list) => list.map((a) => byCode.get(a.code) ?? a));
         this.pending.set(new Map());
         this.saving.set(false);
-        this.announcer.announce(translate('admin.accessMatrix.saved', { count: changes.length }));
+        this.toast.success(translate('admin.accessMatrix.saved', { count: changes.length }));
       },
       error: () => {
         this.saving.set(false);

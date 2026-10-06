@@ -28,6 +28,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { documentErrorMessage } from '../../../shared/document-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Huso de la operación de Bolivia (NF-22). */
 const BOLIVIA_TIME_ZONE = 'America/La_Paz';
@@ -75,6 +76,7 @@ export class ReleaseLetterFormComponent {
   private readonly service = inject(DocumentService);
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -265,7 +267,7 @@ export class ReleaseLetterFormComponent {
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.submitting.set(false);
-        this.announcer.announce(translate('documents.releaseLetter.form.submitted', { number: result.request.requestNumber }));
+        this.toast.success(translate('documents.releaseLetter.form.submitted', { number: result.request.requestNumber }));
         this.router.navigate(['/release-letters', result.request.id]);
       },
       error: (err) => {

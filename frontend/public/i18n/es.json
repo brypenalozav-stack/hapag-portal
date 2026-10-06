@@ -6427,6 +6427,63 @@
       "empty": "No hay datos",
       "error": "Servicio temporalmente no disponible",
       "retry": "Reintentar"
+    },
+    "globalLoader": {
+      "loading": "Cargando...",
+      "changingLanguage": "Cambiando idioma..."
+    },
+    "modal": {
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "ok": "Entendido",
+      "cartRemove": {
+        "title": "¿Quitar «{{name}}» del carro?",
+        "message": "Podrá volver a agregarlo desde el detalle del embarque.",
+        "action": "Quitar del carro"
+      },
+      "remove": {
+        "title": "¿Eliminar «{{name}}»?",
+        "message": "Esta acción no se puede deshacer.",
+        "action": "Eliminar"
+      },
+      "disable": {
+        "title": "¿Deshabilitar «{{name}}»?",
+        "message": "Dejará de ofrecerse a los clientes de inmediato.",
+        "action": "Deshabilitar"
+      },
+      "deactivate": {
+        "title": "¿Desactivar «{{name}}»?",
+        "message": "Dejará de aplicarse de inmediato.",
+        "action": "Desactivar"
+      },
+      "deactivateCurrent": {
+        "title": "¿Desactivar este registro?",
+        "message": "Dejará de aplicarse de inmediato.",
+        "action": "Desactivar"
+      },
+      "revokeWidening": {
+        "title": "¿Revocar esta ampliación de acceso?",
+        "message": "Quien la recibió dejará de ver la información ampliada de inmediato.",
+        "action": "Revocar"
+      },
+      "rejectJoin": {
+        "title": "¿Rechazar la solicitud de {{name}}?",
+        "message": "La solicitud de unión quedará rechazada.",
+        "action": "Rechazar"
+      },
+      "endBlock": {
+        "title": "¿Terminar el bloqueo de pagos ahora?",
+        "message": "Los pagos se habilitan de inmediato.",
+        "action": "Terminar bloqueo"
+      },
+      "cancelBlock": {
+        "title": "¿Cancelar este bloqueo programado?",
+        "message": "El bloqueo no se aplicará.",
+        "action": "Cancelar bloqueo"
+      }
+    },
+    "toast": {
+      "close": "Cerrar aviso"
     }
   },
   "shipments": {

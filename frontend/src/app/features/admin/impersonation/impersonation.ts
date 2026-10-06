@@ -26,6 +26,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { adminErrorMessage } from '../../../shared/administration-errors';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface FormError {
   fieldId: string;
@@ -53,6 +54,7 @@ export class ImpersonationComponent implements OnInit {
   private readonly organizations = inject(AdminOrganizationService);
   private readonly impersonation = inject(ImpersonationService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -220,7 +222,7 @@ export class ImpersonationComponent implements OnInit {
     this.service.endSession(s.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.endingId.set(null);
-        this.announcer.announce(translate('admin.impersonation.sessions.ended', { name: s.subject.fullName || s.subject.email }));
+        this.toast.success(translate('admin.impersonation.sessions.ended', { name: s.subject.fullName || s.subject.email }));
         this.loadSessions();
       },
       error: (err) => {

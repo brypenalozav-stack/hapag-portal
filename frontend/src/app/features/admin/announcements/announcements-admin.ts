@@ -30,6 +30,7 @@ import { focusAfterRender } from '../../../shared/focus-after-render';
 import { adminErrorMessage } from '../../../shared/administration-errors';
 import { fromDateTimeInput, toDateTimeInput } from '../../../shared/date-input';
 import { ChangeLogComponent } from '../payment-config/change-log';
+import { ModalService } from '../../../core/services/modal.service';
 
 interface AnnouncementForm {
   titleEs: string;
@@ -84,6 +85,7 @@ function emptyForm(): AnnouncementForm {
 })
 export class AnnouncementsAdminComponent implements OnInit {
   private readonly service = inject(AnnouncementService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -255,7 +257,15 @@ export class AnnouncementsAdminComponent implements OnInit {
     this.act(a, this.service.unpublish(a.id), 'admin.announcements.unpublished');
   }
 
-  remove(a: AnnouncementAdmin): void {
+  async remove(a: AnnouncementAdmin): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.remove.title',
+      message: 'shared.modal.remove.message',
+      params: { name: a.titleEs },
+      confirmLabel: 'shared.modal.remove.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.act(a, this.service.remove(a.id), 'admin.announcements.removed');
   }
 

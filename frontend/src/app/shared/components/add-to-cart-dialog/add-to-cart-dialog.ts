@@ -27,6 +27,7 @@ import { focusAfterRender } from '../../focus-after-render';
 import { ExchangeRateNoteComponent } from '../exchange-rate-note/exchange-rate-note';
 import { CodeLabelPipe } from '../../pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../pipes/hl-currency.pipe';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Ítem que se quiere agregar al carro, con el texto con que se nombra en la pantalla de origen. */
 export interface AddToCartTarget extends PayableItemRef {
@@ -53,11 +54,11 @@ interface FormError {
   standalone: true,
   imports: [TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, ExchangeRateNoteComponent],
   templateUrl: './add-to-cart-dialog.html',
-  styleUrl: './add-to-cart-dialog.scss',
 })
 export class AddToCartDialogComponent implements AfterViewInit {
   private readonly cart = inject(CartService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -181,7 +182,7 @@ export class AddToCartDialogComponent implements AfterViewInit {
     ).subscribe({
       next: () => {
         this.submitting.set(false);
-        this.announcer.announce(translate('shared.addToCart.added', {
+        this.toast.success(translate('shared.addToCart.added', {
           count: this.options().length,
           label: this.targets()[0]?.label ?? '',
           currency: paymentCurrency,

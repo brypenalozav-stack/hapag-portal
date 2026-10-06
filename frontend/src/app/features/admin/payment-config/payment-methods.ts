@@ -19,6 +19,8 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ChangeLogComponent } from './change-log';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface MethodForm {
   code: string;
@@ -70,7 +72,9 @@ function emptyForm(country: string): MethodForm {
 })
 export class PaymentMethodsComponent implements OnInit {
   private readonly service = inject(PaymentConfigService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -226,11 +230,19 @@ export class PaymentMethodsComponent implements OnInit {
     });
   }
 
-  disable(method: PaymentMethod): void {
+  async disable(method: PaymentMethod): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.disable.title',
+      message: 'shared.modal.disable.message',
+      params: { name: method.name },
+      confirmLabel: 'shared.modal.disable.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.actionError.set('');
     this.service.disableMethod(method.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.announcer.announce(translate('admin.paymentMethods.disabled', { name: method.name }));
+        this.toast.success(translate('admin.paymentMethods.disabled', { name: method.name }));
         this.load();
       },
       error: (err) => {

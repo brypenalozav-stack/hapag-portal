@@ -9,12 +9,15 @@ import { AssistantComponent } from './shared/components/assistant/assistant';
 import { ThemeService } from './core/services/theme.service';
 import { GuideHostComponent } from './shared/components/guide/guide-host';
 import { ImpersonationBannerComponent } from './shared/components/impersonation-banner/impersonation-banner';
+import { GlobalLoaderComponent } from './shared/components/global-loader/global-loader';
+import { ModalHostComponent } from './shared/components/modal-host/modal-host';
+import { ToastHostComponent } from './shared/components/toast-host/toast-host';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet, TranslocoPipe, NavbarComponent, SidebarComponent, AssistantComponent, GuideHostComponent, ImpersonationBannerComponent,
+    RouterOutlet, TranslocoPipe, NavbarComponent, SidebarComponent, AssistantComponent, GuideHostComponent, ImpersonationBannerComponent, GlobalLoaderComponent, ModalHostComponent, ToastHostComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',

@@ -46,6 +46,7 @@ import {
   validityOf,
 } from '../shared/access-form';
 import { GRANT_ERRORS } from '../shared/access-errors';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Clase de la insignia por estado; el texto del estado siempre acompaña al color (1.4.1). */
 const STATUS_BADGE: Record<AccessGrantStatus, string> = {
@@ -77,6 +78,7 @@ type RevokeTarget = { kind: 'single'; grant: AccessGrant } | { kind: 'bulk'; ids
 export class AccessGrantsComponent implements OnInit {
   private readonly service = inject(AccessService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly host = inject(ElementRef<HTMLElement>);
 
@@ -287,7 +289,7 @@ export class AccessGrantsComponent implements OnInit {
         this.saving.set(false);
         this.editing.set(null);
         this.grants.update((list) => list.map((g) => (g.id === updated.id ? updated : g)));
-        this.announcer.announce(translate('thirdPartyAccess.grants.edit.saved', { name: grant.grantee.name, reference: this.referenceOf(grant) }));
+        this.toast.success(translate('thirdPartyAccess.grants.edit.saved', { name: grant.grantee.name, reference: this.referenceOf(grant) }));
       },
       error: (err) => {
         this.saving.set(false);

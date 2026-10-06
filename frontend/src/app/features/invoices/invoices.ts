@@ -26,6 +26,7 @@ import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../shared/payment-errors';
 import { saveBlob } from '../../shared/save-blob';
+import { ToastService } from '../../core/services/toast.service';
 
 const PAGE_SIZE = 20;
 
@@ -67,6 +68,7 @@ export class InvoicesComponent implements OnInit {
   readonly cart = inject(CartService);
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly statusKeys = INVOICE_STATUS_KEYS;
@@ -198,7 +200,7 @@ export class InvoicesComponent implements OnInit {
     this.service.downloadPdf(invoice.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (blob) => {
         saveBlob(blob, `factura-${this.label(invoice)}.pdf`);
-        this.announcer.announce(translate('invoices.download.pdfDone', { number: this.label(invoice) }));
+        this.toast.success(translate('invoices.download.pdfDone', { number: this.label(invoice) }));
       },
       error: (err) => this.fail(err, 'invoices.download.error'),
     });
@@ -214,7 +216,7 @@ export class InvoicesComponent implements OnInit {
       next: (blob) => {
         this.downloading.set(false);
         saveBlob(blob, 'facturas.zip');
-        this.announcer.announce(translate('invoices.download.zipDone', { count: ids.length }));
+        this.toast.success(translate('invoices.download.zipDone', { count: ids.length }));
       },
       error: (err) => {
         this.downloading.set(false);

@@ -1,0 +1,39 @@
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+<dialog #dialog class="hl-dialog hl-dialog--sm" aria-labelledby="hl-modal-title" [attr.aria-describedby]="modal.request()?.message ? 'hl-modal-message' : null"
+        (close)="onClosed()" (click)="onBackdropClick($event)" data-testid="app-modal">
+  @if (modal.request(); as req) {
+    <div class="hl-dialog__header">
+      <h2 id="hl-modal-title" class="h5 fw-bold mb-0 d-flex align-items-center gap-2">
+        @if (req.tone === 'danger') {
+          <svg class="hl-dialog__icon hl-dialog__icon--danger" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+          </svg>
+        }
+        {{ req.title | transloco: req.params ?? {} }}
+      </h2>
+    </div>
+    <div class="hl-dialog__body">
+      @if (req.message) {
+        <p id="hl-modal-message" class="mb-0">{{ req.message | transloco: req.params ?? {} }}</p>
+      }
+      @if (req.details?.length) {
+        <ul class="small mt-2 mb-0">
+          @for (d of req.details; track $index) {
+            <li>{{ d }}</li>
+          }
+        </ul>
+      }
+    </div>
+    <div class="hl-dialog__footer">
+      @if (req.kind === 'confirm') {
+        <button type="button" class="btn btn-outline-secondary" (click)="cancel()" data-testid="app-modal-cancel">
+          {{ (req.cancelLabel ?? 'shared.modal.cancel') | transloco }}
+        </button>
+      }
+      <button type="button" class="btn" [class.btn-danger]="req.tone === 'danger'" [class.btn-primary]="req.tone !== 'danger'"
+              (click)="accept()" data-testid="app-modal-confirm">
+        {{ (req.confirmLabel ?? (req.kind === 'confirm' ? 'shared.modal.confirm' : 'shared.modal.ok')) | transloco }}
+      </button>
+    </div>
+  }
+</dialog>

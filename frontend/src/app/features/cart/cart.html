@@ -199,11 +199,7 @@
                       [attr.aria-describedby]="checkoutDisabled(group) ? 'cart-disabled-' + groupKey(group) : null">
                 {{ 'cart.checkout.review' | transloco: { total: (group.subtotal | hlCurrency: group.paymentCurrency) } }}
               </button>
-              @if (clearingGroup() === groupKey(group)) {
-                <span class="small">{{ 'cart.group.clearQuestion' | transloco: { currency: group.paymentCurrency } }}</span>
-                <button type="button" class="btn btn-sm btn-outline-danger" (click)="clear(group)">{{ 'cart.group.clearConfirm' | transloco }}</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelClear()">{{ 'cart.group.clearCancel' | transloco }}</button>
-              } @else if (payableItems(group).length > 0) {
+              @if (payableItems(group).length > 0) {
                 <button type="button" class="btn btn-sm btn-outline-secondary" (click)="askClear(group)"
                         [attr.aria-label]="'cart.group.clearLabel' | transloco: { currency: group.paymentCurrency }">
                   {{ 'cart.group.clear' | transloco }}

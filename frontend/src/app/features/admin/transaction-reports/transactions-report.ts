@@ -16,6 +16,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
 import { adminErrorMessage } from '../../../shared/administration-errors';
 import { saveBlob } from '../../../shared/save-blob';
+import { ToastService } from '../../../core/services/toast.service';
 
 const PAGE_SIZE = 50;
 
@@ -44,6 +45,7 @@ export class TransactionsReportComponent implements OnInit {
   private readonly reports = inject(TransactionReportService);
   private readonly locale = inject(LocaleService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly categories = TRANSACTION_CATEGORIES;
@@ -131,7 +133,7 @@ export class TransactionsReportComponent implements OnInit {
         this.exporting.set(null);
         const name = exportName('transacciones', report.from, report.to, format);
         saveBlob(blob, name);
-        this.announcer.announce(translate('admin.transactionReports.exported', { name }));
+        this.toast.success(translate('admin.transactionReports.exported', { name }));
       },
       error: (err) => {
         this.exporting.set(null);

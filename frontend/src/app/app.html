@@ -29,6 +29,15 @@
   </main>
 }
 
+<!-- Pantalla de carga global (cambio de idioma y operaciones que bloquean todo el sitio) -->
+<app-global-loader />
+
+<!-- Modal único de confirmaciones y avisos (ModalService) -->
+<app-modal-host />
+
+<!-- Avisos breves tras una acción (ToastService) -->
+<app-toast-host />
+
 <!-- Regiones de anuncios para lectores de pantalla (LiveAnnouncerService, guía UI §3.3) -->
 <div class="visually-hidden" aria-live="polite" aria-atomic="true">{{ announcer.polite() }}</div>
 <div class="visually-hidden" aria-live="assertive" aria-atomic="true">{{ announcer.assertive() }}</div>

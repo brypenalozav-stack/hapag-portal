@@ -15,6 +15,7 @@ import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { saveBlob } from '../../../shared/save-blob';
 import { fileSize } from '../../service-requests/shared/service-text';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface ProofForm {
   bankName: string;
@@ -49,6 +50,7 @@ function emptyForm(): ProofForm {
 export class DepositProofsComponent implements OnInit {
   private readonly service = inject(DepositProofService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -181,7 +183,7 @@ export class DepositProofsComponent implements OnInit {
       next: (blob) => {
         this.downloading.set(null);
         saveBlob(blob, proof.fileName);
-        this.announcer.announce(translate('depositProofs.downloaded', { name: proof.fileName }));
+        this.toast.success(translate('depositProofs.downloaded', { name: proof.fileName }));
       },
       error: (err) => {
         this.downloading.set(null);

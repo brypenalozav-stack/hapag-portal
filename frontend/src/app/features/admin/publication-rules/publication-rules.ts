@@ -16,6 +16,8 @@ import { StateMessageComponent, isServiceUnavailable } from '../../../shared/com
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface RuleForm {
   country: 'CL' | 'BO';
@@ -53,7 +55,9 @@ function emptyForm(): RuleForm {
 })
 export class PublicationRulesComponent implements OnInit {
   private readonly service = inject(PublicationRuleService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -196,11 +200,19 @@ export class PublicationRulesComponent implements OnInit {
     });
   }
 
-  deactivate(rule: ShipmentPublicationRule): void {
+  async deactivate(rule: ShipmentPublicationRule): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.deactivate.title',
+      message: 'shared.modal.deactivate.message',
+      params: { name: this.ruleName(rule) },
+      confirmLabel: 'shared.modal.deactivate.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.actionError.set('');
     this.service.deactivateRule(rule.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.announcer.announce(translate('admin.publicationRules.list.deactivated', { rule: this.ruleName(rule) }));
+        this.toast.success(translate('admin.publicationRules.list.deactivated', { rule: this.ruleName(rule) }));
         this.search();
       },
       error: (err) => {

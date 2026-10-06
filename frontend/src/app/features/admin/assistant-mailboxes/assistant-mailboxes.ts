@@ -12,6 +12,7 @@ import { StateMessageComponent, isServiceUnavailable } from '../../../shared/com
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface MailboxForm {
   country: 'CL' | 'BO';
@@ -47,6 +48,7 @@ function emptyForm(): MailboxForm {
 export class AssistantMailboxesComponent implements OnInit {
   private readonly service = inject(AssistantService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -140,7 +142,7 @@ export class AssistantMailboxesComponent implements OnInit {
     this.service.saveMailbox(body).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.saving.set(false);
-        this.announcer.announce(translate('admin.assistantMailboxes.form.saved', {
+        this.toast.success(translate('admin.assistantMailboxes.form.saved', {
           country: body.country,
           topic: translate(KNOWLEDGE_TOPIC_KEYS[body.topic]),
         }));

@@ -17,6 +17,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { adminErrorMessage } from '../../../shared/administration-errors';
 import { GRANT_ERRORS } from '../../access/shared/access-errors';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface CarrierForm {
   legalName: string;
@@ -61,6 +62,7 @@ function emptyForm(country: 'CL' | 'BO'): CarrierForm {
 export class CarriersComponent implements OnInit {
   private readonly service = inject(OrganizationNetworkService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -227,7 +229,7 @@ export class CarriersComponent implements OnInit {
     this.service.resendPreCreatedInvitation(c.email).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.resending.set(null);
-        this.announcer.announce(translate('organization.carriers.resent', { email: c.email }));
+        this.toast.success(translate('organization.carriers.resent', { email: c.email }));
       },
       error: (err) => {
         this.resending.set(null);

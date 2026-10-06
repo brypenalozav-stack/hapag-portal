@@ -23,6 +23,8 @@ import { StateMessageComponent, isServiceUnavailable } from '../../shared/compon
 import { CodeLabelPipe } from '../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { adminErrorMessage } from '../../shared/administration-errors';
+import { ModalService } from '../../core/services/modal.service';
+import { ToastService } from '../../core/services/toast.service';
 
 /** Acciones que resuelven una gestión pendiente: dejan de estar disponibles al resolverse (M1-25). */
 const RESOLVABLE_ACTIONS = ['ApproveJoinRequest', 'ReviewOrganization', 'ReviewParentLink', 'VerifyDepositProof', 'UploadDepositProof'];
@@ -55,10 +57,12 @@ function emptyFilters(): InboxFilters {
 })
 export class NotificationsComponent implements OnInit {
   private readonly service = inject(NotificationService);
+  private readonly modal = inject(ModalService);
   private readonly organizations = inject(OrganizationService);
   private readonly network = inject(OrganizationNetworkService);
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -195,7 +199,15 @@ export class NotificationsComponent implements OnInit {
       translate('notifications.inline.joinApproved', { name }));
   }
 
-  rejectJoin(n: NotificationItem): void {
+  async rejectJoin(n: NotificationItem): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.rejectJoin.title',
+      message: 'shared.modal.rejectJoin.message',
+      params: { name: n.link?.reference ?? '' },
+      confirmLabel: 'shared.modal.rejectJoin.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     const userId = n.action?.targetId;
     if (!userId || !this.isPending(n)) return;
     const name = n.link?.reference ?? '';
@@ -225,7 +237,7 @@ export class NotificationsComponent implements OnInit {
     const module = this.filters.module || undefined;
     this.service.markAllRead(module).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
-        this.announcer.announce(translate('notifications.markedAll', { count: r.marked }));
+        this.toast.success(translate('notifications.markedAll', { count: r.marked }));
         this.load();
       },
       error: (err) => this.actionError.set(adminErrorMessage(err, 'notifications.errors.markRead')),

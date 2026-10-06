@@ -28,6 +28,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { documentErrorMessage } from '../../../shared/document-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { saveBlob } from '../../../shared/save-blob';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Largos máximos del contrato (el servidor los vuelve a validar). */
 const LIMITS = { NAME: 200, TAX_ID: 30, RECIPIENT: 200, NOTES: 1000 } as const;
@@ -55,6 +56,7 @@ interface FormError {
 export class FreightCertificateDialogComponent implements AfterViewInit {
   private readonly service = inject(DocumentService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -163,7 +165,7 @@ export class FreightCertificateDialogComponent implements AfterViewInit {
     this.service.download(this.context().blNumber, doc.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (blob) => {
         saveBlob(blob, doc.fileName);
-        this.announcer.announce(translate('documents.section.downloaded', { number: doc.documentNumber }));
+        this.toast.success(translate('documents.section.downloaded', { number: doc.documentNumber }));
       },
       error: (err) => {
         const message = documentErrorMessage(err, 'documents.section.downloadError');

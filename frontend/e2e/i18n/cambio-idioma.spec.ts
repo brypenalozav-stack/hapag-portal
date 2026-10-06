@@ -59,3 +59,18 @@ test('cambia de español a inglés sin recargar y reformatea montos y fechas', a
   // La elección se recuerda.
   expect(await page.evaluate(() => localStorage.getItem('hl_lang'))).toBe('en');
 });
+
+test('el cambio de idioma muestra la pantalla de carga global hasta que el sitio queda traducido', async ({ page }) => {
+  await simularApi(page);
+  await sembrarSesion(page, { lang: 'es' });
+  await page.goto('/payment-history');
+  await expect(page.locator('h1').first()).toHaveText('Historial de pagos');
+
+  const cargando = page.getByTestId('global-loader');
+  await page.getByRole('button', { name: /English|Inglés/ }).click();
+  await expect(cargando).toBeVisible();
+  await expect(cargando.getByRole('status')).toContainText(/Cambiando idioma|Switching language/);
+  await expect(cargando).toBeHidden();
+  await expect(page.locator('h1').first()).toHaveText('Payment history');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+});

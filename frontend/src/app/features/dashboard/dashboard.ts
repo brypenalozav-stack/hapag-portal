@@ -36,6 +36,7 @@ import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../shared/pipes/hl-number.pipe';
 import { saveBlob } from '../../shared/save-blob';
+import { ToastService } from '../../core/services/toast.service';
 
 /** Acceso rápido a un servicio, nombrado por lo que el cliente quiere hacer (M1-01). */
 interface QuickService {
@@ -102,6 +103,7 @@ export class DashboardComponent {
   private readonly service = inject(DashboardService);
   private readonly documents = inject(DocumentService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly operationService = inject(ShipmentOperationService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -315,7 +317,7 @@ export class DashboardComponent {
       next: (blob) => {
         this.downloading.set(null);
         saveBlob(blob, `${doc.documentNumber}.pdf`);
-        this.announcer.announce(translate('dashboard.documents.downloaded', { number: doc.documentNumber }));
+        this.toast.success(translate('dashboard.documents.downloaded', { number: doc.documentNumber }));
       },
       error: (err) => {
         this.downloading.set(null);

@@ -6427,6 +6427,63 @@
       "empty": "No data",
       "error": "Service temporarily unavailable",
       "retry": "Retry"
+    },
+    "globalLoader": {
+      "loading": "Loading...",
+      "changingLanguage": "Switching language..."
+    },
+    "modal": {
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "ok": "Got it",
+      "cartRemove": {
+        "title": "Remove “{{name}}” from the cart?",
+        "message": "You can add it again from the shipment detail.",
+        "action": "Remove from cart"
+      },
+      "remove": {
+        "title": "Delete “{{name}}”?",
+        "message": "This action cannot be undone.",
+        "action": "Delete"
+      },
+      "disable": {
+        "title": "Disable “{{name}}”?",
+        "message": "It will no longer be offered to customers, effective immediately.",
+        "action": "Disable"
+      },
+      "deactivate": {
+        "title": "Deactivate “{{name}}”?",
+        "message": "It stops applying immediately.",
+        "action": "Deactivate"
+      },
+      "deactivateCurrent": {
+        "title": "Deactivate this record?",
+        "message": "It stops applying immediately.",
+        "action": "Deactivate"
+      },
+      "revokeWidening": {
+        "title": "Revoke this access widening?",
+        "message": "The recipient will stop seeing the widened information immediately.",
+        "action": "Revoke"
+      },
+      "rejectJoin": {
+        "title": "Reject the request from {{name}}?",
+        "message": "The join request will be rejected.",
+        "action": "Reject"
+      },
+      "endBlock": {
+        "title": "End the payment block now?",
+        "message": "Payments are enabled immediately.",
+        "action": "End block"
+      },
+      "cancelBlock": {
+        "title": "Cancel this scheduled block?",
+        "message": "The block will not be applied.",
+        "action": "Cancel block"
+      }
+    },
+    "toast": {
+      "close": "Close notice"
     }
   },
   "shipments": {

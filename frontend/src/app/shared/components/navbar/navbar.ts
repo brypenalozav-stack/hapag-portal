@@ -10,6 +10,7 @@ import { OrganizationService } from '../../../core/services/organization.service
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { CartService } from '../../../core/services/cart.service';
 import { THEME_PREFERENCES, ThemePreference, ThemeService } from '../../../core/services/theme.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-navbar',
@@ -34,6 +35,7 @@ export class NavbarComponent implements OnInit {
   };
   private readonly organizations = inject(OrganizationService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   /** Estado del menú lateral móvil, para `aria-expanded` del botón de menú. */
   sidebarOpen = input(false);
@@ -67,7 +69,7 @@ export class NavbarComponent implements OnInit {
       next: () => {
         this.changingCountry.set(false);
         const name = translate(country === 'BO' ? 'common.country.bo' : 'common.country.cl');
-        this.announcer.announce(translate('shared.navbar.country.changed', { country: name }));
+        this.toast.success(translate('shared.navbar.country.changed', { country: name }));
       },
       error: () => {
         this.changingCountry.set(false);
@@ -80,7 +82,7 @@ export class NavbarComponent implements OnInit {
   onTheme(event: Event): void {
     const preference = (event.target as HTMLSelectElement).value as ThemePreference;
     this.themes.setPreference(preference);
-    this.announcer.announce(translate('shared.navbar.theme.changed', { theme: translate(this.themeKeys[preference]) }));
+    this.toast.success(translate('shared.navbar.theme.changed', { theme: translate(this.themeKeys[preference]) }));
   }
 
   logout(): void {

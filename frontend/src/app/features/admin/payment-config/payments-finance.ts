@@ -18,6 +18,7 @@ import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Estados de pago que Finanzas puede anular: boleta emitida o pago en curso (M5-02). */
 const CANCELLABLE = ['PendingVerification', 'Processing', 'Pending'];
@@ -39,6 +40,7 @@ const CANCELLABLE = ['PendingVerification', 'Processing', 'Pending'];
 export class PaymentsFinanceComponent implements OnInit {
   private readonly service = inject(PaymentConfigService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -105,7 +107,7 @@ export class PaymentsFinanceComponent implements OnInit {
       next: (updated) => {
         this.retrying.set(null);
         const status = translate(PAYMENT_OPERATION_STATUS_KEYS[updated.status] ?? 'common.paymentOperationStatus.pending');
-        this.announcer.announce(translate('admin.finance.operations.retried', { number: updated.paymentNumber, status }));
+        this.toast.success(translate('admin.finance.operations.retried', { number: updated.paymentNumber, status }));
         this.loadOperations();
       },
       error: (err) => {

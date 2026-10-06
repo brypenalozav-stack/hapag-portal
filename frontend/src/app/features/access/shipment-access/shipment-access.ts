@@ -27,6 +27,8 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { GrantDialogComponent } from '../grant-dialog/grant-dialog';
 import { GRANT_ERRORS } from '../shared/access-errors';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Accesos del BL que se muestran en el detalle (los demás se ven en Mi organización). */
 const GRANTS_PAGE_SIZE = 50;
@@ -44,7 +46,9 @@ const GRANTS_PAGE_SIZE = 50;
 })
 export class ShipmentAccessComponent implements OnInit {
   private readonly service = inject(AccessService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   shipment = input.required<ShipmentDetail>();
@@ -193,7 +197,7 @@ export class ShipmentAccessComponent implements OnInit {
       next: (created) => {
         this.wideningSaving.set(false);
         this.wideningFormOpen.set(false);
-        this.announcer.announce(translate('shipments.detail.access.widenings.created', { count: created.length }));
+        this.toast.success(translate('shipments.detail.access.widenings.created', { count: created.length }));
         this.loadWidenings();
       },
       error: (err) => {
@@ -203,12 +207,19 @@ export class ShipmentAccessComponent implements OnInit {
     });
   }
 
-  revokeWidening(widening: VisibilityWidening): void {
+  async revokeWidening(widening: VisibilityWidening): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.revokeWidening.title',
+      message: 'shared.modal.revokeWidening.message',
+      confirmLabel: 'shared.modal.revokeWidening.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.wideningsError.set('');
     this.service.revokeWidening(this.shipment().blNumber, widening.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.widenings.update((list) => list.filter((w) => w.id !== widening.id));
-        this.announcer.announce(translate('shipments.detail.access.widenings.revoked'));
+        this.toast.success(translate('shipments.detail.access.widenings.revoked'));
       },
       error: (err) =>
         this.wideningsError.set(translate(apiErrorKey(err, GRANT_ERRORS, 'shipments.detail.access.widenings.revokeError'))),

@@ -18,6 +18,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ChangeLogComponent } from './change-log';
+import { ModalService } from '../../../core/services/modal.service';
 
 /** Valor del selector de país para "todos los países" (country: null en la API). */
 const ALL_COUNTRIES = 'ALL';
@@ -67,6 +68,7 @@ function emptyForm(): WindowForm {
 })
 export class PaymentBlocksComponent implements OnInit {
   private readonly service = inject(PaymentConfigService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -216,7 +218,15 @@ export class PaymentBlocksComponent implements OnInit {
   }
 
   /** Cancela una ventana programada o termina antes una activa. */
-  cancelWindow(window: PaymentBlockWindow): void {
+  async cancelWindow(window: PaymentBlockWindow): Promise<void> {
+    const ending = window.status === 'Active';
+    const confirmed = await this.modal.confirm({
+      title: ending ? 'shared.modal.endBlock.title' : 'shared.modal.cancelBlock.title',
+      message: ending ? 'shared.modal.endBlock.message' : 'shared.modal.cancelBlock.message',
+      confirmLabel: ending ? 'shared.modal.endBlock.action' : 'shared.modal.cancelBlock.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.actionError.set('');
     this.service.cancelBlockWindow(window.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {

@@ -10,6 +10,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface CalculatorError {
   fieldId: string;
@@ -33,6 +34,7 @@ interface CalculatorError {
 export class DemurrageCalculatorComponent implements OnInit {
   private readonly service = inject(DemurrageService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -108,7 +110,7 @@ export class DemurrageCalculatorComponent implements OnInit {
         this.busy.set(false);
         this.preview.set(result);
         if (save && result.status) {
-          this.announcer.announce(translate('demurrage.calculator.savedAnnouncement'));
+          this.toast.success(translate('demurrage.calculator.savedAnnouncement'));
           this.saved.emit(result.status);
         } else {
           this.announcer.announce(translate('demurrage.calculator.previewAnnouncement', { count: result.lines.length }));

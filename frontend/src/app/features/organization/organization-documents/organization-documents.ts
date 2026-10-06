@@ -17,6 +17,7 @@ import { StateMessageComponent, isServiceUnavailable } from '../../../shared/com
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
+import { ToastService } from '../../../core/services/toast.service';
 
 /**
  * Documentación de respaldo del registro (M1-07): la carga es un paso manual y queda registro
@@ -35,6 +36,7 @@ export class OrganizationDocumentsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(OrganizationService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
@@ -112,7 +114,7 @@ export class OrganizationDocumentsComponent implements OnInit {
         this.fileTouched.set(false);
         const input = this.fileInput()?.nativeElement;
         if (input) input.value = '';
-        this.announcer.announce(translate('organization.documents.uploaded', { name: document.fileName }));
+        this.toast.success(translate('organization.documents.uploaded', { name: document.fileName }));
       },
       error: () => {
         this.uploading.set(false);

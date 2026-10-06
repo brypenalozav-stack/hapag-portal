@@ -497,17 +497,141 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Loading spinner
+// Loading spinner: carga de sección con la nave del portal (app-loading-spinner).
 .hl-spinner-overlay {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 3rem;
+}
 
+// Diálogo modal nativo (<dialog>): base común de los diálogos del portal y del modal de ModalService.
+.hl-dialog {
+  width: min(44rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--hl-border);
+  border-radius: 0.75rem;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+
+  &--sm {
+    width: min(30rem, calc(100vw - 2rem));
+  }
+
+  &--lg {
+    width: min(52rem, calc(100vw - 2rem));
+  }
+
+  &[open] {
+    animation: hl-dialog-in 0.2s ease-out;
+  }
+
+  &::backdrop {
+    background-color: rgb(0 0 0 / 50%);
+    backdrop-filter: blur(2px);
+  }
+
+  &[open]::backdrop {
+    animation: hl-dialog-backdrop-in 0.2s ease-out;
+  }
+}
+
+.hl-dialog__header,
+.hl-dialog__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.hl-dialog__header {
+  justify-content: space-between;
+  border-bottom: 1px solid var(--hl-border);
+}
+
+.hl-dialog__footer {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  border-top: 1px solid var(--hl-border);
+}
+
+.hl-dialog__body {
+  padding: 1rem 1.25rem;
+}
+
+.hl-dialog__icon--danger {
+  flex-shrink: 0;
+  color: var(--bs-danger-text-emphasis);
+}
+
+@keyframes hl-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hl-dialog-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-dialog[open],
+  .hl-dialog[open]::backdrop {
+    animation: none;
+  }
+}
+
+// Spinners en línea (botones y textos): la silueta de la nave cabecea en lugar del aro de Bootstrap.
+// Toma el color del texto (currentColor), así que respeta el contraste del botón en ambos temas.
+$hl-ship-mask: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 8h3v6H5zM6 5.5h1.4V8H6zM9 10h3.2v4H9zM12.6 10h3.2v4h-3.2zM16.2 10h3v4h-3zM9 6.2h3.2v3.4H9zM12.6 6.2h3.2v3.4h-3.2zM3 14.6h18l-2.4 4H5.6z'/%3E%3Cpath d='M1.5 21.4c1.6 0 1.6-1.1 3.2-1.1s1.6 1.1 3.2 1.1 1.6-1.1 3.2-1.1 1.6 1.1 3.2 1.1 1.6-1.1 3.2-1.1 1.6 1.1 3.2 1.1' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E";
+
+.spinner-border {
+  --bs-spinner-width: 1.5rem;
+  --bs-spinner-height: 1.5rem;
+  --bs-spinner-animation-speed: 1.4s;
+  --bs-spinner-animation-name: hl-ship-bob;
+  border: 0;
+  border-radius: 0;
+  background-color: currentColor;
+  vertical-align: -0.2em;
+  -webkit-mask: url($hl-ship-mask) center / contain no-repeat;
+  mask: url($hl-ship-mask) center / contain no-repeat;
+  animation-timing-function: ease-in-out;
+}
+
+.spinner-border-sm {
+  --bs-spinner-width: 1.15rem;
+  --bs-spinner-height: 1.15rem;
+}
+
+@keyframes hl-ship-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+
+  50% {
+    transform: translateY(-2px) rotate(6deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
   .spinner-border {
-    color: var(--hl-orange);
-    width: 2.5rem;
-    height: 2.5rem;
+    animation: none;
   }
 }
 

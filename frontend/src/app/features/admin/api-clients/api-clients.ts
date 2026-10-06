@@ -35,6 +35,8 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { apiClientErrorMessage } from '../../../shared/api-client-errors';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Formato mínimo de un correo (el servidor lo vuelve a validar). */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -72,7 +74,7 @@ function emptyForm(): ClientForm {
 }
 
 /** Confirmación pendiente sobre el cliente abierto: revocar una clave o el cliente completo. */
-type PendingConfirmation = { kind: 'key'; key: ApiClientKey } | { kind: 'client' } | null;
+type PendingConfirmation = { kind: 'client' } | null;
 
 /**
  * Canal de requerimientos vía Web Service (Fase 2, Ola J, M3-17; permiso `api-clients.manage`): clientes del canal por
@@ -94,8 +96,10 @@ type PendingConfirmation = { kind: 'key'; key: ApiClientKey } | { kind: 'client'
 })
 export class ApiClientsComponent implements OnInit {
   private readonly service = inject(ApiClientService);
+  private readonly modal = inject(ModalService);
   private readonly organizations = inject(AdminOrganizationService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -228,7 +232,7 @@ export class ApiClientsComponent implements OnInit {
     if (!s) return;
     const done = () => {
       this.copied.set(true);
-      this.announcer.announce(translate('admin.apiClients.secret.copied'));
+      this.toast.success(translate('admin.apiClients.secret.copied'));
     };
     const fail = () => this.announcer.announce(translate('admin.apiClients.secret.copyFailed'), 'assertive');
     try {
@@ -419,9 +423,17 @@ export class ApiClientsComponent implements OnInit {
     });
   }
 
-  askRevokeKey(key: ApiClientKey): void {
-    this.confirmation.set({ kind: 'key', key });
-    focusAfterRender(this.injector, () => document.getElementById('api-client-confirm-title'));
+  async askRevokeKey(key: ApiClientKey): Promise<void> {
+    this.confirmation.set(null);
+    const confirmed = await this.modal.confirm({
+      title: 'admin.apiClients.detail.keys.confirmTitle',
+      message: 'admin.apiClients.detail.keys.confirmText',
+      params: { prefix: key.prefix },
+      confirmLabel: 'admin.apiClients.detail.keys.confirm',
+      cancelLabel: 'admin.apiClients.detail.keys.keep',
+      tone: 'danger',
+    });
+    if (confirmed) this.confirmRevokeKey(key);
   }
 
   askRevokeClient(): void {
@@ -432,9 +444,8 @@ export class ApiClientsComponent implements OnInit {
   }
 
   cancelConfirmation(): void {
-    const pending = this.confirmation();
     this.confirmation.set(null);
-    focusAfterRender(this.injector, () => document.getElementById(pending?.kind === 'key' ? `api-key-revoke-${pending.key.id}` : 'api-client-revoke'));
+    focusAfterRender(this.injector, () => document.getElementById('api-client-revoke'));
   }
 
   confirmRevokeKey(key: ApiClientKey): void {
@@ -445,9 +456,8 @@ export class ApiClientsComponent implements OnInit {
     this.service.revokeKey(client.id, key.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (updated) => {
         this.acting.set(false);
-        this.confirmation.set(null);
         this.replaceClient(updated);
-        this.announcer.announce(translate('admin.apiClients.detail.keys.revoked', { prefix: key.prefix }));
+        this.toast.success(translate('admin.apiClients.detail.keys.revoked', { prefix: key.prefix }));
         focusAfterRender(this.injector, () => document.getElementById('api-client-keys-title'));
       },
       error: (err) => this.failDetail(err, 'admin.apiClients.detail.keys.revokeError', () => this.acting.set(false)),

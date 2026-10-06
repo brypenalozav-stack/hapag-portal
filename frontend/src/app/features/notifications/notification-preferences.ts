@@ -10,6 +10,7 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
 import { StateMessageComponent, isServiceUnavailable } from '../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../shared/pipes/code-label.pipe';
 import { adminErrorMessage } from '../../shared/administration-errors';
+import { ToastService } from '../../core/services/toast.service';
 
 interface PreferenceGroup {
   module: string;
@@ -31,6 +32,7 @@ interface PreferenceGroup {
 export class NotificationPreferencesComponent implements OnInit {
   private readonly service = inject(NotificationService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly typeKeys = NOTIFICATION_TYPE_KEYS;
@@ -119,7 +121,7 @@ export class NotificationPreferencesComponent implements OnInit {
         this.saving.set(false);
         this.preferences.set(prefs);
         this.pending.set({});
-        this.announcer.announce(translate('notifications.preferences.saved', { count: items.length }));
+        this.toast.success(translate('notifications.preferences.saved', { count: items.length }));
       },
       error: (err) => {
         this.saving.set(false);

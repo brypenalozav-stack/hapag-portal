@@ -22,6 +22,8 @@ import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../shared/pipes/hl-number.pipe';
 import { paymentErrorMessage } from '../../shared/payment-errors';
 import { focusAfterRender } from '../../shared/focus-after-render';
+import { ModalService } from '../../core/services/modal.service';
+import { ToastService } from '../../core/services/toast.service';
 
 /** Estado del cierre de un sub-carro. */
 interface CheckoutState {
@@ -59,8 +61,10 @@ const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'Cart.Conflict', '
 })
 export class CartComponent implements OnInit {
   readonly cartService = inject(CartService);
+  private readonly modal = inject(ModalService);
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -74,7 +78,6 @@ export class CartComponent implements OnInit {
   loadFailed = signal(false);
   actionError = signal('');
   busyItemId = signal<string | null>(null);
-  clearingGroup = signal<string | null>(null);
   private readonly states = signal<Record<string, CheckoutState>>({});
 
   private readonly confirmHeadings = viewChildren<ElementRef<HTMLElement>>('confirmHeading');
@@ -197,7 +200,7 @@ export class CartComponent implements OnInit {
   /** Lleva a la plataforma de pago o a la página del resultado (boleta de depósito, estado). */
   private afterCheckout(result: CheckoutResult): void {
     const payment = result.payment;
-    this.announcer.announce(translate('cart.checkout.created', { number: payment.paymentNumber }));
+    this.toast.success(translate('cart.checkout.created', { number: payment.paymentNumber }));
     this.cartService.refresh();
     const url = result.nextAction === 'Redirect' ? result.redirectUrl : null;
     if (url && /^https?:\/\//i.test(url)) {
@@ -218,7 +221,7 @@ export class CartComponent implements OnInit {
     this.cartService.changeCurrency(item.id, currency).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.busyItemId.set(null);
-        this.announcer.announce(translate('cart.item.converted', { concept: this.conceptLabel(item), currency }));
+        this.toast.success(translate('cart.item.converted', { concept: this.conceptLabel(item), currency }));
       },
       error: (err) => {
         this.busyItemId.set(null);
@@ -230,13 +233,21 @@ export class CartComponent implements OnInit {
     });
   }
 
-  remove(item: CartItem): void {
+  async remove(item: CartItem): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.cartRemove.title',
+      message: 'shared.modal.cartRemove.message',
+      params: { name: this.conceptLabel(item) },
+      confirmLabel: 'shared.modal.cartRemove.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.busyItemId.set(item.id);
     this.actionError.set('');
     this.cartService.removeItem(item.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.busyItemId.set(null);
-        this.announcer.announce(translate('cart.item.removed', { concept: this.conceptLabel(item) }));
+        this.toast.success(translate('cart.item.removed', { concept: this.conceptLabel(item) }));
         focusAfterRender(this.injector, () => document.getElementById('cart-title'));
       },
       error: (err) => {
@@ -248,24 +259,25 @@ export class CartComponent implements OnInit {
     });
   }
 
-  askClear(group: CartGroup): void {
-    this.clearingGroup.set(this.groupKey(group));
-  }
-
-  cancelClear(): void {
-    this.clearingGroup.set(null);
+  async askClear(group: CartGroup): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'cart.group.clearQuestion',
+      params: { currency: group.paymentCurrency },
+      confirmLabel: 'cart.group.clearConfirm',
+      cancelLabel: 'cart.group.clearCancel',
+      tone: 'danger',
+    });
+    if (confirmed) this.clear(group);
   }
 
   clear(group: CartGroup): void {
     this.actionError.set('');
     this.cartService.clear(group.country, group.paymentCurrency).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.clearingGroup.set(null);
-        this.announcer.announce(translate('cart.group.cleared', { currency: group.paymentCurrency }));
+        this.toast.success(translate('cart.group.cleared', { currency: group.paymentCurrency }));
         focusAfterRender(this.injector, () => document.getElementById('cart-title'));
       },
       error: (err) => {
-        this.clearingGroup.set(null);
         const message = paymentErrorMessage(err, 'cart.errors.remove');
         this.actionError.set(message);
         this.announcer.announce(message, 'assertive');

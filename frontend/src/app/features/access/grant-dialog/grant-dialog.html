@@ -1,4 +1,4 @@
-<dialog #grantDialog class="hl-dialog" aria-labelledby="grant-dialog-title" (close)="onClosed()">
+<dialog #grantDialog class="hl-dialog hl-dialog--lg" aria-labelledby="grant-dialog-title" (close)="onClosed()">
   <div class="hl-dialog__header">
     <h2 id="grant-dialog-title" class="h5 fw-bold mb-0">
       {{ (presetBlNumber() ? 'thirdPartyAccess.grantDialog.titleForBl' : 'thirdPartyAccess.grantDialog.title') | transloco: { bl: presetBlNumber() ?? '' } }}

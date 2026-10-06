@@ -18,6 +18,7 @@ import { GuideService } from '../../../core/services/guide.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { Guide, GuideStep } from '../../../core/models/guide.model';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Atributo que marca en la interfaz el elemento que señala un paso (`elementKey` del paso). */
 const GUIDE_ATTRIBUTE = 'data-guide-key';
@@ -66,6 +67,7 @@ export class GuideHostComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly locale = inject(LocaleService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -163,7 +165,7 @@ export class GuideHostComponent implements OnInit {
     const guide = this.active();
     if (!guide) return;
     this.saveState(guide, 'Completed', this.step()?.order);
-    this.announcer.announce(translate('shared.guide.completed', { name: this.name(guide) }));
+    this.toast.success(translate('shared.guide.completed', { name: this.name(guide) }));
     this.teardown();
   }
 

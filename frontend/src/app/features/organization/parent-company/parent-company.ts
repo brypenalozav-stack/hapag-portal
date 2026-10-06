@@ -12,6 +12,8 @@ import { StateMessageComponent } from '../../../shared/components/state-message/
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { adminErrorMessage } from '../../../shared/administration-errors';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 /**
  * Empresa matriz (Fase 2, Ola I, M1-21): la organización solicita vincularse con su matriz (buscándola por RUT o razón
@@ -27,7 +29,9 @@ import { adminErrorMessage } from '../../../shared/administration-errors';
 })
 export class ParentCompanyComponent implements OnInit {
   private readonly service = inject(OrganizationNetworkService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly statusKeys = PARENT_LINK_STATUS_KEYS;
@@ -47,7 +51,6 @@ export class ParentCompanyComponent implements OnInit {
   enableVisibility = true;
   notes = '';
   requestError = signal('');
-  confirmingRemove = signal(false);
 
   /** Se puede pedir una vinculación nueva: sin vínculo o con el anterior rechazado o quitado. */
   canRequest = computed(() => {
@@ -116,7 +119,7 @@ export class ParentCompanyComponent implements OnInit {
         this.search = '';
         this.selectedParentId = '';
         this.notes = '';
-        this.announcer.announce(translate('organization.parentCompany.request.sent', { name: link.parent.name }));
+        this.toast.success(translate('organization.parentCompany.request.sent', { name: link.parent.name }));
         this.load();
       },
       error: (err) => {
@@ -148,12 +151,15 @@ export class ParentCompanyComponent implements OnInit {
     });
   }
 
-  askRemove(): void {
-    this.confirmingRemove.set(true);
-  }
-
-  cancelRemove(): void {
-    this.confirmingRemove.set(false);
+  async askRemove(): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'organization.parentCompany.removeQuestion',
+      params: { name: this.view()?.link?.parent.name ?? '' },
+      confirmLabel: 'organization.parentCompany.removeConfirm',
+      cancelLabel: 'organization.parentCompany.removeCancel',
+      tone: 'danger',
+    });
+    if (confirmed) this.remove();
   }
 
   remove(): void {
@@ -162,8 +168,7 @@ export class ParentCompanyComponent implements OnInit {
     this.service.removeParentLink().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.busy.set(false);
-        this.confirmingRemove.set(false);
-        this.announcer.announce(translate('organization.parentCompany.removed'));
+        this.toast.success(translate('organization.parentCompany.removed'));
         this.load();
       },
       error: (err) => {

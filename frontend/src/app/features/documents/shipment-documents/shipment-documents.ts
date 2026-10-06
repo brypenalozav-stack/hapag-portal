@@ -35,6 +35,7 @@ import { BlCopyDialogComponent } from '../bl-copy-dialog/bl-copy-dialog';
 import { ResponsibilityLetterDialogComponent } from '../responsibility-letter-dialog/responsibility-letter-dialog';
 import { NoDebtCertificateComponent } from '../no-debt-certificate/no-debt-certificate';
 import { FreightCertificatePanelComponent } from '../freight-certificate/freight-certificate-panel';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Diálogo abierto desde la sección. */
 type OpenDialog = 'blCopy' | 'letter' | null;
@@ -66,6 +67,7 @@ export class ShipmentDocumentsComponent {
   private readonly auth = inject(AuthService);
   readonly cart = inject(CartService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   blNumber = input.required<string>();
@@ -176,7 +178,7 @@ export class ShipmentDocumentsComponent {
       next: (blob) => {
         this.busyId.set(null);
         saveBlob(blob, `${item.number}.pdf`);
-        this.announcer.announce(translate('documents.section.downloaded', { number: item.number }));
+        this.toast.success(translate('documents.section.downloaded', { number: item.number }));
       },
       error: (err) => this.fail(err, 'documents.section.downloadError'),
     });
@@ -254,7 +256,7 @@ export class ShipmentDocumentsComponent {
           this.load();
           return;
         }
-        this.announcer.announce(translate('documents.transshipment.created'));
+        this.toast.success(translate('documents.transshipment.created'));
         if (!this.cart.contains('LocalCharge', request.chargeId) && this.cart.cartEnabled()) this.addTransshipmentToCart();
       },
       error: (err) => {

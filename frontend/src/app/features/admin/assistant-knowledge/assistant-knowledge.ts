@@ -19,6 +19,8 @@ import { StateMessageComponent, isServiceUnavailable } from '../../../shared/com
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface ArticleForm {
   country: 'CL' | 'BO';
@@ -53,7 +55,9 @@ function emptyForm(): ArticleForm {
 })
 export class AssistantKnowledgeComponent implements OnInit {
   private readonly service = inject(AssistantService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -203,11 +207,19 @@ export class AssistantKnowledgeComponent implements OnInit {
     });
   }
 
-  deactivate(article: KnowledgeArticle): void {
+  async deactivate(article: KnowledgeArticle): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.deactivate.title',
+      message: 'shared.modal.deactivate.message',
+      params: { name: article.title },
+      confirmLabel: 'shared.modal.deactivate.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.actionError.set('');
     this.service.deactivateArticle(article.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.announcer.announce(translate('admin.assistantKnowledge.list.deactivated', { title: article.title }));
+        this.toast.success(translate('admin.assistantKnowledge.list.deactivated', { title: article.title }));
         this.search();
       },
       error: (err) => {

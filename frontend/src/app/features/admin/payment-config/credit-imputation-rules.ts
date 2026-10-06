@@ -21,6 +21,8 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ChangeLogComponent } from './change-log';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface RuleForm {
   country: string;
@@ -62,8 +64,10 @@ function emptyForm(country: string): RuleForm {
 })
 export class CreditImputationRulesComponent implements OnInit {
   private readonly service = inject(PaymentConfigService);
+  private readonly modal = inject(ModalService);
   private readonly tariffs = inject(TariffService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -215,11 +219,19 @@ export class CreditImputationRulesComponent implements OnInit {
     });
   }
 
-  remove(rule: CreditImputationRule): void {
+  async remove(rule: CreditImputationRule): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.remove.title',
+      message: 'shared.modal.remove.message',
+      params: { name: this.conceptName(rule) },
+      confirmLabel: 'shared.modal.remove.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.actionError.set('');
     this.service.deleteCreditImputationRule(rule.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.announcer.announce(translate('admin.creditRules.removed', { concept: this.conceptName(rule) }));
+        this.toast.success(translate('admin.creditRules.removed', { concept: this.conceptName(rule) }));
         this.load();
       },
       error: (err) => {

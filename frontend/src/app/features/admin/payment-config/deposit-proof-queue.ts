@@ -15,6 +15,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { saveBlob } from '../../../shared/save-blob';
+import { ToastService } from '../../../core/services/toast.service';
 
 type Decision = 'verify' | 'reject';
 
@@ -35,6 +36,7 @@ export class DepositProofQueueComponent implements OnInit {
   private readonly service = inject(PaymentConfigService);
   private readonly proofs = inject(DepositProofService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -93,7 +95,7 @@ export class DepositProofQueueComponent implements OnInit {
       next: (blob) => {
         this.downloading.set(null);
         saveBlob(blob, item.proof.fileName);
-        this.announcer.announce(translate('admin.depositProofs.downloaded', { name: item.proof.fileName }));
+        this.toast.success(translate('admin.depositProofs.downloaded', { name: item.proof.fileName }));
       },
       error: (err) => {
         this.downloading.set(null);

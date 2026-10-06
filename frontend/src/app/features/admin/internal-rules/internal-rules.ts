@@ -19,6 +19,8 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { RuleSnapshotComponent } from './rule-snapshot';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface RuleForm {
   ruleType: InternalChargeRuleType;
@@ -66,7 +68,9 @@ function emptyForm(): RuleForm {
 })
 export class InternalRulesComponent implements OnInit {
   private readonly service = inject(TariffService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -228,11 +232,19 @@ export class InternalRulesComponent implements OnInit {
     });
   }
 
-  deactivate(rule: InternalChargeRule): void {
+  async deactivate(rule: InternalChargeRule): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.deactivate.title',
+      message: 'shared.modal.deactivate.message',
+      params: { name: this.accountOf(rule) },
+      confirmLabel: 'shared.modal.deactivate.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.actionError.set('');
     this.service.deactivateRule(rule.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.announcer.announce(translate('admin.internalRules.list.deactivated', { account: this.accountOf(rule) }));
+        this.toast.success(translate('admin.internalRules.list.deactivated', { account: this.accountOf(rule) }));
         this.search();
       },
       error: (err) => {

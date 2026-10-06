@@ -31,6 +31,8 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { TariffSnapshotComponent } from './tariff-snapshot';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Tramo en edición: los números llegan como texto desde los campos. */
 interface TierRow {
@@ -102,7 +104,9 @@ function toNumber(text: string): number {
 })
 export class TariffEditorComponent implements OnInit {
   private readonly service = inject(TariffService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -226,12 +230,12 @@ export class TariffEditorComponent implements OnInit {
     this.tiers = [...this.tiers, { key: this.nextKey++, fromUnit: nextFrom, toUnit: '', amount: '' }];
     const index = this.tiers.length - 1;
     focusAfterRender(this.injector, () => document.getElementById(`tariff-tier-from-${index}`));
-    this.announcer.announce(translate('admin.tariffs.editor.tiers.added', { number: this.tiers.length }));
+    this.toast.success(translate('admin.tariffs.editor.tiers.added', { number: this.tiers.length }));
   }
 
   removeTier(index: number): void {
     this.tiers = this.tiers.filter((_, i) => i !== index);
-    this.announcer.announce(translate('admin.tariffs.editor.tiers.removed', { number: index + 1 }));
+    this.toast.success(translate('admin.tariffs.editor.tiers.removed', { number: index + 1 }));
     focusAfterRender(this.injector, () => document.getElementById('tariff-add-tier'));
   }
 
@@ -333,7 +337,14 @@ export class TariffEditorComponent implements OnInit {
   }
 
   /** Desactiva la tarifa; queda en el registro de cambios (NF-15). */
-  deactivate(): void {
+  async deactivate(): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.deactivateCurrent.title',
+      message: 'shared.modal.deactivateCurrent.message',
+      confirmLabel: 'shared.modal.deactivateCurrent.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     const id = this.id();
     if (!id) return;
     this.deactivating.set(true);
@@ -341,7 +352,7 @@ export class TariffEditorComponent implements OnInit {
     this.service.deactivateTariff(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.deactivating.set(false);
-        this.announcer.announce(translate('admin.tariffs.editor.deactivated'));
+        this.toast.success(translate('admin.tariffs.editor.deactivated'));
         this.load();
       },
       error: (err) => {
