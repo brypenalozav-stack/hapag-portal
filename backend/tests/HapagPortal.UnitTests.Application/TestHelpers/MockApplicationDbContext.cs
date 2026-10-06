@@ -46,6 +46,16 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<AuditLog> AuditLogList { get; } = [];
     public List<TaxConfiguration> TaxConfigurationList { get; } = [];
     public List<Currency> CurrencyList { get; } = [];
+    public List<ChargeConcept> ChargeConceptList { get; } = [];
+    public List<Tariff> TariffList { get; } = [];
+    public List<TariffTier> TariffTierList { get; } = [];
+    public List<MaintainerChangeLog> MaintainerChangeLogList { get; } = [];
+    public List<InternalChargeRule> InternalChargeRuleList { get; } = [];
+    public List<AppliedExemption> AppliedExemptionList { get; } = [];
+    public List<ExchangeRateRecord> ExchangeRateRecordList { get; } = [];
+    public List<WarehouseChangeBatch> WarehouseChangeBatchList { get; } = [];
+    public List<WarehouseChangeBatchItem> WarehouseChangeBatchItemList { get; } = [];
+    public List<BusinessHoliday> BusinessHolidayList { get; } = [];
 
     public DbSet<Client> Clients => MockDbSetHelper.CreateMockDbSet(ClientList);
     public DbSet<User> Users => MockDbSetHelper.CreateMockDbSet(UserList);
@@ -87,6 +97,16 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<AuditLog> AuditLogs => MockDbSetHelper.CreateMockDbSet(AuditLogList);
     public DbSet<TaxConfiguration> TaxConfigurations => MockDbSetHelper.CreateMockDbSet(TaxConfigurationList);
     public DbSet<Currency> Currencies => MockDbSetHelper.CreateMockDbSet(CurrencyList);
+    public DbSet<ChargeConcept> ChargeConcepts => MockDbSetHelper.CreateMockDbSet(ChargeConceptList);
+    public DbSet<Tariff> Tariffs => MockDbSetHelper.CreateMockDbSet(TariffList);
+    public DbSet<TariffTier> TariffTiers => MockDbSetHelper.CreateMockDbSet(TariffTierList);
+    public DbSet<MaintainerChangeLog> MaintainerChangeLogs => MockDbSetHelper.CreateMockDbSet(MaintainerChangeLogList);
+    public DbSet<InternalChargeRule> InternalChargeRules => MockDbSetHelper.CreateMockDbSet(InternalChargeRuleList);
+    public DbSet<AppliedExemption> AppliedExemptions => MockDbSetHelper.CreateMockDbSet(AppliedExemptionList);
+    public DbSet<ExchangeRateRecord> ExchangeRateRecords => MockDbSetHelper.CreateMockDbSet(ExchangeRateRecordList);
+    public DbSet<WarehouseChangeBatch> WarehouseChangeBatches => MockDbSetHelper.CreateMockDbSet(WarehouseChangeBatchList);
+    public DbSet<WarehouseChangeBatchItem> WarehouseChangeBatchItems => MockDbSetHelper.CreateMockDbSet(WarehouseChangeBatchItemList);
+    public DbSet<BusinessHoliday> BusinessHolidays => MockDbSetHelper.CreateMockDbSet(BusinessHolidayList);
 
     public int SaveChangesCallCount { get; private set; }
 

@@ -252,6 +252,81 @@ public static class DomainErrors
     {
         public static Error NotFound(Guid id) =>
             new("WarehouseChange.NotFound", $"The warehouse change with ID '{id}' was not found.");
+
+        public static Error ContainerNotFound(string containerNumber) =>
+            new("WarehouseChange.ContainerNotFound", $"The container '{containerNumber}' does not belong to the bill of lading.");
+
+        public static Error BatchNotFound(Guid id) =>
+            new("WarehouseChangeBatch.NotFound", $"The bulk warehouse change request '{id}' was not found.");
+
+        public static readonly Error SameWarehouse =
+            new("WarehouseChange.SameWarehouse", "The destination warehouse must be different from the current one.");
+    }
+
+    public static class ChargeConcept
+    {
+        public static Error NotFound(string code) =>
+            new("ChargeConcept.NotFound", $"The charge concept '{code}' was not found.");
+    }
+
+    public static class Tariff
+    {
+        public static Error NotFound(Guid id) =>
+            new("Tariff.NotFound", $"The tariff with ID '{id}' was not found.");
+
+        public static Error NotInForce(string concept, string country) =>
+            new("Tariff.NotInForce", $"There is no tariff in force for '{concept}' in '{country}'.");
+
+        public static Error InvalidTiers(string reason) =>
+            new("Tariff.InvalidTiers", reason);
+
+        public static readonly Error Overlaps =
+            new("Tariff.Overlaps", "Another active tariff with the same concept, country, currency, container type and code overlaps this validity.");
+
+        public static readonly Error NotCovered =
+            new("Tariff.NotCovered", "The measured value falls outside the tariff tiers.");
+    }
+
+    public static class InternalChargeRule
+    {
+        public static Error NotFound(Guid id) =>
+            new("InternalChargeRule.NotFound", $"The internal charge rule with ID '{id}' was not found.");
+
+        public static readonly Error MissingIdentifier =
+            new("InternalChargeRule.MissingIdentifier", "The rule must identify the account by tax ID or Match Code.");
+    }
+
+    public static class ChargeRules
+    {
+        public static readonly Error ConditionsUnavailable =
+            new("ChargeRules.ConditionsUnavailable", "The commercial conditions could not be read from Nexus. Try again later.");
+
+        public static readonly Error NoChargesToApply =
+            new("ChargeRules.NoChargesToApply", "The bill of lading has no pending charges to apply rules to.");
+    }
+
+    public static class Demurrage
+    {
+        public static readonly Error InvoiceExists =
+            new("Demurrage.InvoiceExists", "The bill of lading already has a demurrage invoice; pay the invoice instead of recalculating.");
+
+        public static readonly Error NotImport =
+            new("Demurrage.NotImport", "Demurrage applies only to import bills of lading.");
+
+        public static readonly Error NotArrived =
+            new("Demurrage.NotArrived", "The bill of lading has no discharge date yet.");
+
+        public static readonly Error AdvanceNotRequired =
+            new("Demurrage.AdvanceNotRequired", "The account is not subject to advance demurrage.");
+    }
+
+    public static class ExchangeRate
+    {
+        public static Error NotAvailable(string from, string to, DateOnly date) =>
+            new("ExchangeRate.NotFound", $"There is no exchange rate {from}->{to} for {date:yyyy-MM-dd}.");
+
+        public static Error NotApproved(string from, string to) =>
+            new("ExchangeRate.NotApproved", $"The exchange rate {from}->{to} is not approved for transactions.");
     }
 
     public static class Customs

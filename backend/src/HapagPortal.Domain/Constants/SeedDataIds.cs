@@ -155,6 +155,41 @@ public static class SeedDataIds
     public static readonly Guid DemoAccessAudit04 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000034");
     public static readonly Guid DemoAccessAudit05 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000035");
 
+    // Fase 1 Ola C — reglas de cobro, tarifas y demurrage por estado
+    public static readonly Guid CreditDemoClient = Guid.Parse("C3D4E5F6-0003-0003-0003-000000000060");
+    public static readonly Guid CreditDemoUser = Guid.Parse("D4E5F6A7-0004-0004-0004-000000000060");
+    public static readonly Guid FfwwDemoClient = Guid.Parse("C3D4E5F6-0003-0003-0003-000000000070");
+    public static readonly Guid FfwwDemoUser = Guid.Parse("D4E5F6A7-0004-0004-0004-000000000070");
+    public static readonly Guid BL09 = Guid.Parse("11111111-0007-0007-0007-000000000009");
+    public static readonly Guid BL10 = Guid.Parse("11111111-0007-0007-0007-000000000010");
+    public static readonly Guid BL11 = Guid.Parse("11111111-0007-0007-0007-000000000011");
+    public static readonly Guid Container11 = Guid.Parse("22222222-0008-0008-0008-000000000011");
+    public static readonly Guid Container12 = Guid.Parse("22222222-0008-0008-0008-000000000012");
+    public static readonly Guid Container13 = Guid.Parse("22222222-0008-0008-0008-000000000013");
+    public static readonly Guid Container14 = Guid.Parse("22222222-0008-0008-0008-000000000014");
+    public static readonly Guid BL10MasterConsignee = Guid.Parse("DDDDDDDD-0013-0013-0013-000000000001");
+    public static readonly Guid Demurrage04 = Guid.Parse("44444444-000A-000A-000A-000000000004");
+    public static readonly Guid LocalCharge13 = Guid.Parse("33333333-0009-0009-0009-000000000013");
+    public static readonly Guid LocalCharge14 = Guid.Parse("33333333-0009-0009-0009-000000000014");
+    public static readonly Guid LocalCharge15 = Guid.Parse("33333333-0009-0009-0009-000000000015");
+    public static readonly Guid LocalCharge16 = Guid.Parse("33333333-0009-0009-0009-000000000016");
+    public static readonly Guid LocalCharge17 = Guid.Parse("33333333-0009-0009-0009-000000000017");
+    public static readonly Guid LocalCharge18 = Guid.Parse("33333333-0009-0009-0009-000000000018");
+    public static readonly Guid LocalCharge19 = Guid.Parse("33333333-0009-0009-0009-000000000019");
+    public static readonly Guid LocalCharge20 = Guid.Parse("33333333-0009-0009-0009-000000000020");
+    public static readonly Guid LocalCharge21 = Guid.Parse("33333333-0009-0009-0009-000000000021");
+    public static readonly Guid LocalCharge22 = Guid.Parse("33333333-0009-0009-0009-000000000022");
+    public static readonly Guid TariffKteCL = Guid.Parse("EEEEEEEE-0014-0014-0014-000000000001");
+    public static readonly Guid TariffKtfCL = Guid.Parse("EEEEEEEE-0014-0014-0014-000000000002");
+    public static readonly Guid TariffWarehouseChangeBO = Guid.Parse("EEEEEEEE-0014-0014-0014-000000000003");
+    public static readonly Guid TariffLateArrivalCL = Guid.Parse("EEEEEEEE-0014-0014-0014-000000000004");
+    public static readonly Guid TariffDemurrageCL20 = Guid.Parse("EEEEEEEE-0014-0014-0014-000000000005");
+    public static readonly Guid TariffDemurrageCL = Guid.Parse("EEEEEEEE-0014-0014-0014-000000000006");
+    public static readonly Guid TariffDemurrageBO = Guid.Parse("EEEEEEEE-0014-0014-0014-000000000007");
+    public static readonly Guid TariffAdvanceDemurrageBO = Guid.Parse("EEEEEEEE-0014-0014-0014-000000000008");
+    public static readonly Guid RuleFreeWarehouseChangeCL = Guid.Parse("EEEEEEEE-0015-0015-0015-000000000001");
+    public static readonly Guid RuleAdvanceDemurrageBO = Guid.Parse("EEEEEEEE-0015-0015-0015-000000000002");
+
     // Audit Logs
     public static readonly Guid AuditLog01 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000001");
     public static readonly Guid AuditLog02 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000002");

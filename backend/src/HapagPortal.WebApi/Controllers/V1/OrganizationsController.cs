@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.ChargeRules.Conditions;
 using HapagPortal.Application.Organizations.Documents;
 using HapagPortal.Application.Organizations.GetMine;
 using HapagPortal.Application.Organizations.JoinRequests;
@@ -25,6 +26,14 @@ public sealed class OrganizationsController : ApiController
     public async Task<IActionResult> GetMine(CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetMyOrganizationQuery(), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Condición de crédito y de FFWW autorizado de la organización, leídas de Nexus (M8-02, M8-03).</summary>
+    [HttpGet("me/commercial-conditions")]
+    public async Task<IActionResult> GetCommercialConditions(CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetMyCommercialConditionsQuery(), cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 

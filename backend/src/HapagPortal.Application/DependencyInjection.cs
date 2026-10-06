@@ -1,7 +1,12 @@
 namespace HapagPortal.Application;
 
 using FluentValidation;
+using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Access;
+using HapagPortal.Application.Demurrage.Common;
+using HapagPortal.Application.ExchangeRates.Common;
+using HapagPortal.Application.Tariffs.Common;
+using HapagPortal.Application.WarehouseChanges.Common;
 using HapagPortal.Application.Common.Behaviors;
 using HapagPortal.Application.Common.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +20,14 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(assembly);
 
         services.AddScoped<IShipmentAccessEvaluator, ShipmentAccessEvaluator>();
+
+        // Fase 1 Ola C: reglas de cobro, tarifas, tipo de cambio, demurrage y cambio de almacén.
+        services.AddScoped<IChargeRulesService, ChargeRulesService>();
+        services.AddScoped<ITariffResolver, TariffResolver>();
+        services.AddScoped<IExchangeRateService, ExchangeRateService>();
+        services.AddScoped<IResponsibilityLetterStatus, PendingResponsibilityLetterStatus>();
+        services.AddScoped<DemurrageStatusBuilder>();
+        services.AddScoped<WarehouseChangeService>();
 
         services.AddMediatR(config =>
         {

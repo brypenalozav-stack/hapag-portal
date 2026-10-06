@@ -33,6 +33,10 @@ public sealed class AuditableEntityInterceptor(ICurrentUserService currentUserSe
         if (context.ChangeTracker.Entries<AccessAuditEntry>().Any(e => e.State is EntityState.Modified or EntityState.Deleted))
             throw new InvalidOperationException("Access audit entries are append-only and cannot be modified or deleted.");
 
+        // NF-15: el registro de cambios de los mantenedores también es append-only.
+        if (context.ChangeTracker.Entries<MaintainerChangeLog>().Any(e => e.State is EntityState.Modified or EntityState.Deleted))
+            throw new InvalidOperationException("Maintainer change log entries are append-only and cannot be modified or deleted.");
+
         var now = DateTime.UtcNow;
         var userId = currentUserService.UserId?.ToString() ?? "system";
 

@@ -33,6 +33,9 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 // Vencimiento automático de accesos a terceros y mandatos (M1-14, M1-03).
 builder.Services.AddHostedService<AccessGrantExpiryWorker>();
 
+// Solicitudes masivas de cambio de almacén en segundo plano (M3-05, NF-19).
+builder.Services.AddHostedService<WarehouseChangeBatchWorker>();
+
 // Controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

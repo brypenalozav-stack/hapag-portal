@@ -45,6 +45,16 @@ public interface IApplicationDbContext
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<TaxConfiguration> TaxConfigurations { get; }
     DbSet<Currency> Currencies { get; }
+    DbSet<ChargeConcept> ChargeConcepts { get; }
+    DbSet<Tariff> Tariffs { get; }
+    DbSet<TariffTier> TariffTiers { get; }
+    DbSet<MaintainerChangeLog> MaintainerChangeLogs { get; }
+    DbSet<InternalChargeRule> InternalChargeRules { get; }
+    DbSet<AppliedExemption> AppliedExemptions { get; }
+    DbSet<ExchangeRateRecord> ExchangeRateRecords { get; }
+    DbSet<WarehouseChangeBatch> WarehouseChangeBatches { get; }
+    DbSet<WarehouseChangeBatchItem> WarehouseChangeBatchItems { get; }
+    DbSet<BusinessHoliday> BusinessHolidays { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
