@@ -27,6 +27,7 @@ async function abrir(page: Page, ruta: string, opciones: OpcionesOlaD = {}): Pro
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
 }
 
 test('agregar un cargo al carro con el RUT de facturación elegido (M5-01, M5-09)', async ({ page }) => {

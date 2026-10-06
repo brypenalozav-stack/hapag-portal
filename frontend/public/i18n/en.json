@@ -6519,7 +6519,8 @@
         "chargesTariffs": "Charges & tariffs",
         "paymentsConfig": "Payments",
         "assistant": "Assistant"
-      }
+      },
+      "preferences": "Preferences"
     }
   },
   "shipments": {

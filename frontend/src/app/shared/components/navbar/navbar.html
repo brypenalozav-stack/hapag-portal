@@ -1,4 +1,4 @@
-<div class="navbar navbar-dark fixed-top hl-navbar px-3">
+<div class="navbar navbar-dark fixed-top hl-navbar px-3 flex-nowrap">
   <div class="d-flex align-items-center gap-3">
     <!-- Mobile hamburger -->
     @if (auth.isAuthenticated()) {
@@ -15,7 +15,12 @@
     <!-- Logo -->
     <a class="navbar-brand mb-0 d-flex align-items-center gap-2" routerLink="/dashboard"
        [attr.aria-label]="'shared.navbar.home' | transloco">
-      <svg viewBox="0 0 280 50" xmlns="http://www.w3.org/2000/svg" height="32" aria-hidden="true" focusable="false">
+      <!-- En pantallas chicas, solo el símbolo: la barra cabe en una línea -->
+      <svg class="d-sm-none" viewBox="0 0 44 50" xmlns="http://www.w3.org/2000/svg" height="32" aria-hidden="true" focusable="false">
+        <rect x="0" y="3" width="44" height="44" rx="6" class="hl-logo__mark"/>
+        <text x="22" y="34" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="22" class="hl-logo__initials">HL</text>
+      </svg>
+      <svg class="d-none d-sm-block" viewBox="0 0 280 50" xmlns="http://www.w3.org/2000/svg" height="32" aria-hidden="true" focusable="false">
         <rect x="0" y="3" width="44" height="44" rx="6" class="hl-logo__mark"/>
         <text x="22" y="34" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="22" class="hl-logo__initials">HL</text>
         <text x="54" y="24" font-family="Montserrat, sans-serif" font-weight="700" font-size="18" class="hl-logo__name">Hapag-Lloyd</text>
@@ -24,7 +29,9 @@
     </a>
   </div>
 
-  <div class="d-flex align-items-center gap-3">
+  <div class="d-flex align-items-center gap-2 gap-sm-3">
+    <!-- Tema e idioma: con sesión, en pantallas angostas pasan a "Preferencias" del panel lateral (app-main-nav) -->
+    <div class="hl-navbar__prefs d-flex align-items-center gap-3" [class.hl-navbar__prefs--collapsible]="auth.isAuthenticated()">
     <!-- Selector de tema (M11-07): claro, oscuro o el del sistema operativo -->
     <div class="d-flex align-items-center gap-2">
       <label for="hl-theme" class="hl-navbar__label d-none d-xl-inline">{{ 'shared.navbar.theme.label' | transloco }}</label>
@@ -44,6 +51,7 @@
       <button type="button" class="btn btn-outline-light hl-lang-btn" lang="en"
               [class.active]="locale.lang() === 'en'" [attr.aria-pressed]="locale.lang() === 'en'"
               [attr.aria-label]="'shared.navbar.language.en' | transloco" (click)="locale.setLang('en')">EN</button>
+    </div>
     </div>
 
     @if (auth.isAuthenticated()) {

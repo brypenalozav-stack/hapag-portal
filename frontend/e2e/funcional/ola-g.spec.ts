@@ -327,7 +327,9 @@ test('Dashboard y Mis solicitudes: acceso rápido, filtro por estado y envío de
   const servicios = page.getByRole('navigation', { name: '¿Qué necesita hacer?' });
   await expect(servicios.getByRole('link', { name: /Solicitar un servicio/ })).toHaveAttribute('href', '/service-requests/new');
 
-  await page.getByRole('link', { name: 'Mis solicitudes' }).click();
+  const menu = page.getByRole('navigation', { name: 'Menú principal' });
+  await menu.getByRole('button', { name: 'Servicios' }).click();
+  await menu.getByRole('link', { name: 'Mis solicitudes' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mis solicitudes');
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
   await expect(page.getByTestId('request-row-SRV-20261005-5E1A0005')).toContainText('Rechazada');

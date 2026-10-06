@@ -4,13 +4,14 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angu
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AdminUserService } from '../../../core/services/admin-user.service';
 import { AdminUser, RoleOption } from '../../../core/models/admin-user.model';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
+import { SortHeaderComponent, SortState, sortParams } from '../../../shared/components/sort-header/sort-header';
+import { TableSkeletonComponent } from '../../../shared/components/table-skeleton/table-skeleton';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, TranslocoPipe, LoadingSpinnerComponent, PaginatorComponent],
+  imports: [FormsModule, ReactiveFormsModule, TranslocoPipe, PaginatorComponent, SortHeaderComponent, TableSkeletonComponent],
   templateUrl: './users.html',
   styles: [':host { display: block; }'],
 })
@@ -24,6 +25,8 @@ export class UsersComponent implements OnInit {
   total = signal(0);
   page = signal(1);
   pageSize = signal(10);
+  /** Orden por columna; `null` es el orden por defecto del servidor. */
+  sort = signal<SortState | null>(null);
   loading = signal(false);
   error = signal('');
 
@@ -64,6 +67,7 @@ export class UsersComponent implements OnInit {
       search: this.searchTerm || undefined,
       page: this.page(),
       pageSize: this.pageSize(),
+      ...sortParams(this.sort()),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.users.set(res.items);
@@ -78,6 +82,13 @@ export class UsersComponent implements OnInit {
   }
 
   onFilterChange(): void {
+    this.page.set(1);
+    this.load();
+  }
+
+  /** Otro orden vuelve a la primera página. */
+  onSort(sort: SortState | null): void {
+    this.sort.set(sort);
     this.page.set(1);
     this.load();
   }

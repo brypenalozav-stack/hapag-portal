@@ -31,14 +31,19 @@
 <div class="hl-card">
   @if (error()) { <div class="alert alert-danger py-2 m-3" role="alert">{{ error() }}</div> }
   @if (loading()) {
-    <app-loading-spinner />
+    <app-table-skeleton [columns]="6" />
   } @else {
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.audit.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.audit.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'admin.audit.col.date' | transloco }}</th><th scope="col">{{ 'admin.audit.col.entity' | transloco }}</th><th scope="col">{{ 'admin.audit.col.id' | transloco }}</th><th scope="col">{{ 'admin.audit.col.action' | transloco }}</th><th scope="col">{{ 'admin.audit.col.user' | transloco }}</th><th scope="col"><span class="visually-hidden">{{ 'admin.audit.col.changes' | transloco }}</span></th>
+            <th scope="col" appSortHeader="timestamp" [sort]="sort()" (sortChange)="onSort($event)">{{ 'admin.audit.col.date' | transloco }}</th>
+            <th scope="col" appSortHeader="entityName" [sort]="sort()" (sortChange)="onSort($event)">{{ 'admin.audit.col.entity' | transloco }}</th>
+            <th scope="col">{{ 'admin.audit.col.id' | transloco }}</th>
+            <th scope="col" appSortHeader="action" [sort]="sort()" (sortChange)="onSort($event)">{{ 'admin.audit.col.action' | transloco }}</th>
+            <th scope="col" appSortHeader="userId" [sort]="sort()" (sortChange)="onSort($event)">{{ 'admin.audit.col.user' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.audit.col.changes' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>

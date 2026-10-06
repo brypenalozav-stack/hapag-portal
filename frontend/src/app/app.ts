@@ -1,10 +1,10 @@
-import { Component, DOCUMENT, inject, signal } from '@angular/core';
+import { Component, DOCUMENT, effect, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from './core/services/auth.service';
 import { LiveAnnouncerService } from './core/services/live-announcer.service';
 import { NavbarComponent } from './shared/components/navbar/navbar';
-import { SidebarComponent } from './shared/components/sidebar/sidebar';
+import { MainNavComponent } from './shared/components/main-nav/main-nav';
 import { AssistantComponent } from './shared/components/assistant/assistant';
 import { ThemeService } from './core/services/theme.service';
 import { GuideHostComponent } from './shared/components/guide/guide-host';
@@ -17,7 +17,7 @@ import { ToastHostComponent } from './shared/components/toast-host/toast-host';
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet, TranslocoPipe, NavbarComponent, SidebarComponent, AssistantComponent, GuideHostComponent, ImpersonationBannerComponent, GlobalLoaderComponent, ModalHostComponent, ToastHostComponent,
+    RouterOutlet, TranslocoPipe, NavbarComponent, MainNavComponent, AssistantComponent, GuideHostComponent, ImpersonationBannerComponent, GlobalLoaderComponent, ModalHostComponent, ToastHostComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -29,6 +29,11 @@ export class AppComponent {
   /** Tema claro u oscuro (M11-07): se aplica desde el arranque, con o sin sesión. */
   readonly theme = inject(ThemeService);
   sidebarOpen = signal(false);
+
+  constructor() {
+    // Con sesión, el encabezado de escritorio suma la barra del menú principal (--navbar-height en styles.scss).
+    effect(() => this.document.documentElement.classList.toggle('hl-has-mainnav', this.auth.isAuthenticated()));
+  }
 
   toggleSidebar(): void {
     this.sidebarOpen.update((v) => !v);

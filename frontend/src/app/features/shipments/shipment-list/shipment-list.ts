@@ -16,16 +16,20 @@ import {
 import { AuthService } from '../../../core/services/auth.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { CountryBadgeComponent } from '../../../shared/components/country-badge/country-badge';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { AccessSourceBadgeComponent } from '../../../shared/components/access-source-badge/access-source-badge';
 import { OrganizationNetworkService } from '../../../core/services/organization-network.service';
 import { ParentLinkOrganization } from '../../../core/models/organization-network.model';
 import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
+import { SortHeaderComponent, SortState, sortParams } from '../../../shared/components/sort-header/sort-header';
+import { TableSkeletonComponent } from '../../../shared/components/table-skeleton/table-skeleton';
 
 /** Filtros de texto del listado (M2-06), reflejados en los query params. */
 const TEXT_FILTERS = ['blNumber', 'bookingNumber', 'vessel', 'voyage', 'status'] as const;
+
+/** Columnas ordenables del listado (lista blanca del servidor); el orden viaja en los query params `sort` y `dir`. */
+const SORTABLE_COLUMNS = ['blNumber', 'bookingNumber', 'vessel', 'voyage', 'status', 'operation', 'country'];
 
 /** Valor del query param `operation` cuando el usuario elige ver ambas operaciones. */
 const ALL_OPERATIONS = 'ALL';
@@ -49,8 +53,8 @@ const DEFAULT_PAGE_SIZE = 20;
   standalone: true,
   imports: [
     ReactiveFormsModule, RouterLink, TranslocoPipe, CodeLabelPipe,
-    StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
-    AccessSourceBadgeComponent, PaginatorComponent,
+    StatusBadgeComponent, CountryBadgeComponent, StateMessageComponent,
+    AccessSourceBadgeComponent, PaginatorComponent, SortHeaderComponent, TableSkeletonComponent,
   ],
   templateUrl: './shipment-list.html',
   styles: [':host { display: block; }'],
@@ -104,6 +108,8 @@ export class ShipmentListComponent {
   total = signal(0);
   page = signal(1);
   pageSize = signal(DEFAULT_PAGE_SIZE);
+  /** Orden por columna; `null` es el orden por defecto del servidor. */
+  sort = signal<SortState | null>(null);
   loading = signal(true);
   error = signal('');
   /** NF-11: la última consulta falló con HTTP 5xx o sin conexión. */
@@ -139,6 +145,7 @@ export class ShipmentListComponent {
       operation: this.operation(),
       page: this.page(),
       pageSize: this.pageSize(),
+      ...sortParams(this.sort()),
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
@@ -193,12 +200,19 @@ export class ShipmentListComponent {
     this.navigate(1, size);
   }
 
-  private navigate(page: number, pageSize = this.pageSize()): void {
+  /** Otro orden vuelve a la primera página. */
+  onSort(sort: SortState | null): void {
+    this.navigate(1, this.pageSize(), sort);
+  }
+
+  private navigate(page: number, pageSize = this.pageSize(), sort = this.sort()): void {
     const raw = this.filters.getRawValue();
     const queryParams: Record<string, string | number | null> = {
       operation: this.operation() || ALL_OPERATIONS,
       page: page > 1 ? page : null,
       pageSize: pageSize !== DEFAULT_PAGE_SIZE ? pageSize : null,
+      sort: sort?.column ?? null,
+      dir: sort?.direction ?? null,
       country: raw.country || null,
       published: this.auth.isInternal() && raw.published ? raw.published : null,
       organizationId: raw.organizationId || null,
@@ -209,7 +223,7 @@ export class ShipmentListComponent {
     this.router.navigate([], { relativeTo: this.route, queryParams });
   }
 
-  /** Lee filtros, página y operación de la URL; sin `operation`, aplica la selección guardada. */
+  /** Lee filtros, página, orden y operación de la URL; sin `operation`, aplica la selección guardada. */
   private applyParams(params: ParamMap): void {
     const operation = params.get('operation');
     if (operation === 'IMPORT' || operation === 'EXPORT') {
@@ -235,5 +249,8 @@ export class ShipmentListComponent {
     this.page.set(Number.isInteger(page) && page > 0 ? page : 1);
     const pageSize = Number(params.get('pageSize'));
     this.pageSize.set(Number.isInteger(pageSize) && pageSize > 0 && pageSize <= 100 ? pageSize : DEFAULT_PAGE_SIZE);
+    const sort = params.get('sort');
+    const dir = params.get('dir');
+    this.sort.set(sort && SORTABLE_COLUMNS.includes(sort) ? { column: sort, direction: dir === 'desc' ? 'desc' : 'asc' } : null);
   }
 }

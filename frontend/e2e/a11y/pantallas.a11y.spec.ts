@@ -1085,6 +1085,7 @@ async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opc
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
 }
 

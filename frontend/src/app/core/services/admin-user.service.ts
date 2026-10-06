@@ -9,6 +9,9 @@ export interface SearchUsersParams {
   search?: string;
   page?: number;
   pageSize?: number;
+  /** Orden por columna (lista blanca del servidor); sin `sort`, el orden por defecto. */
+  sort?: string;
+  direction?: 'asc' | 'desc';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,6 +25,8 @@ export class AdminUserService {
     if (params.search) query['search'] = params.search;
     query['page'] = params.page ?? 1;
     query['pageSize'] = params.pageSize ?? 10;
+    if (params.sort) query['sort'] = params.sort;
+    if (params.direction) query['direction'] = params.direction;
     return this.api.get<PagedResult<AdminUser>>('users', query);
   }
 

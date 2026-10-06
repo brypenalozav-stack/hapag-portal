@@ -61,13 +61,20 @@
   --hl-input-bg: #{t.$hl-white};
   --hl-emphasis: #{t.$hl-dark};
   --hl-link: #{t.$hl-orange-700};
-  --sidebar-width: 260px;
-  --navbar-height: 60px;
+  // Encabezado: barra superior (logo y utilidades) y, con sesión en escritorio, la barra del menú principal.
+  --topbar-height: 60px;
+  --mainnav-height: 48px;
+  --navbar-height: var(--topbar-height);
 }
 
-// Foco blanco sobre la barra de navegación y el menú lateral (fondo $hl-dark)
-.hl-navbar,
-.hl-sidebar {
+@media (min-width: 992px) {
+  :root.hl-has-mainnav {
+    --navbar-height: calc(var(--topbar-height) + var(--mainnav-height));
+  }
+}
+
+// Foco blanco sobre la barra superior (fondo $hl-dark)
+.hl-navbar {
   --hl-focus: #{t.$hl-white};
 }
 
@@ -155,7 +162,7 @@ h1, h2, h3, h4, h5, h6 {
 // Navbar
 .hl-navbar {
   background-color: var(--hl-dark);
-  height: var(--navbar-height);
+  height: var(--topbar-height);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 1030;
 
@@ -199,82 +206,10 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Sidebar
-.hl-sidebar {
-  background-color: var(--hl-dark);
-  width: var(--sidebar-width);
-  min-height: calc(100vh - var(--navbar-height));
-  position: fixed;
-  top: var(--navbar-height);
-  // Anclado abajo para que el menú se desplace cuando no cabe (el de los perfiles internos es largo).
-  bottom: 0;
-  left: 0;
-  z-index: 1020;
-  overflow-y: auto;
-  transition: transform 0.3s ease;
-
-  .sidebar-nav {
-    padding: 1rem 0;
-  }
-
-  .sidebar-section-title {
-    color: rgba(255, 255, 255, 0.7); // 6,02:1 sobre $hl-dark (WCAG 1.4.3)
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 0.75rem 1.25rem 0.5rem;
-    margin-top: 0.5rem;
-  }
-
-  .sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.65rem 1.25rem;
-    color: rgba(255, 255, 255, 0.75);
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.2s;
-    border-left: 3px solid transparent;
-
-    svg {
-      width: 18px;
-      height: 18px;
-      flex-shrink: 0;
-      opacity: 0.7;
-    }
-
-    &:hover {
-      color: var(--hl-white);
-      background-color: rgba(255, 255, 255, 0.06);
-      border-left-color: var(--hl-green);
-
-      svg {
-        opacity: 1;
-      }
-    }
-
-    &.active {
-      color: var(--hl-white);
-      background-color: rgba(255, 255, 255, 0.1);
-      border-left-color: var(--hl-orange);
-
-      svg {
-        opacity: 1;
-      }
-    }
-  }
-}
-
-// Main content
 .hl-main-content {
-  margin-left: var(--sidebar-width);
   margin-top: var(--navbar-height);
   padding: 1.5rem;
   min-height: calc(100vh - var(--navbar-height));
-  transition: margin-left 0.3s ease;
 }
 
 // Cards
@@ -769,8 +704,6 @@ $hl-ship-mask: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vie
   font-size: 0.8rem;
   padding: 1rem 1.5rem;
   text-align: center;
-  margin-left: var(--sidebar-width);
-  transition: margin-left 0.3s ease;
 }
 
 // Page header
@@ -790,28 +723,6 @@ $hl-ship-mask: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vie
   }
 }
 
-// Responsive
-@media (max-width: 991.98px) {
-  // Cerrado, el menú lateral queda fuera de la pantalla y fuera del orden de foco (visibility).
-  .hl-sidebar {
-    transform: translateX(-100%);
-    visibility: hidden;
-    transition: transform 0.3s ease, visibility 0.3s;
-
-    &.show {
-      transform: translateX(0);
-      visibility: visible;
-    }
-  }
-
-  .hl-main-content {
-    margin-left: 0;
-  }
-
-  .hl-footer {
-    margin-left: 0;
-  }
-}
 
 // Scrollbar
 ::-webkit-scrollbar {

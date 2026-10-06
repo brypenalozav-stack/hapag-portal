@@ -27,6 +27,7 @@ async function abrir(page: Page, ruta: string): Promise<void> {
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
 }
 
 async function abrirAsistente(page: Page) {
@@ -235,7 +236,9 @@ test('el selector de tema aplica data-bs-theme y la preferencia persiste (M11-07
 
 test('el enlace de Dispute abre el sitio externo en una pestaña nueva (M2-05)', async ({ page }) => {
   await abrir(page, '/dashboard');
-  const enlace = page.getByRole('navigation', { name: 'Menú principal' })
+  const menu = page.getByRole('navigation', { name: 'Menú principal' });
+  await menu.getByRole('button', { name: 'Servicios' }).click();
+  const enlace = menu
     .getByRole('link', { name: 'Dispute de productos digitales (se abre en una pestaña nueva)' });
   await expect(enlace).toHaveAttribute('href', URL_DISPUTE);
   await expect(enlace).toHaveAttribute('target', '_blank');
@@ -281,6 +284,7 @@ test('el administrador filtra los BL no publicados y ve el motivo (M2-01)', asyn
   await sembrarSesionAdmin(page, 'es');
   await page.goto('/shipments');
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
 
   await page.getByLabel('Publicación').selectOption('false');
   const consulta = page.waitForRequest((r) => r.url().includes('/api/v1/shipments?') && r.url().includes('published=false'));

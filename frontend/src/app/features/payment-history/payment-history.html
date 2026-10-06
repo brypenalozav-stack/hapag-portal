@@ -38,7 +38,7 @@
 }
 
 @if (loading()) {
-  <app-loading-spinner />
+  <app-table-skeleton [columns]="10" />
 } @else if (loadFailed()) {
   <app-state-message kind="error" (retry)="search(page())" />
 } @else if (error()) {
@@ -53,12 +53,12 @@
           <caption class="visually-hidden">{{ 'paymentHistory.caption' | transloco }}</caption>
           <thead>
             <tr>
-              <th scope="col">{{ 'paymentHistory.col.document' | transloco }}</th>
-              <th scope="col">{{ 'paymentHistory.col.date' | transloco }}</th>
-              <th scope="col">{{ 'paymentHistory.col.status' | transloco }}</th>
+              <th scope="col" appSortHeader="paymentNumber" [sort]="sort()" (sortChange)="onSort($event)">{{ 'paymentHistory.col.document' | transloco }}</th>
+              <th scope="col" appSortHeader="paymentDate" [sort]="sort()" (sortChange)="onSort($event)">{{ 'paymentHistory.col.date' | transloco }}</th>
+              <th scope="col" appSortHeader="status" [sort]="sort()" (sortChange)="onSort($event)">{{ 'paymentHistory.col.status' | transloco }}</th>
               <th scope="col">{{ 'paymentHistory.col.method' | transloco }}</th>
-              <th scope="col">{{ 'paymentHistory.col.currency' | transloco }}</th>
-              <th scope="col" class="text-end">{{ 'paymentHistory.col.total' | transloco }}</th>
+              <th scope="col" appSortHeader="currency" [sort]="sort()" (sortChange)="onSort($event)">{{ 'paymentHistory.col.currency' | transloco }}</th>
+              <th scope="col" class="text-end" appSortHeader="totalAmount" [sort]="sort()" (sortChange)="onSort($event)">{{ 'paymentHistory.col.total' | transloco }}</th>
               <th scope="col">{{ 'paymentHistory.col.payer' | transloco }}</th>
               <th scope="col">{{ 'paymentHistory.col.billing' | transloco }}</th>
               <th scope="col">{{ 'paymentHistory.col.reference' | transloco }}</th>

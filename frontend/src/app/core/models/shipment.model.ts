@@ -196,6 +196,9 @@ export interface ShipmentSearch {
   organizationId?: string;
   page?: number;
   pageSize?: number;
+  /** Orden por columna (lista blanca del servidor); sin `sort`, el orden por defecto. */
+  sort?: string;
+  direction?: 'asc' | 'desc';
 }
 
 /** Códigos de acción de la matriz de M1-11 que habilitan botones en el detalle. */

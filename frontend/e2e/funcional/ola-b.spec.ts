@@ -32,6 +32,7 @@ async function abrirConSesion(page: Page, ruta: string, lang: 'es' | 'en' = 'es'
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
 }
 
 /** Busca y elige al destinatario en el selector del flujo único. */

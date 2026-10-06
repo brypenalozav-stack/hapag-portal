@@ -104,7 +104,7 @@
 }
 
 @if (loading()) {
-  <app-loading-spinner />
+  <app-table-skeleton [columns]="9" />
 } @else if (loadFailed()) {
   <app-state-message kind="error" (retry)="load()" />
 } @else if (shipments().length === 0) {
@@ -116,13 +116,13 @@
         <caption class="visually-hidden">{{ 'shipments.list.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'shipments.list.col.blNumber' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.bookingNumber' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.vessel' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.voyage' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.status' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.operation' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.country' | transloco }}</th>
+            <th scope="col" appSortHeader="blNumber" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.blNumber' | transloco }}</th>
+            <th scope="col" appSortHeader="bookingNumber" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.bookingNumber' | transloco }}</th>
+            <th scope="col" appSortHeader="vessel" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.vessel' | transloco }}</th>
+            <th scope="col" appSortHeader="voyage" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.voyage' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="operation" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.operation' | transloco }}</th>
+            <th scope="col" appSortHeader="country" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.country' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.issuance' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.accessSource' | transloco }}</th>
             @if (showOrigin()) {

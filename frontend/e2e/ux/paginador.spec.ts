@@ -40,6 +40,7 @@ async function abrirEmbarques(page: Page): Promise<URL[]> {
   await sembrarSesion(page, { lang: 'es' });
   await page.goto('/shipments');
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
   return consultas;
 }
 

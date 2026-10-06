@@ -36,6 +36,7 @@ async function ir(page: Page, ruta: string): Promise<void> {
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
 }
 
 test('estado de cuenta: resumen, antigüedad, filtros y exportación con los filtros aplicados (M7-03)', async ({ page }) => {

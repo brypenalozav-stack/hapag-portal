@@ -97,16 +97,16 @@
   <div class="p-3 border-bottom fw-semibold">{{ 'admin.users.table.title' | transloco }}</div>
   @if (error()) { <div class="alert alert-danger py-2 m-3" role="alert">{{ error() }}</div> }
   @if (loading()) {
-    <app-loading-spinner />
+    <app-table-skeleton [columns]="4" />
   } @else {
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.users.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.users.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col" style="width: 120px;">{{ 'admin.users.col.id' | transloco }}</th>
-            <th scope="col">{{ 'admin.users.col.fullName' | transloco }}</th>
-            <th scope="col">{{ 'admin.users.col.email' | transloco }}</th>
+            <th scope="col" style="width: 120px;" appSortHeader="displayId" [sort]="sort()" (sortChange)="onSort($event)">{{ 'admin.users.col.id' | transloco }}</th>
+            <th scope="col" appSortHeader="name" [sort]="sort()" (sortChange)="onSort($event)">{{ 'admin.users.col.fullName' | transloco }}</th>
+            <th scope="col" appSortHeader="email" [sort]="sort()" (sortChange)="onSort($event)">{{ 'admin.users.col.email' | transloco }}</th>
             <th scope="col">{{ 'admin.users.col.roles' | transloco }}</th>
           </tr>
         </thead>

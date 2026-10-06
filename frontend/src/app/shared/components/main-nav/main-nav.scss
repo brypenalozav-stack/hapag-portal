@@ -1,0 +1,314 @@
+:host {
+  display: contents;
+}
+
+// ---------- Escritorio: barra y paneles desplegables ----------
+.hl-mainnav {
+  position: fixed;
+  top: var(--topbar-height);
+  right: 0;
+  left: 0;
+  z-index: 1029;
+  height: var(--mainnav-height);
+  border-bottom: 1px solid var(--hl-border);
+  background-color: var(--bs-body-bg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.hl-mainnav__bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+  height: 100%;
+  margin: 0;
+  padding: 0 1.25rem;
+  list-style: none;
+}
+
+// Posición estática: el panel se ancla al ancho completo de la barra, no al ítem.
+.hl-mainnav__item {
+  display: flex;
+}
+
+.hl-mainnav__top {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 1rem;
+  border: 0;
+  background: none;
+  color: var(--bs-body-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+
+  // Subrayado naranja: grupo de la página actual, panel abierto y puntero encima.
+  &::after {
+    position: absolute;
+    right: 1rem;
+    bottom: 0;
+    left: 1rem;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background-color: var(--hl-orange);
+    content: '';
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+  }
+
+  &:hover::after,
+  &.is-open::after {
+    transform: scaleX(0.6);
+  }
+
+  &.is-active::after {
+    transform: scaleX(1);
+  }
+
+  &.is-active {
+    color: var(--hl-emphasis);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--hl-focus);
+    outline-offset: -4px;
+  }
+}
+
+.hl-mainnav__chevron {
+  transition: transform 0.2s ease;
+
+  [aria-expanded='true'] > & {
+    transform: rotate(180deg);
+  }
+}
+
+.hl-mega {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  max-height: calc(100dvh - var(--navbar-height) - 2rem);
+  overflow-y: auto;
+  border-bottom: 1px solid var(--hl-border);
+  background-color: var(--bs-body-bg);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.14);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-0.5rem);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0s linear 0.2s;
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+}
+
+.hl-mega__inner {
+  display: grid;
+  grid-template-columns: minmax(10rem, 14rem) 1fr;
+  gap: 2rem;
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 2rem;
+}
+
+.hl-mega__title {
+  align-self: start;
+  margin: 0;
+  padding-left: 0.75rem;
+  border-left: 4px solid var(--hl-orange);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.hl-mega__columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem 1.5rem;
+
+  // Grupo de una sola columna: los destinos se reparten en varias columnas.
+  &:not(.hl-mega__columns--multi) .hl-mega__links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 0.25rem 1rem;
+  }
+}
+
+.hl-mega__col-title {
+  margin: 0 0 0.5rem;
+  padding: 0 0.75rem;
+  color: var(--hl-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hl-mega__links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hl-mega-backdrop {
+  position: fixed;
+  inset: var(--navbar-height) 0 0;
+  z-index: 1028;
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s ease,
+    visibility 0s linear 0.2s;
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+}
+
+// ---------- Móvil: panel lateral con acordeón ----------
+.hl-drawer {
+  --hl-focus: var(--hl-white);
+  position: fixed;
+  top: var(--navbar-height);
+  bottom: 0;
+  left: 0;
+  z-index: 1020;
+  width: min(20rem, 85vw);
+  overflow-y: auto;
+  padding: 0.5rem 0 1.5rem;
+  background-color: var(--hl-dark);
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition:
+    transform 0.3s ease,
+    visibility 0s linear 0.3s;
+
+  &.show {
+    transform: none;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+}
+
+.hl-drawer__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid transparent;
+  background: none;
+  color: var(--hl-white);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+
+  &.is-active {
+    border-left-color: var(--hl-orange);
+  }
+}
+
+// Preferencias del panel: solo cuando la barra superior las oculta (< 768 px).
+.hl-drawer__prefs {
+  margin-top: 1rem;
+  padding: 0.75rem 1.25rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+
+  .hl-drawer__col-title {
+    padding: 0;
+  }
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.hl-drawer__label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--hl-white);
+  font-size: 0.85rem;
+}
+
+// Acordeón animado: la fila pasa de 0fr a 1fr.
+.hl-drawer__section {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 0.25s ease,
+    visibility 0s linear 0.25s;
+
+  > * {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  &.is-open {
+    grid-template-rows: 1fr;
+    visibility: visible;
+    transition-delay: 0s;
+    padding: 0.25rem 0 0.5rem;
+  }
+}
+
+.hl-drawer__col-title {
+  margin: 0.5rem 0 0.25rem;
+  padding: 0 1.25rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hl-drawer-backdrop {
+  position: fixed;
+  inset: var(--navbar-height) 0 0;
+  z-index: 1019;
+  padding: 0;
+  border: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: default;
+}
+
+@media (max-width: 991.98px) {
+  .hl-mainnav,
+  .hl-mega-backdrop {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .hl-drawer,
+  .hl-drawer-backdrop {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-mega,
+  .hl-mega-backdrop,
+  .hl-drawer,
+  .hl-drawer__section,
+  .hl-mainnav__top::after,
+  .hl-mainnav__chevron {
+    transition: none;
+  }
+}

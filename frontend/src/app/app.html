@@ -2,10 +2,13 @@
 
 <header>
   <app-navbar [sidebarOpen]="sidebarOpen()" (toggleSidebar)="toggleSidebar()" />
+  @if (auth.isAuthenticated()) {
+    <!-- Menú principal: paneles desplegables en escritorio, panel lateral #hl-sidebar en móvil -->
+    <app-main-nav [mobileOpen]="sidebarOpen()" (closed)="closeSidebar()" />
+  }
 </header>
 
 @if (auth.isAuthenticated()) {
-  <app-sidebar [isOpen]="sidebarOpen()" (closed)="closeSidebar()" />
 
   <main id="contenido-principal" class="hl-main-content" tabindex="-1">
     <!-- Vista como cliente (M8-08): banner permanente mientras dura la sesión de impersonación -->

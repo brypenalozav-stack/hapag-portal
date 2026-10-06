@@ -24,4 +24,7 @@ export interface AuditSearchParams {
   to?: string;
   page?: number;
   pageSize?: number;
+  /** Orden por columna (lista blanca del servidor); sin `sort`, el orden por defecto. */
+  sort?: string;
+  direction?: 'asc' | 'desc';
 }

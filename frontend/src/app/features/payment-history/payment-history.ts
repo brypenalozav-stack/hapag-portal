@@ -8,7 +8,6 @@ import { LiveAnnouncerService } from '../../core/services/live-announcer.service
 import { PagedResult } from '../../core/models/admin-user.model';
 import { PaymentHistoryItem } from '../../core/models/payment.model';
 import { PAYMENT_STATUS_CLASS, PAYMENT_STATUS_KEYS } from '../../core/i18n/labels';
-import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
@@ -16,6 +15,8 @@ import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../shared/payment-errors';
 import { saveBlob } from '../../shared/save-blob';
 import { PaginatorComponent } from '../../shared/components/paginator/paginator';
+import { SortHeaderComponent, SortState, sortParams } from '../../shared/components/sort-header/sort-header';
+import { TableSkeletonComponent } from '../../shared/components/table-skeleton/table-skeleton';
 
 const PAGE_SIZE = 20;
 
@@ -42,7 +43,10 @@ function emptyFilters(): HistoryFilters {
 @Component({
   selector: 'app-payment-history',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent],
+  imports: [
+    FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, StateMessageComponent, PaginatorComponent,
+    SortHeaderComponent, TableSkeletonComponent,
+  ],
   templateUrl: './payment-history.html',
   styles: [':host { display: block; }'],
 })
@@ -59,6 +63,8 @@ export class PaymentHistoryComponent implements OnInit {
   pageSize = signal(PAGE_SIZE);
   /** Con el tamaño por defecto y una sola página se muestra solo el total. */
   readonly defaultPageSize = PAGE_SIZE;
+  /** Orden por columna; `null` es el orden por defecto del servidor. */
+  sort = signal<SortState | null>(null);
   result = signal<PagedResult<PaymentHistoryItem> | null>(null);
   loading = signal(true);
   loadFailed = signal(false);
@@ -79,7 +85,7 @@ export class PaymentHistoryComponent implements OnInit {
     this.loading.set(true);
     this.loadFailed.set(false);
     this.error.set('');
-    this.service.search({ ...this.filters, page, pageSize: this.pageSize() }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.search({ ...this.filters, page, pageSize: this.pageSize(), ...sortParams(this.sort()) }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.result.set(result);
         this.loading.set(false);
@@ -95,6 +101,12 @@ export class PaymentHistoryComponent implements OnInit {
   /** Otro tamaño de página vuelve a la primera página. */
   changePageSize(size: number): void {
     this.pageSize.set(size);
+    this.search(1);
+  }
+
+  /** Otro orden vuelve a la primera página. */
+  onSort(sort: SortState | null): void {
+    this.sort.set(sort);
     this.search(1);
   }
 
