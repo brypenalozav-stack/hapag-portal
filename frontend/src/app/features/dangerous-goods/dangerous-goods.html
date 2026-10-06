@@ -1,0 +1,102 @@
+<div class="hl-page-header">
+  <h1>{{ 'dangerousGoods.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'dangerousGoods.subtitle' | transloco }}</p>
+</div>
+
+<form class="hl-card p-4 mb-4" role="search" novalidate [attr.aria-label]="'dangerousGoods.form.label' | transloco" (submit)="search($event)">
+  <label for="dg-query" class="form-label small fw-semibold">{{ 'dangerousGoods.form.query' | transloco }}</label>
+  <div class="d-flex flex-wrap gap-2">
+    <input #queryInput id="dg-query" type="search" class="form-control w-auto flex-grow-1" required autocomplete="off"
+           [attr.maxlength]="maxLength" aria-describedby="dg-query-help dg-query-error"
+           [class.is-invalid]="!!queryError()" [attr.aria-invalid]="queryError() ? true : null"
+           [value]="query()" (input)="onQuery($event)" />
+    <button type="submit" class="btn btn-hl-orange" [disabled]="searching()">{{ 'dangerousGoods.form.submit' | transloco }}</button>
+  </div>
+  <div id="dg-query-help" class="form-text">{{ 'dangerousGoods.form.help' | transloco }}</div>
+  <div id="dg-query-error">
+    @if (queryError(); as key) {
+      <div class="invalid-feedback d-block">{{ key | transloco: { min: minLength } }}</div>
+    }
+  </div>
+</form>
+
+@if (searching()) {
+  <app-loading-spinner />
+} @else if (searchFailed()) {
+  <app-state-message kind="error" (retry)="search()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (result(); as r) {
+  <section class="hl-card mb-4" aria-labelledby="dg-result-title" data-testid="dg-result">
+    <div class="card-header p-3">
+      <h2 #resultHeading id="dg-result-title" class="section-title" tabindex="-1">{{ 'dangerousGoods.result.title' | transloco: { query: r.query } }}</h2>
+    </div>
+    <div class="p-3">
+      <!-- El resultado se dice de forma explícita, también cuando no hay clasificación (M10-06) -->
+      @switch (r.resultCode) {
+        @case ('CLASSIFIED') {
+          <p class="fw-semibold mb-1" data-testid="dg-result-code">{{ 'dangerousGoods.result.classified' | transloco }}</p>
+        }
+        @case ('NOT_CLASSIFIED') {
+          <div class="alert alert-info mb-2" role="note" data-testid="dg-result-code">{{ 'dangerousGoods.result.notClassifiedDetail' | transloco }}</div>
+        }
+        @default {
+          <div class="alert alert-secondary mb-2" role="note" data-testid="dg-result-code">{{ 'dangerousGoods.result.noMatchDetail' | transloco }}</div>
+        }
+      }
+      <p class="small mb-0" lang="es">{{ r.message }}</p>
+    </div>
+    @if (r.items.length > 0) {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'dangerousGoods.result.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'dangerousGoods.result.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'dangerousGoods.result.col.unNumber' | transloco }}</th>
+              <th scope="col">{{ 'dangerousGoods.result.col.name' | transloco }}</th>
+              <th scope="col">{{ 'dangerousGoods.result.col.class' | transloco }}</th>
+              <th scope="col">{{ 'dangerousGoods.result.col.subsidiaryRisk' | transloco }}</th>
+              <th scope="col">{{ 'dangerousGoods.result.col.packingGroup' | transloco }}</th>
+              <th scope="col">{{ 'dangerousGoods.result.col.notes' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of r.items; track item.id) {
+              <tr [attr.data-testid]="'dg-item-' + (item.unNumber ?? item.id)">
+                <td class="fw-semibold">{{ item.unNumber ?? '—' }}</td>
+                <td>{{ name(item) }}</td>
+                <td>
+                  @if (item.classified) {
+                    @if (item.hazardClass) {
+                      {{ 'dangerousGoods.result.classValue' | transloco: { code: item.hazardClass, name: className(item) ?? '' } }}
+                    } @else {
+                      <span aria-hidden="true">—</span>
+                    }
+                  } @else {
+                    {{ 'dangerousGoods.result.notClassifiedCell' | transloco }}
+                  }
+                </td>
+                <td>{{ item.subsidiaryRisk ?? '—' }}</td>
+                <td>{{ item.packingGroup ?? '—' }}</td>
+                <td>
+                  @if (item.notes) {
+                    <span lang="es">{{ item.notes }}</span>
+                  } @else {
+                    <span aria-hidden="true">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+    <!-- Carácter informativo: no es una aprobación operacional (M10-06) -->
+    <div class="p-3 border-top">
+      <p class="small mb-1" data-testid="dg-disclaimer"><strong>{{ 'dangerousGoods.result.disclaimerTitle' | transloco }}</strong> {{ 'dangerousGoods.result.disclaimer' | transloco }}</p>
+      <p class="small text-muted mb-0" lang="es">{{ r.disclaimer }} {{ r.dataSource }}</p>
+    </div>
+  </section>
+} @else {
+  <p class="small text-muted" data-testid="dg-disclaimer-initial">{{ 'dangerousGoods.result.disclaimer' | transloco }}</p>
+}

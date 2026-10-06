@@ -135,6 +135,135 @@
       "subtitle": "Base level of visibility and actions by role (M1-11). Changes apply immediately on the server.",
       "title": "Access matrix"
     },
+    "assistantKnowledge": {
+      "form": {
+        "articleTitle": "Title (required)",
+        "cancel": "Cancel",
+        "content": "Content (required)",
+        "contentHelp": "{{ count }} of {{ max }} characters. Use line breaks and hyphen lists to structure the answer.",
+        "country": "Country",
+        "create": "Create article",
+        "createTitle": "New article",
+        "created": "Article “{{ title }}” created.",
+        "editTitle": "Edit article",
+        "errors": {
+          "contentRequired": "Enter the article content.",
+          "contentTooLong": "The content exceeds {{ max }} characters.",
+          "sortInvalid": "Enter the order as a whole number from 0 to 9999.",
+          "submit": "The article could not be saved. Try again.",
+          "summaryTitle": "Check the following fields",
+          "titleRequired": "Enter the article title."
+        },
+        "keywords": "Keywords (optional)",
+        "keywordsHelp": "Comma separated. They help find the article when the question uses other words, for example: warehouse, transfer, depot.",
+        "save": "Save changes",
+        "sortOrder": "Order (required)",
+        "sortOrderHelp": "Whole number; lower numbers are offered first.",
+        "topic": "Topic",
+        "updated": "Article “{{ title }}” updated."
+      },
+      "history": {
+        "caption": "Article change log",
+        "close": "Close log",
+        "col": {
+          "action": "Action",
+          "current": "New value",
+          "date": "Date",
+          "previous": "Previous value",
+          "user": "User"
+        },
+        "empty": "The article has no recorded changes.",
+        "title": "Change log of “{{ title }}”"
+      },
+      "list": {
+        "caption": "Knowledge base articles",
+        "col": {
+          "actions": "Actions",
+          "country": "Country",
+          "sortOrder": "Order",
+          "status": "Status",
+          "title": "Title",
+          "topic": "Topic"
+        },
+        "deactivate": "Deactivate",
+        "deactivateError": "The article could not be deactivated. Try again.",
+        "deactivateLabel": "Deactivate the article “{{ title }}”",
+        "deactivated": "Article “{{ title }}” deactivated.",
+        "edit": "Edit",
+        "editLabel": "Edit the article “{{ title }}”",
+        "empty": "There are no articles for the selected filters.",
+        "filters": {
+          "allCountries": "All countries",
+          "allTopics": "All topics",
+          "clear": "Clear",
+          "country": "Country",
+          "includeInactive": "Include deactivated",
+          "label": "Knowledge base filters",
+          "search": "Search",
+          "topic": "Topic"
+        },
+        "history": "Log",
+        "historyLabel": "Change log of the article “{{ title }}”",
+        "keywords": "Keywords: {{ keywords }}",
+        "loadError": "The articles could not be loaded.",
+        "new": "New article"
+      },
+      "snapshot": {
+        "header": "{{ country }} · {{ topic }} · order {{ order }}",
+        "none": "No previous value"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Deactivated"
+      },
+      "subtitle": "Articles about processes and procedures that the assistant returns as written, by country. The assistant does not write its own answers: anything not covered here is referred to the mailbox.",
+      "title": "Assistant knowledge base"
+    },
+    "assistantMailboxes": {
+      "form": {
+        "active": "Active",
+        "cancel": "Cancel",
+        "country": "Country",
+        "createTitle": "New mailbox",
+        "editTitle": "Edit mailbox",
+        "email": "Mailbox e-mail (required)",
+        "errors": {
+          "emailInvalid": "Enter a valid e-mail, for example clservice@hapag-lloyd.com.",
+          "emailRequired": "Enter the mailbox e-mail.",
+          "submit": "The mailbox could not be saved. Try again.",
+          "summaryTitle": "Check the following fields"
+        },
+        "help": "Saving creates the mailbox for the selected country and topic or replaces the existing one.",
+        "notes": "Notes (optional)",
+        "save": "Save mailbox",
+        "saved": "Mailbox for {{ country }}, topic {{ topic }}, saved.",
+        "topic": "Topic"
+      },
+      "list": {
+        "caption": "Assistant referral mailboxes",
+        "col": {
+          "actions": "Actions",
+          "country": "Country",
+          "email": "E-mail",
+          "modified": "Last change",
+          "notes": "Notes",
+          "status": "Status",
+          "topic": "Topic"
+        },
+        "edit": "Edit",
+        "editLabel": "Edit the mailbox for {{ country }}, topic {{ topic }}",
+        "empty": "No mailboxes are configured.",
+        "loadError": "The mailboxes could not be loaded.",
+        "modifiedValue": "{{ user }}, {{ date }}",
+        "new": "New mailbox"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Deactivated"
+      },
+      "subtitle": "Mailboxes the assistant refers unanswered questions to, by country and topic. A topic without a mailbox uses the General one.",
+      "title": "Assistant mailboxes"
+    },
     "audit": {
       "action": "Action",
       "actions": {
@@ -273,6 +402,33 @@
         "transmitBl": "Transmit B/L",
         "transmitHeader": "Transmit header"
       }
+    },
+    "dangerousGoodsImport": {
+      "form": {
+        "columns": "Header (separated by semicolon or comma); the first four columns are required:",
+        "errors": {
+          "fileRequired": "Select the CSV file to load.",
+          "submit": "The file could not be loaded. Try again.",
+          "tooLarge": "The file exceeds the 5 MB limit."
+        },
+        "file": "CSV file (required)",
+        "help": "UTF-8 CSV. The classified column accepts true or false; false records the cargo as not classified.",
+        "sending": "Loading {{ name }}…",
+        "submit": "Load file",
+        "title": "Classification file"
+      },
+      "result": {
+        "announce": "Load finished: {{ created }} created, {{ updated }} updated and {{ skipped }} skipped.",
+        "caption": "Skipped rows and reason",
+        "col": {
+          "line": "Line",
+          "reason": "Reason"
+        },
+        "summary": "{{ total }} rows read: {{ created }} created, {{ updated }} updated and {{ skipped }} skipped.",
+        "title": "Load result"
+      },
+      "subtitle": "Loads the classification list used by the dangerous goods (DG) search from a CSV file. An existing row (same UN number and English name) is updated.",
+      "title": "Dangerous goods reference base"
     },
     "deadlines": {
       "col": {
@@ -834,6 +990,88 @@
       "new": "New method",
       "subtitle": "Methods available by country and currency (M5-03): online with their platform, or deposit with payment slip.",
       "title": "Payment methods"
+    },
+    "publicationRules": {
+      "form": {
+        "cancel": "Cancel",
+        "country": "Country",
+        "create": "Create rule",
+        "createTitle": "New publication rule",
+        "created": "Rule for destination {{ code }} created.",
+        "description": "Description (optional)",
+        "destination": "Final destination, UN/LOCODE (required)",
+        "destinationName": "Destination name (optional)",
+        "editTitle": "Edit publication rule",
+        "errors": {
+          "destinationInvalid": "Enter the final destination as a 5-character UN/LOCODE, for example CLANF.",
+          "destinationRequired": "Enter the final destination.",
+          "portInvalid": "Enter the port of discharge as a 5-character UN/LOCODE, for example CLSAI, or leave it empty.",
+          "portSameAsDestination": "The port of discharge must differ from the final destination.",
+          "submit": "The rule could not be saved. Try again.",
+          "summaryTitle": "Check the following fields"
+        },
+        "locodeHelp": "UN/LOCODE: two letters for the country and three characters for the location, for example CLANF (Antofagasta) or CLSAI (San Antonio).",
+        "port": "Port of discharge, UN/LOCODE (optional)",
+        "portHelp": "Empty = any port of discharge.",
+        "save": "Save changes",
+        "updated": "Rule for destination {{ code }} updated."
+      },
+      "history": {
+        "caption": "Rule change log",
+        "close": "Close log",
+        "col": {
+          "action": "Action",
+          "current": "New value",
+          "date": "Date",
+          "previous": "Previous value",
+          "user": "User"
+        },
+        "empty": "The rule has no recorded changes.",
+        "title": "Change log of rule {{ rule }}"
+      },
+      "list": {
+        "anyPort": "Any port",
+        "caption": "Publication rules by DIFU of final destination",
+        "col": {
+          "actions": "Actions",
+          "country": "Country",
+          "description": "Description",
+          "destination": "Final destination",
+          "modified": "Last change",
+          "port": "Port of discharge",
+          "status": "Status"
+        },
+        "deactivate": "Deactivate",
+        "deactivateError": "The rule could not be deactivated. Try again.",
+        "deactivateLabel": "Deactivate rule {{ rule }}",
+        "deactivated": "Rule {{ rule }} deactivated.",
+        "edit": "Edit",
+        "editLabel": "Edit rule {{ rule }}",
+        "empty": "There are no rules for the selected filters.",
+        "filters": {
+          "allCountries": "All countries",
+          "clear": "Clear",
+          "country": "Country",
+          "includeInactive": "Include deactivated",
+          "label": "Publication rule filters",
+          "search": "Search"
+        },
+        "history": "Log",
+        "historyLabel": "Change log of rule {{ rule }}",
+        "loadError": "The publication rules could not be loaded.",
+        "modifiedValue": "{{ user }}, {{ date }}",
+        "new": "New rule"
+      },
+      "snapshot": {
+        "none": "No previous value",
+        "rule": "{{ country }}: destination {{ destination }}, discharge {{ port }}"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Deactivated"
+      },
+      "subtitle": "Bills of lading of the country with the given final destination (and discharged at the port, if set) are published to customers only if the source system reports a DIFU associated with that destination. Unpublished ones are reviewed in Shipments with the publication filter.",
+      "title": "DIFU publication rules"
     },
     "reports": {
       "caption": "Report results",
@@ -1548,6 +1786,25 @@
       "paid": "Paid",
       "pending": "Pending"
     },
+    "issuanceStatus": {
+      "authorizedAtDestination": "Issuance authorized at destination",
+      "cancelled": "Cancelled",
+      "issued": "Issued",
+      "issuedAtDestination": "Issued at destination",
+      "pending": "Pending issuance",
+      "surrendered": "Surrendered",
+      "telexReleased": "Telex released",
+      "transferred": "Transferred",
+      "unknown": "Unrecognized status"
+    },
+    "knowledgeTopic": {
+      "commercial": "Commercial",
+      "demurrage": "Demurrage",
+      "documentation": "Documentation",
+      "general": "General",
+      "payments": "Payments",
+      "shipping": "Shipments"
+    },
     "maintainerAction": {
       "created": "Created",
       "deactivated": "Deactivated",
@@ -1593,6 +1850,10 @@
       "invoice": "Invoice",
       "localCharge": "Local charge",
       "warehouseChange": "Warehouse change"
+    },
+    "payableStatus": {
+      "overdue": "Overdue",
+      "pending": "Pending"
     },
     "paymentErrors": {
       "alreadyCancelled": "The payment is already cancelled.",
@@ -1674,6 +1935,30 @@
       "pendingVerification": "Payment slip issued, under verification",
       "processing": "Processing at the payment platform"
     },
+    "portalErrors": {
+      "articleNotFound": "The article no longer exists.",
+      "blNotFound": "We could not find the BL or you do not have access to it.",
+      "forbidden": "Your profile does not allow this action.",
+      "invalidImport": "The file is not valid: check the header and that it is not empty.",
+      "noRecipient": "There is no e-mail to send the transcript to. Enter another e-mail.",
+      "publicationRuleExists": "An active rule already exists for that country, final destination and port of discharge.",
+      "publicationRuleNotFound": "The rule no longer exists.",
+      "rateLimited": "You sent too many messages in a short time. Wait a moment and try again.",
+      "sessionEnded": "The conversation has ended. Start a new one to keep asking.",
+      "sessionExpired": "The conversation expired due to inactivity. Start a new one to keep asking.",
+      "sessionNotFound": "The conversation is no longer available. Start a new one.",
+      "sourceUnavailable": "The source system did not respond. Try again in a few minutes.",
+      "tatcBatchNotFound": "We could not find that TATC request.",
+      "tatcNoValidItems": "None of the bills of lading in the list can be included in the TATC request.",
+      "tatcNotApplicable": "The TATC applies only to import shipments."
+    },
+    "publicationReason": {
+      "difuAssociated": "Published: DIFU associated with the final destination",
+      "difuMissing": "Not published: the final destination DIFU is missing",
+      "difuOtherLocation": "Not published: the DIFU belongs to another location",
+      "noRule": "Published: no rule for the destination",
+      "sameAsDischarge": "Published: destination equals the port of discharge"
+    },
     "reconciliationStatus": {
       "matched": "Reconciled",
       "missingReceipt": "Receipt missing",
@@ -1683,6 +1968,32 @@
     "relatedDocumentKind": {
       "invoice": "Invoice",
       "receipt": "Receipt"
+    },
+    "requestKind": {
+      "blCopy": "BL copy",
+      "charges": "Local charges",
+      "demurrage": "Demurrage",
+      "documents": "Documents",
+      "invoice": "Invoice",
+      "responsibilityLetter": "Letter of indemnity",
+      "serviceOrder": "Service order",
+      "shipment": "Shipment",
+      "tatcBatch": "Bulk TATC request",
+      "warehouseChange": "Warehouse change",
+      "warehouseChangeBatch": "Bulk warehouse change"
+    },
+    "requestStatus": {
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "completedWithErrors": "Completed with errors",
+      "failed": "Failed",
+      "inProgress": "In progress",
+      "issued": "Issued",
+      "pending": "Pending",
+      "processing": "Processing",
+      "queued": "Queued",
+      "requested": "Requested",
+      "superseded": "Superseded"
     },
     "requirementStatus": {
       "fulfilled": "fulfilled",
@@ -1716,6 +2027,17 @@
       "shipper": "Shipper (SH)",
       "thirdParty": "Third party"
     },
+    "shipmentStatus": {
+      "arrived": "Arrived",
+      "booked": "Booked",
+      "closed": "Closed",
+      "delivered": "Delivered",
+      "discharged": "Discharged",
+      "gateIn": "Gate In",
+      "inTransit": "In transit",
+      "onBoard": "On board",
+      "released": "Released"
+    },
     "tariffTierMode": {
       "flat": "Tier value",
       "perUnit": "Per unit"
@@ -1726,6 +2048,46 @@
       "hours": "Hours",
       "none": "No tiers (flat amount)",
       "units": "Units"
+    },
+    "tatcBatchItemStatus": {
+      "accepted": "Accepted",
+      "failed": "Not sent",
+      "rejected": "Rejected by the TATC system"
+    },
+    "tatcBatchReason": {
+      "alreadyIssued": "The TATC is already issued",
+      "duplicate": "BL repeated in the list",
+      "noPermission": "Your profile cannot request the TATC for this BL",
+      "notFound": "BL not found or not accessible",
+      "notImport": "Not an import shipment",
+      "otherCountry": "The BL belongs to another country",
+      "otherLocation": "The BL does not match the given location",
+      "sourceUnavailable": "The TATC system did not respond"
+    },
+    "tatcBatchStatus": {
+      "completed": "Completed",
+      "completedWithErrors": "Completed with remarks",
+      "failed": "Not sent"
+    },
+    "tatcPendingReason": {
+      "documentPending": "Documents pending",
+      "mhdPending": "MHD payment pending",
+      "other": "Other reason reported by the system",
+      "paymentPending": "Payment pending"
+    },
+    "tatcStatus": {
+      "cancelled": "Cancelled",
+      "issued": "Issued",
+      "notIssued": "Not issued",
+      "notRegistered": "No record in the TATC system",
+      "partiallyIssued": "Partially issued",
+      "preTatc": "Pre-TATC",
+      "unknown": "Unrecognized status"
+    },
+    "transportDocumentType": {
+      "bl": "BL (bill of lading)",
+      "ebl": "EBL (electronic bill of lading)",
+      "swb": "SWB (sea waybill)"
     },
     "warehouseBatchItemStatus": {
       "failed": "Failed",
@@ -1748,55 +2110,214 @@
       "revoked": "Revoked"
     }
   },
+  "dangerousGoods": {
+    "form": {
+      "errors": {
+        "required": "Enter the name, description or UN number of the cargo.",
+        "search": "The search could not be completed. Try again.",
+        "tooShort": "Enter at least {{ min }} characters."
+      },
+      "help": "For example: gasoline, lithium batteries or the UN number (1203, UN1203 or UN 1203). Names are searched in Spanish and English.",
+      "label": "Search dangerous goods classification",
+      "query": "Name, description or UN number of the cargo",
+      "submit": "Search"
+    },
+    "result": {
+      "announce": "{count, plural, =0 {Search finished: {{ result }}.} one {Search finished: {{ result }}, # result.} other {Search finished: {{ result }}, # results.}}",
+      "caption": "Classifications found",
+      "classValue": "Class {{ code }}: {{ name }}",
+      "classified": "Classified as dangerous goods",
+      "col": {
+        "class": "Class",
+        "name": "Proper shipping name",
+        "notes": "Remarks",
+        "packingGroup": "Packing group",
+        "subsidiaryRisk": "Subsidiary risk",
+        "unNumber": "UN number"
+      },
+      "disclaimer": "The result is for reference only and does not constitute the operational approval of the dangerous cargo shipment.",
+      "disclaimerTitle": "Reference information.",
+      "noMatch": "no matches",
+      "noMatchDetail": "No matches: the reference base has no classification for this cargo. Check the description or contact Hapag-Lloyd before declaring it.",
+      "notClassified": "not classified",
+      "notClassifiedCell": "Not classified",
+      "notClassifiedDetail": "Not classified: the reference base lists the cargo as not dangerous.",
+      "title": "Result for “{{ query }}”"
+    },
+    "subtitle": "Check whether a cargo is classified as dangerous goods, with its class and UN number. No BL or booking is needed.",
+    "title": "Dangerous goods (DG)"
+  },
   "dashboard": {
-    "contact": {
-      "bo": {
-        "address": "Av. San Martín 1500, Santa Cruz",
-        "email": "bolivia@hapag-lloyd.com",
-        "phone": "+591 3 312 0000"
-      },
-      "cl": {
-        "address": "Av. El Bosque Norte 500, Las Condes",
-        "email": "chile@hapag-lloyd.com",
-        "phone": "+56 2 2630 1000"
-      },
-      "title": "Contact"
-    },
-    "countryInfo": {
-      "bo": {
-        "office": "Santa Cruz, Bolivia",
-        "paymentMethods": "Transfer, QR, Credit",
-        "tax": "VAT 13%"
-      },
-      "cl": {
-        "office": "Santiago, Chile",
-        "paymentMethods": "Transfer, Card, Credit",
-        "tax": "VAT 19%"
-      },
-      "currency": "Currency",
-      "office": "Office",
-      "paymentMethods": "Payment Methods",
-      "tax": "Tax",
-      "title": "Country Information"
-    },
     "defaultUser": "User",
-    "empty": "There are no payments or BLs linked to your account yet.",
-    "quickActions": {
-      "faq": "FAQ",
-      "searchBl": "Look Up BL",
-      "title": "Quick Actions",
-      "viewPayments": "View Payments"
+    "documents": {
+      "caption": "Recent documents available for download",
+      "col": {
+        "actions": "Actions",
+        "bl": "BL",
+        "document": "Document",
+        "issuedAt": "Issued"
+      },
+      "download": "Download",
+      "downloadError": "The document could not be downloaded. Try again.",
+      "downloadLabel": "Download document {{ number }}",
+      "downloaded": "Document {{ number }} downloaded.",
+      "empty": "There are no recent documents.",
+      "title": "Available documents"
     },
-    "stats": {
-      "activeBls": "Active BLs",
-      "last30Days": "Last 30 days",
-      "pendingPayments": "Pending Payments",
-      "recentActivity": "Recent Activity",
-      "viewBls": "View BLs",
-      "viewPayments": "View payments"
+    "filters": {
+      "allCountries": "All countries",
+      "country": "Country",
+      "operation": {
+        "all": "All",
+        "export": "Export",
+        "import": "Import",
+        "label": "Operation"
+      }
+    },
+    "generatedAt": "Data as of {{ date }}",
+    "indicators": {
+      "arrivals": {
+        "caption": "Upcoming arrivals in the next 14 days, by ETA",
+        "col": {
+          "date": "ETA"
+        },
+        "empty": "There are no arrivals in the next 14 days.",
+        "title": "Upcoming arrivals"
+      },
+      "byStatus": {
+        "caption": "Shipments by status",
+        "col": {
+          "chart": "Proportion",
+          "count": "Shipments",
+          "status": "Status"
+        },
+        "empty": "There are no shipments to show.",
+        "title": "Shipments by status"
+      },
+      "demurrage": {
+        "caption": "Bills of lading with demurrage at risk",
+        "col": {
+          "amount": "Amount",
+          "bl": "BL",
+          "state": "Status"
+        },
+        "empty": "There is no demurrage at risk.",
+        "lines": "{count, plural, one {# pending line} other {# pending lines}}",
+        "noAmount": "Amount not calculated yet",
+        "title": "Demurrage at risk"
+      },
+      "departures": {
+        "caption": "Upcoming departures in the next 14 days, by ETD",
+        "col": {
+          "date": "ETD"
+        },
+        "empty": "There are no departures in the next 14 days.",
+        "title": "Upcoming departures"
+      },
+      "shipments": {
+        "col": {
+          "bl": "BL",
+          "port": "Port",
+          "vessel": "Vessel and voyage"
+        }
+      },
+      "title": "Operational indicators",
+      "truncated": "Blocks that depend on the permissions of each BL are calculated over your {{ count }} most recent shipments."
+    },
+    "loadError": "The dashboard could not be loaded.",
+    "pending": {
+      "add": "Add to cart",
+      "addLabel": "Add {{ concept }} {{ reference }} to the cart",
+      "bl": "BL {{ bl }}",
+      "caption": "Services pending payment, overdue first",
+      "cartLabel": "{{ concept }} of BL {{ bl }}",
+      "col": {
+        "actions": "Actions",
+        "amount": "Amount",
+        "reference": "Reference",
+        "service": "Service",
+        "status": "Status"
+      },
+      "creditNote": "Your organization has credit terms: these items are paid from “Pay from my account”.",
+      "dueDate": "Due {{ date }}",
+      "empty": "You have no services pending payment.",
+      "go": "View",
+      "goLabel": "View {{ concept }} {{ reference }}",
+      "inCart": "In the cart",
+      "title": "Pending payments",
+      "truncated": "Showing {{ shown }} of {{ total }} pending items."
+    },
+    "requests": {
+      "caption": "Requests in progress and finished in the last 30 days",
+      "col": {
+        "actions": "Actions",
+        "date": "Date",
+        "request": "Request",
+        "status": "Status"
+      },
+      "empty": "You have no requests in progress or recent ones.",
+      "title": "My requests",
+      "view": "View",
+      "viewLabel": "View {{ request }} {{ reference }}"
+    },
+    "services": {
+      "accountPayments": {
+        "description": "Pay charges and invoices with your organization's credit terms.",
+        "title": "Pay from my account"
+      },
+      "dangerousGoods": {
+        "description": "Check the class and UN number of a cargo.",
+        "title": "Search dangerous goods"
+      },
+      "demurrage": {
+        "description": "Review and calculate the charge for extra container days.",
+        "title": "Check demurrage"
+      },
+      "faq": {
+        "description": "Answers to the most common questions.",
+        "title": "Frequently asked questions"
+      },
+      "invoices": {
+        "description": "View, download and pay your invoices.",
+        "title": "View my invoices"
+      },
+      "pay": {
+        "description": "Pay charges, freight and services added to the cart.",
+        "title": "Pay charges and services"
+      },
+      "shipments": {
+        "description": "Status, documents and charges of each BL or booking.",
+        "title": "View my shipments"
+      },
+      "tatc": {
+        "description": "Request the TATC of several bills of lading of the same location.",
+        "title": "Request TATC"
+      },
+      "title": "What do you need to do?",
+      "warehouse": {
+        "description": "Request the transfer of your cargo to another warehouse.",
+        "title": "Change warehouse"
+      }
+    },
+    "summary": {
+      "accountPayments": "Pay from my account",
+      "byOperation": "{{ imports }} import and {{ exports }} export",
+      "demurrageAtRisk": "Demurrage at risk",
+      "goToCart": "Go to the cart",
+      "noPending": "No pending balances",
+      "pendingPayments": "Pending payments",
+      "requestsHelp": "Portal requests still being processed.",
+      "requestsInProgress": "Requests in progress",
+      "shipments": "Shipments",
+      "title": "Summary",
+      "totalsLabel": "Pending balance by currency",
+      "viewDemurrage": "View demurrage",
+      "viewShipments": "View shipments",
+      "withPendingCharges": "{count, plural, =0 {No shipments with pending charges} one {# shipment with pending charges} other {# shipments with pending charges}}"
     },
     "title": "Dashboard",
-    "welcome": "Welcome,"
+    "unavailable": "We could not get the summary right now: the service is temporarily unavailable. Your data has not been lost.",
+    "welcome": "Welcome, {{ name }}"
   },
   "demurrage": {
     "calculator": {
@@ -2614,6 +3135,82 @@
       "title": "Add to cart",
       "validating": "Checking the item…"
     },
+    "assistant": {
+      "actionsLabel": "Suggested actions",
+      "answerType": {
+        "needsReference": "Missing information",
+        "noAnswer": "No answer: referred to the mailbox",
+        "notAvailable": "Information not available",
+        "refused": "Question outside the assistant's scope",
+        "sourceUnavailable": "Source system unavailable"
+      },
+      "author": {
+        "assistant": "Assistant",
+        "user": "You"
+      },
+      "citation": "{{ kind }}: {{ reference }}",
+      "citationKind": {
+        "charges": "Charges",
+        "documents": "Documents",
+        "invoice": "Invoice",
+        "knowledgeArticle": "Knowledge base",
+        "pendingPayments": "Pending payments",
+        "shipment": "Shipment",
+        "tatc": "TATC"
+      },
+      "close": "Close the assistant",
+      "downloaded": "Download started: {{ label }}.",
+      "end": {
+        "button": "End",
+        "cancel": "Back to the conversation",
+        "confirm": "End conversation",
+        "done": "Conversation ended.",
+        "doneTitle": "Conversation ended",
+        "doneWithTranscript": "Conversation ended. We sent the transcript to {{ email }}.",
+        "errors": {
+          "emailInvalid": "Enter a valid e-mail, for example name@company.com.",
+          "emailRequired": "Enter the e-mail to send the transcript to.",
+          "submit": "The conversation could not be ended. Try again."
+        },
+        "other": "Another e-mail",
+        "otherEmail": "E-mail for the transcript (required)",
+        "recipient": "Send to",
+        "registered": "My registered e-mail ({{ email }})",
+        "sendTranscript": "E-mail me a transcript of the conversation",
+        "title": "End the conversation",
+        "transcriptHelp": "It includes the date, the time and the whole conversation. It is only a record: it does not replace a formal request or change any process."
+      },
+      "errors": {
+        "download": "The document could not be downloaded. Try again.",
+        "empty": "Type your question before sending it.",
+        "send": "The message could not be sent. Try again.",
+        "start": "The conversation could not be started. Try again."
+      },
+      "historyLabel": "Conversation with the assistant",
+      "input": "Type your question",
+      "inputHelp": "{{ count }} of {{ max }} characters. Enter sends; Shift+Enter adds a line.",
+      "launcher": {
+        "close": "Close assistant",
+        "open": "Assistant"
+      },
+      "mailbox": "You can write to the mailbox:",
+      "newConversation": "New conversation",
+      "processing": "Your question is being processed and may take a few more seconds.",
+      "replied": "Assistant answer: {{ content }}",
+      "retryStart": "Try again",
+      "scope": "It answers about portal processes and about your shipments, documents and charges according to your permissions. Answers are in Spanish.",
+      "send": "Send",
+      "sources": "Sources",
+      "started": "Conversation with the assistant started.",
+      "starting": "Starting the conversation…",
+      "title": "Portal assistant",
+      "typing": "The assistant is typing…"
+    },
+    "disputeLink": {
+      "description": "Claims about digital products on the Hapag-Lloyd website.",
+      "label": "Digital products dispute",
+      "newTab": " (opens in a new tab)"
+    },
     "exchangeRate": {
       "note": "Exchange rate {{ from }}→{{ to }}: {{ rate }}, effective {{ date }} (source {{ source }}).",
       "unavailable": "The {{ from }}→{{ to }} exchange rate could not be read from Nexus."
@@ -2644,6 +3241,13 @@
       "organization": "My organization",
       "profile": "My Profile",
       "tagline": "SERVICE PORTAL",
+      "theme": {
+        "auto": "System default",
+        "changed": "Theme changed: {{ theme }}.",
+        "dark": "Dark",
+        "label": "Theme",
+        "light": "Light"
+      },
       "userMenu": "User menu: {{ name }}"
     },
     "paymentBlock": {
@@ -2657,10 +3261,14 @@
         "accessMatrix": "Access matrix",
         "accountPayments": "Pay from my account",
         "adminOrganizations": "Organizations",
+        "assistantKnowledge": "Knowledge base",
+        "assistantMailboxes": "Assistant mailboxes",
         "audit": "Audit",
         "blImport": "BL Upload",
         "cart": "Cart",
         "customs": "Customs Transmission",
+        "dangerousGoods": "Dangerous goods",
+        "dangerousGoodsImport": "Dangerous goods base",
         "dashboard": "Dashboard",
         "deadlines": "Deadline Control",
         "demurrage": "Demurrage",
@@ -2674,10 +3282,12 @@
         "paymentHistory": "Payment history",
         "paymentMethods": "Payment methods",
         "paymentsFinance": "Finance: payments",
+        "publicationRules": "Publication rules",
         "reports": "Reports",
         "serviceOrders": "Service Orders",
         "shipments": "Shipments",
         "tariffs": "Tariffs",
+        "tatc": "Request TATC",
         "users": "Users",
         "warehouse": "Warehouse Change"
       },
@@ -2813,6 +3423,21 @@
         "vessel": "Vessel",
         "voyage": "Voyage"
       },
+      "issuance": {
+        "documentType": "Transport document",
+        "lastKnown": "Last known status, not current: {{ type }}, {{ status }} ({{ date }}).",
+        "notInformed": "Not reported",
+        "place": "Place of issue",
+        "platform": "Platform: {{ platform }}",
+        "refreshed": "Issuance status updated.",
+        "retry": "Check again",
+        "source": "According to {{ source }}, checked on {{ date }}.",
+        "status": "Issuance status",
+        "statusAt": "Status date",
+        "stillUnavailable": "The source system still does not respond.",
+        "title": "BL issuance",
+        "unavailable": "We could not check the issuance status in {{ source }}: the system did not respond. Try again in a few minutes."
+      },
       "loadError": "The shipment could not be loaded.",
       "notFound": "We could not find the shipment or you do not have access to it.",
       "parties": {
@@ -2822,6 +3447,18 @@
         "noRoles": "No role assigned",
         "shipper": "Shipper (SH)",
         "title": "Shipment parties"
+      },
+      "publication": {
+        "destination": "Final destination",
+        "difu": "DIFU",
+        "difuLocation": "DIFU location",
+        "discharge": "Port of discharge",
+        "hidden": "This BL is not published: customers do not see it in the portal.",
+        "no": "No",
+        "published": "Published to customers",
+        "reason": "Reason",
+        "title": "DIFU publication",
+        "yes": "Yes"
       },
       "readOnly": "You can view this shipment, but your profile or your organization's status does not allow you to pay or request services.",
       "serviceOrders": {
@@ -2836,6 +3473,29 @@
         "empty": "The shipment has no service orders.",
         "title": "Service orders"
       },
+      "tatc": {
+        "blStatus": "BL TATC status",
+        "caption": "TATC by container of BL {{ bl }}",
+        "col": {
+          "container": "Container",
+          "issuedAt": "Issued",
+          "number": "TATC number",
+          "pending": "Pending",
+          "status": "Status",
+          "warehouse": "Warehouse"
+        },
+        "empty": "The TATC system has no containers recorded for this BL.",
+        "loadError": "The BL TATC could not be checked.",
+        "noPending": "Nothing pending",
+        "notInformed": "Not reported",
+        "portalUnavailable": "We could not check the TATC right now: the service is temporarily unavailable.",
+        "request": "Request TATC",
+        "retrievedAt": "Checked",
+        "retry": "Check again",
+        "sourceUpdatedAt": "Updated in the TATC system",
+        "title": "TATC",
+        "unavailable": "The TATC system did not respond: we cannot show the current status. Try again in a few minutes."
+      },
       "title": "Shipment {{ bl }}"
     },
     "list": {
@@ -2845,7 +3505,9 @@
         "blNumber": "BL",
         "bookingNumber": "Booking",
         "country": "Country",
+        "issuance": "Issuance",
         "operation": "Operation",
+        "publication": "Publication",
         "status": "Status",
         "vessel": "Vessel",
         "voyage": "Voyage"
@@ -2858,12 +3520,18 @@
         "clear": "Clear filters",
         "country": "Country",
         "label": "Shipment filters",
+        "published": "Publication",
+        "publishedAll": "All",
+        "publishedNo": "Not published",
+        "publishedYes": "Published",
         "search": "Search",
         "status": "Status",
         "vessel": "Vessel",
         "voyage": "Voyage"
       },
+      "issuanceUnknown": "No issuance status",
       "loadError": "The shipment list could not be loaded.",
+      "notPublished": "Not published",
       "openBl": {
         "field": "Find a BL by number",
         "help": "Enter the exact BL number. If the customer has open access enabled, you will see the information it allows even if the BL is not in your list.",
@@ -2885,6 +3553,7 @@
         "showing": "Showing {{ shown }} of {{ total }}"
       },
       "pendingCharges": "Pending charges",
+      "published": "Published",
       "subtitle": "All the BLs and bookings you have access to, whatever your role",
       "title": "Shipments",
       "universeNote": "The list shows the shipments you have access to. A BL missing from the list does not mean it has no associated debt."
@@ -2902,6 +3571,63 @@
     "processing": "Processing",
     "rejected": "Rejected",
     "released": "Released"
+  },
+  "tatcRequests": {
+    "form": {
+      "bls": "Bills of lading (required)",
+      "blsHelp": "One BL per line, or separated by comma or space. Up to {{ max }} bills of lading.",
+      "count": "{count, plural, =0 {No BL in the list} one {# BL in the list} other {# bills of lading in the list}}",
+      "errors": {
+        "blsRequired": "Enter at least one BL.",
+        "locationInvalid": "Enter the location as a 5-character UN/LOCODE, for example CLIQQ.",
+        "locationRequired": "Enter the location.",
+        "submit": "The request could not be sent. Try again.",
+        "summaryTitle": "Check the following fields",
+        "tooMany": "The list exceeds the {{ max }} bills of lading allowed."
+      },
+      "location": "Location, UN/LOCODE (required)",
+      "locationHelp": "Port of discharge or final destination of the bills of lading, for example CLIQQ (Iquique) or CLSAI (San Antonio).",
+      "note": "The portal checks each BL (access, import, location and country) and sends the valid ones to the TATC system in a single request. Bills of lading that do not qualify are reported with their reason.",
+      "sending": "Sending the request for {{ count }} bills of lading…",
+      "submit": "Send request",
+      "title": "New request"
+    },
+    "history": {
+      "caption": "Latest bulk TATC requests of your organization",
+      "col": {
+        "actions": "Actions",
+        "counts": "Result",
+        "date": "Date",
+        "location": "Location",
+        "status": "Status"
+      },
+      "empty": "Your organization has no bulk TATC requests yet.",
+      "title": "Previous requests",
+      "view": "View result",
+      "viewLabel": "View the result of the {{ location }} request of {{ date }}"
+    },
+    "result": {
+      "announce": "TATC request: {{ status }}. {{ accepted }} of {{ total }} bills of lading accepted.",
+      "caption": "Result by BL",
+      "col": {
+        "bl": "BL",
+        "line": "Line",
+        "reason": "Reason",
+        "status": "Result"
+      },
+      "counts": "Accepted bills of lading",
+      "countsValue": "{{ accepted }} accepted, {{ notAccepted }} not accepted, of {{ total }}",
+      "loadError": "The request result could not be loaded.",
+      "noValidItems": "No BL in the list could be included: nothing was sent to the TATC system.",
+      "requested": "Requested by",
+      "requestedValue": "{{ user }}, {{ date }}",
+      "sourceRequest": "TATC system number",
+      "sourceUnavailable": "The TATC system did not respond: the valid bills of lading were not sent. Try again in a few minutes.",
+      "status": "Status",
+      "title": "Result of the {{ location }} request"
+    },
+    "subtitle": "Request the TATC of several import bills of lading of the same location in a single request, for example those discharged in Iquique.",
+    "title": "Bulk TATC request"
   },
   "thirdPartyAccess": {
     "audit": {

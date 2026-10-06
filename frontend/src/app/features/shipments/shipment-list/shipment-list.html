@@ -64,6 +64,17 @@
         <option value="BO">{{ 'common.country.bo' | transloco }}</option>
       </select>
     </div>
+    @if (auth.isInternal()) {
+      <!-- Publicación por DIFU de destino final (M2-01): solo el administrador interno -->
+      <div class="col-sm-6 col-lg-2">
+        <label for="shipments-filter-published" class="form-label small fw-semibold">{{ 'shipments.list.filters.published' | transloco }}</label>
+        <select id="shipments-filter-published" class="form-select" formControlName="published">
+          <option value="">{{ 'shipments.list.filters.publishedAll' | transloco }}</option>
+          <option value="true">{{ 'shipments.list.filters.publishedYes' | transloco }}</option>
+          <option value="false">{{ 'shipments.list.filters.publishedNo' | transloco }}</option>
+        </select>
+      </div>
+    }
   </div>
   <div class="d-flex flex-wrap gap-2 mt-3">
     <button type="submit" class="btn btn-hl-orange">{{ 'shipments.list.filters.search' | transloco }}</button>
@@ -97,7 +108,11 @@
             <th scope="col">{{ 'shipments.list.col.status' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.operation' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.country' | transloco }}</th>
+            <th scope="col">{{ 'shipments.list.col.issuance' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.accessSource' | transloco }}</th>
+            @if (auth.isInternal()) {
+              <th scope="col">{{ 'shipments.list.col.publication' | transloco }}</th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -117,7 +132,30 @@
               </td>
               <td>{{ shipment.operation | codeLabel: operationKeys }}</td>
               <td><app-country-badge [country]="shipment.country" /></td>
+              <td>
+                @if (shipment.issuance?.status; as issuanceStatus) {
+                  @if (shipment.issuance?.documentType; as documentType) {
+                    <span class="d-block small">{{ documentType | codeLabel: documentTypeKeys }}@if (shipment.issuance?.eblPlatform) {<span> · {{ shipment.issuance?.eblPlatform }}</span>}</span>
+                  }
+                  <span class="hl-badge" [class]="issuanceClass[issuanceStatus] || 'hl-badge--processing'">{{ issuanceStatus | codeLabel: issuanceKeys }}</span>
+                } @else {
+                  <span aria-hidden="true">—</span>
+                  <span class="visually-hidden">{{ 'shipments.list.issuanceUnknown' | transloco }}</span>
+                }
+              </td>
               <td><app-access-source-badge [source]="shipment.accessSource" /></td>
+              @if (auth.isInternal()) {
+                <td [attr.data-testid]="'publication-' + shipment.blNumber">
+                  @if (shipment.publication; as publication) {
+                    <span class="hl-badge" [class.hl-badge--confirmed]="publication.published" [class.hl-badge--failed]="!publication.published">
+                      {{ (publication.published ? 'shipments.list.published' : 'shipments.list.notPublished') | transloco }}
+                    </span>
+                    <span class="d-block small text-muted">{{ publication.reasonCode | codeLabel: publicationReasonKeys }}</span>
+                  } @else {
+                    <span aria-hidden="true">—</span>
+                  }
+                </td>
+              }
             </tr>
           }
         </tbody>

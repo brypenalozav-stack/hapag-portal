@@ -31,7 +31,8 @@ import {
   BL_SOLO_SHIPPER,
   PAGO_CON_DOCUMENTOS,
 } from '../fixtures/ola-e-mocks';
-import { IDIOMAS, Idioma, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
+import { BL_ORIGEN_CAIDO, BL_TATC } from '../fixtures/ola-f-mocks';
+import { IDIOMAS, Idioma, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin, sembrarTema } from '../fixtures/session';
 
 /**
  * Fase 5a: axe (WCAG 2.0/2.1/2.2 A y AA) sobre las pantallas principales.
@@ -58,6 +59,12 @@ import { IDIOMAS, Idioma, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } fro
  * diálogo de la copia del BL (M6-05), formulario de la carta de responsabilidad con errores (M6-06), CLD
  * bloqueado y emitible (M6-07), solicitud del certificado de transbordo con el diálogo del carro (M6-01) y
  * el resultado de un pago que emite documentos.
+ * Fase 1, Ola F: dashboard consolidado (M1-05), detalle con emisión del BL y TATC (M2-02, M2-09) y con los sistemas
+ * de origen caídos (NF-11), solicitud masiva de TATC con resultado, listado del administrador con los no publicados
+ * y mantenedor de reglas de publicación con su registro (M2-01), asistente abierto con una conversación que incluye
+ * "no disponible", rechazo y derivación a la casilla, y el cierre con respaldo (M10-01 a M10-05), buscador DG con
+ * resultados, no clasificado y sin coincidencias (M10-06) y los mantenedores de la base de conocimiento, casillas y
+ * base DG. Las pantallas de la Ola F se revisan también con el tema oscuro (M11-07, `tema: 'dark'`).
  */
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -103,7 +110,127 @@ function abrirHistorial(titulo: string, boton: number): (page: Page) => Promise<
   };
 }
 
-const PANTALLAS: { id: string; ruta: string; sesion: Sesion; opciones?: OpcionesOlaD; preparar?: (page: Page) => Promise<void> }[] = [
+/** Abre el asistente y conversa: dato con acciones, BL no disponible, rechazo y pregunta sin respuesta (M10-01 a M10-03). */
+async function conversar(page: Page): Promise<void> {
+  await page.getByTestId('assistant-launcher').click();
+  const panel = page.getByTestId('assistant-panel');
+  await expect(panel.getByTestId('assistant-reply')).toHaveCount(1);
+  const preguntas = [`estado del BL ${BL_TATC}`, 'estado del BL HLCU999999', '¿me recomienda un abogado?', 'pregunta sin respuesta'];
+  for (const [i, texto] of preguntas.entries()) {
+    await panel.locator('#assistant-message').fill(texto);
+    await panel.locator('#assistant-message').press('Enter');
+    await expect(panel.getByTestId('assistant-reply')).toHaveCount(i + 2);
+  }
+  await expect(panel.getByTestId('assistant-typing')).toHaveCount(0);
+}
+
+/** Envía la solicitud masiva de TATC de San Antonio con un BL ya emitido y uno desconocido (M2-09). */
+async function solicitarTatc(page: Page): Promise<void> {
+  await page.locator('#tatc-location').fill('CLSAI');
+  await page.locator('#tatc-bls').fill([BL_TATC, 'HLCUSAI260401020', 'XYZ123'].join('\n'));
+  await page.locator('form:has(#tatc-location) button[type="submit"]').click();
+  await expect(page.locator('#tatc-result-title')).toBeFocused();
+}
+
+/** Busca en el buscador de mercancías peligrosas (M10-06). */
+function buscarDg(texto: string): (page: Page) => Promise<void> {
+  return async (page) => {
+    await page.locator('#dg-query').fill(texto);
+    await page.locator('#dg-query').press('Enter');
+    await expect(page.locator('#dg-result-title')).toBeFocused();
+  };
+}
+
+/** Pantallas de la Ola F que se revisan en tema claro y oscuro (M11-07). */
+const PANTALLAS_OLA_F: { id: string; ruta: string; sesion: Sesion; preparar?: (page: Page) => Promise<void> }[] = [
+  {
+    id: 'dashboard-consolidated',
+    ruta: '/dashboard',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('dashboard-pending')).toBeVisible();
+      await expect(page.getByTestId('dispute-link-card')).toBeVisible();
+    },
+  },
+  {
+    id: 'shipment-detail-issuance-tatc',
+    ruta: `/shipments/${BL_TATC}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('issuance-status')).toBeVisible();
+      await expect(page.getByTestId('tatc-status')).toBeVisible();
+    },
+  },
+  {
+    id: 'shipment-detail-sources-down',
+    ruta: `/shipments/${BL_ORIGEN_CAIDO}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('issuance-last-known')).toBeVisible();
+      await expect(page.getByTestId('tatc-unavailable')).toBeVisible();
+    },
+  },
+  { id: 'tatc-bulk-result', ruta: '/tatc', sesion: 'cliente', preparar: solicitarTatc },
+  {
+    id: 'admin-publication-rules',
+    ruta: '/admin/publication-rules',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.locator('main table tbody tr').first().locator('button').nth(1).click();
+      await expect(page.locator('#publication-history-title')).toBeFocused();
+    },
+  },
+  {
+    id: 'admin-shipments-unpublished',
+    ruta: '/shipments?published=false',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await expect(page.getByTestId('publication-HLCUSAI260601410')).toBeVisible();
+    },
+  },
+  { id: 'assistant-conversation', ruta: '/dashboard', sesion: 'cliente', preparar: conversar },
+  {
+    id: 'assistant-end-form',
+    ruta: '/dashboard',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId('assistant-launcher').click();
+      const panel = page.getByTestId('assistant-panel');
+      await expect(panel.getByTestId('assistant-reply')).toHaveCount(1);
+      await panel.locator('.hl-assistant__header button').first().click();
+      await panel.locator('#assistant-transcript').check();
+      await panel.locator('#assistant-recipient-other').check();
+      await panel.locator('[data-testid="assistant-end-form"] button[type="submit"]').click();
+      await expect(panel.locator('#assistant-other-email')).toBeFocused();
+    },
+  },
+  { id: 'dangerous-goods-results', ruta: '/dangerous-goods', sesion: 'cliente', preparar: buscarDg('bencina') },
+  { id: 'dangerous-goods-not-classified', ruta: '/dangerous-goods', sesion: 'cliente', preparar: buscarDg('agua') },
+  { id: 'dangerous-goods-no-match', ruta: '/dangerous-goods', sesion: 'cliente', preparar: buscarDg('xyzabc') },
+  {
+    id: 'admin-assistant-knowledge',
+    ruta: '/admin/assistant-knowledge',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.locator('main table tbody tr').first().locator('button').nth(1).click();
+      await expect(page.locator('#kb-history-title')).toBeFocused();
+    },
+  },
+  {
+    id: 'admin-assistant-knowledge-form',
+    ruta: '/admin/assistant-knowledge',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.locator('.hl-page-header button').click();
+      await page.locator('form:has(#kb-title) button[type="submit"]').click();
+      await expect(page.locator('form:has(#kb-title) .alert-danger')).toBeFocused();
+    },
+  },
+  { id: 'admin-assistant-mailboxes', ruta: '/admin/assistant-mailboxes', sesion: 'admin' },
+  { id: 'admin-dangerous-goods-import', ruta: '/admin/dangerous-goods', sesion: 'admin' },
+];
+
+const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opciones?: OpcionesOlaD; preparar?: (page: Page) => Promise<void> }[] = [
   { id: 'login', ruta: '/login', sesion: 'ninguna' },
   { id: 'register', ruta: '/register', sesion: 'ninguna' },
   { id: 'register-join', ruta: '/register/join', sesion: 'ninguna' },
@@ -293,10 +420,14 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion; opciones?: Opciones
     },
   },
   { id: 'payment-result-documents', ruta: `/payments/${PAGO_CON_DOCUMENTOS}/result`, sesion: 'cliente' },
+  // Ola F, en tema claro y oscuro (M11-07)
+  ...PANTALLAS_OLA_F,
+  ...PANTALLAS_OLA_F.map((p) => ({ ...p, id: `${p.id}-dark`, tema: 'dark' as const })),
 ];
 
-async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opciones?: OpcionesOlaD): Promise<void> {
+async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opciones?: OpcionesOlaD, tema: Tema = 'light'): Promise<void> {
   await simularApi(page, opciones);
+  await sembrarTema(page, tema);
   if (sesion === 'cliente') {
     await sembrarSesion(page, { lang });
   } else if (sesion === 'admin') {
@@ -304,7 +435,7 @@ async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opc
   } else {
     await sembrarIdioma(page, lang);
   }
-  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: tema });
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
@@ -314,10 +445,11 @@ async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opc
 for (const lang of IDIOMAS) {
   for (const p of PANTALLAS) {
     test(`axe: ${p.id} [${lang}]`, async ({ page }) => {
-      await abrir(page, p.ruta, p.sesion, lang, p.opciones);
+      await abrir(page, p.ruta, p.sesion, lang, p.opciones, p.tema);
       await p.preparar?.(page);
-      await expect(page).toHaveURL(new RegExp(`${p.ruta}$`));
+      await expect(page).toHaveURL(new RegExp(`${p.ruta.replace(/[?]/g, '\\?')}$`));
       await expect(page.locator('html')).toHaveAttribute('lang', lang);
+      await expect(page.locator('html')).toHaveAttribute('data-bs-theme', p.tema ?? 'light');
 
       const resultado = await new AxeBuilder({ page }).withTags(TAGS).analyze();
       const conocidas = new Set(LINEA_BASE[p.id] ?? []);

@@ -135,6 +135,135 @@
       "subtitle": "Nivel base de visibilidad y de acciones por rol (M1-11). Los cambios aplican de inmediato en el servidor.",
       "title": "Matriz de accesos"
     },
+    "assistantKnowledge": {
+      "form": {
+        "articleTitle": "Título (obligatorio)",
+        "cancel": "Cancelar",
+        "content": "Contenido (obligatorio)",
+        "contentHelp": "{{ count }} de {{ max }} caracteres. Use saltos de línea y listas con guion para ordenar la respuesta.",
+        "country": "País",
+        "create": "Crear artículo",
+        "createTitle": "Nuevo artículo",
+        "created": "Artículo «{{ title }}» creado.",
+        "editTitle": "Editar artículo",
+        "errors": {
+          "contentRequired": "Ingrese el contenido del artículo.",
+          "contentTooLong": "El contenido supera los {{ max }} caracteres.",
+          "sortInvalid": "Ingrese el orden como un número entero de 0 a 9999.",
+          "submit": "No se pudo guardar el artículo. Intente nuevamente.",
+          "summaryTitle": "Revise los siguientes campos",
+          "titleRequired": "Ingrese el título del artículo."
+        },
+        "keywords": "Palabras clave (opcional)",
+        "keywordsHelp": "Separadas por coma. Ayudan a encontrar el artículo cuando la pregunta usa otras palabras, por ejemplo: almacén, traslado, depósito.",
+        "save": "Guardar cambios",
+        "sortOrder": "Orden (obligatorio)",
+        "sortOrderHelp": "Número entero; los menores se ofrecen primero.",
+        "topic": "Tema",
+        "updated": "Artículo «{{ title }}» actualizado."
+      },
+      "history": {
+        "caption": "Registro de cambios del artículo",
+        "close": "Cerrar registro",
+        "col": {
+          "action": "Acción",
+          "current": "Valor nuevo",
+          "date": "Fecha",
+          "previous": "Valor anterior",
+          "user": "Usuario"
+        },
+        "empty": "El artículo no tiene cambios registrados.",
+        "title": "Registro de cambios de «{{ title }}»"
+      },
+      "list": {
+        "caption": "Artículos de la base de conocimiento",
+        "col": {
+          "actions": "Acciones",
+          "country": "País",
+          "sortOrder": "Orden",
+          "status": "Estado",
+          "title": "Título",
+          "topic": "Tema"
+        },
+        "deactivate": "Desactivar",
+        "deactivateError": "No se pudo desactivar el artículo. Intente nuevamente.",
+        "deactivateLabel": "Desactivar el artículo «{{ title }}»",
+        "deactivated": "Artículo «{{ title }}» desactivado.",
+        "edit": "Editar",
+        "editLabel": "Editar el artículo «{{ title }}»",
+        "empty": "No hay artículos con los filtros seleccionados.",
+        "filters": {
+          "allCountries": "Todos los países",
+          "allTopics": "Todos los temas",
+          "clear": "Limpiar",
+          "country": "País",
+          "includeInactive": "Incluir desactivados",
+          "label": "Filtros de la base de conocimiento",
+          "search": "Buscar",
+          "topic": "Tema"
+        },
+        "history": "Registro",
+        "historyLabel": "Registro de cambios del artículo «{{ title }}»",
+        "keywords": "Palabras clave: {{ keywords }}",
+        "loadError": "No se pudieron cargar los artículos.",
+        "new": "Nuevo artículo"
+      },
+      "snapshot": {
+        "header": "{{ country }} · {{ topic }} · orden {{ order }}",
+        "none": "Sin valor anterior"
+      },
+      "status": {
+        "active": "Activo",
+        "inactive": "Desactivado"
+      },
+      "subtitle": "Artículos sobre procesos y procedimientos que el asistente entrega tal cual, por país. El asistente no elabora respuestas propias: lo que no está aquí lo deriva a la casilla de correo.",
+      "title": "Base de conocimiento del asistente"
+    },
+    "assistantMailboxes": {
+      "form": {
+        "active": "Activa",
+        "cancel": "Cancelar",
+        "country": "País",
+        "createTitle": "Nueva casilla",
+        "editTitle": "Editar casilla",
+        "email": "Correo de la casilla (obligatorio)",
+        "errors": {
+          "emailInvalid": "Ingrese un correo válido, por ejemplo clservice@hapag-lloyd.com.",
+          "emailRequired": "Ingrese el correo de la casilla.",
+          "submit": "No se pudo guardar la casilla. Intente nuevamente.",
+          "summaryTitle": "Revise los siguientes campos"
+        },
+        "help": "Guardar crea la casilla del país y tema elegidos o reemplaza la existente.",
+        "notes": "Notas (opcional)",
+        "save": "Guardar casilla",
+        "saved": "Casilla de {{ country }}, tema {{ topic }}, guardada.",
+        "topic": "Tema"
+      },
+      "list": {
+        "caption": "Casillas de derivación del asistente",
+        "col": {
+          "actions": "Acciones",
+          "country": "País",
+          "email": "Correo",
+          "modified": "Último cambio",
+          "notes": "Notas",
+          "status": "Estado",
+          "topic": "Tema"
+        },
+        "edit": "Editar",
+        "editLabel": "Editar la casilla de {{ country }}, tema {{ topic }}",
+        "empty": "No hay casillas configuradas.",
+        "loadError": "No se pudieron cargar las casillas.",
+        "modifiedValue": "{{ user }}, {{ date }}",
+        "new": "Nueva casilla"
+      },
+      "status": {
+        "active": "Activa",
+        "inactive": "Desactivada"
+      },
+      "subtitle": "Casillas de correo a las que el asistente deriva lo que no puede responder, por país y tema. Si un tema no tiene casilla se usa la de tema General.",
+      "title": "Casillas del asistente"
+    },
     "audit": {
       "action": "Acción",
       "actions": {
@@ -273,6 +402,33 @@
         "transmitBl": "Transmitir B/L",
         "transmitHeader": "Transmitir encabezado"
       }
+    },
+    "dangerousGoodsImport": {
+      "form": {
+        "columns": "Encabezado (separado por punto y coma o coma); las cuatro primeras columnas son obligatorias:",
+        "errors": {
+          "fileRequired": "Seleccione el archivo CSV que desea cargar.",
+          "submit": "No se pudo cargar el archivo. Intente nuevamente.",
+          "tooLarge": "El archivo supera los 5 MB permitidos."
+        },
+        "file": "Archivo CSV (obligatorio)",
+        "help": "CSV en UTF-8. La columna classified acepta true o false; false registra la carga como no clasificada.",
+        "sending": "Cargando {{ name }}…",
+        "submit": "Cargar archivo",
+        "title": "Archivo de clasificaciones"
+      },
+      "result": {
+        "announce": "Carga terminada: {{ created }} creadas, {{ updated }} actualizadas y {{ skipped }} omitidas.",
+        "caption": "Filas omitidas y su motivo",
+        "col": {
+          "line": "Línea",
+          "reason": "Motivo"
+        },
+        "summary": "Se leyeron {{ total }} filas: {{ created }} creadas, {{ updated }} actualizadas y {{ skipped }} omitidas.",
+        "title": "Resultado de la carga"
+      },
+      "subtitle": "Carga la lista de clasificaciones que usa el buscador de mercancías peligrosas (DG) desde un archivo CSV. Una fila existente (mismo número ONU y nombre en inglés) se actualiza.",
+      "title": "Base de referencia de mercancías peligrosas"
     },
     "deadlines": {
       "col": {
@@ -834,6 +990,88 @@
       "new": "Nuevo medio",
       "subtitle": "Medios disponibles por país y moneda (M5-03): en línea con su plataforma o depósito con boleta.",
       "title": "Medios de pago"
+    },
+    "publicationRules": {
+      "form": {
+        "cancel": "Cancelar",
+        "country": "País",
+        "create": "Crear regla",
+        "createTitle": "Nueva regla de publicación",
+        "created": "Regla del destino {{ code }} creada.",
+        "description": "Descripción (opcional)",
+        "destination": "Destino final, UN/LOCODE (obligatorio)",
+        "destinationName": "Nombre del destino (opcional)",
+        "editTitle": "Editar regla de publicación",
+        "errors": {
+          "destinationInvalid": "Ingrese el destino final como UN/LOCODE de 5 caracteres, por ejemplo CLANF.",
+          "destinationRequired": "Ingrese el destino final.",
+          "portInvalid": "Ingrese el puerto de descarga como UN/LOCODE de 5 caracteres, por ejemplo CLSAI, o déjelo vacío.",
+          "portSameAsDestination": "El puerto de descarga debe ser distinto del destino final.",
+          "submit": "No se pudo guardar la regla. Intente nuevamente.",
+          "summaryTitle": "Revise los siguientes campos"
+        },
+        "locodeHelp": "UN/LOCODE: dos letras del país y tres caracteres de la localidad, por ejemplo CLANF (Antofagasta) o CLSAI (San Antonio).",
+        "port": "Puerto de descarga, UN/LOCODE (opcional)",
+        "portHelp": "Vacío = cualquier puerto de descarga.",
+        "save": "Guardar cambios",
+        "updated": "Regla del destino {{ code }} actualizada."
+      },
+      "history": {
+        "caption": "Registro de cambios de la regla",
+        "close": "Cerrar registro",
+        "col": {
+          "action": "Acción",
+          "current": "Valor nuevo",
+          "date": "Fecha",
+          "previous": "Valor anterior",
+          "user": "Usuario"
+        },
+        "empty": "La regla no tiene cambios registrados.",
+        "title": "Registro de cambios de la regla {{ rule }}"
+      },
+      "list": {
+        "anyPort": "Cualquier puerto",
+        "caption": "Reglas de publicación por DIFU de destino final",
+        "col": {
+          "actions": "Acciones",
+          "country": "País",
+          "description": "Descripción",
+          "destination": "Destino final",
+          "modified": "Último cambio",
+          "port": "Puerto de descarga",
+          "status": "Estado"
+        },
+        "deactivate": "Desactivar",
+        "deactivateError": "No se pudo desactivar la regla. Intente nuevamente.",
+        "deactivateLabel": "Desactivar la regla {{ rule }}",
+        "deactivated": "Regla {{ rule }} desactivada.",
+        "edit": "Editar",
+        "editLabel": "Editar la regla {{ rule }}",
+        "empty": "No hay reglas con los filtros seleccionados.",
+        "filters": {
+          "allCountries": "Todos los países",
+          "clear": "Limpiar",
+          "country": "País",
+          "includeInactive": "Incluir desactivadas",
+          "label": "Filtros de las reglas de publicación",
+          "search": "Buscar"
+        },
+        "history": "Registro",
+        "historyLabel": "Registro de cambios de la regla {{ rule }}",
+        "loadError": "No se pudieron cargar las reglas de publicación.",
+        "modifiedValue": "{{ user }}, {{ date }}",
+        "new": "Nueva regla"
+      },
+      "snapshot": {
+        "none": "Sin valor anterior",
+        "rule": "{{ country }}: destino {{ destination }}, descarga {{ port }}"
+      },
+      "status": {
+        "active": "Activa",
+        "inactive": "Desactivada"
+      },
+      "subtitle": "Los BL del país con el destino final indicado (y descargados en el puerto, si se indica) se publican a los clientes solo si el sistema de origen informa un DIFU asociado a ese destino. Los no publicados se revisan en Embarques con el filtro de publicación.",
+      "title": "Reglas de publicación por DIFU"
     },
     "reports": {
       "caption": "Resultado del reporte",
@@ -1548,6 +1786,25 @@
       "paid": "Pagada",
       "pending": "Pendiente"
     },
+    "issuanceStatus": {
+      "authorizedAtDestination": "Emisión autorizada en destino",
+      "cancelled": "Anulado",
+      "issued": "Emitido",
+      "issuedAtDestination": "Emitido en destino",
+      "pending": "Pendiente de emisión",
+      "surrendered": "Entregado (surrendered)",
+      "telexReleased": "Liberado por télex",
+      "transferred": "Transferido",
+      "unknown": "Estado no reconocido"
+    },
+    "knowledgeTopic": {
+      "commercial": "Comercial",
+      "demurrage": "Demurrage",
+      "documentation": "Documentación",
+      "general": "General",
+      "payments": "Pagos",
+      "shipping": "Embarques"
+    },
     "maintainerAction": {
       "created": "Creación",
       "deactivated": "Desactivación",
@@ -1593,6 +1850,10 @@
       "invoice": "Factura",
       "localCharge": "Cargo local",
       "warehouseChange": "Cambio de almacén"
+    },
+    "payableStatus": {
+      "overdue": "Vencido",
+      "pending": "Pendiente"
     },
     "paymentErrors": {
       "alreadyCancelled": "El pago ya está anulado.",
@@ -1674,6 +1935,30 @@
       "pendingVerification": "Boleta emitida, en verificación",
       "processing": "En proceso en la plataforma"
     },
+    "portalErrors": {
+      "articleNotFound": "El artículo ya no existe.",
+      "blNotFound": "No encontramos el BL o no tiene acceso a él.",
+      "forbidden": "Su perfil no permite esta acción.",
+      "invalidImport": "El archivo no es válido: revise el encabezado y que no esté vacío.",
+      "noRecipient": "No hay un correo al que enviar el respaldo. Ingrese otro correo.",
+      "publicationRuleExists": "Ya existe una regla activa para ese país, destino final y puerto de descarga.",
+      "publicationRuleNotFound": "La regla ya no existe.",
+      "rateLimited": "Envió demasiados mensajes en poco tiempo. Espere un momento y vuelva a intentarlo.",
+      "sessionEnded": "La conversación terminó. Inicie una nueva para seguir consultando.",
+      "sessionExpired": "La conversación venció por inactividad. Inicie una nueva para seguir consultando.",
+      "sessionNotFound": "La conversación ya no está disponible. Inicie una nueva.",
+      "sourceUnavailable": "El sistema de origen no respondió. Intente nuevamente en unos minutos.",
+      "tatcBatchNotFound": "No encontramos esa solicitud de TATC.",
+      "tatcNoValidItems": "Ningún BL de la lista se puede incluir en la solicitud de TATC.",
+      "tatcNotApplicable": "El TATC aplica solo a embarques de importación."
+    },
+    "publicationReason": {
+      "difuAssociated": "Publicado: DIFU asociado al destino final",
+      "difuMissing": "No publicado: falta el DIFU del destino final",
+      "difuOtherLocation": "No publicado: el DIFU es de otra localidad",
+      "noRule": "Publicado: sin regla para el destino",
+      "sameAsDischarge": "Publicado: destino igual al puerto de descarga"
+    },
     "reconciliationStatus": {
       "matched": "Conciliado",
       "missingReceipt": "Falta el comprobante",
@@ -1683,6 +1968,32 @@
     "relatedDocumentKind": {
       "invoice": "Factura",
       "receipt": "Comprobante de pago"
+    },
+    "requestKind": {
+      "blCopy": "Copia del BL",
+      "charges": "Cargos locales",
+      "demurrage": "Demurrage",
+      "documents": "Documentos",
+      "invoice": "Factura",
+      "responsibilityLetter": "Carta de responsabilidad",
+      "serviceOrder": "Orden de servicio",
+      "shipment": "Embarque",
+      "tatcBatch": "Solicitud masiva de TATC",
+      "warehouseChange": "Cambio de almacén",
+      "warehouseChangeBatch": "Cambio de almacén masivo"
+    },
+    "requestStatus": {
+      "cancelled": "Anulada",
+      "completed": "Completada",
+      "completedWithErrors": "Completada con errores",
+      "failed": "Fallida",
+      "inProgress": "En curso",
+      "issued": "Emitido",
+      "pending": "Pendiente",
+      "processing": "En proceso",
+      "queued": "En cola",
+      "requested": "Solicitada",
+      "superseded": "Reemplazado"
     },
     "requirementStatus": {
       "fulfilled": "cumplido",
@@ -1716,6 +2027,17 @@
       "shipper": "Embarcador (SH)",
       "thirdParty": "Tercero"
     },
+    "shipmentStatus": {
+      "arrived": "Arribado",
+      "booked": "Reservado",
+      "closed": "Cerrado",
+      "delivered": "Entregado",
+      "discharged": "Descargado",
+      "gateIn": "Gate In",
+      "inTransit": "En tránsito",
+      "onBoard": "A bordo",
+      "released": "Liberado"
+    },
     "tariffTierMode": {
       "flat": "Valor del tramo",
       "perUnit": "Por unidad"
@@ -1726,6 +2048,46 @@
       "hours": "Horas",
       "none": "Sin tramos (monto fijo)",
       "units": "Unidades"
+    },
+    "tatcBatchItemStatus": {
+      "accepted": "Aceptado",
+      "failed": "No enviado",
+      "rejected": "Rechazado por el sistema de TATC"
+    },
+    "tatcBatchReason": {
+      "alreadyIssued": "El TATC ya está emitido",
+      "duplicate": "BL repetido en la lista",
+      "noPermission": "Su perfil no puede pedir el TATC de este BL",
+      "notFound": "BL no encontrado o sin acceso",
+      "notImport": "No es un embarque de importación",
+      "otherCountry": "El BL es de otro país",
+      "otherLocation": "El BL no corresponde a la localidad indicada",
+      "sourceUnavailable": "El sistema de TATC no respondió"
+    },
+    "tatcBatchStatus": {
+      "completed": "Completada",
+      "completedWithErrors": "Completada con observaciones",
+      "failed": "No enviada"
+    },
+    "tatcPendingReason": {
+      "documentPending": "Documentación pendiente",
+      "mhdPending": "MHD pendiente de pago",
+      "other": "Otro motivo informado por el sistema",
+      "paymentPending": "Pago pendiente"
+    },
+    "tatcStatus": {
+      "cancelled": "Anulado",
+      "issued": "Emitido",
+      "notIssued": "No emitido",
+      "notRegistered": "Sin registro en el sistema de TATC",
+      "partiallyIssued": "Emitido parcialmente",
+      "preTatc": "Pre-TATC",
+      "unknown": "Estado no reconocido"
+    },
+    "transportDocumentType": {
+      "bl": "BL (conocimiento de embarque)",
+      "ebl": "EBL (BL electrónico)",
+      "swb": "SWB (sea waybill)"
     },
     "warehouseBatchItemStatus": {
       "failed": "Con error",
@@ -1748,55 +2110,214 @@
       "revoked": "Revocada"
     }
   },
+  "dangerousGoods": {
+    "form": {
+      "errors": {
+        "required": "Ingrese el nombre, la descripción o el número ONU de la carga.",
+        "search": "No se pudo realizar la búsqueda. Intente nuevamente.",
+        "tooShort": "Ingrese al menos {{ min }} caracteres."
+      },
+      "help": "Por ejemplo: bencina, baterías de litio o el número ONU (1203, UN1203 o UN 1203).",
+      "label": "Buscar clasificación de mercancía peligrosa",
+      "query": "Nombre, descripción o número ONU de la carga",
+      "submit": "Buscar"
+    },
+    "result": {
+      "announce": "{count, plural, =0 {Búsqueda terminada: {{ result }}.} one {Búsqueda terminada: {{ result }}, # resultado.} other {Búsqueda terminada: {{ result }}, # resultados.}}",
+      "caption": "Clasificaciones encontradas",
+      "classValue": "Clase {{ code }}: {{ name }}",
+      "classified": "Clasificada como mercancía peligrosa",
+      "col": {
+        "class": "Clase",
+        "name": "Nombre de expedición",
+        "notes": "Observaciones",
+        "packingGroup": "Grupo de embalaje",
+        "subsidiaryRisk": "Riesgo secundario",
+        "unNumber": "Número ONU"
+      },
+      "disclaimer": "El resultado es de carácter informativo y no constituye la aprobación operacional del embarque de carga peligrosa.",
+      "disclaimerTitle": "Información de referencia.",
+      "noMatch": "sin coincidencias",
+      "noMatchDetail": "Sin coincidencias: la base de referencia no tiene una clasificación para esta carga. Revise la descripción o consulte con Hapag-Lloyd antes de declararla.",
+      "notClassified": "no clasificada",
+      "notClassifiedCell": "No clasificada",
+      "notClassifiedDetail": "No clasificada: la carga figura en la base de referencia como no peligrosa.",
+      "title": "Resultado para «{{ query }}»"
+    },
+    "subtitle": "Consulte si una carga tiene clasificación de mercancía peligrosa, con su clase y número ONU. No necesita un BL ni un booking.",
+    "title": "Mercancías peligrosas (DG)"
+  },
   "dashboard": {
-    "contact": {
-      "bo": {
-        "address": "Av. San Martín 1500, Santa Cruz",
-        "email": "bolivia@hapag-lloyd.com",
-        "phone": "+591 3 312 0000"
-      },
-      "cl": {
-        "address": "Av. El Bosque Norte 500, Las Condes",
-        "email": "chile@hapag-lloyd.com",
-        "phone": "+56 2 2630 1000"
-      },
-      "title": "Contacto"
-    },
-    "countryInfo": {
-      "bo": {
-        "office": "Santa Cruz, Bolivia",
-        "paymentMethods": "Transferencia, QR, Crédito",
-        "tax": "IVA 13%"
-      },
-      "cl": {
-        "office": "Santiago, Chile",
-        "paymentMethods": "Transferencia, Tarjeta, Crédito",
-        "tax": "IVA 19%"
-      },
-      "currency": "Moneda",
-      "office": "Oficina",
-      "paymentMethods": "Métodos de Pago",
-      "tax": "Impuesto",
-      "title": "Información del País"
-    },
     "defaultUser": "Usuario",
-    "empty": "Aún no hay pagos ni BL asociados a su cuenta.",
-    "quickActions": {
-      "faq": "Preguntas Frecuentes",
-      "searchBl": "Consultar BL",
-      "title": "Acciones Rápidas",
-      "viewPayments": "Ver Pagos"
+    "documents": {
+      "caption": "Documentos recientes disponibles para descargar",
+      "col": {
+        "actions": "Acciones",
+        "bl": "BL",
+        "document": "Documento",
+        "issuedAt": "Emitido"
+      },
+      "download": "Descargar",
+      "downloadError": "No se pudo descargar el documento. Intente nuevamente.",
+      "downloadLabel": "Descargar el documento {{ number }}",
+      "downloaded": "Documento {{ number }} descargado.",
+      "empty": "No hay documentos recientes.",
+      "title": "Documentos disponibles"
     },
-    "stats": {
-      "activeBls": "BLs Activos",
-      "last30Days": "Últimos 30 días",
-      "pendingPayments": "Pagos Pendientes",
-      "recentActivity": "Actividad Reciente",
-      "viewBls": "Ver BLs",
-      "viewPayments": "Ver pagos"
+    "filters": {
+      "allCountries": "Todos los países",
+      "country": "País",
+      "operation": {
+        "all": "Todas",
+        "export": "Exportación",
+        "import": "Importación",
+        "label": "Operación"
+      }
+    },
+    "generatedAt": "Datos al {{ date }}",
+    "indicators": {
+      "arrivals": {
+        "caption": "Próximos arribos en los próximos 14 días, por ETA",
+        "col": {
+          "date": "ETA"
+        },
+        "empty": "No hay arribos en los próximos 14 días.",
+        "title": "Próximos arribos"
+      },
+      "byStatus": {
+        "caption": "Embarques por estado",
+        "col": {
+          "chart": "Proporción",
+          "count": "Embarques",
+          "status": "Estado"
+        },
+        "empty": "No hay embarques para mostrar.",
+        "title": "Embarques por estado"
+      },
+      "demurrage": {
+        "caption": "BL con demurrage en riesgo",
+        "col": {
+          "amount": "Monto",
+          "bl": "BL",
+          "state": "Estado"
+        },
+        "empty": "No hay demurrage en riesgo.",
+        "lines": "{count, plural, one {# línea pendiente} other {# líneas pendientes}}",
+        "noAmount": "Monto aún no calculado",
+        "title": "Demurrage en riesgo"
+      },
+      "departures": {
+        "caption": "Próximos zarpes en los próximos 14 días, por ETD",
+        "col": {
+          "date": "ETD"
+        },
+        "empty": "No hay zarpes en los próximos 14 días.",
+        "title": "Próximos zarpes"
+      },
+      "shipments": {
+        "col": {
+          "bl": "BL",
+          "port": "Puerto",
+          "vessel": "Nave y viaje"
+        }
+      },
+      "title": "Indicadores operativos",
+      "truncated": "Los bloques que dependen de los permisos de cada BL se calculan sobre sus {{ count }} embarques más recientes."
+    },
+    "loadError": "No se pudo cargar el dashboard.",
+    "pending": {
+      "add": "Agregar al carro",
+      "addLabel": "Agregar {{ concept }} {{ reference }} al carro",
+      "bl": "BL {{ bl }}",
+      "caption": "Servicios pendientes de pago, primero los vencidos",
+      "cartLabel": "{{ concept }} del BL {{ bl }}",
+      "col": {
+        "actions": "Acciones",
+        "amount": "Monto",
+        "reference": "Referencia",
+        "service": "Servicio",
+        "status": "Estado"
+      },
+      "creditNote": "Su organización tiene crédito: estos pendientes se pagan desde «Pagar desde mi cuenta».",
+      "dueDate": "Vence el {{ date }}",
+      "empty": "No tiene servicios pendientes de pago.",
+      "go": "Ver",
+      "goLabel": "Ver {{ concept }} {{ reference }}",
+      "inCart": "En el carro",
+      "title": "Pendientes de pago",
+      "truncated": "Se muestran {{ shown }} de {{ total }} pendientes."
+    },
+    "requests": {
+      "caption": "Gestiones en curso y terminadas en los últimos 30 días",
+      "col": {
+        "actions": "Acciones",
+        "date": "Fecha",
+        "request": "Gestión",
+        "status": "Estado"
+      },
+      "empty": "No tiene gestiones en curso ni recientes.",
+      "title": "Mis gestiones",
+      "view": "Ver",
+      "viewLabel": "Ver {{ request }} {{ reference }}"
+    },
+    "services": {
+      "accountPayments": {
+        "description": "Pague cargos y facturas con la condición de crédito de su organización.",
+        "title": "Pagar desde mi cuenta"
+      },
+      "dangerousGoods": {
+        "description": "Consulte la clase y el número ONU de una carga.",
+        "title": "Buscar mercancías peligrosas"
+      },
+      "demurrage": {
+        "description": "Revise y calcule el cobro por días adicionales de contenedor.",
+        "title": "Consultar demurrage"
+      },
+      "faq": {
+        "description": "Respuestas a las dudas más comunes.",
+        "title": "Preguntas frecuentes"
+      },
+      "invoices": {
+        "description": "Consulte, descargue y pague sus facturas.",
+        "title": "Ver mis facturas"
+      },
+      "pay": {
+        "description": "Pague cargos, flete y servicios agregados al carro.",
+        "title": "Pagar cargos y servicios"
+      },
+      "shipments": {
+        "description": "Estado, documentos y cargos de cada BL o booking.",
+        "title": "Ver mis embarques"
+      },
+      "tatc": {
+        "description": "Pida el TATC de varios BL de una misma localidad.",
+        "title": "Solicitar TATC"
+      },
+      "title": "¿Qué necesita hacer?",
+      "warehouse": {
+        "description": "Solicite el traslado de su carga a otro almacén.",
+        "title": "Cambiar de almacén"
+      }
+    },
+    "summary": {
+      "accountPayments": "Pagar desde mi cuenta",
+      "byOperation": "{{ imports }} de importación y {{ exports }} de exportación",
+      "demurrageAtRisk": "Demurrage en riesgo",
+      "goToCart": "Ir al carro de compra",
+      "noPending": "Sin saldos pendientes",
+      "pendingPayments": "Pendientes de pago",
+      "requestsHelp": "Solicitudes del portal aún en proceso.",
+      "requestsInProgress": "Gestiones en curso",
+      "shipments": "Embarques",
+      "title": "Resumen",
+      "totalsLabel": "Saldo pendiente por moneda",
+      "viewDemurrage": "Ver demurrage",
+      "viewShipments": "Ver embarques",
+      "withPendingCharges": "{count, plural, =0 {Ningún embarque con cargos pendientes} one {# embarque con cargos pendientes} other {# embarques con cargos pendientes}}"
     },
     "title": "Dashboard",
-    "welcome": "Bienvenido,"
+    "unavailable": "No pudimos obtener el resumen en este momento: el servicio no está disponible temporalmente. Sus datos no se perdieron.",
+    "welcome": "Bienvenido, {{ name }}"
   },
   "demurrage": {
     "calculator": {
@@ -2614,6 +3135,82 @@
       "title": "Agregar al carro",
       "validating": "Validando el ítem…"
     },
+    "assistant": {
+      "actionsLabel": "Acciones sugeridas",
+      "answerType": {
+        "needsReference": "Falta un dato",
+        "noAnswer": "Sin respuesta: derivado a la casilla de correo",
+        "notAvailable": "Información no disponible",
+        "refused": "Consulta fuera del alcance del asistente",
+        "sourceUnavailable": "Sistema de origen no disponible"
+      },
+      "author": {
+        "assistant": "Asistente",
+        "user": "Usted"
+      },
+      "citation": "{{ kind }}: {{ reference }}",
+      "citationKind": {
+        "charges": "Cargos",
+        "documents": "Documentos",
+        "invoice": "Factura",
+        "knowledgeArticle": "Base de conocimiento",
+        "pendingPayments": "Pendientes de pago",
+        "shipment": "Embarque",
+        "tatc": "TATC"
+      },
+      "close": "Cerrar el asistente",
+      "downloaded": "Descarga iniciada: {{ label }}.",
+      "end": {
+        "button": "Terminar",
+        "cancel": "Volver a la conversación",
+        "confirm": "Terminar conversación",
+        "done": "Conversación terminada.",
+        "doneTitle": "Conversación terminada",
+        "doneWithTranscript": "Conversación terminada. Enviamos el respaldo a {{ email }}.",
+        "errors": {
+          "emailInvalid": "Ingrese un correo válido, por ejemplo nombre@empresa.cl.",
+          "emailRequired": "Ingrese el correo al que enviar el respaldo.",
+          "submit": "No se pudo terminar la conversación. Intente nuevamente."
+        },
+        "other": "Otro correo",
+        "otherEmail": "Correo para el respaldo (obligatorio)",
+        "recipient": "Enviar a",
+        "registered": "Mi correo registrado ({{ email }})",
+        "sendTranscript": "Enviarme el respaldo de la conversación por correo",
+        "title": "Terminar la conversación",
+        "transcriptHelp": "Incluye la fecha, la hora y la conversación completa. Es solo un respaldo: no reemplaza una solicitud formal ni cambia ninguna gestión."
+      },
+      "errors": {
+        "download": "No se pudo descargar el documento. Intente nuevamente.",
+        "empty": "Escriba su pregunta antes de enviarla.",
+        "send": "No se pudo enviar el mensaje. Intente nuevamente.",
+        "start": "No se pudo iniciar la conversación. Intente nuevamente."
+      },
+      "historyLabel": "Conversación con el asistente",
+      "input": "Escriba su pregunta",
+      "inputHelp": "{{ count }} de {{ max }} caracteres. Enter envía; Mayús+Enter agrega una línea.",
+      "launcher": {
+        "close": "Cerrar asistente",
+        "open": "Asistente"
+      },
+      "mailbox": "Puede escribir a la casilla:",
+      "newConversation": "Nueva conversación",
+      "processing": "Su consulta se está procesando y puede tardar unos segundos más.",
+      "replied": "Respuesta del asistente: {{ content }}",
+      "retryStart": "Reintentar",
+      "scope": "Responde sobre procesos del portal y sobre sus embarques, documentos y cargos según sus permisos. Las respuestas están en español.",
+      "send": "Enviar",
+      "sources": "Fuentes",
+      "started": "Conversación iniciada con el asistente.",
+      "starting": "Iniciando la conversación…",
+      "title": "Asistente del portal",
+      "typing": "El asistente está escribiendo…"
+    },
+    "disputeLink": {
+      "description": "Reclamos sobre productos digitales en el sitio de Hapag-Lloyd.",
+      "label": "Dispute de productos digitales",
+      "newTab": " (se abre en una pestaña nueva)"
+    },
     "exchangeRate": {
       "note": "Tipo de cambio {{ from }}→{{ to }}: {{ rate }}, vigente al {{ date }} (fuente {{ source }}).",
       "unavailable": "No se pudo obtener el tipo de cambio {{ from }}→{{ to }} desde Nexus."
@@ -2644,6 +3241,13 @@
       "organization": "Mi organización",
       "profile": "Mi Perfil",
       "tagline": "PORTAL DE SERVICIOS",
+      "theme": {
+        "auto": "Según el sistema",
+        "changed": "Tema cambiado: {{ theme }}.",
+        "dark": "Oscuro",
+        "label": "Tema",
+        "light": "Claro"
+      },
       "userMenu": "Menú de usuario: {{ name }}"
     },
     "paymentBlock": {
@@ -2657,10 +3261,14 @@
         "accessMatrix": "Matriz de accesos",
         "accountPayments": "Pagar desde mi cuenta",
         "adminOrganizations": "Organizaciones",
+        "assistantKnowledge": "Base de conocimiento",
+        "assistantMailboxes": "Casillas del asistente",
         "audit": "Auditoría",
         "blImport": "Carga de BL",
         "cart": "Carro de compra",
         "customs": "Transmisión Aduana",
+        "dangerousGoods": "Mercancías peligrosas",
+        "dangerousGoodsImport": "Base de mercancías peligrosas",
         "dashboard": "Dashboard",
         "deadlines": "Control de Plazos",
         "demurrage": "Demurrage",
@@ -2674,10 +3282,12 @@
         "paymentHistory": "Historial de pagos",
         "paymentMethods": "Medios de pago",
         "paymentsFinance": "Finanzas: pagos",
+        "publicationRules": "Reglas de publicación",
         "reports": "Reportes",
         "serviceOrders": "Órdenes de Servicio",
         "shipments": "Embarques",
         "tariffs": "Tarifas",
+        "tatc": "Solicitar TATC",
         "users": "Usuarios",
         "warehouse": "Cambio Almacén"
       },
@@ -2813,6 +3423,21 @@
         "vessel": "Nave",
         "voyage": "Viaje"
       },
+      "issuance": {
+        "documentType": "Documento de transporte",
+        "lastKnown": "Último estado conocido, no vigente: {{ type }}, {{ status }} ({{ date }}).",
+        "notInformed": "No informado",
+        "place": "Lugar de emisión",
+        "platform": "Plataforma: {{ platform }}",
+        "refreshed": "Estado de emisión actualizado.",
+        "retry": "Volver a consultar",
+        "source": "Según {{ source }}, consultado el {{ date }}.",
+        "status": "Estado de emisión",
+        "statusAt": "Fecha del estado",
+        "stillUnavailable": "El sistema de origen sigue sin responder.",
+        "title": "Emisión del BL",
+        "unavailable": "No pudimos consultar el estado de emisión en {{ source }}: el sistema no respondió. Intente nuevamente en unos minutos."
+      },
       "loadError": "No se pudo cargar el embarque.",
       "notFound": "No encontramos el embarque o no tiene acceso a él.",
       "parties": {
@@ -2822,6 +3447,18 @@
         "noRoles": "Sin rol asignado",
         "shipper": "Embarcador (SH)",
         "title": "Partes del embarque"
+      },
+      "publication": {
+        "destination": "Destino final",
+        "difu": "DIFU",
+        "difuLocation": "Localidad del DIFU",
+        "discharge": "Puerto de descarga",
+        "hidden": "Este BL no está publicado: los clientes no lo ven en el portal.",
+        "no": "No",
+        "published": "Publicado a clientes",
+        "reason": "Motivo",
+        "title": "Publicación por DIFU",
+        "yes": "Sí"
       },
       "readOnly": "Puede consultar este embarque, pero su perfil o el estado de su organización no le permite pagar ni solicitar servicios.",
       "serviceOrders": {
@@ -2836,6 +3473,29 @@
         "empty": "El embarque no tiene órdenes de servicio generadas.",
         "title": "Órdenes de servicio (ODS)"
       },
+      "tatc": {
+        "blStatus": "Estado del TATC del BL",
+        "caption": "TATC por contenedor del BL {{ bl }}",
+        "col": {
+          "container": "Contenedor",
+          "issuedAt": "Emitido",
+          "number": "Número de TATC",
+          "pending": "Pendiente",
+          "status": "Estado",
+          "warehouse": "Almacén"
+        },
+        "empty": "El sistema de TATC no tiene contenedores registrados para este BL.",
+        "loadError": "No se pudo consultar el TATC del BL.",
+        "noPending": "Sin pendientes",
+        "notInformed": "No informado",
+        "portalUnavailable": "No pudimos consultar el TATC en este momento: el servicio no está disponible temporalmente.",
+        "request": "Solicitar TATC",
+        "retrievedAt": "Consultado",
+        "retry": "Volver a consultar",
+        "sourceUpdatedAt": "Actualizado en el sistema de TATC",
+        "title": "TATC",
+        "unavailable": "El sistema de TATC no respondió: no podemos mostrar el estado vigente. Intente nuevamente en unos minutos."
+      },
       "title": "Embarque {{ bl }}"
     },
     "list": {
@@ -2845,7 +3505,9 @@
         "blNumber": "BL",
         "bookingNumber": "Booking",
         "country": "País",
+        "issuance": "Emisión",
         "operation": "Operación",
+        "publication": "Publicación",
         "status": "Estado",
         "vessel": "Nave",
         "voyage": "Viaje"
@@ -2858,12 +3520,18 @@
         "clear": "Limpiar filtros",
         "country": "País",
         "label": "Filtros de embarques",
+        "published": "Publicación",
+        "publishedAll": "Todos",
+        "publishedNo": "No publicados",
+        "publishedYes": "Publicados",
         "search": "Buscar",
         "status": "Estado",
         "vessel": "Nave",
         "voyage": "Viaje"
       },
+      "issuanceUnknown": "Sin estado de emisión",
       "loadError": "No se pudo cargar el listado de embarques.",
+      "notPublished": "No publicado",
       "openBl": {
         "field": "Buscar BL por número",
         "help": "Ingrese el número exacto del BL. Si el cliente titular tiene activo el acceso abierto, verá la información que habilita aunque no esté en su listado.",
@@ -2885,6 +3553,7 @@
         "showing": "Mostrando {{ shown }} de {{ total }}"
       },
       "pendingCharges": "Cargos pendientes",
+      "published": "Publicado",
       "subtitle": "Todos los BL y bookings a los que tiene acceso, cualquiera sea su rol",
       "title": "Embarques",
       "universeNote": "El listado muestra los embarques a los que tiene acceso. Que un BL no aparezca no significa que no tenga deuda asociada."
@@ -2902,6 +3571,63 @@
     "processing": "Procesando",
     "rejected": "Rechazado",
     "released": "Liberado"
+  },
+  "tatcRequests": {
+    "form": {
+      "bls": "BL (obligatorio)",
+      "blsHelp": "Un BL por línea, o separados por coma o espacio. Hasta {{ max }} BL.",
+      "count": "{count, plural, =0 {Ningún BL en la lista} one {# BL en la lista} other {# BL en la lista}}",
+      "errors": {
+        "blsRequired": "Ingrese al menos un BL.",
+        "locationInvalid": "Ingrese la localidad como UN/LOCODE de 5 caracteres, por ejemplo CLIQQ.",
+        "locationRequired": "Ingrese la localidad.",
+        "submit": "No se pudo enviar la solicitud. Intente nuevamente.",
+        "summaryTitle": "Revise los siguientes campos",
+        "tooMany": "La lista supera los {{ max }} BL permitidos."
+      },
+      "location": "Localidad, UN/LOCODE (obligatorio)",
+      "locationHelp": "Puerto de descarga o destino final de los BL, por ejemplo CLIQQ (Iquique) o CLSAI (San Antonio).",
+      "note": "El portal revisa cada BL (acceso, importación, localidad y país) y envía los válidos al sistema de TATC en una sola solicitud. Los BL que no cumplen se informan con su motivo.",
+      "sending": "Enviando la solicitud de {{ count }} BL…",
+      "submit": "Enviar solicitud",
+      "title": "Nueva solicitud"
+    },
+    "history": {
+      "caption": "Últimas solicitudes masivas de TATC de su organización",
+      "col": {
+        "actions": "Acciones",
+        "counts": "Resultado",
+        "date": "Fecha",
+        "location": "Localidad",
+        "status": "Estado"
+      },
+      "empty": "Su organización aún no tiene solicitudes masivas de TATC.",
+      "title": "Solicitudes anteriores",
+      "view": "Ver resultado",
+      "viewLabel": "Ver el resultado de la solicitud de {{ location }} del {{ date }}"
+    },
+    "result": {
+      "announce": "Solicitud de TATC: {{ status }}. {{ accepted }} de {{ total }} BL aceptados.",
+      "caption": "Resultado por BL",
+      "col": {
+        "bl": "BL",
+        "line": "Línea",
+        "reason": "Motivo",
+        "status": "Resultado"
+      },
+      "counts": "BL aceptados",
+      "countsValue": "{{ accepted }} aceptados, {{ notAccepted }} no aceptados, de {{ total }}",
+      "loadError": "No se pudo cargar el resultado de la solicitud.",
+      "noValidItems": "Ningún BL de la lista se pudo incluir: no se envió nada al sistema de TATC.",
+      "requested": "Solicitada por",
+      "requestedValue": "{{ user }}, {{ date }}",
+      "sourceRequest": "Número en el sistema de TATC",
+      "sourceUnavailable": "El sistema de TATC no respondió: los BL válidos quedaron sin enviar. Intente nuevamente en unos minutos.",
+      "status": "Estado",
+      "title": "Resultado de la solicitud de {{ location }}"
+    },
+    "subtitle": "Pida el TATC de varios BL de importación de una misma localidad en una sola solicitud, por ejemplo los que descargan en Iquique.",
+    "title": "Solicitud masiva de TATC"
   },
   "thirdPartyAccess": {
     "audit": {

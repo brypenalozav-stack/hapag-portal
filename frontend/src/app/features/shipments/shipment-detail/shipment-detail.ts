@@ -11,6 +11,7 @@ import { PERMISSIONS } from '../../../core/constants/app.constants';
 import { apiErrorKey } from '../../../core/http/api-error';
 import { SHIPMENT_ACTIONS, ShipmentDetail } from '../../../core/models/shipment.model';
 import {
+  PUBLICATION_REASON_KEYS,
   SHIPMENT_OPERATION_KEYS,
   SHIPMENT_ROLE_KEYS,
 } from '../../../core/i18n/labels';
@@ -28,6 +29,8 @@ import { GRANT_ERRORS } from '../../access/shared/access-errors';
 import { ChargesPanelComponent } from '../../charges/charges-panel/charges-panel';
 import { AddToCartDialogComponent, AddToCartTarget } from '../../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
 import { ShipmentDocumentsComponent } from '../../documents/shipment-documents/shipment-documents';
+import { ShipmentIssuanceComponent } from '../shipment-issuance/shipment-issuance';
+import { ShipmentTatcComponent } from '../shipment-tatc/shipment-tatc';
 
 /** Orígenes del acceso con los que se muestra la sección "Accesos" del BL. */
 const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
@@ -43,6 +46,8 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
  * Ola D: el flete pendiente se paga desde el carro (M5-01), con el RUT de facturación elegido al agregarlo.
  * Ola E: sección "Documentos" con el repositorio del embarque y las solicitudes de documentos (M6-01 a
  * M6-09); la carta de responsabilidad emitida desde los cargos o desde los documentos actualiza ambas.
+ * Ola F: estado de emisión del documento de transporte (M2-02), TATC del BL de importación por contenedor
+ * (M2-09) y, para el administrador interno, la publicación del BL por DIFU de destino final (M2-01).
  */
 @Component({
   selector: 'app-shipment-detail',
@@ -51,7 +56,7 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
     RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, CodeLabelPipe,
     StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
     AccessSourceBadgeComponent, ShipmentAccessComponent, ChargesPanelComponent, AddToCartDialogComponent,
-    ShipmentDocumentsComponent,
+    ShipmentDocumentsComponent, ShipmentIssuanceComponent, ShipmentTatcComponent,
   ],
   templateUrl: './shipment-detail.html',
   styleUrl: './shipment-detail.scss',
@@ -67,6 +72,7 @@ export class ShipmentDetailComponent implements OnInit {
 
   readonly roleKeys = SHIPMENT_ROLE_KEYS;
   readonly operationKeys = SHIPMENT_OPERATION_KEYS;
+  readonly publicationReasonKeys = PUBLICATION_REASON_KEYS;
 
   shipment = signal<ShipmentDetail | null>(null);
   loading = signal(true);
@@ -101,6 +107,15 @@ export class ShipmentDetailComponent implements OnInit {
   canPayFreight = computed(() => this.allowed().has(SHIPMENT_ACTIONS.PAY_FREIGHT));
   canPayDemurrage = computed(() => this.allowed().has(SHIPMENT_ACTIONS.PAY_IMPORT_DEMURRAGE));
   canRequestWarehouseChange = computed(() => this.allowed().has(SHIPMENT_ACTIONS.REQUEST_WAREHOUSE_CHANGE));
+
+  /** TATC del BL (M2-09): solo importación y con la acción `tatc.download` de la matriz (M1-11). */
+  showTatc = computed(() => {
+    const s = this.shipment();
+    return !!s && s.operation === 'IMPORT' && s.allowedActions.includes(SHIPMENT_ACTIONS.DOWNLOAD_TATC);
+  });
+
+  /** Publicación por DIFU (M2-01): solo la ve el administrador interno. */
+  showPublication = computed(() => this.auth.isInternal() && !!this.shipment()?.publication);
 
   /** Las ODS se consultan en exportación (CL-EXP-13, BO-EXP-09) o si el embarque ya tiene alguna. */
   showServiceOrders = computed(() => {

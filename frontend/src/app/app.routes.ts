@@ -146,6 +146,18 @@ export const routes: Routes = [
       import('./features/service-orders/service-orders').then((m) => m.ServiceOrdersComponent),
     canActivate: [authGuard],
   },
+  // Ola F: solicitud masiva de TATC por localidad (M2-09) y buscador de mercancías peligrosas (M10-06).
+  {
+    path: 'tatc',
+    loadComponent: () => import('./features/tatc/tatc-bulk').then((m) => m.TatcBulkComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'dangerous-goods',
+    loadComponent: () =>
+      import('./features/dangerous-goods/dangerous-goods').then((m) => m.DangerousGoodsComponent),
+    canActivate: [authGuard],
+  },
   {
     path: 'profile',
     loadComponent: () =>
@@ -285,6 +297,32 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/payment-config/payments-finance').then((m) => m.PaymentsFinanceComponent),
     canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PAYMENTS_FINANCE)],
+  },
+  // Ola F: reglas de publicación por DIFU (M2-01), base de conocimiento y casillas del asistente (M10-02) y
+  // carga de la base de referencia de mercancías peligrosas (M10-06), con registro de cambios (NF-15).
+  {
+    path: 'admin/publication-rules',
+    loadComponent: () =>
+      import('./features/admin/publication-rules/publication-rules').then((m) => m.PublicationRulesComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/assistant-knowledge',
+    loadComponent: () =>
+      import('./features/admin/assistant-knowledge/assistant-knowledge').then((m) => m.AssistantKnowledgeComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/assistant-mailboxes',
+    loadComponent: () =>
+      import('./features/admin/assistant-mailboxes/assistant-mailboxes').then((m) => m.AssistantMailboxesComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/dangerous-goods',
+    loadComponent: () =>
+      import('./features/admin/dangerous-goods-import/dangerous-goods-import').then((m) => m.DangerousGoodsImportComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
   },
   { path: '**', redirectTo: '/dashboard' },
 ];

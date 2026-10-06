@@ -6,7 +6,14 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ShipmentService } from '../../../core/services/shipment.service';
 import { ShipmentOperationService } from '../../../core/services/shipment-operation.service';
 import { ShipmentListItem, ShipmentOperationFilter } from '../../../core/models/shipment.model';
-import { SHIPMENT_OPERATION_KEYS } from '../../../core/i18n/labels';
+import {
+  BL_ISSUANCE_STATUS_CLASS,
+  BL_ISSUANCE_STATUS_KEYS,
+  PUBLICATION_REASON_KEYS,
+  SHIPMENT_OPERATION_KEYS,
+  TRANSPORT_DOCUMENT_TYPE_KEYS,
+} from '../../../core/i18n/labels';
+import { AuthService } from '../../../core/services/auth.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { CountryBadgeComponent } from '../../../shared/components/country-badge/country-badge';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
@@ -26,6 +33,8 @@ const ALL_OPERATIONS = 'ALL';
  * (M2-07) que se mantiene durante la navegación (ShipmentOperationService y query params).
  * Incluye los BL recibidos por acceso y los autoasociados, con el origen del acceso, y la búsqueda
  * por número exacto, que abre el detalle y permite ver un BL con acceso abierto (M1-17).
+ * Ola F: estado de emisión del documento de transporte (M2-02) y, solo para el administrador interno, la
+ * publicación por DIFU con su motivo y el filtro de publicados / no publicados (M2-01).
  */
 @Component({
   selector: 'app-shipment-list',
@@ -45,9 +54,14 @@ export class ShipmentListComponent {
   private readonly service = inject(ShipmentService);
   private readonly operationService = inject(ShipmentOperationService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly auth = inject(AuthService);
 
   readonly pageSize = 20;
   readonly operationKeys = SHIPMENT_OPERATION_KEYS;
+  readonly documentTypeKeys = TRANSPORT_DOCUMENT_TYPE_KEYS;
+  readonly issuanceKeys = BL_ISSUANCE_STATUS_KEYS;
+  readonly issuanceClass = BL_ISSUANCE_STATUS_CLASS;
+  readonly publicationReasonKeys = PUBLICATION_REASON_KEYS;
   readonly operations: { value: ShipmentOperationFilter; key: string }[] = [
     { value: '', key: 'shipments.list.operation.all' },
     { value: 'IMPORT', key: 'shipments.list.operation.import' },
@@ -63,6 +77,8 @@ export class ShipmentListComponent {
     voyage: [''],
     status: [''],
     country: ['' as 'CL' | 'BO' | ''],
+    /** Solo el administrador interno (M2-01): '' todos, 'true' publicados, 'false' no publicados. */
+    published: ['' as '' | 'true' | 'false'],
   });
 
   /** Número exacto de un BL para abrir su detalle, también por acceso abierto (M1-17). */
@@ -95,6 +111,7 @@ export class ShipmentListComponent {
     this.loadFailed.set(false);
     this.service.search({
       ...raw,
+      published: this.auth.isInternal() && raw.published ? raw.published === 'true' : '',
       operation: this.operation(),
       page: this.page(),
       pageSize: this.pageSize,
@@ -155,6 +172,7 @@ export class ShipmentListComponent {
       operation: this.operation() || ALL_OPERATIONS,
       page: page > 1 ? page : null,
       country: raw.country || null,
+      published: this.auth.isInternal() && raw.published ? raw.published : null,
     };
     for (const key of TEXT_FILTERS) {
       queryParams[key] = raw[key].trim() || null;
@@ -172,6 +190,7 @@ export class ShipmentListComponent {
     }
 
     const country = params.get('country');
+    const published = params.get('published');
     this.filters.setValue({
       blNumber: params.get('blNumber') ?? '',
       bookingNumber: params.get('bookingNumber') ?? '',
@@ -179,6 +198,7 @@ export class ShipmentListComponent {
       voyage: params.get('voyage') ?? '',
       status: params.get('status') ?? '',
       country: country === 'CL' || country === 'BO' ? country : '',
+      published: published === 'true' || published === 'false' ? published : '',
     });
 
     const page = Number(params.get('page'));

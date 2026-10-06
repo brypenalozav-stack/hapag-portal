@@ -25,6 +25,17 @@
   </div>
 
   <div class="d-flex align-items-center gap-3">
+    <!-- Selector de tema (M11-07): claro, oscuro o el del sistema operativo -->
+    <div class="d-flex align-items-center gap-2">
+      <label for="hl-theme" class="hl-navbar__label d-none d-xl-inline">{{ 'shared.navbar.theme.label' | transloco }}</label>
+      <select id="hl-theme" class="form-select form-select-sm hl-theme-select" data-testid="theme-select"
+              [attr.aria-label]="'shared.navbar.theme.label' | transloco" (change)="onTheme($event)">
+        @for (option of themeOptions; track option) {
+          <option [value]="option" [selected]="themes.preference() === option">{{ themeKeys[option] | transloco }}</option>
+        }
+      </select>
+    </div>
+
     <!-- Language selector (ES/EN, cambio en caliente) -->
     <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'shared.navbar.language.label' | transloco">
       <button type="button" class="btn btn-outline-light hl-lang-btn" lang="es"

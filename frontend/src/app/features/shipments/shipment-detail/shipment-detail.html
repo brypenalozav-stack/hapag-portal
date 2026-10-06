@@ -70,6 +70,52 @@
     </dl>
   </section>
 
+  <!-- Publicación por DIFU de destino final (M2-01): solo el administrador interno -->
+  @if (showPublication() && s.publication; as publication) {
+    <section class="hl-card p-4 mb-4" aria-labelledby="shipment-publication-title" data-testid="shipment-publication">
+      <h2 id="shipment-publication-title" class="section-title mb-3">{{ 'shipments.detail.publication.title' | transloco }}</h2>
+      @if (!publication.published) {
+        <div class="alert alert-warning" role="note">{{ 'shipments.detail.publication.hidden' | transloco }}</div>
+      }
+      <dl class="row g-3 mb-0">
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.publication.published' | transloco }}</dt>
+          <dd class="detail-value">{{ (publication.published ? 'shipments.detail.publication.yes' : 'shipments.detail.publication.no') | transloco }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.publication.reason' | transloco }}</dt>
+          <dd class="detail-value">{{ publication.reasonCode | codeLabel: publicationReasonKeys }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.publication.destination' | transloco }}</dt>
+          <dd class="detail-value">{{ publication.finalDestinationCode ?? s.finalDestinationCode ?? '—' }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.publication.discharge' | transloco }}</dt>
+          <dd class="detail-value">{{ publication.portOfDischargeCode ?? s.portOfDischargeCode ?? '—' }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.publication.difu' | transloco }}</dt>
+          <dd class="detail-value">{{ publication.difuCode ?? '—' }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.publication.difuLocation' | transloco }}</dt>
+          <dd class="detail-value">{{ publication.difuLocationCode ?? '—' }}</dd>
+        </div>
+      </dl>
+    </section>
+  }
+
+  <!-- Estado de emisión del documento de transporte (M2-02): llega si la matriz habilita bl-issuance.view -->
+  @if (s.issuance; as issuance) {
+    <app-shipment-issuance [issuance]="issuance" />
+  }
+
+  <!-- TATC del BL de importación por contenedor (M2-09) -->
+  @if (showTatc()) {
+    <app-shipment-tatc [blNumber]="s.blNumber" />
+  }
+
   <!-- Partes y roles (M1-11) -->
   <section class="hl-card p-4 mb-4" aria-labelledby="shipment-parties-title">
     <h2 id="shipment-parties-title" class="section-title mb-3">{{ 'shipments.detail.parties.title' | transloco }}</h2>

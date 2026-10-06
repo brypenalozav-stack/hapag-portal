@@ -590,3 +590,238 @@ export const DOCUMENT_ERRORS: Record<string, string> = {
   'Integration.Unavailable': 'common.documentErrors.sourceUnavailable',
   'Error.Forbidden': 'common.documentErrors.forbidden',
 };
+
+// ---------------------------------------------------------------------------
+// Fase 1, Ola F: dashboard, publicación por DIFU, emisión del BL, TATC, asistente y mercancías peligrosas.
+// ---------------------------------------------------------------------------
+
+/** Tipo de gestión del dashboard (M1-05), con los términos del glosario. */
+export const DASHBOARD_REQUEST_KIND_KEYS: Record<string, string> = {
+  Shipment: 'common.requestKind.shipment',
+  Charges: 'common.requestKind.charges',
+  Demurrage: 'common.requestKind.demurrage',
+  Invoice: 'common.requestKind.invoice',
+  Documents: 'common.requestKind.documents',
+  WarehouseChange: 'common.requestKind.warehouseChange',
+  WarehouseChangeBatch: 'common.requestKind.warehouseChangeBatch',
+  ServiceOrder: 'common.requestKind.serviceOrder',
+  TatcBatch: 'common.requestKind.tatcBatch',
+  BlCopy: 'common.requestKind.blCopy',
+  ResponsibilityLetter: 'common.requestKind.responsibilityLetter',
+};
+
+/** Estado de una gestión del dashboard: reúne los estados de las solicitudes del portal. */
+export const DASHBOARD_REQUEST_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.requestStatus.pending',
+  Queued: 'common.requestStatus.queued',
+  Processing: 'common.requestStatus.processing',
+  InProgress: 'common.requestStatus.inProgress',
+  Requested: 'common.requestStatus.requested',
+  Completed: 'common.requestStatus.completed',
+  CompletedWithErrors: 'common.requestStatus.completedWithErrors',
+  Failed: 'common.requestStatus.failed',
+  Cancelled: 'common.requestStatus.cancelled',
+  Issued: 'common.requestStatus.issued',
+  Superseded: 'common.requestStatus.superseded',
+};
+
+/** Variante de .hl-badge por estado de la gestión (el texto acompaña siempre al color). */
+export const DASHBOARD_REQUEST_STATUS_CLASS: Record<string, string> = {
+  Pending: 'hl-badge--pending',
+  Queued: 'hl-badge--processing',
+  Processing: 'hl-badge--processing',
+  InProgress: 'hl-badge--processing',
+  Requested: 'hl-badge--processing',
+  Completed: 'hl-badge--confirmed',
+  Issued: 'hl-badge--confirmed',
+  CompletedWithErrors: 'hl-badge--pending',
+  Failed: 'hl-badge--failed',
+  Cancelled: 'hl-badge--failed',
+  Superseded: 'hl-badge--processing',
+};
+
+/** Estado de un pendiente de pago del dashboard. */
+export const DASHBOARD_PAYABLE_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.payableStatus.pending',
+  Overdue: 'common.payableStatus.overdue',
+};
+
+/** Estado de los embarques en los indicadores (los que informa el origen; el resto se muestra tal cual). */
+export const SHIPMENT_STATUS_KEYS: Record<string, string> = {
+  Booked: 'common.shipmentStatus.booked',
+  GateIn: 'common.shipmentStatus.gateIn',
+  OnBoard: 'common.shipmentStatus.onBoard',
+  InTransit: 'common.shipmentStatus.inTransit',
+  Arrived: 'common.shipmentStatus.arrived',
+  Discharged: 'common.shipmentStatus.discharged',
+  Released: 'common.shipmentStatus.released',
+  Delivered: 'common.shipmentStatus.delivered',
+  Closed: 'common.shipmentStatus.closed',
+};
+
+/** Tipo de documento de transporte (M2-02); las siglas no se traducen, la expansión sí. */
+export const TRANSPORT_DOCUMENT_TYPE_KEYS: Record<string, string> = {
+  BL: 'common.transportDocumentType.bl',
+  SWB: 'common.transportDocumentType.swb',
+  EBL: 'common.transportDocumentType.ebl',
+};
+
+/** Estado de emisión del documento de transporte (M2-02). */
+export const BL_ISSUANCE_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.issuanceStatus.pending',
+  Issued: 'common.issuanceStatus.issued',
+  AuthorizedAtDestination: 'common.issuanceStatus.authorizedAtDestination',
+  IssuedAtDestination: 'common.issuanceStatus.issuedAtDestination',
+  Transferred: 'common.issuanceStatus.transferred',
+  Surrendered: 'common.issuanceStatus.surrendered',
+  TelexReleased: 'common.issuanceStatus.telexReleased',
+  Cancelled: 'common.issuanceStatus.cancelled',
+  Unknown: 'common.issuanceStatus.unknown',
+};
+
+export const BL_ISSUANCE_STATUS_CLASS: Record<string, string> = {
+  Pending: 'hl-badge--pending',
+  Issued: 'hl-badge--confirmed',
+  AuthorizedAtDestination: 'hl-badge--processing',
+  IssuedAtDestination: 'hl-badge--confirmed',
+  Transferred: 'hl-badge--confirmed',
+  Surrendered: 'hl-badge--confirmed',
+  TelexReleased: 'hl-badge--confirmed',
+  Cancelled: 'hl-badge--failed',
+  Unknown: 'hl-badge--processing',
+};
+
+/** Motivo de publicación por DIFU de destino final (M2-01). */
+export const PUBLICATION_REASON_KEYS: Record<string, string> = {
+  NO_RULE: 'common.publicationReason.noRule',
+  SAME_AS_DISCHARGE: 'common.publicationReason.sameAsDischarge',
+  DIFU_ASSOCIATED: 'common.publicationReason.difuAssociated',
+  DIFU_MISSING: 'common.publicationReason.difuMissing',
+  DIFU_OTHER_LOCATION: 'common.publicationReason.difuOtherLocation',
+};
+
+/** Estado del TATC de un contenedor y del BL (M2-09). */
+export const TATC_STATUS_KEYS: Record<string, string> = {
+  NotIssued: 'common.tatcStatus.notIssued',
+  PreTatc: 'common.tatcStatus.preTatc',
+  Issued: 'common.tatcStatus.issued',
+  Cancelled: 'common.tatcStatus.cancelled',
+  Unknown: 'common.tatcStatus.unknown',
+  PartiallyIssued: 'common.tatcStatus.partiallyIssued',
+  NotRegistered: 'common.tatcStatus.notRegistered',
+};
+
+export const TATC_STATUS_CLASS: Record<string, string> = {
+  NotIssued: 'hl-badge--pending',
+  PreTatc: 'hl-badge--processing',
+  Issued: 'hl-badge--confirmed',
+  Cancelled: 'hl-badge--failed',
+  Unknown: 'hl-badge--processing',
+  PartiallyIssued: 'hl-badge--pending',
+  NotRegistered: 'hl-badge--processing',
+};
+
+/** Motivo por el que el TATC de un contenedor aún no se emite. */
+export const TATC_PENDING_REASON_KEYS: Record<string, string> = {
+  PAYMENT_PENDING: 'common.tatcPendingReason.paymentPending',
+  MHD_PENDING: 'common.tatcPendingReason.mhdPending',
+  DOCUMENT_PENDING: 'common.tatcPendingReason.documentPending',
+  OTHER: 'common.tatcPendingReason.other',
+};
+
+/** Estado de la solicitud masiva de TATC y de cada BL. */
+export const TATC_BATCH_STATUS_KEYS: Record<string, string> = {
+  Completed: 'common.tatcBatchStatus.completed',
+  CompletedWithErrors: 'common.tatcBatchStatus.completedWithErrors',
+  Failed: 'common.tatcBatchStatus.failed',
+};
+
+export const TATC_BATCH_STATUS_CLASS: Record<string, string> = {
+  Completed: 'hl-badge--confirmed',
+  CompletedWithErrors: 'hl-badge--pending',
+  Failed: 'hl-badge--failed',
+};
+
+export const TATC_BATCH_ITEM_STATUS_KEYS: Record<string, string> = {
+  Accepted: 'common.tatcBatchItemStatus.accepted',
+  Rejected: 'common.tatcBatchItemStatus.rejected',
+  Failed: 'common.tatcBatchItemStatus.failed',
+};
+
+export const TATC_BATCH_ITEM_STATUS_CLASS: Record<string, string> = {
+  Accepted: 'hl-badge--confirmed',
+  Rejected: 'hl-badge--failed',
+  Failed: 'hl-badge--failed',
+};
+
+/** Motivo de una línea de la solicitud masiva no aceptada (portal o sistema de TATC). */
+export const TATC_BATCH_REASON_KEYS: Record<string, string> = {
+  NOT_FOUND: 'common.tatcBatchReason.notFound',
+  NO_PERMISSION: 'common.tatcBatchReason.noPermission',
+  NOT_IMPORT: 'common.tatcBatchReason.notImport',
+  OTHER_LOCATION: 'common.tatcBatchReason.otherLocation',
+  OTHER_COUNTRY: 'common.tatcBatchReason.otherCountry',
+  DUPLICATE: 'common.tatcBatchReason.duplicate',
+  ALREADY_ISSUED: 'common.tatcBatchReason.alreadyIssued',
+  SOURCE_UNAVAILABLE: 'common.tatcBatchReason.sourceUnavailable',
+};
+
+/** Tema de la base de conocimiento y de las casillas del asistente (M10-02). */
+export const KNOWLEDGE_TOPIC_KEYS: Record<string, string> = {
+  GENERAL: 'common.knowledgeTopic.general',
+  SHIPPING: 'common.knowledgeTopic.shipping',
+  PAYMENTS: 'common.knowledgeTopic.payments',
+  DOCUMENTATION: 'common.knowledgeTopic.documentation',
+  DEMURRAGE: 'common.knowledgeTopic.demurrage',
+  COMMERCIAL: 'common.knowledgeTopic.commercial',
+};
+
+/** Tipo de respuesta del asistente que se señala junto al mensaje (falta un dato, no disponible, derivación, rechazo). */
+export const ASSISTANT_ANSWER_TYPE_KEYS: Record<string, string> = {
+  NeedsReference: 'shared.assistant.answerType.needsReference',
+  NotAvailable: 'shared.assistant.answerType.notAvailable',
+  SourceUnavailable: 'shared.assistant.answerType.sourceUnavailable',
+  NoAnswer: 'shared.assistant.answerType.noAnswer',
+  Refused: 'shared.assistant.answerType.refused',
+};
+
+/** Fuente citada por el asistente. */
+export const ASSISTANT_CITATION_KIND_KEYS: Record<string, string> = {
+  KnowledgeArticle: 'shared.assistant.citationKind.knowledgeArticle',
+  Shipment: 'shared.assistant.citationKind.shipment',
+  Documents: 'shared.assistant.citationKind.documents',
+  Charges: 'shared.assistant.citationKind.charges',
+  PendingPayments: 'shared.assistant.citationKind.pendingPayments',
+  Invoice: 'shared.assistant.citationKind.invoice',
+  Tatc: 'shared.assistant.citationKind.tatc',
+};
+
+/** Resultado del buscador de mercancías peligrosas (M10-06). */
+export const DANGEROUS_GOOD_RESULT_KEYS: Record<string, string> = {
+  CLASSIFIED: 'dangerousGoods.result.classified',
+  NOT_CLASSIFIED: 'dangerousGoods.result.notClassified',
+  NO_MATCH: 'dangerousGoods.result.noMatch',
+};
+
+/**
+ * Códigos de error del backend de la Ola F → claves Transloco. Los textos del servidor vienen en inglés y no se
+ * muestran tal cual.
+ */
+export const PORTAL_ERRORS: Record<string, string> = {
+  'BillOfLading.NotFound': 'common.portalErrors.blNotFound',
+  'Error.Forbidden': 'common.portalErrors.forbidden',
+  'Tatc.NotApplicable': 'common.portalErrors.tatcNotApplicable',
+  'Tatc.NoValidItems': 'common.portalErrors.tatcNoValidItems',
+  'TatcBatch.NotFound': 'common.portalErrors.tatcBatchNotFound',
+  'ShipmentPublicationRule.NotFound': 'common.portalErrors.publicationRuleNotFound',
+  'ShipmentPublicationRule.AlreadyExists': 'common.portalErrors.publicationRuleExists',
+  'KnowledgeArticle.NotFound': 'common.portalErrors.articleNotFound',
+  'AssistantSession.NotFound': 'common.portalErrors.sessionNotFound',
+  'AssistantSession.Ended': 'common.portalErrors.sessionEnded',
+  'AssistantSession.Expired': 'common.portalErrors.sessionExpired',
+  'AssistantSession.NoRecipient': 'common.portalErrors.noRecipient',
+  'Assistant.RateLimited': 'common.portalErrors.rateLimited',
+  'DangerousGood.InvalidImport': 'common.portalErrors.invalidImport',
+  'Integration.Unavailable': 'common.portalErrors.sourceUnavailable',
+  'Integration.Timeout': 'common.portalErrors.sourceUnavailable',
+};

@@ -144,3 +144,12 @@ export async function sembrarSesionAdmin(page: Page, lang?: Idioma): Promise<voi
     permisos: PERMISOS_ADMIN,
   });
 }
+
+export type Tema = 'light' | 'dark';
+
+/** Siembra el tema (M11-07) en localStorage (`hl_theme`) antes de que cargue la aplicación. */
+export async function sembrarTema(page: Page, tema: Tema): Promise<void> {
+  await page.addInitScript((valor) => {
+    localStorage.setItem('hl_theme', valor);
+  }, tema);
+}

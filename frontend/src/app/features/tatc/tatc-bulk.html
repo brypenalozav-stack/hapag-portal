@@ -1,0 +1,160 @@
+<div class="hl-page-header">
+  <h1>{{ 'tatcRequests.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'tatcRequests.subtitle' | transloco }}</p>
+</div>
+
+<form class="hl-card p-4 mb-4" novalidate aria-labelledby="tatc-form-title" (submit)="submit($event)">
+  <h2 id="tatc-form-title" class="section-title mb-3">{{ 'tatcRequests.form.title' | transloco }}</h2>
+
+  @if (errors().length > 0) {
+    <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="tatc-errors-title">
+      <h3 id="tatc-errors-title" class="h6 fw-bold">{{ 'tatcRequests.form.errors.summaryTitle' | transloco }}</h3>
+      <ul class="mb-0">
+        @for (error of errors(); track error.key) {
+          <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco: error.params }}</a></li>
+        }
+      </ul>
+    </div>
+  }
+  @if (submitError()) {
+    <div class="alert alert-danger py-2" role="alert" data-testid="tatc-submit-error">{{ submitError() }}</div>
+  }
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <label for="tatc-location" class="form-label small fw-semibold">{{ 'tatcRequests.form.location' | transloco }}</label>
+      <input id="tatc-location" type="text" class="form-control text-uppercase" required maxlength="5" autocomplete="off"
+             aria-describedby="tatc-location-help" [attr.aria-invalid]="hasError('tatc-location')"
+             [value]="locationCode()" (input)="onLocation($event)" />
+      <div id="tatc-location-help" class="form-text">{{ 'tatcRequests.form.locationHelp' | transloco }}</div>
+    </div>
+    <div class="col-md-8">
+      <label for="tatc-bls" class="form-label small fw-semibold">{{ 'tatcRequests.form.bls' | transloco }}</label>
+      <textarea id="tatc-bls" class="form-control font-monospace" rows="6" required
+                aria-describedby="tatc-bls-help tatc-bls-count" [attr.aria-invalid]="hasError('tatc-bls')"
+                [value]="blText()" (input)="onBls($event)"></textarea>
+      <div id="tatc-bls-help" class="form-text">{{ 'tatcRequests.form.blsHelp' | transloco: { max: maxItems } }}</div>
+      <div id="tatc-bls-count" class="form-text">{{ 'tatcRequests.form.count' | transloco: { count: blNumbers().length } }}</div>
+    </div>
+  </div>
+
+  <p class="small text-muted mt-3 mb-3">{{ 'tatcRequests.form.note' | transloco }}</p>
+  <button type="submit" class="btn btn-hl-orange" [disabled]="submitting()">
+    @if (submitting()) {
+      <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+    }
+    {{ 'tatcRequests.form.submit' | transloco }}
+  </button>
+</form>
+
+<!-- Resultado por BL: aceptado, rechazado por el sistema de TATC o no enviado, con su motivo -->
+@if (resultLoading()) {
+  <app-loading-spinner />
+} @else if (result(); as batch) {
+  <section class="hl-card mb-4" aria-labelledby="tatc-result-title" data-testid="tatc-result">
+    <div class="card-header p-3">
+      <h2 #resultHeading id="tatc-result-title" class="section-title" tabindex="-1">
+        {{ 'tatcRequests.result.title' | transloco: { location: batch.locationCode } }}
+      </h2>
+    </div>
+    <div class="p-3">
+      <dl class="row g-3 mb-0">
+        <div class="col-sm-6 col-lg-3">
+          <dt class="small fw-semibold">{{ 'tatcRequests.result.status' | transloco }}</dt>
+          <dd class="mb-0"><span class="hl-badge" [class]="statusClass[batch.status] || 'hl-badge--processing'" data-testid="tatc-result-status">{{ batch.status | codeLabel: statusKeys }}</span></dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="small fw-semibold">{{ 'tatcRequests.result.counts' | transloco }}</dt>
+          <dd class="mb-0" data-testid="tatc-result-counts">{{ 'tatcRequests.result.countsValue' | transloco: { accepted: batch.acceptedItems, notAccepted: notAccepted(batch), total: batch.totalItems } }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="small fw-semibold">{{ 'tatcRequests.result.sourceRequest' | transloco }}</dt>
+          <dd class="mb-0">{{ batch.sourceRequestId ?? '—' }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="small fw-semibold">{{ 'tatcRequests.result.requested' | transloco }}</dt>
+          <dd class="mb-0">{{ 'tatcRequests.result.requestedValue' | transloco: { user: batch.requestedBy, date: (batch.createdAt | hlDate: 'datetime') } }}</dd>
+        </div>
+      </dl>
+      @if (batch.errorCode) {
+        <div class="alert alert-warning mt-3 mb-0" role="note">{{ (batch.errorCode === 'Tatc.NoValidItems' ? 'tatcRequests.result.noValidItems' : 'tatcRequests.result.sourceUnavailable') | transloco }}</div>
+      }
+    </div>
+    @if (batch.items && batch.items.length > 0) {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'tatcRequests.result.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'tatcRequests.result.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'tatcRequests.result.col.line' | transloco }}</th>
+              <th scope="col">{{ 'tatcRequests.result.col.bl' | transloco }}</th>
+              <th scope="col">{{ 'tatcRequests.result.col.status' | transloco }}</th>
+              <th scope="col">{{ 'tatcRequests.result.col.reason' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of batch.items; track item.lineNumber) {
+              <tr [attr.data-testid]="'tatc-item-' + item.blNumber">
+                <td>{{ item.lineNumber }}</td>
+                <td class="fw-semibold">
+                  @if (item.billOfLadingId) {
+                    <a [routerLink]="['/shipments', item.blNumber]">{{ item.blNumber }}</a>
+                  } @else {
+                    {{ item.blNumber }}
+                  }
+                </td>
+                <td><span class="hl-badge" [class]="itemStatusClass[item.status] || 'hl-badge--processing'">{{ item.status | codeLabel: itemStatusKeys }}</span></td>
+                <td>{{ item.reasonCode ? (item.reasonCode | codeLabel: reasonKeys) : '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}
+
+<!-- Últimas solicitudes de la organización -->
+<section class="hl-card" aria-labelledby="tatc-history-title">
+  <div class="card-header p-3">
+    <h2 id="tatc-history-title" class="section-title">{{ 'tatcRequests.history.title' | transloco }}</h2>
+  </div>
+  @if (batchesLoading()) {
+    <app-loading-spinner />
+  } @else if (batchesFailed()) {
+    <app-state-message kind="error" (retry)="loadBatches()" />
+  } @else if (batches().length === 0) {
+    <p class="p-3 mb-0 text-muted" role="status">{{ 'tatcRequests.history.empty' | transloco }}</p>
+  } @else {
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'tatcRequests.history.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'tatcRequests.history.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'tatcRequests.history.col.date' | transloco }}</th>
+            <th scope="col">{{ 'tatcRequests.history.col.location' | transloco }}</th>
+            <th scope="col">{{ 'tatcRequests.history.col.status' | transloco }}</th>
+            <th scope="col">{{ 'tatcRequests.history.col.counts' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'tatcRequests.history.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (batch of batches(); track batch.id) {
+            <tr>
+              <td>{{ batch.createdAt | hlDate: 'datetime' }}</td>
+              <td>{{ batch.locationCode }}</td>
+              <td><span class="hl-badge" [class]="statusClass[batch.status] || 'hl-badge--processing'">{{ batch.status | codeLabel: statusKeys }}</span></td>
+              <td>{{ 'tatcRequests.result.countsValue' | transloco: { accepted: batch.acceptedItems, notAccepted: notAccepted(batch), total: batch.totalItems } }}</td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openBatch(batch.id)"
+                        [attr.aria-label]="'tatcRequests.history.viewLabel' | transloco: { location: batch.locationCode, date: (batch.createdAt | hlDate: 'datetime') }">
+                  {{ 'tatcRequests.history.view' | transloco }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

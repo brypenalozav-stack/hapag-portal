@@ -1,0 +1,181 @@
+<!-- Botón flotante del asistente (M10-01): abre el panel sin abandonar la pantalla -->
+<button #launcher type="button" class="hl-assistant-launcher" data-testid="assistant-launcher"
+        aria-controls="hl-assistant-panel" [attr.aria-expanded]="open()" (click)="toggle()">
+  <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894m-.493 3.905a22 22 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a10 10 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105"/>
+  </svg>
+  <span>{{ (open() ? 'shared.assistant.launcher.close' : 'shared.assistant.launcher.open') | transloco }}</span>
+</button>
+
+@if (open()) {
+  <section id="hl-assistant-panel" class="hl-assistant" role="dialog" aria-modal="false" aria-labelledby="assistant-title"
+           aria-describedby="assistant-disclaimer" data-testid="assistant-panel" (keydown)="onPanelKeydown($event)">
+    <div class="hl-assistant__header">
+      <h2 id="assistant-title" class="h6 fw-bold mb-0">{{ 'shared.assistant.title' | transloco }}</h2>
+      <div class="d-flex gap-1">
+        @if (session() && !endResult() && !closedKey()) {
+          <button type="button" class="btn btn-sm btn-outline-light" [disabled]="ending() || sending()" (click)="startEnd()">
+            {{ 'shared.assistant.end.button' | transloco }}
+          </button>
+        }
+        <button type="button" class="btn btn-sm btn-outline-light hl-icon-btn" [attr.aria-label]="'shared.assistant.close' | transloco" (click)="close()">
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <p id="assistant-disclaimer" class="hl-assistant__disclaimer">
+      {{ 'shared.assistant.scope' | transloco }}
+      @if (session(); as s) {
+        <span class="d-block" lang="es">{{ s.disclaimer }}</span>
+      }
+    </p>
+
+    <div #messageList class="hl-assistant__body" tabindex="0" role="region" [attr.aria-label]="'shared.assistant.historyLabel' | transloco">
+      @if (starting()) {
+        <p class="small mb-0" role="status">{{ 'shared.assistant.starting' | transloco }}</p>
+      } @else if (startError()) {
+        <div class="alert alert-danger py-2 mb-2" role="alert">{{ startError() }}</div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="startSession()">{{ 'shared.assistant.retryStart' | transloco }}</button>
+      }
+
+      <ol class="hl-assistant__messages" data-testid="assistant-messages">
+        @for (message of messages(); track message.id) {
+          <li class="hl-assistant__message" [class.hl-assistant__message--user]="message.role === 'User'"
+              [attr.data-testid]="message.role === 'User' ? 'assistant-user-message' : 'assistant-reply'"
+              [attr.data-answer-type]="message.answerType ?? null">
+            <p class="hl-assistant__author">
+              {{ (message.role === 'User' ? 'shared.assistant.author.user' : 'shared.assistant.author.assistant') | transloco }}
+              @if (!message.pending) {
+                <span class="fw-normal">{{ message.createdAt | hlDate: 'datetime' }}</span>
+              }
+            </p>
+            @if (message.answerType && answerTypeKeys[message.answerType]) {
+              <p class="hl-assistant__kind">{{ message.answerType | codeLabel: answerTypeKeys }}</p>
+            }
+            <p class="hl-assistant__content" [attr.lang]="message.role === 'Assistant' ? 'es' : null">{{ message.content }}</p>
+
+            @if (derives(message) && message.mailboxEmail) {
+              <p class="small mb-1" data-testid="assistant-mailbox">
+                {{ 'shared.assistant.mailbox' | transloco }}
+                <a [href]="'mailto:' + message.mailboxEmail">{{ message.mailboxEmail }}</a>
+              </p>
+            }
+
+            @if (message.citations.length > 0) {
+              <p class="small fw-semibold mb-0">{{ 'shared.assistant.sources' | transloco }}</p>
+              <ul class="small mb-1 ps-3">
+                @for (citation of message.citations; track citation.kind + citation.reference) {
+                  <li>{{ 'shared.assistant.citation' | transloco: { kind: (citation.kind | codeLabel: citationKeys), reference: citation.title ?? citation.reference } }}</li>
+                }
+              </ul>
+            }
+
+            @if (message.actions.length > 0) {
+              <ul class="list-unstyled d-flex flex-wrap gap-1 mb-0 mt-1" [attr.aria-label]="'shared.assistant.actionsLabel' | transloco">
+                @for (action of message.actions; track $index) {
+                  <li>
+                    @if (actionRoute(action); as route) {
+                      <a class="btn btn-sm btn-outline-secondary" [routerLink]="route" (click)="navigate($event, action)" lang="es"
+                         [attr.data-testid]="'assistant-action-' + action.type">{{ action.label }}</a>
+                    } @else if (isDownload(action)) {
+                      <button type="button" class="btn btn-sm btn-outline-secondary" lang="es" (click)="download(action)"
+                              [attr.data-testid]="'assistant-action-' + action.type">{{ action.label }}</button>
+                    } @else if (isMailto(action)) {
+                      <a class="btn btn-sm btn-outline-secondary" [href]="action.path" lang="es"
+                         [attr.data-testid]="'assistant-action-' + action.type">{{ action.label }}</a>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          </li>
+        }
+        @if (sending()) {
+          <li class="hl-assistant__message" data-testid="assistant-typing">
+            <p class="hl-assistant__author">{{ 'shared.assistant.author.assistant' | transloco }}</p>
+            <p class="hl-assistant__content mb-0">
+              <span class="hl-assistant__dots" aria-hidden="true"><span></span><span></span><span></span></span>
+              {{ (slow() ? 'shared.assistant.processing' : 'shared.assistant.typing') | transloco }}
+            </p>
+          </li>
+        }
+      </ol>
+
+      @if (downloadError()) {
+        <div class="alert alert-danger py-2 mb-0 mt-2" role="alert">{{ downloadError() }}</div>
+      }
+      @if (closedKey()) {
+        <div class="alert alert-warning py-2 mt-2 mb-2" role="alert" data-testid="assistant-closed">{{ closedKey() | transloco }}</div>
+        <button type="button" class="btn btn-sm btn-hl-orange" (click)="newConversation()">{{ 'shared.assistant.newConversation' | transloco }}</button>
+      }
+    </div>
+
+    <!-- Cierre con respaldo por correo (M10-05) -->
+    @if (endResult(); as result) {
+      <div class="hl-assistant__footer" data-testid="assistant-end-result">
+        <h3 #endResultHeading class="h6 fw-bold" tabindex="-1">{{ 'shared.assistant.end.doneTitle' | transloco }}</h3>
+        <p class="small">{{ endMessage(result) }}</p>
+        <button type="button" class="btn btn-sm btn-hl-orange" (click)="newConversation()">{{ 'shared.assistant.newConversation' | transloco }}</button>
+      </div>
+    } @else if (ending()) {
+      <form class="hl-assistant__footer" novalidate aria-labelledby="assistant-end-title" (submit)="confirmEnd($event)" data-testid="assistant-end-form">
+        <h3 #endHeading id="assistant-end-title" class="h6 fw-bold" tabindex="-1">{{ 'shared.assistant.end.title' | transloco }}</h3>
+        @if (endError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ endError() }}</div>
+        }
+        <div class="form-check">
+          <input id="assistant-transcript" type="checkbox" class="form-check-input" aria-describedby="assistant-transcript-help"
+                 [checked]="sendTranscript()" (change)="onSendTranscript($event)" />
+          <label for="assistant-transcript" class="form-check-label small">{{ 'shared.assistant.end.sendTranscript' | transloco }}</label>
+        </div>
+        <p id="assistant-transcript-help" class="form-text mt-0">{{ 'shared.assistant.end.transcriptHelp' | transloco }}</p>
+        @if (sendTranscript()) {
+          <fieldset class="mb-2">
+            <legend class="small fw-semibold mb-1">{{ 'shared.assistant.end.recipient' | transloco }}</legend>
+            <div class="form-check">
+              <input id="assistant-recipient-registered" type="radio" class="form-check-input" name="assistant-recipient"
+                     [checked]="!useOtherEmail()" (change)="onRecipient(false)" />
+              <label for="assistant-recipient-registered" class="form-check-label small">{{ 'shared.assistant.end.registered' | transloco: { email: userEmail() } }}</label>
+            </div>
+            <div class="form-check">
+              <input id="assistant-recipient-other" type="radio" class="form-check-input" name="assistant-recipient"
+                     [checked]="useOtherEmail()" (change)="onRecipient(true)" />
+              <label for="assistant-recipient-other" class="form-check-label small">{{ 'shared.assistant.end.other' | transloco }}</label>
+            </div>
+            @if (useOtherEmail()) {
+              <label for="assistant-other-email" class="form-label small fw-semibold mt-2 mb-1">{{ 'shared.assistant.end.otherEmail' | transloco }}</label>
+              <input #otherEmailInput id="assistant-other-email" type="email" class="form-control form-control-sm" autocomplete="email" required
+                     aria-describedby="assistant-other-email-error" [attr.aria-invalid]="otherEmailError() ? true : null"
+                     [value]="otherEmail()" (input)="onOtherEmail($event)" />
+              <div id="assistant-other-email-error">
+                @if (otherEmailError(); as key) {
+                  <div class="invalid-feedback d-block">{{ key | transloco }}</div>
+                }
+              </div>
+            }
+          </fieldset>
+        }
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-sm btn-hl-orange" [disabled]="endBusy()">{{ 'shared.assistant.end.confirm' | transloco }}</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelEnd()">{{ 'shared.assistant.end.cancel' | transloco }}</button>
+        </div>
+      </form>
+    } @else if (canSend()) {
+      <form class="hl-assistant__footer" novalidate (submit)="send($event)">
+        @if (sendError()) {
+          <div class="alert alert-danger py-2 mb-2" role="alert" data-testid="assistant-error">{{ sendError() }}</div>
+        }
+        <label for="assistant-message" class="form-label small fw-semibold mb-1">{{ 'shared.assistant.input' | transloco }}</label>
+        <div class="d-flex gap-2 align-items-end">
+          <textarea #messageInput id="assistant-message" class="form-control form-control-sm" rows="2" [attr.maxlength]="maxLength"
+                    aria-describedby="assistant-message-help" [value]="draft()" (input)="onDraft($event)" (keydown)="onDraftKeydown($event)"></textarea>
+          <button type="submit" class="btn btn-sm btn-hl-orange" [disabled]="sending()">{{ 'shared.assistant.send' | transloco }}</button>
+        </div>
+        <p id="assistant-message-help" class="form-text mb-0">{{ 'shared.assistant.inputHelp' | transloco: { count: draft().length, max: maxLength } }}</p>
+      </form>
+    }
+  </section>
+}

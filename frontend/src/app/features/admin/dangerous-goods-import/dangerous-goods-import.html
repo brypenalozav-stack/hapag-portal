@@ -1,0 +1,62 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.dangerousGoodsImport.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.dangerousGoodsImport.subtitle' | transloco }}</p>
+</div>
+
+<form class="hl-card p-4 mb-4" novalidate aria-labelledby="dg-import-form-title" (submit)="submit($event)">
+  <h2 id="dg-import-form-title" class="section-title mb-3">{{ 'admin.dangerousGoodsImport.form.title' | transloco }}</h2>
+  @if (submitError()) {
+    <div class="alert alert-danger py-2" role="alert">{{ submitError() }}</div>
+  }
+  <label for="dg-import-file" class="form-label small fw-semibold">{{ 'admin.dangerousGoodsImport.form.file' | transloco }}</label>
+  <input #fileInput id="dg-import-file" type="file" class="form-control" accept=".csv,text/csv" required
+         aria-describedby="dg-import-help dg-import-columns dg-import-error" [attr.aria-invalid]="fileError() ? true : null"
+         (change)="onFile($event)" />
+  <div id="dg-import-help" class="form-text">{{ 'admin.dangerousGoodsImport.form.help' | transloco }}</div>
+  <p id="dg-import-columns" class="form-text">
+    {{ 'admin.dangerousGoodsImport.form.columns' | transloco }} <code>{{ header }}</code>
+  </p>
+  <div id="dg-import-error">
+    @if (fileError()) {
+      <div class="invalid-feedback d-block">{{ fileError() }}</div>
+    }
+  </div>
+  <button type="submit" class="btn btn-hl-orange mt-3" [disabled]="submitting()">
+    @if (submitting()) {
+      <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+    }
+    {{ 'admin.dangerousGoodsImport.form.submit' | transloco }}
+  </button>
+</form>
+
+@if (result(); as r) {
+  <section class="hl-card mb-4" aria-labelledby="dg-import-result-title" data-testid="dg-import-result">
+    <div class="card-header p-3">
+      <h2 #resultHeading id="dg-import-result-title" class="section-title" tabindex="-1">{{ 'admin.dangerousGoodsImport.result.title' | transloco }}</h2>
+    </div>
+    <div class="p-3">
+      <p class="mb-0">{{ 'admin.dangerousGoodsImport.result.summary' | transloco: { total: r.totalRows, created: r.created, updated: r.updated, skipped: r.skipped } }}</p>
+    </div>
+    @if (r.errors.length > 0) {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.dangerousGoodsImport.result.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.dangerousGoodsImport.result.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.dangerousGoodsImport.result.col.line' | transloco }}</th>
+              <th scope="col">{{ 'admin.dangerousGoodsImport.result.col.reason' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (error of r.errors; track error.line) {
+              <tr>
+                <td>{{ error.line }}</td>
+                <td lang="en">{{ error.reason }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

@@ -70,6 +70,12 @@ export const API_ENDPOINTS = {
   ADMIN_PAYMENTS: 'admin/payments',
   // Fase 1, Ola E
   DOCUMENTS: 'documents',
+  // Fase 1, Ola F
+  DASHBOARD: 'dashboard',
+  SHIPMENT_PUBLICATION_RULES: 'shipment-publication-rules',
+  CONFIG_DISPUTE_LINK: 'config/dispute-link',
+  ASSISTANT: 'assistant',
+  DANGEROUS_GOODS: 'dangerous-goods',
 } as const;
 
 /**

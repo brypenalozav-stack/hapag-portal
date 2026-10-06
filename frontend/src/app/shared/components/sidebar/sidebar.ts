@@ -4,11 +4,12 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../core/services/cart.service';
 import { PERMISSIONS } from '../../../core/constants/app.constants';
+import { DisputeLinkComponent } from '../dispute-link/dispute-link';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, TranslocoPipe],
+  imports: [RouterLink, RouterLinkActive, TranslocoPipe, DisputeLinkComponent],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
   host: { '(document:keydown.escape)': 'onEscape()' },

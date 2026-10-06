@@ -9,6 +9,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { OrganizationService } from '../../../core/services/organization.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { CartService } from '../../../core/services/cart.service';
+import { THEME_PREFERENCES, ThemePreference, ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -23,6 +24,14 @@ export class NavbarComponent implements OnInit {
   readonly locale = inject(LocaleService);
   /** Carro de compra (M5-01) o, para clientes con crédito, pago desde la cuenta (M5-07). */
   readonly cart = inject(CartService);
+  /** Tema claro, oscuro o del sistema (M11-07). */
+  readonly themes = inject(ThemeService);
+  readonly themeOptions = THEME_PREFERENCES;
+  readonly themeKeys: Record<ThemePreference, string> = {
+    auto: 'shared.navbar.theme.auto',
+    light: 'shared.navbar.theme.light',
+    dark: 'shared.navbar.theme.dark',
+  };
   private readonly organizations = inject(OrganizationService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
@@ -65,6 +74,13 @@ export class NavbarComponent implements OnInit {
         this.announcer.announce(translate('shared.navbar.country.error'), 'assertive');
       },
     });
+  }
+
+  /** Cambia el tema y lo anuncia; la preferencia se conserva entre sesiones (hl_theme). */
+  onTheme(event: Event): void {
+    const preference = (event.target as HTMLSelectElement).value as ThemePreference;
+    this.themes.setPreference(preference);
+    this.announcer.announce(translate('shared.navbar.theme.changed', { theme: translate(this.themeKeys[preference]) }));
   }
 
   logout(): void {
