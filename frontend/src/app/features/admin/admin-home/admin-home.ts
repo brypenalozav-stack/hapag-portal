@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AdministrationService } from '../../../core/services/administration.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { PERMISSIONS } from '../../../core/constants/app.constants';
 import { AdminOverview, AdminOverviewSection } from '../../../core/models/administration.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
@@ -22,6 +23,11 @@ interface AdminGroup {
   links: AdminLink[];
   /** Contador → clave de su texto (con `{count}`). */
   counters: Record<string, string>;
+  /**
+   * Permiso con que la sección se muestra aunque el servidor todavía no la informe en `GET /admin/overview` (sin
+   * contadores); la pantalla vuelve a exigirlo.
+   */
+  permission?: string;
 }
 
 /** Secciones del área y sus pantallas; el servidor informa cuáles puede usar el usuario (`GET /admin/overview`). */
@@ -134,6 +140,14 @@ const GROUPS: AdminGroup[] = [
     counters: { records: 'admin.home.counter.counterRecords', syncFailed: 'admin.home.counter.syncFailed' },
   },
   {
+    code: 'api-clients',
+    titleKey: 'admin.home.section.apiClients.title',
+    descriptionKey: 'admin.home.section.apiClients.description',
+    links: [{ route: '/admin/api-clients', key: 'admin.home.link.apiClients' }],
+    counters: {},
+    permission: PERMISSIONS.MANAGE_API_CLIENTS,
+  },
+  {
     code: 'reports',
     titleKey: 'admin.home.section.reports.title',
     descriptionKey: 'admin.home.section.reports.description',
@@ -190,7 +204,7 @@ export class AdminHomeComponent implements OnInit {
 
   groups = computed<VisibleGroup[]>(() => {
     const sections = new Map<string, AdminOverviewSection>((this.overview()?.sections ?? []).map((s) => [s.code, s]));
-    return GROUPS.filter((g) => sections.has(g.code)).map((g) => {
+    return GROUPS.filter((g) => sections.has(g.code) || (!!g.permission && this.auth.hasPermission(g.permission))).map((g) => {
       const counters = sections.get(g.code)?.counters ?? {};
       return {
         ...g,

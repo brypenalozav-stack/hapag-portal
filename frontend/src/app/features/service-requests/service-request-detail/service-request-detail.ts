@@ -9,6 +9,7 @@ import { LocaleService } from '../../../core/services/locale.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { SERVICE_FORM_LIMITS, ServiceRequestDetail } from '../../../core/models/service-request.model';
 import { REINVOICING_DEFINITION_CODE } from '../../../core/models/reinvoicing.model';
+import { RELEASE_LETTER_DEFINITION_CODE } from '../../../core/models/document.model';
 import { SERVICE_TEAM_KEYS } from '../../../core/i18n/labels';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
@@ -46,6 +47,8 @@ export class ServiceRequestDetailComponent implements OnInit {
   readonly fileAccept = SERVICE_FORM_LIMITS.FILE_ACCEPT;
   /** La refacturación IAO tiene su propia página, con la aceptación de la nueva razón social (M3-11). */
   readonly reinvoicingCode = REINVOICING_DEFINITION_CODE;
+  /** Fase 2, Ola J: la carta de liberación tiene su página con el TATC de las unidades y la carta emitida (M6-08). */
+  readonly releaseLetterCode = RELEASE_LETTER_DEFINITION_CODE;
 
   request = signal<ServiceRequestDetail | null>(null);
   loading = signal(true);

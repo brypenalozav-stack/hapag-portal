@@ -61,6 +61,7 @@ import { SimulacionOlaF } from './ola-f-mocks';
 import { SimulacionOlaG } from './ola-g-mocks';
 import { SimulacionOlaH } from './ola-h-mocks';
 import { OpcionesOlaI, SimulacionOlaI } from './ola-i-mocks';
+import { SimulacionOlaJ } from './ola-j-mocks';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
 export const BL_PRUEBA: BillOfLading = {
@@ -1749,6 +1750,8 @@ const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo
  * Fase 2, Ola I: bandeja con acciones y preferencias, comunicados, guías, área de administración, vista como cliente
  * (escrituras bloqueadas con su token), reportería, Counter, listas de contactos, transportistas pre-creados y empresa
  * matriz los responde ola-i-mocks.ts, que además agrega al listado los BL de la filial y el Counter al detalle interno.
+ * Fase 2, Ola J: certificado de flete, carta de liberación y su revisión interna, entrega de documentos por el asistente y
+ * clientes del canal Web Service los responde ola-j-mocks.ts, que publica los documentos emitidos en el repositorio de la Ola E.
  */
 export async function simularApi(page: Page, opciones: OpcionesOlaD & OpcionesOlaI = {}): Promise<void> {
   let consultasLote = 0;
@@ -1758,12 +1761,14 @@ export async function simularApi(page: Page, opciones: OpcionesOlaD & OpcionesOl
   const olaG = new SimulacionOlaG(olaD);
   const olaH = new SimulacionOlaH(olaD, opciones);
   const olaI = new SimulacionOlaI(opciones);
+  const olaJ = new SimulacionOlaJ(olaE);
   await page.route('**/api/v1/**', async (route: Route) => {
     const request = route.request();
     const url = new URL(request.url());
     const ruta = url.pathname.replace(/^.*\/api\/v1\//, '').replace(/\/$/, '');
     const metodo = request.method();
 
+    if (await olaJ.responder(route, ruta, metodo, url)) return;
     if (await olaI.responder(route, ruta, metodo, url)) return;
     if (await olaH.responder(route, ruta, metodo, url)) return;
     if (await olaG.responder(route, ruta, metodo, url)) return;

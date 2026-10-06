@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { API_ENDPOINTS } from '../constants/app.constants';
 import { PagedResult } from '../models/admin-user.model';
+import { ReleaseLetterRequest } from '../models/document.model';
 import {
   AdminServiceRequestFilters,
   AvailableServices,
@@ -149,5 +150,10 @@ export class AdminServiceRequestService {
 
   downloadAttachment(id: string, attachmentId: string): Observable<Blob> {
     return this.api.getBlob(`${ADMIN}/${id}/attachments/${attachmentId}`);
+  }
+
+  /** Carta de liberación (M6-08) para Customer Service: datos, TATC al enviar, al aprobar y ahora, y el Counter (M8-09). */
+  getReleaseLetter(id: string): Observable<ReleaseLetterRequest> {
+    return this.api.get<ReleaseLetterRequest>(`${ADMIN}/${id}/release-letter`);
   }
 }

@@ -157,8 +157,25 @@
       }
     </div>
 
-    @if (d.actions.canRequestNoDebtCertificate || d.actions.canRequestTransshipmentCertificate) {
+    @if (d.actions.canRequestNoDebtCertificate || d.actions.canRequestTransshipmentCertificate
+         || d.actions.canRequestFreightCertificate || d.actions.canRequestReleaseLetter) {
       <div class="p-3 pt-0">
+        <!-- Fase 2, Ola J: certificado de flete de Bolivia (M6-02), sin pago ni carro en esta entrega -->
+        @if (d.actions.canRequestFreightCertificate) {
+          <app-freight-certificate-panel [blNumber]="d.blNumber" [timeZone]="d.timeZone" [canOperate]="canResend()" (issued)="onFreightIssued($event)" />
+        }
+
+        <!-- Fase 2, Ola J: carta de liberación y desconsolidado de Bolivia (M6-08), con aprobación de Customer Service -->
+        @if (d.actions.canRequestReleaseLetter) {
+          <div class="border rounded p-3 mb-3" role="group" aria-labelledby="release-letter-title" data-testid="release-letter-panel">
+            <h3 id="release-letter-title" class="h6 fw-bold">{{ 'documents.releaseLetter.title' | transloco }}</h3>
+            <p class="small mb-2">{{ 'documents.releaseLetter.help' | transloco }}</p>
+            <a class="btn btn-outline-secondary" [routerLink]="['/shipments', d.blNumber, 'release-letter']" data-testid="release-letter-open">
+              {{ (canResend() ? 'documents.releaseLetter.open' : 'documents.releaseLetter.view') | transloco }}
+            </a>
+          </div>
+        }
+
         <!-- Certificado de libre deuda de Bolivia (M6-07) -->
         @if (d.actions.canRequestNoDebtCertificate) {
           <app-no-debt-certificate [blNumber]="d.blNumber" [timeZone]="d.timeZone" (issued)="onNoDebtIssued($event)" />

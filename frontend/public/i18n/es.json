@@ -413,6 +413,190 @@
       "validityOpenStart": "la publicación",
       "willNotify": "Se avisará a los clientes al publicar"
     },
+    "apiClients": {
+      "channel": {
+        "auth": "Cada solicitud lleva la clave en la cabecera X-Api-Key. Una clave no abre el portal y una sesión del portal no abre el canal.",
+        "base": "Los sistemas del cliente llaman a {{ path }}, separado de la API del portal.",
+        "doc": "Contrato OpenAPI del canal (propuesta) publicado en el repositorio del proyecto:",
+        "idempotency": "Las solicitudes que crean algo exigen la cabecera Idempotency-Key: un reintento idéntico devuelve la misma respuesta. No hay avisos automáticos: el cliente consulta el estado de cada solicitud.",
+        "rules": "El cliente actúa como su organización mediante un usuario técnico: aplican los mismos permisos, estados y trazabilidad que en el portal, más los procesos habilitados y el límite de solicitudes por minuto.",
+        "title": "Cómo funciona el canal"
+      },
+      "detail": {
+        "close": "Cerrar detalle",
+        "contact": "Contacto técnico",
+        "created": "Creado",
+        "createdValue": "{{ date }} por {{ user }}",
+        "keys": {
+          "active": "Vigente",
+          "caption": "Claves de {{ name }}",
+          "col": {
+            "actions": "Acciones",
+            "created": "Emitida",
+            "expires": "Vence",
+            "lastUsed": "Último uso",
+            "prefix": "Prefijo",
+            "status": "Estado"
+          },
+          "confirm": "Sí, revocar la clave",
+          "confirmText": "Los sistemas que usen esta clave dejarán de acceder de inmediato. Esta acción no se puede deshacer.",
+          "confirmTitle": "¿Revocar la clave {{ prefix }}?",
+          "inactive": "Sin uso posible",
+          "keep": "No, mantenerla",
+          "noExpiry": "Sin vencimiento",
+          "revoke": "Revocar",
+          "revokeError": "No se pudo revocar la clave.",
+          "revokeLabel": "Revocar la clave {{ prefix }}",
+          "revoked": "Clave {{ prefix }} revocada.",
+          "revokedAt": "Revocada el {{ date }}",
+          "title": "Claves"
+        },
+        "noSignatory": "Sin firmante: no puede emitir cartas de responsabilidad",
+        "organization": "Organización",
+        "rate": "Límite",
+        "revoke": {
+          "confirm": "Sí, revocar el cliente",
+          "confirmText": "Sus sistemas dejarán de acceder de inmediato. Esta acción no se puede deshacer: para volver a usar el canal hay que crear otro cliente.",
+          "confirmTitle": "¿Revocar el cliente {{ name }}?",
+          "done": "Cliente {{ name }} revocado.",
+          "error": "No se pudo revocar el cliente.",
+          "help": "Todas sus claves dejan de servir y su usuario técnico se desactiva. Las solicitudes ya recibidas se conservan.",
+          "keep": "No, mantenerlo",
+          "reason": "Motivo",
+          "reasonHelp": "Queda en la auditoría junto con la fecha y quién revocó.",
+          "reasonRequired": "Ingrese el motivo de la revocación.",
+          "start": "Revocar el cliente",
+          "title": "Revocar el cliente"
+        },
+        "revoked": "Revocado",
+        "revokedValue": "{{ date }} por {{ user }}. Motivo: {{ reason }}",
+        "rotate": {
+          "error": "No se pudo rotar la clave.",
+          "grace": "Período de gracia de las claves actuales (minutos)",
+          "graceInvalid": "Ingrese un período de gracia entero entre 0 y 10080 minutos.",
+          "help": "Con 0 las claves actuales se revocan al emitir la nueva. Hasta {{ max }} minutos (7 días) para cambiarla sin cortar el servicio.",
+          "submit": "Emitir clave nueva",
+          "title": "Rotar la clave"
+        },
+        "scopes": "Procesos habilitados",
+        "signatory": "Firmante de las cartas",
+        "signatoryValue": "{{ name }}, {{ position }}",
+        "status": "Estado",
+        "technicalUser": "Usuario técnico",
+        "title": "Cliente {{ name }}"
+      },
+      "form": {
+        "cancel": "Cancelar",
+        "contactEmail": "Correo del contacto técnico (opcional)",
+        "contactEmailHelp": "A quién avisar por cambios del canal o de las claves.",
+        "errors": {
+          "email": "Ingrese un correo válido, por ejemplo nombre@empresa.cl.",
+          "name": "Ingrese el nombre del cliente.",
+          "organization": "Busque y elija la organización cliente.",
+          "rate": "Ingrese un límite entero entre {{ min }} y {{ max }}.",
+          "scopes": "Elija al menos un proceso.",
+          "search": "No se pudieron buscar las organizaciones.",
+          "submit": "No se pudo crear el cliente del canal.",
+          "summaryTitle": "Revise los datos del cliente"
+        },
+        "name": "Nombre del cliente",
+        "nameHelp": "Identifica el sistema que usará la clave, por ejemplo «ERP Importadora».",
+        "noOrganizations": "No se encontraron organizaciones aprobadas con esa búsqueda.",
+        "notes": "Notas internas (opcional)",
+        "orgResults": "{count, plural, =0 {Sin organizaciones encontradas} one {# organización encontrada} other {# organizaciones encontradas}}",
+        "organization": "Organización cliente",
+        "organizationHelp": "Busque por nombre o RUT/NIT. Solo organizaciones cliente aprobadas.",
+        "organizationOption": "{{ name }} · {{ taxId }} · {{ type }} ({{ country }})",
+        "organizationResults": "Elija la organización",
+        "rate": "Límite por minuto",
+        "rateHelp": "Entre {{ min }} y {{ max }} solicitudes por minuto; los rechazos también cuentan.",
+        "scopes": "Procesos habilitados",
+        "scopesHelp": "Elija al menos uno. Una solicitud de un proceso no habilitado se rechaza.",
+        "search": "Buscar",
+        "signatory": "Firmante de las cartas de responsabilidad (opcional)",
+        "signatoryEmail": "Correo",
+        "signatoryHelp": "Necesario para emitir cartas de responsabilidad por el canal: es quien firma en nombre de la organización.",
+        "signatoryName": "Nombre",
+        "signatoryPosition": "Cargo",
+        "signatoryTaxId": "RUT o NIT",
+        "submit": "Crear cliente y emitir la clave",
+        "title": "Nuevo cliente del canal"
+      },
+      "list": {
+        "allOrganizations": "Todas las organizaciones",
+        "allStatuses": "Todos los estados",
+        "caption": "Clientes del canal Web Service por organización",
+        "clear": "Limpiar",
+        "col": {
+          "actions": "Acciones",
+          "client": "Cliente",
+          "lastUsed": "Último uso",
+          "organization": "Organización",
+          "rate": "Límite",
+          "scopes": "Procesos habilitados",
+          "status": "Estado"
+        },
+        "empty": "No hay clientes del canal con estos filtros.",
+        "filters": "Filtrar clientes del canal",
+        "keys": "{count, plural, =0 {Sin claves vigentes} one {# clave vigente} other {# claves vigentes}}",
+        "loadError": "No se pudieron cargar los clientes del canal.",
+        "neverUsed": "Sin uso",
+        "new": "Nuevo cliente",
+        "open": "Ver detalle",
+        "openLabel": "Ver el detalle de {{ name }}",
+        "organization": "Organización",
+        "rateValue": "{count, plural, one {# solicitud por minuto} other {# solicitudes por minuto}}",
+        "search": "Buscar",
+        "status": "Estado",
+        "title": "Clientes del canal"
+      },
+      "log": {
+        "allOperations": "Todas las operaciones",
+        "allOutcomes": "Todos los resultados",
+        "bl": "BL {{ bl }}",
+        "caption": "Bitácora de solicitudes de {{ name }}",
+        "col": {
+          "duration": "Duración",
+          "operation": "Operación",
+          "outcome": "Resultado",
+          "received": "Recibida",
+          "request": "Solicitud",
+          "target": "Registro"
+        },
+        "count": "Mostrando {{ shown }} de {{ total }} solicitudes de esta página.",
+        "empty": "No hay solicitudes con estos filtros.",
+        "filters": "Filtrar la bitácora",
+        "idempotencyKey": "Idempotency-Key: {{ key }}",
+        "loadError": "No se pudo cargar la bitácora del cliente.",
+        "ms": "{{ ms }} ms",
+        "next": "Siguiente",
+        "noTarget": "Sin registro asociado",
+        "operation": "Operación",
+        "outcome": "Resultado",
+        "page": "Página {{ page }} de {{ pages }}",
+        "pagination": "Páginas de la bitácora",
+        "previous": "Anterior",
+        "status": "HTTP {{ code }}",
+        "title": "Bitácora de solicitudes",
+        "total": "Total: {{ total }} solicitudes"
+      },
+      "secret": {
+        "copied": "Clave copiada al portapapeles.",
+        "copiedButton": "Clave copiada",
+        "copy": "Copiar la clave",
+        "copyFailed": "No se pudo copiar automáticamente: seleccione la clave y cópiela.",
+        "created": "Cliente {{ name }} creado. Copie su clave: se muestra una sola vez.",
+        "dismiss": "Ya guardé la clave",
+        "dismissed": "La clave ya no se muestra.",
+        "help": "Se configura en el sistema del cliente como el valor de la cabecera X-Api-Key.",
+        "label": "Clave de acceso (prefijo {{ prefix }})",
+        "rotated": "Nueva clave de {{ name }} emitida. Copie la clave: se muestra una sola vez.",
+        "title": "Clave de {{ name }}",
+        "warning": "Copie la clave ahora y entréguela por un canal seguro: no se volverá a mostrar ni se puede recuperar. Si se pierde, rote la clave."
+      },
+      "subtitle": "Clientes que envían requerimientos de sus BL desde sus sistemas: claves, rotación, revocación y bitácora",
+      "title": "Canal Web Service"
+    },
     "assistantKnowledge": {
       "form": {
         "articleTitle": "Título (obligatorio)",
@@ -1162,6 +1346,7 @@
       "link": {
         "accessMatrix": "Matriz de accesos",
         "announcements": "Comunicados",
+        "apiClients": "Clientes del canal Web Service",
         "assistantKnowledge": "Base de conocimiento",
         "assistantMailboxes": "Casillas del asistente",
         "audit": "Auditoría",
@@ -1200,6 +1385,10 @@
         "announcements": {
           "description": "Comunicados masivos por país y tipo de operación.",
           "title": "Comunicados"
+        },
+        "apiClients": {
+          "description": "Clientes del canal de requerimientos vía Web Service, sus claves y la bitácora de solicitudes.",
+          "title": "Canal Web Service"
         },
         "audit": {
           "description": "Registro de las acciones de los usuarios y de las sesiones de vista como cliente.",
@@ -2181,6 +2370,29 @@
         "subtitle": "Solicitudes de los clientes para aprobar o atender por el equipo ED y Customer Service.",
         "title": "Solicitudes de servicio"
       },
+      "releaseLetter": {
+        "approveIssues": "Aprobar emite la carta en el momento, con el TATC consultado al aprobar.",
+        "approveNote": "Al aprobar se emite la carta de las unidades seleccionadas y se envía al correo registrado de la organización.",
+        "carrier": "Transportista",
+        "carrierKind": "Origen de los datos",
+        "consignee": "Consignatario",
+        "containers": "Unidades:",
+        "counter": "Registro de Counter del BL",
+        "deconsolidated": "Desconsolidado el {{ date }}",
+        "driver": "Conductor",
+        "entityType": "Tipo de sociedad",
+        "exchangeDate": "Canje del BL: {{ date }}",
+        "hblNotReceived": "HBL no recibido",
+        "hblReceived": "HBL recibido el {{ date }}",
+        "issued": "Carta {{ number }} emitida el {{ date }}.",
+        "loadError": "No se pudieron cargar los datos de la carta.",
+        "noCounter": "El BL no tiene registro de Counter.",
+        "notDeconsolidated": "Sin desconsolidar",
+        "ruleInformative": "Regla vigente: el TATC es informativo; la aprobación no lo exige.",
+        "ruleRequired": "Regla vigente: para aprobar, todas las unidades deben tener el TATC emitido.",
+        "tatcNow": "TATC consultado ahora",
+        "title": "Carta de liberación y desconsolidado"
+      },
       "review": {
         "actionError": "No pudimos registrar la acción.",
         "actionsTitle": "Acciones del equipo",
@@ -3030,6 +3242,23 @@
       "published": "Publicado",
       "unpublished": "Retirado"
     },
+    "apiClientErrors": {
+      "alreadyRevoked": "El cliente ya está revocado.",
+      "forbidden": "Su perfil no permite administrar el canal Web Service.",
+      "keyNotFound": "No encontramos la clave.",
+      "notFound": "No encontramos el cliente del canal.",
+      "organizationNotAllowed": "La organización debe ser un cliente aprobado y activo para usar el canal.",
+      "organizationNotFound": "No encontramos la organización.",
+      "unavailable": "El servicio no está disponible en este momento. Intente más tarde."
+    },
+    "apiClientScope": {
+      "responsibilityLetter": "Carta de responsabilidad",
+      "warehouseChange": "Cambio de almacén"
+    },
+    "apiClientStatus": {
+      "active": "Activo",
+      "revoked": "Revocado"
+    },
     "billingOptionSource": {
       "grant": "mandante del acceso otorgado",
       "invoice": "facturado en la factura",
@@ -3168,14 +3397,21 @@
     },
     "documentErrors": {
       "blNotFound": "No encontramos el BL o no tiene acceso a él.",
+      "carrierNotFound": "El transportista elegido ya no está vinculado a este BL. Elija otro o ingrese sus datos.",
+      "carrierRequired": "Indique un transportista registrado o el nombre y NIT del transportista.",
       "conditionsUnavailable": "Nexus no está disponible: no se pudo validar la solicitud. Intente más tarde.",
       "contentNotFound": "El archivo del documento no está disponible. Contacte a Customer Service.",
       "debtPending": "El embarque registra deuda pendiente: el CLD no se emitió. Revise el detalle y pague lo pendiente.",
       "forbidden": "Su rol o su perfil no permiten esta acción sobre este embarque.",
+      "freightNotApplicable": "El certificado de flete solo se emite para importaciones de Bolivia.",
+      "invalidTransition": "La solicitud cambió de estado y ya no admite esta acción. Actualice la página.",
       "noDebtNotApplicable": "El CLD solo se emite para importaciones de Bolivia.",
       "noRecipient": "Su organización no tiene un correo registrado al cual enviar el documento. Regístrelo en Mi organización.",
       "notAvailable": "Este documento no está disponible para la operación de este país.",
       "notFound": "No encontramos el documento o no tiene acceso a él.",
+      "releaseLetterAlreadyRequested": "Alguna de las unidades ya está en una carta de su organización pendiente de aprobación. Revise la selección.",
+      "releaseLetterNotApplicable": "La carta de liberación y desconsolidado solo se solicita para importaciones de Bolivia.",
+      "requestNotFound": "No encontramos la solicitud o no tiene acceso a ella.",
       "sourceUnavailable": "La fuente de información no respondió. No se emitió nada: intente más tarde.",
       "tariffNotInForce": "No hay una tarifa vigente para este servicio. Contacte a Customer Service.",
       "termsNotAccepted": "Debe aceptar los términos de la carta de responsabilidad.",
@@ -3203,6 +3439,12 @@
     },
     "form": {
       "invalid": "El formulario tiene errores. Revise los campos marcados."
+    },
+    "freightPurpose": {
+      "bank": "Banco",
+      "customs": "Aduana",
+      "insurance": "Seguro",
+      "other": "Otra"
     },
     "guideAudience": {
       "all": "Todos",
@@ -3262,6 +3504,10 @@
       "general": "General",
       "payments": "Pagos",
       "shipping": "Embarques"
+    },
+    "legalEntityType": {
+      "company": "Empresa",
+      "naturalPerson": "Persona natural"
     },
     "maintainerAction": {
       "created": "Creación",
@@ -3427,6 +3673,9 @@
     "portalErrors": {
       "articleNotFound": "El artículo ya no existe.",
       "blNotFound": "No encontramos el BL o no tiene acceso a él.",
+      "deliveryAccessLost": "El documento ya no está disponible para usted: no existe o perdió el acceso al embarque.",
+      "deliveryContentNotFound": "El archivo del documento no está disponible. Contacte a Customer Service.",
+      "deliveryNotFound": "La entrega ya no está disponible en esta conversación. Pida el documento de nuevo al asistente.",
       "forbidden": "Su perfil no permite esta acción.",
       "invalidImport": "El archivo no es válido: revise el encabezado y que no esté vacío.",
       "noRecipient": "No hay un correo al que enviar el respaldo. Ingrese otro correo.",
@@ -3486,6 +3735,10 @@
     "relatedDocumentKind": {
       "invoice": "Factura",
       "receipt": "Comprobante de pago"
+    },
+    "releaseLetterCarrierSource": {
+      "grant": "con acceso otorgado sobre este BL",
+      "preCreated": "pre-creado por su organización"
     },
     "requestKind": {
       "blCopy": "Copia del BL",
@@ -3586,6 +3839,8 @@
       "notFound": "No encontramos la solicitud.",
       "outputDocumentRequired": "Debe subir el documento de salida antes de completar.",
       "paymentInProgress": "No se puede anular: el cargo está en un pago en curso o ya pagado.",
+      "releaseLetterTatcNotIssued": "La aprobación exige el TATC emitido para todas las unidades de la carta, y alguna aún no lo tiene.",
+      "releaseLetterTatcUnavailable": "El sistema de TATC no respondió y la regla vigente exige consultarlo. Intente aprobar más tarde.",
       "sourceUnavailable": "El sistema de origen no responde. Intente de nuevo en unos minutos.",
       "tariffChanged": "La tarifa cambió. Revise el nuevo total y acéptelo otra vez.",
       "tariffNotAccepted": "Debe aceptar la tarifa para enviar la solicitud.",
@@ -3659,9 +3914,11 @@
       "blCopyNonValued": "Copia del BL no valorada",
       "blCopyValued": "Copia del BL valorada",
       "collectReceipt": "Comprobante Collect",
+      "freightCertificate": "Certificado de flete",
       "gateOutAdvanceReceipt": "Recibo de pago anticipado de Gate Out",
       "gateOutCoupon": "Cupón de retiro de Gate Out",
       "noDebtCertificate": "CLD (certificado de libre deuda)",
+      "releaseLetter": "Carta de liberación y desconsolidado",
       "responsibilityLetter": "Carta de responsabilidad",
       "transshipmentCertificate": "Certificado de transbordo"
     },
@@ -3798,6 +4055,21 @@
     "wideningStatus": {
       "active": "Vigente",
       "revoked": "Revocada"
+    },
+    "wsOperation": {
+      "clientInfo": "Consulta de datos del cliente",
+      "getRequest": "Consulta de una solicitud",
+      "listRequests": "Consulta de solicitudes",
+      "responsibilityLetter": "Carta de responsabilidad",
+      "responsibilityLetterTerms": "Consulta de términos de la carta",
+      "warehouseChange": "Cambio de almacén",
+      "warehouseChangeBatch": "Cambio de almacén masivo"
+    },
+    "wsOutcome": {
+      "accepted": "Aceptada",
+      "failed": "Fallida",
+      "processing": "En proceso",
+      "rejected": "Rechazada"
     }
   },
   "dangerousGoods": {
@@ -4233,6 +4505,67 @@
         "valuedHelp": "Incluye el flete y los cargos del BL: montos, impuestos y estado."
       }
     },
+    "freight": {
+      "dialog": {
+        "cancel": "Cancelar",
+        "close": "Cerrar",
+        "consignee": "Consignatario",
+        "help": "Complete los datos del consignatario y la finalidad. Al enviar, el certificado se emite firmado en el momento.",
+        "submit": "Solicitar y emitir",
+        "title": "Certificado de flete del BL {{ bl }}"
+      },
+      "errors": {
+        "nameRequired": "Ingrese el nombre o la razón social del consignatario.",
+        "purposeRequired": "Elija la finalidad del certificado.",
+        "submit": "No se pudo emitir el certificado de flete. Intente nuevamente.",
+        "summaryTitle": "Revise los datos del certificado",
+        "taxIdRequired": "Ingrese el NIT o el documento de identidad del consignatario."
+      },
+      "fields": {
+        "consigneeHelp": "Precargado con el consignatario del BL. Corríjalo si el certificado debe emitirse a otro nombre.",
+        "consigneeName": "Nombre o razón social",
+        "consigneeTaxId": "NIT o documento de identidad",
+        "notes": "Observaciones (opcional)",
+        "purpose": "Finalidad",
+        "purposePlaceholder": "Elija la finalidad",
+        "recipient": "Dirigido a (opcional)",
+        "recipientHelp": "Por ejemplo: Aduana Nacional de Bolivia.",
+        "sendEmail": "Enviar el certificado al correo registrado de mi organización",
+        "sendEmailHelp": "Siempre queda en los documentos del embarque, aunque no se envíe por correo."
+      },
+      "freight": "Flete que se certifica: {{ amount }}",
+      "freightTerms": "Flete que se certifica: {{ amount }} ({{ terms }})",
+      "freightUnknown": "El BL no informa el monto del flete; el certificado indicará lo registrado en el sistema de origen.",
+      "help": "Certifica el flete del BL ante Aduana, una aseguradora o un banco. Se emite con firma electrónica, queda en los documentos del embarque y se envía al correo registrado de su organización.",
+      "loadError": "No se pudo cargar el certificado de flete del BL.",
+      "noPayment": "Sin pago en esta entrega: la solicitud registra sus datos y el certificado se emite sin cargo y sin pasar por el carro. El pago en bolivianos (BOB) se habilitará más adelante.",
+      "notAllowed": "Su rol o su perfil no permiten solicitar el certificado de flete en este BL.",
+      "request": "Solicitar certificado de flete",
+      "requests": {
+        "caption": "Solicitudes de certificado de flete del BL {{ bl }}",
+        "col": {
+          "createdAt": "Fecha",
+          "number": "Solicitud",
+          "status": "Estado"
+        },
+        "empty": "Aún no hay solicitudes de certificado de flete de su organización para este BL.",
+        "title": "Solicitudes de su organización",
+        "viewLabel": "Ver la solicitud {{ number }}"
+      },
+      "result": {
+        "done": "Listo",
+        "download": "Descargar {{ number }}",
+        "issued": "Se emitió el certificado {{ number }} y la solicitud {{ request }} quedó completada.",
+        "notSent": "No se envió por correo: descárguelo aquí o desde los documentos del embarque.",
+        "repository": "Queda disponible en los documentos del embarque.",
+        "sent": "Se envió a: {{ emails }}.",
+        "signature": "Firmado electrónicamente el {{ date }} ({{ provider }}).",
+        "title": "Certificado emitido",
+        "verification": "Código de verificación: {{ code }}",
+        "viewRequest": "Ver la solicitud {{ number }}"
+      },
+      "title": "Certificado de flete"
+    },
     "letter": {
       "accept": "Acepto los términos de la carta, versión {{ version }} (obligatorio)",
       "acceptHelp": "La aceptación queda registrada con su usuario, la fecha y la hora.",
@@ -4307,6 +4640,131 @@
       "empty": "No hay comprobantes de pago ni facturas de este BL.",
       "title": "Comprobantes de pago y facturas"
     },
+    "releaseLetter": {
+      "detail": {
+        "breadcrumbLabel": "Ruta de navegación",
+        "cancelConfirm": "Sí, anular",
+        "cancelError": "No se pudo anular la solicitud.",
+        "cancelHelp": "Solo se puede anular antes de la aprobación. Las unidades quedan libres para otra solicitud.",
+        "cancelKeep": "No, mantenerla",
+        "cancelReason": "Motivo (opcional)",
+        "cancelStart": "Anular la solicitud",
+        "cancelTitle": "¿Anular la solicitud de la carta?",
+        "cancelled": "Solicitud {{ number }} anulada.",
+        "carrier": "Transportista",
+        "carrierFree": "Datos ingresados en la solicitud",
+        "carrierRegistered": "Registrado en el portal",
+        "containers": "Unidades",
+        "dataTitle": "Datos de la carta",
+        "download": "Descargar la carta",
+        "downloadLabel": "Descargar la carta {{ number }}",
+        "entityType": "Tipo de sociedad",
+        "issued": "Carta {{ number }} emitida el {{ date }}. También está en los documentos del embarque.",
+        "loadError": "No se pudo cargar la solicitud de la carta.",
+        "notFound": "No encontramos la solicitud o no tiene acceso a ella.",
+        "pending": "Pendiente de aprobación de {{ team }}. Al aprobarse se emite la carta y se envía al correo registrado de su organización.",
+        "ruleInformative": "El TATC se registra como información; no impide la aprobación.",
+        "ruleRequired": "Regla vigente: la aprobación exige el TATC emitido para cada unidad.",
+        "subtitle": "BL {{ bl }} · Importación de Bolivia",
+        "title": "Carta de liberación {{ number }}",
+        "titleLoading": "Carta de liberación"
+      },
+      "errors": {
+        "addressRequired": "Ingrese el domicilio de la empresa.",
+        "carrierNameRequired": "Ingrese el nombre o la razón social del transportista.",
+        "carrierRequired": "Elija el transportista registrado.",
+        "carrierTaxIdRequired": "Ingrese el NIT del transportista.",
+        "containersRequired": "Elija al menos una unidad.",
+        "idDocumentRequired": "Ingrese el documento de identidad del consignatario.",
+        "legalNameRequired": "Ingrese la razón social del consignatario.",
+        "nitRequired": "Ingrese el NIT del consignatario.",
+        "personNameRequired": "Ingrese el nombre completo del consignatario.",
+        "representativeIdRequired": "Ingrese el documento del representante legal.",
+        "representativeRequired": "Ingrese el nombre del representante legal.",
+        "submit": "No se pudo enviar la solicitud de la carta. Intente nuevamente.",
+        "summaryTitle": "Revise los datos de la carta"
+      },
+      "fields": {
+        "address": "Domicilio",
+        "addressOptional": "Domicilio (opcional)",
+        "carrier": "Transportista registrado",
+        "carrierName": "Nombre o razón social del transportista",
+        "carrierOption": "{{ name }} · NIT {{ taxId }} ({{ source }})",
+        "carrierPlaceholder": "Elija el transportista",
+        "carrierTaxId": "NIT del transportista",
+        "driverId": "Documento del conductor (opcional)",
+        "driverName": "Conductor (opcional)",
+        "idDocument": "Documento de identidad (CI)",
+        "legalName": "Razón social",
+        "nit": "NIT",
+        "observations": "Observaciones (opcional)",
+        "personName": "Nombre completo",
+        "representative": "Representante legal",
+        "representativeId": "Documento del representante legal",
+        "truckPlate": "Placa del camión (opcional)"
+      },
+      "form": {
+        "alreadyPending": "Ya está en la solicitud {{ number }}, pendiente de aprobación.",
+        "approvalNote": "La solicitud queda pendiente de aprobación de Customer Service. Al aprobarse se emite la carta, que queda en los documentos del embarque y se envía al correo registrado de su organización. Sin cobro.",
+        "breadcrumbLabel": "Ruta de navegación",
+        "carrier": "Transportista",
+        "carrierFree": "Ingresar sus datos",
+        "carrierMode": "Cómo indicar el transportista",
+        "carrierRegistered": "Transportista registrado",
+        "carrierRegisteredHelp": "Transportistas con acceso otorgado por su organización sobre este BL o pre-creados por ella.",
+        "companyHelp": "Empresa: razón social, NIT, domicilio y representante legal con su documento.",
+        "consignee": "Consignatario",
+        "containerOption": "{{ container }} · {{ type }}",
+        "containers": "Unidades de la carta",
+        "containersHelp": "Elija las unidades que retirará. El TATC de cada una se registra al enviar y de nuevo al aprobar.",
+        "containersHelpRule": "Elija las unidades que retirará. Para aprobar la carta, todas deben tener el TATC emitido.",
+        "entityType": "Tipo de sociedad",
+        "formTitle": "Nueva solicitud",
+        "loadError": "No se pudo cargar la información del BL para la carta.",
+        "noCarriers": "Su organización no tiene transportistas registrados vinculados a este BL: ingrese sus datos.",
+        "notAllowed": "Su rol o su perfil no permiten solicitar la carta en este BL. Puede revisar las solicitudes de su organización.",
+        "notApplicable": "La carta de liberación y desconsolidado solo se solicita para importaciones de Bolivia.",
+        "pendingReasons": "Pendiente por:",
+        "personHelp": "Persona natural: nombre completo y documento de identidad; el domicilio es opcional.",
+        "selectedTatc": "{count, plural, one {TATC de la unidad elegida} other {TATC de las # unidades elegidas}}",
+        "submit": "Enviar solicitud",
+        "submitted": "Solicitud {{ number }} enviada: queda pendiente de aprobación de Customer Service.",
+        "subtitle": "Importación de Bolivia: unidades, consignatario y transportista",
+        "tatcDown": "El sistema de TATC no respondió. Puede enviar la solicitud: el TATC se consultará de nuevo al aprobarla.",
+        "tatcLabel": "TATC: {{ status }}",
+        "tatcUnknown": "sin información (el sistema de TATC no respondió)",
+        "tatcWithNumber": "{{ status }} (N.º {{ number }})",
+        "title": "Carta de liberación y desconsolidado del BL {{ bl }}"
+      },
+      "help": "Solicite la carta de las unidades que retirará, con los datos del consignatario y del transportista. Customer Service la aprueba y la carta se emite en ese momento.",
+      "open": "Solicitar carta o ver solicitudes",
+      "provisional": "Definiciones de esta entrega, provisorias hasta su validación con el área legal: datos exigidos según el tipo de sociedad, aprobación de Customer Service y registro del TATC de las unidades al enviar y al aprobar.",
+      "requests": {
+        "caption": "Solicitudes de carta de liberación del BL {{ bl }}",
+        "col": {
+          "createdAt": "Fecha",
+          "number": "Solicitud",
+          "status": "Estado"
+        },
+        "empty": "Aún no hay solicitudes de carta de su organización para este BL.",
+        "title": "Solicitudes de carta de su organización para este BL"
+      },
+      "tatc": {
+        "atApproval": "TATC al aprobar",
+        "atSubmission": "TATC al enviar la solicitud",
+        "checkedAt": "Consultado el {{ date }}.",
+        "col": {
+          "container": "Unidad",
+          "number": "N.º de TATC",
+          "pending": "Pendiente por",
+          "status": "Estado"
+        },
+        "noPending": "Sin motivos pendientes",
+        "unavailable": "El sistema de TATC no respondió en la consulta del {{ date }}."
+      },
+      "title": "Carta de liberación y desconsolidado",
+      "view": "Ver solicitudes"
+    },
     "section": {
       "booking": "Booking {{ booking }}",
       "caption": "Documentos del BL {{ bl }}",
@@ -4327,6 +4785,7 @@
       "downloadLabel": "Descargar {{ type }} {{ number }}",
       "downloaded": "Se descargó {{ number }}.",
       "empty": "Aún no hay documentos emitidos para este embarque.",
+      "freightIssued": "Certificado de flete {{ number }} emitido y firmado. Quedó en los documentos del embarque.",
       "help": "Documentos emitidos para este embarque según sus permisos. Cada descarga y cada envío quedan registrados.",
       "issueLetter": "Generar carta de responsabilidad",
       "letterBlocks": "Carta de responsabilidad obligatoria para freight forwarders (FFWW). Estado: {{ status }}. Mientras falte, los cargos de este BL no se pueden pagar.",
@@ -5438,6 +5897,7 @@
         "title": "Valor del servicio"
       },
       "reinvoicingLink": "Esta es una refacturación IAO: vea la aceptación de la nueva razón social y la emisión en su página.",
+      "releaseLetterLink": "Ver el seguimiento de la carta, con el TATC de las unidades y la carta emitida",
       "summary": {
         "bl": "BL",
         "booking": "Booking",
@@ -5771,6 +6231,13 @@
         "tatc": "TATC"
       },
       "close": "Cerrar el asistente",
+      "delivery": {
+        "hint": "{count, plural, one {Documento del repositorio del embarque: sus permisos se validan otra vez al descargarlo.} other {# documentos del repositorio del embarque: sus permisos se validan otra vez al descargarlos.}}",
+        "none": "No hay documentos para descargar.",
+        "notAvailable": "No hay un documento emitido de ese tipo que usted pueda ver en este embarque. La respuesta es la misma si el documento no existe o si su rol no permite verlo (por ejemplo, la copia valorada para el shipper o el comprobante Collect fuera de la agencia de aduanas autorizada).",
+        "ready": "{count, plural, one {Hay un documento para descargar.} other {Hay # documentos para descargar.}}",
+        "unavailable": "El servicio de documentos no está disponible en este momento. Intente más tarde."
+      },
       "downloaded": "Descarga iniciada: {{ label }}.",
       "end": {
         "button": "Terminar",
@@ -5904,6 +6371,7 @@
         "adminHome": "Inicio de administración",
         "adminOrganizations": "Organizaciones",
         "announcements": "Comunicados",
+        "apiClients": "Canal Web Service",
         "assistantKnowledge": "Base de conocimiento",
         "assistantMailboxes": "Casillas del asistente",
         "audit": "Auditoría",

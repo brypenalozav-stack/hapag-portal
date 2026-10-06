@@ -9,6 +9,7 @@ import { CartService } from '../../../core/services/cart.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import {
   DocumentDelivery,
+  FreightCertificateResult,
   RelatedDocument,
   ShipmentDocument,
   ShipmentDocuments,
@@ -33,6 +34,7 @@ import { saveBlob } from '../../../shared/save-blob';
 import { BlCopyDialogComponent } from '../bl-copy-dialog/bl-copy-dialog';
 import { ResponsibilityLetterDialogComponent } from '../responsibility-letter-dialog/responsibility-letter-dialog';
 import { NoDebtCertificateComponent } from '../no-debt-certificate/no-debt-certificate';
+import { FreightCertificatePanelComponent } from '../freight-certificate/freight-certificate-panel';
 
 /** Diálogo abierto desde la sección. */
 type OpenDialog = 'blCopy' | 'letter' | null;
@@ -43,8 +45,10 @@ type OpenDialog = 'blCopy' | 'letter' | null;
  * carta de responsabilidad y CLD) con su tipo, número, fecha de emisión, BL, estado y firma, más los
  * comprobantes de pago y las facturas del BL. Cada descarga y reenvío queda registrado (NF-14). Desde aquí
  * se solicitan la copia del BL (M6-05), la carta de responsabilidad (M6-06), el CLD de Bolivia (M6-07) y el
- * certificado de transbordo, que genera un cargo para pagar con el carro (M6-01). Las acciones las informa
- * el servidor (`actions`); las solicitudes y reenvíos requieren un perfil que opera.
+ * certificado de transbordo, que genera un cargo para pagar con el carro (M6-01). Fase 2, Ola J: en importaciones de
+ * Bolivia, el certificado de flete (M6-02, sin pago ni carro en esta entrega) y la carta de liberación y desconsolidado
+ * (M6-08, con su propia página de solicitud y seguimiento). Las acciones las informa el servidor (`actions`); las
+ * solicitudes y reenvíos requieren un perfil que opera.
  */
 @Component({
   selector: 'app-shipment-documents',
@@ -52,6 +56,7 @@ type OpenDialog = 'blCopy' | 'letter' | null;
   imports: [
     RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
     AddToCartDialogComponent, BlCopyDialogComponent, ResponsibilityLetterDialogComponent, NoDebtCertificateComponent,
+    FreightCertificatePanelComponent,
   ],
   templateUrl: './shipment-documents.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
@@ -222,6 +227,12 @@ export class ShipmentDocumentsComponent {
     const message = translate('documents.section.noDebtIssued', { number: doc.documentNumber });
     this.actionResult.set(message);
     this.download(doc, message);
+    this.load();
+  }
+
+  /** Certificado de flete emitido (M6-02): queda en el repositorio, que se actualiza. */
+  onFreightIssued(result: FreightCertificateResult): void {
+    this.actionResult.set(translate('documents.section.freightIssued', { number: result.document.documentNumber }));
     this.load();
   }
 

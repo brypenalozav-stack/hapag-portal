@@ -109,6 +109,22 @@ export interface EndAssistantSessionResult {
   transcriptSentTo?: string | null;
 }
 
+/**
+ * Fase 2, Ola J: entrega de documentos (M10-04). El asistente ofrece la descarga de los documentos emitidos que el usuario
+ * puede ver (`DownloadDocument` con la ruta de la entrega de la sesión); si no hay ninguno, responde `NotAvailable` con el
+ * mismo texto exista o no el documento.
+ */
+export const ASSISTANT_DELIVERY_INTENT = 'DocumentDelivery';
+
+/** Ruta de la descarga de una entrega del asistente (`/api/v1/assistant/sessions/{id}/deliveries/{id}/download`). */
+export const ASSISTANT_DELIVERY_PATH = /\/assistant\/sessions\/[^/]+\/deliveries\/[^/]+\/download$/;
+
+/** Archivo descargado con el nombre que informa el servidor (Content-Disposition). */
+export interface DownloadedFile {
+  blob: Blob;
+  fileName: string | null;
+}
+
 /** Máximo de caracteres de un mensaje al asistente. */
 export const ASSISTANT_MESSAGE_MAX_LENGTH = 1000;
 

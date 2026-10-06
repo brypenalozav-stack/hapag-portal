@@ -36,6 +36,9 @@
 
     @if (r.status === 'PendingApproval') {
       <p class="small">{{ 'admin.serviceRequests.review.pendingApproval' | transloco: { team: ((r.assignedTeam ?? r.approvalTeam) | codeLabel: teamKeys) } }}</p>
+      @if (r.definitionCode === releaseLetterCode) {
+        <p class="small fw-semibold" data-testid="srv-release-approve-note">{{ 'admin.serviceRequests.releaseLetter.approveIssues' | transloco }}</p>
+      }
       <div class="row g-4 mb-2">
         <form class="col-lg-6" novalidate aria-labelledby="srv-approve-title" (submit)="approve($event)">
           <h3 id="srv-approve-title" class="h6 fw-bold">{{ 'admin.serviceRequests.review.approve.title' | transloco }}</h3>
@@ -110,6 +113,11 @@
       <button type="submit" class="btn btn-outline-secondary" [disabled]="!!busy()">{{ 'admin.serviceRequests.review.note.submit' | transloco }}</button>
     </form>
   </section>
+
+  <!-- Fase 2, Ola J: carta de liberación y desconsolidado (M6-08) con el TATC y el Counter del BL -->
+  @if (r.definitionCode === releaseLetterCode) {
+    <app-release-letter-review-panel [requestId]="r.id" [version]="r.status + r.statusChangedAt" />
+  }
 
   <app-service-request-overview [request]="r" [internal]="true" />
 }

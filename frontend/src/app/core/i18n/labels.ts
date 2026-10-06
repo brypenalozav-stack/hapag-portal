@@ -619,6 +619,8 @@ export const SHIPMENT_DOCUMENT_TYPE_KEYS: Record<string, string> = {
   ResponsibilityLetter: 'common.shipmentDocumentType.responsibilityLetter',
   NoDebtCertificate: 'common.shipmentDocumentType.noDebtCertificate',
   GateOutAdvanceReceipt: 'common.shipmentDocumentType.gateOutAdvanceReceipt',
+  FreightCertificate: 'common.shipmentDocumentType.freightCertificate',
+  ReleaseLetter: 'common.shipmentDocumentType.releaseLetter',
 };
 
 export const SHIPMENT_DOCUMENT_STATUS_KEYS: Record<string, string> = {
@@ -673,6 +675,14 @@ export const DOCUMENT_ERRORS: Record<string, string> = {
   'ChargeRules.ConditionsUnavailable': 'common.documentErrors.conditionsUnavailable',
   'Integration.Unavailable': 'common.documentErrors.sourceUnavailable',
   'Error.Forbidden': 'common.documentErrors.forbidden',
+  // Fase 2, Ola J: certificado de flete (M6-02) y carta de liberación y desconsolidado (M6-08).
+  'FreightCertificate.NotApplicable': 'common.documentErrors.freightNotApplicable',
+  'ReleaseLetter.NotApplicable': 'common.documentErrors.releaseLetterNotApplicable',
+  'ReleaseLetter.CarrierRequired': 'common.documentErrors.carrierRequired',
+  'ReleaseLetter.CarrierNotFound': 'common.documentErrors.carrierNotFound',
+  'ReleaseLetter.AlreadyRequested': 'common.documentErrors.releaseLetterAlreadyRequested',
+  'ServiceRequest.NotFound': 'common.documentErrors.requestNotFound',
+  'ServiceRequest.InvalidTransition': 'common.documentErrors.invalidTransition',
 };
 
 // ---------------------------------------------------------------------------
@@ -924,6 +934,10 @@ export const PORTAL_ERRORS: Record<string, string> = {
   'DangerousGood.InvalidImport': 'common.portalErrors.invalidImport',
   'Integration.Unavailable': 'common.portalErrors.sourceUnavailable',
   'Integration.Timeout': 'common.portalErrors.sourceUnavailable',
+  // Fase 2, Ola J: entrega de documentos por el asistente (M10-04); los permisos se vuelven a validar al descargar.
+  'AssistantDelivery.NotFound': 'common.portalErrors.deliveryNotFound',
+  'ShipmentDocument.NotFound': 'common.portalErrors.deliveryAccessLost',
+  'ShipmentDocumentContent.NotFound': 'common.portalErrors.deliveryContentNotFound',
 };
 
 // ---------------------------------------------------------------------------
@@ -1101,6 +1115,10 @@ export const SERVICE_REQUEST_ERRORS: Record<string, string> = {
   'Integration.Unavailable': 'common.serviceRequestErrors.sourceUnavailable',
   'WarehouseChange.NotFound': 'common.serviceRequestErrors.warehouseChangeNotFound',
   'Reinvoicing.UseDedicatedFlow': 'common.serviceRequestErrors.useDedicatedFlow',
+  // Fase 2, Ola J: aprobación de la carta de liberación con la regla de TATC emitido (M6-08, M2-09).
+  'ServiceRequest.UseDedicatedFlow': 'common.serviceRequestErrors.useDedicatedFlow',
+  'ReleaseLetter.TatcNotIssued': 'common.serviceRequestErrors.releaseLetterTatcNotIssued',
+  'ReleaseLetter.TatcUnavailable': 'common.serviceRequestErrors.releaseLetterTatcUnavailable',
 };
 
 // ---------------------------------------------------------------------------
@@ -1452,4 +1470,83 @@ export const ADMINISTRATION_ERRORS: Record<string, string> = {
   'ParentLink.NotActive': 'common.adminErrors.parentLinkNotActive',
   'Integration.Unavailable': 'common.adminErrors.sourceUnavailable',
   'Integration.Timeout': 'common.adminErrors.sourceUnavailable',
+};
+
+// ---------------------------------------------------------------------------
+// Fase 2, Ola J: certificado de flete (M6-02), carta de liberación y desconsolidado (M6-08), entrega de documentos por el
+// asistente (M10-04) y canal Web Service (M3-17).
+// ---------------------------------------------------------------------------
+
+/** Finalidad del certificado de flete. */
+export const FREIGHT_PURPOSE_KEYS: Record<string, string> = {
+  CUSTOMS: 'common.freightPurpose.customs',
+  INSURANCE: 'common.freightPurpose.insurance',
+  BANK: 'common.freightPurpose.bank',
+  OTHER: 'common.freightPurpose.other',
+};
+
+/** Tipo de sociedad del consignatario de la carta de liberación. */
+export const LEGAL_ENTITY_TYPE_KEYS: Record<string, string> = {
+  COMPANY: 'common.legalEntityType.company',
+  NATURAL_PERSON: 'common.legalEntityType.naturalPerson',
+};
+
+/** Origen del transportista registrado elegible para la carta. */
+export const RELEASE_LETTER_CARRIER_SOURCE_KEYS: Record<string, string> = {
+  Grant: 'common.releaseLetterCarrierSource.grant',
+  PreCreated: 'common.releaseLetterCarrierSource.preCreated',
+};
+
+/** Proceso habilitado para un cliente del canal Web Service. */
+export const API_CLIENT_SCOPE_KEYS: Record<string, string> = {
+  'responsibility-letter': 'common.apiClientScope.responsibilityLetter',
+  'warehouse-change': 'common.apiClientScope.warehouseChange',
+};
+
+export const API_CLIENT_STATUS_KEYS: Record<string, string> = {
+  Active: 'common.apiClientStatus.active',
+  Revoked: 'common.apiClientStatus.revoked',
+};
+
+export const API_CLIENT_STATUS_CLASS: Record<string, string> = {
+  Active: 'hl-badge--confirmed',
+  Revoked: 'hl-badge--failed',
+};
+
+/** Operación registrada en la bitácora del canal. */
+export const WS_OPERATION_KEYS: Record<string, string> = {
+  ResponsibilityLetter: 'common.wsOperation.responsibilityLetter',
+  WarehouseChange: 'common.wsOperation.warehouseChange',
+  WarehouseChangeBatch: 'common.wsOperation.warehouseChangeBatch',
+  ResponsibilityLetterTerms: 'common.wsOperation.responsibilityLetterTerms',
+  ListRequests: 'common.wsOperation.listRequests',
+  GetRequest: 'common.wsOperation.getRequest',
+  ClientInfo: 'common.wsOperation.clientInfo',
+};
+
+export const WS_OUTCOME_KEYS: Record<string, string> = {
+  Processing: 'common.wsOutcome.processing',
+  Accepted: 'common.wsOutcome.accepted',
+  Rejected: 'common.wsOutcome.rejected',
+  Failed: 'common.wsOutcome.failed',
+};
+
+export const WS_OUTCOME_CLASS: Record<string, string> = {
+  Processing: 'hl-badge--processing',
+  Accepted: 'hl-badge--confirmed',
+  Rejected: 'hl-badge--rejected',
+  Failed: 'hl-badge--failed',
+};
+
+/**
+ * Códigos de error de la administración del canal Web Service → claves Transloco. Los textos del servidor vienen en
+ * inglés y no se muestran tal cual.
+ */
+export const API_CLIENT_ERRORS: Record<string, string> = {
+  'Error.Forbidden': 'common.apiClientErrors.forbidden',
+  'Organization.NotFound': 'common.apiClientErrors.organizationNotFound',
+  'ApiClient.OrganizationNotAllowed': 'common.apiClientErrors.organizationNotAllowed',
+  'ApiClient.NotFound': 'common.apiClientErrors.notFound',
+  'ApiClient.AlreadyRevoked': 'common.apiClientErrors.alreadyRevoked',
+  'ApiClientKey.NotFound': 'common.apiClientErrors.keyNotFound',
 };

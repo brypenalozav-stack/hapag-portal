@@ -48,6 +48,19 @@ export const routes: Routes = [
       import('./features/documents/shipment-documents-page').then((m) => m.ShipmentDocumentsPageComponent),
     canActivate: [authGuard],
   },
+  // Fase 2, Ola J: solicitud y seguimiento de la carta de liberación y desconsolidado de Bolivia (M6-08).
+  {
+    path: 'shipments/:blNumber/release-letter',
+    loadComponent: () =>
+      import('./features/documents/release-letter/release-letter-form').then((m) => m.ReleaseLetterFormComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'release-letters/:id',
+    loadComponent: () =>
+      import('./features/documents/release-letter/release-letter-detail').then((m) => m.ReleaseLetterDetailComponent),
+    canActivate: [authGuard],
+  },
   { path: 'bills-of-lading', redirectTo: '/shipments', pathMatch: 'full' },
   { path: 'bills-of-lading/:blNumber', redirectTo: '/shipments/:blNumber' },
   {
@@ -493,6 +506,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/organization-links/organization-links').then((m) => m.OrganizationLinksComponent),
     canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.REVIEW_ORGANIZATIONS)],
+  },
+  // Fase 2, Ola J: clientes, claves y bitácora del canal Web Service (M3-17).
+  {
+    path: 'admin/api-clients',
+    loadComponent: () => import('./features/admin/api-clients/api-clients').then((m) => m.ApiClientsComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_API_CLIENTS)],
   },
   { path: '**', redirectTo: '/dashboard' },
 ];

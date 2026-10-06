@@ -96,6 +96,8 @@ export const API_ENDPOINTS = {
   ADMIN_COUNTER: 'admin/counter',
   ADMIN_ORGANIZATION_LINKS: 'admin/organization-links',
   AUTH_RESEND_PRE_CREATED_INVITATION: 'auth/register/pre-created/resend-invitation',
+  // Fase 2, Ola J
+  ADMIN_API_CLIENTS: 'admin/api-clients',
 } as const;
 
 /**
@@ -133,4 +135,6 @@ export const PERMISSIONS = {
   MANAGE_COUNTER: 'counter.manage',
   /** Reportería de transacciones y excepciones (M9-01). */
   VIEW_TRANSACTIONS_REPORT: 'transactions-report.view',
+  /** Clientes, claves y bitácora del canal Web Service (Fase 2, Ola J, M3-17). */
+  MANAGE_API_CLIENTS: 'api-clients.manage',
 } as const;

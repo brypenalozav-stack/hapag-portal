@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import { Page } from '@playwright/test';
+import { test, expect } from '../fixtures/app';
 import { simularApi } from '../fixtures/api-mocks';
 import { ITEM, OpcionesOlaD } from '../fixtures/ola-d-mocks';
 import { BL_GATE_OUT_POR_PAGAR, ESTADO, NUEVA_RAZON, PAGO_DEPOSITO, RECIBO_ANTICIPO, TOKEN_ACEPTACION } from '../fixtures/ola-h-mocks';

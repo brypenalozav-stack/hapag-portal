@@ -30,6 +30,12 @@
       <a [routerLink]="['/reinvoicing', r.id]">{{ 'serviceRequests.detail.reinvoicingLink' | transloco }}</a>
     </div>
   }
+  @if (r.definitionCode === releaseLetterCode) {
+    <!-- Fase 2, Ola J: la carta de liberación y desconsolidado tiene su página de seguimiento (M6-08) -->
+    <div class="alert alert-info" role="note" data-testid="srv-release-letter-link">
+      <a [routerLink]="['/release-letters', r.id]">{{ 'serviceRequests.detail.releaseLetterLink' | transloco }}</a>
+    </div>
+  }
   <!-- Lo que el cliente puede hacer ahora, según el estado -->
   @switch (r.status) {
     @case ('Draft') {

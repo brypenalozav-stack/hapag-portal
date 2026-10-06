@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import { Page } from '@playwright/test';
+import { test, expect } from '../fixtures/app';
 import { simularApi } from '../fixtures/api-mocks';
 import {
   BL_BO_SIN_UNIDADES,

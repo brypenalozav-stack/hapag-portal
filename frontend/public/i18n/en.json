@@ -413,6 +413,190 @@
       "validityOpenStart": "publication",
       "willNotify": "Customers will be notified when it is published"
     },
+    "apiClients": {
+      "channel": {
+        "auth": "Each request carries the key in the X-Api-Key header. A key does not open the portal and a portal session does not open the channel.",
+        "base": "The client's systems call {{ path }}, separate from the portal API.",
+        "doc": "Channel OpenAPI contract (proposal) published in the project repository:",
+        "idempotency": "Requests that create something require the Idempotency-Key header: an identical retry returns the same response. There are no automatic notifications: the client checks the status of each request.",
+        "rules": "The client acts as its organization through a technical user: the same permissions, statuses and traceability as in the portal apply, plus the enabled processes and the per-minute request limit.",
+        "title": "How the channel works"
+      },
+      "detail": {
+        "close": "Close details",
+        "contact": "Technical contact",
+        "created": "Created",
+        "createdValue": "{{ date }} by {{ user }}",
+        "keys": {
+          "active": "Active",
+          "caption": "Keys of {{ name }}",
+          "col": {
+            "actions": "Actions",
+            "created": "Issued",
+            "expires": "Expires",
+            "lastUsed": "Last used",
+            "prefix": "Prefix",
+            "status": "Status"
+          },
+          "confirm": "Yes, revoke the key",
+          "confirmText": "Systems using this key will lose access immediately. This action cannot be undone.",
+          "confirmTitle": "Revoke key {{ prefix }}?",
+          "inactive": "Not usable",
+          "keep": "No, keep it",
+          "noExpiry": "No expiry",
+          "revoke": "Revoke",
+          "revokeError": "The key could not be revoked.",
+          "revokeLabel": "Revoke key {{ prefix }}",
+          "revoked": "Key {{ prefix }} revoked.",
+          "revokedAt": "Revoked on {{ date }}",
+          "title": "Keys"
+        },
+        "noSignatory": "No signatory: it cannot issue letters of indemnity",
+        "organization": "Organization",
+        "rate": "Limit",
+        "revoke": {
+          "confirm": "Yes, revoke the client",
+          "confirmText": "Its systems will lose access immediately. This action cannot be undone: to use the channel again a new client must be created.",
+          "confirmTitle": "Revoke client {{ name }}?",
+          "done": "Client {{ name }} revoked.",
+          "error": "The client could not be revoked.",
+          "help": "All its keys stop working and its technical user is deactivated. Requests already received are kept.",
+          "keep": "No, keep it",
+          "reason": "Reason",
+          "reasonHelp": "It is recorded in the audit log with the date and who revoked it.",
+          "reasonRequired": "Enter the reason for the revocation.",
+          "start": "Revoke the client",
+          "title": "Revoke the client"
+        },
+        "revoked": "Revoked",
+        "revokedValue": "{{ date }} by {{ user }}. Reason: {{ reason }}",
+        "rotate": {
+          "error": "The key could not be rotated.",
+          "grace": "Grace period for the current keys (minutes)",
+          "graceInvalid": "Enter a whole grace period between 0 and 10080 minutes.",
+          "help": "With 0 the current keys are revoked when the new one is issued. Up to {{ max }} minutes (7 days) to switch without interrupting the service.",
+          "submit": "Issue new key",
+          "title": "Rotate the key"
+        },
+        "scopes": "Enabled processes",
+        "signatory": "Letter signatory",
+        "signatoryValue": "{{ name }}, {{ position }}",
+        "status": "Status",
+        "technicalUser": "Technical user",
+        "title": "Client {{ name }}"
+      },
+      "form": {
+        "cancel": "Cancel",
+        "contactEmail": "Technical contact email (optional)",
+        "contactEmailHelp": "Who to notify about changes to the channel or the keys.",
+        "errors": {
+          "email": "Enter a valid email, for example name@company.com.",
+          "name": "Enter the client name.",
+          "organization": "Search for and choose the customer organization.",
+          "rate": "Enter a whole number between {{ min }} and {{ max }}.",
+          "scopes": "Choose at least one process.",
+          "search": "The organizations could not be searched.",
+          "submit": "The channel client could not be created.",
+          "summaryTitle": "Check the client details"
+        },
+        "name": "Client name",
+        "nameHelp": "Identifies the system that will use the key, for example \"Importer ERP\".",
+        "noOrganizations": "No approved organizations match that search.",
+        "notes": "Internal notes (optional)",
+        "orgResults": "{count, plural, =0 {No organizations found} one {# organization found} other {# organizations found}}",
+        "organization": "Customer organization",
+        "organizationHelp": "Search by name or tax ID. Approved customer organizations only.",
+        "organizationOption": "{{ name }} · {{ taxId }} · {{ type }} ({{ country }})",
+        "organizationResults": "Choose the organization",
+        "rate": "Limit per minute",
+        "rateHelp": "Between {{ min }} and {{ max }} requests per minute; rejections also count.",
+        "scopes": "Enabled processes",
+        "scopesHelp": "Choose at least one. A request for a process that is not enabled is rejected.",
+        "search": "Search",
+        "signatory": "Signatory of the letters of indemnity (optional)",
+        "signatoryEmail": "Email",
+        "signatoryHelp": "Needed to issue letters of indemnity through the channel: the person who signs on behalf of the organization.",
+        "signatoryName": "Name",
+        "signatoryPosition": "Position",
+        "signatoryTaxId": "Tax ID (RUT or NIT)",
+        "submit": "Create client and issue the key",
+        "title": "New channel client"
+      },
+      "list": {
+        "allOrganizations": "All organizations",
+        "allStatuses": "All statuses",
+        "caption": "Web Service channel clients by organization",
+        "clear": "Clear",
+        "col": {
+          "actions": "Actions",
+          "client": "Client",
+          "lastUsed": "Last used",
+          "organization": "Organization",
+          "rate": "Limit",
+          "scopes": "Enabled processes",
+          "status": "Status"
+        },
+        "empty": "There are no channel clients with these filters.",
+        "filters": "Filter channel clients",
+        "keys": "{count, plural, =0 {No active keys} one {# active key} other {# active keys}}",
+        "loadError": "The channel clients could not be loaded.",
+        "neverUsed": "Never used",
+        "new": "New client",
+        "open": "View details",
+        "openLabel": "View the details of {{ name }}",
+        "organization": "Organization",
+        "rateValue": "{count, plural, one {# request per minute} other {# requests per minute}}",
+        "search": "Search",
+        "status": "Status",
+        "title": "Channel clients"
+      },
+      "log": {
+        "allOperations": "All operations",
+        "allOutcomes": "All outcomes",
+        "bl": "BL {{ bl }}",
+        "caption": "Request log of {{ name }}",
+        "col": {
+          "duration": "Duration",
+          "operation": "Operation",
+          "outcome": "Outcome",
+          "received": "Received",
+          "request": "Request",
+          "target": "Record"
+        },
+        "count": "Showing {{ shown }} of {{ total }} requests on this page.",
+        "empty": "There are no requests with these filters.",
+        "filters": "Filter the log",
+        "idempotencyKey": "Idempotency-Key: {{ key }}",
+        "loadError": "The client log could not be loaded.",
+        "ms": "{{ ms }} ms",
+        "next": "Next",
+        "noTarget": "No related record",
+        "operation": "Operation",
+        "outcome": "Outcome",
+        "page": "Page {{ page }} of {{ pages }}",
+        "pagination": "Log pages",
+        "previous": "Previous",
+        "status": "HTTP {{ code }}",
+        "title": "Request log",
+        "total": "Total: {{ total }} requests"
+      },
+      "secret": {
+        "copied": "Key copied to the clipboard.",
+        "copiedButton": "Key copied",
+        "copy": "Copy the key",
+        "copyFailed": "It could not be copied automatically: select the key and copy it.",
+        "created": "Client {{ name }} created. Copy its key: it is shown only once.",
+        "dismiss": "I have saved the key",
+        "dismissed": "The key is no longer shown.",
+        "help": "It is set in the client's system as the value of the X-Api-Key header.",
+        "label": "Access key (prefix {{ prefix }})",
+        "rotated": "New key for {{ name }} issued. Copy the key: it is shown only once.",
+        "title": "Key for {{ name }}",
+        "warning": "Copy the key now and hand it over through a secure channel: it will not be shown again and cannot be recovered. If it is lost, rotate the key."
+      },
+      "subtitle": "Clients that send requests for their BLs from their own systems: keys, rotation, revocation and log",
+      "title": "Web Service channel"
+    },
     "assistantKnowledge": {
       "form": {
         "articleTitle": "Title (required)",
@@ -1162,6 +1346,7 @@
       "link": {
         "accessMatrix": "Access matrix",
         "announcements": "Announcements",
+        "apiClients": "Web Service channel clients",
         "assistantKnowledge": "Knowledge base",
         "assistantMailboxes": "Assistant mailboxes",
         "audit": "Audit",
@@ -1200,6 +1385,10 @@
         "announcements": {
           "description": "Announcements by country and type of operation.",
           "title": "Announcements"
+        },
+        "apiClients": {
+          "description": "Clients of the Web Service request channel, their keys and the request log.",
+          "title": "Web Service channel"
         },
         "audit": {
           "description": "Log of user actions and of view-as-customer sessions.",
@@ -2181,6 +2370,29 @@
         "subtitle": "Customer requests to be approved or handled by the ED team and Customer Service.",
         "title": "Service requests"
       },
+      "releaseLetter": {
+        "approveIssues": "Approving issues the letter right away, with the TATC checked on approval.",
+        "approveNote": "Approving issues the letter for the selected units and sends it to the organization's registered email.",
+        "carrier": "Haulier",
+        "carrierKind": "Source of the details",
+        "consignee": "Consignee",
+        "containers": "Units:",
+        "counter": "BL Counter record",
+        "deconsolidated": "Devanned on {{ date }}",
+        "driver": "Driver",
+        "entityType": "Legal entity type",
+        "exchangeDate": "BL exchange: {{ date }}",
+        "hblNotReceived": "HBL not received",
+        "hblReceived": "HBL received on {{ date }}",
+        "issued": "Letter {{ number }} issued on {{ date }}.",
+        "loadError": "The letter details could not be loaded.",
+        "noCounter": "The BL has no Counter record.",
+        "notDeconsolidated": "Not devanned",
+        "ruleInformative": "Current rule: the TATC is informative; approval does not require it.",
+        "ruleRequired": "Current rule: to approve, every unit must have the TATC issued.",
+        "tatcNow": "TATC checked now",
+        "title": "Release and devanning letter"
+      },
       "review": {
         "actionError": "We could not record the action.",
         "actionsTitle": "Team actions",
@@ -3030,6 +3242,23 @@
       "published": "Published",
       "unpublished": "Withdrawn"
     },
+    "apiClientErrors": {
+      "alreadyRevoked": "The client is already revoked.",
+      "forbidden": "Your profile does not allow managing the Web Service channel.",
+      "keyNotFound": "We could not find the key.",
+      "notFound": "We could not find the channel client.",
+      "organizationNotAllowed": "The organization must be an approved, active customer to use the channel.",
+      "organizationNotFound": "We could not find the organization.",
+      "unavailable": "The service is not available right now. Please try again later."
+    },
+    "apiClientScope": {
+      "responsibilityLetter": "Letter of indemnity",
+      "warehouseChange": "Warehouse change"
+    },
+    "apiClientStatus": {
+      "active": "Active",
+      "revoked": "Revoked"
+    },
     "billingOptionSource": {
       "grant": "grantor of the access",
       "invoice": "billed on the invoice",
@@ -3168,14 +3397,21 @@
     },
     "documentErrors": {
       "blNotFound": "We could not find the BL or you do not have access to it.",
+      "carrierNotFound": "The chosen haulier is no longer linked to this BL. Choose another one or enter its details.",
+      "carrierRequired": "Choose a registered haulier or enter the haulier's name and tax ID.",
       "conditionsUnavailable": "Nexus is not available: the request could not be validated. Try again later.",
       "contentNotFound": "The document file is not available. Contact Customer Service.",
       "debtPending": "The shipment has pending debt: the CLD was not issued. Check the details and pay what is pending.",
       "forbidden": "Your role or profile does not allow this action on this shipment.",
+      "freightNotApplicable": "The freight certificate is only issued for Bolivia imports.",
+      "invalidTransition": "The request changed status and no longer allows this action. Refresh the page.",
       "noDebtNotApplicable": "The CLD is only issued for Bolivia imports.",
       "noRecipient": "Your organization has no registered email to send the document to. Register it in My organization.",
       "notAvailable": "This document is not available for this country's operation.",
       "notFound": "We could not find the document or you do not have access to it.",
+      "releaseLetterAlreadyRequested": "Some of the units are already in a letter of your organization pending approval. Check the selection.",
+      "releaseLetterNotApplicable": "The release and devanning letter is only requested for Bolivia imports.",
+      "requestNotFound": "We could not find the request or you do not have access to it.",
       "sourceUnavailable": "The information source did not respond. Nothing was issued: try again later.",
       "tariffNotInForce": "There is no tariff in force for this service. Contact Customer Service.",
       "termsNotAccepted": "You must accept the terms of the letter of indemnity.",
@@ -3203,6 +3439,12 @@
     },
     "form": {
       "invalid": "The form has errors. Check the highlighted fields."
+    },
+    "freightPurpose": {
+      "bank": "Bank",
+      "customs": "Customs",
+      "insurance": "Insurance",
+      "other": "Other"
     },
     "guideAudience": {
       "all": "Everyone",
@@ -3262,6 +3504,10 @@
       "general": "General",
       "payments": "Payments",
       "shipping": "Shipments"
+    },
+    "legalEntityType": {
+      "company": "Company",
+      "naturalPerson": "Natural person"
     },
     "maintainerAction": {
       "created": "Created",
@@ -3427,6 +3673,9 @@
     "portalErrors": {
       "articleNotFound": "The article no longer exists.",
       "blNotFound": "We could not find the BL or you do not have access to it.",
+      "deliveryAccessLost": "The document is no longer available to you: it does not exist or you lost access to the shipment.",
+      "deliveryContentNotFound": "The document file is not available. Contact Customer Service.",
+      "deliveryNotFound": "The delivery is no longer available in this conversation. Ask the assistant for the document again.",
       "forbidden": "Your profile does not allow this action.",
       "invalidImport": "The file is not valid: check the header and that it is not empty.",
       "noRecipient": "There is no e-mail to send the transcript to. Enter another e-mail.",
@@ -3486,6 +3735,10 @@
     "relatedDocumentKind": {
       "invoice": "Invoice",
       "receipt": "Receipt"
+    },
+    "releaseLetterCarrierSource": {
+      "grant": "with access granted on this BL",
+      "preCreated": "pre-created by your organization"
     },
     "requestKind": {
       "blCopy": "BL copy",
@@ -3586,6 +3839,8 @@
       "notFound": "We could not find the request.",
       "outputDocumentRequired": "You must upload the output document before completing.",
       "paymentInProgress": "It cannot be cancelled: the charge is in a payment in progress or already paid.",
+      "releaseLetterTatcNotIssued": "Approval requires the TATC to be issued for every unit in the letter, and some do not have it yet.",
+      "releaseLetterTatcUnavailable": "The TATC system did not respond and the current rule requires checking it. Try approving later.",
       "sourceUnavailable": "The source system is not responding. Please try again in a few minutes.",
       "tariffChanged": "The tariff changed. Review the new total and accept it again.",
       "tariffNotAccepted": "You must accept the tariff to submit the request.",
@@ -3659,9 +3914,11 @@
       "blCopyNonValued": "Non-valued BL copy",
       "blCopyValued": "Valued BL copy",
       "collectReceipt": "Collect receipt",
+      "freightCertificate": "Freight certificate",
       "gateOutAdvanceReceipt": "Gate Out advance payment receipt",
       "gateOutCoupon": "Gate Out pick-up voucher",
       "noDebtCertificate": "CLD (debt clearance certificate)",
+      "releaseLetter": "Release and devanning letter",
       "responsibilityLetter": "Letter of indemnity",
       "transshipmentCertificate": "Transshipment certificate"
     },
@@ -3798,6 +4055,21 @@
     "wideningStatus": {
       "active": "Active",
       "revoked": "Revoked"
+    },
+    "wsOperation": {
+      "clientInfo": "Client details query",
+      "getRequest": "Single request query",
+      "listRequests": "Requests query",
+      "responsibilityLetter": "Letter of indemnity",
+      "responsibilityLetterTerms": "Letter terms query",
+      "warehouseChange": "Warehouse change",
+      "warehouseChangeBatch": "Bulk warehouse change"
+    },
+    "wsOutcome": {
+      "accepted": "Accepted",
+      "failed": "Failed",
+      "processing": "Processing",
+      "rejected": "Rejected"
     }
   },
   "dangerousGoods": {
@@ -4233,6 +4505,67 @@
         "valuedHelp": "Includes the freight and the BL charges: amounts, taxes and status."
       }
     },
+    "freight": {
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "consignee": "Consignee",
+        "help": "Enter the consignee details and the purpose. When you submit, the signed certificate is issued right away.",
+        "submit": "Request and issue",
+        "title": "Freight certificate for BL {{ bl }}"
+      },
+      "errors": {
+        "nameRequired": "Enter the consignee's name or legal name.",
+        "purposeRequired": "Choose the purpose of the certificate.",
+        "submit": "The freight certificate could not be issued. Please try again.",
+        "summaryTitle": "Check the certificate details",
+        "taxIdRequired": "Enter the consignee's tax ID or ID document."
+      },
+      "fields": {
+        "consigneeHelp": "Prefilled with the BL consignee. Correct it if the certificate must be issued to another name.",
+        "consigneeName": "Name or legal name",
+        "consigneeTaxId": "Tax ID (NIT) or ID document",
+        "notes": "Remarks (optional)",
+        "purpose": "Purpose",
+        "purposePlaceholder": "Choose the purpose",
+        "recipient": "Addressed to (optional)",
+        "recipientHelp": "For example: Aduana Nacional de Bolivia.",
+        "sendEmail": "Send the certificate to my organization's registered email",
+        "sendEmailHelp": "It always stays in the shipment documents, even if it is not emailed."
+      },
+      "freight": "Freight being certified: {{ amount }}",
+      "freightTerms": "Freight being certified: {{ amount }} ({{ terms }})",
+      "freightUnknown": "The BL does not show the freight amount; the certificate will state what the source system records.",
+      "help": "Certifies the BL freight for Customs, an insurer or a bank. It is issued with an electronic signature, kept in the shipment documents and sent to your organization's registered email.",
+      "loadError": "The BL freight certificate could not be loaded.",
+      "noPayment": "No payment in this release: the request records your details and the certificate is issued free of charge, without going through the cart. Payment in bolivianos (BOB) will be enabled later.",
+      "notAllowed": "Your role or profile does not allow requesting the freight certificate on this BL.",
+      "request": "Request freight certificate",
+      "requests": {
+        "caption": "Freight certificate requests for BL {{ bl }}",
+        "col": {
+          "createdAt": "Date",
+          "number": "Request",
+          "status": "Status"
+        },
+        "empty": "Your organization has no freight certificate requests for this BL yet.",
+        "title": "Your organization's requests",
+        "viewLabel": "View request {{ number }}"
+      },
+      "result": {
+        "done": "Done",
+        "download": "Download {{ number }}",
+        "issued": "Certificate {{ number }} was issued and request {{ request }} is completed.",
+        "notSent": "It was not emailed: download it here or from the shipment documents.",
+        "repository": "It is available in the shipment documents.",
+        "sent": "It was sent to: {{ emails }}.",
+        "signature": "Electronically signed on {{ date }} ({{ provider }}).",
+        "title": "Certificate issued",
+        "verification": "Verification code: {{ code }}",
+        "viewRequest": "View request {{ number }}"
+      },
+      "title": "Freight certificate"
+    },
     "letter": {
       "accept": "I accept the terms of the letter, version {{ version }} (required)",
       "acceptHelp": "Your acceptance is logged with your user, date and time.",
@@ -4307,6 +4640,131 @@
       "empty": "There are no receipts or invoices for this BL.",
       "title": "Receipts and invoices"
     },
+    "releaseLetter": {
+      "detail": {
+        "breadcrumbLabel": "Breadcrumb",
+        "cancelConfirm": "Yes, cancel",
+        "cancelError": "The request could not be cancelled.",
+        "cancelHelp": "It can only be cancelled before approval. The units become free for another request.",
+        "cancelKeep": "No, keep it",
+        "cancelReason": "Reason (optional)",
+        "cancelStart": "Cancel the request",
+        "cancelTitle": "Cancel the letter request?",
+        "cancelled": "Request {{ number }} cancelled.",
+        "carrier": "Haulier",
+        "carrierFree": "Details entered in the request",
+        "carrierRegistered": "Registered in the portal",
+        "containers": "Units",
+        "dataTitle": "Letter details",
+        "download": "Download the letter",
+        "downloadLabel": "Download letter {{ number }}",
+        "entityType": "Legal entity type",
+        "issued": "Letter {{ number }} issued on {{ date }}. It is also in the shipment documents.",
+        "loadError": "The letter request could not be loaded.",
+        "notFound": "We could not find the request or you do not have access to it.",
+        "pending": "Pending approval by {{ team }}. On approval the letter is issued and sent to your organization's registered email.",
+        "ruleInformative": "The TATC is recorded for information; it does not prevent approval.",
+        "ruleRequired": "Current rule: approval requires the TATC to be issued for each unit.",
+        "subtitle": "BL {{ bl }} · Bolivia import",
+        "title": "Release letter {{ number }}",
+        "titleLoading": "Release letter"
+      },
+      "errors": {
+        "addressRequired": "Enter the company's address.",
+        "carrierNameRequired": "Enter the haulier's name or legal name.",
+        "carrierRequired": "Choose the registered haulier.",
+        "carrierTaxIdRequired": "Enter the haulier's tax ID (NIT).",
+        "containersRequired": "Choose at least one unit.",
+        "idDocumentRequired": "Enter the consignee's ID document.",
+        "legalNameRequired": "Enter the consignee's legal name.",
+        "nitRequired": "Enter the consignee's tax ID (NIT).",
+        "personNameRequired": "Enter the consignee's full name.",
+        "representativeIdRequired": "Enter the legal representative's ID.",
+        "representativeRequired": "Enter the legal representative's name.",
+        "submit": "The letter request could not be submitted. Please try again.",
+        "summaryTitle": "Check the letter details"
+      },
+      "fields": {
+        "address": "Address",
+        "addressOptional": "Address (optional)",
+        "carrier": "Registered haulier",
+        "carrierName": "Haulier name or legal name",
+        "carrierOption": "{{ name }} · Tax ID {{ taxId }} ({{ source }})",
+        "carrierPlaceholder": "Choose the haulier",
+        "carrierTaxId": "Haulier tax ID (NIT)",
+        "driverId": "Driver's ID (optional)",
+        "driverName": "Driver (optional)",
+        "idDocument": "ID document (CI)",
+        "legalName": "Legal name",
+        "nit": "Tax ID (NIT)",
+        "observations": "Remarks (optional)",
+        "personName": "Full name",
+        "representative": "Legal representative",
+        "representativeId": "Legal representative's ID",
+        "truckPlate": "Truck plate (optional)"
+      },
+      "form": {
+        "alreadyPending": "Already in request {{ number }}, pending approval.",
+        "approvalNote": "The request stays pending Customer Service approval. On approval the letter is issued, kept in the shipment documents and sent to your organization's registered email. No charge.",
+        "breadcrumbLabel": "Breadcrumb",
+        "carrier": "Haulier",
+        "carrierFree": "Enter its details",
+        "carrierMode": "How to indicate the haulier",
+        "carrierRegistered": "Registered haulier",
+        "carrierRegisteredHelp": "Hauliers with access granted by your organization on this BL or pre-created by it.",
+        "companyHelp": "Company: legal name, tax ID (NIT), address and legal representative with their ID.",
+        "consignee": "Consignee",
+        "containerOption": "{{ container }} · {{ type }}",
+        "containers": "Units in the letter",
+        "containersHelp": "Choose the units you will collect. Each unit's TATC is recorded on submission and again on approval.",
+        "containersHelpRule": "Choose the units you will collect. To approve the letter, all of them must have the TATC issued.",
+        "entityType": "Legal entity type",
+        "formTitle": "New request",
+        "loadError": "The BL information for the letter could not be loaded.",
+        "noCarriers": "Your organization has no registered hauliers linked to this BL: enter its details.",
+        "notAllowed": "Your role or profile does not allow requesting the letter on this BL. You can review your organization's requests.",
+        "notApplicable": "The release and devanning letter is only requested for Bolivia imports.",
+        "pendingReasons": "Pending due to:",
+        "personHelp": "Natural person: full name and ID document; the address is optional.",
+        "selectedTatc": "{count, plural, one {TATC of the chosen unit} other {TATC of the # chosen units}}",
+        "submit": "Submit request",
+        "submitted": "Request {{ number }} submitted: it is pending Customer Service approval.",
+        "subtitle": "Bolivia import: units, consignee and haulier",
+        "tatcDown": "The TATC system did not respond. You can submit the request: the TATC will be checked again on approval.",
+        "tatcLabel": "TATC: {{ status }}",
+        "tatcUnknown": "no information (the TATC system did not respond)",
+        "tatcWithNumber": "{{ status }} (No. {{ number }})",
+        "title": "Release and devanning letter for BL {{ bl }}"
+      },
+      "help": "Request the letter for the units you will collect, with the consignee and haulier details. Customer Service approves it and the letter is issued at that moment.",
+      "open": "Request letter or view requests",
+      "provisional": "Definitions for this release, provisional until validated with the legal department: required details by legal entity type, Customer Service approval and recording of the units' TATC on submission and on approval.",
+      "requests": {
+        "caption": "Release letter requests for BL {{ bl }}",
+        "col": {
+          "createdAt": "Date",
+          "number": "Request",
+          "status": "Status"
+        },
+        "empty": "Your organization has no letter requests for this BL yet.",
+        "title": "Your organization's letter requests for this BL"
+      },
+      "tatc": {
+        "atApproval": "TATC on approval",
+        "atSubmission": "TATC when the request was submitted",
+        "checkedAt": "Checked on {{ date }}.",
+        "col": {
+          "container": "Unit",
+          "number": "TATC No.",
+          "pending": "Pending due to",
+          "status": "Status"
+        },
+        "noPending": "No pending reasons",
+        "unavailable": "The TATC system did not respond when checked on {{ date }}."
+      },
+      "title": "Release and devanning letter",
+      "view": "View requests"
+    },
     "section": {
       "booking": "Booking {{ booking }}",
       "caption": "Documents of BL {{ bl }}",
@@ -4327,6 +4785,7 @@
       "downloadLabel": "Download {{ type }} {{ number }}",
       "downloaded": "{{ number }} was downloaded.",
       "empty": "No documents have been issued for this shipment yet.",
+      "freightIssued": "Freight certificate {{ number }} issued and signed. It is now in the shipment documents.",
       "help": "Documents issued for this shipment according to your permissions. Every download and delivery is logged.",
       "issueLetter": "Generate letter of indemnity",
       "letterBlocks": "Letter of indemnity required for freight forwarders (FFWW). Status: {{ status }}. While it is missing, the charges of this BL cannot be paid.",
@@ -5438,6 +5897,7 @@
         "title": "Service value"
       },
       "reinvoicingLink": "This is an IAO re-invoicing: see the new legal entity acceptance and the issuance on its page.",
+      "releaseLetterLink": "View the letter tracking, with the units' TATC and the issued letter",
       "summary": {
         "bl": "BL",
         "booking": "Booking",
@@ -5771,6 +6231,13 @@
         "tatc": "TATC"
       },
       "close": "Close the assistant",
+      "delivery": {
+        "hint": "{count, plural, one {Document from the shipment repository: your permissions are checked again when you download it.} other {# documents from the shipment repository: your permissions are checked again when you download them.}}",
+        "none": "There are no documents to download.",
+        "notAvailable": "There is no issued document of that type that you can see on this shipment. The answer is the same whether the document does not exist or your role does not allow seeing it (for example, the valued copy for the shipper or the Collect receipt outside the authorized customs agency).",
+        "ready": "{count, plural, one {There is one document to download.} other {There are # documents to download.}}",
+        "unavailable": "The documents service is not available right now. Please try again later."
+      },
       "downloaded": "Download started: {{ label }}.",
       "end": {
         "button": "End",
@@ -5904,6 +6371,7 @@
         "adminHome": "Administration home",
         "adminOrganizations": "Organizations",
         "announcements": "Announcements",
+        "apiClients": "Web Service channel",
         "assistantKnowledge": "Knowledge base",
         "assistantMailboxes": "Assistant mailboxes",
         "audit": "Audit",

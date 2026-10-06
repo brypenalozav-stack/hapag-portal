@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import path from 'path';
-import { test, expect, Page } from '@playwright/test';
+import { Page } from '@playwright/test';
+import { test, expect } from '../fixtures/app';
 import AxeBuilder from '@axe-core/playwright';
 import {
   BL_ACCESO_ABIERTO,
@@ -45,6 +46,7 @@ import {
 import { ITEM } from '../fixtures/ola-d-mocks';
 import { PAGO_DEPOSITO, REFACTURACION, REFACTURACION_BORRADOR, TOKEN_ACEPTACION } from '../fixtures/ola-h-mocks';
 import { BL_COUNTER_FALLIDO, GUIA_CARRO, OpcionesOlaI, SESION_TERMINADA, TRANSPORTISTA, sembrarImpersonacion } from '../fixtures/ola-i-mocks';
+import { BL_FLETE, BL_LIBERACION, CLIENTE_WS, SOLICITUD_CARTA, UNIDADES } from '../fixtures/ola-j-mocks';
 import { IDIOMAS, Idioma, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin, sembrarTema } from '../fixtures/session';
 
 /**
@@ -94,6 +96,10 @@ import { IDIOMAS, Idioma, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin
  * transacciones y excepciones, Counter (listado, registro con el envío fallido e historial), listas de contactos con un
  * error, pre-creación de transportista con errores, empresa matriz (filial y matriz con el listado de embarques),
  * revisión interna de vinculaciones con el rechazo abierto y la solicitud de vinculación con una cuenta pre-creada.
+ * Fase 2, Ola J (tema claro y oscuro): certificado de flete (diálogo con errores y resultado emitido), carta de liberación
+ * (formulario de empresa y de persona natural con errores, seguimiento pendiente), revisión interna con el panel de la
+ * carta (TATC y Counter), entrega de documentos por el asistente (descarga y "no disponible") y el canal Web Service
+ * (detalle con bitácora, alta con errores, clave mostrada una vez, rotación y confirmaciones de revocación).
  */
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -698,6 +704,163 @@ const PANTALLAS_OLA_I: { id: string; ruta: string; sesion: Sesion; opciones?: Op
   },
 ];
 
+/** Abre el detalle de un cliente del canal Web Service (M3-17) y espera su bitácora. */
+async function abrirClienteWs(page: Page): Promise<void> {
+  await page.getByTestId(`api-client-row-${CLIENTE_WS.id}`).getByRole('button').click();
+  await expect(page.locator('#api-client-detail-title')).toBeFocused();
+  await expect(page.getByTestId('api-client-log')).toBeVisible();
+}
+
+/** Fase 2, Ola J: certificado de flete, carta de liberación, revisión interna, entrega por el asistente y canal Web Service. */
+const PANTALLAS_OLA_J: { id: string; ruta: string; sesion: Sesion; preparar?: (page: Page) => Promise<void> }[] = [
+  {
+    id: 'documents-freight-dialog',
+    ruta: `/shipments/${BL_FLETE}/documents`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('freight-requests')).toBeVisible();
+      await page.getByTestId('freight-request').click();
+      await expect(page.locator('#freight-consignee-name')).toHaveValue('Comercial Altiplano SRL');
+      await page.locator('#freight-consignee-name').fill('');
+      await page.getByTestId('freight-submit').click();
+      await expect(page.locator('#freight-form .alert-danger').first()).toBeFocused();
+    },
+  },
+  {
+    id: 'documents-freight-result',
+    ruta: `/shipments/${BL_FLETE}/documents`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId('freight-request').click();
+      await page.locator('#freight-purpose').selectOption('CUSTOMS');
+      await page.getByTestId('freight-submit').click();
+      await expect(page.getByTestId('freight-result')).toBeVisible();
+      await expect(page.getByTestId('freight-result').locator('h3')).toBeFocused();
+    },
+  },
+  {
+    id: 'release-letter-form-company-errors',
+    ruta: `/shipments/${BL_LIBERACION}/release-letter`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId(`release-container-${UNIDADES.PENDIENTE}`)).toContainText(SOLICITUD_CARTA.numero);
+      await page.locator(`#release-container-${UNIDADES.CON_TATC}`).check();
+      await expect(page.getByTestId('release-selected-tatc')).toBeVisible();
+      await page.getByTestId('release-submit').click();
+      await expect(page.locator('form[data-testid="release-form"] .alert-danger').first()).toBeFocused();
+    },
+  },
+  {
+    id: 'release-letter-form-person-errors',
+    ruta: `/shipments/${BL_LIBERACION}/release-letter`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.locator('#release-entity-NATURAL_PERSON').check();
+      await page.locator('#release-carrier-free').check();
+      await page.locator('#release-consignee-name').fill('');
+      await page.getByTestId('release-submit').click();
+      await expect(page.locator('form[data-testid="release-form"] .alert-danger').first()).toBeFocused();
+      await expect(page.locator('#release-carrier-name')).toHaveAttribute('aria-invalid', 'true');
+    },
+  },
+  {
+    id: 'release-letter-detail',
+    ruta: `/release-letters/${SOLICITUD_CARTA.id}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('release-pending')).toBeVisible();
+      await expect(page.getByTestId('release-tatc-submission')).toBeVisible();
+    },
+  },
+  {
+    id: 'admin-review-release-letter',
+    ruta: `/admin/service-requests/${SOLICITUD_CARTA.id}`,
+    sesion: 'admin',
+    preparar: async (page) => {
+      await expect(page.getByTestId('srv-release-counter')).toBeVisible();
+      await expect(page.getByTestId('release-tatc-now')).toBeVisible();
+    },
+  },
+  {
+    id: 'assistant-delivery',
+    ruta: '/dashboard',
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId('assistant-launcher').click();
+      const panel = page.getByTestId('assistant-panel');
+      await expect(panel.getByTestId('assistant-reply')).toHaveCount(1);
+      const preguntas = ['envíame la copia no valorada del BL HLCU0000001', 'envíame el comprobante collect del BL HLCUSAI260501240'];
+      for (const [i, texto] of preguntas.entries()) {
+        await panel.locator('#assistant-message').fill(texto);
+        await panel.locator('#assistant-message').press('Enter');
+        await expect(panel.getByTestId('assistant-reply')).toHaveCount(i + 2);
+      }
+      await expect(panel.getByTestId('assistant-delivery-hint')).toBeVisible();
+      await expect(panel.getByTestId('assistant-delivery-denied')).toBeVisible();
+    },
+  },
+  { id: 'admin-api-clients', ruta: '/admin/api-clients', sesion: 'admin', preparar: abrirClienteWs },
+  {
+    id: 'admin-api-clients-create-errors',
+    ruta: '/admin/api-clients',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.getByTestId('api-client-new').click();
+      await page.locator('#api-client-rate').fill('0');
+      await page.getByTestId('api-client-submit').click();
+      await expect(page.locator('form[data-testid="api-client-form"] .alert-danger').first()).toBeFocused();
+    },
+  },
+  {
+    id: 'admin-api-clients-key-shown',
+    ruta: '/admin/api-clients',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.getByTestId('api-client-new').click();
+      await page.locator('#api-client-org-search').fill('Andes');
+      await page.getByTestId('api-client-org-search-button').click();
+      await page.locator('input[name="api-client-org"]').first().check();
+      await page.locator('#api-client-name').fill('Integración de prueba');
+      await page.locator('#api-client-scope-warehouse-change').check();
+      await page.getByTestId('api-client-submit').click();
+      await expect(page.locator('#api-secret-title')).toBeFocused();
+    },
+  },
+  {
+    id: 'admin-api-clients-rotate',
+    ruta: '/admin/api-clients',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await abrirClienteWs(page);
+      await page.locator('#api-client-grace').fill('60');
+      await page.getByTestId('api-client-rotate-submit').click();
+      await expect(page.locator('#api-secret-title')).toBeFocused();
+    },
+  },
+  {
+    id: 'admin-api-clients-revoke',
+    ruta: '/admin/api-clients',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await abrirClienteWs(page);
+      await page.getByTestId('api-client-revoke').click();
+      await page.getByTestId('api-client-revoke-yes').click();
+      await expect(page.locator('#api-client-revoke-reason')).toBeFocused();
+    },
+  },
+  {
+    id: 'admin-api-clients-revoke-key',
+    ruta: '/admin/api-clients',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await abrirClienteWs(page);
+      await page.locator('#api-key-revoke-k5000000-0000-4000-8000-000000000001').click();
+      await expect(page.getByTestId('api-key-confirm')).toBeVisible();
+      await expect(page.locator('#api-client-confirm-title')).toBeFocused();
+    },
+  },
+];
+
 const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opciones?: OpcionesOlaD & OpcionesOlaI; preparar?: (page: Page) => Promise<void> }[] = [
   { id: 'login', ruta: '/login', sesion: 'ninguna' },
   { id: 'register', ruta: '/register', sesion: 'ninguna' },
@@ -901,6 +1064,9 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opcion
   ...PANTALLAS_OLA_I,
   // La solicitud de vinculación (registro) no tiene variante oscura propia todavía: se revisa en tema claro.
   ...PANTALLAS_OLA_I.filter((p) => p.sesion !== 'ninguna').map((p) => ({ ...p, id: `${p.id}-dark`, tema: 'dark' as const })),
+  // Fase 2, Ola J, en tema claro y oscuro (M11-07)
+  ...PANTALLAS_OLA_J,
+  ...PANTALLAS_OLA_J.map((p) => ({ ...p, id: `${p.id}-dark`, tema: 'dark' as const })),
 ];
 
 async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opciones?: OpcionesOlaD & OpcionesOlaI, tema: Tema = 'light'): Promise<void> {

@@ -40,6 +40,8 @@ export class SidebarComponent {
   canManageCounter = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_COUNTER));
   canUseImpersonation = computed(() => this.auth.hasPermission(PERMISSIONS.USE_IMPERSONATION));
   canViewTransactionsReport = computed(() => this.auth.hasPermission(PERMISSIONS.VIEW_TRANSACTIONS_REPORT));
+  /** Fase 2, Ola J: clientes del canal Web Service (M3-17). */
+  canManageApiClients = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_API_CLIENTS));
   closed = output<void>();
 
   onLinkClick(): void {

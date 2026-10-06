@@ -9,6 +9,7 @@ import { AdminServiceRequestService } from '../../../core/services/service-reque
 import { LocaleService } from '../../../core/services/locale.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { SERVICE_FORM_LIMITS, ServiceRequestDetail } from '../../../core/models/service-request.model';
+import { RELEASE_LETTER_DEFINITION_CODE } from '../../../core/models/document.model';
 import { SERVICE_TEAM_KEYS } from '../../../core/i18n/labels';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
@@ -16,6 +17,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ServiceRequestOverviewComponent } from '../../service-requests/shared/service-request-overview';
 import { isOutput, localized, serviceErrorMessage } from '../../service-requests/shared/service-text';
+import { ReleaseLetterReviewPanelComponent } from './release-letter-review-panel';
 
 /** Acción del equipo interno sobre la solicitud. */
 type ReviewAction = 'approve' | 'reject' | 'complete' | 'note' | 'output';
@@ -30,12 +32,16 @@ interface ActionError {
  * Revisión de una solicitud en la bandeja interna (ED, Customer Service): el mismo detalle que ve el cliente más las
  * acciones según el estado: aprobar (genera el cargo con la tarifa aceptada al enviar) o rechazar con motivo visible
  * para el cliente (M3-09), subir el documento de salida y completar la atención (exigido si la definición lo pide), y
- * agregar notas a la línea de tiempo. Cada cambio de estado se notifica al cliente.
+ * agregar notas a la línea de tiempo. Cada cambio de estado se notifica al cliente. Fase 2, Ola J: la carta de liberación y
+ * desconsolidado (M6-08) agrega su panel con el consignatario, el transportista, el TATC y el Counter; aprobarla la emite.
  */
 @Component({
   selector: 'app-service-request-review',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, LoadingSpinnerComponent, StateMessageComponent, ServiceRequestOverviewComponent],
+  imports: [
+    FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, LoadingSpinnerComponent, StateMessageComponent, ServiceRequestOverviewComponent,
+    ReleaseLetterReviewPanelComponent,
+  ],
   templateUrl: './service-request-review.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -50,6 +56,7 @@ export class ServiceRequestReviewComponent implements OnInit {
 
   readonly teamKeys = SERVICE_TEAM_KEYS;
   readonly fileAccept = SERVICE_FORM_LIMITS.FILE_ACCEPT;
+  readonly releaseLetterCode = RELEASE_LETTER_DEFINITION_CODE;
 
   request = signal<ServiceRequestDetail | null>(null);
   loading = signal(true);
