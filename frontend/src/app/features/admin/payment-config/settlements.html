@@ -1,0 +1,190 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.settlements.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.settlements.subtitle' | transloco }}</p>
+  </div>
+  <button type="button" class="btn btn-hl-orange" [disabled]="matching()" (click)="matchAll()" aria-describedby="settlements-auto-help" data-testid="settlements-auto">
+    @if (matching()) {
+      <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+    }
+    {{ 'admin.settlements.auto.button' | transloco }}
+  </button>
+</div>
+<p id="settlements-auto-help" class="small text-muted">{{ 'admin.settlements.auto.help' | transloco }}</p>
+
+@if (actionMessage()) {
+  <div class="alert alert-success py-2" role="status" data-testid="settlements-message">{{ actionMessage() }}</div>
+}
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.settlements.filters.label' | transloco" (ngSubmit)="load()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-2">
+      <label for="settlements-status" class="form-label small fw-semibold">{{ 'admin.settlements.filters.status' | transloco }}</label>
+      <select id="settlements-status" class="form-select" name="status" [(ngModel)]="filters.status">
+        <option value="">{{ 'admin.settlements.filters.all' | transloco }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="settlements-kind" class="form-label small fw-semibold">{{ 'admin.settlements.filters.kind' | transloco }}</label>
+      <select id="settlements-kind" class="form-select" name="kind" [(ngModel)]="filters.kind">
+        <option value="">{{ 'admin.settlements.filters.all' | transloco }}</option>
+        @for (k of kinds; track k) {
+          <option [value]="k">{{ k | codeLabel: kindKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="settlements-country" class="form-label small fw-semibold">{{ 'admin.settlements.filters.country' | transloco }}</label>
+      <select id="settlements-country" class="form-select" name="country" [(ngModel)]="filters.country">
+        <option value="">{{ 'admin.settlements.filters.all' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="settlements-bl" class="form-label small fw-semibold">{{ 'admin.settlements.filters.bl' | transloco }}</label>
+      <input id="settlements-bl" type="text" class="form-control" name="blNumber" autocomplete="off" [(ngModel)]="filters.blNumber" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="settlements-from" class="form-label small fw-semibold">{{ 'admin.settlements.filters.from' | transloco }}</label>
+      <input id="settlements-from" type="date" class="form-control" name="from" [(ngModel)]="filters.from" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="settlements-to" class="form-label small fw-semibold">{{ 'admin.settlements.filters.to' | transloco }}</label>
+      <input id="settlements-to" type="date" class="form-control" name="to" [(ngModel)]="filters.to" />
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <button type="submit" class="btn btn-outline-secondary">{{ 'admin.settlements.filters.search' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (manual(); as row) {
+  <!-- Cruce manual con una factura indicada (NF-04) -->
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="settlement-manual-title" (submit)="confirmManual($event)" data-testid="settlement-manual-form">
+    <h2 #manualHeading id="settlement-manual-title" class="section-title mb-2" tabindex="-1">{{ 'admin.settlements.manual.title' | transloco: { payment: row.paymentNumber } }}</h2>
+    <p class="small">{{ 'admin.settlements.manual.summary' | transloco: { concept: (row.conceptCode | codeLabel: conceptKeys), bl: row.blNumber ?? '—', amount: (row.amount | hlCurrency: row.currency), taxId: row.billingTaxId ?? '—' } }}</p>
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="settlement-errors-title">
+        <h3 id="settlement-errors-title" class="h6 fw-bold">{{ 'admin.settlements.manual.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (e of errors(); track e.fieldId) {
+            <li><a class="alert-link" [href]="'#' + e.fieldId" (click)="focusField($event, e.fieldId)">{{ e.key | transloco }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (manualError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ manualError() }}</div>
+    }
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label for="settlement-invoice" class="form-label small fw-semibold">{{ 'admin.settlements.manual.invoice' | transloco }}</label>
+        <input id="settlement-invoice" type="text" class="form-control" required autocomplete="off" name="invoiceId"
+               aria-describedby="settlement-invoice-help settlement-invoice-error" [attr.aria-invalid]="hasError('settlement-invoice')" [(ngModel)]="invoiceId" />
+        <div id="settlement-invoice-help" class="form-text">{{ 'admin.settlements.manual.invoiceHelp' | transloco }}</div>
+        <span id="settlement-invoice-error" class="hl-field-error">
+          @if (errorKey('settlement-invoice'); as k) {
+            {{ k | transloco }}
+          }
+        </span>
+      </div>
+      <div class="col-md-6">
+        <label for="settlement-note" class="form-label small fw-semibold">{{ 'admin.settlements.manual.note' | transloco }}</label>
+        <textarea id="settlement-note" class="form-control" rows="2" maxlength="500" name="note" aria-describedby="settlement-note-help" [(ngModel)]="note"></textarea>
+        <div id="settlement-note-help" class="form-text">{{ 'admin.settlements.manual.noteHelp' | transloco }}</div>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="manualBusy()">{{ 'admin.settlements.manual.submit' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeManual()">{{ 'admin.settlements.manual.back' | transloco }}</button>
+    </div>
+  </form>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (rows().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.settlements.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.settlements.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.settlements.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.settlements.col.payment' | transloco }}</th>
+            <th scope="col">{{ 'admin.settlements.col.kind' | transloco }}</th>
+            <th scope="col">{{ 'admin.settlements.col.charge' | transloco }}</th>
+            <th scope="col">{{ 'admin.settlements.col.parties' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'admin.settlements.col.amount' | transloco }}</th>
+            <th scope="col">{{ 'admin.settlements.col.date' | transloco }}</th>
+            <th scope="col">{{ 'admin.settlements.col.status' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.settlements.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.id) {
+            <tr [attr.data-testid]="'settlement-row-' + row.paymentNumber + '-' + row.conceptCode">
+              <td>
+                <span class="fw-semibold d-block">{{ row.paymentNumber }}</span>
+                @if (row.receiptNumber) {
+                  <span class="small d-block">{{ 'admin.settlements.receipt' | transloco: { number: row.receiptNumber } }}</span>
+                }
+                @if (row.receiptDocumentNumber && row.blNumber) {
+                  <a class="small d-block" [routerLink]="['/shipments', row.blNumber, 'documents']">{{ 'admin.settlements.receiptDocument' | transloco: { number: row.receiptDocumentNumber } }}</a>
+                }
+              </td>
+              <td>{{ row.kind | codeLabel: kindKeys }}</td>
+              <td>
+                <span class="d-block">{{ row.conceptCode | codeLabel: conceptKeys }}</span>
+                <span class="small text-muted d-block">{{ row.blNumber ?? row.bookingNumber ?? '—' }} · {{ row.country }}</span>
+              </td>
+              <td class="small">
+                <span class="d-block">{{ 'admin.settlements.payer' | transloco: { name: row.payerName ?? '—', taxId: row.payerTaxId ?? '—' } }}</span>
+                <span class="d-block">{{ 'admin.settlements.billing' | transloco: { taxId: row.billingTaxId ?? '—' } }}</span>
+              </td>
+              <td class="text-end">
+                <span class="hl-num d-block">{{ row.amount | hlCurrency: row.currency }}</span>
+                @if (row.paidCurrency !== row.currency) {
+                  <span class="small text-muted d-block">{{ 'admin.settlements.paid' | transloco: { amount: (row.paidAmount | hlCurrency: row.paidCurrency) } }}</span>
+                }
+              </td>
+              <td>{{ row.settledAt | hlDate: 'datetime' }}</td>
+              <td>
+                <span class="hl-badge" [class]="statusClass[row.status] || 'hl-badge--pending'">{{ row.status | codeLabel: statusKeys }}</span>
+                @if (row.matchedInvoiceNumber) {
+                  <span class="small d-block mt-1">{{ 'admin.settlements.matchedInvoice' | transloco: { number: row.matchedInvoiceNumber } }}</span>
+                }
+                @if (row.matchedAt) {
+                  <span class="small d-block">{{ 'admin.settlements.matchedAt' | transloco: { date: (row.matchedAt | hlDate: 'datetime'), user: row.matchedBy ?? '—' } }}</span>
+                }
+                @if (row.matchNote) {
+                  <span class="small d-block">{{ 'admin.settlements.matchNote' | transloco: { note: row.matchNote } }}</span>
+                }
+              </td>
+              <td>
+                @if (row.status === 'Open') {
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openManual(row)"
+                          [attr.aria-label]="'admin.settlements.manual.buttonLabel' | transloco: { payment: row.paymentNumber, concept: (row.conceptCode | codeLabel: conceptKeys) }">
+                    {{ 'admin.settlements.manual.button' | transloco }}
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

@@ -1,0 +1,101 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.serviceDefinitions.list.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.serviceDefinitions.list.subtitle' | transloco }}</p>
+  </div>
+  <a routerLink="/admin/service-definitions/new" class="btn btn-hl-orange">{{ 'admin.serviceDefinitions.list.new' | transloco }}</a>
+</div>
+
+<form class="hl-card p-3 mb-4" role="search" [attr.aria-label]="'admin.serviceDefinitions.list.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="definitions-country" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.list.filters.country' | transloco }}</label>
+      <select id="definitions-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.serviceDefinitions.list.filters.allCountries' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="definitions-operation" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.list.filters.operation' | transloco }}</label>
+      <select id="definitions-operation" class="form-select" name="operation" [(ngModel)]="operation">
+        <option value="">{{ 'admin.serviceDefinitions.list.filters.allOperations' | transloco }}</option>
+        <option value="IMPORT">{{ 'common.operation.import' | transloco }}</option>
+        <option value="EXPORT">{{ 'common.operation.export' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="form-check mb-2">
+        <input id="definitions-inactive" type="checkbox" class="form-check-input" name="includeInactive" [(ngModel)]="includeInactive" />
+        <label for="definitions-inactive" class="form-check-label small">{{ 'admin.serviceDefinitions.list.filters.includeInactive' | transloco }}</label>
+      </div>
+    </div>
+    <div class="col-lg-3 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'admin.serviceDefinitions.list.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'admin.serviceDefinitions.list.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (definitions().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.serviceDefinitions.list.empty'" />
+} @else {
+  <div class="hl-card">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.serviceDefinitions.list.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.serviceDefinitions.list.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.serviceDefinitions.list.col.order' | transloco }}</th>
+            <th scope="col">{{ 'admin.serviceDefinitions.list.col.service' | transloco }}</th>
+            <th scope="col">{{ 'admin.serviceDefinitions.list.col.scope' | transloco }}</th>
+            <th scope="col">{{ 'admin.serviceDefinitions.list.col.pricing' | transloco }}</th>
+            <th scope="col">{{ 'admin.serviceDefinitions.list.col.teams' | transloco }}</th>
+            <th scope="col">{{ 'admin.serviceDefinitions.list.col.status' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.serviceDefinitions.list.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of definitions(); track d.id) {
+            <tr [attr.data-testid]="'definition-' + d.code">
+              <td>{{ d.displayOrder }}</td>
+              <td>
+                <span class="fw-semibold d-block">{{ name(d) }}</span>
+                <span class="small text-muted">{{ d.code }}</span>
+              </td>
+              <td>
+                @for (op of d.operations; track op; let last = $last) {
+                  {{ op | codeLabel: operationKeys }}@if (!last) {<span>, </span>}
+                }
+                <span class="d-block small text-muted">{{ d.countries.join(', ') }}</span>
+              </td>
+              <td>
+                {{ d.pricingMode | codeLabel: pricingKeys }}
+                @if (d.chargeConceptCode) {
+                  <span class="d-block small text-muted">{{ d.chargeConceptCode | codeLabel: conceptKeys }}</span>
+                }
+              </td>
+              <td class="small">
+                <span class="d-block">{{ 'admin.serviceDefinitions.list.approval' | transloco: { team: (d.approvalTeam | codeLabel: teamKeys) } }}</span>
+                <span class="d-block">{{ 'admin.serviceDefinitions.list.fulfillment' | transloco: { team: (d.fulfillmentTeam | codeLabel: teamKeys) } }}</span>
+              </td>
+              <td>{{ (d.isActive ? 'admin.serviceDefinitions.status.active' : 'admin.serviceDefinitions.status.inactive') | transloco }}</td>
+              <td>
+                <a [routerLink]="['/admin/service-definitions', d.id]" class="btn btn-sm btn-outline-secondary"
+                   [attr.aria-label]="'admin.serviceDefinitions.list.editLabel' | transloco: { service: name(d) }">
+                  {{ 'admin.serviceDefinitions.list.edit' | transloco }}
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

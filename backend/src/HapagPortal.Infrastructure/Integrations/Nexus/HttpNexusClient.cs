@@ -52,7 +52,7 @@ public sealed class HttpNexusClient(HttpClient httpClient, ISecretResolver secre
                 dto.MatchCode,
                 dto.IsFreightForwarder,
                 dto.Credit is { } credit
-                    ? new CreditCondition(credit.Concepts, credit.CreditDays, credit.ValidFrom, credit.ValidTo)
+                    ? new CreditCondition(credit.Concepts, credit.CreditDays, credit.ValidFrom, credit.ValidTo, credit.CreditLimit, credit.CreditLimitCurrency)
                     : null)
             : null;
 
@@ -114,7 +114,13 @@ public sealed class HttpNexusClient(HttpClient httpClient, ISecretResolver secre
 
     private sealed record CustomerConditionsDto(string TaxId, bool IsFreightForwarder, CreditConditionDto? Credit, string? MatchCode = null);
 
-    private sealed record CreditConditionDto(IReadOnlyList<string> Concepts, int CreditDays, DateOnly ValidFrom, DateOnly? ValidTo = null);
+    private sealed record CreditConditionDto(
+        IReadOnlyList<string> Concepts,
+        int CreditDays,
+        DateOnly ValidFrom,
+        DateOnly? ValidTo = null,
+        decimal? CreditLimit = null,
+        string? CreditLimitCurrency = null);
 
     private sealed record ExchangeRateDto(
         string FromCurrency,

@@ -16,7 +16,8 @@ export type PaymentStatus = 'Pending' | 'Processing' | 'PendingVerification' | '
 /** Estados en los que el pago ya no cambia sin intervención (el resultado queda definido). */
 export const FINAL_PAYMENT_STATUSES: readonly PaymentStatus[] = ['Confirmed', 'Failed', 'Cancelled'];
 
-export type PaymentOrigin = 'Cart' | 'Account' | 'Legacy';
+/** `CreditLine`: imputación a la línea de crédito (Fase 2, Ola H, M5-10); no figura en el historial de pagos. */
+export type PaymentOrigin = 'Cart' | 'Account' | 'Legacy' | 'CreditLine';
 
 /** Motivo de un pago fallido: sin respuesta de la plataforma (sin cobro) o rechazado por ella. */
 export type PaymentFailureReason = 'PROVIDER_UNAVAILABLE' | 'PROVIDER_REJECTED';
@@ -249,6 +250,8 @@ export interface AccountPayables {
   items: PayableItem[];
   totals: CurrencyTotal[];
   evaluatedAt: string;
+  /** Fase 2, Ola H: ítems que se pueden imputar a la línea de crédito desde el estado de cuenta (M5-10). */
+  creditImputable?: PayableItemRef[];
 }
 
 export interface AccountCheckoutRequest {

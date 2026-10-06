@@ -28,6 +28,19 @@ public sealed class DocumentSettings
     /// <summary>Vigencia de la carta de responsabilidad en días (M6-06); 0 = sin vencimiento.</summary>
     public int ResponsibilityLetterValidityDays { get; set; }
 
+    /// <summary>
+    /// Cobro del certificado de flete (M6-02): <c>Free</c> (primera entrega de Fase 2, sin pago ni carro). <c>Paid</c>
+    /// queda reservado para el flujo de cobro en BOB, aún no definido ni validado: el arranque falla si se configura.
+    /// </summary>
+    public string FreightCertificateMode { get; set; } = FreightCertificateModes.Free;
+
+    /// <summary>
+    /// Vínculo de la carta de liberación con el TATC (M6-08, M2-09): el TATC se consulta y registra siempre al enviar y
+    /// al aprobar; con <c>true</c>, además, la aprobación exige el TATC emitido de todas las unidades seleccionadas (regla
+    /// a validar con el área legal; por defecto solo informativa).
+    /// </summary>
+    public bool ReleaseLetterRequiresIssuedTatc { get; set; }
+
     /// <summary>Razón social del emisor por país, impresa en el encabezado de cada documento.</summary>
     public string IssuerChile { get; set; } = "Hapag-Lloyd Chile SpA";
     public string IssuerBolivia { get; set; } = "Hapag-Lloyd Bolivia S.R.L.";

@@ -152,8 +152,9 @@ function repositorios(): Record<string, Repositorio> {
       actions: acciones({ canRequestValuedCopy: true, canRequestNonValuedCopy: true, canIssueResponsibilityLetter: true }),
       responsibilityLetter: { required: true, status: 'Missing', blocksProcess: true },
     },
-    [BL_CLD_BLOQUEADO]: { country: 'BO', documents: [], related: [], actions: acciones({ canRequestNoDebtCertificate: true }) },
-    [BL_CLD_EMITIBLE]: { country: 'BO', documents: [], related: [], actions: acciones({ canRequestNoDebtCertificate: true }) },
+    // Fase 2, Ola J: la carta de liberación y desconsolidado (M6-08) y el certificado de flete (M6-02) de Bolivia.
+    [BL_CLD_BLOQUEADO]: { country: 'BO', documents: [], related: [], actions: acciones({ canRequestNoDebtCertificate: true, canRequestReleaseLetter: true }) },
+    [BL_CLD_EMITIBLE]: { country: 'BO', documents: [], related: [], actions: acciones({ canRequestNoDebtCertificate: true, canRequestFreightCertificate: true }) },
   };
 }
 
@@ -267,6 +268,12 @@ export class SimulacionOlaE {
       actions: r.actions,
       ...(r.responsibilityLetter ? { responsibilityLetter: r.responsibilityLetter } : {}),
     };
+  }
+
+  /** Fase 2, Ola J: publica en el repositorio del BL un documento emitido por otra ola (certificado de flete, carta). */
+  publicar(bl: string, doc: ShipmentDocument): void {
+    const repo = this.repo(bl);
+    repo.documents = [doc, ...repo.documents.filter((d) => d.id !== doc.id)];
   }
 
   /** Ajusta una respuesta GET de otra ola: con la carta emitida, los cargos del BL ya no se bloquean. */

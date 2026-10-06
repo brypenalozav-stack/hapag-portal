@@ -86,12 +86,12 @@ public sealed class PaymentsSeedTests : IDisposable
     [Fact]
     public async Task HistoricPayments_ShouldHaveDetailsHistoryAndPayerDistinctFromBilling()
     {
-        var ids = new[] { SeedDataIds.Payment09, SeedDataIds.Payment10, SeedDataIds.Payment11, SeedDataIds.Payment12, SeedDataIds.Payment13 };
+        var ids = new[] { SeedDataIds.Payment09, SeedDataIds.Payment10, SeedDataIds.Payment11, SeedDataIds.Payment12, SeedDataIds.Payment13, SeedDataIds.Payment14 };
         var payments = await _context.Payments.Where(p => ids.Contains(p.Id)).ToListAsync();
         var details = await _context.PaymentDetails.Where(d => ids.Contains(d.PaymentId)).ToListAsync();
         var history = await _context.PaymentStatusChanges.Where(h => ids.Contains(h.PaymentId)).ToListAsync();
 
-        payments.Should().HaveCount(5);
+        payments.Should().HaveCount(6);
         payments.Should().OnlyContain(p => details.Any(d => d.PaymentId == p.Id));
         payments.Should().OnlyContain(p => history.Where(h => h.PaymentId == p.Id).OrderBy(h => h.ChangedAt).Last().ToStatus == p.Status);
 
@@ -101,7 +101,9 @@ public sealed class PaymentsSeedTests : IDisposable
         payments.Single(p => p.Id == SeedDataIds.Payment11).Status.Should().Be(PaymentStatus.PendingVerification);
         payments.Single(p => p.Id == SeedDataIds.Payment12).FailureReason.Should().Be(PaymentFailureReasons.ProviderUnavailable);
 
-        var legacy = await _context.Payments.Where(p => !ids.Contains(p.Id)).ToListAsync();
+        // Ola H: anticipo, imputación a crédito y Gate Out anticipado (FinanceSeedTests).
+        var olaH = new[] { SeedDataIds.Payment15, SeedDataIds.Payment16, SeedDataIds.Payment17 };
+        var legacy = await _context.Payments.Where(p => !ids.Contains(p.Id) && !olaH.Contains(p.Id)).ToListAsync();
         legacy.Should().OnlyContain(p => p.Origin == PaymentOrigins.Legacy);
     }
 

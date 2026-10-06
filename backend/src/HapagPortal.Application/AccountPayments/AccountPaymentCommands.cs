@@ -15,15 +15,19 @@ using Microsoft.EntityFrameworkCore;
 
 /// <summary>
 /// Cargos pendientes de un cliente con condición de crédito leída de Nexus (M5-07, M8-02), en su vista de
-/// pago propia, separada del carro. El IPO no figura (M4-03). Cuando exista el estado de cuenta de M7-03
-/// (Fase 2), esta vista se integra allí.
+/// pago propia, separada del carro. El IPO no figura (M4-03). Desde la Ola H el estado de cuenta (M7-03) es su
+/// vista de pago; <c>CreditImputable</c> lista los ítems que pueden imputarse a la línea de crédito (M5-10).
 /// </summary>
 public sealed record AccountPayablesDto(
     PaymentOrganizationDto Organization,
     CommercialConditionsDto Conditions,
     IReadOnlyList<PayableItemDto> Items,
     IReadOnlyList<CurrencyTotalDto> Totals,
-    DateTime EvaluatedAt);
+    DateTime EvaluatedAt,
+    IReadOnlyList<PayableItemKeyDto>? CreditImputable = null);
+
+/// <summary>Referencia de un ítem pagable (mismo <c>ItemType</c> y <c>SourceId</c> que acepta el cierre).</summary>
+public sealed record PayableItemKeyDto(string ItemType, Guid SourceId);
 
 public sealed record GetAccountPayablesQuery : IQuery<AccountPayablesDto>;
 
@@ -150,12 +154,19 @@ public sealed class GetAccountPayablesQueryHandler(
             .OrderBy(t => t.Currency, StringComparer.Ordinal)
             .ToList();
 
+        var credit = await CreditImputationEligibility.LoadAsync(dbContext, cancellationToken);
+        var imputable = items
+            .Where(i => credit.IsEligible(payer.Value.Conditions, i.ItemType, i.Country, i.ConceptCode))
+            .Select(i => new PayableItemKeyDto(i.ItemType, i.SourceId))
+            .ToList();
+
         return Result<AccountPayablesDto>.Success(new AccountPayablesDto(
             new PaymentOrganizationDto(organization.Id, organization.Name, TaxIdNormalizer.Normalize(organization.TaxId)),
             payer.Value.Conditions,
             items.OrderBy(i => i.BlNumber).ThenBy(i => i.ConceptCode).ToList(),
             totals,
-            DateTime.UtcNow));
+            DateTime.UtcNow,
+            imputable));
     }
 }
 

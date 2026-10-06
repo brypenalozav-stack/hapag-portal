@@ -21,9 +21,15 @@ public sealed record CustomerConditions(
     bool IsFreightForwarder,
     CreditCondition? Credit);
 
-/// <summary>Condición de crédito: conceptos cubiertos (FREIGHT, LOCAL_CHARGES, MHD, STORAGE) y días.</summary>
+/// <summary>
+/// Condición de crédito: conceptos cubiertos (FREIGHT, LOCAL_CHARGES, MHD, STORAGE) y días. El cupo
+/// (<c>CreditLimit</c> en <c>CreditLimitCurrency</c>) es una extensión opcional propuesta para CT-NEXUS (Ola H,
+/// M7-03): sin él, el estado de cuenta no informa crédito disponible.
+/// </summary>
 public sealed record CreditCondition(
     IReadOnlyList<string> Concepts,
     int CreditDays,
     DateOnly ValidFrom,
-    DateOnly? ValidTo);
+    DateOnly? ValidTo,
+    decimal? CreditLimit = null,
+    string? CreditLimitCurrency = null);

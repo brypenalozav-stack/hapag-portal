@@ -74,6 +74,29 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<DangerousGood> DangerousGoodList { get; } = [];
     public List<TatcBatch> TatcBatchList { get; } = [];
     public List<TatcBatchItem> TatcBatchItemList { get; } = [];
+    public List<ServiceDefinition> ServiceDefinitionList { get; } = [];
+    public List<ServiceRequest> ServiceRequestList { get; } = [];
+    public List<ServiceRequestEvent> ServiceRequestEventList { get; } = [];
+    public List<ServiceRequestAttachment> ServiceRequestAttachmentList { get; } = [];
+    public List<ServiceRequestCharge> ServiceRequestChargeList { get; } = [];
+    public List<ChargeSettlement> ChargeSettlementList { get; } = [];
+    public List<DepositProof> DepositProofList { get; } = [];
+    public List<CreditImputationRule> CreditImputationRuleList { get; } = [];
+    public List<InvoiceReissue> InvoiceReissueList { get; } = [];
+    public List<NotificationPreference> NotificationPreferenceList { get; } = [];
+    public List<Announcement> AnnouncementList { get; } = [];
+    public List<GuideDefinition> GuideDefinitionList { get; } = [];
+    public List<UserGuideState> UserGuideStateList { get; } = [];
+    public List<ImpersonationSession> ImpersonationSessionList { get; } = [];
+    public List<CounterRecord> CounterRecordList { get; } = [];
+    public List<ContactListChange> ContactListChangeList { get; } = [];
+    public List<CarrierPreRegistration> CarrierPreRegistrationList { get; } = [];
+    public List<OrganizationParentLink> OrganizationParentLinkList { get; } = [];
+    public List<ReleaseLetterRequest> ReleaseLetterRequestList { get; } = [];
+    public List<AssistantDocumentDelivery> AssistantDocumentDeliveryList { get; } = [];
+    public List<ApiClient> ApiClientList { get; } = [];
+    public List<ApiClientKey> ApiClientKeyList { get; } = [];
+    public List<ApiClientRequest> ApiClientRequestList { get; } = [];
 
     public DbSet<Client> Clients => MockDbSetHelper.CreateMockDbSet(ClientList);
     public DbSet<User> Users => MockDbSetHelper.CreateMockDbSet(UserList);
@@ -143,6 +166,29 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<DangerousGood> DangerousGoods => MockDbSetHelper.CreateMockDbSet(DangerousGoodList);
     public DbSet<TatcBatch> TatcBatches => MockDbSetHelper.CreateMockDbSet(TatcBatchList);
     public DbSet<TatcBatchItem> TatcBatchItems => MockDbSetHelper.CreateMockDbSet(TatcBatchItemList);
+    public DbSet<ServiceDefinition> ServiceDefinitions => MockDbSetHelper.CreateMockDbSet(ServiceDefinitionList);
+    public DbSet<ServiceRequest> ServiceRequests => MockDbSetHelper.CreateMockDbSet(ServiceRequestList);
+    public DbSet<ServiceRequestEvent> ServiceRequestEvents => MockDbSetHelper.CreateMockDbSet(ServiceRequestEventList);
+    public DbSet<ServiceRequestAttachment> ServiceRequestAttachments => MockDbSetHelper.CreateMockDbSet(ServiceRequestAttachmentList);
+    public DbSet<ServiceRequestCharge> ServiceRequestCharges => MockDbSetHelper.CreateMockDbSet(ServiceRequestChargeList);
+    public DbSet<ChargeSettlement> ChargeSettlements => MockDbSetHelper.CreateMockDbSet(ChargeSettlementList);
+    public DbSet<DepositProof> DepositProofs => MockDbSetHelper.CreateMockDbSet(DepositProofList);
+    public DbSet<CreditImputationRule> CreditImputationRules => MockDbSetHelper.CreateMockDbSet(CreditImputationRuleList);
+    public DbSet<InvoiceReissue> InvoiceReissues => MockDbSetHelper.CreateMockDbSet(InvoiceReissueList);
+    public DbSet<NotificationPreference> NotificationPreferences => MockDbSetHelper.CreateMockDbSet(NotificationPreferenceList);
+    public DbSet<Announcement> Announcements => MockDbSetHelper.CreateMockDbSet(AnnouncementList);
+    public DbSet<GuideDefinition> GuideDefinitions => MockDbSetHelper.CreateMockDbSet(GuideDefinitionList);
+    public DbSet<UserGuideState> UserGuideStates => MockDbSetHelper.CreateMockDbSet(UserGuideStateList);
+    public DbSet<ImpersonationSession> ImpersonationSessions => MockDbSetHelper.CreateMockDbSet(ImpersonationSessionList);
+    public DbSet<CounterRecord> CounterRecords => MockDbSetHelper.CreateMockDbSet(CounterRecordList);
+    public DbSet<ContactListChange> ContactListChanges => MockDbSetHelper.CreateMockDbSet(ContactListChangeList);
+    public DbSet<CarrierPreRegistration> CarrierPreRegistrations => MockDbSetHelper.CreateMockDbSet(CarrierPreRegistrationList);
+    public DbSet<OrganizationParentLink> OrganizationParentLinks => MockDbSetHelper.CreateMockDbSet(OrganizationParentLinkList);
+    public DbSet<ReleaseLetterRequest> ReleaseLetterRequests => MockDbSetHelper.CreateMockDbSet(ReleaseLetterRequestList);
+    public DbSet<AssistantDocumentDelivery> AssistantDocumentDeliveries => MockDbSetHelper.CreateMockDbSet(AssistantDocumentDeliveryList);
+    public DbSet<ApiClient> ApiClients => MockDbSetHelper.CreateMockDbSet(ApiClientList);
+    public DbSet<ApiClientKey> ApiClientKeys => MockDbSetHelper.CreateMockDbSet(ApiClientKeyList);
+    public DbSet<ApiClientRequest> ApiClientRequests => MockDbSetHelper.CreateMockDbSet(ApiClientRequestList);
 
     public int SaveChangesCallCount { get; private set; }
 

@@ -137,7 +137,8 @@ public sealed class CompleteOrganizationArCheckCommandHandler(
             NotificationTypes.OrganizationApproved,
             "Registro de organización aprobado",
             $"El registro de {organization.Name} fue aprobado (Match Code {matchCode}). Ya puede operar en el portal.",
-            cancellationToken);
+            cancellationToken,
+            link: new NotificationLink(NotificationEntityTypes.Organization, organization.Id.ToString(), organization.Name));
 
         return Result.Success();
     }
@@ -173,7 +174,8 @@ public sealed class RejectOrganizationCommandHandler(
             NotificationTypes.OrganizationRejected,
             "Registro de organización rechazado",
             $"El registro de {organization.Name} fue rechazado. Motivo: {request.Reason}",
-            cancellationToken);
+            cancellationToken,
+            link: new NotificationLink(NotificationEntityTypes.Organization, organization.Id.ToString(), organization.Name));
 
         return Result.Success();
     }

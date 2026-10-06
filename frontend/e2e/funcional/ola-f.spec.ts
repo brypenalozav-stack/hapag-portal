@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import { Page } from '@playwright/test';
+import { test, expect } from '../fixtures/app';
 import { simularApi } from '../fixtures/api-mocks';
 import { ITEM, RUT_PROPIO } from '../fixtures/ola-d-mocks';
 import { BL_NO_PUBLICADO, BL_TATC, CASILLA_CL, URL_DISPUTE } from '../fixtures/ola-f-mocks';

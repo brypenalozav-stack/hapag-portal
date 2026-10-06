@@ -61,11 +61,15 @@ public sealed class SendShipmentDocumentCommandValidator : AbstractValidator<Sen
     }
 }
 
-/// <summary>Actor de una operación documental (NF-14): usuario, su organización y el mandante si actúa bajo un acceso.</summary>
+/// <summary>
+/// Actor de una operación documental (NF-14): usuario, su organización y el mandante si actúa bajo un acceso; el canal
+/// Web Service (M3-17) cuando la solicitud llegó con la clave de un cliente del canal.
+/// </summary>
 public static class DocumentActors
 {
     public static DocumentActor From(ICurrentUserService currentUser, AccessScope scope, ShipmentGrantAccess? grant) =>
-        new(currentUser.UserId, currentUser.Email, scope.OrganizationId, grant?.GrantorOrganizationId, grant?.GrantId);
+        new(currentUser.UserId, currentUser.Email, scope.OrganizationId, grant?.GrantorOrganizationId, grant?.GrantId,
+            currentUser.ApiClientId is null ? null : DocumentChannels.WebService);
 }
 
 public sealed class GetShipmentDocumentsQueryHandler(
@@ -109,7 +113,9 @@ public sealed class GetShipmentDocumentsQueryHandler(
             CanRequest(ShipmentActionCodes.RequestUnvaluedBlCopy),
             CanRequest(ShipmentActionCodes.GenerateResponsibilityLetter),
             NoDebtEvaluator.IsApplicable(bl) && CanRequest(ShipmentActionCodes.DownloadNoDebtCertificate),
-            bl.Country == CountryCodes.Chile && CanRequest(ShipmentActionCodes.GenerateTransshipmentCertificate));
+            bl.Country == CountryCodes.Chile && CanRequest(ShipmentActionCodes.GenerateTransshipmentCertificate),
+            DocumentServiceRequests.IsBoliviaImport(bl) && CanRequest(ShipmentActionCodes.GenerateFreightCertificate),
+            DocumentServiceRequests.IsBoliviaImport(bl) && CanRequest(ShipmentActionCodes.GenerateReleaseLetter));
 
         ResponsibilityLetterStateDto? letter = null;
         var conditions = await chargeRulesService.GetConditionsAsync(payer, cancellationToken);

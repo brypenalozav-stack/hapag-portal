@@ -155,6 +155,70 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             EventType = "OpenAccessEnabled",
                             GrantorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000040"),
                             OccurredAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("05e01777-b203-ab12-9d17-52be09a3061e"),
+                            ActorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            ActorEmail = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Details = "{\"preRegistrationId\":\"ffffffff-0025-0025-0025-000000000001\",\"created\":true,\"source\":\"seed\"}",
+                            EventType = "CarrierPreCreated",
+                            GranteeClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000091"),
+                            GrantorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("0be019c6-b464-f45c-6eee-4541493e9060"),
+                            AccessGrantId = new Guid("cccccccc-0012-0012-0012-000000000003"),
+                            ActorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            ActorEmail = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000002"),
+                            BlNumber = "HLCUVAL250200456",
+                            BookingNumber = "HLCUBKG2502004",
+                            Details = "{\"grantType\":\"Individual\",\"preCreatedCarrier\":true,\"status\":\"PendingActivation\",\"durationDays\":90,\"source\":\"seed\"}",
+                            EventType = "GrantCreated",
+                            GranteeClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000091"),
+                            GrantorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("5cb9eac8-2fcd-a6f8-82a7-fb5125b6dc84"),
+                            ActorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            ActorEmail = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Details = "{\"parentLinkId\":\"ffffffff-0026-0026-0026-000000000001\",\"visibilityEnabled\":true,\"source\":\"seed\"}",
+                            EventType = "ParentLinkRequested",
+                            GranteeClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000090"),
+                            GrantorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("25a03bf1-6107-d007-e1bc-24be1b53f3be"),
+                            ActorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000001"),
+                            ActorEmail = "admin@hapag-lloyd.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            Details = "{\"parentLinkId\":\"ffffffff-0026-0026-0026-000000000001\",\"source\":\"seed\"}",
+                            EventType = "ParentLinkApproved",
+                            GranteeClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000090"),
+                            GrantorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("6f216ae0-209c-c092-4099-0043c21b3aa8"),
+                            ActorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            ActorEmail = "demo@altiplano.bo",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            Details = "{\"parentLinkId\":\"ffffffff-0026-0026-0026-000000000002\",\"visibilityEnabled\":true,\"source\":\"seed\"}",
+                            EventType = "ParentLinkRequested",
+                            GranteeClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000090"),
+                            GrantorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            OccurredAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc)
                         });
                 });
 
@@ -334,7 +398,458 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             ValidFrom = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
                             ValidTo = new DateTime(2027, 3, 31, 23, 59, 0, 0, DateTimeKind.Utc),
                             ValidityType = "UntilDate"
+                        },
+                        new
+                        {
+                            Id = new Guid("cccccccc-0012-0012-0012-000000000003"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000002"),
+                            BookingNumber = "HLCUBKG2502004",
+                            CeilingActionCodes = "access-audit.view,access-validity.set,access.grant,access.revoke,account-statement.view,bl-copy-unvalued.request,bl-copy-valued.request,bl-issuance.view,data-visibility.extend,drop-off.request,early-booking-access.grant,freight-certificate.generate,freight.pay,import-demurrage.pay,import-depot.view,invoices-billed.view,local-charges-mandatory.pay,local-charges-on-demand.pay,no-debt-certificate.download,open-access.enable,release-letter.generate,release-requirements.view,shipment.view,tatc.download,third-party-query.notify,tracking.view,transshipment-certificate.generate,warehouse-change.request",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DurationDays = 90,
+                            GrantType = "Individual",
+                            GrantedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            GranteeClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000091"),
+                            GrantorClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            GrantorRole = "Customer",
+                            IsMandate = false,
+                            Status = "PendingActivation",
+                            ValidFrom = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ValidityType = "Duration"
                         });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.Announcement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BodyEn")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("BodyEs")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Countries")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("NotifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("NotifyOnPublish")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PublishedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TitleEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TitleEs")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UnpublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UnpublishedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ValidTo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Status", "ValidFrom");
+
+                    b.ToTable("Announcements", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0027-0027-0027-000000000001"),
+                            BodyEn = "From October 1st the San Antonio empty depot receives returns Monday to Saturday from 08:00 to 20:00. Schedule the Gate In in advance to avoid delays.",
+                            BodyEs = "Desde el 1 de octubre el depósito de vacíos de San Antonio recibe devoluciones de lunes a sábado de 08:00 a 20:00. Programe el Gate In con anticipación para evitar demoras.",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 11, 30, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "admin@hapag-lloyd.cl",
+                            NotifyOnPublish = false,
+                            Operation = "Import",
+                            PublishedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            PublishedBy = "admin@hapag-lloyd.cl",
+                            Severity = "Important",
+                            Status = "Published",
+                            TitleEn = "New opening hours at the San Antonio empty depot",
+                            TitleEs = "Nuevo horario del depósito de vacíos en San Antonio",
+                            ValidFrom = new DateTime(2026, 10, 1, 3, 0, 0, 0, DateTimeKind.Utc),
+                            ValidTo = new DateTime(2027, 1, 1, 3, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0027-0027-0027-000000000002"),
+                            BodyEn = "Bolivian export BLs are exchanged at the Arica Counter presenting the original BL and the release letter. The exchange status is shown in the shipment detail.",
+                            BodyEs = "El canje de los BL de exportación de Bolivia se realiza en el Counter de Arica presentando el BL original y la carta de liberación. El estado del canje queda visible en el detalle del embarque.",
+                            Countries = "BO",
+                            CreatedAt = new DateTime(2026, 10, 2, 12, 45, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "admin@hapag-lloyd.cl",
+                            NotifyOnPublish = false,
+                            Operation = "Export",
+                            PublishedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            PublishedBy = "admin@hapag-lloyd.cl",
+                            Severity = "Info",
+                            Status = "Published",
+                            TitleEn = "Bolivian export BL exchange in Arica",
+                            TitleEs = "Canje de BL de exportación boliviana en Arica",
+                            ValidFrom = new DateTime(2026, 10, 2, 4, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0027-0027-0027-000000000003"),
+                            BodyEn = "The portal will be unavailable on October 20th between 23:00 and 23:59 (Chile time) for scheduled maintenance.",
+                            BodyEs = "El portal no estará disponible el 20 de octubre entre las 23:00 y las 23:59 (hora de Chile) por mantención programada.",
+                            Countries = "CL,BO",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "admin@hapag-lloyd.cl",
+                            NotifyOnPublish = true,
+                            Operation = "Both",
+                            Severity = "Important",
+                            Status = "Draft",
+                            TitleEn = "Scheduled portal maintenance",
+                            TitleEs = "Mantención programada del portal",
+                            ValidFrom = new DateTime(2026, 10, 15, 3, 0, 0, 0, DateTimeKind.Utc),
+                            ValidTo = new DateTime(2026, 10, 21, 3, 0, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ApiClient", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("RateLimitPerMinute")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RevocationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RevokedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Scopes")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SignatoryEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("SignatoryName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SignatoryPosition")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SignatoryTaxId")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TechnicalContactEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("TechnicalUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("TechnicalUserId")
+                        .IsUnique();
+
+                    b.ToTable("ApiClients", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0033-0033-0033-000000000001"),
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "admin@hapag-lloyd.cl",
+                            Name = "ERP Importadora Demo",
+                            Notes = "Cliente de demostración del canal Web Service (Ola J).",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            RateLimitPerMinute = 60,
+                            Scopes = "responsibility-letter,warehouse-change",
+                            SignatoryEmail = "demo@importadorademo.cl",
+                            SignatoryName = "Daniela Demo",
+                            SignatoryPosition = "Gerente de Comercio Exterior",
+                            SignatoryTaxId = "15.678.901-2",
+                            Status = "Active",
+                            TechnicalContactEmail = "ti@importadorademo.cl",
+                            TechnicalUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000092")
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ApiClientKey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApiClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("KeyHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime?>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RevokedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApiClientId");
+
+                    b.HasIndex("Prefix")
+                        .IsUnique();
+
+                    b.ToTable("ApiClientKeys", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0033-0033-0033-000000000002"),
+                            ApiClientId = new Guid("ffffffff-0033-0033-0033-000000000001"),
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "admin@hapag-lloyd.cl",
+                            KeyHash = "b23557bc92386afaa0dacb9c9c48adc6554223090784f268cbe3fba4bd93e6ba",
+                            Prefix = "4pnrf9yxigh5"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ApiClientRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApiClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ApiClientKeyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DurationMs")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTime>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ResponseJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SourceAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int?>("StatusCode")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("TargetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TargetReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TargetType")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("TechnicalUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApiClientId", "IdempotencyKey")
+                        .IsUnique()
+                        .HasFilter("\"IdempotencyKey\" IS NOT NULL");
+
+                    b.HasIndex("ApiClientId", "ReceivedAt");
+
+                    b.HasIndex("OrganizationId", "ReceivedAt");
+
+                    b.ToTable("ApiClientRequests", (string)null);
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.AppliedExemption", b =>
@@ -412,6 +927,76 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.HasIndex("LocalChargeId");
 
                     b.ToTable("AppliedExemptions", (string)null);
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.AssistantDocumentDelivery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("DeliveredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DocumentKind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("DocumentNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("DocumentType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("DownloadCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DownloadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("OnBehalfOfOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId", "DeliveredAt");
+
+                    b.HasIndex("SessionId", "DeliveredAt");
+
+                    b.HasIndex("UserId", "DeliveredAt");
+
+                    b.ToTable("AssistantDocumentDeliveries", (string)null);
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.AssistantMailbox", b =>
@@ -707,6 +1292,36 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             NewValues = "{\"CreditStatus\":\"Approved\"}",
                             OldValues = "{\"CreditStatus\":\"PendingApproval\"}",
                             Timestamp = new DateTime(2026, 1, 15, 10, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = "d4e5f6a7-0004-0004-0004-000000000001"
+                        },
+                        new
+                        {
+                            Id = new Guid("b92706ba-8ccb-e7ef-266a-5ecab8db678a"),
+                            Action = "Started",
+                            EntityId = "ffffffff-0030-0030-0030-000000000001",
+                            EntityName = "ImpersonationSession",
+                            NewValues = "{\"actorUserId\":\"d4e5f6a7-0004-0004-0004-000000000001\",\"actorEmail\":\"admin@hapag-lloyd.cl\",\"subjectUserId\":\"d4e5f6a7-0004-0004-0004-000000000010\",\"subjectEmail\":\"demo@importadorademo.cl\",\"organizationId\":\"c3d4e5f6-0003-0003-0003-000000000010\",\"organizationName\":\"Importadora Demo SpA\",\"details\":{\"reason\":\"Ticket CS-2026-1004\",\"readOnly\":true,\"allowedActions\":[]}}",
+                            Timestamp = new DateTime(2026, 10, 4, 15, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = "d4e5f6a7-0004-0004-0004-000000000001"
+                        },
+                        new
+                        {
+                            Id = new Guid("8dd50263-2800-0557-93b9-07a71d223c9b"),
+                            Action = "BlockedWrite",
+                            EntityId = "ffffffff-0030-0030-0030-000000000001",
+                            EntityName = "ImpersonationSession",
+                            NewValues = "{\"actorUserId\":\"d4e5f6a7-0004-0004-0004-000000000001\",\"actorEmail\":\"admin@hapag-lloyd.cl\",\"subjectUserId\":\"d4e5f6a7-0004-0004-0004-000000000010\",\"subjectEmail\":\"demo@importadorademo.cl\",\"organizationId\":\"c3d4e5f6-0003-0003-0003-000000000010\",\"organizationName\":\"Importadora Demo SpA\",\"details\":{\"method\":\"POST\",\"path\":\"/api/v1/cart/items\",\"statusCode\":403}}",
+                            Timestamp = new DateTime(2026, 10, 4, 15, 7, 0, 0, DateTimeKind.Utc),
+                            UserId = "d4e5f6a7-0004-0004-0004-000000000001"
+                        },
+                        new
+                        {
+                            Id = new Guid("044990a0-297c-6041-7f72-96fd33ff3f5f"),
+                            Action = "Ended",
+                            EntityId = "ffffffff-0030-0030-0030-000000000001",
+                            EntityName = "ImpersonationSession",
+                            NewValues = "{\"actorUserId\":\"d4e5f6a7-0004-0004-0004-000000000001\",\"actorEmail\":\"admin@hapag-lloyd.cl\",\"subjectUserId\":\"d4e5f6a7-0004-0004-0004-000000000010\",\"subjectEmail\":\"demo@importadorademo.cl\",\"organizationId\":\"c3d4e5f6-0003-0003-0003-000000000010\",\"organizationName\":\"Importadora Demo SpA\",\"details\":{\"reason\":\"Manual\",\"durationSeconds\":720,\"requestCount\":6,\"blockedCount\":1}}",
+                            Timestamp = new DateTime(2026, 10, 4, 15, 12, 0, 0, DateTimeKind.Utc),
                             UserId = "d4e5f6a7-0004-0004-0004-000000000001"
                         });
                 });
@@ -1094,6 +1709,84 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             SealNumber = "SL-046002",
                             Status = "Discharged",
                             Weight = 24800m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000019"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000016"),
+                            ContainerNumber = "HLXU2609161",
+                            ContainerType = "40RF",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-260916",
+                            Status = "OnBoard",
+                            Weight = 25400m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000020"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000016"),
+                            ContainerNumber = "HLXU2609162",
+                            ContainerType = "20DV",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-260917",
+                            Status = "OnBoard",
+                            Weight = 16100m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000021"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000017"),
+                            ContainerNumber = "HLXU2609171",
+                            ContainerType = "20DV",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-260918",
+                            Status = "OnBoard",
+                            Weight = 15800m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000022"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000005"),
+                            ContainerNumber = "HLXU5566779",
+                            ContainerType = "20DV",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = true,
+                            SealNumber = "SL-015679",
+                            Status = "Discharged",
+                            Weight = 14900m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000023"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            ContainerNumber = "HLXU3071801",
+                            ContainerType = "40HC",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-071801",
+                            Status = "OnBoard",
+                            Weight = 24800m
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-0008-0008-0008-000000000024"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ContainerNumber = "HLXU3061901",
+                            ContainerType = "20DV",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsShipperOwned = false,
+                            SealNumber = "SL-061901",
+                            Status = "Discharged",
+                            Weight = 17600m
                         });
                 });
 
@@ -1809,6 +2502,128 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TransportDocumentType = "SWB",
                             Vessel = "Lima Express",
                             Voyage = "2612E"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000016"),
+                            BLNumber = "HLCUSAI260901610",
+                            BookingNumber = "HLCUBKG2609161",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Consignee = "Lima Foods SAC",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 10, 10, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 9, 28, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "PELIM",
+                            FreightAmount = 2100m,
+                            FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 9, 28, 6, 0, 0, 0, DateTimeKind.Utc),
+                            PlaceOfDelivery = "Lima, Peru",
+                            PortOfDischarge = "Callao (PECLL)",
+                            PortOfDischargeCode = "PECLL",
+                            PortOfLoading = "San Antonio (CLSAI)",
+                            ShipmentType = "Export",
+                            Shipper = "Importadora Demo SpA",
+                            Status = "Departed",
+                            TransportDocumentType = "BL",
+                            Vessel = "Cartagena Express",
+                            Voyage = "2609S"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000017"),
+                            BLNumber = "HLCUARI260901720",
+                            BookingNumber = "HLCUBKG2609172",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            Consignee = "Andes Foods SAC",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 10, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 9, 30, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "PELIM",
+                            FreightAmount = 1300m,
+                            FreightCurrency = "USD",
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 9, 30, 8, 0, 0, 0, DateTimeKind.Utc),
+                            PlaceOfDelivery = "Lima, Peru",
+                            PortOfDischarge = "Callao (PECLL)",
+                            PortOfDischargeCode = "PECLL",
+                            PortOfLoading = "Arica (CLARI)",
+                            ShipmentType = "Export",
+                            Shipper = "Comercial Altiplano SRL",
+                            Status = "Departed",
+                            TransportDocumentType = "SWB",
+                            Vessel = "Antofagasta Express",
+                            Voyage = "2609S"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000018"),
+                            BLNumber = "HLCUSAI260701810",
+                            BookingNumber = "HLCUBKG2607181",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Consignee = "Lima Foods SAC",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 10, 12, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 10, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "PELIM",
+                            FreightAmount = 1900m,
+                            FreightCurrency = "USD",
+                            FreightPaidAt = new DateTime(2026, 9, 29, 15, 0, 0, 0, DateTimeKind.Utc),
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 10, 3, 6, 0, 0, 0, DateTimeKind.Utc),
+                            PlaceOfDelivery = "Lima, Peru",
+                            PortOfDischarge = "Callao (PECLL)",
+                            PortOfDischargeCode = "PECLL",
+                            PortOfLoading = "San Antonio (CLSAI)",
+                            ShipmentType = "Export",
+                            Shipper = "Importadora Demo SpA",
+                            Status = "Departed",
+                            TransportDocumentType = "BL",
+                            Vessel = "Valparaiso Express",
+                            Voyage = "2610N"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BLNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            Consignee = "Distribuidora Andes Crédito SpA",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            ETA = new DateTime(2026, 9, 28, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ETD = new DateTime(2026, 9, 5, 0, 0, 0, 0, DateTimeKind.Utc),
+                            FinalDestinationCode = "CLVAP",
+                            FreightAmount = 2400m,
+                            FreightCurrency = "USD",
+                            FreightPaidAt = new DateTime(2026, 9, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            IsSeaWaybill = false,
+                            IsToOrder = false,
+                            IssuanceStatus = "Issued",
+                            IssuanceStatusAt = new DateTime(2026, 9, 6, 10, 0, 0, 0, DateTimeKind.Utc),
+                            PlaceOfDelivery = "Santiago, Chile",
+                            PortOfDischarge = "Valparaiso (CLVAP)",
+                            PortOfDischargeCode = "CLVAP",
+                            PortOfLoading = "Santos (BRSSZ)",
+                            ShipmentType = "Import",
+                            Shipper = "Santos Coffee Exporters Ltda",
+                            Status = "Arrived",
+                            TransportDocumentType = "BL",
+                            Vessel = "Santos Express",
+                            Voyage = "2610N"
                         });
                 });
 
@@ -2020,6 +2835,95 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Country = "BO",
                             Date = new DateOnly(2026, 12, 25),
                             Name = "Navidad"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CarrierPreRegistration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ActivatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CarrierOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CarrierUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DurationDays")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("InvitationSentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LegalName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("RequestedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("RequestedByOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RequestedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TaxId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestedByOrganizationId");
+
+                    b.HasIndex("CarrierOrganizationId", "RequestedByOrganizationId")
+                        .IsUnique();
+
+                    b.ToTable("CarrierPreRegistrations", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0025-0025-0025-000000000001"),
+                            CarrierOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000091"),
+                            CarrierUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000091"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            DurationDays = 90,
+                            Email = "contacto@transportescordillera.cl",
+                            InvitationSentAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            LegalName = "Transportes Cordillera Ltda.",
+                            RequestedBy = "demo@importadorademo.cl",
+                            RequestedByOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "Pending",
+                            TaxId = "77.123.321-5"
                         });
                 });
 
@@ -2464,6 +3368,423 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Name = "Certificado de transbordo",
                             NexusExemptible = false,
                             NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("349644e9-cc16-f243-5929-b308f01814d7"),
+                            Category = "Service",
+                            Code = "SEAL_MANAGEMENT",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 210,
+                            IsActive = true,
+                            Name = "Gestión de sellos",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("da68ecd8-b854-1daa-fea9-3c7e06e83e30"),
+                            Category = "Service",
+                            Code = "EARLY_ARRIVAL",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 220,
+                            IsActive = true,
+                            Name = "Early (ingreso anticipado)",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("7cb784b5-5363-d794-f9b9-ba72edd30a69"),
+                            Category = "Service",
+                            Code = "DROP_OFF",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 230,
+                            IsActive = true,
+                            Name = "Drop Off (devolución en SCL)",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("2ba2ee40-e9b4-20e6-5f43-3597e9b1e3e4"),
+                            Category = "Service",
+                            Code = "XOM",
+                            Countries = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 240,
+                            IsActive = true,
+                            Name = "Administración de contenedor (XOM)",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("fc9e7715-ccf9-3b6a-4c06-744aea94758d"),
+                            Category = "Service",
+                            Code = "BL_CORRECTION",
+                            Countries = "CL,BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 250,
+                            IsActive = true,
+                            Name = "Corrección o aclaración de BL",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("04860673-2222-59b2-d04c-6a971962465b"),
+                            Category = "Service",
+                            Code = "BL_HOUSE_TRANSMISSION",
+                            Countries = "CL,BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 260,
+                            IsActive = true,
+                            Name = "Transmisión de BL hijo",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("14a10063-2e24-3dad-0f58-d91f07276e71"),
+                            Category = "Service",
+                            Code = "MATRIX_LATE",
+                            Countries = "CL,BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 270,
+                            IsActive = true,
+                            Name = "Matriz fuera de plazo",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("f27c3d60-1e67-07f7-b8f6-204b0f483bd5"),
+                            Category = "LocalCharge",
+                            Code = "OPENING",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 280,
+                            IsActive = true,
+                            Name = "Apertura",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("95cfe440-ad17-116d-e382-d8d4925a8450"),
+                            Category = "LocalCharge",
+                            Code = "VALUATION",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 290,
+                            IsActive = true,
+                            Name = "Valorización",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("923fac6f-9222-dbf9-90ea-4f267bafce41"),
+                            Category = "Service",
+                            Code = "REINVOICING",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 310,
+                            IsActive = true,
+                            Name = "Refacturación IAO",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("51c3d02a-634f-2135-64c7-0c59a15165fb"),
+                            Category = "Service",
+                            Code = "VAT_LOSS",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 320,
+                            IsActive = true,
+                            Name = "Pérdida de IVA",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("7bd6dee1-8b2d-df8c-222b-3ccd1227bf8c"),
+                            Category = "Service",
+                            Code = "FREIGHT_CERTIFICATE",
+                            Countries = "BO",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 330,
+                            IsActive = true,
+                            Name = "Certificado de flete",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        },
+                        new
+                        {
+                            Id = new Guid("b8406cc8-7a30-756b-b1d6-9509cfe805f4"),
+                            Category = "Service",
+                            Code = "RELEASE_LETTER",
+                            Countries = "BO",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DisplayOrder = 340,
+                            IsActive = true,
+                            Name = "Carta de liberación y desconsolidado",
+                            NexusExemptible = false,
+                            NexusTariff = false
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ChargeSettlement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<Guid?>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BillingName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("BillingTaxId")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("BlNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BookingNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ConceptCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ItemType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("MatchNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("MatchedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MatchedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("MatchedInvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("OnBehalfOfOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("PaidAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("PaidCurrency")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("PayerName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("PayerOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PayerTaxId")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("PaymentDetailId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PaymentNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("ReceiptDocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReceiptNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("SettledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MatchedInvoiceId");
+
+                    b.HasIndex("PayerOrganizationId");
+
+                    b.HasIndex("PaymentDetailId")
+                        .IsUnique();
+
+                    b.HasIndex("ItemType", "SourceId");
+
+                    b.HasIndex("BillOfLadingId", "ConceptCode", "Status");
+
+                    b.ToTable("ChargeSettlements", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3302d5bd-8631-c56a-7b09-37d0629b2c35"),
+                            Amount = 53550m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BillingName = "Distribuidora Andes Crédito SpA",
+                            BillingTaxId = "76000002-2",
+                            BlNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            ConceptCode = "BL_FEE",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            Currency = "CLP",
+                            Description = "BL Documentation Fee (import)",
+                            ItemType = "LocalCharge",
+                            Kind = "Advance",
+                            PaidAmount = 53550m,
+                            PaidCurrency = "CLP",
+                            PayerName = "Distribuidora Andes Crédito SpA",
+                            PayerOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            PayerTaxId = "76000002-2",
+                            PaymentDetailId = new Guid("db2bf9c7-ceb5-f5a2-e768-8501f7664a50"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000015"),
+                            PaymentNumber = "PAY-20261002-A1C2E3F4",
+                            ReceiptNumber = "RCP-20261002-B5D6E7F8",
+                            SettledAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000030"),
+                            Status = "Open"
+                        },
+                        new
+                        {
+                            Id = new Guid("8b700f9d-0925-04e9-55c9-7eefbc8e15fc"),
+                            Amount = 29750m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BillingName = "Distribuidora Andes Crédito SpA",
+                            BillingTaxId = "76000002-2",
+                            BlNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            ConceptCode = "ISPS",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            Currency = "CLP",
+                            Description = "ISPS",
+                            ItemType = "LocalCharge",
+                            Kind = "CreditImputation",
+                            PaidAmount = 29750m,
+                            PaidCurrency = "CLP",
+                            PayerName = "Distribuidora Andes Crédito SpA",
+                            PayerOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            PayerTaxId = "76000002-2",
+                            PaymentDetailId = new Guid("aab31ddd-35ff-069a-d97b-e746504c1cf4"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000016"),
+                            PaymentNumber = "CRI-20261003-C9D8E7F6",
+                            SettledAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000031"),
+                            Status = "Open"
+                        },
+                        new
+                        {
+                            Id = new Guid("1f978f39-3168-a413-0edc-19582df4a4e7"),
+                            Amount = 71400m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            BillingName = "Agencia Marítima del Pacífico Ltda",
+                            BillingTaxId = "96555444-3",
+                            BlNumber = "HLCUSAI260701810",
+                            BookingNumber = "HLCUBKG2607181",
+                            ConceptCode = "GATE_OUT",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            Currency = "CLP",
+                            Description = "Gate Out - 40HC (San Antonio)",
+                            ItemType = "LocalCharge",
+                            Kind = "Advance",
+                            MatchedAt = new DateTime(2026, 10, 4, 12, 0, 0, 0, DateTimeKind.Utc),
+                            MatchedBy = "INVOICE_REFRESH",
+                            MatchedInvoiceId = new Guid("ffffffff-0017-0017-0017-000000000014"),
+                            PaidAmount = 71400m,
+                            PaidCurrency = "CLP",
+                            PayerName = "Agencia Marítima del Pacífico Ltda",
+                            PayerOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            PayerTaxId = "96555444-3",
+                            PaymentDetailId = new Guid("0745ba3a-34ac-c833-5db6-bf116971a424"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            PaymentNumber = "PAY-20261001-D4E5F6A7",
+                            ReceiptDocumentId = new Guid("ffffffff-0018-0018-0018-000000000005"),
+                            ReceiptNumber = "RCP-20261001-E8F9A0B1",
+                            SettledAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000034"),
+                            Status = "Matched"
                         });
                 });
 
@@ -2771,6 +4092,44 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             RegistrationStatus = "Approved",
                             TaxId = "76.000.003-3",
                             TaxIdType = "RUT"
+                        },
+                        new
+                        {
+                            Id = new Guid("c3d4e5f6-0003-0003-0003-000000000090"),
+                            ApprovedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ClientType = "Client",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "holding@grupodemo.cl",
+                            IsActive = true,
+                            IsEmailConfirmed = true,
+                            MatchCode = "MC100090",
+                            Name = "Grupo Demo Holding S.A.",
+                            OperatingCountries = "CL,BO",
+                            OrganizationType = "Customer",
+                            Phone = "+56 2 2400 1000",
+                            RegistrationStatus = "Approved",
+                            TaxId = "96.700.100-1",
+                            TaxIdType = "RUT"
+                        },
+                        new
+                        {
+                            Id = new Guid("c3d4e5f6-0003-0003-0003-000000000091"),
+                            ClientType = "Client",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "contacto@transportescordillera.cl",
+                            IsActive = true,
+                            IsEmailConfirmed = false,
+                            Name = "Transportes Cordillera Ltda.",
+                            OperatingCountries = "CL",
+                            OrganizationType = "Carrier",
+                            RegistrationStatus = "PreCreated",
+                            ReviewNotes = "Pre-creado por Importadora Demo SpA (M1-09).",
+                            TaxId = "77.123.321-5",
+                            TaxIdType = "RUT"
                         });
                 });
 
@@ -2824,6 +4183,236 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsUnique();
 
                     b.ToTable("ConfigurationSettings", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11f1dde1-1820-e7fe-1e07-4aa557ecd21c"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Key = "Statement.AgingBuckets",
+                            Scope = "Global",
+                            Value = "30,60,90"
+                        },
+                        new
+                        {
+                            Id = new Guid("faff8f22-0d64-9389-8e15-d248dd2301b5"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Key = "Statement.DueSoonDays",
+                            Scope = "Global",
+                            Value = "7"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ContactListChange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ChangedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("ChangedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NewEmails")
+                        .IsRequired()
+                        .HasMaxLength(6000)
+                        .HasColumnType("character varying(6000)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PreviousEmails")
+                        .HasMaxLength(6000)
+                        .HasColumnType("character varying(6000)");
+
+                    b.Property<string>("ReportType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("SourceReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "ChangedAt");
+
+                    b.ToTable("ContactListChanges", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0031-0031-0031-000000000001"),
+                            ChangedAt = new DateTime(2026, 9, 15, 13, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "demo@importadorademo.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            NewEmails = "finanzas@importadorademo.cl",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            PreviousEmails = "contabilidad@importadorademo.cl",
+                            ReportType = "INVOICES",
+                            SourceReference = "P0060-SEED0001",
+                            Status = "Propagated"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CounterRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("Deconsolidated")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateOnly?>("DeconsolidatedAt")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateOnly?>("ExchangeDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("HblReceived")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateOnly?>("HblReceivedAt")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("RecordedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RecordedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("RecordedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SourceReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SyncError")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SyncStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("SyncedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BillOfLadingId")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.HasIndex("BlNumber");
+
+                    b.HasIndex("SyncStatus");
+
+                    b.ToTable("CounterRecords", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0029-0029-0029-000000000001"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000008"),
+                            BlNumber = "HLCUARI260300830",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 3, 14, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "admin@hapag-lloyd.cl",
+                            Deconsolidated = false,
+                            ExchangeDate = new DateOnly(2026, 10, 2),
+                            HblReceived = true,
+                            HblReceivedAt = new DateOnly(2026, 10, 3),
+                            RecordedAt = new DateTime(2026, 10, 3, 14, 0, 0, 0, DateTimeKind.Utc),
+                            RecordedBy = "admin@hapag-lloyd.cl",
+                            RecordedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            SourceReference = "CNT-BO-000830",
+                            SyncStatus = "Synced",
+                            SyncedAt = new DateTime(2026, 10, 3, 14, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0029-0029-0029-000000000002"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000004"),
+                            BlNumber = "HLCUARI260100045",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "admin@hapag-lloyd.cl",
+                            Deconsolidated = true,
+                            DeconsolidatedAt = new DateOnly(2026, 10, 5),
+                            ExchangeDate = new DateOnly(2026, 10, 4),
+                            HblReceived = true,
+                            HblReceivedAt = new DateOnly(2026, 10, 4),
+                            Notes = "Desconsolidado en el depósito de Arica.",
+                            RecordedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            RecordedBy = "admin@hapag-lloyd.cl",
+                            RecordedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            SyncError = "Integration.Unavailable",
+                            SyncStatus = "Failed"
+                        });
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.CreditClient", b =>
@@ -2937,6 +4526,111 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreditLimit = 100000000m,
                             CreditStatus = "Suspended",
                             ExpiresAt = new DateTime(2025, 12, 31, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CreditImputationRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConceptCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NexusCreditConcept")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Country", "ConceptCode")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.ToTable("CreditImputationRules", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3a4b4010-b87c-a88e-d52a-b2d36a834765"),
+                            ConceptCode = "THC",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsEnabled = true,
+                            NexusCreditConcept = "LOCAL_CHARGES",
+                            Notes = "Propuesta conservadora (recargos locales de Chile) pendiente de confirmación de Finanzas (M5-10)."
+                        },
+                        new
+                        {
+                            Id = new Guid("893a8a68-2509-dfec-e30f-9131e821fc5e"),
+                            ConceptCode = "ISPS",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsEnabled = true,
+                            NexusCreditConcept = "LOCAL_CHARGES",
+                            Notes = "Propuesta conservadora (recargos locales de Chile) pendiente de confirmación de Finanzas (M5-10)."
+                        },
+                        new
+                        {
+                            Id = new Guid("5b866cc3-d88e-fc09-72a4-460533ba92bd"),
+                            ConceptCode = "BL_FEE",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsEnabled = true,
+                            NexusCreditConcept = "LOCAL_CHARGES",
+                            Notes = "Propuesta conservadora (recargos locales de Chile) pendiente de confirmación de Finanzas (M5-10)."
+                        },
+                        new
+                        {
+                            Id = new Guid("0016cb8a-acd8-7248-7612-82d73aa4d31f"),
+                            ConceptCode = "GATE_OUT",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            IsEnabled = true,
+                            NexusCreditConcept = "LOCAL_CHARGES",
+                            Notes = "Propuesta conservadora (recargos locales de Chile) pendiente de confirmación de Finanzas (M5-10)."
                         });
                 });
 
@@ -3152,6 +4846,12 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<Guid?>("SupersededByInvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SupersedesInvoiceId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("SyncedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -3171,6 +4871,8 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BillOfLadingId");
+
+                    b.HasIndex("SupersededByInvoiceId");
 
                     b.HasIndex("OrganizationId", "IssueDate");
 
@@ -3450,6 +5152,117 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TaxAmount = 0m,
                             TaxId = "76000002-2",
                             TotalAmount = 380m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0017-0017-0017-000000000011"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000011"),
+                            BlNumber = "HLCUVAP260401130",
+                            BookingNumber = "HLCUBKG2604113",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            DocumentType = "Invoice",
+                            DueDate = new DateOnly(2026, 7, 1),
+                            IsPayable = true,
+                            IssueDate = new DateOnly(2026, 6, 1),
+                            LegalName = "Distribuidora Andes Crédito SpA",
+                            NetAmount = 80000m,
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            SiiNumber = "100120",
+                            SiiStatus = "ACCEPTED",
+                            Source = "DUMMY",
+                            SourceNumber = "HL-CL-2026-003410",
+                            Status = "Pending",
+                            SyncedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 15200m,
+                            TaxId = "76000002-2",
+                            TotalAmount = 95200m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0017-0017-0017-000000000012"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000011"),
+                            BlNumber = "HLCUVAP260401130",
+                            BookingNumber = "HLCUBKG2604113",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            DocumentType = "Invoice",
+                            DueDate = new DateOnly(2026, 8, 3),
+                            IsPayable = true,
+                            IssueDate = new DateOnly(2026, 7, 20),
+                            LegalName = "Distribuidora Andes Crédito SpA",
+                            NetAmount = 150000m,
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            SiiNumber = "100190",
+                            SiiStatus = "ACCEPTED",
+                            Source = "DUMMY",
+                            SourceNumber = "HL-CL-2026-003702",
+                            Status = "Pending",
+                            SyncedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 28500m,
+                            TaxId = "76000002-2",
+                            TotalAmount = 178500m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0017-0017-0017-000000000013"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BlNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            DocumentType = "Invoice",
+                            DueDate = new DateOnly(2026, 10, 10),
+                            IsPayable = true,
+                            IssueDate = new DateOnly(2026, 9, 10),
+                            LegalName = "Distribuidora Andes Crédito SpA",
+                            NetAmount = 45000m,
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            SiiNumber = "100310",
+                            SiiStatus = "ACCEPTED",
+                            Source = "DUMMY",
+                            SourceNumber = "HL-CL-2026-004720",
+                            Status = "Pending",
+                            SyncedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 8550m,
+                            TaxId = "76000002-2",
+                            TotalAmount = 53550m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0017-0017-0017-000000000014"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            BlNumber = "HLCUSAI260701810",
+                            BookingNumber = "HLCUBKG2607181",
+                            ConceptCode = "GATE_OUT",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            DocumentType = "Invoice",
+                            DueDate = new DateOnly(2026, 11, 3),
+                            IsPayable = false,
+                            IssueDate = new DateOnly(2026, 10, 4),
+                            LegalName = "Agencia Marítima del Pacífico Ltda",
+                            NetAmount = 60000m,
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            PaidAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            SiiNumber = "100318",
+                            SiiStatus = "ACCEPTED",
+                            Source = "DUMMY",
+                            SourceNumber = "HL-CL-2026-004790",
+                            Status = "Paid",
+                            SyncedAt = new DateTime(2026, 10, 5, 11, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 11400m,
+                            TaxId = "96555444-3",
+                            TotalAmount = 71400m
                         });
                 });
 
@@ -4823,6 +6636,136 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.DepositProof", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BankName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BankReference")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("ContentHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal?>("DepositAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateOnly?>("DepositDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ReviewNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("StorageKey")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UploadedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("UploadedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentId", "UploadedAt");
+
+                    b.HasIndex("Status", "UploadedAt");
+
+                    b.ToTable("DepositProofs", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0024-0024-0024-000000000001"),
+                            BankName = "Banco de Chile",
+                            ContentType = "image/jpeg",
+                            DepositAmount = 53550m,
+                            DepositDate = new DateOnly(2026, 10, 3),
+                            FileName = "comprobante-deposito-borroso.jpg",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000011"),
+                            RejectionReason = "La imagen no permite leer el número de operación ni el monto abonado.",
+                            ReviewedAt = new DateTime(2026, 10, 4, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ReviewedBy = "admin@hapag-lloyd.cl",
+                            ReviewedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            SizeBytes = 0L,
+                            Status = "Rejected",
+                            UploadedAt = new DateTime(2026, 10, 3, 18, 0, 0, 0, DateTimeKind.Utc),
+                            UploadedBy = "demo@importadorademo.cl",
+                            UploadedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0024-0024-0024-000000000002"),
+                            BankName = "Banco de Chile",
+                            BankReference = "OP-55821473",
+                            ContentType = "application/pdf",
+                            DepositAmount = 53550m,
+                            DepositDate = new DateOnly(2026, 10, 3),
+                            FileName = "comprobante-deposito-BDP-20261003-5C7D9E1F.pdf",
+                            Notes = "Depósito en efectivo, sucursal Las Condes.",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000011"),
+                            SizeBytes = 0L,
+                            Status = "Submitted",
+                            UploadedAt = new DateTime(2026, 10, 4, 15, 10, 0, 0, DateTimeKind.Utc),
+                            UploadedBy = "demo@importadorademo.cl",
+                            UploadedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        });
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.ExchangeRateRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4893,6 +6836,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             SourceAmount = 5200m,
                             ToCurrency = "CLP",
                             TransactionId = new Guid("55555555-000b-000b-000b-000000000010"),
+                            TransactionType = "Payment"
+                        },
+                        new
+                        {
+                            Id = new Guid("ff504a00-3987-a4bb-a953-ee9fd8f4765c"),
+                            Approved = true,
+                            CapturedAt = new DateTime(2026, 10, 2, 14, 58, 0, 0, DateTimeKind.Utc),
+                            ConvertedAmount = 114000m,
+                            EffectiveDate = new DateOnly(2026, 10, 2),
+                            FromCurrency = "USD",
+                            Rate = 950m,
+                            Source = "DUMMY",
+                            SourceAmount = 120m,
+                            ToCurrency = "CLP",
+                            TransactionId = new Guid("55555555-000b-000b-000b-000000000014"),
                             TransactionType = "Payment"
                         });
                 });
@@ -5116,6 +7074,207 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.GuideDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Audience")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("DescriptionEs")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("NameEs")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Route")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("StepsJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.ToTable("GuideDefinitions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0028-0028-0028-000000000001"),
+                            Audience = "Client",
+                            Code = "cart-checkout",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Walks through the unified cart: added charges, billing tax ID, currency, payment method and confirmation.",
+                            DescriptionEs = "Recorre el carro unificado: cargos agregados, RUT de facturación, moneda, medio de pago y confirmación.",
+                            DisplayOrder = 10,
+                            IsActive = true,
+                            NameEn = "How to pay from the cart",
+                            NameEs = "Cómo pagar desde el carro",
+                            Route = "/cart",
+                            StepsJson = "[{\"order\":1,\"route\":\"/cart\",\"elementKey\":\"cart.items\",\"titleEs\":\"Revise los cargos\",\"titleEn\":\"Review the charges\",\"textEs\":\"Aqu\\u00ED est\\u00E1n los cargos que agreg\\u00F3 desde sus embarques, agrupados por moneda. Puede quitar los que no pagar\\u00E1 ahora.\",\"textEn\":\"These are the charges you added from your shipments, grouped by currency. You can remove the ones you will not pay now.\"},{\"order\":2,\"route\":\"/cart\",\"elementKey\":\"cart.billing-tax-id\",\"titleEs\":\"RUT de facturaci\\u00F3n\",\"titleEn\":\"Billing tax ID\",\"textEs\":\"Indique a qu\\u00E9 RUT se emitir\\u00E1 la factura de cada cargo. Por defecto es el de su organizaci\\u00F3n.\",\"textEn\":\"Choose the tax ID to be invoiced for each charge. By default it is your organization\\u0027s.\"},{\"order\":3,\"route\":\"/cart\",\"elementKey\":\"cart.currency\",\"titleEs\":\"Moneda de pago\",\"titleEn\":\"Payment currency\",\"textEs\":\"Elija la moneda en que pagar\\u00E1; si es distinta de la del cargo se usa el tipo de cambio del d\\u00EDa.\",\"textEn\":\"Choose the payment currency; if it differs from the charge currency the day\\u0027s exchange rate applies.\"},{\"order\":4,\"route\":\"/cart\",\"elementKey\":\"cart.payment-method\",\"titleEs\":\"Medio de pago\",\"titleEn\":\"Payment method\",\"textEs\":\"Seleccione el medio de pago habilitado para su pa\\u00EDs y moneda.\",\"textEn\":\"Select a payment method enabled for your country and currency.\"},{\"order\":5,\"route\":\"/cart\",\"elementKey\":\"cart.checkout\",\"titleEs\":\"Pague\",\"titleEn\":\"Pay\",\"textEs\":\"Confirme el pago. Recibir\\u00E1 el comprobante en la bandeja de notificaciones y en el historial de pagos.\",\"textEn\":\"Confirm the payment. You will receive the receipt in the notification inbox and in the payment history.\"}]",
+                            Version = 1
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ImpersonationSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActorEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BlockedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("DurationSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EndReason")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OrganizationName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("RequestCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("SubjectEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("SubjectUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StartedAt");
+
+                    b.HasIndex("ActorUserId", "Status");
+
+                    b.HasIndex("OrganizationId", "StartedAt");
+
+                    b.ToTable("ImpersonationSessions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0030-0030-0030-000000000001"),
+                            ActorEmail = "admin@hapag-lloyd.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            BlockedCount = 1,
+                            DurationSeconds = 720,
+                            EndReason = "Manual",
+                            EndedAt = new DateTime(2026, 10, 4, 15, 12, 0, 0, DateTimeKind.Utc),
+                            ExpiresAt = new DateTime(2026, 10, 4, 15, 30, 0, 0, DateTimeKind.Utc),
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            OrganizationName = "Importadora Demo SpA",
+                            Reason = "Ticket CS-2026-1004: el cliente no ve el flete del BL HLCUVAL250200456.",
+                            RequestCount = 6,
+                            SourceAddress = "10.0.0.15",
+                            StartedAt = new DateTime(2026, 10, 4, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Status = "Ended",
+                            SubjectEmail = "demo@importadorademo.cl",
+                            SubjectUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        });
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.InternalChargeRule", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5217,6 +7376,139 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             RuleType = "AdvanceDemurrageRequired",
                             TaxId = "1023456017",
                             ValidFrom = new DateOnly(2026, 1, 1)
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.InvoiceReissue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AcceptanceExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("AcceptanceRequestedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AcceptanceStatus")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("AcceptanceTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AcceptedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("AcceptedByTaxId")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("AcceptedFromAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("AcceptorEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Currency")
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("DeclineReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("DeclinedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("ExchangeRate")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)");
+
+                    b.Property<decimal>("FeeAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<decimal>("FeeTaxAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime?>("IssuedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("NewInvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OriginalInvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OriginalLegalName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("OriginalSiiNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("OriginalSourceNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("OriginalTaxId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("ServiceRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("VatLossAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AcceptanceTokenHash")
+                        .IsUnique()
+                        .HasFilter("\"AcceptanceTokenHash\" IS NOT NULL");
+
+                    b.HasIndex("OriginalInvoiceId");
+
+                    b.HasIndex("ServiceRequestId")
+                        .IsUnique();
+
+                    b.ToTable("InvoiceReissues", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0023-0023-0023-000000000001"),
+                            AcceptanceExpiresAt = new DateTime(2026, 10, 31, 3, 0, 0, 0, DateTimeKind.Utc),
+                            AcceptanceRequestedAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            AcceptanceStatus = "Pending",
+                            AcceptanceTokenHash = "3b238dd0c85c32dc19e44d7fe5588e575b17b19b569c99505e23329dafdb2bfe",
+                            AcceptorEmail = "facturacion@comercialaustral.cl",
+                            Currency = "CLP",
+                            FeeAmount = 25000m,
+                            FeeTaxAmount = 4750m,
+                            OriginalInvoiceId = new Guid("ffffffff-0017-0017-0017-000000000002"),
+                            OriginalLegalName = "Importadora Demo SpA",
+                            OriginalSiiNumber = "100198",
+                            OriginalSourceNumber = "HL-CL-2026-003987",
+                            OriginalTaxId = "76123456-7",
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            VatLossAmount = 22800m
                         });
                 });
 
@@ -6106,6 +8398,166 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TaxAmount = 39900m,
                             TaxRate = 19m,
                             TotalAmount = 249900m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000027"),
+                            Amount = 12000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000006"),
+                            ChargeType = "SEAL_MANAGEMENT",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Gestión de sellos (SRV-20261005-5E1A0002)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 2280m,
+                            TaxRate = 19m,
+                            TotalAmount = 14280m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000028"),
+                            Amount = 45000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000002"),
+                            ChargeType = "BL_CORRECTION",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Corrección o aclaración de BL (SRV-20261001-5E1A0003)",
+                            IsTaxable = true,
+                            Status = "Paid",
+                            TaxAmount = 8550m,
+                            TaxRate = 19m,
+                            TotalAmount = 53550m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000029"),
+                            Amount = 120m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000016"),
+                            ChargeType = "BL_HOUSE_TRANSMISSION",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "USD",
+                            Description = "Transmisión de BL hijo (SRV-20261002-5E1A0004)",
+                            IsTaxable = false,
+                            Status = "Paid",
+                            TaxAmount = 0m,
+                            TaxRate = 0m,
+                            TotalAmount = 120m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000030"),
+                            Amount = 45000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ChargeType = "BL_FEE",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "BL Documentation Fee (import)",
+                            IsTaxable = true,
+                            Status = "Paid",
+                            TaxAmount = 8550m,
+                            TaxRate = 19m,
+                            TotalAmount = 53550m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000031"),
+                            Amount = 25000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ChargeType = "ISPS",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "ISPS",
+                            IsTaxable = true,
+                            Status = "CreditImputed",
+                            TaxAmount = 4750m,
+                            TaxRate = 19m,
+                            TotalAmount = 29750m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000032"),
+                            Amount = 185000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ChargeType = "THC",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Terminal Handling Charge - 20DV (Valparaíso)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 35150m,
+                            TaxRate = 19m,
+                            TotalAmount = 220150m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000033"),
+                            Amount = 60000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ChargeType = "GATE_OUT",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Gate Out - 20DV (Valparaíso)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 11400m,
+                            TaxRate = 19m,
+                            TotalAmount = 71400m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000034"),
+                            Amount = 60000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            ChargeType = "GATE_OUT",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Gate Out - 40HC (San Antonio)",
+                            IsTaxable = true,
+                            Status = "Paid",
+                            TaxAmount = 11400m,
+                            TaxRate = 19m,
+                            TotalAmount = 71400m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000035"),
+                            Amount = 25000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000001"),
+                            ChargeType = "REINVOICING",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Refacturación de la factura 100198 (SRV-20261005-5E1A0009)",
+                            IsTaxable = true,
+                            Status = "Pending",
+                            TaxAmount = 4750m,
+                            TaxRate = 19m,
+                            TotalAmount = 29750m
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-0009-0009-0009-000000000036"),
+                            Amount = 22800m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000001"),
+                            ChargeType = "VAT_LOSS",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Pérdida de IVA de la factura 100198 (SRV-20261005-5E1A0009)",
+                            IsTaxable = false,
+                            Status = "Pending",
+                            TaxAmount = 0m,
+                            TaxRate = 0m,
+                            TotalAmount = 22800m
                         });
                 });
 
@@ -6813,6 +9265,391 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             EntityId = new Guid("a7624e2a-707b-e991-f46a-7e54449dd785"),
                             Maintainer = "KnowledgeArticle",
                             NewValue = "{\"country\":\"BO\",\"topic\":\"GENERAL\",\"title\":\"\\u00BFC\\u00F3mo doy acceso a mi agencia de aduanas u otro tercero?\",\"content\":\"En Accesos de terceros, el administrador de su organizaci\\u00F3n puede otorgar acceso a un BL o booking, con vigencia y permisos definidos, y revocarlo cuando quiera. Todos los cambios quedan registrados en la auditor\\u00EDa.\",\"keywords\":\"acceso, terceros, agencia, mandato, otorgar, revocar\",\"sortOrder\":24,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("5b857144-a78e-010d-dee9-a7cd0dd2cbf4"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("08f6a148-a021-357f-11e0-9e263e3bc70e"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"SEAL_MANAGEMENT\",\"code\":null,\"country\":\"CL\",\"currency\":\"CLP\",\"containerType\":null,\"description\":\"Gesti\\u00F3n de sellos por contenedor (M3-07)\",\"amount\":12000,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("e7efc002-82db-179e-b1f1-ab3f8d91e501"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("7e645de7-824d-4876-2e7e-d433d76e1f92"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"EARLY_ARRIVAL\",\"code\":null,\"country\":\"CL\",\"currency\":\"USD\",\"containerType\":null,\"description\":\"Early por d\\u00EDas de anticipaci\\u00F3n (M3-08)\",\"amount\":0,\"tierUnit\":\"CalendarDays\",\"tierMode\":\"Flat\",\"tiers\":[{\"fromUnit\":1,\"toUnit\":2,\"amount\":80},{\"fromUnit\":3,\"toUnit\":5,\"amount\":150},{\"fromUnit\":6,\"toUnit\":null,\"amount\":250}],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("534111a5-d9fe-9b27-3302-c3faf5ac50c8"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("8f9cd335-f4f6-df32-36b6-94794d2906dc"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"DROP_OFF\",\"code\":null,\"country\":\"CL\",\"currency\":\"CLP\",\"containerType\":null,\"description\":\"Drop Off SCL por contenedor (M3-09)\",\"amount\":180000,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("d880e37a-b4e7-4968-d22c-7722998ad7d2"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("f383edf7-a9c4-fff5-2c56-78c53ce50bc1"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"XOM\",\"code\":null,\"country\":\"BO\",\"currency\":\"BOB\",\"containerType\":null,\"description\":\"Administraci\\u00F3n de contenedor XOM por unidad (M3-10)\",\"amount\":350,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("495338b3-b5bd-0ece-e4f1-2a53619a8bb1"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("ea3a5a01-c4ee-76ca-9d51-f9e542075cc7"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"XOM\",\"code\":null,\"country\":\"BO\",\"currency\":\"BOB\",\"containerType\":\"40HC\",\"description\":\"Administraci\\u00F3n de contenedor XOM, 40\\u0027 HC (M3-10)\",\"amount\":520,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("7ddf473a-2e3b-af3d-0a5c-e2f912d005cf"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("4f0226d1-eabb-3e9f-6355-41589b2ceb4a"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"BL_CORRECTION\",\"code\":null,\"country\":\"CL\",\"currency\":\"CLP\",\"containerType\":null,\"description\":\"Correcci\\u00F3n o aclaraci\\u00F3n de BL (M3-12)\",\"amount\":45000,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("42237288-ed5e-c85a-2efc-d27408e207f2"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("3f963e93-b130-ae94-6ee6-8426587d9197"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"BL_CORRECTION\",\"code\":null,\"country\":\"BO\",\"currency\":\"BOB\",\"containerType\":null,\"description\":\"Correcci\\u00F3n o aclaraci\\u00F3n de BL Bolivia (M3-12)\",\"amount\":300,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("2db0b575-0067-0cba-ac87-53cb2963e9e5"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("09121ab9-02ec-4885-dda1-1cc481c6ddd3"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"BL_HOUSE_TRANSMISSION\",\"code\":\"PLAZO\",\"country\":\"CL\",\"currency\":\"USD\",\"containerType\":null,\"description\":\"Transmisi\\u00F3n de BL hijo dentro de plazo (M3-13)\",\"amount\":35,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("46f9d240-dab8-66bd-d19d-aa9e21346450"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("b023bef2-0e70-2988-f28c-2da684ab098e"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"BL_HOUSE_TRANSMISSION\",\"code\":\"FUERA_PLAZO\",\"country\":\"CL\",\"currency\":\"USD\",\"containerType\":null,\"description\":\"Transmisi\\u00F3n de BL hijo fuera de plazo, horas desde el plazo (M3-13)\",\"amount\":0,\"tierUnit\":\"Hours\",\"tierMode\":\"Flat\",\"tiers\":[{\"fromUnit\":0,\"toUnit\":24,\"amount\":60},{\"fromUnit\":25,\"toUnit\":72,\"amount\":120},{\"fromUnit\":73,\"toUnit\":null,\"amount\":250}],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("84c4c7c9-2237-1f1c-fc66-3d44058448b1"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("ed9325ae-cb8d-6b70-cfc6-3bfaeaff51e2"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"BL_HOUSE_TRANSMISSION\",\"code\":\"PLAZO\",\"country\":\"BO\",\"currency\":\"USD\",\"containerType\":null,\"description\":\"Transmisi\\u00F3n de BL hijo dentro de plazo (M3-13)\",\"amount\":35,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("e2b446b6-0654-1934-f54a-a38e2ebd598a"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("14c8c000-da8f-ba14-3e54-52df0949ac66"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"BL_HOUSE_TRANSMISSION\",\"code\":\"FUERA_PLAZO\",\"country\":\"BO\",\"currency\":\"USD\",\"containerType\":null,\"description\":\"Transmisi\\u00F3n de BL hijo fuera de plazo, horas desde el plazo (M3-13)\",\"amount\":0,\"tierUnit\":\"Hours\",\"tierMode\":\"Flat\",\"tiers\":[{\"fromUnit\":0,\"toUnit\":24,\"amount\":60},{\"fromUnit\":25,\"toUnit\":72,\"amount\":120},{\"fromUnit\":73,\"toUnit\":null,\"amount\":250}],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("25242d34-dba2-fbd8-3cc7-a482b769d040"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("85efb04f-05d5-2318-3bbb-1149a9593e99"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"MATRIX_LATE\",\"code\":null,\"country\":\"CL\",\"currency\":\"USD\",\"containerType\":null,\"description\":\"Matriz fuera de plazo, d\\u00EDas desde el plazo de presentaci\\u00F3n (M3-14)\",\"amount\":0,\"tierUnit\":\"CalendarDays\",\"tierMode\":\"Flat\",\"tiers\":[{\"fromUnit\":0,\"toUnit\":1,\"amount\":50},{\"fromUnit\":2,\"toUnit\":5,\"amount\":100},{\"fromUnit\":6,\"toUnit\":null,\"amount\":200}],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("c5544fec-42c2-acc4-7ada-c458f513372e"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("f69d95b8-610f-9e67-bb63-836e8e6ba3d2"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"MATRIX_LATE\",\"code\":null,\"country\":\"BO\",\"currency\":\"USD\",\"containerType\":null,\"description\":\"Matriz fuera de plazo, d\\u00EDas desde el plazo de presentaci\\u00F3n (M3-14)\",\"amount\":0,\"tierUnit\":\"CalendarDays\",\"tierMode\":\"Flat\",\"tiers\":[{\"fromUnit\":0,\"toUnit\":1,\"amount\":50},{\"fromUnit\":2,\"toUnit\":5,\"amount\":100},{\"fromUnit\":6,\"toUnit\":null,\"amount\":200}],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("e8703b3e-1773-0ee3-ef72-9f591e2ae550"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("b75305ad-33dc-5c3e-6831-1b8aedfc9756"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"SEAL_MANAGEMENT\",\"nameEs\":\"Gesti\\u00F3n de sellos\",\"nameEn\":\"Seal management\",\"descriptionEs\":\"Ingreso de los datos de sellos del booking; se presta tras el pago (M3-07, CL-EXP-09).\",\"descriptionEn\":\"Seal data entry for the booking; provided after payment (M3-07).\",\"operations\":\"EXPORT\",\"countries\":\"CL\",\"referenceType\":\"Booking\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"BeforeDeparture\",\"requiresContainers\":true,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022containers\\u0022,\\u0022labelEs\\u0022:\\u0022Contenedores\\u0022,\\u0022labelEn\\u0022:\\u0022Containers\\u0022,\\u0022type\\u0022:\\u0022containers\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022sealNumbers\\u0022,\\u0022labelEs\\u0022:\\u0022N\\\\u00FAmeros de sello\\u0022,\\u0022labelEn\\u0022:\\u0022Seal numbers\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:500,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022observations\\u0022,\\u0022labelEs\\u0022:\\u0022Observaciones\\u0022,\\u0022labelEn\\u0022:\\u0022Remarks\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:1000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":true,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"SEAL_MANAGEMENT\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerContainer\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":true,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"CustomerService\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-on-demand.pay\",\"displayOrder\":10,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("619584fa-1d71-2fc2-9b1b-74cab244ee62"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("7eb0b617-bc72-a0a1-a533-93df4e8d1d6e"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"LATE_ARRIVAL\",\"nameEs\":\"Late Arrival\",\"nameEn\":\"Late Arrival\",\"descriptionEs\":\"Ingreso de unidades despu\\u00E9s del cierre de recepci\\u00F3n; tarifa por tramos de horas de atraso; se presta tras el pago (M3-08, CL-EXP-10).\",\"descriptionEn\":\"Container delivery after the receiving cut-off; tiered by hours late; provided after payment (M3-08).\",\"operations\":\"EXPORT\",\"countries\":\"CL\",\"referenceType\":\"Booking\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"BeforeDeparture\",\"requiresContainers\":true,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022containers\\u0022,\\u0022labelEs\\u0022:\\u0022Contenedores\\u0022,\\u0022labelEn\\u0022:\\u0022Containers\\u0022,\\u0022type\\u0022:\\u0022containers\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022hours\\u0022,\\u0022labelEs\\u0022:\\u0022Horas de atraso respecto del cierre\\u0022,\\u0022labelEn\\u0022:\\u0022Hours after the cut-off\\u0022,\\u0022type\\u0022:\\u0022number\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:1,\\u0022max\\u0022:240,\\u0022integer\\u0022:true,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022observations\\u0022,\\u0022labelEs\\u0022:\\u0022Observaciones\\u0022,\\u0022labelEn\\u0022:\\u0022Remarks\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:1000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":true,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"LATE_ARRIVAL\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":\"hours\",\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":false,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"CustomerService\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-on-demand.pay\",\"displayOrder\":20,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("0c84def6-4017-1cc8-5cb3-bc6949b15e84"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("23d06884-598b-bc4f-1cef-a28759ac8f70"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"EARLY_ARRIVAL\",\"nameEs\":\"Early\",\"nameEn\":\"Early arrival\",\"descriptionEs\":\"Ingreso anticipado de unidades antes de la apertura del stacking; tarifa por tramos de d\\u00EDas; se presta tras el pago (M3-08).\",\"descriptionEn\":\"Container delivery before the stacking opens; tiered by days early; provided after payment (M3-08).\",\"operations\":\"EXPORT\",\"countries\":\"CL\",\"referenceType\":\"Booking\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"BeforeDeparture\",\"requiresContainers\":true,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022containers\\u0022,\\u0022labelEs\\u0022:\\u0022Contenedores\\u0022,\\u0022labelEn\\u0022:\\u0022Containers\\u0022,\\u0022type\\u0022:\\u0022containers\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022days\\u0022,\\u0022labelEs\\u0022:\\u0022D\\\\u00EDas de anticipaci\\\\u00F3n\\u0022,\\u0022labelEn\\u0022:\\u0022Days early\\u0022,\\u0022type\\u0022:\\u0022number\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:1,\\u0022max\\u0022:30,\\u0022integer\\u0022:true,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022observations\\u0022,\\u0022labelEs\\u0022:\\u0022Observaciones\\u0022,\\u0022labelEn\\u0022:\\u0022Remarks\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:1000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":true,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"EARLY_ARRIVAL\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":\"days\",\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":false,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"CustomerService\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-on-demand.pay\",\"displayOrder\":30,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("4e72a36d-56b5-10c6-c568-24c15dd2a17e"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("8991b39b-f6dc-fa22-f2cf-cdaae3287f4b"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"DROP_OFF_SCL\",\"nameEs\":\"Drop Off SCL\",\"nameEn\":\"Drop Off SCL\",\"descriptionEs\":\"Devoluci\\u00F3n de contenedores en Santiago: el cliente elige las unidades, acepta la tarifa y el equipo ED aprueba o rechaza (M3-09, CL-IMP-10).\",\"descriptionEn\":\"Container return in Santiago: the customer selects the units, accepts the tariff and the ED team approves or rejects (M3-09).\",\"operations\":\"IMPORT\",\"countries\":\"CL\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"AfterArrival\",\"requiresContainers\":true,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022containers\\u0022,\\u0022labelEs\\u0022:\\u0022Contenedores\\u0022,\\u0022labelEn\\u0022:\\u0022Containers\\u0022,\\u0022type\\u0022:\\u0022containers\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022returnDate\\u0022,\\u0022labelEs\\u0022:\\u0022Fecha de devoluci\\\\u00F3n\\u0022,\\u0022labelEn\\u0022:\\u0022Return date\\u0022,\\u0022type\\u0022:\\u0022date\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022depot\\u0022,\\u0022labelEs\\u0022:\\u0022Dep\\\\u00F3sito de devoluci\\\\u00F3n\\u0022,\\u0022labelEn\\u0022:\\u0022Return depot\\u0022,\\u0022type\\u0022:\\u0022select\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:[{\\u0022value\\u0022:\\u0022SCL_PUDAHUEL\\u0022,\\u0022labelEs\\u0022:\\u0022Dep\\\\u00F3sito Pudahuel\\u0022,\\u0022labelEn\\u0022:\\u0022Pudahuel depot\\u0022},{\\u0022value\\u0022:\\u0022SCL_QUILICURA\\u0022,\\u0022labelEs\\u0022:\\u0022Dep\\\\u00F3sito Quilicura\\u0022,\\u0022labelEn\\u0022:\\u0022Quilicura depot\\u0022},{\\u0022value\\u0022:\\u0022SCL_SAN_BERNARDO\\u0022,\\u0022labelEs\\u0022:\\u0022Dep\\\\u00F3sito San Bernardo\\u0022,\\u0022labelEn\\u0022:\\u0022San Bernardo depot\\u0022}],\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022observations\\u0022,\\u0022labelEs\\u0022:\\u0022Observaciones\\u0022,\\u0022labelEn\\u0022:\\u0022Remarks\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:1000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":true,\"tariffAcceptanceRequired\":true,\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"DROP_OFF\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerContainer\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":true,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"ED\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"drop-off.request\",\"displayOrder\":40,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("70c99437-5242-1670-7f8d-cc32be458aef"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("1f4a4958-c841-daef-756a-b040b2014e4a"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"XOM\",\"nameEs\":\"Administraci\\u00F3n de contenedor (XOM)\",\"nameEn\":\"Container administration (XOM)\",\"descriptionEs\":\"Cargo por unidad en bolivianos para la operaci\\u00F3n de Bolivia; no se cobra con una excepci\\u00F3n vigente en Nexus (XOM) ni a las unidades del embarcador (SOC) (M3-10, BO-EXP-02, BO-IMP-04).\",\"descriptionEn\":\"Per-unit charge in bolivianos for the Bolivia operation; waived by a Nexus exception (XOM) and for shipper-owned units (M3-10).\",\"operations\":\"IMPORT,EXPORT\",\"countries\":\"BO\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":true,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022containers\\u0022,\\u0022labelEs\\u0022:\\u0022Contenedores\\u0022,\\u0022labelEn\\u0022:\\u0022Containers\\u0022,\\u0022type\\u0022:\\u0022containers\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":true,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"XOM\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerContainer\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":false,\"exemptionConcept\":\"XOM\",\"excludeShipperOwnedContainers\":true,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-on-demand.pay\",\"displayOrder\":50,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("a6924dd1-4d90-21a1-5a01-037e1f908345"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("37f4f7a0-8da4-c832-bb22-7d2009de5dad"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"BL_CORRECTION\",\"nameEs\":\"Correcci\\u00F3n o aclaraci\\u00F3n de BL\",\"nameEn\":\"BL correction or clarification\",\"descriptionEs\":\"Solicitud y pago de correcciones o aclaraciones del BL, con seguimiento de su estado; Customer Service la atiende tras el pago (M3-12).\",\"descriptionEn\":\"Request and payment of BL corrections or clarifications, with status tracking; handled by Customer Service after payment (M3-12).\",\"operations\":\"IMPORT,EXPORT\",\"countries\":\"CL,BO\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":false,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022requestType\\u0022,\\u0022labelEs\\u0022:\\u0022Tipo de solicitud\\u0022,\\u0022labelEn\\u0022:\\u0022Request type\\u0022,\\u0022type\\u0022:\\u0022select\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:[{\\u0022value\\u0022:\\u0022CORRECTION\\u0022,\\u0022labelEs\\u0022:\\u0022Correcci\\\\u00F3n\\u0022,\\u0022labelEn\\u0022:\\u0022Correction\\u0022},{\\u0022value\\u0022:\\u0022CLARIFICATION\\u0022,\\u0022labelEs\\u0022:\\u0022Aclaraci\\\\u00F3n\\u0022,\\u0022labelEn\\u0022:\\u0022Clarification\\u0022}],\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022section\\u0022,\\u0022labelEs\\u0022:\\u0022Secci\\\\u00F3n del BL\\u0022,\\u0022labelEn\\u0022:\\u0022BL section\\u0022,\\u0022type\\u0022:\\u0022select\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:[{\\u0022value\\u0022:\\u0022SHIPPER\\u0022,\\u0022labelEs\\u0022:\\u0022Embarcador\\u0022,\\u0022labelEn\\u0022:\\u0022Shipper\\u0022},{\\u0022value\\u0022:\\u0022CONSIGNEE\\u0022,\\u0022labelEs\\u0022:\\u0022Consignatario\\u0022,\\u0022labelEn\\u0022:\\u0022Consignee\\u0022},{\\u0022value\\u0022:\\u0022NOTIFY\\u0022,\\u0022labelEs\\u0022:\\u0022Notificar a\\u0022,\\u0022labelEn\\u0022:\\u0022Notify party\\u0022},{\\u0022value\\u0022:\\u0022CARGO\\u0022,\\u0022labelEs\\u0022:\\u0022Descripci\\\\u00F3n de la carga\\u0022,\\u0022labelEn\\u0022:\\u0022Cargo description\\u0022},{\\u0022value\\u0022:\\u0022CONTAINERS\\u0022,\\u0022labelEs\\u0022:\\u0022Contenedores y sellos\\u0022,\\u0022labelEn\\u0022:\\u0022Containers and seals\\u0022},{\\u0022value\\u0022:\\u0022FREIGHT\\u0022,\\u0022labelEs\\u0022:\\u0022Flete\\u0022,\\u0022labelEn\\u0022:\\u0022Freight\\u0022},{\\u0022value\\u0022:\\u0022OTHER\\u0022,\\u0022labelEs\\u0022:\\u0022Otra\\u0022,\\u0022labelEn\\u0022:\\u0022Other\\u0022}],\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022description\\u0022,\\u0022labelEs\\u0022:\\u0022Detalle de la correcci\\\\u00F3n o aclaraci\\\\u00F3n\\u0022,\\u0022labelEn\\u0022:\\u0022Correction or clarification details\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:2000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022supportingDocument\\u0022,\\u0022labelEs\\u0022:\\u0022Documento de respaldo\\u0022,\\u0022labelEn\\u0022:\\u0022Supporting document\\u0022,\\u0022type\\u0022:\\u0022file\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":true,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"BL_CORRECTION\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":true,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"CustomerService\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-on-demand.pay\",\"displayOrder\":60,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1fbcd01-ec97-6f0b-e0dd-da2db2f77f15"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("6e03d8d0-8670-c1cf-46a4-5248d899b57e"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"BL_HOUSE_TRANSMISSION\",\"nameEs\":\"Transmisi\\u00F3n de BL hijo\",\"nameEn\":\"House BL transmission\",\"descriptionEs\":\"Transmisi\\u00F3n de BL hijo de exportaci\\u00F3n dentro o fuera de plazo: el plazo es el aduanero del BL o de su manifiesto (BL_EMPTY_OUT) o, sin \\u00E9l, el zarpe m\\u00E1s 72 horas; fuera de plazo se cobra por tramos de horas (M3-13).\",\"descriptionEn\":\"Export house BL transmission in time or late: the deadline is the customs one of the BL or its manifest (BL_EMPTY_OUT) or, without it, departure plus 72 hours; late transmissions are tiered by hours (M3-13).\",\"operations\":\"EXPORT\",\"countries\":\"CL,BO\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"AfterDeparture\",\"requiresContainers\":false,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022houseBlNumbers\\u0022,\\u0022labelEs\\u0022:\\u0022N\\\\u00FAmeros de BL hijo\\u0022,\\u0022labelEn\\u0022:\\u0022House BL numbers\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:500,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022observations\\u0022,\\u0022labelEs\\u0022:\\u0022Observaciones\\u0022,\\u0022labelEn\\u0022:\\u0022Remarks\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:1000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":true,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"BL_HOUSE_TRANSMISSION\",\"tariffCode\":\"PLAZO\",\"lateTariffCode\":\"FUERA_PLAZO\",\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"CustomsDeadline\",\"milestoneOffsetHours\":72,\"deadlineRuleCode\":\"BL_EMPTY_OUT\",\"timingRule\":\"InTimeAndLate\",\"taxable\":false,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"CustomerService\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-on-demand.pay\",\"displayOrder\":70,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("959121c1-5b6a-a81b-f74c-33d4af71595b"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("cf38fc5e-d7af-910b-aba2-ea8ddde3e9d7"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"MATRIX_LATE\",\"nameEs\":\"Matriz fuera de plazo\",\"nameEn\":\"Late matrix submission\",\"descriptionEs\":\"Cobro por presentar la matriz despu\\u00E9s del plazo (48 horas antes del zarpe mientras Nexus no informe los plazos documentales, M2-10); tarifa por tramos de d\\u00EDas desde el plazo (M3-14).\",\"descriptionEn\":\"Charge for submitting the matrix after the deadline (48 hours before departure until Nexus reports document deadlines, M2-10); tiered by days since the deadline (M3-14).\",\"operations\":\"EXPORT\",\"countries\":\"CL,BO\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":false,\"allowMultiplePerBl\":false,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022observations\\u0022,\\u0022labelEs\\u0022:\\u0022Observaciones\\u0022,\\u0022labelEn\\u0022:\\u0022Remarks\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:1000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":true,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"MATRIX_LATE\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"VesselDeparture\",\"milestoneOffsetHours\":-48,\"deadlineRuleCode\":null,\"timingRule\":\"LateOnly\",\"taxable\":false,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-on-demand.pay\",\"displayOrder\":80,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("431c7c6a-11ee-5094-96c8-8fc4cf1857e1"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("4c67c42c-973f-bad8-3b14-d35c9df6cc01"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"GATE_IN_RETURN\",\"nameEs\":\"Gate In por devoluci\\u00F3n de unidades\",\"nameEn\":\"Gate In for returned export units\",\"descriptionEs\":\"El cliente selecciona el booking y ve sus unidades; el cargo es el Gate In registrado en el sistema de origen, con las exenciones de Nexus (M3-15, CL-EXP-07).\",\"descriptionEn\":\"The customer selects the booking and sees its units; the charge is the Gate In registered in the source system, with Nexus exemptions (M3-15).\",\"operations\":\"EXPORT\",\"countries\":\"CL\",\"referenceType\":\"Booking\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":true,\"allowMultiplePerBl\":false,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022containers\\u0022,\\u0022labelEs\\u0022:\\u0022Contenedores\\u0022,\\u0022labelEn\\u0022:\\u0022Containers\\u0022,\\u0022type\\u0022:\\u0022containers\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":false,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"SourceCharge\",\"chargeConceptCode\":\"GATE_IN\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":true,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-mandatory.pay\",\"displayOrder\":90,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("76574e01-7eec-b1c6-fd96-d86cae36ffac"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("62db1148-8639-1e56-909e-ec8eaaa7d035"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"OPENING\",\"nameEs\":\"Apertura\",\"nameEn\":\"Opening\",\"descriptionEs\":\"Homologaci\\u00F3n de CL-IMP-05 con el modelo est\\u00E1ndar: cargo del sistema de origen con reglas de Nexus. Inactiva: hoy se paga como recargo local.\",\"descriptionEn\":\"CL-IMP-05 mapped to the standard model: source-system charge with Nexus rules. Inactive: currently paid as a local charge.\",\"operations\":\"IMPORT\",\"countries\":\"CL\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":false,\"allowMultiplePerBl\":false,\"inputSchemaJson\":\"[]\",\"billingDataRequired\":false,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"SourceCharge\",\"chargeConceptCode\":\"OPENING\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":true,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-mandatory.pay\",\"displayOrder\":100,\"isActive\":false}"
+                        },
+                        new
+                        {
+                            Id = new Guid("0fb183cc-89fb-a728-538a-341c8a1ba5cc"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("5d3115fa-f98b-ad3c-43e1-390bdb3261c3"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"VALUATION\",\"nameEs\":\"Valorizaci\\u00F3n\",\"nameEn\":\"Valuation\",\"descriptionEs\":\"Homologaci\\u00F3n de CL-IMP-06 con el modelo est\\u00E1ndar: cargo del sistema de origen con reglas de Nexus. Inactiva: hoy se paga como recargo local.\",\"descriptionEn\":\"CL-IMP-06 mapped to the standard model: source-system charge with Nexus rules. Inactive: currently paid as a local charge.\",\"operations\":\"IMPORT\",\"countries\":\"CL\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":false,\"allowMultiplePerBl\":false,\"inputSchemaJson\":\"[]\",\"billingDataRequired\":false,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"SourceCharge\",\"chargeConceptCode\":\"VALUATION\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":true,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-mandatory.pay\",\"displayOrder\":110,\"isActive\":false}"
+                        },
+                        new
+                        {
+                            Id = new Guid("218d2183-e252-8852-de39-cd0104d6a085"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("c7f2abc0-29ae-1d0b-d957-ea4707a567b0"),
+                            Maintainer = "Tariff",
+                            NewValue = "{\"conceptCode\":\"REINVOICING\",\"code\":null,\"country\":\"CL\",\"currency\":\"CLP\",\"containerType\":null,\"description\":\"Refacturaci\\u00F3n IAO por factura (M3-11)\",\"amount\":25000,\"tierUnit\":\"None\",\"tierMode\":\"Flat\",\"tiers\":[],\"validFrom\":\"2026-10-01\",\"validTo\":null,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("89c5b237-f1a2-5a8e-335a-e2855cd4e5bb"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("ffffffff-0022-0022-0022-000000000001"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"IAO_REINVOICING\",\"nameEs\":\"Refacturaci\\u00F3n IAO y p\\u00E9rdida de IVA\",\"nameEn\":\"IAO re-invoicing and VAT loss\",\"descriptionEs\":\"Refacturaci\\u00F3n de una factura emitida a una nueva raz\\u00F3n social: el cliente registra los nuevos datos de facturaci\\u00F3n y adjunta la aprobaci\\u00F3n de la nueva raz\\u00F3n social; se cobran juntos la refacturaci\\u00F3n y la p\\u00E9rdida de IVA, y la factura se emite solo con la aceptaci\\u00F3n del cobro por la nueva raz\\u00F3n social (M3-11, CL-EXP-11, CL-IMP-09). Se solicita desde la factura.\",\"descriptionEn\":\"Re-invoicing of an issued invoice to a new legal entity: the customer enters the new billing data and attaches the new entity\\u0027s approval; the re-invoicing fee and the VAT loss are paid together, and the invoice is issued only after the new legal entity accepts the charge (M3-11). Requested from the invoice.\",\"operations\":\"IMPORT,EXPORT\",\"countries\":\"CL\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":false,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022newCompanyApproval\\u0022,\\u0022labelEs\\u0022:\\u0022Aprobaci\\\\u00F3n de la nueva raz\\\\u00F3n social\\u0022,\\u0022labelEn\\u0022:\\u0022Approval of the new legal entity\\u0022,\\u0022type\\u0022:\\u0022file\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022reason\\u0022,\\u0022labelEs\\u0022:\\u0022Motivo de la refacturaci\\\\u00F3n\\u0022,\\u0022labelEn\\u0022:\\u0022Reason for the re-invoicing\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:1000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":true,\"tariffAcceptanceRequired\":true,\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"REINVOICING\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":true,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"local-charges-on-demand.pay\",\"displayOrder\":120,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("e09a7df1-2e24-226b-f05d-131b4282f10b"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("3a4b4010-b87c-a88e-d52a-b2d36a834765"),
+                            Maintainer = "CreditImputationRule",
+                            NewValue = "{\"country\":\"CL\",\"conceptCode\":\"THC\",\"nexusCreditConcept\":\"LOCAL_CHARGES\",\"isEnabled\":true,\"notes\":\"Propuesta conservadora (recargos locales de Chile) pendiente de confirmaci\\u00F3n de Finanzas (M5-10).\"}"
+                        },
+                        new
+                        {
+                            Id = new Guid("b7fe99ef-e1c5-2eba-49b5-12812d0cc83a"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("893a8a68-2509-dfec-e30f-9131e821fc5e"),
+                            Maintainer = "CreditImputationRule",
+                            NewValue = "{\"country\":\"CL\",\"conceptCode\":\"ISPS\",\"nexusCreditConcept\":\"LOCAL_CHARGES\",\"isEnabled\":true,\"notes\":\"Propuesta conservadora (recargos locales de Chile) pendiente de confirmaci\\u00F3n de Finanzas (M5-10).\"}"
+                        },
+                        new
+                        {
+                            Id = new Guid("2d9f6544-3c95-8cf5-f6dd-e808cedd59ce"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("5b866cc3-d88e-fc09-72a4-460533ba92bd"),
+                            Maintainer = "CreditImputationRule",
+                            NewValue = "{\"country\":\"CL\",\"conceptCode\":\"BL_FEE\",\"nexusCreditConcept\":\"LOCAL_CHARGES\",\"isEnabled\":true,\"notes\":\"Propuesta conservadora (recargos locales de Chile) pendiente de confirmaci\\u00F3n de Finanzas (M5-10).\"}"
+                        },
+                        new
+                        {
+                            Id = new Guid("afa9137e-bf2b-5690-fe33-0cb261464598"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("0016cb8a-acd8-7248-7612-82d73aa4d31f"),
+                            Maintainer = "CreditImputationRule",
+                            NewValue = "{\"country\":\"CL\",\"conceptCode\":\"GATE_OUT\",\"nexusCreditConcept\":\"LOCAL_CHARGES\",\"isEnabled\":true,\"notes\":\"Propuesta conservadora (recargos locales de Chile) pendiente de confirmaci\\u00F3n de Finanzas (M5-10).\"}"
+                        },
+                        new
+                        {
+                            Id = new Guid("b0e7ddaa-2c3c-3d6f-e8fc-a47e3dc3fe71"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 1, 11, 30, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "admin@hapag-lloyd.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            EntityId = new Guid("ffffffff-0027-0027-0027-000000000001"),
+                            Maintainer = "Announcement",
+                            NewValue = "{\"titleEs\":\"Nuevo horario del dep\\u00F3sito de vac\\u00EDos en San Antonio\",\"titleEn\":\"New opening hours at the San Antonio empty depot\",\"bodyEs\":\"Desde el 1 de octubre el dep\\u00F3sito de vac\\u00EDos de San Antonio recibe devoluciones de lunes a s\\u00E1bado de 08:00 a 20:00. Programe el Gate In con anticipaci\\u00F3n para evitar demoras.\",\"bodyEn\":\"From October 1st the San Antonio empty depot receives returns Monday to Saturday from 08:00 to 20:00. Schedule the Gate In in advance to avoid delays.\",\"countries\":\"CL\",\"operation\":\"Import\",\"severity\":\"Important\",\"validFrom\":\"2026-10-01T03:00:00Z\",\"validTo\":\"2027-01-01T03:00:00Z\",\"status\":\"Published\",\"notifyOnPublish\":false}"
+                        },
+                        new
+                        {
+                            Id = new Guid("e5e93f5e-8734-6c2f-751d-09b56c091735"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 2, 12, 45, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "admin@hapag-lloyd.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            EntityId = new Guid("ffffffff-0027-0027-0027-000000000002"),
+                            Maintainer = "Announcement",
+                            NewValue = "{\"titleEs\":\"Canje de BL de exportaci\\u00F3n boliviana en Arica\",\"titleEn\":\"Bolivian export BL exchange in Arica\",\"bodyEs\":\"El canje de los BL de exportaci\\u00F3n de Bolivia se realiza en el Counter de Arica presentando el BL original y la carta de liberaci\\u00F3n. El estado del canje queda visible en el detalle del embarque.\",\"bodyEn\":\"Bolivian export BLs are exchanged at the Arica Counter presenting the original BL and the release letter. The exchange status is shown in the shipment detail.\",\"countries\":\"BO\",\"operation\":\"Export\",\"severity\":\"Info\",\"validFrom\":\"2026-10-02T04:00:00Z\",\"validTo\":null,\"status\":\"Published\",\"notifyOnPublish\":false}"
+                        },
+                        new
+                        {
+                            Id = new Guid("3e4a98bd-4067-59ac-66e0-6e5cb4137108"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "admin@hapag-lloyd.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            EntityId = new Guid("ffffffff-0027-0027-0027-000000000003"),
+                            Maintainer = "Announcement",
+                            NewValue = "{\"titleEs\":\"Mantenci\\u00F3n programada del portal\",\"titleEn\":\"Scheduled portal maintenance\",\"bodyEs\":\"El portal no estar\\u00E1 disponible el 20 de octubre entre las 23:00 y las 23:59 (hora de Chile) por mantenci\\u00F3n programada.\",\"bodyEn\":\"The portal will be unavailable on October 20th between 23:00 and 23:59 (Chile time) for scheduled maintenance.\",\"countries\":\"CL,BO\",\"operation\":\"Both\",\"severity\":\"Important\",\"validFrom\":\"2026-10-15T03:00:00Z\",\"validTo\":\"2026-10-21T03:00:00Z\",\"status\":\"Draft\",\"notifyOnPublish\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("293debcc-96de-bc6a-7028-c71f703ef980"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("ffffffff-0028-0028-0028-000000000001"),
+                            Maintainer = "Guide",
+                            NewValue = "{\"code\":\"cart-checkout\",\"nameEs\":\"C\\u00F3mo pagar desde el carro\",\"nameEn\":\"How to pay from the cart\",\"route\":\"/cart\",\"audience\":\"Client\",\"isActive\":true,\"displayOrder\":10,\"version\":1,\"steps\":[{\"order\":1,\"route\":\"/cart\",\"elementKey\":\"cart.items\",\"titleEs\":\"Revise los cargos\",\"titleEn\":\"Review the charges\",\"textEs\":\"Aqu\\u00ED est\\u00E1n los cargos que agreg\\u00F3 desde sus embarques, agrupados por moneda. Puede quitar los que no pagar\\u00E1 ahora.\",\"textEn\":\"These are the charges you added from your shipments, grouped by currency. You can remove the ones you will not pay now.\"},{\"order\":2,\"route\":\"/cart\",\"elementKey\":\"cart.billing-tax-id\",\"titleEs\":\"RUT de facturaci\\u00F3n\",\"titleEn\":\"Billing tax ID\",\"textEs\":\"Indique a qu\\u00E9 RUT se emitir\\u00E1 la factura de cada cargo. Por defecto es el de su organizaci\\u00F3n.\",\"textEn\":\"Choose the tax ID to be invoiced for each charge. By default it is your organization\\u0027s.\"},{\"order\":3,\"route\":\"/cart\",\"elementKey\":\"cart.currency\",\"titleEs\":\"Moneda de pago\",\"titleEn\":\"Payment currency\",\"textEs\":\"Elija la moneda en que pagar\\u00E1; si es distinta de la del cargo se usa el tipo de cambio del d\\u00EDa.\",\"textEn\":\"Choose the payment currency; if it differs from the charge currency the day\\u0027s exchange rate applies.\"},{\"order\":4,\"route\":\"/cart\",\"elementKey\":\"cart.payment-method\",\"titleEs\":\"Medio de pago\",\"titleEn\":\"Payment method\",\"textEs\":\"Seleccione el medio de pago habilitado para su pa\\u00EDs y moneda.\",\"textEn\":\"Select a payment method enabled for your country and currency.\"},{\"order\":5,\"route\":\"/cart\",\"elementKey\":\"cart.checkout\",\"titleEs\":\"Pague\",\"titleEn\":\"Pay\",\"textEs\":\"Confirme el pago. Recibir\\u00E1 el comprobante en la bandeja de notificaciones y en el historial de pagos.\",\"textEn\":\"Confirm the payment. You will receive the receipt in the notification inbox and in the payment history.\"}]}"
+                        },
+                        new
+                        {
+                            Id = new Guid("0f35358b-a740-0f03-384d-771138ac802d"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 3, 14, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "admin@hapag-lloyd.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            EntityId = new Guid("ffffffff-0029-0029-0029-000000000001"),
+                            Maintainer = "CounterRecord",
+                            NewValue = "{\"blNumber\":\"HLCUARI260300830\",\"country\":\"BO\",\"exchangeDate\":\"2026-10-02\",\"hblReceived\":true,\"hblReceivedAt\":\"2026-10-03\",\"deconsolidated\":false,\"deconsolidatedAt\":null,\"notes\":null,\"syncStatus\":\"Pending\",\"sourceReference\":null}"
+                        },
+                        new
+                        {
+                            Id = new Guid("a32f168f-b981-c833-76f9-e98191ff9d3f"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "admin@hapag-lloyd.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            EntityId = new Guid("ffffffff-0029-0029-0029-000000000002"),
+                            Maintainer = "CounterRecord",
+                            NewValue = "{\"blNumber\":\"HLCUARI260100045\",\"country\":\"BO\",\"exchangeDate\":\"2026-10-04\",\"hblReceived\":true,\"hblReceivedAt\":\"2026-10-04\",\"deconsolidated\":true,\"deconsolidatedAt\":\"2026-10-05\",\"notes\":\"Desconsolidado en el dep\\u00F3sito de Arica.\",\"syncStatus\":\"Pending\",\"sourceReference\":null}"
+                        },
+                        new
+                        {
+                            Id = new Guid("a586d1a7-d19d-2034-2f92-6cb6c8f53a5c"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("ffffffff-0022-0022-0022-000000000002"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"FREIGHT_CERTIFICATE\",\"nameEs\":\"Certificado de flete\",\"nameEn\":\"Freight certificate\",\"descriptionEs\":\"Certificado del flete del BL para importaci\\u00F3n de Bolivia (M6-02, BO-IMP-08): el cliente ingresa los datos del consignatario y la finalidad; el portal emite el PDF firmado y lo env\\u00EDa a su correo. Primera entrega de Fase 2 sin pago ni carro. Se solicita desde los documentos del embarque.\",\"descriptionEn\":\"Freight certificate of the BL for Bolivia imports (M6-02): the customer enters the consignee data and the purpose; the portal issues the signed PDF and e-mails it. First Phase 2 delivery without payment or cart. Requested from the shipment documents.\",\"operations\":\"IMPORT\",\"countries\":\"BO\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":false,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022consigneeName\\u0022,\\u0022labelEs\\u0022:\\u0022Consignatario\\u0022,\\u0022labelEn\\u0022:\\u0022Consignee\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:200,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022consigneeTaxId\\u0022,\\u0022labelEs\\u0022:\\u0022NIT del consignatario\\u0022,\\u0022labelEn\\u0022:\\u0022Consignee tax ID\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:30,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022purpose\\u0022,\\u0022labelEs\\u0022:\\u0022Finalidad\\u0022,\\u0022labelEn\\u0022:\\u0022Purpose\\u0022,\\u0022type\\u0022:\\u0022select\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:[{\\u0022value\\u0022:\\u0022CUSTOMS\\u0022,\\u0022labelEs\\u0022:\\u0022Tr\\\\u00E1mite aduanero\\u0022,\\u0022labelEn\\u0022:\\u0022Customs clearance\\u0022},{\\u0022value\\u0022:\\u0022INSURANCE\\u0022,\\u0022labelEs\\u0022:\\u0022Seguro de la carga\\u0022,\\u0022labelEn\\u0022:\\u0022Cargo insurance\\u0022},{\\u0022value\\u0022:\\u0022BANK\\u0022,\\u0022labelEs\\u0022:\\u0022Tr\\\\u00E1mite bancario\\u0022,\\u0022labelEn\\u0022:\\u0022Banking\\u0022},{\\u0022value\\u0022:\\u0022OTHER\\u0022,\\u0022labelEs\\u0022:\\u0022Otra\\u0022,\\u0022labelEn\\u0022:\\u0022Other\\u0022}],\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022recipient\\u0022,\\u0022labelEs\\u0022:\\u0022Dirigido a\\u0022,\\u0022labelEn\\u0022:\\u0022Addressed to\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:200,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022notes\\u0022,\\u0022labelEs\\u0022:\\u0022Observaciones\\u0022,\\u0022labelEn\\u0022:\\u0022Remarks\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:1000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":false,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"None\",\"chargeConceptCode\":\"FREIGHT_CERTIFICATE\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":false,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"None\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"freight-certificate.generate\",\"displayOrder\":130,\"isActive\":true}"
+                        },
+                        new
+                        {
+                            Id = new Guid("5b6d64e3-30e7-2094-9668-48c5b0f4624f"),
+                            Action = "Created",
+                            ChangedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            EntityId = new Guid("ffffffff-0022-0022-0022-000000000003"),
+                            Maintainer = "ServiceDefinition",
+                            NewValue = "{\"code\":\"RELEASE_LETTER\",\"nameEs\":\"Carta de liberaci\\u00F3n y desconsolidado\",\"nameEn\":\"Release and deconsolidation letter\",\"descriptionEs\":\"Carta de liberaci\\u00F3n y desconsolidado de las unidades seleccionadas, importaci\\u00F3n de Bolivia (M6-08, BO-IMP-11): datos del consignatario seg\\u00FAn el tipo de sociedad y del transportista; el TATC de las unidades se registra al enviar y al aprobar; la aprueba Customer Service y la carta se emite al aprobarse. Sin cobro. Se solicita desde los documentos del embarque.\",\"descriptionEn\":\"Release and deconsolidation letter for the selected units, Bolivia imports (M6-08): consignee data by legal entity type and carrier data; the units\\u0027 TATC is recorded on submission and approval; Customer Service approves it and the letter is issued on approval. No charge. Requested from the shipment documents.\",\"operations\":\"IMPORT\",\"countries\":\"BO\",\"referenceType\":\"BL\",\"requiredBlStatuses\":null,\"availabilityWindow\":\"Always\",\"requiresContainers\":true,\"allowMultiplePerBl\":true,\"inputSchemaJson\":\"[{\\u0022key\\u0022:\\u0022containers\\u0022,\\u0022labelEs\\u0022:\\u0022Contenedores\\u0022,\\u0022labelEn\\u0022:\\u0022Containers\\u0022,\\u0022type\\u0022:\\u0022containers\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022legalEntityType\\u0022,\\u0022labelEs\\u0022:\\u0022Tipo de sociedad\\u0022,\\u0022labelEn\\u0022:\\u0022Legal entity type\\u0022,\\u0022type\\u0022:\\u0022select\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:[{\\u0022value\\u0022:\\u0022COMPANY\\u0022,\\u0022labelEs\\u0022:\\u0022Empresa\\u0022,\\u0022labelEn\\u0022:\\u0022Company\\u0022},{\\u0022value\\u0022:\\u0022NATURAL_PERSON\\u0022,\\u0022labelEs\\u0022:\\u0022Persona natural\\u0022,\\u0022labelEn\\u0022:\\u0022Natural person\\u0022}],\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:null,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022consigneeName\\u0022,\\u0022labelEs\\u0022:\\u0022Consignatario (raz\\\\u00F3n social o nombre)\\u0022,\\u0022labelEn\\u0022:\\u0022Consignee (legal name or name)\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:200,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022consigneeTaxId\\u0022,\\u0022labelEs\\u0022:\\u0022NIT o documento de identidad\\u0022,\\u0022labelEn\\u0022:\\u0022Tax ID or ID document\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:30,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022consigneeAddress\\u0022,\\u0022labelEs\\u0022:\\u0022Domicilio\\u0022,\\u0022labelEn\\u0022:\\u0022Address\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:300,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022legalRepresentativeName\\u0022,\\u0022labelEs\\u0022:\\u0022Representante legal\\u0022,\\u0022labelEn\\u0022:\\u0022Legal representative\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:200,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022legalRepresentativeId\\u0022,\\u0022labelEs\\u0022:\\u0022Documento del representante\\u0022,\\u0022labelEn\\u0022:\\u0022Representative\\\\u0027s ID\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:30,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022carrierName\\u0022,\\u0022labelEs\\u0022:\\u0022Transportista\\u0022,\\u0022labelEn\\u0022:\\u0022Carrier\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:200,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022carrierTaxId\\u0022,\\u0022labelEs\\u0022:\\u0022NIT / RUT del transportista\\u0022,\\u0022labelEn\\u0022:\\u0022Carrier tax ID\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:true,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:30,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022driverName\\u0022,\\u0022labelEs\\u0022:\\u0022Conductor\\u0022,\\u0022labelEn\\u0022:\\u0022Driver\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:200,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022driverId\\u0022,\\u0022labelEs\\u0022:\\u0022Documento del conductor\\u0022,\\u0022labelEn\\u0022:\\u0022Driver\\\\u0027s ID\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:30,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022truckPlate\\u0022,\\u0022labelEs\\u0022:\\u0022Patente\\u0022,\\u0022labelEn\\u0022:\\u0022Truck plate\\u0022,\\u0022type\\u0022:\\u0022text\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:20,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null},{\\u0022key\\u0022:\\u0022observations\\u0022,\\u0022labelEs\\u0022:\\u0022Observaciones\\u0022,\\u0022labelEn\\u0022:\\u0022Remarks\\u0022,\\u0022type\\u0022:\\u0022textarea\\u0022,\\u0022required\\u0022:false,\\u0022options\\u0022:null,\\u0022min\\u0022:null,\\u0022max\\u0022:null,\\u0022integer\\u0022:false,\\u0022maxLength\\u0022:1000,\\u0022helpEs\\u0022:null,\\u0022helpEn\\u0022:null}]\",\"billingDataRequired\":false,\"tariffAcceptanceRequired\":false,\"pricingMode\":\"None\",\"chargeConceptCode\":\"RELEASE_LETTER\",\"tariffCode\":null,\"lateTariffCode\":null,\"quantityMode\":\"PerRequest\",\"measureFieldKey\":null,\"milestone\":\"None\",\"milestoneOffsetHours\":0,\"deadlineRuleCode\":null,\"timingRule\":\"None\",\"taxable\":false,\"exemptionConcept\":null,\"excludeShipperOwnedContainers\":false,\"approvalTeam\":\"CustomerService\",\"fulfillmentTeam\":\"None\",\"requiresOutputDocument\":false,\"actionCode\":\"release-letter.generate\",\"displayOrder\":140,\"isActive\":true}"
                         });
                 });
 
@@ -6821,6 +9658,21 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ActionResolvedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ActionTargetId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ActionType")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("BlNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Body")
                         .IsRequired()
@@ -6846,12 +9698,31 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<bool>("EmailSent")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("EntityId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("EntityReference")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("EntityType")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Module")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
 
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("timestamp with time zone");
@@ -6881,7 +9752,108 @@ namespace HapagPortal.DatabaseMigrations.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("ActionType", "ActionTargetId");
+
                     b.ToTable("Notifications", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("d5e36d15-3543-4d73-b0fc-af18dbec0030"),
+                            ActionTargetId = "d4e5f6a7-0004-0004-0004-000000000012",
+                            ActionType = "ApproveJoinRequest",
+                            Body = "Sergio Solicitante (solicitud@importadorademo.cl) solicita vincularse a Importadora Demo SpA.",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DedupKey = "join-request:d4e5f6a7-0004-0004-0004-000000000012:d4e5f6a7-0004-0004-0004-000000000010",
+                            EmailSent = false,
+                            EntityId = "d4e5f6a7-0004-0004-0004-000000000012",
+                            EntityReference = "Sergio Solicitante",
+                            EntityType = "JoinRequest",
+                            Module = "Organization",
+                            Title = "Nueva solicitud de vinculación",
+                            Type = "JoinRequestReceived",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        },
+                        new
+                        {
+                            Id = new Guid("be0c6821-74a8-fb28-c072-2e6dd368194f"),
+                            ActionTargetId = "ffffffff-0026-0026-0026-000000000002",
+                            ActionType = "ReviewParentLink",
+                            Body = "Comercial Altiplano SRL pide asociarse a Grupo Demo Holding S.A. como su empresa matriz. Revise la solicitud en el área de administración.",
+                            CreatedAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DedupKey = "parent-link-requested:ffffffff-0026-0026-0026-000000000002",
+                            EmailSent = false,
+                            EntityId = "ffffffff-0026-0026-0026-000000000002",
+                            EntityReference = "Comercial Altiplano SRL",
+                            EntityType = "ParentLink",
+                            Module = "Administration",
+                            RoleCode = "Administrador",
+                            Title = "Solicitud de empresa matriz: Comercial Altiplano SRL",
+                            Type = "ParentLinkRequested"
+                        },
+                        new
+                        {
+                            Id = new Guid("46a9dd3c-e522-7448-02ab-7696e37612eb"),
+                            Body = "Importadora Demo SpA quedó asociada a su organización como filial. Ya puede ver sus BL en el listado de embarques, identificados por organización.",
+                            CreatedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            EmailSent = false,
+                            EntityId = "ffffffff-0026-0026-0026-000000000001",
+                            EntityReference = "Importadora Demo SpA",
+                            EntityType = "ParentLink",
+                            Module = "Organization",
+                            Title = "Filial asociada: Importadora Demo SpA",
+                            Type = "ParentLinkApproved",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000090")
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.NotificationPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("EmailEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "NotificationType")
+                        .IsUnique();
+
+                    b.ToTable("NotificationPreferences", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("4728100f-24b0-d70d-8491-616cbedbcff8"),
+                            EmailEnabled = false,
+                            NotificationType = "DocumentIssued",
+                            UpdatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        },
+                        new
+                        {
+                            Id = new Guid("85b8a6da-44d9-7264-e037-62ac5754f081"),
+                            EmailEnabled = true,
+                            NotificationType = "AnnouncementPublished",
+                            UpdatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        });
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.OpenAccessSetting", b =>
@@ -7010,6 +9982,110 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.HasIndex("ClientId");
 
                     b.ToTable("OrganizationDocuments", (string)null);
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.OrganizationParentLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DecidedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DecidedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("DecisionNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EndedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ParentOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RequestedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("RequestedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("VisibilityChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("VisibilityChangedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("VisibilityEnabled")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId")
+                        .IsUnique()
+                        .HasFilter("\"Status\" IN ('Pending', 'Active')");
+
+                    b.HasIndex("ParentOrganizationId", "Status");
+
+                    b.ToTable("OrganizationParentLinks", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0026-0026-0026-000000000001"),
+                            DecidedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            DecidedBy = "admin@hapag-lloyd.cl",
+                            DecisionNotes = "Escritura de constitución del grupo verificada.",
+                            Notes = "Importadora Demo es filial del grupo.",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            ParentOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000090"),
+                            RequestedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            RequestedBy = "demo@importadorademo.cl",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "Active",
+                            VisibilityChangedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            VisibilityChangedBy = "demo@importadorademo.cl",
+                            VisibilityEnabled = true
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0026-0026-0026-000000000002"),
+                            Notes = "Filial boliviana del grupo.",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            ParentOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000090"),
+                            RequestedAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            RequestedBy = "demo@altiplano.bo",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            Status = "Pending",
+                            VisibilityChangedAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            VisibilityChangedBy = "demo@altiplano.bo",
+                            VisibilityEnabled = true
+                        });
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.Payment", b =>
@@ -7529,6 +10605,125 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             StatusChangedAt = new DateTime(2026, 9, 5, 14, 0, 0, 0, DateTimeKind.Utc),
                             TaxAmount = 106.60m,
                             TotalAmount = 926.60m
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-000b-000b-000b-000000000014"),
+                            Amount = 168940m,
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            ConfirmedAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            ConfirmedBy = "KHIPU_WEBHOOK",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 2, 14, 58, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "d4e5f6a7-0004-0004-0004-000000000010",
+                            CreatedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Currency = "CLP",
+                            ExternalReference = "PAY-20261002-6F5E4D3C",
+                            Origin = "Cart",
+                            PayerName = "Importadora Demo SpA",
+                            PayerTaxId = "76123456-7",
+                            PaymentDate = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            PaymentMethod = "KHIPU",
+                            PaymentMethodCode = "KHIPU",
+                            PaymentNumber = "PAY-20261002-6F5E4D3C",
+                            PaymentType = "Cart",
+                            ProviderKey = "Khipu",
+                            ProviderReference = "DUMMY-KHIPU-PAY-20261002-6F5E4D3C",
+                            ProviderTransactionId = "KHP-TXN-8813377",
+                            ReceiptNumber = "RCP-20261002-7A8B9C0D",
+                            Status = "Confirmed",
+                            StatusChangedAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 8550m,
+                            TotalAmount = 177490m
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-000b-000b-000b-000000000015"),
+                            Amount = 45000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            ConfirmedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            ConfirmedBy = "BANCOCHILE_WEBHOOK",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 2, 12, 58, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "d4e5f6a7-0004-0004-0004-000000000060",
+                            CreatedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000060"),
+                            Currency = "CLP",
+                            ExternalReference = "PAY-20261002-A1C2E3F4",
+                            Origin = "Account",
+                            PayerName = "Distribuidora Andes Crédito SpA",
+                            PayerTaxId = "76000002-2",
+                            PaymentDate = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            PaymentMethod = "BANK_BUTTON_BCH",
+                            PaymentMethodCode = "BANK_BUTTON_BCH",
+                            PaymentNumber = "PAY-20261002-A1C2E3F4",
+                            PaymentType = "Account",
+                            ProviderKey = "BancoChile",
+                            ProviderReference = "DUMMY-BANCOCHILE-PAY-20261002-A1C2E3F4",
+                            ProviderTransactionId = "BCH-TXN-55100877",
+                            ReceiptNumber = "RCP-20261002-B5D6E7F8",
+                            Status = "Confirmed",
+                            StatusChangedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 8550m,
+                            TotalAmount = 53550m
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-000b-000b-000b-000000000016"),
+                            Amount = 25000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            ConfirmedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            ConfirmedBy = "credito@distribuidoraandes.cl",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "d4e5f6a7-0004-0004-0004-000000000060",
+                            CreatedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000060"),
+                            Currency = "CLP",
+                            ExternalReference = "CRI-20261003-C9D8E7F6",
+                            Origin = "CreditLine",
+                            PayerName = "Distribuidora Andes Crédito SpA",
+                            PayerTaxId = "76000002-2",
+                            PaymentDate = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            PaymentMethod = "CREDIT_LINE",
+                            PaymentMethodCode = "CREDIT_LINE",
+                            PaymentNumber = "CRI-20261003-C9D8E7F6",
+                            PaymentType = "CreditLine",
+                            Status = "Confirmed",
+                            StatusChangedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 4750m,
+                            TotalAmount = 29750m
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-000b-000b-000b-000000000017"),
+                            Amount = 60000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            ConfirmedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            ConfirmedBy = "KHIPU_WEBHOOK",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 13, 57, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "d4e5f6a7-0004-0004-0004-000000000030",
+                            CreatedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000030"),
+                            Currency = "CLP",
+                            ExternalReference = "PAY-20261001-D4E5F6A7",
+                            Origin = "Cart",
+                            PayerName = "Agencia Marítima del Pacífico Ltda",
+                            PayerTaxId = "96555444-3",
+                            PaymentDate = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            PaymentMethod = "KHIPU",
+                            PaymentMethodCode = "KHIPU",
+                            PaymentNumber = "PAY-20261001-D4E5F6A7",
+                            PaymentType = "Cart",
+                            ProviderKey = "Khipu",
+                            ProviderReference = "DUMMY-KHIPU-PAY-20261001-D4E5F6A7",
+                            ProviderTransactionId = "KHP-TXN-8813901",
+                            ReceiptNumber = "RCP-20261001-E8F9A0B1",
+                            Status = "Confirmed",
+                            StatusChangedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 11400m,
+                            TotalAmount = 71400m
                         });
                 });
 
@@ -8158,6 +11353,127 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             PaymentId = new Guid("55555555-000b-000b-000b-000000000013"),
                             ReleasedAt = new DateTime(2026, 9, 5, 14, 0, 0, 0, DateTimeKind.Utc),
                             TaxAmount = 106.60m
+                        },
+                        new
+                        {
+                            Id = new Guid("a832ba20-d7cd-be95-bd38-7c02c2b76c51"),
+                            Amount = 9940m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000009"),
+                            BillingName = "Importadora Demo SpA",
+                            BillingTaxId = "76123456-7",
+                            BlNumber = "HLCUSAI260400910",
+                            BookingNumber = "HLCUBKG2604091",
+                            ConceptType = "WAREHOUSE_CHANGE",
+                            Currency = "CLP",
+                            Description = "Cambio de almacén STI San Antonio - Patio B → Bodega Lo Espejo",
+                            ItemType = "WarehouseChange",
+                            OriginalAmount = 9940m,
+                            OriginalCurrency = "CLP",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000014"),
+                            ReleasedAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("99999999-000f-000f-000f-000000000003"),
+                            TaxAmount = 0m
+                        },
+                        new
+                        {
+                            Id = new Guid("2d66e7bf-d1f8-ee1d-5010-79747e017882"),
+                            Amount = 45000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000002"),
+                            BillingName = "Importadora Demo SpA",
+                            BillingTaxId = "76123456-7",
+                            BlNumber = "HLCUVAL250200456",
+                            BookingNumber = "HLCUBKG2502004",
+                            ConceptType = "BL_CORRECTION",
+                            Currency = "CLP",
+                            Description = "Corrección o aclaración de BL (SRV-20261001-5E1A0003)",
+                            ItemType = "LocalCharge",
+                            OriginalAmount = 53550m,
+                            OriginalCurrency = "CLP",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000014"),
+                            ReleasedAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000028"),
+                            TaxAmount = 8550m
+                        },
+                        new
+                        {
+                            Id = new Guid("30ada185-078c-2fbf-3a02-2812eb08a5a0"),
+                            Amount = 114000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000016"),
+                            BillingName = "Importadora Demo SpA",
+                            BillingTaxId = "76123456-7",
+                            BlNumber = "HLCUSAI260901610",
+                            BookingNumber = "HLCUBKG2609161",
+                            ConceptType = "BL_HOUSE_TRANSMISSION",
+                            Currency = "CLP",
+                            Description = "Transmisión de BL hijo (SRV-20261002-5E1A0004)",
+                            ExchangeRate = 950m,
+                            ItemType = "LocalCharge",
+                            OriginalAmount = 120m,
+                            OriginalCurrency = "USD",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000014"),
+                            ReleasedAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000029"),
+                            TaxAmount = 0m
+                        },
+                        new
+                        {
+                            Id = new Guid("db2bf9c7-ceb5-f5a2-e768-8501f7664a50"),
+                            Amount = 45000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BillingName = "Distribuidora Andes Crédito SpA",
+                            BillingTaxId = "76000002-2",
+                            BlNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            ConceptType = "BL_FEE",
+                            Currency = "CLP",
+                            Description = "BL Documentation Fee (import)",
+                            ItemType = "LocalCharge",
+                            OriginalAmount = 53550m,
+                            OriginalCurrency = "CLP",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000015"),
+                            ReleasedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000030"),
+                            TaxAmount = 8550m
+                        },
+                        new
+                        {
+                            Id = new Guid("aab31ddd-35ff-069a-d97b-e746504c1cf4"),
+                            Amount = 25000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            BillingName = "Distribuidora Andes Crédito SpA",
+                            BillingTaxId = "76000002-2",
+                            BlNumber = "HLCUVAP260601930",
+                            BookingNumber = "HLCUBKG2606193",
+                            ConceptType = "ISPS",
+                            Currency = "CLP",
+                            Description = "ISPS",
+                            ItemType = "LocalCharge",
+                            OriginalAmount = 29750m,
+                            OriginalCurrency = "CLP",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000016"),
+                            ReleasedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000031"),
+                            TaxAmount = 4750m
+                        },
+                        new
+                        {
+                            Id = new Guid("0745ba3a-34ac-c833-5db6-bf116971a424"),
+                            Amount = 60000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            BillingName = "Agencia Marítima del Pacífico Ltda",
+                            BillingTaxId = "96555444-3",
+                            BlNumber = "HLCUSAI260701810",
+                            BookingNumber = "HLCUBKG2607181",
+                            ConceptType = "GATE_OUT",
+                            Currency = "CLP",
+                            Description = "Gate Out - 40HC (San Antonio)",
+                            ItemType = "LocalCharge",
+                            OriginalAmount = 71400m,
+                            OriginalCurrency = "CLP",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            ReleasedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            SourceId = new Guid("33333333-0009-0009-0009-000000000034"),
+                            TaxAmount = 11400m
                         });
                 });
 
@@ -8569,6 +11885,110 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             FromStatus = "PendingVerification",
                             PaymentId = new Guid("55555555-000b-000b-000b-000000000013"),
                             ToStatus = "Confirmed"
+                        },
+                        new
+                        {
+                            Id = new Guid("4b5dd8b9-21c3-ce5e-3bba-5c3c17ec632f"),
+                            ChangedAt = new DateTime(2026, 10, 2, 14, 58, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "demo@importadorademo.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000014"),
+                            ToStatus = "Pending"
+                        },
+                        new
+                        {
+                            Id = new Guid("a0b9ed1f-e4ac-fe81-28be-77676bf235aa"),
+                            ChangedAt = new DateTime(2026, 10, 2, 14, 58, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            FromStatus = "Pending",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000014"),
+                            Reason = "Initiated in Khipu",
+                            ToStatus = "Processing"
+                        },
+                        new
+                        {
+                            Id = new Guid("9bfbb3d4-412d-6600-9482-ef7f1e64220f"),
+                            ChangedAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "KHIPU_WEBHOOK",
+                            FromStatus = "Processing",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000014"),
+                            ToStatus = "Confirmed"
+                        },
+                        new
+                        {
+                            Id = new Guid("a6d6c0cc-1fac-a63b-8645-66bc1026ac62"),
+                            ChangedAt = new DateTime(2026, 10, 2, 12, 58, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "credito@distribuidoraandes.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000060"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000015"),
+                            ToStatus = "Pending"
+                        },
+                        new
+                        {
+                            Id = new Guid("0e2ffe61-7b7a-16d8-e1f5-2abef222143b"),
+                            ChangedAt = new DateTime(2026, 10, 2, 12, 58, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            FromStatus = "Pending",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000015"),
+                            Reason = "Initiated in BancoChile",
+                            ToStatus = "Processing"
+                        },
+                        new
+                        {
+                            Id = new Guid("3104f716-436d-9983-05a7-5c405ba0da9c"),
+                            ChangedAt = new DateTime(2026, 10, 2, 13, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "BANCOCHILE_WEBHOOK",
+                            FromStatus = "Processing",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000015"),
+                            ToStatus = "Confirmed"
+                        },
+                        new
+                        {
+                            Id = new Guid("50ab39f7-389c-6890-6be1-b75d01f3f8db"),
+                            ChangedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "credito@distribuidoraandes.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000060"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000016"),
+                            ToStatus = "Pending"
+                        },
+                        new
+                        {
+                            Id = new Guid("1af9cc34-5b6c-90f4-9ca9-19f7778bdc57"),
+                            ChangedAt = new DateTime(2026, 10, 3, 10, 30, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "credito@distribuidoraandes.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000060"),
+                            FromStatus = "Pending",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000016"),
+                            Reason = "Imputed to the credit line (M5-10)",
+                            ToStatus = "Confirmed"
+                        },
+                        new
+                        {
+                            Id = new Guid("37ca6d78-0244-c1a5-6957-90caa071b341"),
+                            ChangedAt = new DateTime(2026, 10, 1, 13, 57, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "agente@maritimpacifico.cl",
+                            ChangedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000030"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            ToStatus = "Pending"
+                        },
+                        new
+                        {
+                            Id = new Guid("a6a9cbb7-07b5-921b-cd4e-2115cf99b383"),
+                            ChangedAt = new DateTime(2026, 10, 1, 13, 57, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "SYSTEM",
+                            FromStatus = "Pending",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            Reason = "Initiated in Khipu",
+                            ToStatus = "Processing"
+                        },
+                        new
+                        {
+                            Id = new Guid("9528ce39-c13b-df80-2b2d-4c89e9bed794"),
+                            ChangedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            ChangedBy = "KHIPU_WEBHOOK",
+                            FromStatus = "Processing",
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            ToStatus = "Confirmed"
                         });
                 });
 
@@ -8738,6 +12158,122 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Id = new Guid("c2c32ec5-cb1d-c50e-2302-d037eec631e9"),
                             Code = "payment-blocks.manage",
                             Description = "payment-blocks.manage"
+                        },
+                        new
+                        {
+                            Id = new Guid("61285041-197b-46ea-7ea3-57f2c557eba3"),
+                            Code = "service-requests.process",
+                            Description = "service-requests.process"
+                        },
+                        new
+                        {
+                            Id = new Guid("83a1a2ee-e56f-cd4e-d5f5-47e46234fa75"),
+                            Code = "admin-area.access",
+                            Description = "admin-area.access"
+                        },
+                        new
+                        {
+                            Id = new Guid("fb1e2d86-80da-a74a-d175-d17668f16149"),
+                            Code = "impersonation.use",
+                            Description = "impersonation.use"
+                        },
+                        new
+                        {
+                            Id = new Guid("4d5a28c9-edc7-c3ae-e185-e86340b1787a"),
+                            Code = "announcements.manage",
+                            Description = "announcements.manage"
+                        },
+                        new
+                        {
+                            Id = new Guid("19a63320-87df-605a-721c-5740ad587879"),
+                            Code = "counter.manage",
+                            Description = "counter.manage"
+                        },
+                        new
+                        {
+                            Id = new Guid("91d410af-6706-1491-a2c4-b06a18c8ec72"),
+                            Code = "transactions-report.view",
+                            Description = "transactions-report.view"
+                        },
+                        new
+                        {
+                            Id = new Guid("4e1a9a66-9f8f-e94f-f54e-45976fd5f9ec"),
+                            Code = "api-clients.manage",
+                            Description = "api-clients.manage"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ReleaseLetterRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CarrierOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("DocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LegalEntityType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("ServiceRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool?>("TatcAvailableAtApproval")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("TatcAvailableAtSubmission")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("TatcCheckedAtApproval")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("TatcCheckedAtSubmission")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TatcErrorAtApproval")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TatcErrorAtSubmission")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TatcSnapshotAtApproval")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TatcSnapshotAtSubmission")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TatcStatusAtApproval")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TatcStatusAtSubmission")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceRequestId")
+                        .IsUnique();
+
+                    b.ToTable("ReleaseLetterRequests", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0032-0032-0032-000000000001"),
+                            LegalEntityType = "COMPANY",
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000011"),
+                            TatcAvailableAtSubmission = true,
+                            TatcCheckedAtSubmission = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            TatcSnapshotAtSubmission = "[{\"containerNumber\":\"HLXU8899001\",\"status\":\"NotIssued\",\"sourceStatus\":\"NOT_ISSUED\",\"tatcNumber\":null,\"pendingReasons\":[\"PAYMENT_PENDING\",\"MHD_PENDING\"]}]",
+                            TatcStatusAtSubmission = "NotIssued"
                         });
                 });
 
@@ -9038,6 +12574,30 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Id = new Guid("5930f642-9936-0c5d-e985-2746431ae506"),
                             PermissionId = new Guid("2477f174-66b3-8275-4ef4-b84902cdbb81"),
                             RoleId = new Guid("227e87c5-a8d9-51c6-e0e9-373dc6d2c60b")
+                        },
+                        new
+                        {
+                            Id = new Guid("ce8e714c-3cbb-8ef0-770c-dd6d3a6377c8"),
+                            PermissionId = new Guid("83a1a2ee-e56f-cd4e-d5f5-47e46234fa75"),
+                            RoleId = new Guid("e5fafd0d-29c5-637b-6ab4-d7abc98e1c8a")
+                        },
+                        new
+                        {
+                            Id = new Guid("fd71bfe7-2fba-41ab-5548-ccdf4539f4df"),
+                            PermissionId = new Guid("19a63320-87df-605a-721c-5740ad587879"),
+                            RoleId = new Guid("e5fafd0d-29c5-637b-6ab4-d7abc98e1c8a")
+                        },
+                        new
+                        {
+                            Id = new Guid("243b1584-1695-7ee6-9356-12ca13425aaf"),
+                            PermissionId = new Guid("83a1a2ee-e56f-cd4e-d5f5-47e46234fa75"),
+                            RoleId = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556")
+                        },
+                        new
+                        {
+                            Id = new Guid("8d7f6b98-d232-0652-9708-e433e7f80ba1"),
+                            PermissionId = new Guid("91d410af-6706-1491-a2c4-b06a18c8ec72"),
+                            RoleId = new Guid("3bb3e862-e9d1-77dd-9c69-b1c097511556")
                         });
                 });
 
@@ -9095,6 +12655,668 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsUnique();
 
                     b.ToTable("SecretCredentials", (string)null);
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionCode")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<bool>("AllowMultiplePerBl")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ApprovalTeam")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("AvailabilityWindow")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<bool>("BillingDataRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ChargeConceptCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Countries")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("DeadlineRuleCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("DescriptionEs")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("ExcludeShipperOwnedContainers")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ExemptionConcept")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("FulfillmentTeam")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("InputSchemaJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LateTariffCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("MeasureFieldKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Milestone")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int>("MilestoneOffsetHours")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("NameEs")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Operations")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("PricingMode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("QuantityMode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ReferenceType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("RequiredBlStatuses")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<bool>("RequiresContainers")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RequiresOutputDocument")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("TariffAcceptanceRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("TariffCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<bool>("Taxable")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("TimingRule")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("IsActive", "DisplayOrder");
+
+                    b.ToTable("ServiceDefinitions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("b75305ad-33dc-5c3e-6831-1b8aedfc9756"),
+                            ActionCode = "local-charges-on-demand.pay",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "BeforeDeparture",
+                            BillingDataRequired = true,
+                            ChargeConceptCode = "SEAL_MANAGEMENT",
+                            Code = "SEAL_MANAGEMENT",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Seal data entry for the booking; provided after payment (M3-07).",
+                            DescriptionEs = "Ingreso de los datos de sellos del booking; se presta tras el pago (M3-07, CL-EXP-09).",
+                            DisplayOrder = 10,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "CustomerService",
+                            InputSchemaJson = "[{\"key\":\"containers\",\"labelEs\":\"Contenedores\",\"labelEn\":\"Containers\",\"type\":\"containers\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"sealNumbers\",\"labelEs\":\"N\\u00FAmeros de sello\",\"labelEn\":\"Seal numbers\",\"type\":\"text\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":500,\"helpEs\":null,\"helpEn\":null},{\"key\":\"observations\",\"labelEs\":\"Observaciones\",\"labelEn\":\"Remarks\",\"type\":\"textarea\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":1000,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "Seal management",
+                            NameEs = "Gestión de sellos",
+                            Operations = "EXPORT",
+                            PricingMode = "Tariff",
+                            QuantityMode = "PerContainer",
+                            ReferenceType = "Booking",
+                            RequiresContainers = true,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = true,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("7eb0b617-bc72-a0a1-a533-93df4e8d1d6e"),
+                            ActionCode = "local-charges-on-demand.pay",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "BeforeDeparture",
+                            BillingDataRequired = true,
+                            ChargeConceptCode = "LATE_ARRIVAL",
+                            Code = "LATE_ARRIVAL",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Container delivery after the receiving cut-off; tiered by hours late; provided after payment (M3-08).",
+                            DescriptionEs = "Ingreso de unidades después del cierre de recepción; tarifa por tramos de horas de atraso; se presta tras el pago (M3-08, CL-EXP-10).",
+                            DisplayOrder = 20,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "CustomerService",
+                            InputSchemaJson = "[{\"key\":\"containers\",\"labelEs\":\"Contenedores\",\"labelEn\":\"Containers\",\"type\":\"containers\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"hours\",\"labelEs\":\"Horas de atraso respecto del cierre\",\"labelEn\":\"Hours after the cut-off\",\"type\":\"number\",\"required\":true,\"options\":null,\"min\":1,\"max\":240,\"integer\":true,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"observations\",\"labelEs\":\"Observaciones\",\"labelEn\":\"Remarks\",\"type\":\"textarea\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":1000,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            MeasureFieldKey = "hours",
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "Late Arrival",
+                            NameEs = "Late Arrival",
+                            Operations = "EXPORT",
+                            PricingMode = "Tariff",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "Booking",
+                            RequiresContainers = true,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = false,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("23d06884-598b-bc4f-1cef-a28759ac8f70"),
+                            ActionCode = "local-charges-on-demand.pay",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "BeforeDeparture",
+                            BillingDataRequired = true,
+                            ChargeConceptCode = "EARLY_ARRIVAL",
+                            Code = "EARLY_ARRIVAL",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Container delivery before the stacking opens; tiered by days early; provided after payment (M3-08).",
+                            DescriptionEs = "Ingreso anticipado de unidades antes de la apertura del stacking; tarifa por tramos de días; se presta tras el pago (M3-08).",
+                            DisplayOrder = 30,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "CustomerService",
+                            InputSchemaJson = "[{\"key\":\"containers\",\"labelEs\":\"Contenedores\",\"labelEn\":\"Containers\",\"type\":\"containers\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"days\",\"labelEs\":\"D\\u00EDas de anticipaci\\u00F3n\",\"labelEn\":\"Days early\",\"type\":\"number\",\"required\":true,\"options\":null,\"min\":1,\"max\":30,\"integer\":true,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"observations\",\"labelEs\":\"Observaciones\",\"labelEn\":\"Remarks\",\"type\":\"textarea\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":1000,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            MeasureFieldKey = "days",
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "Early arrival",
+                            NameEs = "Early",
+                            Operations = "EXPORT",
+                            PricingMode = "Tariff",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "Booking",
+                            RequiresContainers = true,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = false,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("8991b39b-f6dc-fa22-f2cf-cdaae3287f4b"),
+                            ActionCode = "drop-off.request",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "ED",
+                            AvailabilityWindow = "AfterArrival",
+                            BillingDataRequired = true,
+                            ChargeConceptCode = "DROP_OFF",
+                            Code = "DROP_OFF_SCL",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Container return in Santiago: the customer selects the units, accepts the tariff and the ED team approves or rejects (M3-09).",
+                            DescriptionEs = "Devolución de contenedores en Santiago: el cliente elige las unidades, acepta la tarifa y el equipo ED aprueba o rechaza (M3-09, CL-IMP-10).",
+                            DisplayOrder = 40,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "None",
+                            InputSchemaJson = "[{\"key\":\"containers\",\"labelEs\":\"Contenedores\",\"labelEn\":\"Containers\",\"type\":\"containers\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"returnDate\",\"labelEs\":\"Fecha de devoluci\\u00F3n\",\"labelEn\":\"Return date\",\"type\":\"date\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"depot\",\"labelEs\":\"Dep\\u00F3sito de devoluci\\u00F3n\",\"labelEn\":\"Return depot\",\"type\":\"select\",\"required\":true,\"options\":[{\"value\":\"SCL_PUDAHUEL\",\"labelEs\":\"Dep\\u00F3sito Pudahuel\",\"labelEn\":\"Pudahuel depot\"},{\"value\":\"SCL_QUILICURA\",\"labelEs\":\"Dep\\u00F3sito Quilicura\",\"labelEn\":\"Quilicura depot\"},{\"value\":\"SCL_SAN_BERNARDO\",\"labelEs\":\"Dep\\u00F3sito San Bernardo\",\"labelEn\":\"San Bernardo depot\"}],\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"observations\",\"labelEs\":\"Observaciones\",\"labelEn\":\"Remarks\",\"type\":\"textarea\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":1000,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "Drop Off SCL",
+                            NameEs = "Drop Off SCL",
+                            Operations = "IMPORT",
+                            PricingMode = "Tariff",
+                            QuantityMode = "PerContainer",
+                            ReferenceType = "BL",
+                            RequiresContainers = true,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = true,
+                            Taxable = true,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("1f4a4958-c841-daef-756a-b040b2014e4a"),
+                            ActionCode = "local-charges-on-demand.pay",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "Always",
+                            BillingDataRequired = true,
+                            ChargeConceptCode = "XOM",
+                            Code = "XOM",
+                            Countries = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Per-unit charge in bolivianos for the Bolivia operation; waived by a Nexus exception (XOM) and for shipper-owned units (M3-10).",
+                            DescriptionEs = "Cargo por unidad en bolivianos para la operación de Bolivia; no se cobra con una excepción vigente en Nexus (XOM) ni a las unidades del embarcador (SOC) (M3-10, BO-EXP-02, BO-IMP-04).",
+                            DisplayOrder = 50,
+                            ExcludeShipperOwnedContainers = true,
+                            ExemptionConcept = "XOM",
+                            FulfillmentTeam = "None",
+                            InputSchemaJson = "[{\"key\":\"containers\",\"labelEs\":\"Contenedores\",\"labelEn\":\"Containers\",\"type\":\"containers\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "Container administration (XOM)",
+                            NameEs = "Administración de contenedor (XOM)",
+                            Operations = "IMPORT,EXPORT",
+                            PricingMode = "Tariff",
+                            QuantityMode = "PerContainer",
+                            ReferenceType = "BL",
+                            RequiresContainers = true,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = false,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("37f4f7a0-8da4-c832-bb22-7d2009de5dad"),
+                            ActionCode = "local-charges-on-demand.pay",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "Always",
+                            BillingDataRequired = true,
+                            ChargeConceptCode = "BL_CORRECTION",
+                            Code = "BL_CORRECTION",
+                            Countries = "CL,BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Request and payment of BL corrections or clarifications, with status tracking; handled by Customer Service after payment (M3-12).",
+                            DescriptionEs = "Solicitud y pago de correcciones o aclaraciones del BL, con seguimiento de su estado; Customer Service la atiende tras el pago (M3-12).",
+                            DisplayOrder = 60,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "CustomerService",
+                            InputSchemaJson = "[{\"key\":\"requestType\",\"labelEs\":\"Tipo de solicitud\",\"labelEn\":\"Request type\",\"type\":\"select\",\"required\":true,\"options\":[{\"value\":\"CORRECTION\",\"labelEs\":\"Correcci\\u00F3n\",\"labelEn\":\"Correction\"},{\"value\":\"CLARIFICATION\",\"labelEs\":\"Aclaraci\\u00F3n\",\"labelEn\":\"Clarification\"}],\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"section\",\"labelEs\":\"Secci\\u00F3n del BL\",\"labelEn\":\"BL section\",\"type\":\"select\",\"required\":true,\"options\":[{\"value\":\"SHIPPER\",\"labelEs\":\"Embarcador\",\"labelEn\":\"Shipper\"},{\"value\":\"CONSIGNEE\",\"labelEs\":\"Consignatario\",\"labelEn\":\"Consignee\"},{\"value\":\"NOTIFY\",\"labelEs\":\"Notificar a\",\"labelEn\":\"Notify party\"},{\"value\":\"CARGO\",\"labelEs\":\"Descripci\\u00F3n de la carga\",\"labelEn\":\"Cargo description\"},{\"value\":\"CONTAINERS\",\"labelEs\":\"Contenedores y sellos\",\"labelEn\":\"Containers and seals\"},{\"value\":\"FREIGHT\",\"labelEs\":\"Flete\",\"labelEn\":\"Freight\"},{\"value\":\"OTHER\",\"labelEs\":\"Otra\",\"labelEn\":\"Other\"}],\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"description\",\"labelEs\":\"Detalle de la correcci\\u00F3n o aclaraci\\u00F3n\",\"labelEn\":\"Correction or clarification details\",\"type\":\"textarea\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":2000,\"helpEs\":null,\"helpEn\":null},{\"key\":\"supportingDocument\",\"labelEs\":\"Documento de respaldo\",\"labelEn\":\"Supporting document\",\"type\":\"file\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "BL correction or clarification",
+                            NameEs = "Corrección o aclaración de BL",
+                            Operations = "IMPORT,EXPORT",
+                            PricingMode = "Tariff",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "BL",
+                            RequiresContainers = false,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = true,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("6e03d8d0-8670-c1cf-46a4-5248d899b57e"),
+                            ActionCode = "local-charges-on-demand.pay",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "AfterDeparture",
+                            BillingDataRequired = true,
+                            ChargeConceptCode = "BL_HOUSE_TRANSMISSION",
+                            Code = "BL_HOUSE_TRANSMISSION",
+                            Countries = "CL,BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DeadlineRuleCode = "BL_EMPTY_OUT",
+                            DescriptionEn = "Export house BL transmission in time or late: the deadline is the customs one of the BL or its manifest (BL_EMPTY_OUT) or, without it, departure plus 72 hours; late transmissions are tiered by hours (M3-13).",
+                            DescriptionEs = "Transmisión de BL hijo de exportación dentro o fuera de plazo: el plazo es el aduanero del BL o de su manifiesto (BL_EMPTY_OUT) o, sin él, el zarpe más 72 horas; fuera de plazo se cobra por tramos de horas (M3-13).",
+                            DisplayOrder = 70,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "CustomerService",
+                            InputSchemaJson = "[{\"key\":\"houseBlNumbers\",\"labelEs\":\"N\\u00FAmeros de BL hijo\",\"labelEn\":\"House BL numbers\",\"type\":\"text\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":500,\"helpEs\":null,\"helpEn\":null},{\"key\":\"observations\",\"labelEs\":\"Observaciones\",\"labelEn\":\"Remarks\",\"type\":\"textarea\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":1000,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            LateTariffCode = "FUERA_PLAZO",
+                            Milestone = "CustomsDeadline",
+                            MilestoneOffsetHours = 72,
+                            NameEn = "House BL transmission",
+                            NameEs = "Transmisión de BL hijo",
+                            Operations = "EXPORT",
+                            PricingMode = "Tariff",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "BL",
+                            RequiresContainers = false,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            TariffCode = "PLAZO",
+                            Taxable = false,
+                            TimingRule = "InTimeAndLate"
+                        },
+                        new
+                        {
+                            Id = new Guid("cf38fc5e-d7af-910b-aba2-ea8ddde3e9d7"),
+                            ActionCode = "local-charges-on-demand.pay",
+                            AllowMultiplePerBl = false,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "Always",
+                            BillingDataRequired = true,
+                            ChargeConceptCode = "MATRIX_LATE",
+                            Code = "MATRIX_LATE",
+                            Countries = "CL,BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Charge for submitting the matrix after the deadline (48 hours before departure until Nexus reports document deadlines, M2-10); tiered by days since the deadline (M3-14).",
+                            DescriptionEs = "Cobro por presentar la matriz después del plazo (48 horas antes del zarpe mientras Nexus no informe los plazos documentales, M2-10); tarifa por tramos de días desde el plazo (M3-14).",
+                            DisplayOrder = 80,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "None",
+                            InputSchemaJson = "[{\"key\":\"observations\",\"labelEs\":\"Observaciones\",\"labelEn\":\"Remarks\",\"type\":\"textarea\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":1000,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            Milestone = "VesselDeparture",
+                            MilestoneOffsetHours = -48,
+                            NameEn = "Late matrix submission",
+                            NameEs = "Matriz fuera de plazo",
+                            Operations = "EXPORT",
+                            PricingMode = "Tariff",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "BL",
+                            RequiresContainers = false,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = false,
+                            TimingRule = "LateOnly"
+                        },
+                        new
+                        {
+                            Id = new Guid("4c67c42c-973f-bad8-3b14-d35c9df6cc01"),
+                            ActionCode = "local-charges-mandatory.pay",
+                            AllowMultiplePerBl = false,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "Always",
+                            BillingDataRequired = false,
+                            ChargeConceptCode = "GATE_IN",
+                            Code = "GATE_IN_RETURN",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "The customer selects the booking and sees its units; the charge is the Gate In registered in the source system, with Nexus exemptions (M3-15).",
+                            DescriptionEs = "El cliente selecciona el booking y ve sus unidades; el cargo es el Gate In registrado en el sistema de origen, con las exenciones de Nexus (M3-15, CL-EXP-07).",
+                            DisplayOrder = 90,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "None",
+                            InputSchemaJson = "[{\"key\":\"containers\",\"labelEs\":\"Contenedores\",\"labelEn\":\"Containers\",\"type\":\"containers\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "Gate In for returned export units",
+                            NameEs = "Gate In por devolución de unidades",
+                            Operations = "EXPORT",
+                            PricingMode = "SourceCharge",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "Booking",
+                            RequiresContainers = true,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = true,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("62db1148-8639-1e56-909e-ec8eaaa7d035"),
+                            ActionCode = "local-charges-mandatory.pay",
+                            AllowMultiplePerBl = false,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "Always",
+                            BillingDataRequired = false,
+                            ChargeConceptCode = "OPENING",
+                            Code = "OPENING",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "CL-IMP-05 mapped to the standard model: source-system charge with Nexus rules. Inactive: currently paid as a local charge.",
+                            DescriptionEs = "Homologación de CL-IMP-05 con el modelo estándar: cargo del sistema de origen con reglas de Nexus. Inactiva: hoy se paga como recargo local.",
+                            DisplayOrder = 100,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "None",
+                            InputSchemaJson = "[]",
+                            IsActive = false,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "Opening",
+                            NameEs = "Apertura",
+                            Operations = "IMPORT",
+                            PricingMode = "SourceCharge",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "BL",
+                            RequiresContainers = false,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = true,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("5d3115fa-f98b-ad3c-43e1-390bdb3261c3"),
+                            ActionCode = "local-charges-mandatory.pay",
+                            AllowMultiplePerBl = false,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "Always",
+                            BillingDataRequired = false,
+                            ChargeConceptCode = "VALUATION",
+                            Code = "VALUATION",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "CL-IMP-06 mapped to the standard model: source-system charge with Nexus rules. Inactive: currently paid as a local charge.",
+                            DescriptionEs = "Homologación de CL-IMP-06 con el modelo estándar: cargo del sistema de origen con reglas de Nexus. Inactiva: hoy se paga como recargo local.",
+                            DisplayOrder = 110,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "None",
+                            InputSchemaJson = "[]",
+                            IsActive = false,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "Valuation",
+                            NameEs = "Valorización",
+                            Operations = "IMPORT",
+                            PricingMode = "SourceCharge",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "BL",
+                            RequiresContainers = false,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = true,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0022-0022-0022-000000000001"),
+                            ActionCode = "local-charges-on-demand.pay",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "Always",
+                            BillingDataRequired = true,
+                            ChargeConceptCode = "REINVOICING",
+                            Code = "IAO_REINVOICING",
+                            Countries = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Re-invoicing of an issued invoice to a new legal entity: the customer enters the new billing data and attaches the new entity's approval; the re-invoicing fee and the VAT loss are paid together, and the invoice is issued only after the new legal entity accepts the charge (M3-11). Requested from the invoice.",
+                            DescriptionEs = "Refacturación de una factura emitida a una nueva razón social: el cliente registra los nuevos datos de facturación y adjunta la aprobación de la nueva razón social; se cobran juntos la refacturación y la pérdida de IVA, y la factura se emite solo con la aceptación del cobro por la nueva razón social (M3-11, CL-EXP-11, CL-IMP-09). Se solicita desde la factura.",
+                            DisplayOrder = 120,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "None",
+                            InputSchemaJson = "[{\"key\":\"newCompanyApproval\",\"labelEs\":\"Aprobaci\\u00F3n de la nueva raz\\u00F3n social\",\"labelEn\":\"Approval of the new legal entity\",\"type\":\"file\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"reason\",\"labelEs\":\"Motivo de la refacturaci\\u00F3n\",\"labelEn\":\"Reason for the re-invoicing\",\"type\":\"textarea\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":1000,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "IAO re-invoicing and VAT loss",
+                            NameEs = "Refacturación IAO y pérdida de IVA",
+                            Operations = "IMPORT,EXPORT",
+                            PricingMode = "Tariff",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "BL",
+                            RequiresContainers = false,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = true,
+                            Taxable = true,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0022-0022-0022-000000000002"),
+                            ActionCode = "freight-certificate.generate",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "None",
+                            AvailabilityWindow = "Always",
+                            BillingDataRequired = false,
+                            ChargeConceptCode = "FREIGHT_CERTIFICATE",
+                            Code = "FREIGHT_CERTIFICATE",
+                            Countries = "BO",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Freight certificate of the BL for Bolivia imports (M6-02): the customer enters the consignee data and the purpose; the portal issues the signed PDF and e-mails it. First Phase 2 delivery without payment or cart. Requested from the shipment documents.",
+                            DescriptionEs = "Certificado del flete del BL para importación de Bolivia (M6-02, BO-IMP-08): el cliente ingresa los datos del consignatario y la finalidad; el portal emite el PDF firmado y lo envía a su correo. Primera entrega de Fase 2 sin pago ni carro. Se solicita desde los documentos del embarque.",
+                            DisplayOrder = 130,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "None",
+                            InputSchemaJson = "[{\"key\":\"consigneeName\",\"labelEs\":\"Consignatario\",\"labelEn\":\"Consignee\",\"type\":\"text\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":200,\"helpEs\":null,\"helpEn\":null},{\"key\":\"consigneeTaxId\",\"labelEs\":\"NIT del consignatario\",\"labelEn\":\"Consignee tax ID\",\"type\":\"text\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":30,\"helpEs\":null,\"helpEn\":null},{\"key\":\"purpose\",\"labelEs\":\"Finalidad\",\"labelEn\":\"Purpose\",\"type\":\"select\",\"required\":true,\"options\":[{\"value\":\"CUSTOMS\",\"labelEs\":\"Tr\\u00E1mite aduanero\",\"labelEn\":\"Customs clearance\"},{\"value\":\"INSURANCE\",\"labelEs\":\"Seguro de la carga\",\"labelEn\":\"Cargo insurance\"},{\"value\":\"BANK\",\"labelEs\":\"Tr\\u00E1mite bancario\",\"labelEn\":\"Banking\"},{\"value\":\"OTHER\",\"labelEs\":\"Otra\",\"labelEn\":\"Other\"}],\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"recipient\",\"labelEs\":\"Dirigido a\",\"labelEn\":\"Addressed to\",\"type\":\"text\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":200,\"helpEs\":null,\"helpEn\":null},{\"key\":\"notes\",\"labelEs\":\"Observaciones\",\"labelEn\":\"Remarks\",\"type\":\"textarea\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":1000,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "Freight certificate",
+                            NameEs = "Certificado de flete",
+                            Operations = "IMPORT",
+                            PricingMode = "None",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "BL",
+                            RequiresContainers = false,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = false,
+                            TimingRule = "None"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0022-0022-0022-000000000003"),
+                            ActionCode = "release-letter.generate",
+                            AllowMultiplePerBl = true,
+                            ApprovalTeam = "CustomerService",
+                            AvailabilityWindow = "Always",
+                            BillingDataRequired = false,
+                            ChargeConceptCode = "RELEASE_LETTER",
+                            Code = "RELEASE_LETTER",
+                            Countries = "BO",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DescriptionEn = "Release and deconsolidation letter for the selected units, Bolivia imports (M6-08): consignee data by legal entity type and carrier data; the units' TATC is recorded on submission and approval; Customer Service approves it and the letter is issued on approval. No charge. Requested from the shipment documents.",
+                            DescriptionEs = "Carta de liberación y desconsolidado de las unidades seleccionadas, importación de Bolivia (M6-08, BO-IMP-11): datos del consignatario según el tipo de sociedad y del transportista; el TATC de las unidades se registra al enviar y al aprobar; la aprueba Customer Service y la carta se emite al aprobarse. Sin cobro. Se solicita desde los documentos del embarque.",
+                            DisplayOrder = 140,
+                            ExcludeShipperOwnedContainers = false,
+                            FulfillmentTeam = "None",
+                            InputSchemaJson = "[{\"key\":\"containers\",\"labelEs\":\"Contenedores\",\"labelEn\":\"Containers\",\"type\":\"containers\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"legalEntityType\",\"labelEs\":\"Tipo de sociedad\",\"labelEn\":\"Legal entity type\",\"type\":\"select\",\"required\":true,\"options\":[{\"value\":\"COMPANY\",\"labelEs\":\"Empresa\",\"labelEn\":\"Company\"},{\"value\":\"NATURAL_PERSON\",\"labelEs\":\"Persona natural\",\"labelEn\":\"Natural person\"}],\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":null,\"helpEs\":null,\"helpEn\":null},{\"key\":\"consigneeName\",\"labelEs\":\"Consignatario (raz\\u00F3n social o nombre)\",\"labelEn\":\"Consignee (legal name or name)\",\"type\":\"text\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":200,\"helpEs\":null,\"helpEn\":null},{\"key\":\"consigneeTaxId\",\"labelEs\":\"NIT o documento de identidad\",\"labelEn\":\"Tax ID or ID document\",\"type\":\"text\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":30,\"helpEs\":null,\"helpEn\":null},{\"key\":\"consigneeAddress\",\"labelEs\":\"Domicilio\",\"labelEn\":\"Address\",\"type\":\"text\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":300,\"helpEs\":null,\"helpEn\":null},{\"key\":\"legalRepresentativeName\",\"labelEs\":\"Representante legal\",\"labelEn\":\"Legal representative\",\"type\":\"text\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":200,\"helpEs\":null,\"helpEn\":null},{\"key\":\"legalRepresentativeId\",\"labelEs\":\"Documento del representante\",\"labelEn\":\"Representative\\u0027s ID\",\"type\":\"text\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":30,\"helpEs\":null,\"helpEn\":null},{\"key\":\"carrierName\",\"labelEs\":\"Transportista\",\"labelEn\":\"Carrier\",\"type\":\"text\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":200,\"helpEs\":null,\"helpEn\":null},{\"key\":\"carrierTaxId\",\"labelEs\":\"NIT / RUT del transportista\",\"labelEn\":\"Carrier tax ID\",\"type\":\"text\",\"required\":true,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":30,\"helpEs\":null,\"helpEn\":null},{\"key\":\"driverName\",\"labelEs\":\"Conductor\",\"labelEn\":\"Driver\",\"type\":\"text\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":200,\"helpEs\":null,\"helpEn\":null},{\"key\":\"driverId\",\"labelEs\":\"Documento del conductor\",\"labelEn\":\"Driver\\u0027s ID\",\"type\":\"text\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":30,\"helpEs\":null,\"helpEn\":null},{\"key\":\"truckPlate\",\"labelEs\":\"Patente\",\"labelEn\":\"Truck plate\",\"type\":\"text\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":20,\"helpEs\":null,\"helpEn\":null},{\"key\":\"observations\",\"labelEs\":\"Observaciones\",\"labelEn\":\"Remarks\",\"type\":\"textarea\",\"required\":false,\"options\":null,\"min\":null,\"max\":null,\"integer\":false,\"maxLength\":1000,\"helpEs\":null,\"helpEn\":null}]",
+                            IsActive = true,
+                            Milestone = "None",
+                            MilestoneOffsetHours = 0,
+                            NameEn = "Release and deconsolidation letter",
+                            NameEs = "Carta de liberación y desconsolidado",
+                            Operations = "IMPORT",
+                            PricingMode = "None",
+                            QuantityMode = "PerRequest",
+                            ReferenceType = "BL",
+                            RequiresContainers = true,
+                            RequiresOutputDocument = false,
+                            TariffAcceptanceRequired = false,
+                            Taxable = false,
+                            TimingRule = "None"
+                        });
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceOrder", b =>
@@ -9229,6 +13451,1267 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             OrderType = "GateIn",
                             RequestedAt = new DateTime(2026, 10, 15, 9, 0, 0, 0, DateTimeKind.Utc),
                             Status = "Pending"
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AccessGrantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AssignedTeam")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid>("BillOfLadingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BillingActivity")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("BillingAddress")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("BillingEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("BillingName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("BillingTaxId")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("BlNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BookingNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ChargeConceptCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ContainerNumbers")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Currency")
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("DefinitionCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("DefinitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ExemptionReference")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("InputValuesJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsExempt")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("MeasuredUnits")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("MilestoneAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MilestoneSource")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("OnBehalfOfClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PricingDetailJson")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("QuotedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("RejectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RequestNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("RequestedByEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("RequestedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResolutionNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime>("StatusChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("TariffAcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TariffCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid?>("TariffId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TariffSource")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("TierUnit")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("TimelineSequence")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Timing")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefinitionId");
+
+                    b.HasIndex("RequestNumber")
+                        .IsUnique();
+
+                    b.HasIndex("BillOfLadingId", "DefinitionId");
+
+                    b.HasIndex("OrganizationId", "CreatedAt");
+
+                    b.HasIndex("Status", "AssignedTeam");
+
+                    b.ToTable("ServiceRequests", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000001"),
+                            Amount = 180000m,
+                            AssignedTeam = "ED",
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000001"),
+                            BillingActivity = "Importación y distribución",
+                            BillingAddress = "Av. Apoquindo 4500, Las Condes, Santiago",
+                            BillingEmail = "facturacion@importadorademo.cl",
+                            BillingName = "Importadora Demo SpA",
+                            BillingTaxId = "76123456-7",
+                            BlNumber = "HLCUVAL250100123",
+                            BookingNumber = "HLCUBKG2501001",
+                            ChargeConceptCode = "DROP_OFF",
+                            ContainerNumbers = "HLXU1234567",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 13, 55, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            Currency = "CLP",
+                            DefinitionCode = "DROP_OFF_SCL",
+                            DefinitionId = new Guid("8991b39b-f6dc-fa22-f2cf-cdaae3287f4b"),
+                            InputValuesJson = "{\"containers\":[\"HLXU1234567\"],\"returnDate\":\"2026-10-09\",\"depot\":\"SCL_PUDAHUEL\"}",
+                            IsExempt = false,
+                            Operation = "IMPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            PricingDetailJson = "{\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"DROP_OFF\",\"requiresPayment\":true,\"amount\":180000,\"taxAmount\":34200,\"totalAmount\":214200,\"currency\":\"CLP\",\"taxRate\":19,\"quantity\":1,\"tierUnit\":null,\"measuredUnits\":null,\"timing\":\"NotApplicable\",\"milestoneAt\":null,\"milestoneSource\":null,\"tariffId\":\"8f9cd335-f4f6-df32-36b6-94794d2906dc\",\"tariffCode\":null,\"tariffSource\":\"PORTAL\",\"isExempt\":false,\"exemptionReference\":null,\"excludedContainers\":[],\"lines\":[{\"containerNumber\":\"HLXU1234567\",\"containerType\":\"40HC\",\"amount\":180000,\"tariffCode\":null,\"breakdown\":[]}],\"sourceCharges\":[],\"timeZone\":\"America/Santiago\",\"quotedAt\":\"2026-10-05T14:00:00Z\"}",
+                            Quantity = 1,
+                            QuotedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            RequestNumber = "SRV-20261005-5E1A0001",
+                            RequestedByEmail = "demo@importadorademo.cl",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "PendingApproval",
+                            StatusChangedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            SubmittedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            TariffAcceptedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            TariffId = new Guid("8f9cd335-f4f6-df32-36b6-94794d2906dc"),
+                            TariffSource = "PORTAL",
+                            TaxAmount = 34200m,
+                            TimelineSequence = 3,
+                            Timing = "NotApplicable",
+                            TotalAmount = 214200m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000002"),
+                            Amount = 12000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000006"),
+                            BillingActivity = "Importación y distribución",
+                            BillingAddress = "Av. Apoquindo 4500, Las Condes, Santiago",
+                            BillingEmail = "facturacion@importadorademo.cl",
+                            BillingName = "Importadora Demo SpA",
+                            BillingTaxId = "76123456-7",
+                            BlNumber = "HLCUSAI260300610",
+                            BookingNumber = "HLCUBKG2603061",
+                            ChargeConceptCode = "SEAL_MANAGEMENT",
+                            ContainerNumbers = "HLXU2023001",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 14, 57, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            Currency = "CLP",
+                            DefinitionCode = "SEAL_MANAGEMENT",
+                            DefinitionId = new Guid("b75305ad-33dc-5c3e-6831-1b8aedfc9756"),
+                            InputValuesJson = "{\"containers\":[\"HLXU2023001\"],\"sealNumbers\":\"HLS-889120\"}",
+                            IsExempt = false,
+                            Operation = "EXPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            PricingDetailJson = "{\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"SEAL_MANAGEMENT\",\"requiresPayment\":true,\"amount\":12000,\"taxAmount\":2280,\"totalAmount\":14280,\"currency\":\"CLP\",\"taxRate\":19,\"quantity\":1,\"tierUnit\":null,\"measuredUnits\":null,\"timing\":\"NotApplicable\",\"milestoneAt\":null,\"milestoneSource\":null,\"tariffId\":\"08f6a148-a021-357f-11e0-9e263e3bc70e\",\"tariffCode\":null,\"tariffSource\":\"PORTAL\",\"isExempt\":false,\"exemptionReference\":null,\"excludedContainers\":[],\"lines\":[{\"containerNumber\":\"HLXU2023001\",\"containerType\":\"40RF\",\"amount\":12000,\"tariffCode\":null,\"breakdown\":[]}],\"sourceCharges\":[],\"timeZone\":\"America/Santiago\",\"quotedAt\":\"2026-10-05T15:00:00Z\"}",
+                            Quantity = 1,
+                            QuotedAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            RequestNumber = "SRV-20261005-5E1A0002",
+                            RequestedByEmail = "demo@importadorademo.cl",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "PendingPayment",
+                            StatusChangedAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            SubmittedAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            TariffId = new Guid("08f6a148-a021-357f-11e0-9e263e3bc70e"),
+                            TariffSource = "PORTAL",
+                            TaxAmount = 2280m,
+                            TimelineSequence = 3,
+                            Timing = "NotApplicable",
+                            TotalAmount = 14280m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000003"),
+                            Amount = 45000m,
+                            AssignedTeam = "CustomerService",
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000002"),
+                            BillingActivity = "Importación y distribución",
+                            BillingAddress = "Av. Apoquindo 4500, Las Condes, Santiago",
+                            BillingEmail = "facturacion@importadorademo.cl",
+                            BillingName = "Importadora Demo SpA",
+                            BillingTaxId = "76123456-7",
+                            BlNumber = "HLCUVAL250200456",
+                            BookingNumber = "HLCUBKG2502004",
+                            ChargeConceptCode = "BL_CORRECTION",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 50, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            Currency = "CLP",
+                            DefinitionCode = "BL_CORRECTION",
+                            DefinitionId = new Guid("37f4f7a0-8da4-c832-bb22-7d2009de5dad"),
+                            InputValuesJson = "{\"requestType\":\"CORRECTION\",\"section\":\"CONSIGNEE\",\"description\":\"Corregir la dirección del consignatario: Av. Apoquindo 4500, Las Condes, Santiago.\"}",
+                            IsExempt = false,
+                            Operation = "IMPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            PaidAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000014"),
+                            PricingDetailJson = "{\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"BL_CORRECTION\",\"requiresPayment\":true,\"amount\":45000,\"taxAmount\":8550,\"totalAmount\":53550,\"currency\":\"CLP\",\"taxRate\":19,\"quantity\":1,\"tierUnit\":null,\"measuredUnits\":null,\"timing\":\"NotApplicable\",\"milestoneAt\":null,\"milestoneSource\":null,\"tariffId\":\"4f0226d1-eabb-3e9f-6355-41589b2ceb4a\",\"tariffCode\":null,\"tariffSource\":\"PORTAL\",\"isExempt\":false,\"exemptionReference\":null,\"excludedContainers\":[],\"lines\":[{\"containerNumber\":null,\"containerType\":null,\"amount\":45000,\"tariffCode\":null,\"breakdown\":[]}],\"sourceCharges\":[],\"timeZone\":\"America/Santiago\",\"quotedAt\":\"2026-10-01T13:00:00Z\"}",
+                            Quantity = 1,
+                            QuotedAt = new DateTime(2026, 10, 1, 13, 0, 0, 0, DateTimeKind.Utc),
+                            RequestNumber = "SRV-20261001-5E1A0003",
+                            RequestedByEmail = "demo@importadorademo.cl",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "InProgress",
+                            StatusChangedAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            SubmittedAt = new DateTime(2026, 10, 1, 13, 0, 0, 0, DateTimeKind.Utc),
+                            TariffId = new Guid("4f0226d1-eabb-3e9f-6355-41589b2ceb4a"),
+                            TariffSource = "PORTAL",
+                            TaxAmount = 8550m,
+                            TimelineSequence = 5,
+                            Timing = "NotApplicable",
+                            TotalAmount = 53550m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000004"),
+                            Amount = 120m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000016"),
+                            BillingActivity = "Importación y distribución",
+                            BillingAddress = "Av. Apoquindo 4500, Las Condes, Santiago",
+                            BillingEmail = "facturacion@importadorademo.cl",
+                            BillingName = "Importadora Demo SpA",
+                            BillingTaxId = "76123456-7",
+                            BlNumber = "HLCUSAI260901610",
+                            BookingNumber = "HLCUBKG2609161",
+                            ChargeConceptCode = "BL_HOUSE_TRANSMISSION",
+                            CompletedAt = new DateTime(2026, 10, 3, 10, 0, 0, 0, DateTimeKind.Utc),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 2, 11, 56, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            Currency = "USD",
+                            DefinitionCode = "BL_HOUSE_TRANSMISSION",
+                            DefinitionId = new Guid("6e03d8d0-8670-c1cf-46a4-5248d899b57e"),
+                            InputValuesJson = "{\"houseBlNumbers\":\"HLCUSAI26090161A, HLCUSAI26090161B\"}",
+                            IsExempt = false,
+                            MeasuredUnits = 36,
+                            MilestoneAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            MilestoneSource = "ETD",
+                            Operation = "EXPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            PaidAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000014"),
+                            PricingDetailJson = "{\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"BL_HOUSE_TRANSMISSION\",\"requiresPayment\":true,\"amount\":120,\"taxAmount\":0,\"totalAmount\":120,\"currency\":\"USD\",\"taxRate\":0,\"quantity\":1,\"tierUnit\":\"Hours\",\"measuredUnits\":36,\"timing\":\"Late\",\"milestoneAt\":\"2026-10-01T00:00:00Z\",\"milestoneSource\":\"ETD\",\"tariffId\":\"b023bef2-0e70-2988-f28c-2da684ab098e\",\"tariffCode\":\"FUERA_PLAZO\",\"tariffSource\":\"PORTAL\",\"isExempt\":false,\"exemptionReference\":null,\"excludedContainers\":[],\"lines\":[{\"containerNumber\":null,\"containerType\":null,\"amount\":120,\"tariffCode\":\"FUERA_PLAZO\",\"breakdown\":[{\"fromUnit\":25,\"toUnit\":72,\"units\":1,\"unitAmount\":120,\"amount\":120}]}],\"sourceCharges\":[],\"timeZone\":\"America/Santiago\",\"quotedAt\":\"2026-10-02T12:00:00Z\"}",
+                            Quantity = 1,
+                            QuotedAt = new DateTime(2026, 10, 2, 12, 0, 0, 0, DateTimeKind.Utc),
+                            RequestNumber = "SRV-20261002-5E1A0004",
+                            RequestedByEmail = "demo@importadorademo.cl",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            ResolutionNotes = "BL hijo transmitido y aceptado por Aduana.",
+                            Status = "Completed",
+                            StatusChangedAt = new DateTime(2026, 10, 3, 10, 0, 0, 0, DateTimeKind.Utc),
+                            SubmittedAt = new DateTime(2026, 10, 2, 12, 0, 0, 0, DateTimeKind.Utc),
+                            TariffCode = "FUERA_PLAZO",
+                            TariffId = new Guid("b023bef2-0e70-2988-f28c-2da684ab098e"),
+                            TariffSource = "PORTAL",
+                            TaxAmount = 0m,
+                            TierUnit = "Hours",
+                            TimelineSequence = 6,
+                            Timing = "Late",
+                            TotalAmount = 120m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000005"),
+                            Amount = 180000m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000009"),
+                            BillingActivity = "Importación y distribución",
+                            BillingAddress = "Av. Apoquindo 4500, Las Condes, Santiago",
+                            BillingEmail = "facturacion@importadorademo.cl",
+                            BillingName = "Importadora Demo SpA",
+                            BillingTaxId = "76123456-7",
+                            BlNumber = "HLCUSAI260400910",
+                            BookingNumber = "HLCUBKG2604091",
+                            ChargeConceptCode = "DROP_OFF",
+                            ContainerNumbers = "HLXU3034001",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 3, 9, 54, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            Currency = "CLP",
+                            DefinitionCode = "DROP_OFF_SCL",
+                            DefinitionId = new Guid("8991b39b-f6dc-fa22-f2cf-cdaae3287f4b"),
+                            InputValuesJson = "{\"containers\":[\"HLXU3034001\"],\"returnDate\":\"2026-10-06\",\"depot\":\"SCL_QUILICURA\"}",
+                            IsExempt = false,
+                            Operation = "IMPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            PricingDetailJson = "{\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"DROP_OFF\",\"requiresPayment\":true,\"amount\":180000,\"taxAmount\":34200,\"totalAmount\":214200,\"currency\":\"CLP\",\"taxRate\":19,\"quantity\":1,\"tierUnit\":null,\"measuredUnits\":null,\"timing\":\"NotApplicable\",\"milestoneAt\":null,\"milestoneSource\":null,\"tariffId\":\"8f9cd335-f4f6-df32-36b6-94794d2906dc\",\"tariffCode\":null,\"tariffSource\":\"PORTAL\",\"isExempt\":false,\"exemptionReference\":null,\"excludedContainers\":[],\"lines\":[{\"containerNumber\":\"HLXU3034001\",\"containerType\":\"40HC\",\"amount\":180000,\"tariffCode\":null,\"breakdown\":[]}],\"sourceCharges\":[],\"timeZone\":\"America/Santiago\",\"quotedAt\":\"2026-10-03T10:00:00Z\"}",
+                            Quantity = 1,
+                            QuotedAt = new DateTime(2026, 10, 3, 10, 0, 0, 0, DateTimeKind.Utc),
+                            RejectedAt = new DateTime(2026, 10, 3, 16, 0, 0, 0, DateTimeKind.Utc),
+                            RequestNumber = "SRV-20261003-5E1A0005",
+                            RequestedByEmail = "demo@importadorademo.cl",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            ResolutionNotes = "El depósito Quilicura no recibe unidades 40HC esta semana; solicite la devolución en Pudahuel.",
+                            Status = "Rejected",
+                            StatusChangedAt = new DateTime(2026, 10, 3, 16, 0, 0, 0, DateTimeKind.Utc),
+                            SubmittedAt = new DateTime(2026, 10, 3, 10, 0, 0, 0, DateTimeKind.Utc),
+                            TariffAcceptedAt = new DateTime(2026, 10, 3, 10, 0, 0, 0, DateTimeKind.Utc),
+                            TariffId = new Guid("8f9cd335-f4f6-df32-36b6-94794d2906dc"),
+                            TariffSource = "PORTAL",
+                            TaxAmount = 34200m,
+                            TimelineSequence = 4,
+                            Timing = "NotApplicable",
+                            TotalAmount = 214200m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000006"),
+                            Amount = 0m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000006"),
+                            BillingActivity = "Importación y distribución",
+                            BillingAddress = "Av. Apoquindo 4500, Las Condes, Santiago",
+                            BillingEmail = "facturacion@importadorademo.cl",
+                            BillingName = "Importadora Demo SpA",
+                            BillingTaxId = "76123456-7",
+                            BlNumber = "HLCUSAI260300610",
+                            BookingNumber = "HLCUBKG2603061",
+                            CancelledAt = new DateTime(2026, 10, 4, 11, 20, 0, 0, DateTimeKind.Utc),
+                            ContainerNumbers = "HLXU2023001",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 4, 11, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            DefinitionCode = "LATE_ARRIVAL",
+                            DefinitionId = new Guid("7eb0b617-bc72-a0a1-a533-93df4e8d1d6e"),
+                            InputValuesJson = "{\"containers\":[\"HLXU2023001\"],\"hours\":30}",
+                            IsExempt = false,
+                            Operation = "EXPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Quantity = 1,
+                            RequestNumber = "SRV-20261004-5E1A0006",
+                            RequestedByEmail = "demo@importadorademo.cl",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "Cancelled",
+                            StatusChangedAt = new DateTime(2026, 10, 4, 11, 20, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 0m,
+                            TimelineSequence = 2,
+                            TotalAmount = 0m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000007"),
+                            Amount = 0m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000005"),
+                            BillingActivity = "Comercio exterior",
+                            BillingAddress = "Av. Arce 2631, La Paz",
+                            BillingEmail = "facturacion@altiplano.bo",
+                            BillingName = "Comercial Altiplano SRL",
+                            BillingTaxId = "1023456017",
+                            BlNumber = "HLCUIQQ260200078",
+                            BookingNumber = "HLCUBKG2602078",
+                            ChargeConceptCode = "XOM",
+                            CompletedAt = new DateTime(2026, 10, 4, 15, 0, 0, 0, DateTimeKind.Utc),
+                            ContainerNumbers = "HLXU5566779",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 4, 14, 58, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@altiplano.bo",
+                            DefinitionCode = "XOM",
+                            DefinitionId = new Guid("1f4a4958-c841-daef-756a-b040b2014e4a"),
+                            ExemptionReference = "SOC:HLXU5566779",
+                            InputValuesJson = "{\"containers\":[\"HLXU5566779\"]}",
+                            IsExempt = true,
+                            Operation = "IMPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            PricingDetailJson = "{\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"XOM\",\"requiresPayment\":false,\"amount\":0,\"taxAmount\":0,\"totalAmount\":0,\"currency\":null,\"taxRate\":0,\"quantity\":0,\"tierUnit\":null,\"measuredUnits\":null,\"timing\":\"NotApplicable\",\"milestoneAt\":null,\"milestoneSource\":null,\"tariffId\":null,\"tariffCode\":null,\"tariffSource\":null,\"isExempt\":true,\"exemptionReference\":\"SOC:HLXU5566779\",\"excludedContainers\":[\"HLXU5566779\"],\"lines\":[],\"sourceCharges\":[],\"timeZone\":\"America/La_Paz\",\"quotedAt\":\"2026-10-04T15:00:00Z\"}",
+                            Quantity = 0,
+                            QuotedAt = new DateTime(2026, 10, 4, 15, 0, 0, 0, DateTimeKind.Utc),
+                            RequestNumber = "SRV-20261004-5E1A0007",
+                            RequestedByEmail = "demo@altiplano.bo",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            Status = "Completed",
+                            StatusChangedAt = new DateTime(2026, 10, 4, 15, 0, 0, 0, DateTimeKind.Utc),
+                            SubmittedAt = new DateTime(2026, 10, 4, 15, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 0m,
+                            TimelineSequence = 3,
+                            Timing = "NotApplicable",
+                            TotalAmount = 0m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000008"),
+                            Amount = 0m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000016"),
+                            BillingActivity = "Importación y distribución",
+                            BillingAddress = "Av. Apoquindo 4500, Las Condes, Santiago",
+                            BillingEmail = "facturacion@importadorademo.cl",
+                            BillingName = "Importadora Demo SpA",
+                            BillingTaxId = "76123456-7",
+                            BlNumber = "HLCUSAI260901610",
+                            BookingNumber = "HLCUBKG2609161",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 18, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            DefinitionCode = "MATRIX_LATE",
+                            DefinitionId = new Guid("cf38fc5e-d7af-910b-aba2-ea8ddde3e9d7"),
+                            InputValuesJson = "{\"observations\":\"Matriz enviada por correo el 29-09.\"}",
+                            IsExempt = false,
+                            Operation = "EXPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Quantity = 1,
+                            RequestNumber = "SRV-20261005-5E1A0008",
+                            RequestedByEmail = "demo@importadorademo.cl",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "Draft",
+                            StatusChangedAt = new DateTime(2026, 10, 5, 18, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 0m,
+                            TimelineSequence = 1,
+                            TotalAmount = 0m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            Amount = 47800m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000001"),
+                            BillingActivity = "Comercio al por mayor",
+                            BillingAddress = "Av. Libertad 1405, Viña del Mar",
+                            BillingEmail = "facturacion@comercialaustral.cl",
+                            BillingName = "Comercial Austral SpA",
+                            BillingTaxId = "77888999-1",
+                            BlNumber = "HLCUVAL250100123",
+                            BookingNumber = "HLCUBKG2501001",
+                            ChargeConceptCode = "REINVOICING",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 15, 40, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            Currency = "CLP",
+                            DefinitionCode = "IAO_REINVOICING",
+                            DefinitionId = new Guid("ffffffff-0022-0022-0022-000000000001"),
+                            InputValuesJson = "{\"invoiceNumber\":\"100198\",\"reason\":\"La mercancía fue vendida a Comercial Austral SpA antes del retiro; la factura debe emitirse a su nombre.\"}",
+                            IsExempt = false,
+                            Operation = "IMPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            PricingDetailJson = "{\"pricingMode\":\"Tariff\",\"chargeConceptCode\":\"REINVOICING\",\"requiresPayment\":true,\"amount\":47800,\"taxAmount\":4750,\"totalAmount\":52550,\"currency\":\"CLP\",\"taxRate\":19,\"quantity\":1,\"tierUnit\":null,\"measuredUnits\":null,\"timing\":\"NotApplicable\",\"milestoneAt\":null,\"milestoneSource\":null,\"tariffId\":\"c7f2abc0-29ae-1d0b-d957-ea4707a567b0\",\"tariffCode\":null,\"tariffSource\":\"PORTAL\",\"isExempt\":false,\"exemptionReference\":null,\"excludedContainers\":[],\"lines\":[{\"containerNumber\":null,\"containerType\":null,\"amount\":25000,\"tariffCode\":null,\"breakdown\":[]},{\"containerNumber\":null,\"containerType\":null,\"amount\":22800,\"tariffCode\":\"VAT_LOSS\",\"breakdown\":[]}],\"sourceCharges\":[],\"timeZone\":\"America/Santiago\",\"quotedAt\":\"2026-10-05T16:00:00Z\"}",
+                            Quantity = 1,
+                            QuotedAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            RequestNumber = "SRV-20261005-5E1A0009",
+                            RequestedByEmail = "demo@importadorademo.cl",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "PendingPayment",
+                            StatusChangedAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            SubmittedAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            TariffAcceptedAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            TariffId = new Guid("c7f2abc0-29ae-1d0b-d957-ea4707a567b0"),
+                            TariffSource = "PORTAL",
+                            TaxAmount = 4750m,
+                            TimelineSequence = 4,
+                            Timing = "NotApplicable",
+                            TotalAmount = 52550m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000010"),
+                            Amount = 0m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000005"),
+                            BlNumber = "HLCUIQQ260200078",
+                            BookingNumber = "HLCUBKG2602078",
+                            CompletedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@altiplano.bo",
+                            DefinitionCode = "FREIGHT_CERTIFICATE",
+                            DefinitionId = new Guid("ffffffff-0022-0022-0022-000000000002"),
+                            InputValuesJson = "{\"consigneeName\":\"Comercial Altiplano SRL\",\"consigneeTaxId\":\"1023456017\",\"purpose\":\"CUSTOMS\",\"recipient\":\"Aduana Nacional de Bolivia\",\"notes\":\"Para la declaración de importación (DIM).\"}",
+                            IsExempt = false,
+                            Operation = "IMPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            Quantity = 1,
+                            RequestNumber = "SRV-20261005-5E1A0010",
+                            RequestedByEmail = "demo@altiplano.bo",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            ResolutionNotes = "Certificado CFL-20261005-3B4C5D6E emitido.",
+                            Status = "Completed",
+                            StatusChangedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            SubmittedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 0m,
+                            TimelineSequence = 3,
+                            TotalAmount = 0m
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0021-0021-0021-000000000011"),
+                            Amount = 0m,
+                            AssignedTeam = "CustomerService",
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000004"),
+                            BlNumber = "HLCUARI260100045",
+                            BookingNumber = "HLCUBKG2601045",
+                            ContainerNumbers = "HLXU8899001",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@altiplano.bo",
+                            DefinitionCode = "RELEASE_LETTER",
+                            DefinitionId = new Guid("ffffffff-0022-0022-0022-000000000003"),
+                            InputValuesJson = "{\"containers\":[\"HLXU8899001\"],\"legalEntityType\":\"COMPANY\",\"consigneeName\":\"Comercial Altiplano SRL\",\"consigneeTaxId\":\"1023456017\",\"consigneeAddress\":\"Av. Arce 2631, La Paz\",\"legalRepresentativeName\":\"Marcela Quispe\",\"legalRepresentativeId\":\"4876512 LP\",\"carrierName\":\"Transportes Illimani SRL\",\"carrierTaxId\":\"4455667018\",\"driverName\":\"Juan Mamani\",\"driverId\":\"6123987 LP\",\"truckPlate\":\"2345-KTR\"}",
+                            IsExempt = false,
+                            Operation = "IMPORT",
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            Quantity = 1,
+                            RequestNumber = "SRV-20261005-5E1A0011",
+                            RequestedByEmail = "demo@altiplano.bo",
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            Status = "PendingApproval",
+                            StatusChangedAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            SubmittedAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            TaxAmount = 0m,
+                            TimelineSequence = 3,
+                            TotalAmount = 0m
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceRequestAttachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("FieldKey")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<Guid>("ServiceRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UploadedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("UploadedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceRequestId", "FieldKey");
+
+                    b.ToTable("ServiceRequestAttachments", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("754b238a-70ca-d8d1-1d67-0d0da9be0fb5"),
+                            ContentType = "application/pdf",
+                            FieldKey = "newCompanyApproval",
+                            FileName = "aprobacion-comercial-austral.pdf",
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            SizeBytes = 48213L,
+                            StorageKey = "seed/service-requests/aprobacion-comercial-austral.pdf",
+                            UploadedAt = new DateTime(2026, 10, 5, 15, 50, 0, 0, DateTimeKind.Utc),
+                            UploadedBy = "demo@importadorademo.cl",
+                            UploadedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010")
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceRequestCharge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Generated")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("LocalChargeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ServiceRequestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LocalChargeId");
+
+                    b.HasIndex("ServiceRequestId", "LocalChargeId")
+                        .IsUnique();
+
+                    b.ToTable("ServiceRequestCharges", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("b1d45b30-156b-9dba-dc89-95fce3304f08"),
+                            Generated = true,
+                            LocalChargeId = new Guid("33333333-0009-0009-0009-000000000027"),
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000002")
+                        },
+                        new
+                        {
+                            Id = new Guid("52e277a6-8cb1-cc63-5049-2fedff932df2"),
+                            Generated = true,
+                            LocalChargeId = new Guid("33333333-0009-0009-0009-000000000028"),
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000003")
+                        },
+                        new
+                        {
+                            Id = new Guid("8ae9ad55-dc43-4036-1737-82dd6d6dbb1a"),
+                            Generated = true,
+                            LocalChargeId = new Guid("33333333-0009-0009-0009-000000000029"),
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000004")
+                        },
+                        new
+                        {
+                            Id = new Guid("d4adb761-1298-f523-3999-af07756bdf9c"),
+                            Generated = true,
+                            LocalChargeId = new Guid("33333333-0009-0009-0009-000000000035"),
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009")
+                        },
+                        new
+                        {
+                            Id = new Guid("4809a14d-d8fc-9a8a-b0b6-14a1930f0b38"),
+                            Generated = true,
+                            LocalChargeId = new Guid("33333333-0009-0009-0009-000000000036"),
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009")
+                        });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceRequestEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActorKind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ActorName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FromStatus")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ServiceRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ToStatus")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceRequestId", "OccurredAt", "Sequence");
+
+                    b.ToTable("ServiceRequestEvents", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ba24d9bc-4ee8-8753-b4b4-0b6aebd0d574"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 5, 13, 55, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000001"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("1fe56423-ce52-019c-88b2-a2e4c87dde8d"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            FromStatus = "Draft",
+                            OccurredAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000001"),
+                            ToStatus = "Submitted"
+                        },
+                        new
+                        {
+                            Id = new Guid("dec466f0-24bf-71ac-7ec9-bcc8f5a9a315"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Submitted",
+                            Notes = "Derivada al equipo ED.",
+                            OccurredAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 3,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000001"),
+                            ToStatus = "PendingApproval"
+                        },
+                        new
+                        {
+                            Id = new Guid("1ceb83e1-e697-1a75-3ae8-511c892693dc"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 5, 14, 57, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000002"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("0c46ef99-c9b2-b2da-4dd1-2a64950e2c88"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            FromStatus = "Draft",
+                            OccurredAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000002"),
+                            ToStatus = "Submitted"
+                        },
+                        new
+                        {
+                            Id = new Guid("12312f19-f1e7-a19b-087d-db4cedffac15"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Submitted",
+                            Notes = "Total 14280 CLP.",
+                            OccurredAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 3,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000002"),
+                            ToStatus = "PendingPayment"
+                        },
+                        new
+                        {
+                            Id = new Guid("c6a6da09-505c-a4d8-78f9-700398403b24"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 1, 12, 50, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000003"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("8bc9ea6d-6047-ed03-8715-865e0038dbcd"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            FromStatus = "Draft",
+                            OccurredAt = new DateTime(2026, 10, 1, 13, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000003"),
+                            ToStatus = "Submitted"
+                        },
+                        new
+                        {
+                            Id = new Guid("cca46ba1-145e-2be1-d0e0-8af2dd5a0e97"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Submitted",
+                            Notes = "Total 53550 CLP.",
+                            OccurredAt = new DateTime(2026, 10, 1, 13, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 3,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000003"),
+                            ToStatus = "PendingPayment"
+                        },
+                        new
+                        {
+                            Id = new Guid("8e7eaa46-1c0c-6d0e-b3ae-bb3d92296391"),
+                            ActorKind = "System",
+                            ActorName = "PAYMENT PAY-20261002-6F5E4D3C",
+                            FromStatus = "PendingPayment",
+                            Notes = "Comprobante RCP-20261002-7A8B9C0D.",
+                            OccurredAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 4,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000003"),
+                            ToStatus = "Paid"
+                        },
+                        new
+                        {
+                            Id = new Guid("4c71ac76-58f3-656e-b492-6cdcf494a2a4"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Paid",
+                            OccurredAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 5,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000003"),
+                            ToStatus = "InProgress"
+                        },
+                        new
+                        {
+                            Id = new Guid("e67dd7d2-1b76-a227-fe0d-cd0a4904e01c"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 2, 11, 56, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000004"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("22d850c0-4f1f-76d9-e0f8-59b4fa87dd8e"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            FromStatus = "Draft",
+                            OccurredAt = new DateTime(2026, 10, 2, 12, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000004"),
+                            ToStatus = "Submitted"
+                        },
+                        new
+                        {
+                            Id = new Guid("f20e8fcb-2085-f157-43aa-eb5751bdf13a"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Submitted",
+                            Notes = "Total 120 USD.",
+                            OccurredAt = new DateTime(2026, 10, 2, 12, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 3,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000004"),
+                            ToStatus = "PendingPayment"
+                        },
+                        new
+                        {
+                            Id = new Guid("3cadc7b7-cb67-e64b-d863-ef36787e6e4c"),
+                            ActorKind = "System",
+                            ActorName = "PAYMENT PAY-20261002-6F5E4D3C",
+                            FromStatus = "PendingPayment",
+                            Notes = "Comprobante RCP-20261002-7A8B9C0D.",
+                            OccurredAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 4,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000004"),
+                            ToStatus = "Paid"
+                        },
+                        new
+                        {
+                            Id = new Guid("233e7636-4120-570f-a96d-992cd1d85e44"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Paid",
+                            OccurredAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 5,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000004"),
+                            ToStatus = "InProgress"
+                        },
+                        new
+                        {
+                            Id = new Guid("ed4f28fa-e309-d42f-6b2b-ef4b2c1db0c0"),
+                            ActorKind = "Internal",
+                            ActorName = "admin@hapag-lloyd.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            FromStatus = "InProgress",
+                            Notes = "BL hijo transmitido y aceptado por Aduana.",
+                            OccurredAt = new DateTime(2026, 10, 3, 10, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 6,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000004"),
+                            ToStatus = "Completed"
+                        },
+                        new
+                        {
+                            Id = new Guid("0eca138e-a6fe-d34f-d7ce-0b313d25b1e8"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 3, 9, 54, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000005"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("2cb530f0-29e1-b3a6-14d0-43149ea77b16"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            FromStatus = "Draft",
+                            OccurredAt = new DateTime(2026, 10, 3, 10, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000005"),
+                            ToStatus = "Submitted"
+                        },
+                        new
+                        {
+                            Id = new Guid("e49d521c-ba5c-2e4e-666a-136461165ef3"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Submitted",
+                            Notes = "Derivada al equipo ED.",
+                            OccurredAt = new DateTime(2026, 10, 3, 10, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 3,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000005"),
+                            ToStatus = "PendingApproval"
+                        },
+                        new
+                        {
+                            Id = new Guid("9fd48303-f1f1-ab06-8ee0-8d0b60faba6a"),
+                            ActorKind = "Internal",
+                            ActorName = "admin@hapag-lloyd.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000001"),
+                            FromStatus = "PendingApproval",
+                            Notes = "El depósito Quilicura no recibe unidades 40HC esta semana; solicite la devolución en Pudahuel.",
+                            OccurredAt = new DateTime(2026, 10, 3, 16, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 4,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000005"),
+                            ToStatus = "Rejected"
+                        },
+                        new
+                        {
+                            Id = new Guid("2949375f-ff9f-e06a-b38a-69272b88ab4d"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 4, 11, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000006"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("1cdf9dfc-60fa-4097-b2aa-4f5f6182dafc"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            FromStatus = "Draft",
+                            Notes = "Se reprogramó el ingreso de la unidad.",
+                            OccurredAt = new DateTime(2026, 10, 4, 11, 20, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000006"),
+                            ToStatus = "Cancelled"
+                        },
+                        new
+                        {
+                            Id = new Guid("edbd4f6a-c3e0-4180-4fc6-24cb71a0e524"),
+                            ActorKind = "Client",
+                            ActorName = "demo@altiplano.bo",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            OccurredAt = new DateTime(2026, 10, 4, 14, 58, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000007"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("ad14be4a-ebbe-be59-6e22-a876f398fb72"),
+                            ActorKind = "Client",
+                            ActorName = "demo@altiplano.bo",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            FromStatus = "Draft",
+                            OccurredAt = new DateTime(2026, 10, 4, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000007"),
+                            ToStatus = "Submitted"
+                        },
+                        new
+                        {
+                            Id = new Guid("46f143ca-839c-ab02-0a69-f2027e5795c0"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Submitted",
+                            Notes = "Sin cobro: SOC:HLXU5566779.",
+                            OccurredAt = new DateTime(2026, 10, 4, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 3,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000007"),
+                            ToStatus = "Completed"
+                        },
+                        new
+                        {
+                            Id = new Guid("4d4b11bb-2ce8-5b4b-c2b5-89809ec47b3c"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            OccurredAt = new DateTime(2026, 10, 5, 18, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000008"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("8bf5b0b1-b37c-7ad0-ae50-f7427180845c"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Notes = "Refacturación de la factura 100198.",
+                            OccurredAt = new DateTime(2026, 10, 5, 15, 40, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("85d9e28f-8b9f-a6ab-6658-bf2b79378585"),
+                            ActorKind = "Client",
+                            ActorName = "demo@importadorademo.cl",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            FromStatus = "Draft",
+                            OccurredAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            ToStatus = "Submitted"
+                        },
+                        new
+                        {
+                            Id = new Guid("2037c661-6f62-04e0-5e7a-cc8bc21a8e33"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Submitted",
+                            Notes = "Total 52550 CLP. La factura se emite con el pago y la aceptación de la nueva razón social.",
+                            OccurredAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 3,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            ToStatus = "PendingPayment"
+                        },
+                        new
+                        {
+                            Id = new Guid("837acaa2-8b35-7e99-4adf-08cb72018d26"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "PendingPayment",
+                            Notes = "Enlace de aceptación enviado a facturacion@comercialaustral.cl.",
+                            OccurredAt = new DateTime(2026, 10, 5, 16, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 4,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000009"),
+                            ToStatus = "PendingPayment"
+                        },
+                        new
+                        {
+                            Id = new Guid("af9b468e-db5e-890c-63af-2c8716f674d1"),
+                            ActorKind = "Client",
+                            ActorName = "demo@altiplano.bo",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            OccurredAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000010"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("ab6f4921-65c2-6608-23e0-d46e8d0ee864"),
+                            ActorKind = "Client",
+                            ActorName = "demo@altiplano.bo",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            FromStatus = "Draft",
+                            OccurredAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000010"),
+                            ToStatus = "Submitted"
+                        },
+                        new
+                        {
+                            Id = new Guid("7fbd7dc7-3378-6e62-9ba9-0911de05fe7c"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Submitted",
+                            Notes = "Certificado CFL-20261005-3B4C5D6E emitido, sin cobro (primera entrega de Fase 2, M6-02).",
+                            OccurredAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 3,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000010"),
+                            ToStatus = "Completed"
+                        },
+                        new
+                        {
+                            Id = new Guid("0d5309ac-17ef-dae7-dbe7-375b1e62c38f"),
+                            ActorKind = "Client",
+                            ActorName = "demo@altiplano.bo",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            OccurredAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 1,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000011"),
+                            ToStatus = "Draft"
+                        },
+                        new
+                        {
+                            Id = new Guid("2adb63cd-684f-cca7-e35d-e9e73e299a1e"),
+                            ActorKind = "Client",
+                            ActorName = "demo@altiplano.bo",
+                            ActorUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            FromStatus = "Draft",
+                            OccurredAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 2,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000011"),
+                            ToStatus = "Submitted"
+                        },
+                        new
+                        {
+                            Id = new Guid("bb6e05ed-c743-6c57-d75e-db85983752ae"),
+                            ActorKind = "System",
+                            ActorName = "SYSTEM",
+                            FromStatus = "Submitted",
+                            Notes = "Derivada al equipo CustomerService. Al enviar: TATC NotIssued: HLXU8899001 NotIssued.",
+                            OccurredAt = new DateTime(2026, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Sequence = 3,
+                            ServiceRequestId = new Guid("ffffffff-0021-0021-0021-000000000011"),
+                            ToStatus = "PendingApproval"
                         });
                 });
 
@@ -12577,6 +18060,60 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TermsAcceptedAt = new DateTime(2026, 10, 2, 14, 0, 0, 0, DateTimeKind.Utc),
                             TermsVersion = "CARTA-RESP-2026-10",
                             VerificationCode = "94E7-43DA-1F4E-8AA7"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0018-0018-0018-000000000005"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            BlNumber = "HLCUSAI260701810",
+                            BookingNumber = "HLCUBKG2607181",
+                            ContainerNumbers = "HLXU3071801",
+                            ContentType = "application/pdf",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            DocumentNumber = "RGO-20261001-1A2B3C4D",
+                            DocumentType = "GateOutAdvanceReceipt",
+                            FileName = "recibo-anticipo-gate-out-RGO-20261001-1A2B3C4D.pdf",
+                            GenerationKey = "GateOutAdvanceReceipt:0745ba3a-34ac-c833-5db6-bf116971a424",
+                            IssuedAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            IssuedForOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            Origin = "Seed",
+                            PaymentDetailId = new Guid("0745ba3a-34ac-c833-5db6-bf116971a424"),
+                            PaymentId = new Guid("55555555-000b-000b-000b-000000000017"),
+                            RetainUntil = new DateTime(2036, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            SizeBytes = 0L,
+                            Status = "Issued",
+                            TemplateJson = "{\"title\":\"Recibo de pago anticipado - Gate Out\",\"subtitle\":\"Pago recibido antes de la emisi\\u00F3n de la factura\",\"issuer\":\"Hapag-Lloyd Chile SpA\",\"issuerDetail\":\"Agente de Hapag-Lloyd AG - Operaci\\u00F3n Chile\",\"documentNumber\":\"RGO-20261001-1A2B3C4D\",\"issuedAt\":\"2026-10-01T14:00:00Z\",\"timeZoneId\":\"America/Santiago\",\"references\":[{\"label\":\"BL\",\"value\":\"HLCUSAI260701810\"},{\"label\":\"Booking\",\"value\":\"HLCUBKG2607181\"},{\"label\":\"Operaci\\u00F3n\",\"value\":\"Exportaci\\u00F3n\"},{\"label\":\"Pa\\u00EDs\",\"value\":\"CL\"},{\"label\":\"Nave / viaje\",\"value\":\"Valparaiso Express / 2610N\"},{\"label\":\"Ruta\",\"value\":\"San Antonio (CLSAI) - Callao (PECLL)\"}],\"sections\":[{\"heading\":\"Pagador\",\"fields\":[{\"label\":\"Raz\\u00F3n social\",\"value\":\"Agencia Mar\\u00EDtima del Pac\\u00EDfico Ltda\"},{\"label\":\"RUT / NIT\",\"value\":\"96555444-3\"}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Pago\",\"fields\":[{\"label\":\"Concepto\",\"value\":\"Gate Out - 40HC (San Antonio)\"},{\"label\":\"Monto del cargo\",\"value\":\"71.400,00 CLP\"},{\"label\":\"Monto pagado\",\"value\":\"71.400,00 CLP\"},{\"label\":\"Tipo de cambio\",\"value\":null},{\"label\":\"RUT de facturaci\\u00F3n\",\"value\":\"Agencia Mar\\u00EDtima del Pac\\u00EDfico Ltda (96555444-3)\"},{\"label\":\"Pago\",\"value\":\"PAY-20261001-D4E5F6A7\"},{\"label\":\"Comprobante de pago\",\"value\":\"RCP-20261001-E8F9A0B1\"},{\"label\":\"Medio de pago\",\"value\":\"KHIPU\"},{\"label\":\"Fecha de pago\",\"value\":\"01-10-2026 11:00 (America/Santiago)\"}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Unidades\",\"fields\":null,\"table\":{\"headers\":[\"Contenedor\",\"Tipo\",\"Sello\",\"Peso (kg)\",\"Estado\"],\"rows\":[[\"HLXU3071801\",\"40HC\",\"SL-071801\",\"24.800,00\",\"OnBoard\"]],\"numericColumns\":[3]},\"paragraphs\":null},{\"heading\":\"Vinculaci\\u00F3n con la factura\",\"fields\":null,\"table\":null,\"paragraphs\":[\"La factura del Gate Out se emite despu\\u00E9s del zarpe de la nave y se vincula a este recibo.\",\"El cargo pagado con este recibo no vuelve a cobrarse al cliente.\"]}],\"verificationCode\":\"CBA5-6DA7-95A4-8C6B\",\"signatureNote\":null,\"footer\":\"Documento emitido por el Portal de Clientes de Hapag-Lloyd. Verifique su emisi\\u00F3n con el c\\u00F3digo indicado.\"}",
+                            VerificationCode = "CBA5-6DA7-95A4-8C6B"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-0018-0018-0018-000000000006"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000005"),
+                            BlNumber = "HLCUIQQ260200078",
+                            BookingNumber = "HLCUBKG2602078",
+                            ContainerNumbers = "HLXU5566778,HLXU5566779",
+                            ContentType = "application/pdf",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@altiplano.bo",
+                            DeliveredAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            DocumentNumber = "CFL-20261005-3B4C5D6E",
+                            DocumentType = "FreightCertificate",
+                            FileName = "certificado-flete-CFL-20261005-3B4C5D6E.pdf",
+                            GenerationKey = "service-request:ffffffff-0021-0021-0021-000000000010",
+                            IssuedAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            IssuedByEmail = "demo@altiplano.bo",
+                            IssuedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020"),
+                            IssuedForOrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            Origin = "Seed",
+                            RecipientEmails = "demo@altiplano.bo",
+                            RetainUntil = new DateTime(2036, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            SizeBytes = 0L,
+                            Status = "Issued",
+                            TemplateJson = "{\"title\":\"Certificado de flete\",\"subtitle\":\"Importaci\\u00F3n - Bolivia\",\"issuer\":\"Hapag-Lloyd Bolivia S.R.L.\",\"issuerDetail\":\"Agente de Hapag-Lloyd AG - Operaci\\u00F3n Bolivia\",\"documentNumber\":\"CFL-20261005-3B4C5D6E\",\"issuedAt\":\"2026-10-05T14:00:00Z\",\"timeZoneId\":\"America/La_Paz\",\"references\":[{\"label\":\"BL\",\"value\":\"HLCUIQQ260200078\"},{\"label\":\"Booking\",\"value\":\"HLCUBKG2602078\"},{\"label\":\"Operaci\\u00F3n\",\"value\":\"Importaci\\u00F3n\"},{\"label\":\"Pa\\u00EDs\",\"value\":\"BO\"},{\"label\":\"Nave / viaje\",\"value\":\"Guayaquil Express / 007W\"},{\"label\":\"Ruta\",\"value\":\"Mumbai (INBOM) - Iquique (CLIQQ)\"}],\"sections\":[{\"heading\":\"Partes\",\"fields\":[{\"label\":\"Shipper\",\"value\":\"Mumbai Spices \\u0026 Commodities Pvt Ltd\"},{\"label\":\"Consignee\",\"value\":\"Comercial Altiplano SRL\"},{\"label\":\"Notify\",\"value\":null}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Solicitud\",\"fields\":[{\"label\":\"Solicitud\",\"value\":\"SRV-20261005-5E1A0010\"},{\"label\":\"Solicitada por\",\"value\":\"Comercial Altiplano SRL (1023456017)\"},{\"label\":\"Consignatario\",\"value\":\"Comercial Altiplano SRL (1023456017)\"},{\"label\":\"Finalidad\",\"value\":\"Tr\\u00E1mite aduanero\"},{\"label\":\"Dirigido a\",\"value\":\"Aduana Nacional de Bolivia\"},{\"label\":\"Observaciones\",\"value\":\"Para la declaraci\\u00F3n de importaci\\u00F3n (DIM).\"}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Flete\",\"fields\":[{\"label\":\"Condici\\u00F3n del flete\",\"value\":null},{\"label\":\"Monto del flete\",\"value\":\"1.950,00 USD\"},{\"label\":\"Puerto de carga\",\"value\":\"Mumbai (INBOM)\"},{\"label\":\"Puerto de descarga\",\"value\":\"Iquique (CLIQQ)\"},{\"label\":\"Lugar de entrega\",\"value\":\"Santa Cruz, Bolivia\"}],\"table\":null,\"paragraphs\":null},{\"heading\":\"Unidades\",\"fields\":null,\"table\":{\"headers\":[\"Contenedor\",\"Tipo\",\"Sello\",\"Peso (kg)\",\"Estado\"],\"rows\":[[\"HLXU5566778\",\"40HC\",\"SL-015678\",\"21.300,00\",\"OnBoard\"],[\"HLXU5566779\",\"20DV\",\"SL-015679\",\"14.900,00\",\"Discharged\"]],\"numericColumns\":[3]},\"paragraphs\":null},{\"heading\":\"Mercanc\\u00EDa\",\"fields\":null,\"table\":null,\"paragraphs\":[\"Sin detalle de mercanc\\u00EDa registrado.\"]},{\"heading\":\"Certificaci\\u00F3n\",\"fields\":null,\"table\":null,\"paragraphs\":[\"Hapag-Lloyd Bolivia S.R.L. certifica que el flete mar\\u00EDtimo de la carga amparada en el BL HLCUIQQ260200078, transportada en la nave Guayaquil Express viaje 007W desde Mumbai (INBOM) hasta Santa Cruz, Bolivia, asciende a 1.950,00 USD, seg\\u00FAn el registro del embarque a la fecha de emisi\\u00F3n.\",\"Se emite a solicitud del interesado para la finalidad declarada.\"]}],\"verificationCode\":\"7900-1AF6-3B9B-DCF4\",\"signatureNote\":\"Documento firmado electr\\u00F3nicamente. La validez de la firma se acredita seg\\u00FAn el mecanismo publicado por Hapag-Lloyd.\",\"footer\":\"Documento emitido por el Portal de Clientes de Hapag-Lloyd. Verifique su emisi\\u00F3n con el c\\u00F3digo indicado.\"}",
+                            VerificationCode = "7900-1AF6-3B9B-DCF4"
                         });
                 });
 
@@ -12669,6 +18206,26 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000070"),
                             ShipmentDocumentId = new Guid("ffffffff-0018-0018-0018-000000000004"),
                             UserEmail = "ffww@globalforwarding.cl"
+                        },
+                        new
+                        {
+                            Id = new Guid("c016e13b-8056-1abc-4c0a-b0294e037fbd"),
+                            Channel = "System",
+                            EventType = "Issued",
+                            OccurredAt = new DateTime(2026, 10, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            ShipmentDocumentId = new Guid("ffffffff-0018-0018-0018-000000000005")
+                        },
+                        new
+                        {
+                            Id = new Guid("5f032085-9241-c2f6-7fd5-5f1258c1dc9c"),
+                            Channel = "Portal",
+                            EventType = "Issued",
+                            OccurredAt = new DateTime(2026, 10, 5, 14, 0, 0, 0, DateTimeKind.Utc),
+                            OrganizationId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            ShipmentDocumentId = new Guid("ffffffff-0018-0018-0018-000000000006"),
+                            UserEmail = "demo@altiplano.bo",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000020")
                         });
                 });
 
@@ -12961,6 +18518,56 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             CreatedBy = "SYSTEM",
                             Role = "Consignee",
                             Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("ef31b036-2222-2f88-9a2f-85178328013c"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000016"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Shipper",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("075936e7-41be-53b0-1290-d3970873bf0f"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000017"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000020"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Shipper",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("7d6585a0-7050-e8d6-4d34-3c0389d1eef6"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Shipper",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("5055f8f3-4141-5a05-5c15-fa5d8e322379"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000018"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000030"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "CustomsAgency",
+                            Source = "Seed"
+                        },
+                        new
+                        {
+                            Id = new Guid("1b202914-40c5-8096-4927-353dddf8200a"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000019"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000060"),
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Role = "Consignee",
+                            Source = "Seed"
                         });
                 });
 
@@ -13186,6 +18793,221 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             TierMode = "Flat",
                             TierUnit = "None",
                             ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("08f6a148-a021-357f-11e0-9e263e3bc70e"),
+                            Amount = 12000m,
+                            ConceptCode = "SEAL_MANAGEMENT",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Gestión de sellos por contenedor (M3-07)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("7e645de7-824d-4876-2e7e-d433d76e1f92"),
+                            Amount = 0m,
+                            ConceptCode = "EARLY_ARRIVAL",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "USD",
+                            Description = "Early por días de anticipación (M3-08)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "CalendarDays",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("8f9cd335-f4f6-df32-36b6-94794d2906dc"),
+                            Amount = 180000m,
+                            ConceptCode = "DROP_OFF",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Drop Off SCL por contenedor (M3-09)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("f383edf7-a9c4-fff5-2c56-78c53ce50bc1"),
+                            Amount = 350m,
+                            ConceptCode = "XOM",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "BOB",
+                            Description = "Administración de contenedor XOM por unidad (M3-10)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("ea3a5a01-c4ee-76ca-9d51-f9e542075cc7"),
+                            Amount = 520m,
+                            ConceptCode = "XOM",
+                            ContainerType = "40HC",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "BOB",
+                            Description = "Administración de contenedor XOM, 40' HC (M3-10)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("4f0226d1-eabb-3e9f-6355-41589b2ceb4a"),
+                            Amount = 45000m,
+                            ConceptCode = "BL_CORRECTION",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Corrección o aclaración de BL (M3-12)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("3f963e93-b130-ae94-6ee6-8426587d9197"),
+                            Amount = 300m,
+                            ConceptCode = "BL_CORRECTION",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "BOB",
+                            Description = "Corrección o aclaración de BL Bolivia (M3-12)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("09121ab9-02ec-4885-dda1-1cc481c6ddd3"),
+                            Amount = 35m,
+                            Code = "PLAZO",
+                            ConceptCode = "BL_HOUSE_TRANSMISSION",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "USD",
+                            Description = "Transmisión de BL hijo dentro de plazo (M3-13)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("b023bef2-0e70-2988-f28c-2da684ab098e"),
+                            Amount = 0m,
+                            Code = "FUERA_PLAZO",
+                            ConceptCode = "BL_HOUSE_TRANSMISSION",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "USD",
+                            Description = "Transmisión de BL hijo fuera de plazo, horas desde el plazo (M3-13)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "Hours",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("ed9325ae-cb8d-6b70-cfc6-3bfaeaff51e2"),
+                            Amount = 35m,
+                            Code = "PLAZO",
+                            ConceptCode = "BL_HOUSE_TRANSMISSION",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "USD",
+                            Description = "Transmisión de BL hijo dentro de plazo (M3-13)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("14c8c000-da8f-ba14-3e54-52df0949ac66"),
+                            Amount = 0m,
+                            Code = "FUERA_PLAZO",
+                            ConceptCode = "BL_HOUSE_TRANSMISSION",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "USD",
+                            Description = "Transmisión de BL hijo fuera de plazo, horas desde el plazo (M3-13)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "Hours",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("85efb04f-05d5-2318-3bbb-1149a9593e99"),
+                            Amount = 0m,
+                            ConceptCode = "MATRIX_LATE",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "USD",
+                            Description = "Matriz fuera de plazo, días desde el plazo de presentación (M3-14)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "CalendarDays",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("f69d95b8-610f-9e67-bb63-836e8e6ba3d2"),
+                            Amount = 0m,
+                            ConceptCode = "MATRIX_LATE",
+                            Country = "BO",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "USD",
+                            Description = "Matriz fuera de plazo, días desde el plazo de presentación (M3-14)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "CalendarDays",
+                            ValidFrom = new DateOnly(2026, 10, 1)
+                        },
+                        new
+                        {
+                            Id = new Guid("c7f2abc0-29ae-1d0b-d957-ea4707a567b0"),
+                            Amount = 25000m,
+                            ConceptCode = "REINVOICING",
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            Description = "Refacturación IAO por factura (M3-11)",
+                            IsActive = true,
+                            TierMode = "Flat",
+                            TierUnit = "None",
+                            ValidFrom = new DateOnly(2026, 10, 1)
                         });
                 });
 
@@ -13306,6 +19128,121 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             Amount = 450m,
                             FromUnit = 21,
                             TariffId = new Guid("eeeeeeee-0014-0014-0014-000000000007")
+                        },
+                        new
+                        {
+                            Id = new Guid("36e03912-6741-6aaa-b1df-6030fc077295"),
+                            Amount = 80m,
+                            FromUnit = 1,
+                            TariffId = new Guid("7e645de7-824d-4876-2e7e-d433d76e1f92"),
+                            ToUnit = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("e1a3888e-a1ce-926b-2ccb-0118f80da5e1"),
+                            Amount = 150m,
+                            FromUnit = 3,
+                            TariffId = new Guid("7e645de7-824d-4876-2e7e-d433d76e1f92"),
+                            ToUnit = 5
+                        },
+                        new
+                        {
+                            Id = new Guid("8fb701ca-e302-16aa-bb3f-9d088b224703"),
+                            Amount = 250m,
+                            FromUnit = 6,
+                            TariffId = new Guid("7e645de7-824d-4876-2e7e-d433d76e1f92")
+                        },
+                        new
+                        {
+                            Id = new Guid("59813e09-2340-3be1-6176-a8c729aad23d"),
+                            Amount = 60m,
+                            FromUnit = 0,
+                            TariffId = new Guid("b023bef2-0e70-2988-f28c-2da684ab098e"),
+                            ToUnit = 24
+                        },
+                        new
+                        {
+                            Id = new Guid("63dcf8d2-9418-c776-3498-1f4c7ea28c6e"),
+                            Amount = 120m,
+                            FromUnit = 25,
+                            TariffId = new Guid("b023bef2-0e70-2988-f28c-2da684ab098e"),
+                            ToUnit = 72
+                        },
+                        new
+                        {
+                            Id = new Guid("5e0f0096-0f79-5f68-c614-61a6cf3cb064"),
+                            Amount = 250m,
+                            FromUnit = 73,
+                            TariffId = new Guid("b023bef2-0e70-2988-f28c-2da684ab098e")
+                        },
+                        new
+                        {
+                            Id = new Guid("3a54e555-290b-7035-3a46-d48779e9e782"),
+                            Amount = 60m,
+                            FromUnit = 0,
+                            TariffId = new Guid("14c8c000-da8f-ba14-3e54-52df0949ac66"),
+                            ToUnit = 24
+                        },
+                        new
+                        {
+                            Id = new Guid("9989fc8b-7c73-ac18-3ddc-456af0138636"),
+                            Amount = 120m,
+                            FromUnit = 25,
+                            TariffId = new Guid("14c8c000-da8f-ba14-3e54-52df0949ac66"),
+                            ToUnit = 72
+                        },
+                        new
+                        {
+                            Id = new Guid("c854d92c-53f0-62af-469a-54367d0ac7bf"),
+                            Amount = 250m,
+                            FromUnit = 73,
+                            TariffId = new Guid("14c8c000-da8f-ba14-3e54-52df0949ac66")
+                        },
+                        new
+                        {
+                            Id = new Guid("d9fe224f-0c5b-3653-adcf-e097be8b1085"),
+                            Amount = 50m,
+                            FromUnit = 0,
+                            TariffId = new Guid("85efb04f-05d5-2318-3bbb-1149a9593e99"),
+                            ToUnit = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("82204082-2cb6-314d-5720-7d64f6f6d063"),
+                            Amount = 100m,
+                            FromUnit = 2,
+                            TariffId = new Guid("85efb04f-05d5-2318-3bbb-1149a9593e99"),
+                            ToUnit = 5
+                        },
+                        new
+                        {
+                            Id = new Guid("1115e1cb-e5e3-af7b-ce32-0b3cd2bf6644"),
+                            Amount = 200m,
+                            FromUnit = 6,
+                            TariffId = new Guid("85efb04f-05d5-2318-3bbb-1149a9593e99")
+                        },
+                        new
+                        {
+                            Id = new Guid("7922f54d-8324-e8a7-61ff-16a15e0f6ccc"),
+                            Amount = 50m,
+                            FromUnit = 0,
+                            TariffId = new Guid("f69d95b8-610f-9e67-bb63-836e8e6ba3d2"),
+                            ToUnit = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("86950eae-1c4a-4602-f867-0be816597eea"),
+                            Amount = 100m,
+                            FromUnit = 2,
+                            TariffId = new Guid("f69d95b8-610f-9e67-bb63-836e8e6ba3d2"),
+                            ToUnit = 5
+                        },
+                        new
+                        {
+                            Id = new Guid("a606e47d-f958-2e06-61cb-5669ff5e2329"),
+                            Amount = 200m,
+                            FromUnit = 6,
+                            TariffId = new Guid("f69d95b8-610f-9e67-bb63-836e8e6ba3d2")
                         });
                 });
 
@@ -13761,7 +19698,100 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
                             UserType = "Client",
                             Username = "ffww@globalforwarding.cl"
+                        },
+                        new
+                        {
+                            Id = new Guid("d4e5f6a7-0004-0004-0004-000000000090"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000090"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "holding@grupodemo.cl",
+                            FirstName = "Hilda",
+                            IsActive = true,
+                            IsEmailConfirmed = false,
+                            LastName = "Holding",
+                            MembershipStatus = "Active",
+                            PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
+                            UserType = "Client",
+                            Username = "holding@grupodemo.cl"
+                        },
+                        new
+                        {
+                            Id = new Guid("d4e5f6a7-0004-0004-0004-000000000091"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000091"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "contacto@transportescordillera.cl",
+                            FirstName = "Tomás",
+                            IsActive = true,
+                            IsEmailConfirmed = false,
+                            LastName = "Cordillera",
+                            MembershipDecidedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            MembershipDecidedBy = "demo@importadorademo.cl",
+                            MembershipStatus = "Active",
+                            PasswordHash = "$2a$12$cSxUVEI1bQ2CYNR.7dqfz.FTbfVBKY0xLO6/rDbvCvQ54ildbUKca",
+                            PasswordResetToken = "CARRIER-DEMO-INVITE-2026-10",
+                            PasswordResetTokenExpiry = new DateTime(2026, 12, 31, 23, 59, 0, 0, DateTimeKind.Utc),
+                            UserType = "Client",
+                            Username = "contacto@transportescordillera.cl"
+                        },
+                        new
+                        {
+                            Id = new Guid("d4e5f6a7-0004-0004-0004-000000000092"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Email = "ws-ffffffff003300330033000000000001@clients.ws.invalid",
+                            FirstName = "Web Service",
+                            IsActive = true,
+                            IsEmailConfirmed = true,
+                            LastName = "ERP Importadora Demo",
+                            MembershipDecidedAt = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+                            MembershipDecidedBy = "admin@hapag-lloyd.cl",
+                            MembershipStatus = "Active",
+                            PasswordHash = "$2a$12$O1N2kndfeGWg41xxfI/dcOwtqqctzfoR6cdyUT./IfSvcU4NaDUGe",
+                            UserType = "Technical",
+                            Username = "ws-ffffffff003300330033000000000001@clients.ws.invalid"
                         });
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.UserGuideState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("GuideCode")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<int>("GuideVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("LastStep")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "GuideCode")
+                        .IsUnique();
+
+                    b.ToTable("UserGuideStates", (string)null);
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.UserRole", b =>
@@ -13867,6 +19897,27 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             RoleId = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c"),
                             RoleName = "OrgAdmin",
                             UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000070")
+                        },
+                        new
+                        {
+                            Id = new Guid("6e26ae2d-56bd-69c9-28fa-cc0c9c248a42"),
+                            RoleId = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c"),
+                            RoleName = "OrgAdmin",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000090")
+                        },
+                        new
+                        {
+                            Id = new Guid("3cc0937d-04de-51c0-4c38-f3a240ebcd8a"),
+                            RoleId = new Guid("e200b49e-343b-36a4-fbcc-e10fa786728c"),
+                            RoleName = "OrgAdmin",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000091")
+                        },
+                        new
+                        {
+                            Id = new Guid("8b85820f-23d8-1ed6-e46f-1001c7af915c"),
+                            RoleId = new Guid("227e87c5-a8d9-51c6-e0e9-373dc6d2c60b"),
+                            RoleName = "OrgOperator",
+                            UserId = new Guid("d4e5f6a7-0004-0004-0004-000000000092")
                         });
                 });
 
@@ -14082,6 +20133,45 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                             IsFree = false,
                             Status = "Pending",
                             ToWarehouse = "Almacén Aduana La Paz"
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-000f-000f-000f-000000000003"),
+                            Amount = 9940m,
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000009"),
+                            CompletedAt = new DateTime(2026, 10, 2, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 2, 14, 30, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            Currency = "CLP",
+                            FromWarehouse = "STI San Antonio - Patio B",
+                            IsFree = false,
+                            RequestedByClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "Completed",
+                            TariffCode = "KTE",
+                            TariffSource = "PORTAL",
+                            ToWarehouse = "Bodega Lo Espejo"
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-000f-000f-000f-000000000004"),
+                            Amount = 0m,
+                            BatchId = new Guid("99999999-0020-0020-0020-000000000001"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000010"),
+                            CompletedAt = new DateTime(2026, 10, 3, 9, 0, 6, 0, DateTimeKind.Utc),
+                            Country = "CL",
+                            CreatedAt = new DateTime(2026, 10, 3, 9, 0, 6, 0, DateTimeKind.Utc),
+                            CreatedBy = "SYSTEM",
+                            Currency = "CLP",
+                            EntitlementReference = "RULE:eeeeeeee-0015-0015-0015-000000000001",
+                            EntitlementSource = "PORTAL",
+                            FromWarehouse = "N/D",
+                            IsFree = true,
+                            RequestedByClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            Status = "Completed",
+                            ToWarehouse = "Bodega Central Santiago"
                         });
                 });
 
@@ -14149,6 +20239,23 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.HasIndex("Status", "CreatedAt");
 
                     b.ToTable("WarehouseChangeBatches", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("99999999-0020-0020-0020-000000000001"),
+                            ClientId = new Guid("c3d4e5f6-0003-0003-0003-000000000010"),
+                            CompletedAt = new DateTime(2026, 10, 3, 9, 0, 6, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 10, 3, 9, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "demo@importadorademo.cl",
+                            FailedItems = 0,
+                            ProcessedItems = 1,
+                            RequestedByUserId = new Guid("d4e5f6a7-0004-0004-0004-000000000010"),
+                            StartedAt = new DateTime(2026, 10, 3, 9, 0, 5, 0, DateTimeKind.Utc),
+                            Status = "Completed",
+                            SucceededItems = 1,
+                            TotalItems = 1
+                        });
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.WarehouseChangeBatchItem", b =>
@@ -14212,6 +20319,20 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.HasIndex("BatchId", "Status", "LineNumber");
 
                     b.ToTable("WarehouseChangeBatchItems", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("9e413a2f-a1b6-9608-e41a-10e3ceebf9f8"),
+                            BatchId = new Guid("99999999-0020-0020-0020-000000000001"),
+                            BillOfLadingId = new Guid("11111111-0007-0007-0007-000000000010"),
+                            BlNumber = "HLCUSAI260401020",
+                            LineNumber = 1,
+                            ProcessedAt = new DateTime(2026, 10, 3, 9, 0, 6, 0, DateTimeKind.Utc),
+                            Status = "Succeeded",
+                            ToWarehouse = "Bodega Central Santiago",
+                            WarehouseChangeId = new Guid("99999999-000f-000f-000f-000000000004")
+                        });
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.AccessGrant", b =>
@@ -14247,6 +20368,41 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("ParentGrant");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ApiClient", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.Client", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HapagPortal.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("TechnicalUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ApiClientKey", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ApiClient", "ApiClient")
+                        .WithMany("Keys")
+                        .HasForeignKey("ApiClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApiClient");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ApiClientRequest", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ApiClient", null)
+                        .WithMany()
+                        .HasForeignKey("ApiClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.AppliedExemption", b =>
                 {
                     b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
@@ -14256,6 +20412,15 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsRequired();
 
                     b.Navigation("BillOfLading");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.AssistantDocumentDelivery", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.AssistantSession", null)
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.AssistantMessage", b =>
@@ -14328,6 +20493,17 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                         .IsRequired();
 
                     b.Navigation("Cart");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.CounterRecord", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
+                        .WithMany()
+                        .HasForeignKey("BillOfLadingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BillOfLading");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.CreditClient", b =>
@@ -14435,6 +20611,28 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("BillOfLading");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.DepositProof", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Payment");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.InvoiceReissue", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ServiceRequest", "ServiceRequest")
+                        .WithMany()
+                        .HasForeignKey("ServiceRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceRequest");
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.LocalCharge", b =>
                 {
                     b.HasOne("HapagPortal.Domain.Entities.BillOfLading", "BillOfLading")
@@ -14519,6 +20717,15 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("Payment");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ReleaseLetterRequest", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ServiceRequest", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.RolePermission", b =>
                 {
                     b.HasOne("HapagPortal.Domain.Entities.Permission", "Permission")
@@ -14555,6 +20762,50 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("BillOfLading");
 
                     b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceRequest", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ServiceDefinition", "Definition")
+                        .WithMany()
+                        .HasForeignKey("DefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Definition");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceRequestAttachment", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ServiceRequest", "ServiceRequest")
+                        .WithMany("Attachments")
+                        .HasForeignKey("ServiceRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceRequest");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceRequestCharge", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ServiceRequest", "ServiceRequest")
+                        .WithMany("Charges")
+                        .HasForeignKey("ServiceRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceRequest");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceRequestEvent", b =>
+                {
+                    b.HasOne("HapagPortal.Domain.Entities.ServiceRequest", "ServiceRequest")
+                        .WithMany("Events")
+                        .HasForeignKey("ServiceRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceRequest");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentAccessRule", b =>
@@ -14719,6 +20970,11 @@ namespace HapagPortal.DatabaseMigrations.Migrations
                     b.Navigation("Batch");
                 });
 
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ApiClient", b =>
+                {
+                    b.Navigation("Keys");
+                });
+
             modelBuilder.Entity("HapagPortal.Domain.Entities.AssistantSession", b =>
                 {
                     b.Navigation("Messages");
@@ -14780,6 +21036,15 @@ namespace HapagPortal.DatabaseMigrations.Migrations
             modelBuilder.Entity("HapagPortal.Domain.Entities.Role", b =>
                 {
                     b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("HapagPortal.Domain.Entities.ServiceRequest", b =>
+                {
+                    b.Navigation("Attachments");
+
+                    b.Navigation("Charges");
+
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("HapagPortal.Domain.Entities.ShipmentAction", b =>

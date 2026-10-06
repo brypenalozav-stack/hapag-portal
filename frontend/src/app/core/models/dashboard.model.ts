@@ -19,7 +19,9 @@ export type DashboardTargetKind =
   | 'ServiceOrder'
   | 'TatcBatch'
   | 'BlCopy'
-  | 'ResponsibilityLetter';
+  | 'ResponsibilityLetter'
+  // Fase 2, Ola G: solicitud de servicio on demand.
+  | 'ServiceRequest';
 
 export interface DashboardTarget {
   kind: DashboardTargetKind;

@@ -1,0 +1,57 @@
+@if (guides().length > 0) {
+  <!-- Modo guía (M1-27): se activa desde la pantalla y se puede volver a lanzar en cualquier momento -->
+  <div class="hl-guide-bar" data-testid="guide-bar">
+    @if (offered(); as g) {
+      <div class="hl-guide-offer" role="note" data-testid="guide-offer">
+        <span class="small">
+          <span class="fw-semibold">{{ 'shared.guide.offerTitle' | transloco: { name: name(g) } }}</span>
+          @if (description(g)) { <span> {{ description(g) }}</span> }
+        </span>
+        <button type="button" class="btn btn-sm btn-hl-orange" (click)="start(g)">{{ 'shared.guide.start' | transloco }}</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="decline(g)">{{ 'shared.guide.notNow' | transloco }}</button>
+      </div>
+    }
+    @for (g of guides(); track g.code; let first = $first) {
+      <button #launcher type="button" class="btn btn-sm btn-outline-secondary" (click)="start(g)" [attr.data-testid]="'guide-launch-' + g.code"
+              [attr.aria-label]="'shared.guide.launchLabel' | transloco: { name: name(g) }">
+        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+          <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+        </svg>
+        {{ 'shared.guide.launch' | transloco }}
+        @if (guides().length > 1 || !first) { <span>: {{ name(g) }}</span> }
+      </button>
+    }
+  </div>
+}
+
+@if (active(); as guide) {
+  <dialog #dialog class="hl-guide" aria-labelledby="hl-guide-title" aria-describedby="hl-guide-text" (cancel)="onCancel($event)" data-testid="guide-dialog">
+    @if (target(); as t) {
+      <div class="hl-guide__spotlight" aria-hidden="true"
+           [style.top.px]="t.top - 6" [style.left.px]="t.left - 6" [style.width.px]="t.width + 12" [style.height.px]="t.height + 12"></div>
+    } @else {
+      <div class="hl-guide__dim" aria-hidden="true"></div>
+    }
+    @if (step(); as s) {
+      <div class="hl-guide__popover" data-testid="guide-step"
+           [style.top.px]="position().top" [style.bottom.px]="position().bottom" [style.left.px]="position().left" [style.width.px]="position().width">
+        <p class="small text-muted mb-1" data-testid="guide-progress">{{ 'shared.guide.progress' | transloco: { name: name(guide), step: index() + 1, total: steps().length } }}</p>
+        <h2 #stepTitle id="hl-guide-title" class="h6 fw-bold mb-2" tabindex="-1">{{ stepTitleText(s) }}</h2>
+        <p id="hl-guide-text" class="small mb-2">{{ stepText(s) }}</p>
+        @if (!target() && !searching()) {
+          <p class="small fst-italic mb-2" data-testid="guide-target-missing">{{ 'shared.guide.targetMissing' | transloco }}</p>
+        }
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="close()" data-testid="guide-close">{{ 'shared.guide.close' | transloco }}</button>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="index() === 0" (click)="back()" data-testid="guide-back">{{ 'shared.guide.back' | transloco }}</button>
+            <button type="button" class="btn btn-sm btn-hl-orange" (click)="next()" data-testid="guide-next">
+              {{ (isLast() ? 'shared.guide.finish' : 'shared.guide.next') | transloco }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </dialog>
+}

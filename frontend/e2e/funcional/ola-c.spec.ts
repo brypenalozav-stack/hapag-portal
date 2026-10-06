@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import { Page } from '@playwright/test';
+import { test, expect } from '../fixtures/app';
 import {
   BL_BOLIVIA,
   BL_CAMBIO_GRATIS,

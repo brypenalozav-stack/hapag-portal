@@ -3,10 +3,13 @@
  * diferenciados, descarga en PDF y múltiple (zip) y pago desde el carro.
  */
 
-export type InvoiceStatus = 'Pending' | 'Overdue' | 'Paid' | 'Cancelled';
+import { InvoiceCoverage } from './account-statement.model';
+
+/** `Superseded`: reemplazada por la factura de una refacturación IAO (Fase 2, Ola H, M3-11). */
+export type InvoiceStatus = 'Pending' | 'Overdue' | 'Paid' | 'Cancelled' | 'Superseded';
 export type InvoiceDocumentType = 'Invoice' | 'ExemptInvoice' | 'CreditNote' | 'DebitNote';
 
-export const INVOICE_STATUSES: readonly InvoiceStatus[] = ['Pending', 'Overdue', 'Paid', 'Cancelled'];
+export const INVOICE_STATUSES: readonly InvoiceStatus[] = ['Pending', 'Overdue', 'Paid', 'Cancelled', 'Superseded'];
 export const INVOICE_DOCUMENT_TYPES: readonly InvoiceDocumentType[] = ['Invoice', 'ExemptInvoice', 'CreditNote', 'DebitNote'];
 
 /** Máximo de facturas por descarga múltiple (contrato del backend). */
@@ -43,6 +46,12 @@ export interface Invoice {
   isPayable: boolean;
   inCart: boolean;
   syncedAt?: string | null;
+  /** Fase 2, Ola H: factura que la reemplaza (refacturación IAO, M3-11). */
+  supersededByInvoiceId?: string | null;
+  /** Fase 2, Ola H: factura a la que reemplaza (refacturación IAO, M3-11). */
+  supersedesInvoiceId?: string | null;
+  /** Fase 2, Ola H: pago anticipado que la cubre (M3-19, M7-03); la factura queda pagada. */
+  coveredBy?: InvoiceCoverage | null;
 }
 
 export interface InvoiceSearch {

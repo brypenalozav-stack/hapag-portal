@@ -169,7 +169,8 @@ public sealed class GrantEarlyBookingAccessCommandHandler(
             NotificationTypes.AccessGranted,
             "Acceso anticipado por booking",
             $"{context.Membership.Organization.Name} le otorgó acceso al booking {bookingNumber} como {request.IntendedRole}.",
-            cancellationToken);
+            cancellationToken,
+            AccessNotifier.ForGrant(grant, bl?.BLNumber));
 
         var dto = await AccessGrantMapper.ToDtosAsync(dbContext, matrix, [grant], context.OrganizationId, now, cancellationToken);
         return Result<AccessGrantDto>.Success(dto[0]);

@@ -80,4 +80,15 @@
   @if (showAccess()) {
     <app-access-management class="d-block mb-4" [canManage]="canManageAccess()" [organizationType]="org.organizationType" />
   }
+
+  @if (showNetwork()) {
+    <!-- Fase 2, Ola I: transportistas pre-creados (M1-09) y empresa matriz (M1-21) -->
+    <app-carriers class="d-block mb-4" [canManage]="canManageAccess()" [country]="org.country" />
+    <app-parent-company class="d-block mb-4" />
+  }
+
+  @if (showContactLists()) {
+    <!-- Fase 2, Ola I: listas de distribución de contactos por tipo de reporte (M1-06) -->
+    <app-contact-lists class="d-block mb-4" />
+  }
 }

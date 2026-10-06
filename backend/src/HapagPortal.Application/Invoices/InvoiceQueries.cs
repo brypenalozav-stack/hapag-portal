@@ -4,6 +4,7 @@ using System.IO.Compression;
 using FluentValidation;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Payments.Settlements;
 using HapagPortal.Domain.Charges;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
@@ -11,7 +12,11 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>Factura local del cliente (M7-01) con el estado calculado (vencida según la fecha del país).</summary>
+/// <summary>
+/// Factura local del cliente (M7-01) con el estado calculado (vencida según la fecha del país). Ola H: vínculo
+/// de refacturación IAO (<c>SupersededByInvoiceId</c> en la original, <c>SupersedesInvoiceId</c> en la nueva,
+/// M3-11) y cobertura por un pago anterior a su emisión (<c>CoveredBy</c>, M7-03, M3-19).
+/// </summary>
 public sealed record InvoiceDto(
     Guid Id,
     string? SiiNumber,
@@ -33,7 +38,10 @@ public sealed record InvoiceDto(
     bool CanDownload,
     bool IsPayable,
     bool InCart,
-    DateTime SyncedAt);
+    DateTime SyncedAt,
+    Guid? SupersededByInvoiceId = null,
+    Guid? SupersedesInvoiceId = null,
+    InvoiceCoverageDto? CoveredBy = null);
 
 /// <summary>Facturas de una organización, segregadas (M7-01), con la última actualización desde la fuente.</summary>
 public sealed record InvoiceListDto(
@@ -81,7 +89,7 @@ public sealed class GetInvoicesQueryValidator : AbstractValidator<GetInvoicesQue
         RuleFor(x => x.BookingNumber).MaximumLength(50);
         RuleFor(x => x.Status)
             .Must(s => s is null || InvoiceStatus.All.Contains(s))
-            .WithMessage("Status must be Pending, Overdue, Paid or Cancelled.");
+            .WithMessage("Status must be Pending, Overdue, Paid, Cancelled or Superseded.");
         RuleFor(x => x.DocumentType)
             .Must(t => t is null || InvoiceDocumentTypes.All.Contains(t))
             .WithMessage("DocumentType must be Invoice, ExemptInvoice, CreditNote or DebitNote.");
@@ -109,7 +117,7 @@ internal static class InvoiceView
             ? InvoiceStatus.Overdue
             : invoice.Status;
 
-    public static InvoiceDto ToDto(CustomerInvoice i, DateOnly today, bool inCart)
+    public static InvoiceDto ToDto(CustomerInvoice i, DateOnly today, bool inCart, InvoiceCoverageDto? coverage = null)
     {
         var status = StatusOf(i, today);
         var payable = i.IsPayable
@@ -120,7 +128,8 @@ internal static class InvoiceView
         return new InvoiceDto(
             i.Id, i.SiiNumber, i.SourceNumber, i.DocumentType, i.IssueDate, i.DueDate, i.BillOfLadingId, i.BlNumber,
             i.BookingNumber, i.LegalName, i.TaxId, i.NetAmount, i.TaxAmount, i.TotalAmount, i.Currency, status,
-            i.SiiStatus, CanDownload: i.SiiNumber is not null, payable, inCart, i.SyncedAt);
+            i.SiiStatus, CanDownload: i.SiiNumber is not null, payable, inCart, i.SyncedAt, i.SupersededByInvoiceId,
+            i.SupersedesInvoiceId, coverage);
     }
 
     public static async Task<Result<(InvoiceScope Scope, InvoiceOrganizationDto Organization)>> OrganizationAsync(
@@ -256,10 +265,13 @@ public sealed class GetInvoicesQueryHandler(
 
         var inCart = await InCartAsync(filtered.Select(i => i.Id).ToList(), cancellationToken);
 
-        var items = filtered
+        var page = filtered
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(i => InvoiceView.ToDto(i, today, inCart.Contains(i.Id)))
+            .ToList();
+        var coverage = await ChargeSettlements.CoverageAsync(dbContext, page.Select(i => i.Id).ToList(), cancellationToken);
+        var items = page
+            .Select(i => InvoiceView.ToDto(i, today, inCart.Contains(i.Id), coverage.GetValueOrDefault(i.Id)))
             .ToList();
 
         DateTime? lastUpdated = invoices.Count == 0 ? null : invoices.Max(i => i.SyncedAt);
@@ -351,6 +363,7 @@ public sealed class DownloadInvoicesQueryHandler(
 /// <summary>
 /// Consulta la fuente de facturación por cada folio de la organización y registra la hora de la última
 /// actualización. Si la fuente no responde, no se guarda nada (NF-11: no se presenta información parcial).
+/// Ola H: cruza con las facturas recibidas los anticipos e imputaciones a crédito abiertos (M7-03, M3-19).
 /// </summary>
 public sealed class RefreshInvoicesCommandHandler(
     IApplicationDbContext dbContext,
@@ -358,6 +371,9 @@ public sealed class RefreshInvoicesCommandHandler(
     IInvoiceProvider invoiceProvider)
     : ICommandHandler<RefreshInvoicesCommand, InvoiceRefreshResultDto>
 {
+    /// <summary>Actor del cruce automático registrado en el anticipo (NF-14).</summary>
+    public const string MatchActor = "INVOICE_REFRESH";
+
     public async Task<Result<InvoiceRefreshResultDto>> Handle(RefreshInvoicesCommand request, CancellationToken cancellationToken)
     {
         var loaded = await InvoiceView.OrganizationAsync(dbContext, accessEvaluator, request.OrganizationId, cancellationToken);
@@ -387,6 +403,8 @@ public sealed class RefreshInvoicesCommandHandler(
         var now = DateTime.UtcNow;
         foreach (var invoice in invoices)
             invoice.SyncedAt = now;
+
+        await ChargeSettlements.MatchAsync(dbContext, invoices, MatchActor, now, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return Result<InvoiceRefreshResultDto>.Success(new InvoiceRefreshResultDto(organization.Id, checkedCount, updated, now));

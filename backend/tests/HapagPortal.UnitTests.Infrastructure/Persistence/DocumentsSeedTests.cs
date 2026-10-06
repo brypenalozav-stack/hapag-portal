@@ -45,7 +45,11 @@ public sealed class DocumentsSeedTests : IDisposable
         documents.Select(d => d.DocumentType).Should().BeEquivalentTo(
         [
             ShipmentDocumentTypes.TransshipmentCertificate, ShipmentDocumentTypes.BlCopyNonValued,
-            ShipmentDocumentTypes.CollectReceipt, ShipmentDocumentTypes.ResponsibilityLetter
+            ShipmentDocumentTypes.CollectReceipt, ShipmentDocumentTypes.ResponsibilityLetter,
+            // Ola H: recibo del pago anticipado de Gate Out de la agencia (M3-19).
+            ShipmentDocumentTypes.GateOutAdvanceReceipt,
+            // Ola J: certificado de flete de Comercial Altiplano (M6-02).
+            ShipmentDocumentTypes.FreightCertificate
         ]);
         documents.Should().OnlyContain(d => d.StorageKey == null && d.Origin == ShipmentDocumentOrigins.Seed);
         foreach (var document in documents)

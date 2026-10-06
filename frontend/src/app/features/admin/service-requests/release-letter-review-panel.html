@@ -1,0 +1,94 @@
+<section class="hl-card p-4 mb-4" aria-labelledby="srv-release-title" data-testid="srv-release-letter">
+  <h2 id="srv-release-title" class="section-title mb-3">{{ 'admin.serviceRequests.releaseLetter.title' | transloco }}</h2>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (error()) {
+    <div class="alert alert-danger py-2 mb-0" role="alert">{{ error() }}</div>
+  } @else if (letter(); as l) {
+    @let r = l.request;
+    @let f = fields();
+    <p class="small" role="note" data-testid="srv-release-rule">
+      {{ (l.requiresIssuedTatc ? 'admin.serviceRequests.releaseLetter.ruleRequired' : 'admin.serviceRequests.releaseLetter.ruleInformative') | transloco }}
+    </p>
+
+    <div class="row g-4 mb-2">
+      <!-- Consignatario según el tipo de sociedad -->
+      <div class="col-lg-6">
+        <h3 class="h6 fw-bold">{{ 'admin.serviceRequests.releaseLetter.consignee' | transloco }}</h3>
+        <dl class="mb-0 small" data-testid="srv-release-consignee">
+          <dt>{{ 'admin.serviceRequests.releaseLetter.entityType' | transloco }}</dt>
+          <dd>{{ l.legalEntityType | codeLabel: entityKeys }}</dd>
+          <dt>{{ (l.legalEntityType === 'COMPANY' ? 'documents.releaseLetter.fields.legalName' : 'documents.releaseLetter.fields.personName') | transloco }}</dt>
+          <dd>{{ f.consigneeName }}</dd>
+          <dt>{{ (l.legalEntityType === 'COMPANY' ? 'documents.releaseLetter.fields.nit' : 'documents.releaseLetter.fields.idDocument') | transloco }}</dt>
+          <dd>{{ f.consigneeTaxId }}</dd>
+          <dt>{{ 'documents.releaseLetter.fields.addressOptional' | transloco }}</dt>
+          <dd>{{ f.consigneeAddress || '—' }}</dd>
+          @if (l.legalEntityType === 'COMPANY') {
+            <dt>{{ 'documents.releaseLetter.fields.representative' | transloco }}</dt>
+            <dd>{{ f.legalRepresentativeName || '—' }}</dd>
+            <dt>{{ 'documents.releaseLetter.fields.representativeId' | transloco }}</dt>
+            <dd class="mb-0">{{ f.legalRepresentativeId || '—' }}</dd>
+          }
+        </dl>
+      </div>
+      <!-- Transportista: registrado o datos libres -->
+      <div class="col-lg-6">
+        <h3 class="h6 fw-bold">{{ 'admin.serviceRequests.releaseLetter.carrier' | transloco }}</h3>
+        <dl class="mb-0 small" data-testid="srv-release-carrier">
+          <dt>{{ 'admin.serviceRequests.releaseLetter.carrierKind' | transloco }}</dt>
+          <dd>{{ (l.carrierOrganizationId ? 'documents.releaseLetter.detail.carrierRegistered' : 'documents.releaseLetter.detail.carrierFree') | transloco }}</dd>
+          <dt>{{ 'documents.releaseLetter.fields.carrierName' | transloco }}</dt>
+          <dd>{{ f.carrierName }}</dd>
+          <dt>{{ 'documents.releaseLetter.fields.carrierTaxId' | transloco }}</dt>
+          <dd>{{ f.carrierTaxId }}</dd>
+          <dt>{{ 'admin.serviceRequests.releaseLetter.driver' | transloco }}</dt>
+          <dd>{{ f.driverName || '—' }} @if (f.driverId) {<span>({{ f.driverId }})</span>}</dd>
+          <dt>{{ 'documents.releaseLetter.fields.truckPlate' | transloco }}</dt>
+          <dd class="mb-0">{{ f.truckPlate || '—' }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <p class="mb-3" data-testid="srv-release-containers">
+      <span class="fw-semibold">{{ 'admin.serviceRequests.releaseLetter.containers' | transloco }}</span>
+      {{ r.containerNumbers.join(', ') }}
+    </p>
+
+    <!-- TATC al enviar, al aprobar y consultado ahora (M2-09) -->
+    <app-release-letter-tatc [tatc]="l.tatcAtSubmission" moment="submission" [titleKey]="'documents.releaseLetter.tatc.atSubmission'" [timeZone]="r.timeZone" />
+    @if (l.tatcAtApproval; as approval) {
+      <app-release-letter-tatc [tatc]="approval" moment="approval" [titleKey]="'documents.releaseLetter.tatc.atApproval'" [timeZone]="r.timeZone" />
+    }
+    @if (l.tatcNow; as now) {
+      <app-release-letter-tatc [tatc]="now" moment="now" [titleKey]="'admin.serviceRequests.releaseLetter.tatcNow'" [timeZone]="r.timeZone" />
+    }
+
+    <!-- Registro de Counter del BL (M8-09): insumo de la carta -->
+    <h3 class="h6 fw-bold">{{ 'admin.serviceRequests.releaseLetter.counter' | transloco }}</h3>
+    @if (l.counter; as c) {
+      <ul class="small mb-3" data-testid="srv-release-counter">
+        <li>{{ 'admin.serviceRequests.releaseLetter.exchangeDate' | transloco: { date: c.exchangeDate ? (c.exchangeDate | hlDate: 'localDate') : '—' } }}</li>
+        <li>
+          {{ (c.hblReceived ? 'admin.serviceRequests.releaseLetter.hblReceived' : 'admin.serviceRequests.releaseLetter.hblNotReceived') | transloco: { date: c.hblReceivedAt ? (c.hblReceivedAt | hlDate: 'localDate') : '—' } }}
+        </li>
+        <li>
+          {{ (c.deconsolidated ? 'admin.serviceRequests.releaseLetter.deconsolidated' : 'admin.serviceRequests.releaseLetter.notDeconsolidated') | transloco: { date: c.deconsolidatedAt ? (c.deconsolidatedAt | hlDate: 'localDate') : '—' } }}
+        </li>
+      </ul>
+    } @else {
+      <p class="small mb-3" role="status" data-testid="srv-release-no-counter">{{ 'admin.serviceRequests.releaseLetter.noCounter' | transloco }}</p>
+    }
+
+    @if (l.document; as doc) {
+      <p class="alert alert-success py-2 mb-0" role="note" data-testid="srv-release-document">
+        {{ 'admin.serviceRequests.releaseLetter.issued' | transloco: { number: doc.documentNumber, date: (doc.issuedAt | hlDate: 'datetime' : r.timeZone) } }}
+      </p>
+    } @else if (r.status === 'PendingApproval') {
+      <p class="small text-muted mb-0">{{ 'admin.serviceRequests.releaseLetter.approveNote' | transloco }}</p>
+    }
+  }
+</section>

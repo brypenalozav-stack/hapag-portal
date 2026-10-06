@@ -6,8 +6,9 @@ namespace HapagPortal.Infrastructure.Integrations.Nexus;
 
 /// <summary>
 /// Condiciones comerciales simuladas de Nexus (CT-NEXUS). Determinista: <c>76000002-2</c> tiene crédito
-/// a 30 días para LOCAL_CHARGES y MHD; <c>76000003-3</c> es FFWW sin crédito; <c>76000001-1</c> existe
-/// sin crédito; cualquier otro RUT no tiene condiciones (<c>Success(null)</c>).
+/// a 30 días para LOCAL_CHARGES y MHD con un cupo de CLP 5.000.000 (extensión propuesta, Ola H); <c>76000003-3</c>
+/// es FFWW sin crédito; <c>76000001-1</c> existe sin crédito; cualquier otro RUT no tiene condiciones
+/// (<c>Success(null)</c>).
 /// </summary>
 public sealed class DummyCreditConditionReader(ILogger<DummyCreditConditionReader> logger) : ICreditConditionReader
 {
@@ -24,7 +25,9 @@ public sealed class DummyCreditConditionReader(ILogger<DummyCreditConditionReade
                 DummyNexusData.CreditTaxId,
                 matchCode,
                 IsFreightForwarder: false,
-                Credit: new CreditCondition(["LOCAL_CHARGES", "MHD"], 30, DummyNexusData.ValidFrom, null));
+                Credit: new CreditCondition(
+                    ["LOCAL_CHARGES", "MHD"], 30, DummyNexusData.ValidFrom, null,
+                    DummyNexusData.CreditLimit, DummyNexusData.CreditLimitCurrency));
         }
         else if (DummyNexusData.IsTaxId(taxId, DummyNexusData.FreightForwarderTaxId))
         {

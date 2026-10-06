@@ -5,6 +5,7 @@ using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Organizations.Carriers;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.Domain.Errors;
@@ -23,6 +24,11 @@ public sealed class RegisterCommandHandler(
     {
         var taxIdType = CountryCodes.GetTaxIdType(request.Country);
         var email = EmailNormalizer.Normalize(request.Email);
+
+        // M1-09: si un cliente ya pre-creó el perfil (por correo o identificación tributaria), no se duplica: se dirige
+        // al ingreso con la invitación recibida.
+        if (await PreCreatedAccounts.ExistsAsync(dbContext, email, request.TaxId, request.Country, cancellationToken))
+            return Result<ClientResponseDto>.Failure(DomainErrors.Registration.PreCreatedAccount);
 
         var exists = await dbContext.Clients
             .AnyAsync(c => c.TaxId == request.TaxId && c.Country == request.Country, cancellationToken);

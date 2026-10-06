@@ -3,6 +3,7 @@ using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Integrations;
 using HapagPortal.Infrastructure.Integrations.Assistant;
+using HapagPortal.Infrastructure.Integrations.Contacts;
 using HapagPortal.Infrastructure.Integrations.DbNet;
 using HapagPortal.Infrastructure.Integrations.Fis;
 using HapagPortal.Infrastructure.Integrations.Nexus;
@@ -31,7 +32,8 @@ public static partial class DependencyInjectionExtensions
 
     /// <summary>
     /// Registra los adaptadores de integración según <c>Integrations:&lt;Sistema&gt;:Mode</c>
-    /// (<c>Dummy</c> por defecto). Con <c>Mode=Real</c>, Nexus, Fis, Khipu, BancoChile, DbNet, Tracking y Tatc
+    /// (<c>Dummy</c> por defecto). Con <c>Mode=Real</c>, Nexus (también su Counter, M8-09), Fis, Khipu, BancoChile, DbNet,
+    /// Tracking, Tatc y Contacts (P0060, M1-06)
     /// usan su cliente HTTP con logging (NF-27) y resiliencia (Tatc además con caché corta, M2-09); Santander, Bci, Signature y Storage no
     /// tienen cliente Real y, como un modo desconocido o un <c>BaseUrl</c> inválido, detienen el arranque
     /// con <see cref="InvalidOperationException"/>. Storage admite además <c>Mode=Local</c>: archivos en
@@ -57,6 +59,10 @@ public static partial class DependencyInjectionExtensions
             services.AddTransient<ICreditConditionReader>(sp => sp.GetRequiredService<HttpNexusClient>());
             services.AddTransient<IExchangeRateProvider>(sp => sp.GetRequiredService<HttpNexusClient>());
             services.AddTransient<ITariffProvider>(sp => sp.GetRequiredService<HttpNexusClient>());
+
+            // M8-09: el Counter Bolivia/Ultramar es una función de Nexus (CT-COUNTER), con su mismo BaseUrl y clave.
+            services.AddRealClient<HttpCounterRecorder>(configuration, IntegrationSystems.Nexus);
+            services.AddTransient<ICounterRecorder>(sp => sp.GetRequiredService<HttpCounterRecorder>());
         }
         else
         {
@@ -64,6 +70,18 @@ public static partial class DependencyInjectionExtensions
             services.AddSingleton<ICreditConditionReader, DummyCreditConditionReader>();
             services.AddSingleton<IExchangeRateProvider, DummyExchangeRateProvider>();
             services.AddSingleton<ITariffProvider, DummyTariffProvider>();
+            services.AddSingleton<ICounterRecorder, DummyCounterRecorder>();
+        }
+
+        // M1-06: registro de contactos y listas de distribución (P0060, CT-CONTACTS).
+        if (realSystems.Contains(IntegrationSystems.Contacts))
+        {
+            services.AddRealClient<HttpContactListProvider>(configuration, IntegrationSystems.Contacts);
+            services.AddTransient<IContactListProvider>(sp => sp.GetRequiredService<HttpContactListProvider>());
+        }
+        else
+        {
+            services.AddSingleton<IContactListProvider, DummyContactListProvider>();
         }
 
         if (realSystems.Contains(IntegrationSystems.Fis))

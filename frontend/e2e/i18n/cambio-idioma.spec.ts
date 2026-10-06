@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/app';
 import { simularApi } from '../fixtures/api-mocks';
 import { sembrarSesion } from '../fixtures/session';
 

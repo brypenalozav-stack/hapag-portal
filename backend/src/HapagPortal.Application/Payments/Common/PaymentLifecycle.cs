@@ -109,6 +109,24 @@ public static class PaymentLifecycle
         return Result.Success();
     }
 
+    /// <summary>
+    /// Registro de una imputación a la línea de crédito (M5-10): queda confirmada en el acto, sin plataforma ni
+    /// comprobante de pago, y encola la misma liberación y aviso que un pago confirmado (NF-03).
+    /// </summary>
+    public static Result ConfirmCreditImputation(IApplicationDbContext dbContext, Payment payment, PaymentActor actor, DateTime now)
+    {
+        var transition = Transition(dbContext, payment, PaymentStatus.Confirmed, actor, "Imputed to the credit line (M5-10)", now);
+        if (transition.IsFailure)
+            return transition;
+
+        payment.ConfirmedAt = now;
+        payment.ConfirmedBy = actor.Name;
+
+        Enqueue(dbContext, payment.Id, PaymentOutboxJobTypes.Release, now);
+        Enqueue(dbContext, payment.Id, PaymentOutboxJobTypes.Notify, now);
+        return Result.Success();
+    }
+
     /// <summary>Rechazo o indisponibilidad de la plataforma (NF-12): sin cobro; los ítems vuelven al carro.</summary>
     public static async Task<Result> FailAsync(
         IApplicationDbContext dbContext,

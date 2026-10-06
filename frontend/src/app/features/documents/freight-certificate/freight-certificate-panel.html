@@ -1,0 +1,66 @@
+<div class="border rounded p-3 mb-3" role="group" aria-labelledby="freight-title" data-testid="freight-panel">
+  <h3 id="freight-title" class="h6 fw-bold">{{ 'documents.freight.title' | transloco }}</h3>
+  <p class="small mb-2">{{ 'documents.freight.help' | transloco }}</p>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (error()) {
+    <div class="alert alert-danger py-2 mb-0" role="alert">{{ error() }}</div>
+  } @else if (data(); as d) {
+    <!-- Primera entrega de Fase 2: sin pago ni carro (M6-02, decisión Q1) -->
+    @if (!d.requiresPayment) {
+      <p class="alert alert-info py-2 small" role="note" data-testid="freight-no-payment">{{ 'documents.freight.noPayment' | transloco }}</p>
+    }
+    <p class="mb-2" data-testid="freight-amount">
+      @if (d.freight.currency) {
+        {{ (d.freight.terms ? 'documents.freight.freightTerms' : 'documents.freight.freight') | transloco: { amount: (d.freight.amount | hlCurrency: d.freight.currency), terms: d.freight.terms ?? '' } }}
+      } @else {
+        {{ 'documents.freight.freightUnknown' | transloco }}
+      }
+    </p>
+
+    @if (d.canRequest && canOperate()) {
+      <button type="button" class="btn btn-hl-orange mb-3" data-testid="freight-request" (click)="open($event)">{{ 'documents.freight.request' | transloco }}</button>
+    } @else if (!d.canRequest) {
+      <p class="small text-muted" data-testid="freight-not-allowed">{{ 'documents.freight.notAllowed' | transloco }}</p>
+    }
+
+    <!-- Solicitudes de la organización sobre el BL, con su estado -->
+    <h4 class="h6 fw-semibold mb-1">{{ 'documents.freight.requests.title' | transloco }}</h4>
+    @if (d.requests.length === 0) {
+      <p class="small text-muted mb-0" role="status">{{ 'documents.freight.requests.empty' | transloco }}</p>
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'documents.freight.requests.caption' | transloco: { bl: d.blNumber }">
+        <table class="hl-table" data-testid="freight-requests">
+          <caption class="visually-hidden">{{ 'documents.freight.requests.caption' | transloco: { bl: d.blNumber } }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'documents.freight.requests.col.number' | transloco }}</th>
+              <th scope="col">{{ 'documents.freight.requests.col.createdAt' | transloco }}</th>
+              <th scope="col">{{ 'documents.freight.requests.col.status' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of d.requests; track r.id) {
+              <tr [attr.data-testid]="'freight-request-' + r.requestNumber">
+                <td>
+                  <a [routerLink]="['/service-requests', r.id]" [attr.aria-label]="'documents.freight.requests.viewLabel' | transloco: { number: r.requestNumber }">{{ r.requestNumber }}</a>
+                </td>
+                <td>{{ r.createdAt | hlDate: 'datetime' : timeZone() }}</td>
+                <td><span class="hl-badge" [class]="statusClass[r.status] || 'hl-badge--processing'">{{ r.status | codeLabel: statusKeys }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>
+
+@if (dialogOpen()) {
+  @if (data(); as d) {
+    <app-freight-certificate-dialog [context]="d" [timeZone]="timeZone()" (closed)="onClosed($event)" />
+  }
+}

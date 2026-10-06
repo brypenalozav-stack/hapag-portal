@@ -279,7 +279,8 @@ public sealed class GetPaymentReconciliationQueryHandler(IApplicationDbContext d
 
     public async Task<Result<IReadOnlyList<PaymentReconciliationDto>>> Handle(GetPaymentReconciliationQuery request, CancellationToken cancellationToken)
     {
-        var query = dbContext.Payments.AsNoTracking();
+        // NF-04: una imputación a la línea de crédito (M5-10) no mueve dinero; no se concilia.
+        var query = dbContext.Payments.AsNoTracking().Where(p => p.Origin != PaymentOrigins.CreditLine);
 
         if (request.Country is not null)
             query = query.Where(p => p.Country == request.Country);

@@ -107,6 +107,9 @@ public static class DomainErrors
         public static readonly Error AlreadyPaid =
             new("Cart.AlreadyPaid", "The item was already paid.");
 
+        public static readonly Error CreditImputed =
+            new("Cart.CreditImputed", "The item was imputed to the credit line and is no longer pending payment.");
+
         public static readonly Error ItemInPayment =
             new("Cart.ItemInPayment", "The item is included in a payment in progress.");
 
@@ -156,6 +159,101 @@ public static class DomainErrors
 
         public static readonly Error MixedCountries =
             new("AccountPayment.MixedCountries", "All the items of one payment must belong to the same country.");
+
+        public static readonly Error CreditNotEligible =
+            new("AccountPayment.CreditNotEligible", "The item cannot be imputed to the credit line: its concept is not eligible or not covered by your credit condition.");
+
+        public static readonly Error PaymentDataRequired =
+            new("AccountPayment.PaymentDataRequired", "Indicate the payment currency and method for the items paid now.");
+    }
+
+    /// <summary>Conceptos imputables a la línea de crédito (M5-10, mantenedor NF-15).</summary>
+    public static class CreditImputationRule
+    {
+        public static Error NotFound(Guid id) =>
+            new("CreditImputationRule.NotFound", $"The credit imputation rule '{id}' was not found.");
+
+        public static readonly Error AlreadyExists =
+            new("CreditImputationRule.AlreadyExists", "There is already a rule for the concept in the country.");
+    }
+
+    /// <summary>Comprobante de depósito bancario y su verificación por Finanzas (M5-06).</summary>
+    public static class DepositProof
+    {
+        public static Error NotFound(Guid id) =>
+            new("DepositProof.NotFound", $"The deposit proof '{id}' was not found.");
+
+        public static readonly Error PaymentNotAwaitingProof =
+            new("DepositProof.PaymentNotAwaitingProof", "Only deposit payments pending or awaiting verification accept a deposit proof.");
+
+        public static readonly Error PendingReview =
+            new("DepositProof.PendingReview", "The payment already has a deposit proof waiting for Finance; wait for its review.");
+
+        public static readonly Error NotPendingReview =
+            new("DepositProof.NotPendingReview", "The deposit proof was already reviewed.");
+
+        public static readonly Error ContentNotFound =
+            new("DepositProofContent.NotFound", "The file of the deposit proof is not available.");
+    }
+
+    /// <summary>Anticipos e imputaciones a crédito y su cruce con las facturas (M7-03, M3-19, NF-04).</summary>
+    public static class Settlement
+    {
+        public static Error NotFound(Guid id) =>
+            new("Settlement.NotFound", $"The settlement '{id}' was not found.");
+
+        public static readonly Error AlreadyMatched =
+            new("Settlement.AlreadyMatched", "The settlement is already matched to an invoice.");
+
+        public static readonly Error InvoiceNotMatchable =
+            new("Settlement.InvoiceNotMatchable", "The invoice cannot be matched: it must be an invoice (not a credit note) of the same shipment and currency, not cancelled or superseded.");
+    }
+
+    /// <summary>Estado de cuenta en línea (M7-03).</summary>
+    public static class Statement
+    {
+        public static readonly Error Unavailable =
+            new("Statement.Unavailable", "The account statement is not available for your profile.");
+    }
+
+    /// <summary>Refacturación IAO con pérdida de IVA (M3-11).</summary>
+    public static class Reinvoicing
+    {
+        public static Error NotFound(Guid id) =>
+            new("Reinvoicing.NotFound", $"The re-invoicing request '{id}' was not found.");
+
+        public static readonly Error InvoiceNotEligible =
+            new("Reinvoicing.InvoiceNotEligible", "Only issued invoices (with tax folio) of a Chilean shipment that are not cancelled or already re-invoiced can be re-invoiced.");
+
+        public static readonly Error SameTaxId =
+            new("Reinvoicing.SameTaxId", "The new legal entity must have a tax ID different from the invoiced one.");
+
+        public static readonly Error AlreadyRequested =
+            new("Reinvoicing.AlreadyRequested", "The invoice already has a re-invoicing request in progress.");
+
+        public static readonly Error ApprovalRequired =
+            new("Reinvoicing.ApprovalRequired", "Attach the approval of the new legal entity before sending the request.");
+
+        public static readonly Error UseDedicatedFlow =
+            new("Reinvoicing.UseDedicatedFlow", "The re-invoicing is requested from the invoice (/reinvoicing), not from the shipment services.");
+
+        public static readonly Error AcceptanceNotFound =
+            new("ReinvoicingAcceptance.NotFound", "The acceptance link is not valid.");
+
+        public static readonly Error AcceptanceExpired =
+            new("Reinvoicing.AcceptanceExpired", "The acceptance link expired. Ask the requester to send it again.");
+
+        public static readonly Error AcceptanceClosed =
+            new("Reinvoicing.AcceptanceClosed", "The charge was already accepted or declined.");
+
+        public static readonly Error AcceptorTaxIdRequired =
+            new("Reinvoicing.AcceptorTaxIdRequired", "The name and tax ID of the person accepting are required.");
+
+        public static readonly Error AcceptanceNotPending =
+            new("Reinvoicing.AcceptanceNotPending", "The acceptance can only be sent again while it is pending.");
+
+        public static readonly Error InvoiceNotIssued =
+            new("Reinvoicing.InvoiceNotIssued", "The new invoice is issued automatically after payment and acceptance; the request cannot be completed manually before.");
     }
 
     public static class PaymentMethodConfig
@@ -234,6 +332,35 @@ public static class DomainErrors
 
         public static Error TermsVersionMismatch(string current) =>
             new("ResponsibilityLetter.TermsVersionMismatch", $"The accepted terms are not the current version '{current}'.");
+    }
+
+    /// <summary>Certificado de flete, importación de Bolivia (M6-02).</summary>
+    public static class FreightCertificate
+    {
+        public static readonly Error NotApplicable =
+            new("FreightCertificate.NotApplicable", "The freight certificate is only issued for Bolivia import shipments.");
+    }
+
+    /// <summary>Carta de liberación y desconsolidado, importación de Bolivia (M6-08).</summary>
+    public static class ReleaseLetter
+    {
+        public static readonly Error NotApplicable =
+            new("ReleaseLetter.NotApplicable", "The release and deconsolidation letter is only issued for Bolivia import shipments.");
+
+        public static readonly Error AlreadyRequested =
+            new("ReleaseLetter.AlreadyRequested", "A release letter of your organization for some of the selected containers is pending approval.");
+
+        public static readonly Error CarrierRequired =
+            new("ReleaseLetter.CarrierRequired", "Indicate a registered carrier or the carrier's name and tax ID.");
+
+        public static readonly Error CarrierNotFound =
+            new("ReleaseLetter.CarrierNotFound", "The selected carrier is not a registered carrier organization.");
+
+        public static Error TatcNotIssued(string containers) =>
+            new("ReleaseLetter.TatcNotIssued", $"The TATC of the selected containers must be issued before approving the letter: {containers}.");
+
+        public static readonly Error TatcUnavailable =
+            new("ReleaseLetter.TatcUnavailable", "The TATC system did not answer; the letter cannot be approved until its status is known.");
     }
 
     /// <summary>Certificado de libre deuda (M6-07).</summary>
@@ -595,6 +722,89 @@ public static class DomainErrors
 
         public static readonly Error NoRecipient =
             new("AssistantSession.NoRecipient", "There is no e-mail address to send the conversation transcript to.");
+
+        public static Error DeliveryNotFound(Guid id) =>
+            new("AssistantDelivery.NotFound", $"The document delivery '{id}' was not found.");
+    }
+
+    /// <summary>Definiciones de servicios on demand (M2-03, M2-04).</summary>
+    public static class ServiceDefinition
+    {
+        public static Error NotFound(Guid id) =>
+            new("ServiceDefinition.NotFound", $"The service definition with ID '{id}' was not found.");
+
+        public static Error NotFoundByCode(string code) =>
+            new("ServiceDefinition.NotFound", $"The service '{code}' was not found.");
+
+        public static readonly Error AlreadyExists =
+            new("ServiceDefinition.AlreadyExists", "A service definition with the same code already exists.");
+
+        public static Error UnknownAction(string code) =>
+            new("ServiceDefinition.UnknownAction", $"The action '{code}' is not an active action of the access matrix.");
+
+        public static Error InvalidSchema(string reason) =>
+            new("ServiceDefinition.InvalidSchema", reason);
+
+        public static Error Invalid(string reason) =>
+            new("ServiceDefinition.Invalid", reason);
+    }
+
+    /// <summary>Solicitudes de servicios on demand (M2-03, M2-04, M3-07 a M3-15).</summary>
+    public static class ServiceRequest
+    {
+        public static Error NotFound(Guid id) =>
+            new("ServiceRequest.NotFound", $"The service request with ID '{id}' was not found.");
+
+        public static Error NotAvailable(string reasons) =>
+            new("ServiceRequest.NotAvailable", $"The service cannot be requested for this shipment: {reasons}.");
+
+        public static Error InvalidTransition(string from, string to) =>
+            new("ServiceRequest.InvalidTransition", $"The service request cannot change from '{from}' to '{to}'.");
+
+        public static readonly Error NotEditable =
+            new("ServiceRequest.NotEditable", "Only draft service requests can be changed.");
+
+        public static readonly Error BillingDataRequired =
+            new("ServiceRequest.BillingDataRequired", "The billing data (tax ID, legal name, address and e-mail) is required before requesting the service.");
+
+        public static readonly Error BillingTaxIdNotAllowed =
+            new("ServiceRequest.BillingTaxIdNotAllowed", "The billing tax ID must be your organization's or a principal's whose access on the shipment allows the service.");
+
+        public static readonly Error TariffNotAccepted =
+            new("ServiceRequest.TariffNotAccepted", "The tariff of the service must be accepted before sending the request.");
+
+        public static Error TariffChanged(decimal total, string currency) =>
+            new("ServiceRequest.TariffChanged", $"The tariff changed since it was shown: the current total is {total:0.##} {currency}. Accept it again.");
+
+        public static readonly Error ContainersRequired =
+            new("ServiceRequest.ContainersRequired", "Select at least one container of the shipment.");
+
+        public static readonly Error MeasureRequired =
+            new("ServiceRequest.MeasureRequired", "The value that determines the tariff tier is required.");
+
+        public static readonly Error NoSourceCharge =
+            new("ServiceRequest.NoSourceCharge", "The source system has no pending charge of this service for the shipment.");
+
+        public static readonly Error PaymentInProgress =
+            new("ServiceRequest.PaymentInProgress", "The charge of the request is included in a payment in progress and cannot be cancelled.");
+
+        public static readonly Error OutputDocumentRequired =
+            new("ServiceRequest.OutputDocumentRequired", "Attach the output document before completing the request.");
+
+        public static readonly Error NotAssignedToTeam =
+            new("ServiceRequest.NotAssignedToTeam", "The service request is not waiting for an internal team.");
+
+        public static Error AttachmentNotFound(Guid id) =>
+            new("ServiceRequestAttachment.NotFound", $"The attachment '{id}' was not found.");
+
+        public static readonly Error UnknownFileField =
+            new("ServiceRequest.UnknownFileField", "The field is not a file field of the service form.");
+
+        /// <summary>El servicio se solicita por su flujo propio (refacturación IAO, certificado de flete, carta de liberación).</summary>
+        public static Error UseDedicatedFlow(string definitionCode) =>
+            definitionCode == Constants.ServiceDefinitionCodes.IaoReinvoicing
+                ? Reinvoicing.UseDedicatedFlow
+                : new("ServiceRequest.UseDedicatedFlow", $"The service '{definitionCode}' is requested from the shipment documents (/documents), not from the shipment services.");
     }
 
     /// <summary>Base de referencia de mercancías peligrosas (M10-06).</summary>
@@ -602,6 +812,203 @@ public static class DomainErrors
     {
         public static Error InvalidImport(string reason) =>
             new("DangerousGood.InvalidImport", $"The dangerous goods file is not valid: {reason}");
+    }
+
+    /// <summary>Bandeja de notificaciones y preferencias de correo (M1-25).</summary>
+    public static class Notification
+    {
+        public static Error NotFound(Guid id) =>
+            new("Notification.NotFound", $"The notification '{id}' was not found.");
+
+        public static Error UnknownType(string type) =>
+            new("Notification.UnknownType", $"The notification type '{type}' does not exist.");
+
+        public static Error EmailNotAvailable(string type) =>
+            new("Notification.EmailNotAvailable", $"Notifications of type '{type}' are only shown in the portal inbox.");
+
+        public static Error EmailMandatory(string type) =>
+            new("Notification.EmailMandatory", $"Notifications of type '{type}' are always sent by e-mail.");
+    }
+
+    /// <summary>Comunicados masivos (M1-26).</summary>
+    public static class Announcement
+    {
+        public static Error NotFound(Guid id) =>
+            new("Announcement.NotFound", $"The announcement '{id}' was not found.");
+
+        public static Error InvalidTransition(string from, string to) =>
+            new("Announcement.InvalidTransition", $"The announcement cannot change from '{from}' to '{to}'.");
+
+        public static readonly Error Expired =
+            new("Announcement.Expired", "The announcement validity already ended; change its dates before publishing it.");
+    }
+
+    /// <summary>Modo guía (M1-27).</summary>
+    public static class Guide
+    {
+        public static Error NotFound(string code) =>
+            new("Guide.NotFound", $"The guide '{code}' was not found.");
+
+        public static readonly Error AlreadyExists =
+            new("Guide.AlreadyExists", "A guide with the same code already exists.");
+
+        public static Error InvalidSteps(string reason) =>
+            new("Guide.InvalidSteps", reason);
+    }
+
+    /// <summary>«Vista como cliente» (M8-08).</summary>
+    public static class Impersonation
+    {
+        public static Error NotFound(Guid id) =>
+            new("ImpersonationSession.NotFound", $"The impersonation session '{id}' was not found.");
+
+        public static readonly Error NotInternalActor =
+            new("Impersonation.NotInternalActor", "Only authorized internal Hapag-Lloyd users can view the portal as a client.");
+
+        public static readonly Error Nested =
+            new("Impersonation.Nested", "An impersonation session cannot start another one; end the current session first.");
+
+        public static readonly Error TargetNotAllowed =
+            new("Impersonation.TargetNotAllowed", "The selected user cannot be impersonated: it must be an active user of a client organization, without internal roles.");
+
+        public static readonly Error TargetNotFound =
+            new("Impersonation.TargetNotFound", "The user does not belong to the selected organization.");
+
+        public static readonly Error NotImpersonating =
+            new("Impersonation.NotImpersonating", "The current session is not an impersonation session.");
+
+        public static readonly Error Ended =
+            new("Impersonation.Ended", "The impersonation session ended or expired.");
+
+        public static readonly Error ReadOnly =
+            new("Impersonation.ReadOnly", "The portal is in read-only client view: this action is not allowed while impersonating.");
+
+        public static readonly Error NotActive =
+            new("Impersonation.NotActive", "The impersonation session is no longer active.");
+    }
+
+    /// <summary>Counter Bolivia/Ultramar (M8-09).</summary>
+    public static class Counter
+    {
+        public static Error NotFound(string blNumber) =>
+            new("CounterRecord.NotFound", $"There is no Counter record for the bill of lading '{blNumber}'.");
+
+        public static readonly Error NothingToSync =
+            new("Counter.AlreadySynced", "The Counter record is already synchronized with Nexus.");
+
+        public static Error Invalid(string reason) =>
+            new("Counter.Invalid", reason);
+    }
+
+    /// <summary>Listas de distribución de contactos (M1-06).</summary>
+    public static class ContactList
+    {
+        public static readonly Error NotAllowed =
+            new("ContactList.NotAllowed", "Your organization cannot update its distribution lists (M1-11).");
+
+        public static readonly Error MatchCodeRequired =
+            new("ContactList.MatchCodeRequired", "The organization has no Match Code yet; the distribution lists are available after its approval.");
+
+        public static Error UnknownReportType(string reportType) =>
+            new("ContactList.UnknownReportType", $"The report type '{reportType}' does not exist.");
+    }
+
+    /// <summary>Pre-creación de transportistas (M1-09).</summary>
+    public static class CarrierPreCreation
+    {
+        public static Error NotFound(Guid id) =>
+            new("CarrierPreRegistration.NotFound", $"The pre-created carrier '{id}' was not found.");
+
+        public static readonly Error NotAllowed =
+            new("CarrierPreCreation.NotAllowed", "Your organization cannot pre-create carriers (M1-11).");
+
+        public static Error AlreadyRegistered(string name) =>
+            new("CarrierPreCreation.AlreadyRegistered", $"The carrier is already registered in the portal as '{name}': grant it access directly.");
+
+        public static readonly Error NotACarrier =
+            new("CarrierPreCreation.NotACarrier", "The tax ID or e-mail belongs to an organization that is not a carrier.");
+
+        public static readonly Error EmailInUse =
+            new("CarrierPreCreation.EmailInUse", "The e-mail belongs to a user of another organization.");
+
+        public static readonly Error AlreadyActivated =
+            new("CarrierPreCreation.AlreadyActivated", "The carrier already activated its account: grant it access directly.");
+    }
+
+    /// <summary>Registro de una cuenta ya pre-creada (M1-09).</summary>
+    public static class Registration
+    {
+        public static readonly Error PreCreatedAccount =
+            new("Registration.PreCreatedAccountExists",
+                "An account was already created for your organization by a customer. Log in with your e-mail; if you have no password yet, use the invitation code sent to you or request a new one.");
+    }
+
+    /// <summary>Empresa matriz (M1-21).</summary>
+    public static class ParentLink
+    {
+        public static Error NotFound(Guid id) =>
+            new("ParentLink.NotFound", $"The parent company link '{id}' was not found.");
+
+        public static readonly Error NotAllowed =
+            new("ParentLink.NotAllowed", "Your organization cannot share its shipments with a parent company (M1-11).");
+
+        public static readonly Error AlreadyExists =
+            new("ParentLink.AlreadyExists", "The organization already has a parent company link pending or active.");
+
+        public static readonly Error SelfLink =
+            new("ParentLink.SelfLink", "An organization cannot be its own parent company.");
+
+        public static readonly Error InvalidParent =
+            new("ParentLink.InvalidParent", "The parent company must be an approved customer or Freight Forwarder organization.");
+
+        public static readonly Error Cycle =
+            new("ParentLink.Cycle", "The parent company is already a subsidiary of this organization.");
+
+        public static readonly Error NotPending =
+            new("ParentLink.NotPending", "The parent company link is not pending approval.");
+
+        public static readonly Error NotActive =
+            new("ParentLink.NotActive", "The parent company link is not active.");
+    }
+
+    /// <summary>Clientes del canal Web Service y sus claves (M3-17, NF-09).</summary>
+    public static class ApiClient
+    {
+        public static Error NotFound(Guid id) =>
+            new("ApiClient.NotFound", $"The web service client '{id}' was not found.");
+
+        public static Error KeyNotFound(Guid id) =>
+            new("ApiClientKey.NotFound", $"The key '{id}' was not found.");
+
+        public static readonly Error InvalidKey =
+            new("WebService.InvalidApiKey", "The API key is missing, unknown, expired or revoked.");
+
+        public static readonly Error AlreadyRevoked =
+            new("ApiClient.AlreadyRevoked", "The web service client is already revoked.");
+
+        public static readonly Error OrganizationNotAllowed =
+            new("ApiClient.OrganizationNotAllowed", "Web service clients are created for approved client organizations only.");
+
+        public static Error ScopeNotGranted(string scope) =>
+            new("WebService.ScopeNotGranted", $"The client is not enabled for '{scope}'.");
+
+        public static readonly Error SignatoryNotConfigured =
+            new("WebService.SignatoryNotConfigured", "The organization has no signatory configured for the responsibility letter on this channel.");
+
+        public static readonly Error RateLimited =
+            new("WebService.RateLimited", "Too many requests for this client in the last minute. Retry later.");
+
+        public static readonly Error IdempotencyKeyRequired =
+            new("WebService.IdempotencyKeyRequired", "The Idempotency-Key header is required (1 to 100 characters).");
+
+        public static readonly Error IdempotencyKeyReused =
+            new("IdempotencyKey.Conflict", "The Idempotency-Key was already used with a different request.");
+
+        public static readonly Error IdempotencyInProgress =
+            new("IdempotencyKey.Conflict", "A request with the same Idempotency-Key is still being processed. Retry later.");
+
+        public static Error RequestNotFound(Guid id) =>
+            new("WebServiceRequest.NotFound", $"The request '{id}' was not found.");
     }
 
     public static class Integration

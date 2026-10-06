@@ -1,0 +1,195 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.transactionReports.transactions.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.transactionReports.transactions.subtitle' | transloco }}</p>
+  <p class="small mb-0 mt-1"><a routerLink="/admin/reports/exceptions">{{ 'admin.transactionReports.transactions.toExceptions' | transloco }}</a></p>
+</div>
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.transactionReports.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-2">
+      <label for="tx-from" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.from' | transloco }}</label>
+      <input id="tx-from" type="date" class="form-control" name="from" [(ngModel)]="from" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="tx-to" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.to' | transloco }}</label>
+      <input id="tx-to" type="date" class="form-control" name="to" [(ngModel)]="to" aria-describedby="tx-range-help" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="tx-country" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.country' | transloco }}</label>
+      <select id="tx-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.transactionReports.filters.allCountries' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="tx-category" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.category' | transloco }}</label>
+      <select id="tx-category" class="form-select" name="category" [(ngModel)]="category">
+        <option value="">{{ 'admin.transactionReports.filters.allCategories' | transloco }}</option>
+        @for (c of categories; track c) {
+          <option [value]="c">{{ c | codeLabel: categoryKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="tx-service" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.service' | transloco }}</label>
+      <input id="tx-service" type="text" class="form-control" name="service" autocomplete="off" aria-describedby="tx-service-help" [(ngModel)]="service" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="tx-currency" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.currency' | transloco }}</label>
+      <select id="tx-currency" class="form-select" name="currency" [(ngModel)]="currency">
+        <option value="">{{ 'admin.transactionReports.filters.allCurrencies' | transloco }}</option>
+        <option value="USD">USD</option>
+        <option value="CLP">CLP</option>
+        <option value="BOB">BOB</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="tx-bl" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.blNumber' | transloco }}</label>
+      <input id="tx-bl" type="text" class="form-control" name="blNumber" autocomplete="off" [(ngModel)]="blNumber" />
+    </div>
+    <div class="col-sm-6 col-lg-4 d-flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-hl-orange">{{ 'admin.transactionReports.filters.search' | transloco }}</button>
+    </div>
+  </div>
+  <div id="tx-range-help" class="form-text">{{ 'admin.transactionReports.filters.rangeHelp' | transloco }}</div>
+  <div id="tx-service-help" class="form-text">{{ 'admin.transactionReports.filters.serviceHelp' | transloco }}</div>
+</form>
+
+@if (error()) {
+  <div class="alert alert-danger py-2" role="alert">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (report(); as r) {
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <p class="small text-muted mb-0" data-testid="tx-generated">
+      {{ 'admin.transactionReports.range' | transloco: { from: (r.from | hlDate: 'localDate'), to: (r.to | hlDate: 'localDate'), zone: r.timeZone, date: (r.generatedAt | hlDate: 'datetime') } }}
+    </p>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="!!exporting()" (click)="export('xlsx')" data-testid="tx-export-xlsx">{{ 'admin.transactionReports.exportXlsx' | transloco }}</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="!!exporting()" (click)="export('csv')" data-testid="tx-export-csv">{{ 'admin.transactionReports.exportCsv' | transloco }}</button>
+    </div>
+  </div>
+
+  <!-- Totales por moneda: todo el filtro, no solo la página -->
+  @if (r.totals.length > 0) {
+    <div class="row g-3 mb-3" data-testid="tx-totals">
+      @for (t of r.totals; track t.currency) {
+        <div class="col-sm-6 col-lg-4">
+          <div class="hl-stat-card h-100">
+            <p class="stat-label mb-1">{{ 'admin.transactionReports.totalIn' | transloco: { currency: t.currency } }}</p>
+            <p class="fs-4 fw-bold mb-1">{{ t.total | hlCurrency: t.currency }}</p>
+            <p class="small text-muted mb-0">{{ 'admin.transactionReports.totalDetail' | transloco: { transactions: t.transactions, items: t.items } }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <section class="hl-card mb-4" aria-labelledby="tx-summary-title">
+    <div class="card-header p-3">
+      <h2 id="tx-summary-title" class="section-title">{{ 'admin.transactionReports.transactions.summaryTitle' | transloco }}</h2>
+    </div>
+    @if (r.summary.length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.transactionReports.transactions.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.transactionReports.transactions.summaryCaption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.transactionReports.transactions.summaryCaption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.transactionReports.col.category' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.service' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.transactionReports.col.transactions' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.transactionReports.col.items' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.transactionReports.col.amount' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.transactionReports.col.tax' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.transactionReports.col.total' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of r.summary; track s.category + s.service + s.currency) {
+              <tr [attr.data-testid]="'tx-summary-' + s.service + '-' + s.currency">
+                <td>{{ s.category | codeLabel: categoryKeys }}</td>
+                <td>
+                  <span class="d-block">{{ serviceName(s) }}</span>
+                  <span class="small text-muted">{{ s.service }}</span>
+                </td>
+                <td class="text-end">{{ s.transactions | hlNumber: '1.0-0' }}</td>
+                <td class="text-end">{{ s.items | hlNumber: '1.0-0' }}</td>
+                <td class="text-end">{{ s.amount | hlCurrency: s.currency }}</td>
+                <td class="text-end">{{ s.taxAmount | hlCurrency: s.currency }}</td>
+                <td class="text-end fw-semibold">{{ s.total | hlCurrency: s.currency }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section class="hl-card mb-4" aria-labelledby="tx-detail-title">
+    <div class="card-header p-3">
+      <h2 id="tx-detail-title" class="section-title">{{ 'admin.transactionReports.transactions.detailTitle' | transloco }}</h2>
+    </div>
+    @if (r.items.items.length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.transactionReports.transactions.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.transactionReports.transactions.detailCaption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.transactionReports.transactions.detailCaption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.transactionReports.col.confirmedAt' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.payment' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.organization' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.reference' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.service' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.billing' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.transactionReports.col.total' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of r.items.items; track row.paymentId + row.service + $index) {
+              <tr>
+                <td>{{ row.confirmedAt | hlDate: 'datetime' }}</td>
+                <td>
+                  <span class="d-block">{{ row.paymentNumber }}</span>
+                  @if (row.receiptNumber) { <span class="small text-muted">{{ row.receiptNumber }}</span> }
+                </td>
+                <td>
+                  <span class="d-block">{{ row.organization?.name ?? '—' }}</span>
+                  @if (row.organization?.taxId) { <span class="small text-muted">{{ row.organization?.taxId }}</span> }
+                </td>
+                <td>{{ rowReference(row) }}</td>
+                <td>
+                  <span class="d-block">{{ serviceName(row) }}</span>
+                  <span class="small text-muted">{{ row.category | codeLabel: categoryKeys }}</span>
+                </td>
+                <td>{{ row.billingTaxId ?? '—' }}</td>
+                <td class="text-end">
+                  {{ row.total | hlCurrency: row.currency }}
+                  @if (row.originalCurrency && row.originalCurrency !== row.currency) {
+                    <span class="d-block small text-muted">{{ 'admin.transactionReports.original' | transloco: { amount: (row.originalAmount | hlCurrency: row.originalCurrency) } }}</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'admin.transactionReports.pagination.label' | transloco">
+        <span class="small text-muted">{{ 'admin.transactionReports.pagination.showing' | transloco: { shown: r.items.items.length, total: r.items.total } }}</span>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">{{ 'admin.transactionReports.pagination.previous' | transloco }}</button>
+          <span class="small">{{ 'admin.transactionReports.pagination.page' | transloco: { page: page(), pages: totalPages } }}</span>
+          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">{{ 'admin.transactionReports.pagination.next' | transloco }}</button>
+        </div>
+      </nav>
+    }
+  </section>
+}

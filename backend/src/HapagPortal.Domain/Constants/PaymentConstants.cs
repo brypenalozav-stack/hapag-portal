@@ -34,6 +34,13 @@ public static class PaymentOrigins
     public const string Cart = "Cart";
     public const string Account = "Account";
     public const string Legacy = "Legacy";
+
+    /// <summary>
+    /// Imputación a la línea de crédito (M5-10, Ola H): transacción sin cobro registrada con el mismo modelo de
+    /// estados y la misma liberación que un pago (NF-03), pero que no es un pago: no figura en el historial de
+    /// pagos (M7-02) ni en la conciliación (NF-04), no tiene comprobante y deja los cargos imputados a crédito.
+    /// </summary>
+    public const string CreditLine = "CreditLine";
 }
 
 /// <summary>
@@ -73,6 +80,9 @@ public static class PaymentMethodCodes
 
     /// <summary>Espacio reservado para dólares digitales (M5-03): deshabilitado hasta su definición.</summary>
     public const string DigitalUsd = "DIGITAL_USD";
+
+    /// <summary>Imputación a la línea de crédito (M5-10): no es un medio de pago del mantenedor.</summary>
+    public const string CreditLine = "CREDIT_LINE";
 }
 
 /// <summary>Motivo registrado cuando un pago queda <c>Failed</c> (NF-12).</summary>
@@ -99,6 +109,15 @@ public static class PaymentOutboxJobTypes
     public const string Release = "Release";
     public const string Notify = "Notify";
     public const string Documents = "Documents";
+
+    /// <summary>Aviso del avance de las solicitudes de servicio pagadas (Ola G), encolado por la liberación.</summary>
+    public const string ServiceRequests = "ServiceRequests";
+
+    /// <summary>
+    /// Emisión de la nueva factura de una refacturación IAO pagada y aceptada por la nueva razón social (M3-11,
+    /// Ola H); la encola la liberación del pago o la aceptación posterior al pago.
+    /// </summary>
+    public const string Reinvoicing = "Reinvoicing";
 }
 
 /// <summary>
@@ -143,7 +162,10 @@ public static class InvoiceStatus
     public const string Paid = "Paid";
     public const string Cancelled = "Cancelled";
 
-    public static readonly string[] All = [Pending, Overdue, Paid, Cancelled];
+    /// <summary>Reemplazada por la factura emitida en una refacturación IAO (M3-11, Ola H): no se paga.</summary>
+    public const string Superseded = "Superseded";
+
+    public static readonly string[] All = [Pending, Overdue, Paid, Cancelled, Superseded];
 }
 
 /// <summary>Tipo de documento tributario de la vista de facturas (M7-01).</summary>

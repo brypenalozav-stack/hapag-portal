@@ -1,0 +1,528 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'admin.serviceDefinitions.editor.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/admin/service-definitions">{{ 'admin.serviceDefinitions.list.title' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ (isNew() ? 'admin.serviceDefinitions.editor.newTitle' : 'admin.serviceDefinitions.editor.editTitle') | transloco }}</li>
+    </ol>
+  </nav>
+  <h1>{{ (isNew() ? 'admin.serviceDefinitions.editor.newTitle' : 'admin.serviceDefinitions.editor.editTitle') | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.serviceDefinitions.editor.subtitle' | transloco }}</p>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (loadError()) {
+  <div class="alert alert-danger" role="alert">{{ loadError() }}</div>
+} @else {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="def-form-title" (submit)="submit($event)" data-testid="definition-form">
+    <h2 id="def-form-title" class="section-title mb-3">{{ 'admin.serviceDefinitions.editor.formTitle' | transloco }}</h2>
+
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="def-errors-title">
+        <h3 id="def-errors-title" class="h6 fw-bold">{{ 'admin.serviceDefinitions.editor.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track $index) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco: error.params }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert" data-testid="definition-save-error">{{ saveError() }}</div>
+    }
+    @if (saved()) {
+      <div class="alert alert-success py-2" role="status" data-testid="definition-saved">{{ saved() }}</div>
+    }
+    @if (definition(); as d) {
+      @if (!d.isActive) {
+        <div class="alert alert-warning py-2" role="note">{{ 'admin.serviceDefinitions.editor.inactiveNotice' | transloco }}</div>
+      }
+    }
+
+    <!-- 1. Datos generales -->
+    <fieldset class="def-section">
+      <legend class="def-legend">{{ 'admin.serviceDefinitions.editor.general.legend' | transloco }}</legend>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="def-code" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.code' | transloco }}</label>
+          <input id="def-code" type="text" class="form-control" autocomplete="off" maxlength="50" required aria-describedby="def-code-help"
+                 [attr.aria-invalid]="hasError('def-code')" [(ngModel)]="form.code" [ngModelOptions]="{ standalone: true }" />
+          <div id="def-code-help" class="form-text">{{ 'admin.serviceDefinitions.editor.general.codeHelp' | transloco }}</div>
+        </div>
+        <div class="col-md-4">
+          <label for="def-name-es" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.nameEs' | transloco }}</label>
+          <input id="def-name-es" type="text" class="form-control" maxlength="200" required lang="es"
+                 [attr.aria-invalid]="hasError('def-name-es')" [(ngModel)]="form.nameEs" [ngModelOptions]="{ standalone: true }" />
+        </div>
+        <div class="col-md-4">
+          <label for="def-name-en" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.nameEn' | transloco }}</label>
+          <input id="def-name-en" type="text" class="form-control" maxlength="200" required lang="en"
+                 [attr.aria-invalid]="hasError('def-name-en')" [(ngModel)]="form.nameEn" [ngModelOptions]="{ standalone: true }" />
+        </div>
+        <div class="col-md-6">
+          <label for="def-description-es" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.descriptionEs' | transloco }}</label>
+          <textarea id="def-description-es" class="form-control" rows="2" maxlength="1000" lang="es" [(ngModel)]="form.descriptionEs" [ngModelOptions]="{ standalone: true }"></textarea>
+        </div>
+        <div class="col-md-6">
+          <label for="def-description-en" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.descriptionEn' | transloco }}</label>
+          <textarea id="def-description-en" class="form-control" rows="2" maxlength="1000" lang="en" [(ngModel)]="form.descriptionEn" [ngModelOptions]="{ standalone: true }"></textarea>
+        </div>
+        <div class="col-md-6">
+          <label for="def-action" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.action' | transloco }}</label>
+          <select id="def-action" class="form-select" required aria-describedby="def-action-help" [attr.aria-invalid]="hasError('def-action')"
+                  [(ngModel)]="form.actionCode" [ngModelOptions]="{ standalone: true }">
+            @for (code of actionCodes; track code) {
+              <option [value]="code">{{ code | codeLabel: actionKeys }}</option>
+            }
+          </select>
+          <div id="def-action-help" class="form-text">{{ 'admin.serviceDefinitions.editor.general.actionHelp' | transloco }}</div>
+        </div>
+        <div class="col-md-3">
+          <label for="def-order" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.order' | transloco }}</label>
+          <input id="def-order" type="text" inputmode="numeric" class="form-control" required [attr.aria-invalid]="hasError('def-order')"
+                 [(ngModel)]="form.displayOrder" [ngModelOptions]="{ standalone: true }" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <div class="form-check mb-2">
+            <input id="def-active" type="checkbox" class="form-check-input" [(ngModel)]="form.isActive" [ngModelOptions]="{ standalone: true }" />
+            <label for="def-active" class="form-check-label">{{ 'admin.serviceDefinitions.editor.general.active' | transloco }}</label>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 2. Condiciones de aplicación -->
+    <fieldset class="def-section">
+      <legend class="def-legend">{{ 'admin.serviceDefinitions.editor.conditions.legend' | transloco }}</legend>
+      <div class="row g-3">
+        <fieldset class="col-md-3">
+          <legend class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.conditions.operations' | transloco }}</legend>
+          <div class="form-check">
+            <input id="def-operation-IMPORT" type="checkbox" class="form-check-input" [attr.aria-invalid]="hasError('def-operation-IMPORT')"
+                   [(ngModel)]="form.operations.IMPORT" [ngModelOptions]="{ standalone: true }" />
+            <label for="def-operation-IMPORT" class="form-check-label">{{ 'common.operation.import' | transloco }}</label>
+          </div>
+          <div class="form-check">
+            <input id="def-operation-EXPORT" type="checkbox" class="form-check-input" [(ngModel)]="form.operations.EXPORT" [ngModelOptions]="{ standalone: true }" />
+            <label for="def-operation-EXPORT" class="form-check-label">{{ 'common.operation.export' | transloco }}</label>
+          </div>
+        </fieldset>
+        <fieldset class="col-md-3">
+          <legend class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.conditions.countries' | transloco }}</legend>
+          <div class="form-check">
+            <input id="def-country-CL" type="checkbox" class="form-check-input" [attr.aria-invalid]="hasError('def-country-CL')"
+                   [(ngModel)]="form.countries['CL']" [ngModelOptions]="{ standalone: true }" />
+            <label for="def-country-CL" class="form-check-label">{{ 'common.country.cl' | transloco }}</label>
+          </div>
+          <div class="form-check">
+            <input id="def-country-BO" type="checkbox" class="form-check-input" [(ngModel)]="form.countries['BO']" [ngModelOptions]="{ standalone: true }" />
+            <label for="def-country-BO" class="form-check-label">{{ 'common.country.bo' | transloco }}</label>
+          </div>
+        </fieldset>
+        <div class="col-md-3">
+          <label for="def-reference" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.conditions.reference' | transloco }}</label>
+          <select id="def-reference" class="form-select" [(ngModel)]="form.referenceType" [ngModelOptions]="{ standalone: true }">
+            @for (r of referenceTypes; track r) {
+              <option [value]="r">{{ r | codeLabel: referenceKeys }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="def-window" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.conditions.window' | transloco }}</label>
+          <select id="def-window" class="form-select" [(ngModel)]="form.availabilityWindow" [ngModelOptions]="{ standalone: true }">
+            @for (w of windows; track w) {
+              <option [value]="w">{{ w | codeLabel: windowKeys }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="def-statuses" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.conditions.statuses' | transloco }}</label>
+          <input id="def-statuses" type="text" class="form-control" autocomplete="off" aria-describedby="def-statuses-help"
+                 [(ngModel)]="form.requiredBlStatuses" [ngModelOptions]="{ standalone: true }" />
+          <div id="def-statuses-help" class="form-text">{{ 'admin.serviceDefinitions.editor.conditions.statusesHelp' | transloco }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-check">
+            <input id="def-requires-containers" type="checkbox" class="form-check-input" [(ngModel)]="form.requiresContainers" [ngModelOptions]="{ standalone: true }" />
+            <label for="def-requires-containers" class="form-check-label">{{ 'admin.serviceDefinitions.editor.conditions.requiresContainers' | transloco }}</label>
+          </div>
+          <div class="form-check">
+            <input id="def-multiple" type="checkbox" class="form-check-input" [(ngModel)]="form.allowMultiplePerBl" [ngModelOptions]="{ standalone: true }" />
+            <label for="def-multiple" class="form-check-label">{{ 'admin.serviceDefinitions.editor.conditions.multiple' | transloco }}</label>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 3. Formulario del servicio: editor estructurado de campos -->
+    <fieldset class="def-section">
+      <legend class="def-legend">{{ 'admin.serviceDefinitions.editor.fields.legend' | transloco }}</legend>
+      <p class="small text-muted">{{ 'admin.serviceDefinitions.editor.fields.help' | transloco: { max: maxFields } }}</p>
+      @if (fields.length === 0) {
+        <p class="small mb-2" role="status">{{ 'admin.serviceDefinitions.editor.fields.empty' | transloco }}</p>
+      }
+      @for (field of fields; track field.uid; let i = $index; let first = $first; let last = $last) {
+        <fieldset class="def-field" [attr.data-testid]="'definition-field-' + i">
+          <legend class="h6 fw-bold mb-2">{{ 'admin.serviceDefinitions.editor.fields.title' | transloco: { number: i + 1, name: fieldName(field, i) } }}</legend>
+          <div class="row g-2">
+            <div class="col-md-3">
+              <label [for]="'def-field-' + i + '-key'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.key' | transloco }}</label>
+              <input type="text" class="form-control form-control-sm" autocomplete="off" maxlength="40" required [id]="'def-field-' + i + '-key'"
+                     [attr.aria-describedby]="'def-fields-key-help'" [attr.aria-invalid]="hasError('def-field-' + i + '-key')"
+                     [(ngModel)]="field.key" [ngModelOptions]="{ standalone: true }" />
+            </div>
+            <div class="col-md-3">
+              <label [for]="'def-field-' + i + '-type'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.type' | transloco }}</label>
+              <select class="form-select form-select-sm" [id]="'def-field-' + i + '-type'"
+                      [ngModel]="field.type" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onTypeChange(field, $event, i)">
+                @for (t of fieldTypes; track t) {
+                  <option [value]="t">{{ t | codeLabel: fieldTypeKeys }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label [for]="'def-field-' + i + '-label-es'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.labelEs' | transloco }}</label>
+              <input type="text" class="form-control form-control-sm" maxlength="200" required lang="es" [id]="'def-field-' + i + '-label-es'"
+                     [attr.aria-invalid]="hasError('def-field-' + i + '-label-es')" [(ngModel)]="field.labelEs" [ngModelOptions]="{ standalone: true }" />
+            </div>
+            <div class="col-md-3">
+              <label [for]="'def-field-' + i + '-label-en'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.labelEn' | transloco }}</label>
+              <input type="text" class="form-control form-control-sm" maxlength="200" required lang="en" [id]="'def-field-' + i + '-label-en'"
+                     [attr.aria-invalid]="hasError('def-field-' + i + '-label-en')" [(ngModel)]="field.labelEn" [ngModelOptions]="{ standalone: true }" />
+            </div>
+            <div class="col-md-3">
+              <div class="form-check mt-md-4">
+                <input type="checkbox" class="form-check-input" [id]="'def-field-' + i + '-required'" [(ngModel)]="field.required" [ngModelOptions]="{ standalone: true }" />
+                <label [for]="'def-field-' + i + '-required'" class="form-check-label small">{{ 'admin.serviceDefinitions.editor.fields.required' | transloco }}</label>
+              </div>
+            </div>
+            @if (field.type === 'text' || field.type === 'textarea') {
+              <div class="col-md-3">
+                <label [for]="'def-field-' + i + '-max-length'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.maxLength' | transloco }}</label>
+                <input type="text" inputmode="numeric" class="form-control form-control-sm" [id]="'def-field-' + i + '-max-length'"
+                       [attr.aria-invalid]="hasError('def-field-' + i + '-max-length')" [(ngModel)]="field.maxLength" [ngModelOptions]="{ standalone: true }" />
+              </div>
+            }
+            @if (field.type === 'number') {
+              <div class="col-md-2">
+                <label [for]="'def-field-' + i + '-min'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.min' | transloco }}</label>
+                <input type="text" inputmode="decimal" class="form-control form-control-sm" [id]="'def-field-' + i + '-min'"
+                       [attr.aria-invalid]="hasError('def-field-' + i + '-min')" [(ngModel)]="field.min" [ngModelOptions]="{ standalone: true }" />
+              </div>
+              <div class="col-md-2">
+                <label [for]="'def-field-' + i + '-max'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.max' | transloco }}</label>
+                <input type="text" inputmode="decimal" class="form-control form-control-sm" [id]="'def-field-' + i + '-max'"
+                       [attr.aria-invalid]="hasError('def-field-' + i + '-max')" [(ngModel)]="field.max" [ngModelOptions]="{ standalone: true }" />
+              </div>
+              <div class="col-md-2">
+                <div class="form-check mt-md-4">
+                  <input type="checkbox" class="form-check-input" [id]="'def-field-' + i + '-integer'" [(ngModel)]="field.integer" [ngModelOptions]="{ standalone: true }" />
+                  <label [for]="'def-field-' + i + '-integer'" class="form-check-label small">{{ 'admin.serviceDefinitions.editor.fields.integer' | transloco }}</label>
+                </div>
+              </div>
+            }
+            <div class="col-md-6">
+              <label [for]="'def-field-' + i + '-help-es'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.helpEs' | transloco }}</label>
+              <input type="text" class="form-control form-control-sm" maxlength="500" lang="es" [id]="'def-field-' + i + '-help-es'"
+                     [(ngModel)]="field.helpEs" [ngModelOptions]="{ standalone: true }" />
+            </div>
+            <div class="col-md-6">
+              <label [for]="'def-field-' + i + '-help-en'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.helpEn' | transloco }}</label>
+              <input type="text" class="form-control form-control-sm" maxlength="500" lang="en" [id]="'def-field-' + i + '-help-en'"
+                     [(ngModel)]="field.helpEn" [ngModelOptions]="{ standalone: true }" />
+            </div>
+          </div>
+
+          @if (field.type === 'select') {
+            <!-- Opciones de la selección -->
+            <div class="mt-3">
+              <p class="small fw-semibold mb-1">{{ 'admin.serviceDefinitions.editor.options.title' | transloco }}</p>
+              @if (field.options.length > 0) {
+                <div class="table-responsive mb-2" tabindex="0" role="region"
+                     [attr.aria-label]="'admin.serviceDefinitions.editor.options.caption' | transloco: { name: fieldName(field, i) }">
+                  <table class="hl-table">
+                    <caption class="visually-hidden">{{ 'admin.serviceDefinitions.editor.options.caption' | transloco: { name: fieldName(field, i) } }}</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">{{ 'admin.serviceDefinitions.editor.options.col.value' | transloco }}</th>
+                        <th scope="col">{{ 'admin.serviceDefinitions.editor.options.col.labelEs' | transloco }}</th>
+                        <th scope="col">{{ 'admin.serviceDefinitions.editor.options.col.labelEn' | transloco }}</th>
+                        <th scope="col"><span class="visually-hidden">{{ 'admin.serviceDefinitions.editor.options.col.actions' | transloco }}</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (option of field.options; track option.uid; let j = $index) {
+                        <tr>
+                          <td>
+                            <input type="text" class="form-control form-control-sm" autocomplete="off" maxlength="100" [id]="'def-field-' + i + '-option-' + j + '-value'"
+                                   [attr.aria-label]="'admin.serviceDefinitions.editor.options.valueLabel' | transloco: { number: j + 1 }"
+                                   [attr.aria-invalid]="hasError('def-field-' + i + '-option-' + j + '-value')"
+                                   [(ngModel)]="option.value" [ngModelOptions]="{ standalone: true }" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control form-control-sm" maxlength="200" lang="es" [id]="'def-field-' + i + '-option-' + j + '-label-es'"
+                                   [attr.aria-label]="'admin.serviceDefinitions.editor.options.labelEsLabel' | transloco: { number: j + 1 }"
+                                   [attr.aria-invalid]="hasError('def-field-' + i + '-option-' + j + '-label-es')"
+                                   [(ngModel)]="option.labelEs" [ngModelOptions]="{ standalone: true }" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control form-control-sm" maxlength="200" lang="en" [id]="'def-field-' + i + '-option-' + j + '-label-en'"
+                                   [attr.aria-label]="'admin.serviceDefinitions.editor.options.labelEnLabel' | transloco: { number: j + 1 }"
+                                   [(ngModel)]="option.labelEn" [ngModelOptions]="{ standalone: true }" />
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="removeOption(field, i, j)"
+                                    [attr.aria-label]="'admin.serviceDefinitions.editor.options.removeLabel' | transloco: { number: j + 1, name: fieldName(field, i) }">
+                              {{ 'admin.serviceDefinitions.editor.options.remove' | transloco }}
+                            </button>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              <button type="button" class="btn btn-sm btn-outline-secondary" [id]="'def-field-' + i + '-add-option'" (click)="addOption(field, i)"
+                      [attr.aria-label]="'admin.serviceDefinitions.editor.options.addLabel' | transloco: { name: fieldName(field, i) }">
+                {{ 'admin.serviceDefinitions.editor.options.add' | transloco }}
+              </button>
+            </div>
+          }
+
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="button" class="btn btn-sm btn-outline-secondary" [id]="'def-field-' + i + '-up'" [disabled]="first" (click)="moveField(i, -1)"
+                    [attr.aria-label]="'admin.serviceDefinitions.editor.fields.moveUpLabel' | transloco: { name: fieldName(field, i) }">
+              {{ 'admin.serviceDefinitions.editor.fields.moveUp' | transloco }}
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" [id]="'def-field-' + i + '-down'" [disabled]="last" (click)="moveField(i, 1)"
+                    [attr.aria-label]="'admin.serviceDefinitions.editor.fields.moveDownLabel' | transloco: { name: fieldName(field, i) }">
+              {{ 'admin.serviceDefinitions.editor.fields.moveDown' | transloco }}
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" (click)="removeField(i)"
+                    [attr.aria-label]="'admin.serviceDefinitions.editor.fields.removeLabel' | transloco: { name: fieldName(field, i) }">
+              {{ 'admin.serviceDefinitions.editor.fields.remove' | transloco }}
+            </button>
+          </div>
+        </fieldset>
+      }
+      <p id="def-fields-key-help" class="form-text">{{ 'admin.serviceDefinitions.editor.fields.keyHelp' | transloco }}</p>
+      <button id="def-add-field" type="button" class="btn btn-sm btn-outline-secondary" (click)="addField()">{{ 'admin.serviceDefinitions.editor.fields.add' | transloco }}</button>
+    </fieldset>
+
+    <!-- 4. Facturación y aceptación de tarifa -->
+    <fieldset class="def-section">
+      <legend class="def-legend">{{ 'admin.serviceDefinitions.editor.billing.legend' | transloco }}</legend>
+      <div class="form-check">
+        <input id="def-billing" type="checkbox" class="form-check-input" [(ngModel)]="form.billingDataRequired" [ngModelOptions]="{ standalone: true }" />
+        <label for="def-billing" class="form-check-label">{{ 'admin.serviceDefinitions.editor.billing.billingRequired' | transloco }}</label>
+      </div>
+      <div class="form-check">
+        <input id="def-acceptance" type="checkbox" class="form-check-input" [(ngModel)]="form.tariffAcceptanceRequired" [ngModelOptions]="{ standalone: true }" />
+        <label for="def-acceptance" class="form-check-label">{{ 'admin.serviceDefinitions.editor.billing.acceptanceRequired' | transloco }}</label>
+      </div>
+    </fieldset>
+
+    <!-- 5. Cobro -->
+    <fieldset class="def-section">
+      <legend class="def-legend">{{ 'admin.serviceDefinitions.editor.pricing.legend' | transloco }}</legend>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="def-pricing" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.pricing.mode' | transloco }}</label>
+          <select id="def-pricing" class="form-select" aria-describedby="def-pricing-help" [(ngModel)]="form.pricingMode" [ngModelOptions]="{ standalone: true }">
+            @for (m of pricingModes; track m) {
+              <option [value]="m">{{ m | codeLabel: pricingKeys }}</option>
+            }
+          </select>
+          <div id="def-pricing-help" class="form-text">{{ 'admin.serviceDefinitions.editor.pricing.modeHelp' | transloco }}</div>
+        </div>
+        @if (form.pricingMode !== 'None') {
+          <div class="col-md-4">
+            <label for="def-concept" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.pricing.concept' | transloco }}</label>
+            <select id="def-concept" class="form-select" required [attr.aria-invalid]="hasError('def-concept')"
+                    [(ngModel)]="form.chargeConceptCode" [ngModelOptions]="{ standalone: true }">
+              <option value="">{{ 'admin.serviceDefinitions.editor.pricing.conceptPlaceholder' | transloco }}</option>
+              @for (c of concepts(); track c.code) {
+                <option [value]="c.code">{{ c.code | codeLabel: conceptKeys }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="def-quantity" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.pricing.quantity' | transloco }}</label>
+            <select id="def-quantity" class="form-select" [attr.aria-invalid]="hasError('def-quantity')"
+                    [(ngModel)]="form.quantityMode" [ngModelOptions]="{ standalone: true }">
+              @for (q of quantityModes; track q) {
+                <option [value]="q">{{ q | codeLabel: quantityKeys }}</option>
+              }
+            </select>
+          </div>
+          @if (form.pricingMode === 'Tariff') {
+            <div class="col-md-4">
+              <label for="def-tariff-code" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.pricing.tariffCode' | transloco }}</label>
+              <input id="def-tariff-code" type="text" class="form-control" autocomplete="off" maxlength="20" aria-describedby="def-tariff-code-help"
+                     [(ngModel)]="form.tariffCode" [ngModelOptions]="{ standalone: true }" />
+              <div id="def-tariff-code-help" class="form-text">{{ 'admin.serviceDefinitions.editor.pricing.tariffCodeHelp' | transloco }}</div>
+            </div>
+            <div class="col-md-4">
+              <label for="def-late-tariff-code" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.pricing.lateTariffCode' | transloco }}</label>
+              <input id="def-late-tariff-code" type="text" class="form-control" autocomplete="off" maxlength="20" aria-describedby="def-late-tariff-code-help"
+                     [(ngModel)]="form.lateTariffCode" [ngModelOptions]="{ standalone: true }" />
+              <div id="def-late-tariff-code-help" class="form-text">{{ 'admin.serviceDefinitions.editor.pricing.lateTariffCodeHelp' | transloco }}</div>
+            </div>
+            <div class="col-md-4">
+              <label for="def-measure" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.pricing.measure' | transloco }}</label>
+              <select id="def-measure" class="form-select" aria-describedby="def-measure-help" [attr.aria-invalid]="hasError('def-measure')"
+                      [(ngModel)]="form.measureFieldKey" [ngModelOptions]="{ standalone: true }">
+                <option value="">{{ 'admin.serviceDefinitions.editor.pricing.measureNone' | transloco }}</option>
+                @for (f of numberFields(); track f.uid) {
+                  <option [value]="f.key">{{ f.key }}</option>
+                }
+              </select>
+              <div id="def-measure-help" class="form-text">{{ 'admin.serviceDefinitions.editor.pricing.measureHelp' | transloco }}</div>
+            </div>
+          }
+          <div class="col-md-4">
+            <label for="def-exemption" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.pricing.exemption' | transloco }}</label>
+            <input id="def-exemption" type="text" class="form-control" autocomplete="off" maxlength="50" aria-describedby="def-exemption-help"
+                   [(ngModel)]="form.exemptionConcept" [ngModelOptions]="{ standalone: true }" />
+            <div id="def-exemption-help" class="form-text">{{ 'admin.serviceDefinitions.editor.pricing.exemptionHelp' | transloco }}</div>
+          </div>
+          <div class="col-md-8">
+            <div class="form-check">
+              <input id="def-taxable" type="checkbox" class="form-check-input" [(ngModel)]="form.taxable" [ngModelOptions]="{ standalone: true }" />
+              <label for="def-taxable" class="form-check-label">{{ 'admin.serviceDefinitions.editor.pricing.taxable' | transloco }}</label>
+            </div>
+            <div class="form-check">
+              <input id="def-soc" type="checkbox" class="form-check-input" [(ngModel)]="form.excludeShipperOwnedContainers" [ngModelOptions]="{ standalone: true }" />
+              <label for="def-soc" class="form-check-label">{{ 'admin.serviceDefinitions.editor.pricing.soc' | transloco }}</label>
+            </div>
+          </div>
+          <p class="col-12 small mb-0">
+            {{ 'admin.serviceDefinitions.editor.pricing.tariffsNote' | transloco }}
+            <a routerLink="/admin/tariffs">{{ 'admin.serviceDefinitions.editor.pricing.tariffsLink' | transloco }}</a>
+          </p>
+        }
+      </div>
+    </fieldset>
+
+    <!-- 6. Plazo respecto de un hito del embarque -->
+    <fieldset class="def-section">
+      <legend class="def-legend">{{ 'admin.serviceDefinitions.editor.timing.legend' | transloco }}</legend>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label for="def-milestone" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.timing.milestone' | transloco }}</label>
+          <select id="def-milestone" class="form-select" [(ngModel)]="form.milestone" [ngModelOptions]="{ standalone: true }">
+            @for (m of milestones; track m) {
+              <option [value]="m">{{ m | codeLabel: milestoneKeys }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="def-offset" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.timing.offset' | transloco }}</label>
+          <input id="def-offset" type="text" inputmode="numeric" class="form-control" aria-describedby="def-offset-help" [attr.aria-invalid]="hasError('def-offset')"
+                 [(ngModel)]="form.milestoneOffsetHours" [ngModelOptions]="{ standalone: true }" />
+          <div id="def-offset-help" class="form-text">{{ 'admin.serviceDefinitions.editor.timing.offsetHelp' | transloco }}</div>
+        </div>
+        <div class="col-md-3">
+          <label for="def-deadline-rule" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.timing.deadlineRule' | transloco }}</label>
+          <input id="def-deadline-rule" type="text" class="form-control" autocomplete="off" maxlength="50" aria-describedby="def-deadline-rule-help"
+                 [attr.aria-invalid]="hasError('def-deadline-rule')" [(ngModel)]="form.deadlineRuleCode" [ngModelOptions]="{ standalone: true }" />
+          <div id="def-deadline-rule-help" class="form-text">{{ 'admin.serviceDefinitions.editor.timing.deadlineRuleHelp' | transloco }}</div>
+        </div>
+        <div class="col-md-3">
+          <label for="def-timing-rule" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.timing.rule' | transloco }}</label>
+          <select id="def-timing-rule" class="form-select" [attr.aria-invalid]="hasError('def-timing-rule')" [(ngModel)]="form.timingRule" [ngModelOptions]="{ standalone: true }">
+            @for (t of timingRules; track t) {
+              <option [value]="t">{{ t | codeLabel: timingRuleKeys }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 7. Equipos y documento de salida -->
+    <fieldset class="def-section">
+      <legend class="def-legend">{{ 'admin.serviceDefinitions.editor.teams.legend' | transloco }}</legend>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="def-approval" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.teams.approval' | transloco }}</label>
+          <select id="def-approval" class="form-select" [(ngModel)]="form.approvalTeam" [ngModelOptions]="{ standalone: true }">
+            @for (t of teams; track t) {
+              <option [value]="t">{{ t | codeLabel: teamKeys }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="def-fulfillment" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.teams.fulfillment' | transloco }}</label>
+          <select id="def-fulfillment" class="form-select" [(ngModel)]="form.fulfillmentTeam" [ngModelOptions]="{ standalone: true }">
+            @for (t of teams; track t) {
+              <option [value]="t">{{ t | codeLabel: teamKeys }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <div class="form-check mb-2">
+            <input id="def-output" type="checkbox" class="form-check-input" [(ngModel)]="form.requiresOutputDocument" [ngModelOptions]="{ standalone: true }" />
+            <label for="def-output" class="form-check-label">{{ 'admin.serviceDefinitions.editor.teams.output' | transloco }}</label>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="d-flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()" data-testid="definition-submit">
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        }
+        {{ (isNew() ? 'admin.serviceDefinitions.editor.create' : 'admin.serviceDefinitions.editor.save') | transloco }}
+      </button>
+      <a routerLink="/admin/service-definitions" class="btn btn-outline-secondary">{{ 'admin.serviceDefinitions.editor.cancel' | transloco }}</a>
+      @if (definition()?.isActive) {
+        <button type="button" class="btn btn-outline-secondary ms-auto" [disabled]="deactivating()" (click)="deactivate()">
+          {{ 'admin.serviceDefinitions.editor.deactivate' | transloco }}
+        </button>
+      }
+    </div>
+  </form>
+
+  <!-- Registro de cambios: usuario, fecha, valor anterior y nuevo (NF-15) -->
+  @if (!isNew()) {
+    <section class="hl-card mb-4" aria-labelledby="def-history-title" data-testid="definition-history">
+      <div class="card-header p-3">
+        <h2 id="def-history-title" class="section-title">{{ 'admin.serviceDefinitions.history.title' | transloco }}</h2>
+      </div>
+      @if (historyLoading()) {
+        <app-loading-spinner />
+      } @else if (history().length === 0) {
+        <app-state-message kind="empty" [messageKey]="'admin.serviceDefinitions.history.empty'" />
+      } @else {
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.serviceDefinitions.history.caption' | transloco">
+          <table class="hl-table">
+            <caption class="visually-hidden">{{ 'admin.serviceDefinitions.history.caption' | transloco }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'admin.serviceDefinitions.history.col.date' | transloco }}</th>
+                <th scope="col">{{ 'admin.serviceDefinitions.history.col.user' | transloco }}</th>
+                <th scope="col">{{ 'admin.serviceDefinitions.history.col.action' | transloco }}</th>
+                <th scope="col">{{ 'admin.serviceDefinitions.history.col.previous' | transloco }}</th>
+                <th scope="col">{{ 'admin.serviceDefinitions.history.col.current' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (change of history(); track change.id) {
+                <tr>
+                  <td>{{ change.changedAt | hlDate: 'datetime' }}</td>
+                  <td>{{ change.changedBy }}</td>
+                  <td>{{ change.action | codeLabel: maintainerActionKeys }}</td>
+                  <td class="small"><app-service-definition-snapshot [snapshot]="change.previous" /></td>
+                  <td class="small"><app-service-definition-snapshot [snapshot]="change.current" /></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+}

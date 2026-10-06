@@ -24,6 +24,29 @@ public static class ChargeConceptCodes
     // Servicio pagado que emite el certificado de transbordo al confirmarse el pago (M6-01, Ola E).
     public const string TransshipmentCertificate = "TRANSSHIPMENT_CERT";
 
+    // Servicios on demand de Fase 2 (Ola G, M2-03/M2-04): su tarifa vive en el mantenedor (M8-01) y la
+    // solicitud la define una ServiceDefinition.
+    public const string SealManagement = "SEAL_MANAGEMENT";
+    public const string EarlyArrival = "EARLY_ARRIVAL";
+    public const string DropOff = "DROP_OFF";
+    public const string ContainerAdministrationXom = "XOM";
+    public const string BlCorrection = "BL_CORRECTION";
+    public const string BlHouseTransmission = "BL_HOUSE_TRANSMISSION";
+    public const string MatrixLate = "MATRIX_LATE";
+
+    // Cargos locales vigentes de importación tomados como referencia del modelo estándar (CL-IMP-05/06).
+    public const string Opening = "OPENING";
+    public const string Valuation = "VALUATION";
+
+    // Refacturación IAO (M3-11, Fase 2 Ola H): cargo por refacturar y pérdida de IVA de la factura original.
+    public const string Reinvoicing = "REINVOICING";
+    public const string VatLoss = "VAT_LOSS";
+
+    // Fase 2 Ola J (Bolivia): certificado de flete (M6-02) y carta de liberación y desconsolidado (M6-08). Sin tarifa: la
+    // primera entrega no cobra; el concepto deja preparado el cobro en BOB cuando se defina y valide.
+    public const string FreightCertificate = "FREIGHT_CERTIFICATE";
+    public const string ReleaseLetter = "RELEASE_LETTER";
+
     // Recargos de origen ya presentes en los datos (semilla e importación).
     public const string Thc = "THC";
     public const string ThcReefer = "THC_RF";
@@ -64,4 +87,10 @@ public static class ChargeStatus
     public const string Pending = "Pending";
     public const string Paid = "Paid";
     public const string Exempt = "Exempt";
+
+    /// <summary>
+    /// Imputado a la línea de crédito del cliente (M5-10, Ola H): la carga se libera sin pago inmediato y el
+    /// monto queda como saldo pendiente en el estado de cuenta (M7-03) hasta su facturación.
+    /// </summary>
+    public const string CreditImputed = "CreditImputed";
 }

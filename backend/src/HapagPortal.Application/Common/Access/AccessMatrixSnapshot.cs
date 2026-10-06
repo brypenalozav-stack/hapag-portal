@@ -116,6 +116,22 @@ public sealed class AccessMatrixSnapshot(IReadOnlyList<ShipmentAction> actions, 
             .ToList();
     }
 
+    /// <summary>
+    /// Solo consulta de información del embarque (categoría información, tipo consulta): lo que la empresa matriz ve de
+    /// los BL de una filial (M1-21), sin pagar, solicitar ni administrar accesos.
+    /// </summary>
+    public List<string> ViewOnly(IEnumerable<string> codes)
+    {
+        var set = codes.ToHashSet(StringComparer.Ordinal);
+        return Actions
+            .Where(a => a.IsActive
+                && a.Category == ShipmentActionCategories.Information
+                && a.Kind == ShipmentActionKinds.View
+                && set.Contains(a.Code))
+            .Select(a => a.Code)
+            .ToList();
+    }
+
     /// <summary>Ordena códigos según la matriz y descarta los desconocidos.</summary>
     public List<string> Ordered(IEnumerable<string> codes)
     {

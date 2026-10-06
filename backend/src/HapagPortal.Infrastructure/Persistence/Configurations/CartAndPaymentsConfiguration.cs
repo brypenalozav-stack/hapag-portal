@@ -180,6 +180,7 @@ internal sealed class CustomerInvoiceConfiguration : IEntityTypeConfiguration<Cu
             .IsUnique()
             .HasFilter("\"DeletedAt\" IS NULL");
         builder.HasIndex(e => e.BillOfLadingId);
+        builder.HasIndex(e => e.SupersededByInvoiceId);
 
         builder.HasOne(e => e.Organization)
             .WithMany()

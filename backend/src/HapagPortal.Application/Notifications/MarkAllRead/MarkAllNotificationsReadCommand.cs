@@ -2,10 +2,13 @@ namespace HapagPortal.Application.Notifications.MarkAllRead;
 
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Notifications.Common;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-public sealed record MarkAllNotificationsReadCommand : ICommand<int>;
+/// <summary>Marca como leídas todas las no leídas de la bandeja, o solo las de un módulo (M1-25).</summary>
+public sealed record MarkAllNotificationsReadCommand(string? Module = null) : ICommand<int>;
 
 public sealed class MarkAllNotificationsReadCommandHandler(
     IApplicationDbContext dbContext,
@@ -16,14 +19,16 @@ public sealed class MarkAllNotificationsReadCommandHandler(
         MarkAllNotificationsReadCommand request,
         CancellationToken cancellationToken)
     {
-        var userId = currentUser.UserId;
-        var roles = currentUser.Roles.ToList();
+        var query = NotificationInbox.ForCurrentUser(dbContext, currentUser).Where(n => n.ReadAt == null);
 
-        var pending = await dbContext.Notifications
-            .Where(n => n.ReadAt == null
-                        && ((n.UserId != null && n.UserId == userId)
-                            || (n.RoleCode != null && roles.Contains(n.RoleCode))))
-            .ToListAsync(cancellationToken);
+        if (!string.IsNullOrWhiteSpace(request.Module))
+        {
+            var module = request.Module.Trim();
+            var types = NotificationTypes.Catalog.Where(t => t.Module == module).Select(t => t.Type).ToList();
+            query = query.Where(n => n.Module == module || (n.Module == null && types.Contains(n.Type)));
+        }
+
+        var pending = await query.ToListAsync(cancellationToken);
 
         var now = DateTime.UtcNow;
         foreach (var n in pending)

@@ -1,0 +1,174 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.depositProofs.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.depositProofs.subtitle' | transloco }}</p>
+</div>
+
+@if (actionMessage()) {
+  <div class="alert alert-success py-2" role="status" data-testid="proof-queue-message">{{ actionMessage() }}</div>
+}
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.depositProofs.filters.label' | transloco" (ngSubmit)="load()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="proof-queue-status" class="form-label small fw-semibold">{{ 'admin.depositProofs.filters.status' | transloco }}</label>
+      <select id="proof-queue-status" class="form-select" name="status" [(ngModel)]="status">
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="proof-queue-country" class="form-label small fw-semibold">{{ 'admin.depositProofs.filters.country' | transloco }}</label>
+      <select id="proof-queue-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.depositProofs.filters.all' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <button type="submit" class="btn btn-outline-secondary">{{ 'admin.depositProofs.filters.search' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (reviewing(); as item) {
+  <!-- Revisión: verificar el abono o rechazar con motivo (M5-06) -->
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="proof-review-title" (submit)="confirmReview($event)" data-testid="proof-review-form">
+    <h2 #reviewHeading id="proof-review-title" class="section-title mb-3" tabindex="-1">{{ 'admin.depositProofs.review.title' | transloco: { number: item.paymentNumber } }}</h2>
+    <dl class="row g-3 mb-3">
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'admin.depositProofs.review.total' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ item.totalAmount | hlCurrency: item.currency }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'admin.depositProofs.review.depositAmount' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ item.proof.depositAmount !== null && item.proof.depositAmount !== undefined ? (item.proof.depositAmount | hlCurrency: item.currency) : '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'admin.depositProofs.review.bankReference' | transloco }}</dt>
+        <dd class="fw-semibold mb-0 text-break">{{ item.proof.bankReference ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'admin.depositProofs.review.slip' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ item.slipNumber ?? '—' }}</dd>
+      </div>
+    </dl>
+    @if (reviewError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ reviewError() }}</div>
+    }
+    <fieldset class="mb-3">
+      <legend class="form-label small fw-semibold mb-1">{{ 'admin.depositProofs.review.decision' | transloco }}</legend>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="proofDecision" id="proof-decision-verify" value="verify" [(ngModel)]="decision" />
+        <label class="form-check-label" for="proof-decision-verify">{{ 'admin.depositProofs.review.verify' | transloco }}</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="proofDecision" id="proof-decision-reject" value="reject" [(ngModel)]="decision" />
+        <label class="form-check-label" for="proof-decision-reject">{{ 'admin.depositProofs.review.reject' | transloco }}</label>
+      </div>
+    </fieldset>
+    @if (decision === 'reject') {
+      <div class="mb-3">
+        <label for="proof-review-reason" class="form-label small fw-semibold">{{ 'admin.depositProofs.review.reason' | transloco }}</label>
+        <textarea id="proof-review-reason" class="form-control" rows="2" required name="reason" [maxlength]="maxNotes"
+                  aria-describedby="proof-review-reason-help" [attr.aria-invalid]="reasonMissing()" [(ngModel)]="reason"></textarea>
+        <div id="proof-review-reason-help" class="form-text">
+          @if (reasonMissing()) {
+            <span class="hl-field-error">{{ 'admin.depositProofs.review.reasonRequired' | transloco }}</span>
+          } @else {
+            {{ 'admin.depositProofs.review.reasonHelp' | transloco }}
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="mb-3">
+        <label for="proof-review-notes" class="form-label small fw-semibold">{{ 'admin.depositProofs.review.notes' | transloco }}</label>
+        <textarea id="proof-review-notes" class="form-control" rows="2" name="notes" [maxlength]="maxNotes" aria-describedby="proof-review-notes-help" [(ngModel)]="notes"></textarea>
+        <div id="proof-review-notes-help" class="form-text">{{ 'admin.depositProofs.review.notesHelp' | transloco }}</div>
+      </div>
+    }
+    <div class="d-flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="busy()" data-testid="proof-review-submit">{{ 'admin.depositProofs.review.submit' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeReview()">{{ 'admin.depositProofs.review.back' | transloco }}</button>
+    </div>
+  </form>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (items().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.depositProofs.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.depositProofs.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.depositProofs.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.depositProofs.col.payment' | transloco }}</th>
+            <th scope="col">{{ 'admin.depositProofs.col.payer' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'admin.depositProofs.col.total' | transloco }}</th>
+            <th scope="col">{{ 'admin.depositProofs.col.proof' | transloco }}</th>
+            <th scope="col">{{ 'admin.depositProofs.col.deposit' | transloco }}</th>
+            <th scope="col">{{ 'admin.depositProofs.col.status' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.depositProofs.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.proof.id) {
+            <tr [attr.data-testid]="'proof-row-' + item.paymentNumber">
+              <td>
+                <span class="fw-semibold d-block">{{ item.paymentNumber }}</span>
+                @if (item.slipNumber) {
+                  <span class="small d-block">{{ 'admin.depositProofs.slip' | transloco: { number: item.slipNumber } }}</span>
+                }
+                <span class="small text-muted d-block">{{ item.paymentStatus | codeLabel: paymentStatusKeys }}</span>
+                @if (item.blNumbers.length > 0) {
+                  <span class="small text-muted d-block">{{ 'admin.depositProofs.bls' | transloco: { bls: item.blNumbers.join(', ') } }}</span>
+                }
+              </td>
+              <td class="small">
+                <span class="d-block">{{ item.payerName ?? '—' }}</span>
+                <span class="d-block">{{ item.payerTaxId ?? '—' }}</span>
+              </td>
+              <td class="text-end hl-num">{{ item.totalAmount | hlCurrency: item.currency }}</td>
+              <td class="small">
+                <button type="button" class="btn btn-link btn-sm p-0 text-break text-start" [disabled]="downloading() === item.proof.id" (click)="download(item)"
+                        [attr.aria-label]="'admin.depositProofs.downloadLabel' | transloco: { name: item.proof.fileName, number: item.paymentNumber }">{{ item.proof.fileName }}</button>
+                <span class="d-block">{{ 'admin.depositProofs.uploaded' | transloco: { date: (item.proof.uploadedAt | hlDate: 'datetime' : item.timeZone), user: item.proof.uploadedBy } }}</span>
+              </td>
+              <td class="small">
+                <span class="d-block">{{ 'admin.depositProofs.bank' | transloco: { bank: item.proof.bankName ?? '—', reference: item.proof.bankReference ?? '—' } }}</span>
+                @if (item.proof.depositDate) {
+                  <span class="d-block">{{ 'admin.depositProofs.depositDate' | transloco: { date: (item.proof.depositDate | hlDate: 'localDate') } }}</span>
+                }
+                @if (item.proof.depositAmount !== null && item.proof.depositAmount !== undefined) {
+                  <span class="d-block">{{ 'admin.depositProofs.depositAmount' | transloco: { amount: (item.proof.depositAmount | hlCurrency: item.currency) } }}</span>
+                }
+              </td>
+              <td>
+                <span class="hl-badge" [class]="statusClass[item.proof.status] || 'hl-badge--processing'">{{ item.proof.status | codeLabel: statusKeys }}</span>
+                @if (item.proof.rejectionReason) {
+                  <span class="small d-block mt-1">{{ 'admin.depositProofs.rejectionReason' | transloco: { reason: item.proof.rejectionReason } }}</span>
+                }
+              </td>
+              <td>
+                @if (item.proof.status === 'Submitted') {
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="review(item)"
+                          [attr.aria-label]="'admin.depositProofs.reviewLabel' | transloco: { number: item.paymentNumber }">{{ 'admin.depositProofs.reviewButton' | transloco }}</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

@@ -6,7 +6,8 @@
  */
 
 /** Resultado de las reglas sobre un cargo. */
-export type ChargeOutcome = 'Payable' | 'PartiallyExempt' | 'Exempt' | 'Paid';
+/** `CreditImputed`: imputado a la línea de crédito (Fase 2, Ola H, M5-10); no se paga ahora. */
+export type ChargeOutcome = 'Payable' | 'PartiallyExempt' | 'Exempt' | 'Paid' | 'CreditImputed';
 
 /** Única acción disponible para un cargo o un estado de demurrage. */
 export type ChargeAction = 'Pay' | 'AddToCart' | 'Calculate' | 'None';
@@ -64,6 +65,9 @@ export interface CommercialConditions {
   responsibilityLetterRequired: boolean;
   ipoExcluded: boolean;
   errorCode?: string | null;
+  /** Fase 2, Ola H: cupo de crédito informado por Nexus (extensión propuesta, opcional). */
+  creditLimit?: number | null;
+  creditLimitCurrency?: string | null;
 }
 
 export interface ExemptionCondition {
@@ -118,7 +122,7 @@ export interface RuledCharge {
   taxAmount: number;
   totalAmount: number;
   currency: string;
-  status: 'Pending' | 'Paid' | 'Exempt';
+  status: 'Pending' | 'Paid' | 'Exempt' | 'CreditImputed';
   outcome: ChargeOutcome;
   payableAmount: number;
   payableTaxAmount: number;

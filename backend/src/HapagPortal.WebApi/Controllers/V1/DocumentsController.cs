@@ -2,7 +2,9 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
 using HapagPortal.Application.Documents.BlCopy;
+using HapagPortal.Application.Documents.FreightCertificate;
 using HapagPortal.Application.Documents.NoDebt;
+using HapagPortal.Application.Documents.ReleaseLetter;
 using HapagPortal.Application.Documents.Repository;
 using HapagPortal.Application.Documents.ResponsibilityLetter;
 using HapagPortal.Application.Documents.Transshipment;
@@ -103,6 +105,74 @@ public sealed class DocumentsController : ApiController
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 
+    /// <summary>Gestión del certificado de flete (M6-02, importación de Bolivia): datos para el formulario y solicitudes.</summary>
+    [HttpGet("{blNumber}/freight-certificate")]
+    public async Task<IActionResult> GetFreightCertificate(string blNumber, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetFreightCertificateQuery(blNumber), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Solicita y emite el certificado de flete (sin pago ni carro en esta entrega).</summary>
+    [HttpPost("{blNumber}/freight-certificate")]
+    public async Task<IActionResult> RequestFreightCertificate(
+        string blNumber,
+        [FromBody] FreightCertificateRequestBody request,
+        CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new RequestFreightCertificateCommand(
+            blNumber,
+            request.ConsigneeName ?? string.Empty,
+            request.ConsigneeTaxId ?? string.Empty,
+            request.Purpose ?? string.Empty,
+            request.Recipient,
+            request.Notes,
+            request.SendEmail ?? true), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Gestión de la carta de liberación y desconsolidado (M6-08, importación de Bolivia), con el TATC de las unidades.</summary>
+    [HttpGet("{blNumber}/release-letter")]
+    public async Task<IActionResult> GetReleaseLetter(string blNumber, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetReleaseLetterQuery(blNumber), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Solicita la carta: queda pendiente de aprobación de Customer Service, que la emite al aprobar.</summary>
+    [HttpPost("{blNumber}/release-letter")]
+    public async Task<IActionResult> RequestReleaseLetter(
+        string blNumber,
+        [FromBody] ReleaseLetterRequestBody request,
+        CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new RequestReleaseLetterCommand(
+            blNumber,
+            request.Containers ?? [],
+            request.LegalEntityType ?? string.Empty,
+            request.ConsigneeName ?? string.Empty,
+            request.ConsigneeTaxId ?? string.Empty,
+            request.ConsigneeAddress,
+            request.LegalRepresentativeName,
+            request.LegalRepresentativeId,
+            request.CarrierOrganizationId,
+            request.CarrierName,
+            request.CarrierTaxId,
+            request.DriverName,
+            request.DriverId,
+            request.TruckPlate,
+            request.Observations), cancellationToken);
+        return result.IsSuccess ? StatusCode(StatusCodes.Status201Created, result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Carta de la organización con su TATC al enviar y al aprobar y la carta emitida.</summary>
+    [HttpGet("release-letter/requests/{id:guid}")]
+    public async Task<IActionResult> GetReleaseLetterRequest(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetReleaseLetterRequestQuery(id), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
     /// <summary>Cargo del certificado de transbordo para el carro (M6-01); el certificado se emite al confirmarse el pago.</summary>
     [HttpPost("{blNumber}/transshipment-certificate")]
     public async Task<IActionResult> RequestTransshipmentCertificate(string blNumber, CancellationToken cancellationToken)
@@ -124,3 +194,27 @@ public sealed record IssueResponsibilityLetterRequest(
     string? Observations,
     bool AcceptTerms,
     string? TermsVersion);
+
+public sealed record FreightCertificateRequestBody(
+    string? ConsigneeName,
+    string? ConsigneeTaxId,
+    string? Purpose,
+    string? Recipient,
+    string? Notes,
+    bool? SendEmail);
+
+public sealed record ReleaseLetterRequestBody(
+    IReadOnlyList<string>? Containers,
+    string? LegalEntityType,
+    string? ConsigneeName,
+    string? ConsigneeTaxId,
+    string? ConsigneeAddress,
+    string? LegalRepresentativeName,
+    string? LegalRepresentativeId,
+    Guid? CarrierOrganizationId,
+    string? CarrierName,
+    string? CarrierTaxId,
+    string? DriverName,
+    string? DriverId,
+    string? TruckPlate,
+    string? Observations);

@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.AccountPayments;
 using HapagPortal.Application.Payments.Maintainers;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Authentication;
@@ -61,6 +62,54 @@ public sealed class PaymentConfigController : ApiController
     public async Task<IActionResult> GetCurrencyHistory(string country, string conceptCode, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetPaymentCurrencyHistoryQuery(country, conceptCode), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Conceptos imputables a la línea de crédito (M5-10), con registro de cambios (NF-15).</summary>
+    [HttpGet("credit-imputation")]
+    [HasPermission(MaintainerPermissions.Manage)]
+    public async Task<IActionResult> GetCreditImputationRules(
+        [FromQuery] string? country,
+        CancellationToken cancellationToken,
+        [FromQuery] bool includeDisabled = true)
+    {
+        var result = await Sender.Send(new GetCreditImputationRulesQuery(country, includeDisabled), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    [HttpPost("credit-imputation")]
+    [HasPermission(MaintainerPermissions.Manage)]
+    public async Task<IActionResult> CreateCreditImputationRule([FromBody] CreditImputationRuleRequest request, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(
+            new CreateCreditImputationRuleCommand(request.Country ?? string.Empty, request.ConceptCode ?? string.Empty,
+                request.NexusCreditConcept, request.IsEnabled ?? true, request.Notes),
+            cancellationToken);
+        return result.IsSuccess ? StatusCode(StatusCodes.Status201Created, result.Value) : HandleFailure(result);
+    }
+
+    [HttpPut("credit-imputation/{id:guid}")]
+    [HasPermission(MaintainerPermissions.Manage)]
+    public async Task<IActionResult> UpdateCreditImputationRule(Guid id, [FromBody] CreditImputationRuleRequest request, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(
+            new UpdateCreditImputationRuleCommand(id, request.NexusCreditConcept, request.IsEnabled ?? true, request.Notes), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    [HttpDelete("credit-imputation/{id:guid}")]
+    [HasPermission(MaintainerPermissions.Manage)]
+    public async Task<IActionResult> DeleteCreditImputationRule(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new DeleteCreditImputationRuleCommand(id), cancellationToken);
+        return result.IsSuccess ? NoContent() : HandleFailure(result);
+    }
+
+    [HttpGet("credit-imputation/{id:guid}/history")]
+    [HasPermission(MaintainerPermissions.Manage)]
+    public async Task<IActionResult> GetCreditImputationRuleHistory(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetCreditImputationRuleHistoryQuery(id), cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 
@@ -134,3 +183,10 @@ public sealed record PaymentMethodRequest(
     IReadOnlyList<string>? Currencies,
     bool IsEnabled = true,
     int DisplayOrder = 0);
+
+public sealed record CreditImputationRuleRequest(
+    string? Country,
+    string? ConceptCode,
+    string NexusCreditConcept,
+    bool? IsEnabled,
+    string? Notes);

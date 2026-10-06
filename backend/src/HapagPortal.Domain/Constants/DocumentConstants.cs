@@ -27,14 +27,26 @@ public static class ShipmentDocumentTypes
     /// <summary>Certificado de libre deuda, importación de Bolivia (M6-07, BO-IMP-15). Firmado.</summary>
     public const string NoDebtCertificate = "NoDebtCertificate";
 
+    /// <summary>
+    /// Recibo del pago anticipado de Gate Out antes de la emisión de la factura (M3-19, Ola H): identifica el
+    /// embarque, las unidades y el pagador; la factura emitida tras el zarpe se vincula a él.
+    /// </summary>
+    public const string GateOutAdvanceReceipt = "GateOutAdvanceReceipt";
+
+    /// <summary>Certificado de flete, importación de Bolivia (M6-02, BO-IMP-08). Firmado.</summary>
+    public const string FreightCertificate = "FreightCertificate";
+
+    /// <summary>Carta de liberación y desconsolidado, importación de Bolivia (M6-08, BO-IMP-11).</summary>
+    public const string ReleaseLetter = "ReleaseLetter";
+
     public static readonly string[] All =
     [
         TransshipmentCertificate, GateOutCoupon, CollectReceipt, BlCopyValued, BlCopyNonValued,
-        ResponsibilityLetter, NoDebtCertificate
+        ResponsibilityLetter, NoDebtCertificate, GateOutAdvanceReceipt, FreightCertificate, ReleaseLetter
     ];
 
     /// <summary>Documentos que se emiten con firma electrónica (M6-01, M6-02, M6-07) por <c>IDocumentSigner</c>.</summary>
-    public static readonly string[] Signed = [TransshipmentCertificate, NoDebtCertificate];
+    public static readonly string[] Signed = [TransshipmentCertificate, NoDebtCertificate, FreightCertificate];
 }
 
 /// <summary>
@@ -48,11 +60,14 @@ public static class ShipmentDocumentAccess
     {
         ShipmentDocumentTypes.TransshipmentCertificate => ShipmentActionCodes.GenerateTransshipmentCertificate,
         ShipmentDocumentTypes.GateOutCoupon => ShipmentActionCodes.PayMandatoryLocalCharges,
+        ShipmentDocumentTypes.GateOutAdvanceReceipt => ShipmentActionCodes.PayMandatoryLocalCharges,
         ShipmentDocumentTypes.CollectReceipt => ShipmentActionCodes.DownloadCollectReceipt,
         ShipmentDocumentTypes.BlCopyValued => ShipmentActionCodes.RequestValuedBlCopy,
         ShipmentDocumentTypes.BlCopyNonValued => ShipmentActionCodes.RequestUnvaluedBlCopy,
         ShipmentDocumentTypes.ResponsibilityLetter => ShipmentActionCodes.GenerateResponsibilityLetter,
         ShipmentDocumentTypes.NoDebtCertificate => ShipmentActionCodes.DownloadNoDebtCertificate,
+        ShipmentDocumentTypes.FreightCertificate => ShipmentActionCodes.GenerateFreightCertificate,
+        ShipmentDocumentTypes.ReleaseLetter => ShipmentActionCodes.GenerateReleaseLetter,
         _ => throw new ArgumentOutOfRangeException(nameof(documentType), documentType, "Unknown document type.")
     };
 }
@@ -73,20 +88,28 @@ public static class ShipmentDocumentOrigins
     public const string Seed = "Seed";
 }
 
-/// <summary>Eventos del registro de un documento (NF-14): emisión, descarga y envío por correo.</summary>
+/// <summary>
+/// Eventos del registro de un documento (NF-14): emisión, descarga, envío por correo y entrega del enlace de
+/// descarga por el asistente (M10-04).
+/// </summary>
 public static class ShipmentDocumentEventTypes
 {
     public const string Issued = "Issued";
     public const string Downloaded = "Downloaded";
     public const string Sent = "Sent";
+    public const string Delivered = "Delivered";
 }
 
-/// <summary>Canal por el que se entrega el documento: portal, correo, asistente (M10-04) o el sistema.</summary>
+/// <summary>
+/// Canal por el que se emite o entrega el documento: portal, correo, asistente (M10-04), el canal Web Service
+/// de clientes (M3-17) o el sistema.
+/// </summary>
 public static class DocumentChannels
 {
     public const string Portal = "Portal";
     public const string Email = "Email";
     public const string Assistant = "Assistant";
+    public const string WebService = "WebService";
     public const string System = "System";
 }
 
@@ -95,11 +118,13 @@ public static class SignatureDocumentTypes
 {
     public const string TransshipmentCertificate = "TRANSSHIPMENT_CERTIFICATE";
     public const string NoDebtCertificate = "NO_DEBT_CERTIFICATE";
+    public const string FreightCertificate = "FREIGHT_CERTIFICATE";
 
     public static string? For(string documentType) => documentType switch
     {
         ShipmentDocumentTypes.TransshipmentCertificate => TransshipmentCertificate,
         ShipmentDocumentTypes.NoDebtCertificate => NoDebtCertificate,
+        ShipmentDocumentTypes.FreightCertificate => FreightCertificate,
         _ => null
     };
 }

@@ -55,3 +55,23 @@ El plan anterior dejó la base: especificación v4, contratos e integraciones co
 | D | `feature/fase1-ola-d-carro-pagos` | Hecha: backend `f20f9c7`, frontend y concurrencia `c69c5dd` |
 | E | `feature/fase1-ola-e-documentos` | Hecha: backend `bd7f14c`, frontend `62416ce` |
 | F | `feature/fase1-ola-f-portal-asistente` | Hecha: backend `90c19ee`, frontend (commit de esta ola) |
+
+## Fase 2 (continuación, aprobada el 2026-10-06)
+
+Mismo método y reglas. Fichas con texto en `docs/requerimientos/especificacion-funcional-v4.txt`.
+
+| Ola | Fichas | Contenido |
+|---|---|---|
+| G | M2-03, M2-04, M3-06, M3-07, M3-08, M3-09, M3-10, M3-12, M3-13, M3-14, M3-15 | Modelo configurable de conceptos de cobro on demand (import/export, CL/BO) y los servicios que lo usan: historial de cambio de almacén, sellos, Late Arrival/Early, Drop Off SCL, XOM, correcciones de BL, BL hijo, matriz fuera de plazo, Gate In por devolución |
+| H | M7-03, M5-10, M5-06, M3-11, M3-19 | Estado de cuenta en línea, pago por ítem con crédito, comprobante de depósito, refacturación IAO con pérdida de IVA, pago anticipado de Gate Out por agencia |
+| I | M1-25, M1-26, M1-27, M8-05, M8-08, M9-01, M8-09, M1-06, M1-09, M1-21 | Bandeja de notificaciones, comunicados, modo guía, área de administración, vista como cliente, reportería, Counter Bolivia/Ultramar, contactos, pre-creación de transportistas, empresa matriz |
+| J | M6-02, M6-08, M10-04, M3-17 | Certificado de flete, carta de liberación y desconsolidado, entrega de documentos por el asistente, canal Web Service |
+
+Fase 0 (M1-19, M2-08, M3-03, M7-04) queda para después, por estar "en revisión" en el documento.
+
+| Ola | Rama | Estado |
+|---|---|---|
+| G | `feature/fase2-ola-g-servicios-on-demand` | Hecha: backend `438d13b`, frontend (commit de la ola) |
+| H | `feature/fase2-ola-h-finanzas` | Hecha: backend `729291e`, frontend (commit de la ola) |
+| I | `feature/fase2-ola-i-administracion` | Hecha: backend `b4205bf`, frontend (commit de la ola) |
+| J | `feature/fase2-ola-j-documentos-canal` | Hecha: backend `232cb2c`, frontend `27cc1a5` |

@@ -73,6 +73,31 @@ public sealed class MigraDocPdfRendererTests
                 "ffww@globalforwarding.cl", null, "Muebles", "Sin observaciones", ResponsibilityLetterTerms.Version, IssuedAt)),
         ShipmentDocumentTypes.NoDebtCertificate =>
             ShipmentDocumentTemplates.NoDebtCertificate(Data(country: CountryCodes.Bolivia), Header("CLD-1"), "Comercial Altiplano SRL", "1023456017"),
+        ShipmentDocumentTypes.GateOutAdvanceReceipt => ShipmentDocumentTemplates.GateOutAdvanceReceipt(
+            data, Header("RGO-1"), "Agencia Marítima del Pacífico Ltda", "96555444-3", "PAY-1", "RCP-1", "KHIPU",
+            new PaymentDetail
+            {
+                ConceptType = ChargeConceptCodes.GateOut,
+                Description = "Gate Out - 40HC",
+                Amount = 60000m,
+                TaxAmount = 11400m,
+                Currency = "CLP",
+                OriginalAmount = 71400m,
+                OriginalCurrency = "CLP",
+                BillingTaxId = "76123456-7",
+                BillingName = "Importadora Demo SpA"
+            },
+            IssuedAt),
+        ShipmentDocumentTypes.FreightCertificate => ShipmentDocumentTemplates.FreightCertificate(
+            Data(country: CountryCodes.Bolivia), Header("CFL-1"),
+            new FreightCertificateData("SRV-1", "Comercial Altiplano SRL", "1023456017", "Comercial Altiplano SRL", "1023456017",
+                "Trámite aduanero", "Aduana Nacional de Bolivia", null)),
+        ShipmentDocumentTypes.ReleaseLetter => ShipmentDocumentTemplates.ReleaseLetter(
+            Data(country: CountryCodes.Bolivia), Header("CLB-1"),
+            new ReleaseLetterData("SRV-2", "Comercial Altiplano SRL", LegalEntityTypes.Company, "Comercial Altiplano SRL", "1023456017",
+                "Av. Arce 2631, La Paz", "Marcela Quispe", "4876512 LP", "Transportes Illimani SRL", "4455667018", false, "Juan Mamani",
+                "6123987 LP", "2345-KTR", null, ["HLXU1234567"], true, [new ReleaseLetterTatcLine("HLXU1234567", "Issued", "TATC-1")],
+                IssuedAt, "HBL recibido el 04-10-2026; desconsolidado el 05-10-2026", "cs@hapag-lloyd.cl", IssuedAt)),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
 

@@ -22,6 +22,8 @@ import { DocumentService } from '../../../core/services/document.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import {
   ASSISTANT_DEFAULT_RESPONSE_TARGET_MS,
+  ASSISTANT_DELIVERY_INTENT,
+  ASSISTANT_DELIVERY_PATH,
   ASSISTANT_MESSAGE_MAX_LENGTH,
   AssistantAction,
   AssistantMessage,
@@ -35,6 +37,7 @@ import { CodeLabelPipe } from '../../pipes/code-label.pipe';
 import { HlDatePipe } from '../../pipes/hl-date.pipe';
 import { focusAfterRender } from '../../focus-after-render';
 import { saveBlob } from '../../save-blob';
+import { isServiceUnavailable } from '../state-message/state-message';
 
 /** Conversación de la pestaña (M10-01): se recupera su historial al recargar mientras dure la sesión. */
 const SESSION_KEY = 'hl_assistant_session';
@@ -55,7 +58,9 @@ const MAILTO = /^mailto:/i;
  * cargos, descargar un documento con la misma descarga del repositorio, ir al carro, escribir a la casilla), y
  * distingue las respuestas "no disponible", derivación a la casilla y rechazo. El estado "escribiendo" y "en proceso"
  * (si la espera supera la meta de NF-18) se anuncia en la región polite. Escape cierra el panel y devuelve el foco al
- * botón. Al terminar la conversación se ofrece el respaldo por correo al registrado o a otro (M10-05).
+ * botón. Al terminar la conversación se ofrece el respaldo por correo al registrado o a otro (M10-05). Fase 2, Ola J:
+ * entrega de documentos (M10-04): la respuesta ofrece descargar los documentos del repositorio que el usuario puede ver,
+ * con el nombre que informa el servidor, o explica que no hay ninguno disponible para él; se anuncia cuántos hay.
  */
 @Component({
   selector: 'app-assistant',
@@ -105,6 +110,8 @@ export class AssistantComponent {
   endResult = signal<EndAssistantSessionResult | null>(null);
 
   downloadError = signal('');
+  /** Ruta de la entrega que se está descargando (M10-04). */
+  deliveryBusy = signal<string | null>(null);
 
   private readonly launcher = viewChild<ElementRef<HTMLButtonElement>>('launcher');
   private readonly input = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
@@ -257,7 +264,7 @@ export class AssistantComponent {
           { ...reply.reply, mailboxEmail: reply.mailboxEmail },
         ]);
         this.scrollToEnd();
-        this.announcer.announce(translate('shared.assistant.replied', { content: reply.reply.content }));
+        this.announcer.announce(this.replyAnnouncement(reply.reply));
       },
       error: (err) => {
         this.finishSending();
@@ -279,6 +286,17 @@ export class AssistantComponent {
         focusAfterRender(this.injector, () => this.input()?.nativeElement);
       },
     });
+  }
+
+  /** Anuncio de la respuesta; en una entrega de documentos (M10-04) dice cuántos hay para descargar o que no hay. */
+  private replyAnnouncement(reply: AssistantMessage): string {
+    const content = translate('shared.assistant.replied', { content: reply.content });
+    if (!this.isDelivery(reply)) return content;
+    const count = this.deliveryCount(reply);
+    const delivery = count > 0
+      ? translate('shared.assistant.delivery.ready', { count })
+      : translate('shared.assistant.delivery.none');
+    return `${content} ${delivery}`;
   }
 
   private finishSending(): void {
@@ -334,6 +352,10 @@ export class AssistantComponent {
   /** Descarga con la sesión del usuario y las mismas restricciones que el repositorio (M6-09, NF-14). */
   download(action: AssistantAction): void {
     if (!action.path) return;
+    if (ASSISTANT_DELIVERY_PATH.test(action.path)) {
+      this.downloadDelivery(action, action.path);
+      return;
+    }
     this.downloadError.set('');
     const segments = action.path.split('/').filter((s) => s !== '');
     const name = `${action.blNumber ?? segments.at(-2) ?? 'documento'}.pdf`;
@@ -348,6 +370,43 @@ export class AssistantComponent {
         this.announcer.announce(message, 'assertive');
       },
     });
+  }
+
+  /**
+   * Documento entregado por el asistente (M10-04): se descarga por la entrega de la conversación, con el nombre que
+   * informa el servidor. Los permisos se validan otra vez al descargar: si el usuario perdió el acceso, se explica.
+   */
+  private downloadDelivery(action: AssistantAction, path: string): void {
+    if (this.deliveryBusy()) return;
+    this.downloadError.set('');
+    this.deliveryBusy.set(path);
+    this.service.downloadDelivery(path).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (file) => {
+        this.deliveryBusy.set(null);
+        // Sin Content-Disposition legible, el número del documento (última palabra de la etiqueta) nombra el archivo.
+        const fallback = `${action.label.trim().split(/\s+/).at(-1) || action.blNumber || 'documento'}.pdf`;
+        saveBlob(file.blob, file.fileName ?? fallback);
+        this.announcer.announce(translate('shared.assistant.downloaded', { label: action.label }));
+      },
+      error: (err) => {
+        this.deliveryBusy.set(null);
+        const message = isServiceUnavailable(err)
+          ? translate('shared.assistant.delivery.unavailable')
+          : translate(apiErrorKey(err, PORTAL_ERRORS, 'shared.assistant.errors.download'));
+        this.downloadError.set(message);
+        this.announcer.announce(message, 'assertive');
+      },
+    });
+  }
+
+  /** La respuesta entrega documentos del embarque (M10-04). */
+  isDelivery(message: ConversationMessage): boolean {
+    return message.intent === ASSISTANT_DELIVERY_INTENT;
+  }
+
+  /** Cantidad de documentos que ofrece una respuesta de entrega. */
+  deliveryCount(message: ConversationMessage): number {
+    return message.actions.filter((a) => this.isDownload(a)).length;
   }
 
   /** Abre la pantalla de la acción; el panel queda abierto con la conversación. */
@@ -445,6 +504,7 @@ export class AssistantComponent {
     this.endError.set('');
     this.endResult.set(null);
     this.downloadError.set('');
+    this.deliveryBusy.set(null);
     if (forget) {
       this.open.set(false);
       this.clearSessionId();

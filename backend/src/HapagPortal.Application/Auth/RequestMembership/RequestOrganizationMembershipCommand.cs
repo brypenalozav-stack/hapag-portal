@@ -5,6 +5,7 @@ using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Organizations.Carriers;
 using HapagPortal.Application.Organizations.Common;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
@@ -67,6 +68,11 @@ public sealed class RequestOrganizationMembershipCommandHandler(
         var organization = await dbContext.Clients
             .FirstOrDefaultAsync(c => c.TaxId == taxId && c.Country == request.Country, cancellationToken);
 
+        // M1-09: una organización pre-creada no recibe solicitudes: su cuenta ya existe y se activa al ingresar.
+        if (organization?.RegistrationStatus == OrganizationStatus.PreCreated
+            || await PreCreatedAccounts.ExistsAsync(dbContext, email, taxId, request.Country, cancellationToken))
+            return Result<JoinRequestSubmittedDto>.Failure(DomainErrors.Registration.PreCreatedAccount);
+
         if (organization is null ||
             !organization.IsActive ||
             organization.RegistrationStatus == OrganizationStatus.Rejected ||
@@ -107,7 +113,9 @@ public sealed class RequestOrganizationMembershipCommandHandler(
             "Nueva solicitud de vinculación",
             $"{user.FirstName} {user.LastName} ({user.Email}) solicita vincularse a {organization.Name}.",
             cancellationToken,
-            dedupKeyPrefix: $"join-request:{user.Id}");
+            dedupKeyPrefix: $"join-request:{user.Id}",
+            link: new NotificationLink(NotificationEntityTypes.JoinRequest, user.Id.ToString(), $"{user.FirstName} {user.LastName}".Trim()),
+            action: new NotificationAction(NotificationActionTypes.ApproveJoinRequest, user.Id.ToString()));
 
         return Result<JoinRequestSubmittedDto>.Success(
             new JoinRequestSubmittedDto(user.Id, organization.Name, user.MembershipStatus));

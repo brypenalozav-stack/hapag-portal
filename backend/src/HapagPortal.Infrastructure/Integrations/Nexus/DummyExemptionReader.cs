@@ -6,7 +6,8 @@ namespace HapagPortal.Infrastructure.Integrations.Nexus;
 
 /// <summary>
 /// Exenciones simuladas de Nexus (CT-NEXUS). Determinista: el RUT <c>76000001-1</c> está exento de
-/// GATE_IN y EDS (exención total, vigente desde el 01-01-2026); el resto no tiene exenciones.
+/// GATE_IN y EDS (exención total, vigente desde el 01-01-2026); el NIT <c>1029384756</c> está exceptuado del
+/// cargo XOM de Bolivia (M3-10); el resto no tiene exenciones.
 /// </summary>
 public sealed class DummyExemptionReader(ILogger<DummyExemptionReader> logger) : IExemptionReader
 {
@@ -16,13 +17,16 @@ public sealed class DummyExemptionReader(ILogger<DummyExemptionReader> logger) :
         DateOnly at,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<ExemptionInfo> items =
-            DummyNexusData.IsTaxId(taxId, DummyNexusData.ExemptTaxId) && at >= DummyNexusData.ValidFrom
+        IReadOnlyList<ExemptionInfo> items = at < DummyNexusData.ValidFrom
+            ? []
+            : DummyNexusData.IsTaxId(taxId, DummyNexusData.ExemptTaxId)
                 ? [
                     new ExemptionInfo("GATE_IN", null, null, DummyNexusData.ValidFrom, null),
                     new ExemptionInfo("EDS", null, null, DummyNexusData.ValidFrom, null),
                 ]
-                : [];
+                : DummyNexusData.IsTaxId(taxId, DummyNexusData.XomExemptTaxId)
+                    ? [new ExemptionInfo("XOM", null, null, DummyNexusData.ValidFrom, null)]
+                    : [];
 
         logger.LogDebug(
             "Exenciones Nexus (dummy) - TaxId: {TaxId}, At: {At}, Items: {Count}",

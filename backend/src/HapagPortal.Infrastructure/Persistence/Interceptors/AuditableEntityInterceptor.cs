@@ -41,8 +41,14 @@ public sealed class AuditableEntityInterceptor(ICurrentUserService currentUserSe
         if (context.ChangeTracker.Entries<PaymentStatusChange>().Any(e => e.State is EntityState.Modified or EntityState.Deleted))
             throw new InvalidOperationException("Payment status history entries are append-only and cannot be modified or deleted.");
 
+        // M1-06: el registro de cambios de las listas de distribución también es append-only.
+        if (context.ChangeTracker.Entries<ContactListChange>().Any(e => e.State is EntityState.Modified or EntityState.Deleted))
+            throw new InvalidOperationException("Contact list change entries are append-only and cannot be modified or deleted.");
+
         var now = DateTime.UtcNow;
-        var userId = currentUserService.UserId?.ToString() ?? "system";
+
+        // M8-08: durante una «Vista como cliente» los cambios quedan con la identidad del usuario interno que la inició.
+        var userId = (currentUserService.ImpersonatorUserId ?? currentUserService.UserId)?.ToString() ?? "system";
 
         foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
         {

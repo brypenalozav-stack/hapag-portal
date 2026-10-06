@@ -17,6 +17,7 @@ export const ORGANIZATION_STATUS_KEYS: Record<string, string> = {
   PendingArCheck: 'common.organizationStatus.pendingArCheck',
   Approved: 'common.organizationStatus.approved',
   Rejected: 'common.organizationStatus.rejected',
+  PreCreated: 'common.organizationStatus.preCreated',
 };
 
 export const MEMBERSHIP_STATUS_KEYS: Record<string, string> = {
@@ -58,6 +59,7 @@ export const SHIPMENT_ACCESS_SOURCE_KEYS: Record<string, string> = {
   SelfAssociated: 'common.accessSource.selfAssociated',
   OpenAccess: 'common.accessSource.openAccess',
   Admin: 'common.accessSource.admin',
+  Parent: 'common.accessSource.parent',
 };
 
 /** Estado de un acceso otorgado (M1-14, M1-22, M1-03, M1-20). */
@@ -67,6 +69,7 @@ export const ACCESS_GRANT_STATUS_KEYS: Record<string, string> = {
   Expired: 'common.accessGrantStatus.expired',
   Revoked: 'common.accessGrantStatus.revoked',
   Reconciled: 'common.accessGrantStatus.reconciled',
+  PendingActivation: 'common.accessGrantStatus.pendingActivation',
 };
 
 /** Origen del acceso: `grantType` y, si es mandato, la clave `Mandate` (M1-03). */
@@ -122,6 +125,16 @@ export const ACCESS_AUDIT_EVENT_KEYS: Record<string, string> = {
   DefaultGranteeAdded: 'common.accessAuditEvent.defaultGranteeAdded',
   DefaultGranteeUpdated: 'common.accessAuditEvent.defaultGranteeUpdated',
   DefaultGranteeRemoved: 'common.accessAuditEvent.defaultGranteeRemoved',
+  // Fase 2, Ola I: transportistas pre-creados (M1-09) y empresa matriz (M1-21).
+  CarrierPreCreated: 'common.accessAuditEvent.carrierPreCreated',
+  CarrierActivated: 'common.accessAuditEvent.carrierActivated',
+  GrantActivated: 'common.accessAuditEvent.grantActivated',
+  ParentLinkRequested: 'common.accessAuditEvent.parentLinkRequested',
+  ParentLinkApproved: 'common.accessAuditEvent.parentLinkApproved',
+  ParentLinkRejected: 'common.accessAuditEvent.parentLinkRejected',
+  ParentLinkRemoved: 'common.accessAuditEvent.parentLinkRemoved',
+  ParentVisibilityEnabled: 'common.accessAuditEvent.parentVisibilityEnabled',
+  ParentVisibilityDisabled: 'common.accessAuditEvent.parentVisibilityDisabled',
 };
 
 /**
@@ -135,6 +148,39 @@ export const NOTIFICATION_TYPE_KEYS: Record<string, string> = {
   AccessExpired: 'notifications.type.accessExpired',
   AccessRevokedByCascade: 'notifications.type.accessRevokedByCascade',
   DocumentIssued: 'notifications.type.documentIssued',
+  // Fase 2, Ola G: cambios de estado de las solicitudes de servicios on demand.
+  ServiceRequestPendingApproval: 'notifications.type.serviceRequestPendingApproval',
+  ServiceRequestApproved: 'notifications.type.serviceRequestApproved',
+  ServiceRequestRejected: 'notifications.type.serviceRequestRejected',
+  ServiceRequestPendingPayment: 'notifications.type.serviceRequestPendingPayment',
+  ServiceRequestPaid: 'notifications.type.serviceRequestPaid',
+  ServiceRequestInProgress: 'notifications.type.serviceRequestInProgress',
+  ServiceRequestCompleted: 'notifications.type.serviceRequestCompleted',
+  ServiceRequestCancelled: 'notifications.type.serviceRequestCancelled',
+  // Fase 2, Ola H: comprobantes de depósito, imputaciones a crédito y refacturación IAO.
+  DepositProofSubmitted: 'notifications.type.depositProofSubmitted',
+  DepositProofRejected: 'notifications.type.depositProofRejected',
+  CreditImputationRegistered: 'notifications.type.creditImputationRegistered',
+  ReinvoicingAccepted: 'notifications.type.reinvoicingAccepted',
+  ReinvoicingDeclined: 'notifications.type.reinvoicingDeclined',
+  InvoiceReissued: 'notifications.type.invoiceReissued',
+  // Fase 2, Ola I: el resto del catálogo de la bandeja (M1-25), comunicados, empresa matriz y transportistas.
+  DeadlineAtRisk: 'notifications.type.deadlineAtRisk',
+  DeadlineOverdue: 'notifications.type.deadlineOverdue',
+  TransmissionRejected: 'notifications.type.transmissionRejected',
+  TransmissionError: 'notifications.type.transmissionError',
+  JoinRequestReceived: 'notifications.type.joinRequestReceived',
+  JoinRequestApproved: 'notifications.type.joinRequestApproved',
+  JoinRequestRejected: 'notifications.type.joinRequestRejected',
+  OrganizationApproved: 'notifications.type.organizationApproved',
+  OrganizationRejected: 'notifications.type.organizationRejected',
+  PaymentConfirmed: 'notifications.type.paymentConfirmed',
+  AnnouncementPublished: 'notifications.type.announcementPublished',
+  ParentLinkRequested: 'notifications.type.parentLinkRequested',
+  ParentLinkApproved: 'notifications.type.parentLinkApproved',
+  ParentLinkRejected: 'notifications.type.parentLinkRejected',
+  ParentVisibilityChanged: 'notifications.type.parentVisibilityChanged',
+  CarrierActivated: 'notifications.type.carrierActivated',
 };
 
 /** Texto corto del nivel (O, X, X (o)) y su descripción (lectura de las matrices de M1-11). */
@@ -220,6 +266,19 @@ export const CHARGE_CONCEPT_KEYS: Record<string, string> = {
   FREIGHT: 'common.chargeConcept.freight',
   INVOICE: 'common.chargeConcept.invoice',
   TRANSSHIPMENT_CERT: 'common.chargeConcept.transshipmentCert',
+  // Fase 2, Ola G: conceptos de los servicios on demand (M3-07 a M3-14) y la homologación de M2-03.
+  SEAL_MANAGEMENT: 'common.chargeConcept.sealManagement',
+  EARLY_ARRIVAL: 'common.chargeConcept.earlyArrival',
+  DROP_OFF: 'common.chargeConcept.dropOff',
+  XOM: 'common.chargeConcept.xom',
+  BL_CORRECTION: 'common.chargeConcept.blCorrection',
+  BL_HOUSE_TRANSMISSION: 'common.chargeConcept.blHouseTransmission',
+  MATRIX_LATE: 'common.chargeConcept.matrixLate',
+  OPENING: 'common.chargeConcept.opening',
+  VALUATION: 'common.chargeConcept.valuation',
+  // Fase 2, Ola H: refacturación IAO y pérdida de IVA (M3-11).
+  REINVOICING: 'common.chargeConcept.reinvoicing',
+  VAT_LOSS: 'common.chargeConcept.vatLoss',
 };
 
 /** Resultado de las reglas sobre un cargo (M4-01 a M4-03). */
@@ -228,6 +287,7 @@ export const CHARGE_OUTCOME_KEYS: Record<string, string> = {
   PartiallyExempt: 'common.chargeOutcome.partiallyExempt',
   Exempt: 'common.chargeOutcome.exempt',
   Paid: 'common.chargeOutcome.paid',
+  CreditImputed: 'common.chargeOutcome.creditImputed',
 };
 
 /** Motivo por el que una acción no está disponible. */
@@ -265,6 +325,7 @@ export const CHARGE_STATUS_KEYS: Record<string, string> = {
   Invoiced: 'common.chargeStatus.invoiced',
   Paid: 'common.chargeStatus.paid',
   Exempt: 'common.chargeStatus.exempt',
+  CreditImputed: 'common.chargeStatus.creditImputed',
 };
 
 /** Estado de las demoras anticipadas de Bolivia (M3-16). */
@@ -328,6 +389,10 @@ export const MAINTAINER_ACTION_KEYS: Record<string, string> = {
   Created: 'common.maintainerAction.created',
   Updated: 'common.maintainerAction.updated',
   Deactivated: 'common.maintainerAction.deactivated',
+  // Fase 2, Ola I: comunicados (M1-26).
+  Published: 'common.maintainerAction.published',
+  Unpublished: 'common.maintainerAction.unpublished',
+  Deleted: 'common.maintainerAction.deleted',
 };
 
 /**
@@ -394,6 +459,7 @@ export const PAYMENT_ORIGIN_KEYS: Record<string, string> = {
   Cart: 'common.paymentOrigin.cart',
   Account: 'common.paymentOrigin.account',
   Legacy: 'common.paymentOrigin.legacy',
+  CreditLine: 'common.paymentOrigin.creditLine',
 };
 
 /** Motivo de un pago fallido (NF-12). */
@@ -426,6 +492,7 @@ export const INVOICE_STATUS_KEYS: Record<string, string> = {
   Overdue: 'common.invoiceStatus.overdue',
   Paid: 'common.invoiceStatus.paid',
   Cancelled: 'common.invoiceStatus.cancelled',
+  Superseded: 'common.invoiceStatus.superseded',
 };
 
 export const INVOICE_STATUS_CLASS: Record<string, string> = {
@@ -433,6 +500,7 @@ export const INVOICE_STATUS_CLASS: Record<string, string> = {
   Overdue: 'hl-badge--failed',
   Paid: 'hl-badge--confirmed',
   Cancelled: 'hl-badge--processing',
+  Superseded: 'hl-badge--processing',
 };
 
 export const INVOICE_DOCUMENT_TYPE_KEYS: Record<string, string> = {
@@ -461,6 +529,7 @@ export const PAYMENT_OPERATION_JOB_KEYS: Record<string, string> = {
   Release: 'common.paymentOperationJob.release',
   Notify: 'common.paymentOperationJob.notify',
   Documents: 'common.paymentOperationJob.documents',
+  Reinvoicing: 'common.paymentOperationJob.reinvoicing',
 };
 
 /** Estado de conciliación de un pago (NF-04). */
@@ -520,6 +589,20 @@ export const PAYMENT_ERRORS: Record<string, string> = {
   'Payment.InvalidTransition': 'common.paymentErrors.invalidTransition',
   'Payment.NotDeposit': 'common.paymentErrors.notDeposit',
   'Invoice.NotFound': 'common.paymentErrors.invoiceNotFound',
+  // Fase 2, Ola H: estado de cuenta, imputación a crédito, comprobantes de depósito y anticipos.
+  'Cart.CreditImputed': 'common.paymentErrors.creditImputed',
+  'AccountPayment.CreditNotEligible': 'common.paymentErrors.creditNotEligible',
+  'AccountPayment.PaymentDataRequired': 'common.paymentErrors.paymentDataRequired',
+  'DepositProof.PaymentNotAwaitingProof': 'common.paymentErrors.proofNotAwaited',
+  'DepositProof.PendingReview': 'common.paymentErrors.proofPendingReview',
+  'DepositProof.NotPendingReview': 'common.paymentErrors.proofNotPendingReview',
+  'DepositProof.NotFound': 'common.paymentErrors.proofNotFound',
+  'Settlement.NotFound': 'common.paymentErrors.settlementNotFound',
+  'Settlement.AlreadyMatched': 'common.paymentErrors.settlementAlreadyMatched',
+  'Settlement.InvoiceNotMatchable': 'common.paymentErrors.settlementInvoiceNotMatchable',
+  'CreditImputationRule.AlreadyExists': 'common.paymentErrors.creditRuleExists',
+  'CreditImputationRule.NotFound': 'common.paymentErrors.creditRuleNotFound',
+  'ChargeConcept.NotFound': 'common.paymentErrors.conceptNotFound',
 };
 
 // ---------------------------------------------------------------------------
@@ -535,6 +618,9 @@ export const SHIPMENT_DOCUMENT_TYPE_KEYS: Record<string, string> = {
   BlCopyNonValued: 'common.shipmentDocumentType.blCopyNonValued',
   ResponsibilityLetter: 'common.shipmentDocumentType.responsibilityLetter',
   NoDebtCertificate: 'common.shipmentDocumentType.noDebtCertificate',
+  GateOutAdvanceReceipt: 'common.shipmentDocumentType.gateOutAdvanceReceipt',
+  FreightCertificate: 'common.shipmentDocumentType.freightCertificate',
+  ReleaseLetter: 'common.shipmentDocumentType.releaseLetter',
 };
 
 export const SHIPMENT_DOCUMENT_STATUS_KEYS: Record<string, string> = {
@@ -589,6 +675,14 @@ export const DOCUMENT_ERRORS: Record<string, string> = {
   'ChargeRules.ConditionsUnavailable': 'common.documentErrors.conditionsUnavailable',
   'Integration.Unavailable': 'common.documentErrors.sourceUnavailable',
   'Error.Forbidden': 'common.documentErrors.forbidden',
+  // Fase 2, Ola J: certificado de flete (M6-02) y carta de liberación y desconsolidado (M6-08).
+  'FreightCertificate.NotApplicable': 'common.documentErrors.freightNotApplicable',
+  'ReleaseLetter.NotApplicable': 'common.documentErrors.releaseLetterNotApplicable',
+  'ReleaseLetter.CarrierRequired': 'common.documentErrors.carrierRequired',
+  'ReleaseLetter.CarrierNotFound': 'common.documentErrors.carrierNotFound',
+  'ReleaseLetter.AlreadyRequested': 'common.documentErrors.releaseLetterAlreadyRequested',
+  'ServiceRequest.NotFound': 'common.documentErrors.requestNotFound',
+  'ServiceRequest.InvalidTransition': 'common.documentErrors.invalidTransition',
 };
 
 // ---------------------------------------------------------------------------
@@ -608,6 +702,7 @@ export const DASHBOARD_REQUEST_KIND_KEYS: Record<string, string> = {
   TatcBatch: 'common.requestKind.tatcBatch',
   BlCopy: 'common.requestKind.blCopy',
   ResponsibilityLetter: 'common.requestKind.responsibilityLetter',
+  ServiceRequest: 'common.requestKind.serviceRequest',
 };
 
 /** Estado de una gestión del dashboard: reúne los estados de las solicitudes del portal. */
@@ -623,6 +718,14 @@ export const DASHBOARD_REQUEST_STATUS_KEYS: Record<string, string> = {
   Cancelled: 'common.requestStatus.cancelled',
   Issued: 'common.requestStatus.issued',
   Superseded: 'common.requestStatus.superseded',
+  // Fase 2, Ola G: estados propios de las solicitudes de servicios on demand.
+  Draft: 'common.serviceRequestStatus.draft',
+  Submitted: 'common.serviceRequestStatus.submitted',
+  PendingApproval: 'common.serviceRequestStatus.pendingApproval',
+  Approved: 'common.serviceRequestStatus.approved',
+  Rejected: 'common.serviceRequestStatus.rejected',
+  PendingPayment: 'common.serviceRequestStatus.pendingPayment',
+  Paid: 'common.serviceRequestStatus.paid',
 };
 
 /** Variante de .hl-badge por estado de la gestión (el texto acompaña siempre al color). */
@@ -638,6 +741,13 @@ export const DASHBOARD_REQUEST_STATUS_CLASS: Record<string, string> = {
   Failed: 'hl-badge--failed',
   Cancelled: 'hl-badge--failed',
   Superseded: 'hl-badge--processing',
+  Draft: 'hl-badge--processing',
+  Submitted: 'hl-badge--processing',
+  PendingApproval: 'hl-badge--pending',
+  Approved: 'hl-badge--confirmed',
+  Rejected: 'hl-badge--failed',
+  PendingPayment: 'hl-badge--pending',
+  Paid: 'hl-badge--confirmed',
 };
 
 /** Estado de un pendiente de pago del dashboard. */
@@ -824,4 +934,619 @@ export const PORTAL_ERRORS: Record<string, string> = {
   'DangerousGood.InvalidImport': 'common.portalErrors.invalidImport',
   'Integration.Unavailable': 'common.portalErrors.sourceUnavailable',
   'Integration.Timeout': 'common.portalErrors.sourceUnavailable',
+  // Fase 2, Ola J: entrega de documentos por el asistente (M10-04); los permisos se vuelven a validar al descargar.
+  'AssistantDelivery.NotFound': 'common.portalErrors.deliveryNotFound',
+  'ShipmentDocument.NotFound': 'common.portalErrors.deliveryAccessLost',
+  'ShipmentDocumentContent.NotFound': 'common.portalErrors.deliveryContentNotFound',
+};
+
+// ---------------------------------------------------------------------------
+// Fase 2, Ola G: servicios on demand configurables (M2-03, M2-04, M3-07 a M3-15) e historial del cambio de
+// almacén (M3-06).
+// ---------------------------------------------------------------------------
+
+/** Estado de una solicitud de servicio. */
+export const SERVICE_REQUEST_STATUS_KEYS: Record<string, string> = {
+  Draft: 'common.serviceRequestStatus.draft',
+  Submitted: 'common.serviceRequestStatus.submitted',
+  PendingApproval: 'common.serviceRequestStatus.pendingApproval',
+  Approved: 'common.serviceRequestStatus.approved',
+  Rejected: 'common.serviceRequestStatus.rejected',
+  PendingPayment: 'common.serviceRequestStatus.pendingPayment',
+  Paid: 'common.serviceRequestStatus.paid',
+  InProgress: 'common.serviceRequestStatus.inProgress',
+  Completed: 'common.serviceRequestStatus.completed',
+  Cancelled: 'common.serviceRequestStatus.cancelled',
+};
+
+/** Variante de .hl-badge por estado de la solicitud (el texto acompaña siempre al color). */
+export const SERVICE_REQUEST_STATUS_CLASS: Record<string, string> = {
+  Draft: 'hl-badge--processing',
+  Submitted: 'hl-badge--processing',
+  PendingApproval: 'hl-badge--pending',
+  Approved: 'hl-badge--confirmed',
+  Rejected: 'hl-badge--failed',
+  PendingPayment: 'hl-badge--pending',
+  Paid: 'hl-badge--confirmed',
+  InProgress: 'hl-badge--processing',
+  Completed: 'hl-badge--confirmed',
+  Cancelled: 'hl-badge--failed',
+};
+
+/** Equipo interno que aprueba o atiende (ED, Customer Service). */
+export const SERVICE_TEAM_KEYS: Record<string, string> = {
+  None: 'common.serviceTeam.none',
+  ED: 'common.serviceTeam.ed',
+  CustomerService: 'common.serviceTeam.customerService',
+};
+
+/** Motivo por el que un servicio no está disponible para el embarque o el usuario. */
+export const SERVICE_UNAVAILABLE_REASON_KEYS: Record<string, string> = {
+  BL_STATUS: 'common.serviceUnavailableReason.blStatus',
+  NOT_DEPARTED: 'common.serviceUnavailableReason.notDeparted',
+  ALREADY_DEPARTED: 'common.serviceUnavailableReason.alreadyDeparted',
+  NOT_ARRIVED: 'common.serviceUnavailableReason.notArrived',
+  NO_CONTAINERS: 'common.serviceUnavailableReason.noContainers',
+  NOT_OVERDUE: 'common.serviceUnavailableReason.notOverdue',
+  MILESTONE_UNAVAILABLE: 'common.serviceUnavailableReason.milestoneUnavailable',
+  ALREADY_REQUESTED: 'common.serviceUnavailableReason.alreadyRequested',
+  NO_SOURCE_CHARGE: 'common.serviceUnavailableReason.noSourceCharge',
+  NO_PERMISSION: 'common.serviceUnavailableReason.noPermission',
+  TARIFF_NOT_IN_FORCE: 'common.serviceUnavailableReason.tariffNotInForce',
+};
+
+/** Dentro o fuera de plazo respecto del hito del embarque (M3-13, M3-14). */
+export const SERVICE_TIMING_KEYS: Record<string, string> = {
+  NotApplicable: 'common.serviceTiming.notApplicable',
+  InTime: 'common.serviceTiming.inTime',
+  Late: 'common.serviceTiming.late',
+};
+
+export const SERVICE_TIMING_CLASS: Record<string, string> = {
+  NotApplicable: 'hl-badge--processing',
+  InTime: 'hl-badge--confirmed',
+  Late: 'hl-badge--pending',
+};
+
+/** Hito desde el que se mide el plazo en la cotización. */
+export const SERVICE_MILESTONE_SOURCE_KEYS: Record<string, string> = {
+  CUSTOMS_DEADLINE: 'common.serviceMilestoneSource.customsDeadline',
+  ETD: 'common.serviceMilestoneSource.etd',
+  ETA: 'common.serviceMilestoneSource.eta',
+};
+
+export const SERVICE_PRICING_MODE_KEYS: Record<string, string> = {
+  None: 'common.servicePricingMode.none',
+  Tariff: 'common.servicePricingMode.tariff',
+  SourceCharge: 'common.servicePricingMode.sourceCharge',
+};
+
+export const SERVICE_QUANTITY_MODE_KEYS: Record<string, string> = {
+  PerRequest: 'common.serviceQuantityMode.perRequest',
+  PerContainer: 'common.serviceQuantityMode.perContainer',
+};
+
+/** Hito del embarque que usa la definición. */
+export const SERVICE_MILESTONE_KEYS: Record<string, string> = {
+  None: 'common.serviceMilestone.none',
+  VesselDeparture: 'common.serviceMilestone.vesselDeparture',
+  VesselArrival: 'common.serviceMilestone.vesselArrival',
+  CustomsDeadline: 'common.serviceMilestone.customsDeadline',
+};
+
+export const SERVICE_TIMING_RULE_KEYS: Record<string, string> = {
+  None: 'common.serviceTimingRule.none',
+  InTimeAndLate: 'common.serviceTimingRule.inTimeAndLate',
+  LateOnly: 'common.serviceTimingRule.lateOnly',
+};
+
+export const SERVICE_AVAILABILITY_WINDOW_KEYS: Record<string, string> = {
+  Always: 'common.serviceAvailabilityWindow.always',
+  BeforeDeparture: 'common.serviceAvailabilityWindow.beforeDeparture',
+  AfterDeparture: 'common.serviceAvailabilityWindow.afterDeparture',
+  AfterArrival: 'common.serviceAvailabilityWindow.afterArrival',
+};
+
+export const SERVICE_REFERENCE_TYPE_KEYS: Record<string, string> = {
+  BL: 'common.serviceReferenceType.bl',
+  Booking: 'common.serviceReferenceType.booking',
+};
+
+/** Tipo de un campo del formulario del servicio. */
+export const SERVICE_FIELD_TYPE_KEYS: Record<string, string> = {
+  text: 'common.serviceFieldType.text',
+  textarea: 'common.serviceFieldType.textarea',
+  date: 'common.serviceFieldType.date',
+  number: 'common.serviceFieldType.number',
+  select: 'common.serviceFieldType.select',
+  file: 'common.serviceFieldType.file',
+  containers: 'common.serviceFieldType.containers',
+};
+
+/** Quién registró un evento de la línea de tiempo. */
+export const SERVICE_ACTOR_KIND_KEYS: Record<string, string> = {
+  Client: 'common.serviceActorKind.client',
+  Internal: 'common.serviceActorKind.internal',
+  System: 'common.serviceActorKind.system',
+};
+
+/** Evento de la trazabilidad de un cambio de almacén (M3-06). */
+export const WAREHOUSE_HISTORY_EVENT_KEYS: Record<string, string> = {
+  Requested: 'common.warehouseHistoryEvent.requested',
+  FreeEntitlementApplied: 'common.warehouseHistoryEvent.freeEntitlementApplied',
+  PaymentStatusChanged: 'common.warehouseHistoryEvent.paymentStatusChanged',
+  Completed: 'common.warehouseHistoryEvent.completed',
+  Cancelled: 'common.warehouseHistoryEvent.cancelled',
+};
+
+/**
+ * Códigos de error del backend de la Ola G → claves Transloco. Los textos del servidor vienen en inglés y no se
+ * muestran tal cual.
+ */
+export const SERVICE_REQUEST_ERRORS: Record<string, string> = {
+  'BillOfLading.NotFound': 'common.serviceRequestErrors.blNotFound',
+  'Error.Forbidden': 'common.serviceRequestErrors.forbidden',
+  'Cart.AssociationRequired': 'common.serviceRequestErrors.associationRequired',
+  'ServiceDefinition.NotFound': 'common.serviceRequestErrors.definitionNotFound',
+  'ServiceDefinition.AlreadyExists': 'common.serviceRequestErrors.definitionExists',
+  'ServiceDefinition.UnknownAction': 'common.serviceRequestErrors.unknownAction',
+  'ServiceDefinition.Invalid': 'common.serviceRequestErrors.definitionInvalid',
+  'ServiceDefinition.InvalidSchema': 'common.serviceRequestErrors.definitionInvalidSchema',
+  'ChargeConcept.NotFound': 'common.serviceRequestErrors.conceptNotFound',
+  'ServiceRequest.NotFound': 'common.serviceRequestErrors.notFound',
+  'ServiceRequest.NotAvailable': 'common.serviceRequestErrors.notAvailable',
+  'ServiceRequest.ContainersRequired': 'common.serviceRequestErrors.containersRequired',
+  'ServiceRequest.MeasureRequired': 'common.serviceRequestErrors.measureRequired',
+  'ServiceRequest.NoSourceCharge': 'common.serviceRequestErrors.noSourceCharge',
+  'ServiceRequest.BillingTaxIdNotAllowed': 'common.serviceRequestErrors.billingTaxIdNotAllowed',
+  'ServiceRequest.BillingDataRequired': 'common.serviceRequestErrors.billingDataRequired',
+  'ServiceRequest.TariffNotAccepted': 'common.serviceRequestErrors.tariffNotAccepted',
+  'ServiceRequest.TariffChanged': 'common.serviceRequestErrors.tariffChanged',
+  'ServiceRequest.NotEditable': 'common.serviceRequestErrors.notEditable',
+  'ServiceRequest.PaymentInProgress': 'common.serviceRequestErrors.paymentInProgress',
+  'ServiceRequest.InvalidTransition': 'common.serviceRequestErrors.invalidTransition',
+  'ServiceRequest.UnknownFileField': 'common.serviceRequestErrors.unknownFileField',
+  'ServiceRequest.OutputDocumentRequired': 'common.serviceRequestErrors.outputDocumentRequired',
+  'ServiceRequest.NotAssignedToTeam': 'common.serviceRequestErrors.notAssignedToTeam',
+  'ServiceRequestAttachment.NotFound': 'common.serviceRequestErrors.attachmentNotFound',
+  'Tariff.NotInForce': 'common.serviceRequestErrors.tariffNotInForce',
+  'Tariff.NotCovered': 'common.serviceRequestErrors.tariffNotCovered',
+  'ChargeRules.ConditionsUnavailable': 'common.serviceRequestErrors.conditionsUnavailable',
+  'Integration.Unavailable': 'common.serviceRequestErrors.sourceUnavailable',
+  'WarehouseChange.NotFound': 'common.serviceRequestErrors.warehouseChangeNotFound',
+  'Reinvoicing.UseDedicatedFlow': 'common.serviceRequestErrors.useDedicatedFlow',
+  // Fase 2, Ola J: aprobación de la carta de liberación con la regla de TATC emitido (M6-08, M2-09).
+  'ServiceRequest.UseDedicatedFlow': 'common.serviceRequestErrors.useDedicatedFlow',
+  'ReleaseLetter.TatcNotIssued': 'common.serviceRequestErrors.releaseLetterTatcNotIssued',
+  'ReleaseLetter.TatcUnavailable': 'common.serviceRequestErrors.releaseLetterTatcUnavailable',
+};
+
+// ---------------------------------------------------------------------------
+// Fase 2, Ola H: estado de cuenta (M7-03), pago por ítem con crédito (M5-10), comprobante de depósito (M5-06),
+// refacturación IAO (M3-11) y pago anticipado de Gate Out (M3-19).
+// ---------------------------------------------------------------------------
+
+/** Facturado, calculado no facturado o imputado a crédito (M7-03). */
+export const STATEMENT_LINE_KIND_KEYS: Record<string, string> = {
+  Invoiced: 'common.statementLineKind.invoiced',
+  Uninvoiced: 'common.statementLineKind.uninvoiced',
+  CreditImputed: 'common.statementLineKind.creditImputed',
+};
+
+/** Estado de una línea del estado de cuenta y del filtro (incluye "por vencer"). */
+export const STATEMENT_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.statementStatus.pending',
+  Overdue: 'common.statementStatus.overdue',
+  DueSoon: 'common.statementStatus.dueSoon',
+  Covered: 'common.statementStatus.covered',
+  Uninvoiced: 'common.statementStatus.uninvoiced',
+  CreditImputed: 'common.statementStatus.creditImputed',
+};
+
+/** Variante de .hl-badge por estado de la línea (el texto acompaña siempre al color). */
+export const STATEMENT_STATUS_CLASS: Record<string, string> = {
+  Pending: 'hl-badge--pending',
+  Overdue: 'hl-badge--failed',
+  Covered: 'hl-badge--confirmed',
+  Uninvoiced: 'hl-badge--processing',
+  CreditImputed: 'hl-badge--processing',
+};
+
+export const STATEMENT_DOCUMENT_TYPE_KEYS: Record<string, string> = {
+  Invoice: 'common.statementDocumentType.invoice',
+  ExemptInvoice: 'common.statementDocumentType.exemptInvoice',
+  DebitNote: 'common.statementDocumentType.debitNote',
+  LocalCharge: 'common.statementDocumentType.localCharge',
+  ServiceCharge: 'common.statementDocumentType.serviceCharge',
+  Demurrage: 'common.statementDocumentType.demurrage',
+  Freight: 'common.statementDocumentType.freight',
+};
+
+/** Criterio de orden de las líneas. */
+export const STATEMENT_SORT_KEYS: Record<string, string> = {
+  dueDate: 'common.statementSort.dueDate',
+  issueDate: 'common.statementSort.issueDate',
+  amount: 'common.statementSort.amount',
+  blNumber: 'common.statementSort.blNumber',
+};
+
+/** Por qué no se informa el crédito disponible. */
+export const CREDIT_UNAVAILABLE_REASON_KEYS: Record<string, string> = {
+  LIMIT_NOT_INFORMED: 'common.creditUnavailableReason.limitNotInformed',
+  EXCHANGE_RATE_UNAVAILABLE: 'common.creditUnavailableReason.exchangeRateUnavailable',
+};
+
+/** Concepto de crédito de Nexus al que se imputa un concepto del portal (M5-10). */
+export const NEXUS_CREDIT_CONCEPT_KEYS: Record<string, string> = {
+  LOCAL_CHARGES: 'common.nexusCreditConcept.localCharges',
+  MHD: 'common.nexusCreditConcept.mhd',
+  FREIGHT: 'common.nexusCreditConcept.freight',
+  STORAGE: 'common.nexusCreditConcept.storage',
+};
+
+/** Anticipo (pagado antes de la factura) o imputación a crédito. */
+export const SETTLEMENT_KIND_KEYS: Record<string, string> = {
+  Advance: 'common.settlementKind.advance',
+  CreditImputation: 'common.settlementKind.creditImputation',
+};
+
+export const SETTLEMENT_STATUS_KEYS: Record<string, string> = {
+  Open: 'common.settlementStatus.open',
+  Matched: 'common.settlementStatus.matched',
+};
+
+export const SETTLEMENT_STATUS_CLASS: Record<string, string> = {
+  Open: 'hl-badge--pending',
+  Matched: 'hl-badge--confirmed',
+};
+
+/** Revisión de un comprobante de depósito por Finanzas (M5-06). */
+export const DEPOSIT_PROOF_STATUS_KEYS: Record<string, string> = {
+  Submitted: 'common.depositProofStatus.submitted',
+  Verified: 'common.depositProofStatus.verified',
+  Rejected: 'common.depositProofStatus.rejected',
+};
+
+export const DEPOSIT_PROOF_STATUS_CLASS: Record<string, string> = {
+  Submitted: 'hl-badge--processing',
+  Verified: 'hl-badge--confirmed',
+  Rejected: 'hl-badge--failed',
+};
+
+/** Respuesta de la nueva razón social a la refacturación (M3-11). */
+export const REINVOICING_ACCEPTANCE_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.reinvoicingAcceptanceStatus.pending',
+  Accepted: 'common.reinvoicingAcceptanceStatus.accepted',
+  Declined: 'common.reinvoicingAcceptanceStatus.declined',
+};
+
+export const REINVOICING_ACCEPTANCE_STATUS_CLASS: Record<string, string> = {
+  Pending: 'hl-badge--pending',
+  Accepted: 'hl-badge--confirmed',
+  Declined: 'hl-badge--failed',
+};
+
+/**
+ * Códigos de error de la refacturación IAO (también los motivos de no elegibilidad de la cotización) → claves
+ * Transloco. Los textos del servidor vienen en inglés y no se muestran tal cual.
+ */
+export const REINVOICING_ERRORS: Record<string, string> = {
+  'Reinvoicing.InvoiceNotEligible': 'common.reinvoicingErrors.invoiceNotEligible',
+  'Reinvoicing.AlreadyRequested': 'common.reinvoicingErrors.alreadyRequested',
+  'Reinvoicing.ApprovalRequired': 'common.reinvoicingErrors.approvalRequired',
+  'Reinvoicing.SameTaxId': 'common.reinvoicingErrors.sameTaxId',
+  'Reinvoicing.AcceptanceExpired': 'common.reinvoicingErrors.acceptanceExpired',
+  'Reinvoicing.AcceptanceClosed': 'common.reinvoicingErrors.acceptanceClosed',
+  'Reinvoicing.AcceptorTaxIdRequired': 'common.reinvoicingErrors.acceptorTaxIdRequired',
+  'Reinvoicing.AcceptanceNotPending': 'common.reinvoicingErrors.acceptanceNotPending',
+  'Reinvoicing.InvoiceNotIssued': 'common.reinvoicingErrors.invoiceNotIssued',
+  'ReinvoicingAcceptance.NotFound': 'common.reinvoicingErrors.acceptanceNotFound',
+  'Invoice.NotFound': 'common.reinvoicingErrors.invoiceNotFound',
+  'ServiceRequest.NotFound': 'common.reinvoicingErrors.notFound',
+  'ServiceRequest.BillingDataRequired': 'common.reinvoicingErrors.billingDataRequired',
+  'ServiceRequest.TariffNotAccepted': 'common.reinvoicingErrors.tariffNotAccepted',
+  'ServiceRequest.TariffChanged': 'common.reinvoicingErrors.tariffChanged',
+  'ServiceRequest.NotEditable': 'common.reinvoicingErrors.notEditable',
+  'ServiceRequest.UnknownFileField': 'common.reinvoicingErrors.unknownFileField',
+  'Tariff.NotInForce': 'common.reinvoicingErrors.tariffNotInForce',
+  'ExchangeRate.NotFound': 'common.reinvoicingErrors.exchangeRateNotFound',
+  'Integration.Unavailable': 'common.reinvoicingErrors.sourceUnavailable',
+  'Error.Forbidden': 'common.reinvoicingErrors.forbidden',
+};
+
+// ---------------------------------------------------------------------------
+// Fase 2, Ola I: bandeja de notificaciones (M1-25), comunicados (M1-26), modo guía (M1-27), área de administración
+// (M8-05), vista como cliente (M8-08), reportería (M9-01), Counter (M8-09), contactos (M1-06), transportistas
+// pre-creados (M1-09) y empresa matriz (M1-21).
+// ---------------------------------------------------------------------------
+
+/** Módulo de origen de una notificación (filtros de la bandeja). */
+export const NOTIFICATION_MODULE_KEYS: Record<string, string> = {
+  Organization: 'notifications.module.organization',
+  Access: 'notifications.module.access',
+  Payments: 'notifications.module.payments',
+  Documents: 'notifications.module.documents',
+  Services: 'notifications.module.services',
+  Finance: 'notifications.module.finance',
+  Customs: 'notifications.module.customs',
+  Deadlines: 'notifications.module.deadlines',
+  Announcements: 'notifications.module.announcements',
+  Administration: 'notifications.module.administration',
+  General: 'notifications.module.general',
+};
+
+/** Texto del botón o enlace de la acción de una notificación. */
+export const NOTIFICATION_ACTION_KEYS: Record<string, string> = {
+  ApproveJoinRequest: 'notifications.action.approveJoinRequest',
+  ReviewOrganization: 'notifications.action.reviewOrganization',
+  ReviewParentLink: 'notifications.action.reviewParentLink',
+  VerifyDepositProof: 'notifications.action.verifyDepositProof',
+  UploadDepositProof: 'notifications.action.uploadDepositProof',
+  OpenPayment: 'notifications.action.openPayment',
+  OpenServiceRequest: 'notifications.action.openServiceRequest',
+  OpenShipment: 'notifications.action.openShipment',
+  OpenDocument: 'notifications.action.openDocument',
+  OpenAccessGrants: 'notifications.action.openAccessGrants',
+  OpenAnnouncement: 'notifications.action.openAnnouncement',
+  OpenInvoice: 'notifications.action.openInvoice',
+};
+
+/** Gestión a la que corresponde una notificación (M1-25: identifica el embarque o la gestión). */
+export const NOTIFICATION_ENTITY_KEYS: Record<string, string> = {
+  Shipment: 'notifications.entity.shipment',
+  Organization: 'notifications.entity.organization',
+  JoinRequest: 'notifications.entity.joinRequest',
+  AccessGrant: 'notifications.entity.accessGrant',
+  Payment: 'notifications.entity.payment',
+  ShipmentDocument: 'notifications.entity.shipmentDocument',
+  ServiceRequest: 'notifications.entity.serviceRequest',
+  DepositProof: 'notifications.entity.depositProof',
+  CustomsTransmission: 'notifications.entity.customsTransmission',
+  Deadline: 'notifications.entity.deadline',
+  Announcement: 'notifications.entity.announcement',
+  ParentLink: 'notifications.entity.parentLink',
+  CarrierPreRegistration: 'notifications.entity.carrierPreRegistration',
+};
+
+export const ANNOUNCEMENT_OPERATION_KEYS: Record<string, string> = {
+  Import: 'common.announcementOperation.import',
+  Export: 'common.announcementOperation.export',
+  Both: 'common.announcementOperation.both',
+};
+
+export const ANNOUNCEMENT_SEVERITY_KEYS: Record<string, string> = {
+  Info: 'common.announcementSeverity.info',
+  Important: 'common.announcementSeverity.important',
+};
+
+export const ANNOUNCEMENT_STATUS_KEYS: Record<string, string> = {
+  Draft: 'common.announcementStatus.draft',
+  Published: 'common.announcementStatus.published',
+  Unpublished: 'common.announcementStatus.unpublished',
+};
+
+export const ANNOUNCEMENT_STATUS_CLASS: Record<string, string> = {
+  Draft: 'hl-badge--pending',
+  Published: 'hl-badge--active',
+  Unpublished: 'hl-badge--processing',
+};
+
+export const GUIDE_AUDIENCE_KEYS: Record<string, string> = {
+  Client: 'common.guideAudience.client',
+  Internal: 'common.guideAudience.internal',
+  All: 'common.guideAudience.all',
+};
+
+export const IMPERSONATION_STATUS_KEYS: Record<string, string> = {
+  Active: 'common.impersonationStatus.active',
+  Ended: 'common.impersonationStatus.ended',
+  Expired: 'common.impersonationStatus.expired',
+};
+
+export const IMPERSONATION_STATUS_CLASS: Record<string, string> = {
+  Active: 'hl-badge--active',
+  Ended: 'hl-badge--processing',
+  Expired: 'hl-badge--pending',
+};
+
+export const IMPERSONATION_END_REASON_KEYS: Record<string, string> = {
+  Manual: 'common.impersonationEndReason.manual',
+  Logout: 'common.impersonationEndReason.logout',
+  Expired: 'common.impersonationEndReason.expired',
+  Replaced: 'common.impersonationEndReason.replaced',
+  Admin: 'common.impersonationEndReason.admin',
+};
+
+export const IMPERSONATION_REQUEST_ACTION_KEYS: Record<string, string> = {
+  Started: 'common.impersonationRequestAction.started',
+  Request: 'common.impersonationRequestAction.request',
+  BlockedWrite: 'common.impersonationRequestAction.blockedWrite',
+  Ended: 'common.impersonationRequestAction.ended',
+};
+
+export const TRANSACTION_CATEGORY_KEYS: Record<string, string> = {
+  LocalCharge: 'common.transactionCategory.localCharge',
+  OnDemandService: 'common.transactionCategory.onDemandService',
+  Demurrage: 'common.transactionCategory.demurrage',
+  Freight: 'common.transactionCategory.freight',
+  WarehouseChange: 'common.transactionCategory.warehouseChange',
+  Invoice: 'common.transactionCategory.invoice',
+  Other: 'common.transactionCategory.other',
+};
+
+export const EXCEPTION_TYPE_KEYS: Record<string, string> = {
+  GateInExemption: 'common.exceptionType.gateInExemption',
+  EdsExemption: 'common.exceptionType.edsExemption',
+  GateOutExemption: 'common.exceptionType.gateOutExemption',
+  OtherExemption: 'common.exceptionType.otherExemption',
+  IpoExclusion: 'common.exceptionType.ipoExclusion',
+  FreeWarehouseChange: 'common.exceptionType.freeWarehouseChange',
+  CreditImputation: 'common.exceptionType.creditImputation',
+};
+
+export const COUNTER_SYNC_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.counterSyncStatus.pending',
+  Synced: 'common.counterSyncStatus.synced',
+  Failed: 'common.counterSyncStatus.failed',
+};
+
+export const COUNTER_SYNC_STATUS_CLASS: Record<string, string> = {
+  Pending: 'hl-badge--pending',
+  Synced: 'hl-badge--confirmed',
+  Failed: 'hl-badge--failed',
+};
+
+export const CONTACT_REPORT_TYPE_KEYS: Record<string, string> = {
+  ARRIVAL_NOTICE: 'common.contactReportType.arrivalNotice',
+  BL_COPIES: 'common.contactReportType.blCopies',
+  INVOICES: 'common.contactReportType.invoices',
+  FREE_TIME: 'common.contactReportType.freeTime',
+  DEMURRAGE: 'common.contactReportType.demurrage',
+  BOOKING_CONFIRMATION: 'common.contactReportType.bookingConfirmation',
+};
+
+export const CONTACT_CHANGE_STATUS_KEYS: Record<string, string> = {
+  Propagated: 'common.contactChangeStatus.propagated',
+  Failed: 'common.contactChangeStatus.failed',
+};
+
+export const CARRIER_PRE_REGISTRATION_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.carrierPreRegistrationStatus.pending',
+  Activated: 'common.carrierPreRegistrationStatus.activated',
+};
+
+export const PARENT_LINK_STATUS_KEYS: Record<string, string> = {
+  Pending: 'common.parentLinkStatus.pending',
+  Active: 'common.parentLinkStatus.active',
+  Rejected: 'common.parentLinkStatus.rejected',
+  Removed: 'common.parentLinkStatus.removed',
+};
+
+export const PARENT_LINK_STATUS_CLASS: Record<string, string> = {
+  Pending: 'hl-badge--pending',
+  Active: 'hl-badge--active',
+  Rejected: 'hl-badge--rejected',
+  Removed: 'hl-badge--processing',
+};
+
+/**
+ * Códigos de error de la Ola I (Fase 2) → claves Transloco. Los textos del servidor vienen en inglés y no se muestran
+ * tal cual.
+ */
+export const ADMINISTRATION_ERRORS: Record<string, string> = {
+  'Error.Forbidden': 'common.adminErrors.forbidden',
+  'Impersonation.ReadOnly': 'common.adminErrors.impersonationReadOnly',
+  'Impersonation.Ended': 'common.adminErrors.impersonationEnded',
+  'Impersonation.Nested': 'common.adminErrors.impersonationNested',
+  'Impersonation.TargetNotAllowed': 'common.adminErrors.impersonationTargetNotAllowed',
+  'Impersonation.TargetNotFound': 'common.adminErrors.impersonationTargetNotFound',
+  'Impersonation.NotInternalActor': 'common.adminErrors.impersonationNotInternalActor',
+  'Impersonation.NotActive': 'common.adminErrors.impersonationNotActive',
+  'Notification.NotFound': 'common.adminErrors.notificationNotFound',
+  'Notification.UnknownType': 'common.adminErrors.notificationUnknownType',
+  'Notification.EmailNotAvailable': 'common.adminErrors.notificationEmailNotAvailable',
+  'Notification.EmailMandatory': 'common.adminErrors.notificationEmailMandatory',
+  'Announcement.NotFound': 'common.adminErrors.announcementNotFound',
+  'Announcement.InvalidTransition': 'common.adminErrors.announcementInvalidTransition',
+  'Announcement.Expired': 'common.adminErrors.announcementExpired',
+  'Guide.NotFound': 'common.adminErrors.guideNotFound',
+  'Guide.AlreadyExists': 'common.adminErrors.guideAlreadyExists',
+  'Counter.AlreadySynced': 'common.adminErrors.counterAlreadySynced',
+  'Counter.Invalid': 'common.adminErrors.counterInvalid',
+  'BillOfLading.NotFound': 'common.adminErrors.blNotFound',
+  'ContactList.NotAllowed': 'common.adminErrors.contactListNotAllowed',
+  'ContactList.MatchCodeRequired': 'common.adminErrors.contactListMatchCodeRequired',
+  'CarrierPreCreation.AlreadyActivated': 'common.adminErrors.carrierAlreadyActivated',
+  'CarrierPreCreation.AlreadyRegistered': 'common.adminErrors.carrierAlreadyRegistered',
+  'CarrierPreCreation.NotACarrier': 'common.adminErrors.carrierNotACarrier',
+  'CarrierPreCreation.EmailInUse': 'common.adminErrors.carrierEmailInUse',
+  'CarrierPreCreation.NotAllowed': 'common.adminErrors.carrierNotAllowed',
+  'ParentLink.NotAllowed': 'common.adminErrors.parentLinkNotAllowed',
+  'ParentLink.AlreadyExists': 'common.adminErrors.parentLinkAlreadyExists',
+  'ParentLink.SelfLink': 'common.adminErrors.parentLinkSelfLink',
+  'ParentLink.InvalidParent': 'common.adminErrors.parentLinkInvalidParent',
+  'ParentLink.Cycle': 'common.adminErrors.parentLinkCycle',
+  'ParentLink.NotPending': 'common.adminErrors.parentLinkNotPending',
+  'ParentLink.NotActive': 'common.adminErrors.parentLinkNotActive',
+  'Integration.Unavailable': 'common.adminErrors.sourceUnavailable',
+  'Integration.Timeout': 'common.adminErrors.sourceUnavailable',
+};
+
+// ---------------------------------------------------------------------------
+// Fase 2, Ola J: certificado de flete (M6-02), carta de liberación y desconsolidado (M6-08), entrega de documentos por el
+// asistente (M10-04) y canal Web Service (M3-17).
+// ---------------------------------------------------------------------------
+
+/** Finalidad del certificado de flete. */
+export const FREIGHT_PURPOSE_KEYS: Record<string, string> = {
+  CUSTOMS: 'common.freightPurpose.customs',
+  INSURANCE: 'common.freightPurpose.insurance',
+  BANK: 'common.freightPurpose.bank',
+  OTHER: 'common.freightPurpose.other',
+};
+
+/** Tipo de sociedad del consignatario de la carta de liberación. */
+export const LEGAL_ENTITY_TYPE_KEYS: Record<string, string> = {
+  COMPANY: 'common.legalEntityType.company',
+  NATURAL_PERSON: 'common.legalEntityType.naturalPerson',
+};
+
+/** Origen del transportista registrado elegible para la carta. */
+export const RELEASE_LETTER_CARRIER_SOURCE_KEYS: Record<string, string> = {
+  Grant: 'common.releaseLetterCarrierSource.grant',
+  PreCreated: 'common.releaseLetterCarrierSource.preCreated',
+};
+
+/** Proceso habilitado para un cliente del canal Web Service. */
+export const API_CLIENT_SCOPE_KEYS: Record<string, string> = {
+  'responsibility-letter': 'common.apiClientScope.responsibilityLetter',
+  'warehouse-change': 'common.apiClientScope.warehouseChange',
+};
+
+export const API_CLIENT_STATUS_KEYS: Record<string, string> = {
+  Active: 'common.apiClientStatus.active',
+  Revoked: 'common.apiClientStatus.revoked',
+};
+
+export const API_CLIENT_STATUS_CLASS: Record<string, string> = {
+  Active: 'hl-badge--confirmed',
+  Revoked: 'hl-badge--failed',
+};
+
+/** Operación registrada en la bitácora del canal. */
+export const WS_OPERATION_KEYS: Record<string, string> = {
+  ResponsibilityLetter: 'common.wsOperation.responsibilityLetter',
+  WarehouseChange: 'common.wsOperation.warehouseChange',
+  WarehouseChangeBatch: 'common.wsOperation.warehouseChangeBatch',
+  ResponsibilityLetterTerms: 'common.wsOperation.responsibilityLetterTerms',
+  ListRequests: 'common.wsOperation.listRequests',
+  GetRequest: 'common.wsOperation.getRequest',
+  ClientInfo: 'common.wsOperation.clientInfo',
+};
+
+export const WS_OUTCOME_KEYS: Record<string, string> = {
+  Processing: 'common.wsOutcome.processing',
+  Accepted: 'common.wsOutcome.accepted',
+  Rejected: 'common.wsOutcome.rejected',
+  Failed: 'common.wsOutcome.failed',
+};
+
+export const WS_OUTCOME_CLASS: Record<string, string> = {
+  Processing: 'hl-badge--processing',
+  Accepted: 'hl-badge--confirmed',
+  Rejected: 'hl-badge--rejected',
+  Failed: 'hl-badge--failed',
+};
+
+/**
+ * Códigos de error de la administración del canal Web Service → claves Transloco. Los textos del servidor vienen en
+ * inglés y no se muestran tal cual.
+ */
+export const API_CLIENT_ERRORS: Record<string, string> = {
+  'Error.Forbidden': 'common.apiClientErrors.forbidden',
+  'Organization.NotFound': 'common.apiClientErrors.organizationNotFound',
+  'ApiClient.OrganizationNotAllowed': 'common.apiClientErrors.organizationNotAllowed',
+  'ApiClient.NotFound': 'common.apiClientErrors.notFound',
+  'ApiClient.AlreadyRevoked': 'common.apiClientErrors.alreadyRevoked',
+  'ApiClientKey.NotFound': 'common.apiClientErrors.keyNotFound',
 };

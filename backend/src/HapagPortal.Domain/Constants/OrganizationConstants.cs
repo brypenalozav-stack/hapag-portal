@@ -43,7 +43,13 @@ public static class OrganizationStatus
     public const string Approved = "Approved";
     public const string Rejected = "Rejected";
 
-    public static readonly string[] All = [PendingValidation, PendingArCheck, Approved, Rejected];
+    /// <summary>
+    /// Transportista pre-creado por un cliente (M1-09): sin registro propio todavía. Pasa a <see cref="Approved"/> al
+    /// primer ingreso de su usuario invitado; mientras, no opera y sus accesos asignados quedan pendientes.
+    /// </summary>
+    public const string PreCreated = "PreCreated";
+
+    public static readonly string[] All = [PendingValidation, PendingArCheck, Approved, Rejected, PreCreated];
 }
 
 /// <summary>Estado de la vinculación de un usuario a su organización (M1-08).</summary>

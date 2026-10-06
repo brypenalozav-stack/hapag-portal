@@ -44,6 +44,43 @@ public static partial class AssistantIntentRules
         "certificate"
     ];
 
+    /// <summary>Verbos de entrega (M10-04): el usuario pide que se le entregue o envíe un documento.</summary>
+    private static readonly string[] DeliveryWords =
+    [
+        "envia", "enviame", "envie", "enviar", "mand", "entreg", "descarg", "dame", "deme", "necesito", "quiero", "obtener",
+        "send", "give me", "download", "get me"
+    ];
+
+    /// <summary>
+    /// Tipos de documento que se pueden pedir por su nombre (M10-04), en el orden en que se evalúan: las frases más
+    /// específicas primero (la copia no valorada antes que la valorada).
+    /// </summary>
+    private static readonly (string[] Words, string[] Kinds)[] DocumentKindWords =
+    [
+        (["no valorada", "sin valor", "non valued", "unvalued", "not valued"], [ShipmentDocumentTypes.BlCopyNonValued]),
+        (["valorada", "valued"], [ShipmentDocumentTypes.BlCopyValued]),
+        (["transbordo", "transshipment"], [ShipmentDocumentTypes.TransshipmentCertificate]),
+        (["libre deuda", "cld", "no debt"], [ShipmentDocumentTypes.NoDebtCertificate]),
+        (["certificado de flete", "certificado del flete", "freight certificate"], [ShipmentDocumentTypes.FreightCertificate]),
+        (["liberacion", "desconsolid", "release letter"], [ShipmentDocumentTypes.ReleaseLetter]),
+        (["responsabilidad", "responsibility"], [ShipmentDocumentTypes.ResponsibilityLetter]),
+        (["collect"], [ShipmentDocumentTypes.CollectReceipt]),
+        (["anticipo de gate out", "pago anticipado de gate out", "anticipo gate out"], [ShipmentDocumentTypes.GateOutAdvanceReceipt]),
+        (["cupon", "coupon"], [ShipmentDocumentTypes.GateOutCoupon]),
+        (["boleta", "recibo", "comprobante de pago", "receipt"], [AssistantDeliveryKinds.Receipt]),
+        (["factura", "invoice"], [AssistantDeliveryKinds.Invoice]),
+    ];
+
+    /// <summary>Términos genéricos: si no se nombró un tipo puntual, abarcan todos los de su familia.</summary>
+    private static readonly (string[] Words, string[] Kinds)[] DocumentFamilyWords =
+    [
+        (["copia", "copy"], [ShipmentDocumentTypes.BlCopyNonValued, ShipmentDocumentTypes.BlCopyValued]),
+        (["certificado", "certificate"],
+            [ShipmentDocumentTypes.TransshipmentCertificate, ShipmentDocumentTypes.NoDebtCertificate, ShipmentDocumentTypes.FreightCertificate]),
+        (["carta", "letter"], [ShipmentDocumentTypes.ResponsibilityLetter, ShipmentDocumentTypes.ReleaseLetter]),
+        (["comprobante"], [ShipmentDocumentTypes.CollectReceipt, AssistantDeliveryKinds.Receipt]),
+    ];
+
     private static readonly string[] ChargeWords =
     [
         "pendiente", "por pagar", "deuda", "debo", "adeud", "cargo", "cobro", "saldo", "pending", "owe", "charge", "debt"
@@ -86,9 +123,13 @@ public static partial class AssistantIntentRules
         var text = Prepare(message);
         var references = ExtractReferences(message);
 
+        var requested = RequestedDocuments(message);
+
         string intent;
         if (HasAny(text, TatcWords))
             intent = AssistantIntents.TatcStatus;
+        else if (IsDocumentDelivery(text, requested))
+            intent = AssistantIntents.DocumentDelivery;
         else if (HasAny(text, InvoiceWords))
             intent = AssistantIntents.InvoiceDetail;
         else if (HasAny(text, DocumentWords))
@@ -103,6 +144,53 @@ public static partial class AssistantIntentRules
             intent = AssistantIntents.Knowledge;
 
         return new AssistantIntentResult(intent, references);
+    }
+
+    /// <summary>
+    /// Documentos que el usuario pide por su nombre (M10-04): tipos del repositorio (<c>ShipmentDocumentTypes</c>) y
+    /// recibos o facturas (<c>AssistantDeliveryKinds</c>). Vacío si no nombró ninguno.
+    /// </summary>
+    public static IReadOnlyList<string> RequestedDocuments(string message)
+    {
+        var text = Prepare(message);
+        var kinds = new List<string>();
+
+        // "copia no valorada" no debe pedir también la valorada: la frase específica consume su texto.
+        var remaining = text;
+        foreach (var (words, types) in DocumentKindWords)
+        {
+            if (!HasAny(remaining, words))
+                continue;
+
+            kinds.AddRange(types);
+            foreach (var word in words)
+                remaining = remaining.Replace(" " + word, " ", StringComparison.Ordinal);
+        }
+
+        if (kinds.Count == 0)
+        {
+            foreach (var (words, types) in DocumentFamilyWords)
+            {
+                if (HasAny(text, words))
+                    kinds.AddRange(types);
+            }
+        }
+
+        return kinds.Distinct(StringComparer.Ordinal).ToList();
+    }
+
+    /// <summary>
+    /// Pedido de entrega de un documento puntual (M10-04): se nombra un tipo de documento del embarque, o se piden recibos o
+    /// facturas con un verbo de entrega ("envíame las facturas del BL ..."). El detalle de una factura sigue siendo una
+    /// consulta de factura.
+    /// </summary>
+    private static bool IsDocumentDelivery(string text, IReadOnlyList<string> requested)
+    {
+        if (requested.Count == 0)
+            return false;
+
+        var onlyBilling = requested.All(k => k is AssistantDeliveryKinds.Receipt or AssistantDeliveryKinds.Invoice);
+        return !onlyBilling || HasAny(text, DeliveryWords);
     }
 
     /// <summary>Tema de la consulta para elegir la casilla de derivación del país.</summary>

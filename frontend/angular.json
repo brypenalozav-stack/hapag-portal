@@ -4,7 +4,10 @@
   "cli": {
     "packageManager": "npm",
     "analytics": "1c298847-c502-4870-b08f-16310a230459",
-    "schematicCollections": ["angular-eslint"]
+    "schematicCollections": ["angular-eslint"],
+    "cache": {
+      "environment": "all"
+    }
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -119,6 +122,17 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "e2e": {
+              "outputPath": "dist/e2e",
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": { "inline": false }
+              },
+              "outputHashing": "all",
+              "extractLicenses": false,
+              "sourceMap": false
             }
           },
           "defaultConfiguration": "production"

@@ -76,6 +76,28 @@ export const API_ENDPOINTS = {
   CONFIG_DISPUTE_LINK: 'config/dispute-link',
   ASSISTANT: 'assistant',
   DANGEROUS_GOODS: 'dangerous-goods',
+  // Fase 2, Ola G
+  SERVICE_REQUESTS: 'service-requests',
+  ADMIN_SERVICE_REQUESTS: 'admin/service-requests',
+  SERVICE_DEFINITIONS: 'service-definitions',
+  // Fase 2, Ola H
+  ACCOUNT_STATEMENT: 'account-statement',
+  REINVOICING: 'reinvoicing',
+  // Fase 2, Ola I
+  NOTIFICATIONS: 'notifications',
+  ANNOUNCEMENTS: 'announcements',
+  ADMIN_ANNOUNCEMENTS: 'admin/announcements',
+  GUIDES: 'guides',
+  ADMIN_GUIDES: 'admin/guides',
+  ADMIN_OVERVIEW: 'admin/overview',
+  ADMIN_IMPERSONATION: 'admin/impersonation',
+  IMPERSONATION: 'impersonation',
+  ADMIN_REPORTS: 'admin/reports',
+  ADMIN_COUNTER: 'admin/counter',
+  ADMIN_ORGANIZATION_LINKS: 'admin/organization-links',
+  AUTH_RESEND_PRE_CREATED_INVITATION: 'auth/register/pre-created/resend-invitation',
+  // Fase 2, Ola J
+  ADMIN_API_CLIENTS: 'admin/api-clients',
 } as const;
 
 /**
@@ -101,4 +123,18 @@ export const PERMISSIONS = {
   PAYMENTS_FINANCE: 'payments.finance',
   /** Ventanas de bloqueo de pagos por horario (M8-07). */
   MANAGE_PAYMENT_BLOCKS: 'payment-blocks.manage',
+  /** Bandeja interna de solicitudes de servicios on demand (ED, Customer Service; Fase 2, Ola G). */
+  PROCESS_SERVICE_REQUESTS: 'service-requests.process',
+  /** Área de administración unificada (Fase 2, Ola I, M8-05). */
+  ADMIN_AREA: 'admin-area.access',
+  /** Vista como cliente (M8-08): solo el Administrador interno. */
+  USE_IMPERSONATION: 'impersonation.use',
+  /** Comunicados masivos (M1-26). */
+  MANAGE_ANNOUNCEMENTS: 'announcements.manage',
+  /** Counter Bolivia/Ultramar (M8-09). */
+  MANAGE_COUNTER: 'counter.manage',
+  /** Reportería de transacciones y excepciones (M9-01). */
+  VIEW_TRANSACTIONS_REPORT: 'transactions-report.view',
+  /** Clientes, claves y bitácora del canal Web Service (Fase 2, Ola J, M3-17). */
+  MANAGE_API_CLIENTS: 'api-clients.manage',
 } as const;

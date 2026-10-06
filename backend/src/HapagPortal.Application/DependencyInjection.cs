@@ -1,19 +1,29 @@
 namespace HapagPortal.Application;
 
 using FluentValidation;
+using HapagPortal.Application.AccountStatement;
+using HapagPortal.Application.Announcements;
 using HapagPortal.Application.Assistant;
 using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Access;
+using HapagPortal.Application.Counter;
 using HapagPortal.Application.Demurrage.Common;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.PostPayment;
+using HapagPortal.Application.Documents.ReleaseLetter;
 using HapagPortal.Application.ExchangeRates.Common;
+using HapagPortal.Application.Impersonation;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.PostProcessing;
+using HapagPortal.Application.Reinvoicing;
+using HapagPortal.Application.Reports.Transactions;
+using HapagPortal.Application.ServiceRequests.Common;
+using HapagPortal.Application.ServiceRequests.PostPayment;
 using HapagPortal.Application.Shipments.Issuance;
 using HapagPortal.Application.ShoppingCart;
 using HapagPortal.Application.Tariffs.Common;
 using HapagPortal.Application.WarehouseChanges.Common;
+using HapagPortal.Application.WebService;
 using HapagPortal.Application.Common.Behaviors;
 using HapagPortal.Application.Common.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +66,32 @@ public static class DependencyInjection
         services.AddSingleton<RulesAssistantEngine>();
         services.AddScoped<AssistantDataRetriever>();
         services.AddScoped<AssistantResponder>();
+
+        // Fase 2 Ola G: modelo estándar de servicios on demand (M2-03, M2-04) y avance de sus solicitudes
+        // por la liberación del pago (aviso en la cola recuperable, NF-03).
+        services.AddScoped<ServiceCatalogEvaluator>();
+        services.AddScoped<ServiceRequestWorkflow>();
+        services.AddScoped<IPaymentPostStep, NotifyServiceRequestsStep>();
+
+        // Fase 2 Ola H: estado de cuenta (M7-03) y emisión de la refacturación IAO tras el pago y la aceptación (M3-11).
+        services.AddScoped<AccountStatementBuilder>();
+        services.AddScoped<ReinvoicingService>();
+        services.AddScoped<IPaymentPostStep, ReinvoicingIssueStep>();
+
+        // Fase 2 Ola I: comunicados (M1-26), reportería (M9-01), Counter (M8-09) y control de la «Vista como cliente»
+        // (M8-08). ImpersonationSettings lo registra Infrastructure desde la sección "Impersonation".
+        services.AddScoped<AnnouncementPublisher>();
+        services.AddScoped<TransactionReportBuilder>();
+        services.AddScoped<CounterSynchronizer>();
+        services.AddScoped<ImpersonationGuard>();
+
+        // Fase 2 Ola J: carta de liberación y desconsolidado con su vínculo TATC (M6-08).
+        services.AddScoped<ReleaseLetterService>();
+
+        // Fase 2 Ola J: canal de requerimientos vía Web Service (M3-17): autenticación por clave, bitácora, límite e
+        // idempotencia por cliente.
+        services.AddScoped<ApiClientAuthenticator>();
+        services.AddScoped<ApiClientRequestLog>();
 
         services.AddMediatR(config =>
         {

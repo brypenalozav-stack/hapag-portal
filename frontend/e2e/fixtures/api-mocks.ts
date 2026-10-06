@@ -58,6 +58,10 @@ import { ORGANIZACION_PRUEBA, USUARIO_PRUEBA } from './session';
 import { OpcionesOlaD, SimulacionOlaD } from './ola-d-mocks';
 import { SimulacionOlaE } from './ola-e-mocks';
 import { SimulacionOlaF } from './ola-f-mocks';
+import { SimulacionOlaG } from './ola-g-mocks';
+import { SimulacionOlaH } from './ola-h-mocks';
+import { OpcionesOlaI, SimulacionOlaI } from './ola-i-mocks';
+import { SimulacionOlaJ } from './ola-j-mocks';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
 export const BL_PRUEBA: BillOfLading = {
@@ -1739,18 +1743,35 @@ const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo
  * emitirse la carta de responsabilidad.
  * Ola F: dashboard, emisión y TATC del BL, reglas de publicación, enlace de Dispute, asistente y buscador DG los
  * responde ola-f-mocks.ts, que además agrega al listado de embarques el estado de emisión y la publicación.
+ * Fase 2, Ola G: servicios on demand, solicitudes, bandeja interna, mantenedor de definiciones e historial del cambio de
+ * almacén los responde ola-g-mocks.ts, que registra en el carro de la Ola D los cargos que generan las solicitudes.
+ * Fase 2, Ola H: estado de cuenta, cierre por ítem con crédito, comprobantes de depósito, anticipos, conceptos imputables,
+ * refacturación IAO y los ajustes de la Ola G los responde ola-h-mocks.ts, que usa el carro y las facturas de la Ola D.
+ * Fase 2, Ola I: bandeja con acciones y preferencias, comunicados, guías, área de administración, vista como cliente
+ * (escrituras bloqueadas con su token), reportería, Counter, listas de contactos, transportistas pre-creados y empresa
+ * matriz los responde ola-i-mocks.ts, que además agrega al listado los BL de la filial y el Counter al detalle interno.
+ * Fase 2, Ola J: certificado de flete, carta de liberación y su revisión interna, entrega de documentos por el asistente y
+ * clientes del canal Web Service los responde ola-j-mocks.ts, que publica los documentos emitidos en el repositorio de la Ola E.
  */
-export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promise<void> {
+export async function simularApi(page: Page, opciones: OpcionesOlaD & OpcionesOlaI = {}): Promise<void> {
   let consultasLote = 0;
   const olaD = new SimulacionOlaD(opciones);
   const olaE = new SimulacionOlaE(olaD);
   const olaF = new SimulacionOlaF();
+  const olaG = new SimulacionOlaG(olaD);
+  const olaH = new SimulacionOlaH(olaD, opciones);
+  const olaI = new SimulacionOlaI(opciones);
+  const olaJ = new SimulacionOlaJ(olaE);
   await page.route('**/api/v1/**', async (route: Route) => {
     const request = route.request();
     const url = new URL(request.url());
     const ruta = url.pathname.replace(/^.*\/api\/v1\//, '').replace(/\/$/, '');
     const metodo = request.method();
 
+    if (await olaJ.responder(route, ruta, metodo, url)) return;
+    if (await olaI.responder(route, ruta, metodo, url)) return;
+    if (await olaH.responder(route, ruta, metodo, url)) return;
+    if (await olaG.responder(route, ruta, metodo, url)) return;
     if (await olaF.responder(route, ruta, metodo, url)) return;
     if (await olaE.responder(route, ruta, metodo)) return;
     if (await olaD.responder(route, ruta, metodo, url)) return;
@@ -1781,7 +1802,7 @@ export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promi
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(olaF.ajustar(ruta, olaE.ajustar(ruta, cuerpo))),
+      body: JSON.stringify(olaI.ajustarDetalle(ruta, request, olaI.ajustar(ruta, url, olaG.ajustar(ruta, olaF.ajustar(ruta, olaE.ajustar(ruta, cuerpo)))))),
     });
   });
 }

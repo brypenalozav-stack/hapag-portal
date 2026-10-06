@@ -18,13 +18,17 @@ import { OrganizationUsersComponent } from './organization-users/organization-us
 import { JoinRequestsComponent } from './join-requests/join-requests';
 import { AccessManagementComponent } from '../access/access-management/access-management';
 import { CommercialConditionsComponent } from './commercial-conditions/commercial-conditions';
+import { ContactListsComponent } from './contact-lists/contact-lists';
+import { CarriersComponent } from './carriers/carriers';
+import { ParentCompanyComponent } from './parent-company/parent-company';
 
 /**
  * Mi organización: datos y estado del registro (M1-07), documentación de respaldo (M1-07),
  * solicitudes de vinculación (M1-08), usuarios de la organización (M1-02) y la vista única de
  * accesos y permisos (M1-24). Ola C: condiciones comerciales leídas de Nexus (crédito M8-02, FFWW
  * M8-03), solo lectura. Las secciones de gestión se muestran según los permisos del JWT;
- * el servidor vuelve a exigirlos.
+ * el servidor vuelve a exigirlos. Fase 2, Ola I: listas de distribución de contactos (M1-06), transportistas
+ * pre-creados (M1-09) y vinculación con la empresa matriz (M1-21).
  */
 @Component({
   selector: 'app-organization',
@@ -32,7 +36,7 @@ import { CommercialConditionsComponent } from './commercial-conditions/commercia
   imports: [
     TranslocoPipe, CodeLabelPipe, LoadingSpinnerComponent, StateMessageComponent,
     OrganizationDocumentsComponent, OrganizationUsersComponent, JoinRequestsComponent, AccessManagementComponent,
-    CommercialConditionsComponent,
+    CommercialConditionsComponent, ContactListsComponent, CarriersComponent, ParentCompanyComponent,
   ],
   templateUrl: './organization.html',
   styleUrl: './organization.scss',
@@ -66,6 +70,18 @@ export class OrganizationComponent implements OnInit {
   showAccess = computed(() => {
     const org = this.organization();
     return !!org && org.status === 'Approved' && org.organizationType !== 'Internal';
+  });
+
+  /** Listas de distribución (M1-06): clientes y FFWW aprobados; los transportistas no las usan (M1-11). */
+  showContactLists = computed(() => {
+    const org = this.organization();
+    return !!org && org.status === 'Approved' && org.organizationType !== 'Internal' && org.organizationType !== 'Carrier';
+  });
+
+  /** Transportistas pre-creados (M1-09) y empresa matriz (M1-21): clientes y FFWW aprobados. */
+  showNetwork = computed(() => {
+    const org = this.organization();
+    return !!org && org.status === 'Approved' && (org.organizationType === 'Customer' || org.organizationType === 'FreightForwarder');
   });
 
   ngOnInit(): void {

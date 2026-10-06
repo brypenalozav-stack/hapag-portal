@@ -64,7 +64,9 @@ public sealed class ChargeRulesService(
                 isFreightForwarder,
                 ResponsibilityLetterRequired: isFreightForwarder,
                 IpoExcluded: credit is not null,
-                ErrorCode: null);
+                ErrorCode: null,
+                credit?.CreditLimit,
+                credit?.CreditLimit is null ? null : credit.CreditLimitCurrency?.Trim().ToUpperInvariant());
         }
 
         _conditions[organization.Id] = conditions;
@@ -128,6 +130,13 @@ public sealed class ChargeRulesService(
             if (charge.Status == ChargeStatus.Paid)
             {
                 outcome = ChargeOutcomes.Paid;
+                payableBase = 0m;
+                payableTax = 0m;
+            }
+            else if (charge.Status == ChargeStatus.CreditImputed)
+            {
+                // M5-10: imputado a la línea de crédito; no se paga ahora (queda en el estado de cuenta).
+                outcome = ChargeOutcomes.CreditImputed;
                 payableBase = 0m;
                 payableTax = 0m;
             }
@@ -234,7 +243,7 @@ public sealed class ChargeRulesService(
             .OrderBy(t => t.Currency, StringComparer.Ordinal)
             .ToList();
 
-        var applicable = results.Where(r => r.Outcome != ChargeOutcomes.Paid).ToList();
+        var applicable = results.Where(r => r.Outcome is not (ChargeOutcomes.Paid or ChargeOutcomes.CreditImputed)).ToList();
 
         var requirements = new List<ProcessRequirementDto>();
         if (conditions.ResponsibilityLetterRequired)

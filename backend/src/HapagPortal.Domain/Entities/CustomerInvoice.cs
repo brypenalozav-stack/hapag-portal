@@ -36,5 +36,12 @@ public sealed class CustomerInvoice : BaseAuditableEntity
     public DateTime SyncedAt { get; set; }
     public required string Source { get; set; }
 
+    /// <summary>
+    /// Refacturación IAO (M3-11, Ola H): la factura que reemplazó a esta (que queda <c>Superseded</c>) y, en la
+    /// nueva, la factura original. Ambas se muestran vinculadas en M7-01.
+    /// </summary>
+    public Guid? SupersededByInvoiceId { get; set; }
+    public Guid? SupersedesInvoiceId { get; set; }
+
     public Client Organization { get; set; } = null!;
 }

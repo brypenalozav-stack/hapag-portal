@@ -27,7 +27,8 @@ internal static class CustomsAlert
             Title: $"Transmisión {transmission.Status.ToLowerInvariant()}: {target}",
             Body: $"{transmission.ResponseCode}: {transmission.ResponseMessage}",
             RoleCode: RoleCodes.Supervisor,
-            DedupKey: $"tx:{transmission.Id}:{transmission.Status}:{transmission.AttemptCount}"),
+            DedupKey: $"tx:{transmission.Id}:{transmission.Status}:{transmission.AttemptCount}",
+            Link: new NotificationLink(NotificationEntityTypes.CustomsTransmission, transmission.Id.ToString(), target)),
             cancellationToken);
     }
 }

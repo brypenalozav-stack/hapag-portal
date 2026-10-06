@@ -1,4 +1,5 @@
-import { test, expect, Page, Request } from '@playwright/test';
+import { Page, Request } from '@playwright/test';
+import { test, expect } from '../fixtures/app';
 import { BL_PRUEBA, simularApi } from '../fixtures/api-mocks';
 import { ITEM, MENSAJE_BLOQUEO, OpcionesOlaD, PAGO, RUT_AGENCIA, RUT_MANDANTE, RUT_PROPIO } from '../fixtures/ola-d-mocks';
 import { sembrarSesion } from '../fixtures/session';

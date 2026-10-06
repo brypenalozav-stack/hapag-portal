@@ -32,6 +32,16 @@ export class SidebarComponent {
   canManagePaymentBlocks = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_PAYMENT_BLOCKS));
   /** Herramientas de Finanzas (M5-02, NF-03, NF-04). */
   canUseFinance = computed(() => this.auth.hasPermission(PERMISSIONS.PAYMENTS_FINANCE));
+  /** Bandeja de solicitudes de servicios on demand (Fase 2, Ola G). */
+  canProcessServiceRequests = computed(() => this.auth.hasPermission(PERMISSIONS.PROCESS_SERVICE_REQUESTS));
+  /** Fase 2, Ola I: área de administración unificada (M8-05) y sus nuevas pantallas. */
+  canUseAdminArea = computed(() => this.auth.hasPermission(PERMISSIONS.ADMIN_AREA));
+  canManageAnnouncements = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_ANNOUNCEMENTS));
+  canManageCounter = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_COUNTER));
+  canUseImpersonation = computed(() => this.auth.hasPermission(PERMISSIONS.USE_IMPERSONATION));
+  canViewTransactionsReport = computed(() => this.auth.hasPermission(PERMISSIONS.VIEW_TRANSACTIONS_REPORT));
+  /** Fase 2, Ola J: clientes del canal Web Service (M3-17). */
+  canManageApiClients = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_API_CLIENTS));
   closed = output<void>();
 
   onLinkClick(): void {

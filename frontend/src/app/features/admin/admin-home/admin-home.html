@@ -1,0 +1,52 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.home.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.home.subtitle' | transloco }}</p>
+  @if (overview(); as o) {
+    <p class="small text-muted mb-0 mt-1" data-testid="admin-home-generated">{{ 'admin.home.generatedAt' | transloco: { date: (o.generatedAt | hlDate: 'datetime') } }}</p>
+  }
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else {
+  <div class="row g-3 mb-4">
+    @for (g of groups(); track g.code) {
+      <div class="col-md-6 col-xl-4">
+        <section class="hl-card p-3 h-100" [attr.aria-labelledby]="'admin-section-' + g.code" [attr.data-testid]="'admin-section-' + g.code">
+          <h2 class="section-title mb-1" [id]="'admin-section-' + g.code">{{ g.titleKey | transloco }}</h2>
+          <p class="small text-muted mb-2">{{ g.descriptionKey | transloco }}</p>
+          @if (g.values.length > 0) {
+            <ul class="list-unstyled small mb-2" [attr.data-testid]="'admin-counters-' + g.code">
+              @for (v of g.values; track v.key) {
+                <li [class.fw-bold]="v.count > 0">{{ v.key | transloco: { count: v.count } }}</li>
+              }
+            </ul>
+          }
+          <ul class="list-unstyled mb-0">
+            @for (l of g.links; track l.route) {
+              <li><a [routerLink]="l.route">{{ l.key | transloco }}</a></li>
+            }
+          </ul>
+        </section>
+      </div>
+    }
+    @if (auth.isInternal()) {
+      <div class="col-md-6 col-xl-4">
+        <section class="hl-card p-3 h-100" aria-labelledby="admin-section-operations" data-testid="admin-section-operations">
+          <h2 class="section-title mb-1" id="admin-section-operations">{{ 'admin.home.section.operations.title' | transloco }}</h2>
+          <p class="small text-muted mb-2">{{ 'admin.home.section.operations.description' | transloco }}</p>
+          <ul class="list-unstyled mb-0">
+            @for (l of operations; track l.route) {
+              <li><a [routerLink]="l.route">{{ l.key | transloco }}</a></li>
+            }
+          </ul>
+        </section>
+      </div>
+    }
+  </div>
+  <p class="small text-muted" role="note">{{ 'admin.home.auditNote' | transloco }}</p>
+}

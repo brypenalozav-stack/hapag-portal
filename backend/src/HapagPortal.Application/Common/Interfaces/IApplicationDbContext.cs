@@ -73,6 +73,29 @@ public interface IApplicationDbContext
     DbSet<DangerousGood> DangerousGoods { get; }
     DbSet<TatcBatch> TatcBatches { get; }
     DbSet<TatcBatchItem> TatcBatchItems { get; }
+    DbSet<ServiceDefinition> ServiceDefinitions { get; }
+    DbSet<ServiceRequest> ServiceRequests { get; }
+    DbSet<ServiceRequestEvent> ServiceRequestEvents { get; }
+    DbSet<ServiceRequestAttachment> ServiceRequestAttachments { get; }
+    DbSet<ServiceRequestCharge> ServiceRequestCharges { get; }
+    DbSet<ChargeSettlement> ChargeSettlements { get; }
+    DbSet<DepositProof> DepositProofs { get; }
+    DbSet<CreditImputationRule> CreditImputationRules { get; }
+    DbSet<InvoiceReissue> InvoiceReissues { get; }
+    DbSet<NotificationPreference> NotificationPreferences { get; }
+    DbSet<Announcement> Announcements { get; }
+    DbSet<GuideDefinition> GuideDefinitions { get; }
+    DbSet<UserGuideState> UserGuideStates { get; }
+    DbSet<ImpersonationSession> ImpersonationSessions { get; }
+    DbSet<CounterRecord> CounterRecords { get; }
+    DbSet<ContactListChange> ContactListChanges { get; }
+    DbSet<CarrierPreRegistration> CarrierPreRegistrations { get; }
+    DbSet<OrganizationParentLink> OrganizationParentLinks { get; }
+    DbSet<ReleaseLetterRequest> ReleaseLetterRequests { get; }
+    DbSet<AssistantDocumentDelivery> AssistantDocumentDeliveries { get; }
+    DbSet<ApiClient> ApiClients { get; }
+    DbSet<ApiClientKey> ApiClientKeys { get; }
+    DbSet<ApiClientRequest> ApiClientRequests { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

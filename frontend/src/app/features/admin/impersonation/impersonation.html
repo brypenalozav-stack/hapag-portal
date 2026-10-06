@@ -1,0 +1,253 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.impersonation.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.impersonation.subtitle' | transloco }}</p>
+</div>
+
+<p class="small" role="note">{{ 'admin.impersonation.readOnlyNote' | transloco }}</p>
+
+<!-- Iniciar: organización, usuario y motivo -->
+<form class="hl-card p-4 mb-4" novalidate aria-labelledby="impersonation-start-title" (submit)="start($event)" data-testid="impersonation-start">
+  <h2 id="impersonation-start-title" class="section-title mb-3">{{ 'admin.impersonation.start.title' | transloco }}</h2>
+  @if (errors().length > 0) {
+    <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="impersonation-errors-title">
+      <h3 id="impersonation-errors-title" class="h6 fw-bold">{{ 'admin.impersonation.start.errors.summaryTitle' | transloco }}</h3>
+      <ul class="mb-0">
+        @for (error of errors(); track error.key) {
+          <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+        }
+      </ul>
+    </div>
+  }
+  @if (startError()) {
+    <div class="alert alert-danger py-2" role="alert" data-testid="impersonation-start-error">{{ startError() }}</div>
+  }
+
+  <div class="mb-3">
+    <label for="impersonation-org-search" class="form-label small fw-semibold">{{ 'admin.impersonation.start.organization' | transloco }}</label>
+    <div class="d-flex flex-wrap gap-2">
+      <input id="impersonation-org-search" type="search" class="form-control w-auto flex-grow-1" autocomplete="off" aria-describedby="impersonation-org-help"
+             [attr.aria-invalid]="hasError('impersonation-org-search')" [(ngModel)]="orgSearch" [ngModelOptions]="{ standalone: true }"
+             (keydown.enter)="$event.preventDefault(); searchOrganizations()" />
+      <button type="button" class="btn btn-outline-secondary" [disabled]="orgSearching()" (click)="searchOrganizations()">{{ 'admin.impersonation.start.search' | transloco }}</button>
+    </div>
+    <div id="impersonation-org-help" class="form-text">{{ 'admin.impersonation.start.organizationHelp' | transloco }}</div>
+  </div>
+
+  @if (orgResults(); as results) {
+    @if (results.length === 0) {
+      <p class="small" role="status">{{ 'admin.impersonation.start.noOrganizations' | transloco }}</p>
+    } @else {
+      <fieldset class="mb-3">
+        <legend class="form-label small fw-semibold mb-1">{{ 'admin.impersonation.start.organizationResults' | transloco }}</legend>
+        @for (o of results; track o.id) {
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="impersonation-org" [id]="'impersonation-org-' + o.id"
+                   [checked]="selectedOrg()?.id === o.id" (change)="selectOrganization(o)" />
+            <label class="form-check-label" [for]="'impersonation-org-' + o.id">
+              {{ 'admin.impersonation.start.organizationOption' | transloco: { name: o.name, taxId: o.taxId, type: (o.organizationType | codeLabel: typeKeys), country: o.country } }}
+            </label>
+          </div>
+        }
+      </fieldset>
+    }
+  }
+
+  @if (selectedOrg(); as org) {
+    @if (targetsLoading()) {
+      <app-loading-spinner />
+    } @else if (targets(); as list) {
+      @if (list.length === 0) {
+        <p class="small" role="status">{{ 'admin.impersonation.start.noUsers' | transloco: { organization: org.name } }}</p>
+      } @else {
+        <fieldset id="impersonation-users" class="mb-3">
+          <legend class="form-label small fw-semibold mb-1">{{ 'admin.impersonation.start.user' | transloco: { organization: org.name } }}</legend>
+          @for (t of list; track t.userId) {
+            <div class="form-check" [attr.data-testid]="'impersonation-target-' + t.email">
+              <input class="form-check-input" type="radio" name="impersonation-user" [id]="'impersonation-user-' + t.userId" [value]="t.userId"
+                     [disabled]="!t.eligible" [(ngModel)]="selectedUserId" [ngModelOptions]="{ standalone: true }"
+                     [attr.aria-describedby]="'impersonation-user-help-' + t.userId" />
+              <label class="form-check-label" [for]="'impersonation-user-' + t.userId">{{ t.fullName || t.email }}</label>
+              <div class="small text-muted" [id]="'impersonation-user-help-' + t.userId">
+                {{ t.email }}@if (t.profile) {<span> · {{ t.profile | codeLabel: profileKeys }}</span>}
+                <span> · </span>
+                @if (!t.eligible) {
+                  {{ 'admin.impersonation.start.notEligible' | transloco }}
+                } @else if (t.lastLoginAt) {
+                  {{ 'admin.impersonation.start.lastLogin' | transloco: { date: (t.lastLoginAt | hlDate: 'datetime') } }}
+                } @else {
+                  {{ 'admin.impersonation.start.neverLoggedIn' | transloco }}
+                }
+              </div>
+            </div>
+          }
+        </fieldset>
+      }
+    }
+  }
+
+  <div class="mb-3">
+    <label for="impersonation-reason" class="form-label small fw-semibold">{{ 'admin.impersonation.start.reason' | transloco }}</label>
+    <textarea id="impersonation-reason" class="form-control" rows="2" required maxlength="500" aria-describedby="impersonation-reason-help"
+              [attr.aria-invalid]="hasError('impersonation-reason')" [(ngModel)]="reason" [ngModelOptions]="{ standalone: true }"></textarea>
+    <div id="impersonation-reason-help" class="form-text">{{ 'admin.impersonation.start.reasonHelp' | transloco }}</div>
+  </div>
+
+  <button type="submit" class="btn btn-hl-orange" [disabled]="starting()" data-testid="impersonation-start-submit">{{ 'admin.impersonation.start.submit' | transloco }}</button>
+</form>
+
+<!-- Sesiones registradas -->
+<section class="hl-card mb-4" aria-labelledby="impersonation-sessions-title">
+  <div class="card-header p-3">
+    <h2 id="impersonation-sessions-title" class="section-title">{{ 'admin.impersonation.sessions.title' | transloco }}</h2>
+  </div>
+  <form class="p-3 border-bottom" role="search" [attr.aria-label]="'admin.impersonation.sessions.filters' | transloco" (ngSubmit)="searchSessions()">
+    <div class="row g-2 align-items-end">
+      <div class="col-sm-4 col-lg-3">
+        <label for="impersonation-status" class="form-label small fw-semibold">{{ 'admin.impersonation.sessions.status' | transloco }}</label>
+        <select id="impersonation-status" class="form-select" name="status" [(ngModel)]="statusFilter">
+          <option value="">{{ 'admin.impersonation.sessions.allStatuses' | transloco }}</option>
+          <option value="Active">{{ 'common.impersonationStatus.active' | transloco }}</option>
+          <option value="Ended">{{ 'common.impersonationStatus.ended' | transloco }}</option>
+          <option value="Expired">{{ 'common.impersonationStatus.expired' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-sm-4 col-lg-3">
+        <label for="impersonation-from" class="form-label small fw-semibold">{{ 'admin.impersonation.sessions.from' | transloco }}</label>
+        <input id="impersonation-from" type="date" class="form-control" name="from" [(ngModel)]="from" />
+      </div>
+      <div class="col-sm-4 col-lg-3">
+        <label for="impersonation-to" class="form-label small fw-semibold">{{ 'admin.impersonation.sessions.to' | transloco }}</label>
+        <input id="impersonation-to" type="date" class="form-control" name="to" [(ngModel)]="to" />
+      </div>
+      <div class="col-sm-12 col-lg-3">
+        <button type="submit" class="btn btn-outline-secondary">{{ 'admin.impersonation.sessions.search' | transloco }}</button>
+      </div>
+    </div>
+  </form>
+
+  @if (actionError()) {
+    <div class="alert alert-danger py-2 m-3" role="alert">{{ actionError() }}</div>
+  }
+
+  @if (sessionsLoading()) {
+    <app-loading-spinner />
+  } @else if (sessionsFailed()) {
+    <app-state-message kind="error" (retry)="loadSessions()" />
+  } @else if (sessions().length === 0) {
+    <app-state-message kind="empty" [messageKey]="'admin.impersonation.sessions.empty'" />
+  } @else {
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.impersonation.sessions.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.impersonation.sessions.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.impersonation.sessions.col.started' | transloco }}</th>
+            <th scope="col">{{ 'admin.impersonation.sessions.col.actor' | transloco }}</th>
+            <th scope="col">{{ 'admin.impersonation.sessions.col.subject' | transloco }}</th>
+            <th scope="col">{{ 'admin.impersonation.sessions.col.reason' | transloco }}</th>
+            <th scope="col">{{ 'admin.impersonation.sessions.col.status' | transloco }}</th>
+            <th scope="col">{{ 'admin.impersonation.sessions.col.activity' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.impersonation.sessions.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of sessions(); track s.id) {
+            <tr [attr.data-testid]="'impersonation-session-' + s.id">
+              <td>
+                {{ s.startedAt | hlDate: 'datetime' }}
+                @if (s.endedAt) {
+                  <span class="d-block small text-muted">{{ 'admin.impersonation.sessions.endedAt' | transloco: { date: (s.endedAt | hlDate: 'datetime'), minutes: duration(s) } }}</span>
+                }
+              </td>
+              <td>{{ s.actor.email }}</td>
+              <td>
+                <span class="d-block">{{ s.subject.fullName || s.subject.email }}</span>
+                <span class="small text-muted">{{ s.organization.name }}</span>
+              </td>
+              <td class="small">{{ s.reason }}</td>
+              <td>
+                <span class="hl-badge" [class]="statusClass[s.status] || 'hl-badge--processing'">{{ s.status | codeLabel: statusKeys }}</span>
+                @if (s.endReason) {
+                  <span class="d-block small">{{ s.endReason | codeLabel: endReasonKeys }}</span>
+                }
+              </td>
+              <td class="small">{{ 'admin.impersonation.sessions.activity' | transloco: { requests: s.requestCount, blocked: s.blockedCount } }}</td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openAudit(s)"
+                          [attr.aria-label]="'admin.impersonation.sessions.auditLabel' | transloco: { name: s.subject.fullName || s.subject.email, date: (s.startedAt | hlDate: 'datetime') }">{{ 'admin.impersonation.sessions.audit' | transloco }}</button>
+                  @if (s.status === 'Active') {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="endingId() === s.id" (click)="endSession(s)"
+                            [attr.aria-label]="'admin.impersonation.sessions.endLabel' | transloco: { name: s.subject.fullName || s.subject.email }">{{ 'admin.impersonation.sessions.end' | transloco }}</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'admin.impersonation.sessions.pagination' | transloco">
+      <span class="small text-muted">{{ 'admin.impersonation.sessions.showing' | transloco: { shown: sessions().length, total: total() } }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">{{ 'admin.impersonation.sessions.previous' | transloco }}</button>
+        <span class="small">{{ 'admin.impersonation.sessions.page' | transloco: { page: page(), pages: totalPages } }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">{{ 'admin.impersonation.sessions.next' | transloco }}</button>
+      </div>
+    </nav>
+  }
+</section>
+
+@if (auditSession(); as s) {
+  <section class="hl-card mb-4" aria-labelledby="impersonation-audit-title" data-testid="impersonation-audit">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #auditHeading id="impersonation-audit-title" class="section-title" tabindex="-1">
+        {{ 'admin.impersonation.audit.title' | transloco: { name: s.subject.fullName || s.subject.email, date: (s.startedAt | hlDate: 'datetime') } }}
+      </h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeAudit()">{{ 'admin.impersonation.audit.close' | transloco }}</button>
+    </div>
+    @if (requestsLoading()) {
+      <app-loading-spinner />
+    } @else if (requests().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.impersonation.audit.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.impersonation.audit.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.impersonation.audit.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.impersonation.audit.col.timestamp' | transloco }}</th>
+              <th scope="col">{{ 'admin.impersonation.audit.col.action' | transloco }}</th>
+              <th scope="col">{{ 'admin.impersonation.audit.col.request' | transloco }}</th>
+              <th scope="col">{{ 'admin.impersonation.audit.col.status' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of requests(); track r.id) {
+              <tr>
+                <td>{{ r.timestamp | hlDate: 'datetimeSeconds' }}</td>
+                <td>
+                  @if (r.action === 'BlockedWrite') {
+                    <span class="hl-badge hl-badge--failed">{{ r.action | codeLabel: requestActionKeys }}</span>
+                  } @else {
+                    {{ r.action | codeLabel: requestActionKeys }}
+                  }
+                </td>
+                <td class="small"><span class="font-monospace">{{ r.method ?? '' }} {{ r.path ?? '' }}</span></td>
+                <td>{{ r.statusCode ?? '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'admin.impersonation.audit.pagination' | transloco">
+        <span class="small text-muted">{{ 'admin.impersonation.sessions.showing' | transloco: { shown: requests().length, total: requestsTotal() } }}</span>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="requestsPage() <= 1" (click)="changeRequestsPage(-1)">{{ 'admin.impersonation.sessions.previous' | transloco }}</button>
+          <span class="small">{{ 'admin.impersonation.sessions.page' | transloco: { page: requestsPage(), pages: requestPages } }}</span>
+          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="requestsPage() >= requestPages" (click)="changeRequestsPage(1)">{{ 'admin.impersonation.sessions.next' | transloco }}</button>
+        </div>
+      </nav>
+    }
+  </section>
+}

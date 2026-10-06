@@ -52,8 +52,9 @@ public sealed class ThirdPartyAccessSeedTests : IDisposable
         var bls = await evaluator.FilterAccessible(_context.BillsOfLading.AsNoTracking(), scope).ToListAsync();
         var sources = await evaluator.GetAccessSourcesAsync(scope, bls);
 
-        // BL01 y BL02 por acceso otorgado; BL12 (Ola E) porque la agencia es parte del embarque (Collect, M6-04).
-        bls.Select(b => b.BLNumber).Should().BeEquivalentTo(["HLCUVAL250100123", "HLCUVAL250200456", "HLCUSAI260501240"]);
+        // BL01 y BL02 por acceso otorgado; BL12 (Ola E) y BL18 (Ola H, Gate Out anticipado M3-19) porque la agencia es
+        // parte del embarque.
+        bls.Select(b => b.BLNumber).Should().BeEquivalentTo(["HLCUVAL250100123", "HLCUVAL250200456", "HLCUSAI260501240", "HLCUSAI260701810"]);
         sources[SeedDataIds.BL01].Should().Be(ShipmentAccessSources.Grant);
         sources[SeedDataIds.BL02].Should().Be(ShipmentAccessSources.Grant);
         sources[SeedDataIds.BL12].Should().Be(ShipmentAccessSources.Own);
@@ -98,7 +99,9 @@ public sealed class ThirdPartyAccessSeedTests : IDisposable
     public async Task SeededDefaultsAndAudit_ShouldBePresent()
     {
         (await _context.DefaultGrantees.SingleAsync()).GranteeClientId.Should().Be(SeedDataIds.AgentClientCL);
-        (await _context.AccessAuditEntries.CountAsync()).Should().Be(5);
+        // 5 de la Ola B y 5 de la Ola I (transportista pre-creado con su BL asignado y vínculos con la empresa matriz).
+        (await _context.AccessAuditEntries.CountAsync()).Should().Be(10);
+        (await _context.AccessAuditEntries.CountAsync(e => e.OccurredAt < new DateTime(2026, 10, 5, 0, 0, 0, DateTimeKind.Utc))).Should().Be(5);
     }
 
     [Fact]

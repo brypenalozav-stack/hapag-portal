@@ -2,6 +2,7 @@ namespace HapagPortal.Application.Assistant;
 
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Dashboard;
+using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.Repository;
 using HapagPortal.Application.Invoices;
 using HapagPortal.Application.Shipments.Common;
@@ -14,6 +15,18 @@ using HapagPortal.Domain.Entities;
 using HapagPortal.Domain.Results;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+
+/// <summary>
+/// Pedido de entrega de documentos por el asistente (M10-04): el mensaje (de donde salen los tipos pedidos), las
+/// referencias escritas, la conversación y el mensaje de respuesta al que queda asociada cada entrega.
+/// </summary>
+public sealed record AssistantDeliveryRequest(
+    string Message,
+    IReadOnlyList<string> References,
+    string Topic,
+    Guid SessionId,
+    Guid ReplyMessageId,
+    string? UserEmail);
 
 /// <summary>
 /// Respuestas a consultas dinámicas (M10-03): estado del embarque, documentos, cargos pendientes, factura y TATC.
@@ -29,6 +42,7 @@ public sealed class AssistantDataRetriever(
 {
     private const int MaxReferences = 3;
     private const int MaxListedItems = 10;
+    private const int MaxDeliveredItems = 5;
 
     public async Task<AssistantAnswer> AnswerAsync(
         string intent,
@@ -42,7 +56,165 @@ public sealed class AssistantDataRetriever(
         AssistantIntents.PendingCharges => await PendingSummaryAsync(topic, cancellationToken),
         AssistantIntents.InvoiceDetail => await InvoiceAsync(references, topic, cancellationToken),
         AssistantIntents.TatcStatus => await TatcAsync(references, topic, cancellationToken),
+        AssistantIntents.DocumentDelivery => await DocumentsAsync(references, topic, cancellationToken),
         _ => NotAvailable(intent, references, topic),
+    };
+
+    /// <summary>
+    /// Entrega de documentos puntuales (M10-04): identifica el embarque y los tipos pedidos, toma los documentos del
+    /// repositorio (M6-09) con la misma consulta y los mismos permisos que la pantalla y la descarga directa (M1-11: el
+    /// shipper solo ve la copia no valorada, el comprobante Collect solo la agencia de aduanas autorizada) y ofrece un
+    /// enlace de descarga por documento. Cada entrega queda registrada (NF-14) con el usuario, su organización y el mandante,
+    /// y en el registro del documento con el canal <c>Assistant</c>. Lo que no existe o no puede ver recibe la misma
+    /// respuesta "no disponible".
+    /// </summary>
+    public async Task<AssistantAnswer> DeliverDocumentsAsync(AssistantDeliveryRequest request, CancellationToken cancellationToken)
+    {
+        const string intent = AssistantIntents.DocumentDelivery;
+        var kinds = AssistantIntentRules.RequestedDocuments(request.Message);
+        if (kinds.Count == 0)
+            return await DocumentsAsync(request.References, request.Topic, cancellationToken);
+
+        var detail = await ResolveShipmentAsync(request.References, cancellationToken);
+        if (detail is null)
+            return NotAvailable(intent, request.References, request.Topic);
+
+        var result = await sender.Send(new GetShipmentDocumentsQuery(detail.BlNumber), cancellationToken);
+        if (result.IsFailure)
+            return NotAvailable(intent, request.References, request.Topic);
+
+        var repository = result.Value;
+        var requestedNames = string.Join(", ", kinds.Select(DeliveryKindName));
+        var citation = new AssistantCitationDto(
+            AssistantReferences.Documents, repository.BlNumber, null, $"/api/v1/documents/{Uri.EscapeDataString(repository.BlNumber)}");
+
+        // Del repositorio, el vigente más reciente de cada tipo pedido (una carta reemplazada no se entrega).
+        var documents = repository.Documents
+            .Where(d => kinds.Contains(d.DocumentType) && d.Status == ShipmentDocumentStatus.Issued)
+            .GroupBy(d => d.DocumentType)
+            .Select(g => g.OrderByDescending(d => d.IssuedAt).First())
+            .Take(MaxDeliveredItems)
+            .ToList();
+        var related = repository.Related
+            .Where(r => (r.Kind == AssistantReferences.Invoice && kinds.Contains(AssistantDeliveryKinds.Invoice))
+                || (r.Kind != AssistantReferences.Invoice && kinds.Contains(AssistantDeliveryKinds.Receipt)))
+            .Take(MaxDeliveredItems)
+            .ToList();
+
+        if (documents.Count == 0 && related.Count == 0)
+        {
+            return new AssistantAnswer(
+                intent,
+                AssistantAnswerTypes.NotAvailable,
+                $"No hay {requestedNames} disponible para su usuario en el BL {repository.BlNumber}. El asistente solo entrega los " +
+                "documentos ya emitidos que usted puede descargar en el repositorio del embarque; si corresponde, puede solicitarlos " +
+                "desde los documentos del embarque en el portal.",
+                [],
+                [citation],
+                [new AssistantActionDto(AssistantReferences.OpenShipment, $"Ver el detalle del BL {repository.BlNumber}", null, repository.BlNumber, detail.Id)],
+                request.Topic);
+        }
+
+        // Actor de la entrega (NF-14): usuario, su organización y el mandante cuando el permiso viene de un acceso otorgado.
+        var scope = await accessEvaluator.GetScopeAsync(cancellationToken);
+        var bl = await dbContext.BillsOfLading.AsNoTracking().FirstAsync(b => b.Id == repository.BlId, cancellationToken);
+        var permissions = await accessEvaluator.EvaluateAsync(scope, bl, cancellationToken);
+        var now = DateTime.UtcNow;
+
+        var facts = new List<AssistantFact>();
+        var actions = new List<AssistantActionDto>();
+
+        foreach (var document in documents)
+        {
+            var name = AssistantFormat.DocumentType(document.DocumentType);
+            var delivery = Deliver(request, scope, permissions.GrantFor(ShipmentDocumentAccess.ActionFor(document.DocumentType)), repository,
+                AssistantDeliveryKinds.ShipmentDocument, document.DocumentType, document.Id, document.DocumentNumber, now);
+
+            dbContext.ShipmentDocumentEvents.Add(new ShipmentDocumentEvent
+            {
+                ShipmentDocumentId = document.Id,
+                EventType = ShipmentDocumentEventTypes.Delivered,
+                Channel = DocumentChannels.Assistant,
+                OccurredAt = now,
+                UserId = scope.UserId,
+                UserEmail = delivery.UserEmail,
+                OrganizationId = scope.OrganizationId,
+                OnBehalfOfOrganizationId = delivery.OnBehalfOfOrganizationId,
+                Details = $"{{\"sessionId\":\"{request.SessionId}\",\"deliveryId\":\"{delivery.Id}\"}}"
+            });
+
+            facts.Add(new AssistantFact(name, $"{document.DocumentNumber}, emitido el {AssistantFormat.LocalTime(document.IssuedAt, repository.Country)}"));
+            actions.Add(new AssistantActionDto(
+                AssistantReferences.DownloadDocument,
+                $"Descargar {name} {document.DocumentNumber}",
+                $"/api/v1/assistant/sessions/{request.SessionId}/deliveries/{delivery.Id}/download",
+                repository.BlNumber,
+                document.Id));
+        }
+
+        foreach (var item in related)
+        {
+            var isInvoice = item.Kind == AssistantReferences.Invoice;
+            Deliver(request, scope, null, repository, isInvoice ? AssistantDeliveryKinds.Invoice : AssistantDeliveryKinds.Receipt,
+                null, item.Id, item.Number, now);
+
+            facts.Add(new AssistantFact(
+                isInvoice ? "Factura" : "Recibo de pago",
+                $"{item.Number}, emitido el {AssistantFormat.LocalTime(item.IssuedAt, repository.Country)}"));
+            actions.Add(new AssistantActionDto(
+                isInvoice ? AssistantReferences.DownloadInvoice : AssistantReferences.DownloadReceipt,
+                $"Descargar {(isInvoice ? "factura" : "recibo")} {item.Number}",
+                item.DownloadPath,
+                repository.BlNumber,
+                item.Id));
+        }
+
+        return new AssistantAnswer(
+            intent,
+            AssistantAnswerTypes.Data,
+            Draft($"Documentos del BL {repository.BlNumber} listos para descargar ({requestedNames}):", facts),
+            facts,
+            [citation],
+            actions,
+            request.Topic);
+    }
+
+    private AssistantDocumentDelivery Deliver(
+        AssistantDeliveryRequest request,
+        AccessScope scope,
+        ShipmentGrantAccess? grant,
+        ShipmentDocumentsDto repository,
+        string kind,
+        string? documentType,
+        Guid documentId,
+        string documentNumber,
+        DateTime now)
+    {
+        var delivery = new AssistantDocumentDelivery
+        {
+            SessionId = request.SessionId,
+            MessageId = request.ReplyMessageId,
+            UserId = scope.UserId ?? Guid.Empty,
+            UserEmail = request.UserEmail,
+            OrganizationId = scope.OrganizationId,
+            OnBehalfOfOrganizationId = grant?.GrantorOrganizationId,
+            BillOfLadingId = repository.BlId,
+            BlNumber = repository.BlNumber,
+            DocumentKind = kind,
+            DocumentType = documentType,
+            DocumentId = documentId,
+            DocumentNumber = documentNumber,
+            DeliveredAt = now
+        };
+        dbContext.AssistantDocumentDeliveries.Add(delivery);
+        return delivery;
+    }
+
+    private static string DeliveryKindName(string kind) => kind switch
+    {
+        AssistantDeliveryKinds.Receipt => "recibos de pago",
+        AssistantDeliveryKinds.Invoice => "facturas",
+        _ => AssistantFormat.DocumentType(kind).ToLowerInvariant()
     };
 
     /// <summary>Respuesta única para lo que no existe o no es accesible (NF-05: no se distingue).</summary>

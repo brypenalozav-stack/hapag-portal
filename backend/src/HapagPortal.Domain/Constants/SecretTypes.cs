@@ -21,6 +21,7 @@ public static class SecretTypes
     public const string DbNetApiKey = "DBNET_API_KEY";
     public const string TrackingApiKey = "TRACKING_API_KEY";
     public const string TatcApiKey = "TATC_API_KEY";
+    public const string ContactsApiKey = "CONTACTS_API_KEY";
     public const string SignerCertificate = "SIGNER_CERTIFICATE";
     public const string StorageAccessKey = "STORAGE_ACCESS_KEY";
 }

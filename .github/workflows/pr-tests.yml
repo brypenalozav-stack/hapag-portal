@@ -140,7 +140,10 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Accessibility tests (Playwright + axe)
+      # playwright.config.ts compila la configuración `e2e` (apiUrl '/api/v1') y la sirve como archivos estáticos;
+      # con la caché de Angular activa también en CI (angular.json, cli.cache.environment) reutiliza la compilación
+      # de producción de arriba y tarda segundos.
+      - name: E2E tests (Playwright + axe, static e2e build)
         run: npx playwright test
 
       - name: Upload Playwright report

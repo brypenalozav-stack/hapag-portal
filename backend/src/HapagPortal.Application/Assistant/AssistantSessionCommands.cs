@@ -280,8 +280,9 @@ public sealed class SendAssistantMessageCommandHandler(
             .MaxAsync(cancellationToken) ?? 0;
 
         var message = request.Message.Trim();
+        var replyId = Guid.NewGuid();
         var stopwatch = Stopwatch.StartNew();
-        var response = await responder.RespondAsync(session, message, cancellationToken);
+        var response = await responder.RespondAsync(session, message, replyId, cancellationToken);
         stopwatch.Stop();
         var elapsed = (int)Math.Min(int.MaxValue, stopwatch.ElapsedMilliseconds);
 
@@ -296,6 +297,7 @@ public sealed class SendAssistantMessageCommandHandler(
 
         var reply = new AssistantMessage
         {
+            Id = replyId,
             SessionId = session.Id,
             Sequence = lastSequence + 2,
             Role = AssistantRoles.Assistant,

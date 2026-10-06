@@ -88,7 +88,8 @@ public sealed class RevokeAccessGrantsCommandHandler(
                 NotificationTypes.AccessRevoked,
                 "Acceso revocado",
                 $"{context.Membership.Organization.Name} revocó su acceso a {AccessNotifier.Describe(references)}.",
-                cancellationToken);
+                cancellationToken,
+                AccessNotifier.ForGrant(byGrantee.First(), byGrantee.First().BillOfLadingId is null ? null : blNumbers.GetValueOrDefault(byGrantee.First().BillOfLadingId!.Value)));
         }
 
         await AccessNotifier.NotifyCascadeAsync(dbContext, notificationPublisher, cascade, cancellationToken);

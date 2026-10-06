@@ -148,7 +148,9 @@ public sealed class GetPaymentHistoryQueryHandler(
     public async Task<Result<PagedResult<PaymentHistoryItemDto>>> Handle(GetPaymentHistoryQuery request, CancellationToken cancellationToken)
     {
         var scope = await accessEvaluator.GetScopeAsync(cancellationToken);
-        var query = dbContext.Payments.AsNoTracking();
+
+        // M7-02 muestra solo pagos: la imputación a la línea de crédito (M5-10) figura en el estado de cuenta.
+        var query = dbContext.Payments.AsNoTracking().Where(p => p.Origin != PaymentOrigins.CreditLine);
 
         if (scope.IsAdmin)
         {

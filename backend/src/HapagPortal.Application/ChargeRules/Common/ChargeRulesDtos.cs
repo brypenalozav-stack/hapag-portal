@@ -20,7 +20,9 @@ public sealed record CommercialConditionsDto(
     bool IsFreightForwarder,
     bool ResponsibilityLetterRequired,
     bool IpoExcluded,
-    string? ErrorCode);
+    string? ErrorCode,
+    decimal? CreditLimit = null,
+    string? CreditLimitCurrency = null);
 
 /// <summary>Exención vigente de una figura según Nexus.</summary>
 public sealed record ExemptionConditionDto(

@@ -1,11 +1,13 @@
 namespace HapagPortal.UnitTests.Application.Notifications;
 
 using FluentAssertions;
+using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Notifications.Alerts;
 using HapagPortal.Application.Notifications.MarkRead;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.UnitTests.Application.TestHelpers;
+using NSubstitute;
 
 public sealed class NotificationHandlerTests
 {
@@ -14,13 +16,17 @@ public sealed class NotificationHandlerTests
     [Fact]
     public async Task MarkRead_SetsReadAt()
     {
+        var userId = Guid.NewGuid();
         var n = new Notification
         {
             Id = Guid.NewGuid(), Type = NotificationTypes.DeadlineOverdue,
-            Title = "t", Body = "b"
+            Title = "t", Body = "b", UserId = userId
         };
         _db.NotificationList.Add(n);
-        var handler = new MarkNotificationReadCommandHandler(_db);
+        var currentUser = Substitute.For<ICurrentUserService>();
+        currentUser.UserId.Returns(userId);
+        currentUser.Roles.Returns([]);
+        var handler = new MarkNotificationReadCommandHandler(_db, currentUser);
 
         var result = await handler.Handle(new MarkNotificationReadCommand(n.Id), CancellationToken.None);
 
@@ -31,7 +37,7 @@ public sealed class NotificationHandlerTests
     [Fact]
     public async Task MarkRead_NotFound_Fails()
     {
-        var handler = new MarkNotificationReadCommandHandler(_db);
+        var handler = new MarkNotificationReadCommandHandler(_db, Substitute.For<ICurrentUserService>());
 
         var result = await handler.Handle(new MarkNotificationReadCommand(Guid.NewGuid()), CancellationToken.None);
 

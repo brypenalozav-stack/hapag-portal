@@ -42,6 +42,19 @@ public sealed class AssistantController : ApiController
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 
+    /// <summary>
+    /// Descarga de un documento entregado por el asistente (M10-04): vuelve a validar los permisos del usuario y registra la
+    /// descarga con el canal <c>Assistant</c> (NF-14).
+    /// </summary>
+    [HttpGet("sessions/{id:guid}/deliveries/{deliveryId:guid}/download")]
+    public async Task<IActionResult> DownloadDelivery(Guid id, Guid deliveryId, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new DownloadAssistantDeliveryCommand(id, deliveryId), cancellationToken);
+        return result.IsSuccess
+            ? File(result.Value.Content, result.Value.ContentType, result.Value.FileName)
+            : HandleFailure(result);
+    }
+
     /// <summary>Cierra la conversación y, si se pide, envía el respaldo al correo registrado o al indicado (M10-05).</summary>
     [HttpPost("sessions/{id:guid}/end")]
     public async Task<IActionResult> End(

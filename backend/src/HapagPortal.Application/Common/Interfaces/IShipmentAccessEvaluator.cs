@@ -93,8 +93,11 @@ public sealed record ShipmentPermissionSet(
 {
     public static readonly ShipmentPermissionSet None = new([], [], false, false) { AccessSource = "None" };
 
-    /// <summary>Origen del acceso: Own, Grant, SelfAssociated, OpenAccess, Admin o None.</summary>
+    /// <summary>Origen del acceso: Own, Grant, Parent, SelfAssociated, OpenAccess, Admin o None.</summary>
     public string AccessSource { get; init; } = "Own";
+
+    /// <summary>Filial de origen cuando el BL se ve como empresa matriz (M1-21).</summary>
+    public Guid? OriginOrganizationId { get; init; }
 
     /// <summary>Acciones de los roles propios del embarque (sin accesos otorgados ni acceso abierto).</summary>
     public IReadOnlyList<string> OwnActions { get; init; } = [];

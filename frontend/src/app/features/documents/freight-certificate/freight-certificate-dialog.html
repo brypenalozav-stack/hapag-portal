@@ -1,0 +1,132 @@
+<dialog #dialog class="hl-dialog" aria-labelledby="freight-dialog-title" (close)="onClosed()" data-testid="freight-dialog">
+  <div class="hl-dialog__header">
+    <h2 id="freight-dialog-title" class="h5 fw-bold mb-0">{{ 'documents.freight.dialog.title' | transloco: { bl: context().blNumber } }}</h2>
+    <button type="button" class="btn btn-sm btn-outline-secondary hl-icon-btn" [attr.aria-label]="'documents.freight.dialog.close' | transloco" (click)="close()">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+      </svg>
+    </button>
+  </div>
+
+  @if (result(); as r) {
+    <!-- Certificado emitido y firmado: queda en el repositorio y se envió al correo registrado (M6-02, M6-09) -->
+    <div class="hl-dialog__body" data-testid="freight-result">
+      <h3 #resultHeading class="h6 fw-bold" tabindex="-1">{{ 'documents.freight.result.title' | transloco }}</h3>
+      <p class="mb-2" data-testid="freight-result-text">{{ resultText(r) }}</p>
+      @if (r.document.signedAt) {
+        <p class="small mb-2" data-testid="freight-result-signature">
+          {{ 'documents.freight.result.signature' | transloco: { date: (r.document.signedAt | hlDate: 'datetime' : timeZone()), provider: r.document.signatureProvider ?? '—' } }}
+        </p>
+      }
+      <p class="small mb-2">{{ 'documents.freight.result.verification' | transloco: { code: r.document.verificationCode } }}</p>
+      <p class="small text-muted mb-0">
+        {{ 'documents.freight.result.repository' | transloco }}
+        <a [routerLink]="['/service-requests', r.request.id]">{{ 'documents.freight.result.viewRequest' | transloco: { number: r.request.requestNumber } }}</a>
+      </p>
+      @if (downloadError()) {
+        <div class="alert alert-danger py-2 mt-2 mb-0" role="alert">{{ downloadError() }}</div>
+      }
+    </div>
+    <div class="hl-dialog__footer">
+      <button type="button" class="btn btn-outline-secondary" data-testid="freight-download" (click)="download()">
+        {{ 'documents.freight.result.download' | transloco: { number: r.document.documentNumber } }}
+      </button>
+      <button type="button" class="btn btn-hl-orange" (click)="close()">{{ 'documents.freight.result.done' | transloco }}</button>
+    </div>
+  } @else {
+    <form id="freight-form" novalidate (submit)="submit($event)">
+      <div class="hl-dialog__body">
+        @if (errors().length > 0) {
+          <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="freight-errors-title">
+            <h3 id="freight-errors-title" class="h6 fw-bold">{{ 'documents.freight.errors.summaryTitle' | transloco }}</h3>
+            <ul class="mb-0">
+              @for (error of errors(); track error.key) {
+                <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+              }
+            </ul>
+          </div>
+        }
+        @if (submitError()) {
+          <div class="alert alert-danger py-2" role="alert" data-testid="freight-error">{{ submitError() }}</div>
+        }
+
+        <p class="small mb-2">{{ 'documents.freight.dialog.help' | transloco }}</p>
+        @if (!context().requiresPayment) {
+          <p class="small fw-semibold" role="note">{{ 'documents.freight.noPayment' | transloco }}</p>
+        }
+        @if (context().freight.currency) {
+          <p class="small mb-3">{{ 'documents.freight.freight' | transloco: { amount: (context().freight.amount | hlCurrency: context().freight.currency) } }}</p>
+        }
+
+        <!-- Consignatario: se precarga con el del BL -->
+        <fieldset class="mb-3" aria-describedby="freight-consignee-help">
+          <legend class="h6 fw-bold">{{ 'documents.freight.dialog.consignee' | transloco }}</legend>
+          <p id="freight-consignee-help" class="form-text mt-0">{{ 'documents.freight.fields.consigneeHelp' | transloco }}</p>
+          <div class="row g-3">
+            <div class="col-md-7">
+              <label for="freight-consignee-name" class="form-label small fw-semibold">{{ 'documents.freight.fields.consigneeName' | transloco }}</label>
+              <input id="freight-consignee-name" type="text" class="form-control" required autocomplete="organization" [attr.maxlength]="limits.NAME"
+                     [value]="values().consigneeName" (input)="onInput('consigneeName', $event)"
+                     [class.is-invalid]="!!fieldError('freight-consignee-name')" [attr.aria-invalid]="fieldError('freight-consignee-name') ? true : null"
+                     [attr.aria-describedby]="fieldError('freight-consignee-name') ? 'freight-consignee-name-error' : null" />
+              @if (fieldError('freight-consignee-name'); as error) {
+                <div id="freight-consignee-name-error" class="invalid-feedback">{{ error | transloco }}</div>
+              }
+            </div>
+            <div class="col-md-5">
+              <label for="freight-consignee-tax-id" class="form-label small fw-semibold">{{ 'documents.freight.fields.consigneeTaxId' | transloco }}</label>
+              <input id="freight-consignee-tax-id" type="text" class="form-control" required autocomplete="off" [attr.maxlength]="limits.TAX_ID"
+                     [value]="values().consigneeTaxId" (input)="onInput('consigneeTaxId', $event)"
+                     [class.is-invalid]="!!fieldError('freight-consignee-tax-id')" [attr.aria-invalid]="fieldError('freight-consignee-tax-id') ? true : null"
+                     [attr.aria-describedby]="fieldError('freight-consignee-tax-id') ? 'freight-consignee-tax-id-error' : null" />
+              @if (fieldError('freight-consignee-tax-id'); as error) {
+                <div id="freight-consignee-tax-id-error" class="invalid-feedback">{{ error | transloco }}</div>
+              }
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="mb-3">
+          <label for="freight-purpose" class="form-label small fw-semibold">{{ 'documents.freight.fields.purpose' | transloco }}</label>
+          <select id="freight-purpose" class="form-select" required [value]="values().purpose" (change)="onInput('purpose', $event)"
+                  [class.is-invalid]="!!fieldError('freight-purpose')" [attr.aria-invalid]="fieldError('freight-purpose') ? true : null"
+                  [attr.aria-describedby]="fieldError('freight-purpose') ? 'freight-purpose-error' : null">
+            <option value="">{{ 'documents.freight.fields.purposePlaceholder' | transloco }}</option>
+            @for (p of context().purposes; track p) {
+              <option [value]="p">{{ p | codeLabel: purposeKeys }}</option>
+            }
+          </select>
+          @if (fieldError('freight-purpose'); as error) {
+            <div id="freight-purpose-error" class="invalid-feedback">{{ error | transloco }}</div>
+          }
+        </div>
+        <div class="mb-3">
+          <label for="freight-recipient" class="form-label small fw-semibold">{{ 'documents.freight.fields.recipient' | transloco }}</label>
+          <input id="freight-recipient" type="text" class="form-control" autocomplete="off" [attr.maxlength]="limits.RECIPIENT"
+                 aria-describedby="freight-recipient-help" [value]="values().recipient" (input)="onInput('recipient', $event)" />
+          <div id="freight-recipient-help" class="form-text">{{ 'documents.freight.fields.recipientHelp' | transloco }}</div>
+        </div>
+        <div class="mb-3">
+          <label for="freight-notes" class="form-label small fw-semibold">{{ 'documents.freight.fields.notes' | transloco }}</label>
+          <textarea id="freight-notes" class="form-control" rows="2" [attr.maxlength]="limits.NOTES"
+                    [value]="values().notes" (input)="onInput('notes', $event)"></textarea>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="freight-send-email" [checked]="sendEmail()"
+                 aria-describedby="freight-send-email-help" (change)="onSendEmail($event)" />
+          <label class="form-check-label" for="freight-send-email">{{ 'documents.freight.fields.sendEmail' | transloco }}</label>
+        </div>
+        <div id="freight-send-email-help" class="form-text">{{ 'documents.freight.fields.sendEmailHelp' | transloco }}</div>
+      </div>
+      <div class="hl-dialog__footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()">{{ 'documents.freight.dialog.cancel' | transloco }}</button>
+        <button type="submit" class="btn btn-hl-orange" [disabled]="submitting()" data-testid="freight-submit">
+          @if (submitting()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'documents.freight.dialog.submit' | transloco }}
+        </button>
+      </div>
+    </form>
+  }
+</dialog>

@@ -59,6 +59,15 @@
           }
         }
 
+        @if (gateOutAdvance()) {
+          <!-- Fase 2, Ola H: pago anticipado del Gate Out por la agencia de aduanas (M3-19) -->
+          <div class="alert alert-info" role="note" aria-labelledby="charges-gate-out-advance-title" data-testid="charges-gate-out-advance">
+            <h3 id="charges-gate-out-advance-title" class="h6 fw-bold">{{ 'charges.panel.gateOutAdvance.title' | transloco }}</h3>
+            <p class="mb-1">{{ 'charges.panel.gateOutAdvance.text' | transloco }}</p>
+            <p class="mb-0">{{ 'charges.panel.gateOutAdvance.invoice' | transloco }}</p>
+          </div>
+        }
+
         <!-- Condiciones comerciales leídas de Nexus para el pagador (M8-02, M4-03) -->
         <p class="small text-muted mb-2">
           {{ 'charges.panel.payer' | transloco: { name: d.payer.name, taxId: d.payer.taxId } }}

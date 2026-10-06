@@ -1,0 +1,191 @@
+<section class="hl-card" aria-labelledby="carriers-title" data-testid="carriers">
+  <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-start gap-2">
+    <div>
+      <h2 id="carriers-title" class="h5 fw-bold mb-1">{{ 'organization.carriers.title' | transloco }}</h2>
+      <p class="small text-muted mb-0">{{ 'organization.carriers.help' | transloco }}</p>
+    </div>
+    @if (canManage() && !formOpen()) {
+      <button type="button" class="btn btn-sm btn-hl-orange" (click)="openForm()" data-testid="carrier-new">{{ 'organization.carriers.new' | transloco }}</button>
+    }
+  </div>
+
+  @if (result(); as r) {
+    <!-- Resultado de la pre-creación o de la asignación -->
+    <div class="alert alert-success m-3" role="status" data-testid="carrier-result">
+      <h3 #resultHeading class="h6 fw-bold" tabindex="-1">
+        {{ (r.created ? 'organization.carriers.result.created' : 'organization.carriers.result.updated') | transloco: { name: r.preRegistration.legalName, assigned: r.assigned } }}
+      </h3>
+      @if (r.invitationSent) {
+        <p class="mb-1 small">{{ 'organization.carriers.result.invitationSent' | transloco: { email: r.preRegistration.email } }}</p>
+      }
+      @if (r.skipped.length > 0) {
+        <p class="mb-1 small fw-semibold">{{ 'organization.carriers.result.skipped' | transloco: { count: r.skipped.length } }}</p>
+        <ul class="small mb-1">
+          @for (s of r.skipped; track s.reference) {
+            <li>{{ 'organization.carriers.result.skippedItem' | transloco: { reference: s.reference, reason: skippedReason(s.code) } }}</li>
+          }
+        </ul>
+      }
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeResult()">{{ 'organization.carriers.result.close' | transloco }}</button>
+    </div>
+  }
+
+  @if (formOpen()) {
+    <form class="p-3 border-bottom" novalidate aria-labelledby="carrier-form-title" (submit)="submit($event)" data-testid="carrier-form">
+      <h3 #formHeading id="carrier-form-title" class="h6 fw-bold mb-3" tabindex="-1">{{ 'organization.carriers.form.title' | transloco }}</h3>
+      @if (errors().length > 0) {
+        <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="carrier-errors-title">
+          <h4 id="carrier-errors-title" class="h6 fw-bold">{{ 'organization.carriers.form.errors.summaryTitle' | transloco }}</h4>
+          <ul class="mb-0">
+            @for (error of errors(); track error.key) {
+              <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+            }
+          </ul>
+        </div>
+      }
+      @if (saveError()) {
+        <div class="alert alert-danger py-2" role="alert" data-testid="carrier-save-error">{{ saveError() }}</div>
+      }
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label for="carrier-legal-name" class="form-label small fw-semibold">{{ 'organization.carriers.form.legalName' | transloco }}</label>
+          <input id="carrier-legal-name" type="text" class="form-control" name="legalName" required autocomplete="organization" [attr.aria-invalid]="hasError('carrier-legal-name')" [(ngModel)]="form.legalName" />
+        </div>
+        <div class="col-md-3">
+          <label for="carrier-tax-id" class="form-label small fw-semibold">{{ 'organization.carriers.form.taxId' | transloco }}</label>
+          <input id="carrier-tax-id" type="text" class="form-control" name="taxId" required autocomplete="off" aria-describedby="carrier-tax-id-help" [attr.aria-invalid]="hasError('carrier-tax-id')" [(ngModel)]="form.taxId" />
+          <div id="carrier-tax-id-help" class="form-text">{{ 'organization.carriers.form.taxIdHelp' | transloco }}</div>
+        </div>
+        <div class="col-md-3">
+          <label for="carrier-country" class="form-label small fw-semibold">{{ 'organization.carriers.form.country' | transloco }}</label>
+          <select id="carrier-country" class="form-select" name="country" [(ngModel)]="form.country">
+            <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+            <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="carrier-email" class="form-label small fw-semibold">{{ 'organization.carriers.form.email' | transloco }}</label>
+          <input id="carrier-email" type="email" class="form-control" name="email" required autocomplete="email" aria-describedby="carrier-email-help" [attr.aria-invalid]="hasError('carrier-email')" [(ngModel)]="form.email" />
+          <div id="carrier-email-help" class="form-text">{{ 'organization.carriers.form.emailHelp' | transloco }}</div>
+        </div>
+        <div class="col-md-3">
+          <label for="carrier-first-name" class="form-label small fw-semibold">{{ 'organization.carriers.form.firstName' | transloco }}</label>
+          <input id="carrier-first-name" type="text" class="form-control" name="contactFirstName" autocomplete="given-name" [(ngModel)]="form.contactFirstName" />
+        </div>
+        <div class="col-md-3">
+          <label for="carrier-last-name" class="form-label small fw-semibold">{{ 'organization.carriers.form.lastName' | transloco }}</label>
+          <input id="carrier-last-name" type="text" class="form-control" name="contactLastName" autocomplete="family-name" [(ngModel)]="form.contactLastName" />
+        </div>
+        <div class="col-md-5">
+          <label for="carrier-bls" class="form-label small fw-semibold">{{ 'organization.carriers.form.blNumbers' | transloco }}</label>
+          <textarea id="carrier-bls" class="form-control" rows="2" name="blNumbers" aria-describedby="carrier-references-help" [(ngModel)]="form.blNumbers"></textarea>
+        </div>
+        <div class="col-md-4">
+          <label for="carrier-bookings" class="form-label small fw-semibold">{{ 'organization.carriers.form.bookingNumbers' | transloco }}</label>
+          <textarea id="carrier-bookings" class="form-control" rows="2" name="bookingNumbers" aria-describedby="carrier-references-help" [(ngModel)]="form.bookingNumbers"></textarea>
+        </div>
+        <div class="col-md-3">
+          <label for="carrier-duration" class="form-label small fw-semibold">{{ 'organization.carriers.form.duration' | transloco }}</label>
+          <input id="carrier-duration" type="number" min="1" max="365" class="form-control" name="durationDays" aria-describedby="carrier-duration-help" [attr.aria-invalid]="hasError('carrier-duration')" [(ngModel)]="form.durationDays" />
+          <div id="carrier-duration-help" class="form-text">{{ 'organization.carriers.form.durationHelp' | transloco }}</div>
+        </div>
+        <div class="col-12">
+          <div id="carrier-references-help" class="form-text">{{ 'organization.carriers.form.referencesHelp' | transloco }}</div>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-hl-orange" [disabled]="saving()" data-testid="carrier-submit">{{ 'organization.carriers.form.submit' | transloco }}</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'organization.carriers.form.cancel' | transloco }}</button>
+      </div>
+    </form>
+  }
+
+  @if (actionError()) {
+    <div class="alert alert-danger py-2 m-3" role="alert">{{ actionError() }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (carriers().length === 0) {
+    <app-state-message kind="empty" [messageKey]="'organization.carriers.empty'" />
+  } @else {
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'organization.carriers.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'organization.carriers.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'organization.carriers.col.carrier' | transloco }}</th>
+            <th scope="col">{{ 'organization.carriers.col.status' | transloco }}</th>
+            <th scope="col">{{ 'organization.carriers.col.assignments' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'organization.carriers.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of carriers(); track c.id) {
+            <tr [attr.data-testid]="'carrier-' + c.taxId">
+              <td>
+                <span class="fw-semibold d-block">{{ c.legalName }}</span>
+                <span class="small d-block">{{ c.taxId }} · {{ c.country }}</span>
+                <span class="small text-muted">{{ c.email }}</span>
+              </td>
+              <td>
+                <span class="hl-badge" [class.hl-badge--pending]="c.status !== 'Activated'" [class.hl-badge--active]="c.status === 'Activated'">{{ c.status | codeLabel: statusKeys }}</span>
+                <span class="d-block small mt-1">
+                  @if (c.activatedAt) {
+                    {{ 'organization.carriers.activatedAt' | transloco: { date: (c.activatedAt | hlDate: 'datetime') } }}
+                  } @else if (c.invitationSentAt) {
+                    {{ 'organization.carriers.invitedAt' | transloco: { date: (c.invitationSentAt | hlDate: 'datetime') } }}
+                  }
+                </span>
+              </td>
+              <td>
+                @if (c.assignments.length === 0) {
+                  <span class="small">{{ 'organization.carriers.noAssignments' | transloco }}</span>
+                } @else {
+                  <ul class="list-unstyled small mb-0">
+                    @for (a of c.assignments; track a.grantId) {
+                      <li>{{ a.blNumber ?? a.bookingNumber }} · {{ a.status | codeLabel: grantStatusKeys }}</li>
+                    }
+                  </ul>
+                }
+                @if (c.durationDays) {
+                  <span class="d-block small text-muted">{{ 'organization.carriers.duration' | transloco: { days: c.durationDays } }}</span>
+                }
+                @if (assigning()?.id === c.id) {
+                  <form class="mt-2" novalidate (submit)="assign($event)" [attr.aria-label]="'organization.carriers.assign.label' | transloco: { name: c.legalName }">
+                    <label class="form-label small fw-semibold" [for]="'carrier-assign-bls-' + c.id">{{ 'organization.carriers.form.blNumbers' | transloco }}</label>
+                    <textarea #assignField class="form-control form-control-sm" rows="2" [id]="'carrier-assign-bls-' + c.id" name="assignBls" [(ngModel)]="assignBls"
+                              [attr.aria-describedby]="'carrier-assign-help-' + c.id"></textarea>
+                    <label class="form-label small fw-semibold mt-1" [for]="'carrier-assign-bookings-' + c.id">{{ 'organization.carriers.form.bookingNumbers' | transloco }}</label>
+                    <textarea class="form-control form-control-sm" rows="1" [id]="'carrier-assign-bookings-' + c.id" name="assignBookings" [(ngModel)]="assignBookings"
+                              [attr.aria-describedby]="'carrier-assign-help-' + c.id"></textarea>
+                    <div class="form-text" [id]="'carrier-assign-help-' + c.id">{{ 'organization.carriers.form.referencesHelp' | transloco }}</div>
+                    @if (assignError()) {
+                      <div class="alert alert-danger py-1 my-1 small" role="alert">{{ assignError() }}</div>
+                    }
+                    <div class="d-flex gap-1 mt-1">
+                      <button type="submit" class="btn btn-sm btn-hl-orange" [disabled]="saving()" data-testid="carrier-assign-submit">{{ 'organization.carriers.assign.submit' | transloco }}</button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelAssign()">{{ 'organization.carriers.form.cancel' | transloco }}</button>
+                    </div>
+                  </form>
+                }
+              </td>
+              <td>
+                @if (canManage() && c.status !== 'Activated') {
+                  <div class="d-flex flex-wrap gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="startAssign(c)"
+                            [attr.aria-label]="'organization.carriers.assign.label' | transloco: { name: c.legalName }">{{ 'organization.carriers.assign.open' | transloco }}</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="resending() === c.id" (click)="resend(c)"
+                            [attr.aria-label]="'organization.carriers.resendLabel' | transloco: { name: c.legalName }">{{ 'organization.carriers.resend' | transloco }}</button>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

@@ -3,6 +3,7 @@ namespace HapagPortal.Application.Organizations.JoinRequests;
 using FluentValidation;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Notifications.Common;
 using HapagPortal.Application.Organizations.Common;
 using HapagPortal.Application.Organizations.Users;
 using HapagPortal.Domain.Constants;
@@ -58,6 +59,8 @@ public sealed class ApproveJoinRequestCommandHandler(
         applicant.MembershipDecidedBy = currentUserService.Email;
 
         await OrganizationProfileAssigner.AssignAsync(dbContext, applicant.Id, request.Profile, cancellationToken);
+        await NotificationInbox.ResolveActionAsync(
+            dbContext, NotificationActionTypes.ApproveJoinRequest, applicant.Id.ToString(), DateTime.UtcNow, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         await notificationPublisher.PublishAsync(
@@ -66,7 +69,8 @@ public sealed class ApproveJoinRequestCommandHandler(
                 "Solicitud de vinculación aprobada",
                 $"Su solicitud para operar en nombre de {organization.Name} fue aprobada. Ya puede ingresar al portal.",
                 UserId: applicant.Id,
-                Email: applicant.Email),
+                Email: applicant.Email,
+                Link: new NotificationLink(NotificationEntityTypes.Organization, organization.Id.ToString(), organization.Name)),
             cancellationToken);
 
         return Result<OrganizationUserDto>.Success(OrganizationUserMapper.ToDto(applicant, request.Profile));
@@ -91,6 +95,8 @@ public sealed class RejectJoinRequestCommandHandler(
         applicant.MembershipDecidedAt = DateTime.UtcNow;
         applicant.MembershipDecidedBy = currentUserService.Email;
 
+        await NotificationInbox.ResolveActionAsync(
+            dbContext, NotificationActionTypes.ApproveJoinRequest, applicant.Id.ToString(), DateTime.UtcNow, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var reason = string.IsNullOrWhiteSpace(request.Reason) ? string.Empty : $" Motivo: {request.Reason}";
@@ -101,7 +107,8 @@ public sealed class RejectJoinRequestCommandHandler(
                 "Solicitud de vinculación rechazada",
                 $"Su solicitud para operar en nombre de {organization.Name} fue rechazada.{reason}",
                 UserId: applicant.Id,
-                Email: applicant.Email),
+                Email: applicant.Email,
+                Link: new NotificationLink(NotificationEntityTypes.Organization, organization.Id.ToString(), organization.Name)),
             cancellationToken);
 
         return Result.Success();

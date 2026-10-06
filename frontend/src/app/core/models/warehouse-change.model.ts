@@ -107,3 +107,79 @@ export interface WarehouseChangeBatch {
   /** Solo en GET /warehouse-changes/bulk/{id}. */
   items?: WarehouseChangeBatchItem[] | null;
 }
+
+// ---------------------------------------------------------------------------
+// Fase 2, Ola G: historial y trazabilidad del cambio de almacén (M3-06).
+// ---------------------------------------------------------------------------
+
+/** Organización que solicitó o pagó el cambio: razón social y RUT o NIT. */
+export interface WarehouseChangeParty {
+  organizationId?: string | null;
+  name: string;
+  taxId: string;
+}
+
+/** Fila del historial: solicitante, pagador (solo con un pago confirmado) y RUT de facturación. */
+export interface WarehouseChangeHistoryItem {
+  id: string;
+  createdAt: string;
+  status: WarehouseChangeStatus;
+  billOfLadingId: string;
+  blNumber: string;
+  bookingNumber?: string | null;
+  country: 'CL' | 'BO';
+  timeZone: string;
+  containerNumber?: string | null;
+  fromWarehouse: string;
+  toWarehouse: string;
+  amount: number;
+  currency: string;
+  isFree: boolean;
+  entitlementSource?: string | null;
+  tariffCode?: string | null;
+  requestedByEmail?: string | null;
+  requestedBy?: WarehouseChangeParty | null;
+  /** Línea de una solicitud masiva (M3-05). */
+  batchId?: string | null;
+  batchLineNumber?: number | null;
+  payer?: WarehouseChangeParty | null;
+  billingTaxId?: string | null;
+  billingName?: string | null;
+  paymentId?: string | null;
+  paymentNumber?: string | null;
+  paymentStatus?: string | null;
+  receiptNumber?: string | null;
+  paidAt?: string | null;
+  completedAt?: string | null;
+}
+
+/** Evento de la trazabilidad de un cambio de almacén. */
+export type WarehouseChangeEventType = 'Requested' | 'FreeEntitlementApplied' | 'PaymentStatusChanged' | 'Completed' | 'Cancelled';
+
+export interface WarehouseChangeEvent {
+  occurredAt: string;
+  event: WarehouseChangeEventType;
+  /** Estado del cambio o, en `PaymentStatusChanged`, estado del pago. */
+  status?: string | null;
+  actor?: string | null;
+  /** `BATCH:<id>`, derecho de cambio gratuito, número de pago o comprobante. */
+  reference?: string | null;
+  notes?: string | null;
+}
+
+/** GET /warehouse-changes/history/{id}. */
+export interface WarehouseChangeTrace {
+  change: WarehouseChangeHistoryItem;
+  timeline: WarehouseChangeEvent[];
+}
+
+export interface WarehouseChangeHistoryFilters {
+  blNumber?: string;
+  status?: string;
+  /** Fecha de la solicitud en el huso del país (yyyy-MM-dd). */
+  from?: string;
+  to?: string;
+  organizationId?: string;
+  page?: number;
+  pageSize?: number;
+}

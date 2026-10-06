@@ -9,6 +9,7 @@ using HapagPortal.Application.Auth.RefreshToken;
 using HapagPortal.Application.Auth.Register;
 using HapagPortal.Application.Auth.RequestMembership;
 using HapagPortal.Application.Auth.ResetPassword;
+using HapagPortal.Application.Organizations.Carriers;
 using HapagPortal.WebApi.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -98,6 +99,22 @@ public sealed class AuthController : ApiController
 
         return result.IsSuccess
             ? Ok()
+            : HandleFailure(result);
+    }
+
+    /// <summary>
+    /// Reenvía el código de invitación de un transportista pre-creado que intenta registrarse (M1-09). Siempre 202, exista
+    /// o no la cuenta.
+    /// </summary>
+    [HttpPost("register/pre-created/resend-invitation")]
+    public async Task<IActionResult> ResendCarrierInvitation(
+        [FromBody] ResendCarrierInvitationCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(command, cancellationToken);
+
+        return result.IsSuccess
+            ? Accepted()
             : HandleFailure(result);
     }
 

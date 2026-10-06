@@ -53,16 +53,16 @@
           }
         </div>
 
-        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'cart.group.caption' | transloco: { currency: group.paymentCurrency }">
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'cart.group.caption' | transloco: { currency: group.paymentCurrency }" data-guide-key="cart.items">
           <table class="hl-table">
             <caption class="visually-hidden">{{ 'cart.group.caption' | transloco: { currency: group.paymentCurrency } }}</caption>
             <thead>
               <tr>
                 <th scope="col">{{ 'cart.col.service' | transloco }}</th>
                 <th scope="col">{{ 'cart.col.reference' | transloco }}</th>
-                <th scope="col">{{ 'cart.col.billing' | transloco }}</th>
+                <th scope="col" data-guide-key="cart.billing-tax-id">{{ 'cart.col.billing' | transloco }}</th>
                 <th scope="col" class="text-end">{{ 'cart.col.chargeAmount' | transloco }}</th>
-                <th scope="col">{{ 'cart.col.paymentCurrency' | transloco }}</th>
+                <th scope="col" data-guide-key="cart.currency">{{ 'cart.col.paymentCurrency' | transloco }}</th>
                 <th scope="col" class="text-end">{{ 'cart.col.paymentAmount' | transloco }}</th>
                 <th scope="col"><span class="visually-hidden">{{ 'cart.col.actions' | transloco }}</span></th>
               </tr>
@@ -151,7 +151,7 @@
             <p class="small mb-3" role="note">{{ 'cart.checkout.noMethods' | transloco }}</p>
           } @else {
             <!-- Medios de pago habilitados para el país y la moneda (M5-03) -->
-            <fieldset class="mb-3" [id]="'cart-methods-' + groupKey(group)" [disabled]="st.confirming || st.submitting">
+            <fieldset class="mb-3" [id]="'cart-methods-' + groupKey(group)" [disabled]="st.confirming || st.submitting" data-guide-key="cart.payment-method">
               <legend class="form-label small fw-semibold mb-1">{{ 'cart.checkout.method' | transloco }}</legend>
               @for (method of group.paymentMethods; track method.code) {
                 <div class="form-check">
@@ -195,7 +195,7 @@
             </div>
           } @else {
             <div class="d-flex flex-wrap gap-2 align-items-center">
-              <button type="button" class="btn btn-hl-orange" [disabled]="checkoutDisabled(group)" (click)="review(group)"
+              <button type="button" class="btn btn-hl-orange" [disabled]="checkoutDisabled(group)" (click)="review(group)" data-guide-key="cart.checkout"
                       [attr.aria-describedby]="checkoutDisabled(group) ? 'cart-disabled-' + groupKey(group) : null">
                 {{ 'cart.checkout.review' | transloco: { total: (group.subtotal | hlCurrency: group.paymentCurrency) } }}
               </button>

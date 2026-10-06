@@ -65,7 +65,8 @@ public sealed class ExpireAccessGrantsCommandHandler(
                 NotificationTypes.AccessExpired,
                 grant.IsMandate ? "Mandato vencido" : "Acceso vencido",
                 $"El acceso sobre {reference} venció el {grant.ValidTo:yyyy-MM-dd HH:mm} UTC y dejó de habilitar operaciones.",
-                cancellationToken);
+                cancellationToken,
+                AccessNotifier.ForGrant(grant, grant.BillOfLadingId is null ? null : blNumbers.GetValueOrDefault(grant.BillOfLadingId.Value)));
         }
 
         await AccessNotifier.NotifyCascadeAsync(dbContext, notificationPublisher, cascade, cancellationToken);

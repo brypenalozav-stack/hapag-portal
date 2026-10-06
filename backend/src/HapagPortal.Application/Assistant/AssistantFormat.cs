@@ -60,6 +60,9 @@ public static class AssistantFormat
         [ShipmentDocumentTypes.BlCopyNonValued] = "Copia de BL no valorada",
         [ShipmentDocumentTypes.ResponsibilityLetter] = "Carta de responsabilidad",
         [ShipmentDocumentTypes.NoDebtCertificate] = "Certificado de libre deuda (CLD)",
+        [ShipmentDocumentTypes.GateOutAdvanceReceipt] = "Recibo del pago anticipado de Gate Out",
+        [ShipmentDocumentTypes.FreightCertificate] = "Certificado de flete",
+        [ShipmentDocumentTypes.ReleaseLetter] = "Carta de liberación y desconsolidado",
     };
 
     public static string Value(string? value) => string.IsNullOrWhiteSpace(value) ? NotAvailable : value.Trim();

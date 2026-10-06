@@ -1,4 +1,5 @@
 import { BLContainer, DemurrageCharge, LocalCharge } from './bl.model';
+import { CounterRecord } from './counter.model';
 
 /** Operación del embarque (M2-07). */
 export type ShipmentOperation = 'IMPORT' | 'EXPORT';
@@ -22,7 +23,15 @@ export const SHIPMENT_ROLES: readonly ShipmentRole[] = [
  * Origen del acceso del usuario al embarque: propio, acceso otorgado (M1-12), autoasociado (M1-18),
  * acceso abierto por número de BL (M1-17) o administrador interno.
  */
-export type ShipmentAccessSource = 'Own' | 'Grant' | 'SelfAssociated' | 'OpenAccess' | 'Admin';
+/** `Parent`: BL de una filial que ve su empresa matriz, solo consulta (Fase 2, Ola I, M1-21). */
+export type ShipmentAccessSource = 'Own' | 'Grant' | 'SelfAssociated' | 'OpenAccess' | 'Admin' | 'Parent';
+
+/** Organización de origen del BL que ve la empresa matriz (M1-21). */
+export interface ShipmentOriginOrganization {
+  id: string;
+  name: string;
+  taxId?: string | null;
+}
 
 /** Tipo de documento de transporte (M2-02). */
 export type TransportDocumentType = 'BL' | 'SWB' | 'EBL';
@@ -106,6 +115,8 @@ export interface ShipmentListItem {
   issuance?: ShipmentIssuanceSummary | null;
   /** Solo para el administrador interno (M2-01). */
   publication?: ShipmentPublication | null;
+  /** BL de una filial visto por la empresa matriz (M1-21). */
+  originOrganization?: ShipmentOriginOrganization | null;
 }
 
 export interface ShipmentFreight {
@@ -164,6 +175,10 @@ export interface ShipmentDetail {
   issuance?: ShipmentIssuance | null;
   /** Solo para el administrador interno (M2-01). */
   publication?: ShipmentPublication | null;
+  /** BL de una filial visto por la empresa matriz (M1-21). */
+  originOrganization?: ShipmentOriginOrganization | null;
+  /** Counter Bolivia/Ultramar (M8-09): solo para usuarios internos. */
+  counter?: CounterRecord | null;
 }
 
 /** Filtros del listado (M2-06): BL, booking, nave, viaje, estado, operación y país. */
@@ -177,6 +192,8 @@ export interface ShipmentSearch {
   country?: 'CL' | 'BO' | '';
   /** Solo el administrador interno: publicados (true) o no publicados (false) por las reglas de M2-01. */
   published?: boolean | '';
+  /** Propia organización o una filial visible (M1-21); cualquier otra responde 403. */
+  organizationId?: string;
   page?: number;
   pageSize?: number;
 }

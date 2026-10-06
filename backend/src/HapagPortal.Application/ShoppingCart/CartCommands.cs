@@ -234,38 +234,74 @@ public sealed class AddCartItemCommandHandler(
         if (eligible.IsFailure)
             return Result<CartDto>.Failure(eligible.Error);
 
-        var resolved = await resolver.ResolveAsync(payer.Value, request.ItemType, request.SourceId, request.Reference, cancellationToken);
+        var userId = currentUserService.UserId!.Value;
+        var organizationId = payer.Value.Organization.Id;
+        var cart = await CartRules.FindAsync(dbContext, userId, organizationId, cancellationToken)
+            ?? new Cart { UserId = userId, OrganizationId = organizationId };
+
+        var added = await CartAdder.AddAsync(
+            dbContext, resolver, exchangeRateService, payer.Value, cart,
+            new CartItemRequest(request.ItemType, request.SourceId, request.Reference, request.BillingTaxId, request.PaymentCurrency),
+            userId, DateTime.UtcNow, cancellationToken);
+        if (added.IsFailure)
+            return Result<CartDto>.Failure(added.Error);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return Result<CartDto>.Success(await viewBuilder.BuildAsync(cart, organizationId, cancellationToken));
+    }
+}
+
+/// <summary>Ítem a agregar al carro; sin RUT de facturación se usa el propio o, en una factura, el facturado.</summary>
+public sealed record CartItemRequest(string ItemType, Guid? SourceId, string? Reference, string? BillingTaxId, string? PaymentCurrency);
+
+/// <summary>
+/// Validación y alta de un ítem en el carro, sin guardar: reglas del ítem (<see cref="PayableItemResolver"/>), RUT de
+/// facturación habilitado (M5-09), moneda de pago habilitada (M5-08) y conversión con el tipo de Nexus (M5-05). Un
+/// carro nuevo se agrega al contexto con su primer ítem.
+/// </summary>
+internal static class CartAdder
+{
+    public static async Task<Result<CartItem>> AddAsync(
+        IApplicationDbContext dbContext,
+        PayableItemResolver resolver,
+        IExchangeRateService exchangeRateService,
+        PayerContext payer,
+        Cart cart,
+        CartItemRequest request,
+        Guid userId,
+        DateTime now,
+        CancellationToken cancellationToken)
+    {
+        var resolved = await resolver.ResolveAsync(payer, request.ItemType, request.SourceId, request.Reference, cancellationToken);
         if (resolved.IsFailure)
-            return Result<CartDto>.Failure(resolved.Error);
+            return Result<CartItem>.Failure(resolved.Error);
 
         var item = resolved.Value;
 
         // M5-09: solo un RUT habilitado para el usuario sobre este ítem.
-        var billingTaxId = TaxIdNormalizer.Normalize(request.BillingTaxId);
+        var ownTaxId = TaxIdNormalizer.Normalize(payer.Organization.TaxId);
+        var billingTaxId = request.BillingTaxId is null
+            ? item.BillingOptions.FirstOrDefault(o => o.TaxId == ownTaxId)?.TaxId ?? item.BillingOptions[0].TaxId
+            : TaxIdNormalizer.Normalize(request.BillingTaxId);
         var billing = item.BillingOptions.FirstOrDefault(o => o.TaxId == billingTaxId);
         if (billing is null)
-            return Result<CartDto>.Failure(DomainErrors.Cart.BillingTaxIdNotAllowed);
+            return Result<CartItem>.Failure(DomainErrors.Cart.BillingTaxIdNotAllowed);
 
         // M5-08: la moneda de pago se valida antes de incorporar el cargo.
         var currency = request.PaymentCurrency?.Trim().ToUpperInvariant() ?? item.DefaultPaymentCurrency;
         if (!item.AllowedCurrencies.Contains(currency))
-            return Result<CartDto>.Failure(DomainErrors.Cart.CurrencyNotAllowed(currency, item.AllowedCurrencies));
+            return Result<CartItem>.Failure(DomainErrors.Cart.CurrencyNotAllowed(currency, item.AllowedCurrencies));
 
-        var userId = currentUserService.UserId!.Value;
-        var organizationId = payer.Value.Organization.Id;
-        var cart = await CartRules.FindAsync(dbContext, userId, organizationId, cancellationToken);
-        if (cart is null)
-        {
-            cart = new Cart { UserId = userId, OrganizationId = organizationId };
-            dbContext.Carts.Add(cart);
-        }
-        else if (await dbContext.CartItems.AnyAsync(
+        var isNew = !await dbContext.Carts.AnyAsync(c => c.Id == cart.Id, cancellationToken);
+        if (!isNew && await dbContext.CartItems.AnyAsync(
             i => i.CartId == cart.Id && i.ItemType == item.ItemType && i.SourceId == item.SourceId, cancellationToken))
         {
-            return Result<CartDto>.Failure(DomainErrors.Cart.Duplicate);
+            return Result<CartItem>.Failure(DomainErrors.Cart.Duplicate);
         }
 
-        var now = DateTime.UtcNow;
+        if (isNew)
+            dbContext.Carts.Add(cart);
+
         var cartItem = new CartItem
         {
             CartId = cart.Id,
@@ -293,12 +329,80 @@ public sealed class AddCartItemCommandHandler(
 
         var conversion = await CartConversion.ApplyAsync(exchangeRateService, cartItem, currency, now, cancellationToken);
         if (conversion.IsFailure)
-            return Result<CartDto>.Failure(conversion.Error);
+            return Result<CartItem>.Failure(conversion.Error);
 
         dbContext.CartItems.Add(cartItem);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        return Result<CartItem>.Success(cartItem);
+    }
+}
 
-        return Result<CartDto>.Success(await viewBuilder.BuildAsync(cart, organizationId, cancellationToken));
+/// <summary>
+/// Agrega varios ítems al carro en una operación (M7-03: el cliente sin crédito selecciona varias facturas o
+/// cargos del estado de cuenta y los paga en una sola transacción). Cada ítem se valida como en el alta individual;
+/// los que no se pueden agregar se informan con su error sin impedir los demás.
+/// </summary>
+public sealed record AddCartItemsCommand(IReadOnlyList<CartItemRequest> Items) : ICommand<CartBatchResultDto>;
+
+public sealed record CartBatchItemResultDto(string ItemType, Guid? SourceId, string? Reference, bool Added, string? ErrorCode, string? ErrorMessage);
+
+public sealed record CartBatchResultDto(CartDto Cart, IReadOnlyList<CartBatchItemResultDto> Results, int AddedCount);
+
+public sealed class AddCartItemsCommandValidator : AbstractValidator<AddCartItemsCommand>
+{
+    public AddCartItemsCommandValidator()
+    {
+        RuleFor(x => x.Items).NotEmpty();
+        RuleFor(x => x.Items.Count).LessThanOrEqualTo(100).WithName("Items");
+        RuleForEach(x => x.Items).ChildRules(item =>
+        {
+            CartRules.ItemReference(item, i => i.ItemType, i => i.SourceId, i => i.Reference);
+            item.RuleFor(i => i.BillingTaxId).MaximumLength(20);
+            item.RuleFor(i => i.PaymentCurrency).Matches("^[A-Za-z]{3}$").When(i => i.PaymentCurrency is not null)
+                .WithMessage("PaymentCurrency must be an ISO 4217 code.");
+        });
+    }
+}
+
+public sealed class AddCartItemsCommandHandler(
+    IApplicationDbContext dbContext,
+    ICurrentUserService currentUserService,
+    PayableItemResolver resolver,
+    IExchangeRateService exchangeRateService,
+    CartViewBuilder viewBuilder)
+    : ICommandHandler<AddCartItemsCommand, CartBatchResultDto>
+{
+    public async Task<Result<CartBatchResultDto>> Handle(AddCartItemsCommand request, CancellationToken cancellationToken)
+    {
+        var payer = await resolver.LoadPayerAsync(requireOperate: true, cancellationToken);
+        if (payer.IsFailure)
+            return Result<CartBatchResultDto>.Failure(payer.Error);
+
+        var eligible = CartEligibility.Check(payer.Value);
+        if (eligible.IsFailure)
+            return Result<CartBatchResultDto>.Failure(eligible.Error);
+
+        var userId = currentUserService.UserId!.Value;
+        var organizationId = payer.Value.Organization.Id;
+        var cart = await CartRules.FindAsync(dbContext, userId, organizationId, cancellationToken)
+            ?? new Cart { UserId = userId, OrganizationId = organizationId };
+        var now = DateTime.UtcNow;
+        var results = new List<CartBatchItemResultDto>();
+
+        foreach (var item in request.Items)
+        {
+            var added = await CartAdder.AddAsync(dbContext, resolver, exchangeRateService, payer.Value, cart, item, userId, now, cancellationToken);
+            results.Add(added.IsSuccess
+                ? new CartBatchItemResultDto(item.ItemType, item.SourceId, item.Reference, true, null, null)
+                : new CartBatchItemResultDto(item.ItemType, item.SourceId, item.Reference, false, added.Error.Code, added.Error.Message));
+        }
+
+        var count = results.Count(r => r.Added);
+        if (count > 0)
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+        var exists = count > 0 || await dbContext.Carts.AnyAsync(c => c.Id == cart.Id, cancellationToken);
+        return Result<CartBatchResultDto>.Success(new CartBatchResultDto(
+            await viewBuilder.BuildAsync(exists ? cart : null, organizationId, cancellationToken), results, count));
     }
 }
 

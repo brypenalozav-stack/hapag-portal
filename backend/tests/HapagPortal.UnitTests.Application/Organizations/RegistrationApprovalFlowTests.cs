@@ -67,7 +67,7 @@ public sealed class RegistrationApprovalFlowTests
         var applicant = AccessTestData.AddMember(_db, org, MembershipStatus.Pending, profile: null);
         _passwordHasher.Verify(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
         var handler = new LoginCommandHandler(
-            _db, _passwordHasher, Substitute.For<IJwtTokenService>(), Substitute.For<IPermissionResolver>());
+            _db, _passwordHasher, Substitute.For<IJwtTokenService>(), Substitute.For<IPermissionResolver>(), new FakeNotificationPublisher());
 
         var result = await handler.Handle(new LoginCommand(applicant.Email, "Password1!"), CancellationToken.None);
 
@@ -85,7 +85,7 @@ public sealed class RegistrationApprovalFlowTests
         var permissions = Substitute.For<IPermissionResolver>();
         permissions.ResolveAsync(Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>())
             .Returns([AccessPermissions.OperateShipments]);
-        var handler = new LoginCommandHandler(_db, _passwordHasher, Substitute.For<IJwtTokenService>(), permissions);
+        var handler = new LoginCommandHandler(_db, _passwordHasher, Substitute.For<IJwtTokenService>(), permissions, new FakeNotificationPublisher());
 
         var result = await handler.Handle(new LoginCommand(user.Email, "Password1!"), CancellationToken.None);
 

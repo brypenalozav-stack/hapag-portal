@@ -44,6 +44,17 @@ public sealed class CartController : ApiController
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 
+    /// <summary>
+    /// Agrega varios ítems (M7-03: facturas o cargos elegidos en el estado de cuenta por un cliente sin crédito); cada
+    /// uno informa si se agregó o su error.
+    /// </summary>
+    [HttpPost("items/batch")]
+    public async Task<IActionResult> AddItems([FromBody] AddCartItemsRequest request, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new AddCartItemsCommand(request.Items ?? []), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
     [HttpDelete("items/{itemId:guid}")]
     public async Task<IActionResult> RemoveItem(Guid itemId, CancellationToken cancellationToken)
     {
@@ -91,6 +102,8 @@ public sealed record AddCartItemRequest(
     string? Reference,
     string BillingTaxId,
     string? PaymentCurrency);
+
+public sealed record AddCartItemsRequest(IReadOnlyList<CartItemRequest>? Items);
 
 public sealed record ChangeCartItemCurrencyRequest(string PaymentCurrency);
 

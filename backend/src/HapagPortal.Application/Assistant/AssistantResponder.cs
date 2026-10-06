@@ -34,7 +34,18 @@ public sealed partial class AssistantResponder(
 {
     private const int MaxComposedLength = 4000;
 
-    public async Task<AssistantResponse> RespondAsync(AssistantSession session, string message, CancellationToken cancellationToken)
+    public Task<AssistantResponse> RespondAsync(AssistantSession session, string message, CancellationToken cancellationToken) =>
+        RespondAsync(session, message, Guid.NewGuid(), cancellationToken);
+
+    /// <summary>
+    /// Respuesta a un mensaje. <paramref name="replyMessageId"/> es el identificador que tendrá el mensaje de respuesta: las
+    /// entregas de documentos (M10-04) quedan asociadas a él.
+    /// </summary>
+    public async Task<AssistantResponse> RespondAsync(
+        AssistantSession session,
+        string message,
+        Guid replyMessageId,
+        CancellationToken cancellationToken)
     {
         var refusal = AssistantIntentRules.RefusalReason(message);
         if (refusal is not null)
@@ -56,7 +67,11 @@ public sealed partial class AssistantResponder(
         else if (AssistantIntents.DataIntents.Contains(intent.Intent)
             && (intent.References.Count > 0 || intent.Intent == AssistantIntents.PendingCharges))
         {
-            answer = await retriever.AnswerAsync(intent.Intent, intent.References, topic, cancellationToken);
+            answer = intent.Intent == AssistantIntents.DocumentDelivery
+                ? await retriever.DeliverDocumentsAsync(
+                    new AssistantDeliveryRequest(message, intent.References, topic, session.Id, replyMessageId, session.UserEmail),
+                    cancellationToken)
+                : await retriever.AnswerAsync(intent.Intent, intent.References, topic, cancellationToken);
         }
         else
         {
@@ -112,7 +127,8 @@ public sealed partial class AssistantResponder(
     public static string Welcome(string country) =>
         $"Hola, soy el asistente del portal de Hapag-Lloyd {(country == CountryCodes.Bolivia ? "Bolivia" : "Chile")}. " +
         "Respondo consultas sobre procesos y procedimientos, y sobre el estado de sus embarques, documentos, cargos " +
-        "pendientes, facturas y TATC, según los permisos de su usuario. No entrego recomendaciones comerciales ni " +
+        "pendientes, facturas y TATC, y le entrego los documentos disponibles de sus embarques, según los permisos de su " +
+        "usuario. No entrego recomendaciones comerciales ni " +
         "legales ni comparaciones de tarifas históricas. Mis respuestas son informativas y no reemplazan las " +
         "solicitudes formales del portal.";
 
@@ -185,6 +201,7 @@ public sealed partial class AssistantResponder(
         var subject = intent switch
         {
             AssistantIntents.ShipmentDocuments => "los documentos de un embarque",
+            AssistantIntents.DocumentDelivery => "un documento de un embarque",
             AssistantIntents.TatcStatus => "el estado del TATC",
             AssistantIntents.InvoiceDetail => "una factura",
             _ => "el estado de un embarque",

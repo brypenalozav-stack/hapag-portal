@@ -57,6 +57,15 @@
             }
             <p class="hl-assistant__content" [attr.lang]="message.role === 'Assistant' ? 'es' : null">{{ message.content }}</p>
 
+            <!-- Fase 2, Ola J: entrega de documentos del embarque (M10-04) -->
+            @if (isDelivery(message)) {
+              @if (deliveryCount(message) > 0) {
+                <p class="small mb-1" data-testid="assistant-delivery-hint">{{ 'shared.assistant.delivery.hint' | transloco: { count: deliveryCount(message) } }}</p>
+              } @else if (message.answerType === 'NotAvailable') {
+                <p class="small mb-1" data-testid="assistant-delivery-denied">{{ 'shared.assistant.delivery.notAvailable' | transloco }}</p>
+              }
+            }
+
             @if (derives(message) && message.mailboxEmail) {
               <p class="small mb-1" data-testid="assistant-mailbox">
                 {{ 'shared.assistant.mailbox' | transloco }}
@@ -82,6 +91,7 @@
                          [attr.data-testid]="'assistant-action-' + action.type">{{ action.label }}</a>
                     } @else if (isDownload(action)) {
                       <button type="button" class="btn btn-sm btn-outline-secondary" lang="es" (click)="download(action)"
+                              [disabled]="!!action.path && deliveryBusy() === action.path"
                               [attr.data-testid]="'assistant-action-' + action.type">{{ action.label }}</button>
                     } @else if (isMailto(action)) {
                       <a class="btn btn-sm btn-outline-secondary" [href]="action.path" lang="es"

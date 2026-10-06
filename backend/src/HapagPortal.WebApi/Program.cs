@@ -83,6 +83,15 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Enter your JWT token"
     });
 
+    // M3-17: canal Web Service de clientes (/api/ws/v1), autenticado por la clave del cliente.
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Name = "X-Api-Key",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Description = "Web Service channel key (only for /api/ws/v1)"
+    });
+
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -210,6 +219,10 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 app.UseAuthentication();
+
+// «Vista como cliente» (M8-08): sesión activa, solo consulta y auditoría de cada solicitud con el actor interno.
+app.UseMiddleware<ImpersonationMiddleware>();
+
 app.UseAuthorization();
 
 app.MapControllers();

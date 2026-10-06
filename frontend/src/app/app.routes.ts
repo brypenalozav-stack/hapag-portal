@@ -48,6 +48,19 @@ export const routes: Routes = [
       import('./features/documents/shipment-documents-page').then((m) => m.ShipmentDocumentsPageComponent),
     canActivate: [authGuard],
   },
+  // Fase 2, Ola J: solicitud y seguimiento de la carta de liberación y desconsolidado de Bolivia (M6-08).
+  {
+    path: 'shipments/:blNumber/release-letter',
+    loadComponent: () =>
+      import('./features/documents/release-letter/release-letter-form').then((m) => m.ReleaseLetterFormComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'release-letters/:id',
+    loadComponent: () =>
+      import('./features/documents/release-letter/release-letter-detail').then((m) => m.ReleaseLetterDetailComponent),
+    canActivate: [authGuard],
+  },
   { path: 'bills-of-lading', redirectTo: '/shipments', pathMatch: 'full' },
   { path: 'bills-of-lading/:blNumber', redirectTo: '/shipments/:blNumber' },
   {
@@ -79,6 +92,32 @@ export const routes: Routes = [
   {
     path: 'invoices',
     loadComponent: () => import('./features/invoices/invoices').then((m) => m.InvoicesComponent),
+    canActivate: [authGuard],
+  },
+  // Fase 2, Ola H: estado de cuenta en línea con pago por carro o forma de pago por ítem con crédito (M7-03, M5-10).
+  {
+    path: 'account-statement',
+    loadComponent: () =>
+      import('./features/account-statement/account-statement').then((m) => m.AccountStatementComponent),
+    canActivate: [authGuard],
+  },
+  // Fase 2, Ola H: refacturación IAO con pérdida de IVA (M3-11). La aceptación de la nueva razón social es pública: se
+  // abre desde el enlace de un solo uso enviado a su correo, sin sesión.
+  {
+    path: 'reinvoicing/new',
+    loadComponent: () =>
+      import('./features/reinvoicing/reinvoicing-new/reinvoicing-new').then((m) => m.ReinvoicingNewComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reinvoicing/acceptance/:token',
+    loadComponent: () =>
+      import('./features/reinvoicing/reinvoicing-acceptance/reinvoicing-acceptance').then((m) => m.ReinvoicingAcceptanceComponent),
+  },
+  {
+    path: 'reinvoicing/:id',
+    loadComponent: () =>
+      import('./features/reinvoicing/reinvoicing-detail/reinvoicing-detail').then((m) => m.ReinvoicingDetailComponent),
     canActivate: [authGuard],
   },
   {
@@ -140,6 +179,38 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  // Fase 2, Ola G: historial y trazabilidad del cambio de almacén (M3-06).
+  {
+    path: 'warehouse/history',
+    loadComponent: () =>
+      import('./features/warehouse/warehouse-history/warehouse-history').then((m) => m.WarehouseHistoryComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'warehouse/history/:id',
+    loadComponent: () =>
+      import('./features/warehouse/warehouse-history/warehouse-history-detail').then((m) => m.WarehouseHistoryDetailComponent),
+    canActivate: [authGuard],
+  },
+  // Fase 2, Ola G: servicios on demand (M2-03, M2-04, M3-07 a M3-15): mis solicitudes, nueva solicitud y detalle.
+  {
+    path: 'service-requests',
+    loadComponent: () =>
+      import('./features/service-requests/service-request-list/service-request-list').then((m) => m.ServiceRequestListComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'service-requests/new',
+    loadComponent: () =>
+      import('./features/service-requests/service-request-form/service-request-form').then((m) => m.ServiceRequestFormComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'service-requests/:id',
+    loadComponent: () =>
+      import('./features/service-requests/service-request-detail/service-request-detail').then((m) => m.ServiceRequestDetailComponent),
+    canActivate: [authGuard],
+  },
   {
     path: 'service-orders',
     loadComponent: () =>
@@ -168,6 +239,19 @@ export const routes: Routes = [
     path: 'notifications',
     loadComponent: () =>
       import('./features/notifications/notifications').then((m) => m.NotificationsComponent),
+    canActivate: [authGuard],
+  },
+  // Fase 2, Ola I: preferencias de correo de la bandeja (M1-25) y comunicados vigentes (M1-26).
+  {
+    path: 'notifications/preferences',
+    loadComponent: () =>
+      import('./features/notifications/notification-preferences').then((m) => m.NotificationPreferencesComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'announcements',
+    loadComponent: () =>
+      import('./features/announcements/announcements').then((m) => m.AnnouncementsComponent),
     canActivate: [authGuard],
   },
   {
@@ -298,6 +382,26 @@ export const routes: Routes = [
       import('./features/admin/payment-config/payments-finance').then((m) => m.PaymentsFinanceComponent),
     canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PAYMENTS_FINANCE)],
   },
+  // Fase 2, Ola H: comprobantes de depósito por verificar (M5-06), anticipos y su cruce con las facturas (M7-03, M3-19,
+  // NF-04) y conceptos imputables a la línea de crédito con su registro de cambios (M5-10, NF-15).
+  {
+    path: 'admin/payments/deposit-proofs',
+    loadComponent: () =>
+      import('./features/admin/payment-config/deposit-proof-queue').then((m) => m.DepositProofQueueComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PAYMENTS_FINANCE)],
+  },
+  {
+    path: 'admin/payments/settlements',
+    loadComponent: () =>
+      import('./features/admin/payment-config/settlements').then((m) => m.SettlementsComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PAYMENTS_FINANCE)],
+  },
+  {
+    path: 'admin/credit-imputation-rules',
+    loadComponent: () =>
+      import('./features/admin/payment-config/credit-imputation-rules').then((m) => m.CreditImputationRulesComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
   // Ola F: reglas de publicación por DIFU (M2-01), base de conocimiento y casillas del asistente (M10-02) y
   // carga de la base de referencia de mercancías peligrosas (M10-06), con registro de cambios (NF-15).
   {
@@ -323,6 +427,91 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/dangerous-goods-import/dangerous-goods-import').then((m) => m.DangerousGoodsImportComponent),
     canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  // Fase 2, Ola G: bandeja interna de solicitudes de servicios (ED, Customer Service) y mantenedor de definiciones
+  // de servicios on demand con su registro de cambios (M2-03, M2-04, NF-15).
+  {
+    path: 'admin/service-requests',
+    loadComponent: () =>
+      import('./features/admin/service-requests/service-request-queue').then((m) => m.ServiceRequestQueueComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PROCESS_SERVICE_REQUESTS)],
+  },
+  {
+    path: 'admin/service-requests/:id',
+    loadComponent: () =>
+      import('./features/admin/service-requests/service-request-review').then((m) => m.ServiceRequestReviewComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PROCESS_SERVICE_REQUESTS)],
+  },
+  {
+    path: 'admin/service-definitions',
+    loadComponent: () =>
+      import('./features/admin/service-definitions/service-definitions').then((m) => m.ServiceDefinitionsComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/service-definitions/new',
+    loadComponent: () =>
+      import('./features/admin/service-definitions/service-definition-editor').then((m) => m.ServiceDefinitionEditorComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/service-definitions/:id',
+    loadComponent: () =>
+      import('./features/admin/service-definitions/service-definition-editor').then((m) => m.ServiceDefinitionEditorComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  // Fase 2, Ola I: área de administración unificada (M8-05), comunicados (M1-26), guías (M1-27), vista como cliente
+  // (M8-08), reportería de transacciones y excepciones (M9-01), Counter (M8-09) y vinculaciones con la matriz (M1-21).
+  {
+    path: 'admin',
+    pathMatch: 'full',
+    loadComponent: () => import('./features/admin/admin-home/admin-home').then((m) => m.AdminHomeComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.ADMIN_AREA)],
+  },
+  {
+    path: 'admin/announcements',
+    loadComponent: () =>
+      import('./features/admin/announcements/announcements-admin').then((m) => m.AnnouncementsAdminComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_ANNOUNCEMENTS)],
+  },
+  {
+    path: 'admin/guides',
+    loadComponent: () => import('./features/admin/guides/guides-admin').then((m) => m.GuidesAdminComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/impersonation',
+    loadComponent: () => import('./features/admin/impersonation/impersonation').then((m) => m.ImpersonationComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.USE_IMPERSONATION)],
+  },
+  {
+    path: 'admin/reports/transactions',
+    loadComponent: () =>
+      import('./features/admin/transaction-reports/transactions-report').then((m) => m.TransactionsReportComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.VIEW_TRANSACTIONS_REPORT)],
+  },
+  {
+    path: 'admin/reports/exceptions',
+    loadComponent: () =>
+      import('./features/admin/transaction-reports/exceptions-report').then((m) => m.ExceptionsReportComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.VIEW_TRANSACTIONS_REPORT)],
+  },
+  {
+    path: 'admin/counter',
+    loadComponent: () => import('./features/admin/counter/counter').then((m) => m.CounterComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_COUNTER)],
+  },
+  {
+    path: 'admin/organization-links',
+    loadComponent: () =>
+      import('./features/admin/organization-links/organization-links').then((m) => m.OrganizationLinksComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.REVIEW_ORGANIZATIONS)],
+  },
+  // Fase 2, Ola J: clientes, claves y bitácora del canal Web Service (M3-17).
+  {
+    path: 'admin/api-clients',
+    loadComponent: () => import('./features/admin/api-clients/api-clients').then((m) => m.ApiClientsComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_API_CLIENTS)],
   },
   { path: '**', redirectTo: '/dashboard' },
 ];

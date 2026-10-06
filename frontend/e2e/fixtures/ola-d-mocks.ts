@@ -510,6 +510,8 @@ export class SimulacionOlaD {
   private readonly consultas = new Map<string, number>();
   /** Ítems que se pueden validar y agregar; otras olas registran los suyos (Ola E: certificado de transbordo). */
   private readonly pagables: Record<string, PayableItem> = { ...PAGABLES };
+  /** Facturas que agregan otras olas (Fase 2, Ola H: cubierta por anticipo y refacturación IAO). */
+  private readonly facturasExtra: Invoice[] = [];
 
   constructor(private readonly opciones: OpcionesOlaD = {}) {
     this.cierresSinRespuesta = opciones.cierresSinRespuesta ?? 0;
@@ -572,6 +574,39 @@ export class SimulacionOlaD {
   agregarPagable(datos: Partial<PayableItem> & Pick<PayableItem, 'itemType' | 'sourceId' | 'conceptCode' | 'totalAmount'>): void {
     const item = pagable(datos);
     this.pagables[`${item.itemType}:${item.sourceId}`] = item;
+  }
+
+  /** Agrega una factura de la organización propia (Fase 2, Ola H). */
+  agregarFactura(factura: Invoice): void {
+    this.facturasExtra.push(factura);
+  }
+
+  /** ¿El ítem ya está en el carro? (estado de cuenta, Fase 2, Ola H). */
+  enCarro(itemType: string, sourceId: string): boolean {
+    return this.items.some((i) => i.itemType === itemType && i.sourceId === sourceId);
+  }
+
+  /**
+   * Agrega varios ítems al carro con el RUT propio (o el facturado en facturas) y su moneda por omisión (Fase 2, Ola H,
+   * POST /cart/items/batch); los que fallan se informan sin bloquear al resto.
+   */
+  agregarVarios(items: { itemType: string; sourceId?: string | null }[]): {
+    cart: Cart;
+    results: { itemType: string; sourceId?: string | null; added: boolean; errorCode?: string; errorMessage?: string }[];
+    addedCount: number;
+  } {
+    const results = items.map((ref) => {
+      const item = this.pagables[`${ref.itemType}:${ref.sourceId}`];
+      if (this.opciones.credito) return { ...ref, added: false, errorCode: 'Cart.CreditCustomer', errorMessage: 'Customers with credit pay from the account.' };
+      if (!item) return { ...ref, added: false, errorCode: 'PayableItem.NotFound', errorMessage: 'The item to pay was not found.' };
+      if (this.items.some((i) => i.itemType === item.itemType && i.sourceId === item.sourceId)) {
+        return { ...ref, added: false, errorCode: 'CartItem.AlreadyExists', errorMessage: 'The item is already in the cart.' };
+      }
+      const billing = item.billingOptions[0] ?? FACTURACION_PROPIA;
+      this.items.push(itemCarro(item, billing, item.defaultPaymentCurrency, `e7000000-0000-4000-8000-${String(this.siguienteItem++).padStart(12, '0')}`));
+      return { ...ref, added: true };
+    });
+    return { cart: this.carro(), results, addedCount: results.filter((r) => r.added).length };
   }
 
   /** Responde la ruta si es de la Ola D; devuelve false si no le corresponde. */
@@ -871,7 +906,7 @@ export class SimulacionOlaD {
     const propia = (url.searchParams.get('organizationId') ?? ORGANIZACION_PRUEBA.id) === ORGANIZACION_PRUEBA.id;
     const texto = (k: string) => url.searchParams.get(k)?.trim() ?? '';
     const enCarro = new Set(this.items.filter((i) => i.itemType === 'Invoice').map((i) => i.sourceId));
-    const items = (propia ? FACTURAS : FACTURAS_MANDANTE)
+    const items = (propia ? [...FACTURAS, ...this.facturasExtra] : FACTURAS_MANDANTE)
       .filter((f) => !texto('status') || f.status === texto('status'))
       .filter((f) => !texto('currency') || f.currency === texto('currency'))
       .filter((f) => !texto('documentType') || f.documentType === texto('documentType'))

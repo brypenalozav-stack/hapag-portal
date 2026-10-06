@@ -1,0 +1,304 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'documents.releaseLetter.form.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/shipments">{{ 'documents.page.breadcrumbList' | transloco }}</a></li>
+      <li class="breadcrumb-item"><a [routerLink]="['/shipments', blNumber()]">{{ blNumber() }}</a></li>
+      <li class="breadcrumb-item"><a [routerLink]="['/shipments', blNumber(), 'documents']">{{ 'documents.page.breadcrumbCurrent' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ 'documents.releaseLetter.title' | transloco }}</li>
+    </ol>
+  </nav>
+  <h1>{{ 'documents.releaseLetter.form.title' | transloco: { bl: blNumber() } }}</h1>
+  <p class="text-muted mb-0">{{ 'documents.releaseLetter.form.subtitle' | transloco }}</p>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load(true)" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (data(); as d) {
+  <!-- Definiciones de esta entrega, provisorias hasta su validación con el área legal (M6-08) -->
+  <p class="alert alert-info small" role="note" data-testid="release-provisional">{{ 'documents.releaseLetter.provisional' | transloco }}</p>
+
+  @if (!d.applicable) {
+    <div class="alert alert-warning" role="alert" data-testid="release-not-applicable">{{ 'documents.releaseLetter.form.notApplicable' | transloco }}</div>
+  } @else if (canSubmit()) {
+    <form class="hl-card p-4 mb-4" novalidate aria-labelledby="release-form-title" (submit)="submit($event)" data-testid="release-form">
+      <h2 id="release-form-title" class="section-title mb-3">{{ 'documents.releaseLetter.form.formTitle' | transloco }}</h2>
+
+      @if (errors().length > 0) {
+        <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="release-errors-title">
+          <h3 id="release-errors-title" class="h6 fw-bold">{{ 'documents.releaseLetter.errors.summaryTitle' | transloco }}</h3>
+          <ul class="mb-0">
+            @for (error of errors(); track error.fieldId) {
+              <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+            }
+          </ul>
+        </div>
+      }
+      @if (submitError()) {
+        <div id="release-submit-error" class="alert alert-danger py-2" role="alert" tabindex="-1" data-testid="release-error">{{ submitError() }}</div>
+      }
+
+      <!-- 1. Unidades con su TATC (M2-09) -->
+      <fieldset id="release-containers" class="mb-4" aria-describedby="release-containers-help">
+        <legend class="h6 fw-bold">{{ 'documents.releaseLetter.form.containers' | transloco }}</legend>
+        <p id="release-containers-help" class="form-text mt-0">
+          {{ (d.requiresIssuedTatc ? 'documents.releaseLetter.form.containersHelpRule' : 'documents.releaseLetter.form.containersHelp') | transloco }}
+        </p>
+        @if (!d.tatc.available) {
+          <p class="alert alert-warning py-2 small" role="note" data-testid="release-tatc-down">{{ 'documents.releaseLetter.form.tatcDown' | transloco }}</p>
+        }
+        @if (fieldError('release-containers'); as error) {
+          <p class="hl-field-error mt-0" id="release-containers-error">{{ error | transloco }}</p>
+        }
+        @for (c of d.containers; track c.containerNumber) {
+          <div class="form-check mb-2" [attr.data-testid]="'release-container-' + c.containerNumber">
+            <input class="form-check-input" type="checkbox" [id]="'release-container-' + c.containerNumber"
+                   [checked]="isSelected(c.containerNumber)" [disabled]="!!c.pendingRequestNumber"
+                   [attr.aria-invalid]="fieldError('release-containers') ? true : null"
+                   [attr.aria-describedby]="'release-container-' + c.containerNumber + '-help' + (fieldError('release-containers') ? ' release-containers-error' : '')"
+                   (change)="onContainer(c.containerNumber, $event)" />
+            <label class="form-check-label fw-semibold" [for]="'release-container-' + c.containerNumber">
+              {{ 'documents.releaseLetter.form.containerOption' | transloco: { container: c.containerNumber, type: c.containerType } }}
+            </label>
+            <div class="small" [id]="'release-container-' + c.containerNumber + '-help'">
+              <span>{{ 'documents.releaseLetter.form.tatcLabel' | transloco: { status: tatcText(c, d.tatc) } }}</span>
+              @if (c.tatc && c.tatc.pendingReasons.length > 0) {
+                <span class="d-block text-muted">
+                  {{ 'documents.releaseLetter.form.pendingReasons' | transloco }}
+                  @for (reason of c.tatc.pendingReasons; track reason; let last = $last) {
+                    {{ reason | codeLabel: reasonKeys }}@if (!last) {<span>, </span>}
+                  }
+                </span>
+              }
+              @if (c.pendingRequestNumber) {
+                <span class="d-block fw-semibold">{{ 'documents.releaseLetter.form.alreadyPending' | transloco: { number: c.pendingRequestNumber } }}</span>
+              }
+            </div>
+          </div>
+        }
+        @if (selectedTatc().length > 0) {
+          <div class="border rounded p-2 mt-2" data-testid="release-selected-tatc">
+            <p class="small fw-semibold mb-1">{{ 'documents.releaseLetter.form.selectedTatc' | transloco: { count: selectedTatc().length } }}</p>
+            <ul class="list-unstyled small mb-0">
+              @for (c of selectedTatc(); track c.containerNumber) {
+                <li>
+                  {{ c.containerNumber }}:
+                  @if (d.tatc.available && c.tatc) {
+                    <span class="hl-badge" [class]="tatcClass[c.tatc.status] || 'hl-badge--processing'">{{ c.tatc.status | codeLabel: tatcKeys }}</span>
+                  } @else {
+                    {{ tatcText(c, d.tatc) }}
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </fieldset>
+
+      <!-- 2. Consignatario según el tipo de sociedad -->
+      <fieldset class="mb-4">
+        <legend class="h6 fw-bold">{{ 'documents.releaseLetter.form.consignee' | transloco }}</legend>
+        <fieldset class="mb-3" aria-describedby="release-entity-help">
+          <legend class="form-label small fw-semibold mb-1">{{ 'documents.releaseLetter.form.entityType' | transloco }}</legend>
+          @for (type of d.legalEntityTypes; track type) {
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="release-entity" [id]="'release-entity-' + type" [value]="type"
+                     [checked]="entityType() === type" (change)="onEntityType(type)" />
+              <label class="form-check-label" [for]="'release-entity-' + type">{{ type | codeLabel: entityKeys }}</label>
+            </div>
+          }
+          <p id="release-entity-help" class="form-text mt-0">
+            {{ (isCompany() ? 'documents.releaseLetter.form.companyHelp' : 'documents.releaseLetter.form.personHelp') | transloco }}
+          </p>
+        </fieldset>
+        <div class="row g-3">
+          <div class="col-md-7">
+            <label for="release-consignee-name" class="form-label small fw-semibold">
+              {{ (isCompany() ? 'documents.releaseLetter.fields.legalName' : 'documents.releaseLetter.fields.personName') | transloco }}
+            </label>
+            <input id="release-consignee-name" type="text" class="form-control" required autocomplete="organization" [attr.maxlength]="limits.NAME"
+                   [value]="values().consigneeName" (input)="onInput('consigneeName', $event)"
+                   [class.is-invalid]="!!fieldError('release-consignee-name')" [attr.aria-invalid]="fieldError('release-consignee-name') ? true : null"
+                   [attr.aria-describedby]="fieldError('release-consignee-name') ? 'release-consignee-name-error' : null" />
+            @if (fieldError('release-consignee-name'); as error) {
+              <div id="release-consignee-name-error" class="hl-field-error">{{ error | transloco }}</div>
+            }
+          </div>
+          <div class="col-md-5">
+            <label for="release-consignee-tax-id" class="form-label small fw-semibold">
+              {{ (isCompany() ? 'documents.releaseLetter.fields.nit' : 'documents.releaseLetter.fields.idDocument') | transloco }}
+            </label>
+            <input id="release-consignee-tax-id" type="text" class="form-control" required autocomplete="off" [attr.maxlength]="limits.TAX_ID"
+                   [value]="values().consigneeTaxId" (input)="onInput('consigneeTaxId', $event)"
+                   [class.is-invalid]="!!fieldError('release-consignee-tax-id')" [attr.aria-invalid]="fieldError('release-consignee-tax-id') ? true : null"
+                   [attr.aria-describedby]="fieldError('release-consignee-tax-id') ? 'release-consignee-tax-id-error' : null" />
+            @if (fieldError('release-consignee-tax-id'); as error) {
+              <div id="release-consignee-tax-id-error" class="hl-field-error">{{ error | transloco }}</div>
+            }
+          </div>
+          <div class="col-12">
+            <label for="release-consignee-address" class="form-label small fw-semibold">
+              {{ (isCompany() ? 'documents.releaseLetter.fields.address' : 'documents.releaseLetter.fields.addressOptional') | transloco }}
+            </label>
+            <input id="release-consignee-address" type="text" class="form-control" autocomplete="street-address" [attr.maxlength]="limits.ADDRESS"
+                   [required]="isCompany()" [value]="values().consigneeAddress" (input)="onInput('consigneeAddress', $event)"
+                   [class.is-invalid]="!!fieldError('release-consignee-address')" [attr.aria-invalid]="fieldError('release-consignee-address') ? true : null"
+                   [attr.aria-describedby]="fieldError('release-consignee-address') ? 'release-consignee-address-error' : null" />
+            @if (fieldError('release-consignee-address'); as error) {
+              <div id="release-consignee-address-error" class="hl-field-error">{{ error | transloco }}</div>
+            }
+          </div>
+          @if (isCompany()) {
+            <div class="col-md-7">
+              <label for="release-rep-name" class="form-label small fw-semibold">{{ 'documents.releaseLetter.fields.representative' | transloco }}</label>
+              <input id="release-rep-name" type="text" class="form-control" required autocomplete="name" [attr.maxlength]="limits.NAME"
+                     [value]="values().legalRepresentativeName" (input)="onInput('legalRepresentativeName', $event)"
+                     [class.is-invalid]="!!fieldError('release-rep-name')" [attr.aria-invalid]="fieldError('release-rep-name') ? true : null"
+                     [attr.aria-describedby]="fieldError('release-rep-name') ? 'release-rep-name-error' : null" />
+              @if (fieldError('release-rep-name'); as error) {
+                <div id="release-rep-name-error" class="hl-field-error">{{ error | transloco }}</div>
+              }
+            </div>
+            <div class="col-md-5">
+              <label for="release-rep-id" class="form-label small fw-semibold">{{ 'documents.releaseLetter.fields.representativeId' | transloco }}</label>
+              <input id="release-rep-id" type="text" class="form-control" required autocomplete="off" [attr.maxlength]="limits.TAX_ID"
+                     [value]="values().legalRepresentativeId" (input)="onInput('legalRepresentativeId', $event)"
+                     [class.is-invalid]="!!fieldError('release-rep-id')" [attr.aria-invalid]="fieldError('release-rep-id') ? true : null"
+                     [attr.aria-describedby]="fieldError('release-rep-id') ? 'release-rep-id-error' : null" />
+              @if (fieldError('release-rep-id'); as error) {
+                <div id="release-rep-id-error" class="hl-field-error">{{ error | transloco }}</div>
+              }
+            </div>
+          }
+        </div>
+      </fieldset>
+
+      <!-- 3. Transportista: registrado (acceso otorgado o pre-creado, M1-09) o sus datos -->
+      <fieldset class="mb-4">
+        <legend class="h6 fw-bold">{{ 'documents.releaseLetter.form.carrier' | transloco }}</legend>
+        <fieldset class="mb-3">
+          <legend class="form-label small fw-semibold mb-1">{{ 'documents.releaseLetter.form.carrierMode' | transloco }}</legend>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="release-carrier-mode" id="release-carrier-registered"
+                   [disabled]="d.carriers.length === 0" [checked]="carrierMode() === 'registered'" (change)="onCarrierMode('registered')"
+                   aria-describedby="release-carrier-registered-help" />
+            <label class="form-check-label" for="release-carrier-registered">{{ 'documents.releaseLetter.form.carrierRegistered' | transloco }}</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="release-carrier-mode" id="release-carrier-free"
+                   [checked]="carrierMode() === 'free'" (change)="onCarrierMode('free')" />
+            <label class="form-check-label" for="release-carrier-free">{{ 'documents.releaseLetter.form.carrierFree' | transloco }}</label>
+          </div>
+          <p id="release-carrier-registered-help" class="form-text mt-0">
+            {{ (d.carriers.length > 0 ? 'documents.releaseLetter.form.carrierRegisteredHelp' : 'documents.releaseLetter.form.noCarriers') | transloco }}
+          </p>
+        </fieldset>
+        <div class="row g-3">
+          @if (carrierMode() === 'registered') {
+            <div class="col-md-8">
+              <label for="release-carrier-select" class="form-label small fw-semibold">{{ 'documents.releaseLetter.fields.carrier' | transloco }}</label>
+              <select id="release-carrier-select" class="form-select" required [value]="values().carrierOrganizationId" (change)="onInput('carrierOrganizationId', $event)"
+                      [class.is-invalid]="!!fieldError('release-carrier-select')" [attr.aria-invalid]="fieldError('release-carrier-select') ? true : null"
+                      [attr.aria-describedby]="fieldError('release-carrier-select') ? 'release-carrier-select-error' : null">
+                <option value="">{{ 'documents.releaseLetter.fields.carrierPlaceholder' | transloco }}</option>
+                @for (c of d.carriers; track c.organizationId) {
+                  <option [value]="c.organizationId">{{ 'documents.releaseLetter.fields.carrierOption' | transloco: { name: c.name, taxId: c.taxId, source: (c.source | codeLabel: sourceKeys) } }}</option>
+                }
+              </select>
+              @if (fieldError('release-carrier-select'); as error) {
+                <div id="release-carrier-select-error" class="hl-field-error">{{ error | transloco }}</div>
+              }
+            </div>
+          } @else {
+            <div class="col-md-7">
+              <label for="release-carrier-name" class="form-label small fw-semibold">{{ 'documents.releaseLetter.fields.carrierName' | transloco }}</label>
+              <input id="release-carrier-name" type="text" class="form-control" required autocomplete="off" [attr.maxlength]="limits.NAME"
+                     [value]="values().carrierName" (input)="onInput('carrierName', $event)"
+                     [class.is-invalid]="!!fieldError('release-carrier-name')" [attr.aria-invalid]="fieldError('release-carrier-name') ? true : null"
+                     [attr.aria-describedby]="fieldError('release-carrier-name') ? 'release-carrier-name-error' : null" />
+              @if (fieldError('release-carrier-name'); as error) {
+                <div id="release-carrier-name-error" class="hl-field-error">{{ error | transloco }}</div>
+              }
+            </div>
+            <div class="col-md-5">
+              <label for="release-carrier-tax-id" class="form-label small fw-semibold">{{ 'documents.releaseLetter.fields.carrierTaxId' | transloco }}</label>
+              <input id="release-carrier-tax-id" type="text" class="form-control" required autocomplete="off" [attr.maxlength]="limits.TAX_ID"
+                     [value]="values().carrierTaxId" (input)="onInput('carrierTaxId', $event)"
+                     [class.is-invalid]="!!fieldError('release-carrier-tax-id')" [attr.aria-invalid]="fieldError('release-carrier-tax-id') ? true : null"
+                     [attr.aria-describedby]="fieldError('release-carrier-tax-id') ? 'release-carrier-tax-id-error' : null" />
+              @if (fieldError('release-carrier-tax-id'); as error) {
+                <div id="release-carrier-tax-id-error" class="hl-field-error">{{ error | transloco }}</div>
+              }
+            </div>
+          }
+          <div class="col-md-5">
+            <label for="release-driver-name" class="form-label small fw-semibold">{{ 'documents.releaseLetter.fields.driverName' | transloco }}</label>
+            <input id="release-driver-name" type="text" class="form-control" autocomplete="off" [attr.maxlength]="limits.NAME"
+                   [value]="values().driverName" (input)="onInput('driverName', $event)" />
+          </div>
+          <div class="col-md-4">
+            <label for="release-driver-id" class="form-label small fw-semibold">{{ 'documents.releaseLetter.fields.driverId' | transloco }}</label>
+            <input id="release-driver-id" type="text" class="form-control" autocomplete="off" [attr.maxlength]="limits.TAX_ID"
+                   [value]="values().driverId" (input)="onInput('driverId', $event)" />
+          </div>
+          <div class="col-md-3">
+            <label for="release-truck-plate" class="form-label small fw-semibold">{{ 'documents.releaseLetter.fields.truckPlate' | transloco }}</label>
+            <input id="release-truck-plate" type="text" class="form-control" autocomplete="off" [attr.maxlength]="limits.PLATE"
+                   [value]="values().truckPlate" (input)="onInput('truckPlate', $event)" />
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="mb-3">
+        <label for="release-observations" class="form-label small fw-semibold">{{ 'documents.releaseLetter.fields.observations' | transloco }}</label>
+        <textarea id="release-observations" class="form-control" rows="2" [attr.maxlength]="limits.OBSERVATIONS"
+                  [value]="values().observations" (input)="onInput('observations', $event)"></textarea>
+      </div>
+
+      <p class="small text-muted">{{ 'documents.releaseLetter.form.approvalNote' | transloco }}</p>
+      <button type="submit" class="btn btn-hl-orange" [disabled]="submitting()" data-testid="release-submit">
+        @if (submitting()) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        }
+        {{ 'documents.releaseLetter.form.submit' | transloco }}
+      </button>
+    </form>
+  } @else {
+    <p class="alert alert-info" role="note" data-testid="release-not-allowed">{{ 'documents.releaseLetter.form.notAllowed' | transloco }}</p>
+  }
+
+  <!-- Solicitudes de la organización sobre el BL y su estado -->
+  <section class="hl-card mb-4" aria-labelledby="release-requests-title">
+    <div class="card-header p-3">
+      <h2 id="release-requests-title" class="section-title">{{ 'documents.releaseLetter.requests.title' | transloco }}</h2>
+    </div>
+    @if (d.requests.length === 0) {
+      <app-state-message kind="empty" [messageKey]="'documents.releaseLetter.requests.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'documents.releaseLetter.requests.caption' | transloco: { bl: d.blNumber }">
+        <table class="hl-table" data-testid="release-requests">
+          <caption class="visually-hidden">{{ 'documents.releaseLetter.requests.caption' | transloco: { bl: d.blNumber } }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'documents.releaseLetter.requests.col.number' | transloco }}</th>
+              <th scope="col">{{ 'documents.releaseLetter.requests.col.createdAt' | transloco }}</th>
+              <th scope="col">{{ 'documents.releaseLetter.requests.col.status' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of d.requests; track r.id) {
+              <tr [attr.data-testid]="'release-request-' + r.requestNumber">
+                <td><a [routerLink]="['/release-letters', r.id]">{{ r.requestNumber }}</a></td>
+                <td>{{ r.createdAt | hlDate: 'datetime' : timeZone }}</td>
+                <td><span class="hl-badge" [class]="requestStatusClass[r.status] || 'hl-badge--processing'">{{ r.status | codeLabel: requestStatusKeys }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

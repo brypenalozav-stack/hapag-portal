@@ -3,6 +3,8 @@ namespace HapagPortal.Application.Payments.PostProcessing;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Documents.PostPayment;
 using HapagPortal.Application.Payments.Common;
+using HapagPortal.Application.Payments.Settlements;
+using HapagPortal.Application.ServiceRequests.PostPayment;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +25,14 @@ public interface IPaymentPostStep
 /// o factura y, con ella, las líneas de demurrage facturadas) con la misma lógica para cualquier cliente,
 /// también el de crédito (M5-07). Una fuente inexistente detiene el paso para resolución interna. Si algún
 /// ítem liberado emite un documento (M6-01, M6-03, M6-04), encola una sola vez el paso <c>Documents</c>.
+/// Los recargos que cobran una solicitud de servicio on demand (Ola G) hacen avanzar la solicitud y encolan
+/// una vez el aviso <c>ServiceRequests</c>.
+/// <para>
+/// Ola H: una imputación a la línea de crédito (M5-10) libera igual, pero deja los recargos imputados a crédito
+/// en lugar de pagados. Cada ítem pagado antes de su factura queda registrado como anticipo (o imputación) para
+/// cruzarlo con la factura posterior (M7-03, M3-19). Una refacturación IAO pagada (M3-11) encola la emisión de
+/// la nueva factura (<c>Reinvoicing</c>), que espera además la aceptación de la nueva razón social.
+/// </para>
 /// </summary>
 public sealed class ReleasePaymentItemsStep(IApplicationDbContext dbContext) : IPaymentPostStep
 {
@@ -30,6 +40,9 @@ public sealed class ReleasePaymentItemsStep(IApplicationDbContext dbContext) : I
 
     public async Task ExecuteAsync(Payment payment, IReadOnlyList<PaymentDetail> details, DateTime now, CancellationToken cancellationToken)
     {
+        var paidCharges = new List<Guid>();
+        var creditLine = payment.Origin == PaymentOrigins.CreditLine;
+
         foreach (var detail in details.Where(d => d.ReleasedAt is null && d.ItemType is not null && d.SourceId is not null))
         {
             var id = detail.SourceId!.Value;
@@ -40,7 +53,8 @@ public sealed class ReleasePaymentItemsStep(IApplicationDbContext dbContext) : I
                 {
                     var charge = await dbContext.LocalCharges.FirstOrDefaultAsync(c => c.Id == id, cancellationToken)
                         ?? throw Missing(detail);
-                    charge.Status = ChargeStatus.Paid;
+                    charge.Status = creditLine ? ChargeStatus.CreditImputed : ChargeStatus.Paid;
+                    paidCharges.Add(charge.Id);
                     break;
                 }
 
@@ -96,10 +110,26 @@ public sealed class ReleasePaymentItemsStep(IApplicationDbContext dbContext) : I
                     throw new InvalidOperationException($"Unknown payable item type '{detail.ItemType}'.");
             }
 
+            await ChargeSettlements.RecordAsync(dbContext, payment, detail, now, cancellationToken);
             detail.ReleasedAt = now;
         }
 
-        if (await PaymentDocumentRules.IssuesDocumentsAsync(dbContext, details, cancellationToken)
+        var advanced = await ServiceRequestPaymentRelease.AdvanceAsync(dbContext, paidCharges, payment, now, cancellationToken);
+        if (advanced.Count > 0
+            && !await dbContext.PaymentOutboxMessages.AnyAsync(
+                m => m.PaymentId == payment.Id && m.JobType == PaymentOutboxJobTypes.ServiceRequests, cancellationToken))
+        {
+            PaymentLifecycle.Enqueue(dbContext, payment.Id, PaymentOutboxJobTypes.ServiceRequests, now);
+        }
+
+        if (advanced.Any(r => r.DefinitionCode == ServiceDefinitionCodes.IaoReinvoicing)
+            && !await dbContext.PaymentOutboxMessages.AnyAsync(
+                m => m.PaymentId == payment.Id && m.JobType == PaymentOutboxJobTypes.Reinvoicing, cancellationToken))
+        {
+            PaymentLifecycle.Enqueue(dbContext, payment.Id, PaymentOutboxJobTypes.Reinvoicing, now);
+        }
+
+        if (await PaymentDocumentRules.IssuesDocumentsAsync(dbContext, payment, details, cancellationToken)
             && !await dbContext.PaymentOutboxMessages.AnyAsync(
                 m => m.PaymentId == payment.Id && m.JobType == PaymentOutboxJobTypes.Documents, cancellationToken))
         {
@@ -121,13 +151,33 @@ public sealed class NotifyPaymentStep(INotificationPublisher notificationPublish
         if (payment.CreatedByUserId is null)
             return;
 
+        if (payment.Origin == PaymentOrigins.CreditLine)
+        {
+            // M5-10: la imputación no es un pago; se avisa con su número y el total imputado.
+            await notificationPublisher.PublishAsync(
+                new NotificationRequest(
+                    NotificationTypes.CreditImputationRegistered,
+                    $"Imputación a crédito {payment.PaymentNumber}",
+                    $"Se imputaron a su línea de crédito {payment.TotalAmount:N2} {payment.Currency} ({details.Count} cargos). " +
+                    "La carga se libera sin pago inmediato y el monto figura como saldo pendiente en su estado de cuenta.",
+                    UserId: payment.CreatedByUserId,
+                    DedupKey: $"credit-imputation:{payment.Id}",
+                    Link: new NotificationLink(NotificationEntityTypes.Payment, payment.Id.ToString(), payment.PaymentNumber,
+                        details.Select(d => d.BlNumber).Distinct().Count() == 1 ? details[0].BlNumber : null)),
+                cancellationToken);
+            return;
+        }
+
         await notificationPublisher.PublishAsync(
             new NotificationRequest(
                 NotificationTypes.PaymentConfirmed,
                 $"Pago confirmado {payment.PaymentNumber}",
                 $"Pago {payment.PaymentNumber} confirmado por {payment.TotalAmount:N2} {payment.Currency}. Comprobante {payment.ReceiptNumber}.",
                 UserId: payment.CreatedByUserId,
-                DedupKey: $"payment-confirmed:{payment.Id}"),
+                DedupKey: $"payment-confirmed:{payment.Id}",
+                Link: new NotificationLink(NotificationEntityTypes.Payment, payment.Id.ToString(), payment.PaymentNumber,
+                    details.Select(d => d.BlNumber).Distinct().Count() == 1 ? details[0].BlNumber : null),
+                Action: new NotificationAction(NotificationActionTypes.OpenPayment, payment.Id.ToString())),
             cancellationToken);
     }
 }

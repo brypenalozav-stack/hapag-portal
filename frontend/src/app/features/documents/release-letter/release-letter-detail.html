@@ -1,0 +1,106 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'documents.releaseLetter.detail.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/service-requests">{{ 'serviceRequests.list.title' | transloco }}</a></li>
+      @if (letter(); as l) {
+        <li class="breadcrumb-item"><a [routerLink]="['/shipments', l.request.blNumber, 'release-letter']">{{ l.request.blNumber }}</a></li>
+      }
+      <li class="breadcrumb-item active" aria-current="page">{{ letter()?.request?.requestNumber ?? ('documents.releaseLetter.title' | transloco) }}</li>
+    </ol>
+  </nav>
+  <h1 id="release-detail-title" tabindex="-1">
+    @if (letter(); as l) {
+      {{ 'documents.releaseLetter.detail.title' | transloco: { number: l.request.requestNumber } }}
+    } @else {
+      {{ 'documents.releaseLetter.detail.titleLoading' | transloco }}
+    }
+  </h1>
+  @if (letter(); as l) {
+    <p class="text-muted mb-0">{{ 'documents.releaseLetter.detail.subtitle' | transloco: { bl: l.request.blNumber } }}</p>
+  }
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (letter(); as l) {
+  @let r = l.request;
+  <!-- Lo que sigue según el estado -->
+  @switch (r.status) {
+    @case ('PendingApproval') {
+      <div class="alert alert-info" role="note" data-testid="release-pending">
+        {{ 'documents.releaseLetter.detail.pending' | transloco: { team: ((r.assignedTeam ?? r.approvalTeam) | codeLabel: teamKeys) } }}
+      </div>
+    }
+    @case ('Completed') {
+      @if (l.document; as doc) {
+        <div class="alert alert-success d-flex flex-wrap align-items-center gap-2" role="note" data-testid="release-issued">
+          <span class="me-auto">{{ 'documents.releaseLetter.detail.issued' | transloco: { number: doc.documentNumber, date: (doc.issuedAt | hlDate: 'datetime' : r.timeZone) } }}</span>
+          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="downloading()" (click)="download()" data-testid="release-download"
+                  [attr.aria-label]="'documents.releaseLetter.detail.downloadLabel' | transloco: { number: doc.documentNumber }">
+            {{ 'documents.releaseLetter.detail.download' | transloco }}
+          </button>
+        </div>
+      }
+    }
+  }
+  @if (downloadError()) {
+    <div class="alert alert-danger py-2" role="alert">{{ downloadError() }}</div>
+  }
+
+  @if (r.canCancel) {
+    @if (confirmingCancel()) {
+      <form class="hl-card p-4 mb-4" novalidate aria-labelledby="release-cancel-title" (submit)="confirmCancel($event)" data-testid="release-cancel-form">
+        <h2 id="release-cancel-title" class="section-title mb-2" tabindex="-1">{{ 'documents.releaseLetter.detail.cancelTitle' | transloco }}</h2>
+        <p class="small">{{ 'documents.releaseLetter.detail.cancelHelp' | transloco }}</p>
+        @if (cancelError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ cancelError() }}</div>
+        }
+        <label for="release-cancel-reason" class="form-label small fw-semibold">{{ 'documents.releaseLetter.detail.cancelReason' | transloco }}</label>
+        <textarea id="release-cancel-reason" class="form-control mb-3" rows="2" maxlength="1000" name="cancelReason" [(ngModel)]="cancelReason"></textarea>
+        <div class="d-flex flex-wrap gap-2">
+          <button type="submit" class="btn btn-danger" [disabled]="cancelling()">{{ 'documents.releaseLetter.detail.cancelConfirm' | transloco }}</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="stopCancel()">{{ 'documents.releaseLetter.detail.cancelKeep' | transloco }}</button>
+        </div>
+      </form>
+    } @else {
+      <div class="mb-4">
+        <button id="release-cancel-start" type="button" class="btn btn-outline-secondary" (click)="startCancel()">{{ 'documents.releaseLetter.detail.cancelStart' | transloco }}</button>
+      </div>
+    }
+  }
+
+  <!-- Datos propios de la carta y TATC de las unidades al enviar y al aprobar (M6-08, M2-09) -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="release-letter-data-title" data-testid="release-letter-data">
+    <h2 id="release-letter-data-title" class="section-title mb-3">{{ 'documents.releaseLetter.detail.dataTitle' | transloco }}</h2>
+    <dl class="row g-3">
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'documents.releaseLetter.detail.entityType' | transloco }}</dt>
+        <dd class="detail-value">{{ l.legalEntityType | codeLabel: entityKeys }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'documents.releaseLetter.detail.carrier' | transloco }}</dt>
+        <dd class="detail-value">
+          {{ (l.carrierOrganizationId ? 'documents.releaseLetter.detail.carrierRegistered' : 'documents.releaseLetter.detail.carrierFree') | transloco }}
+        </dd>
+      </div>
+      <div class="col-sm-12 col-lg-4">
+        <dt class="detail-label">{{ 'documents.releaseLetter.detail.containers' | transloco }}</dt>
+        <dd class="detail-value">{{ r.containerNumbers.join(', ') }}</dd>
+      </div>
+    </dl>
+    <p class="small" role="note">
+      {{ (l.requiresIssuedTatc ? 'documents.releaseLetter.detail.ruleRequired' : 'documents.releaseLetter.detail.ruleInformative') | transloco }}
+    </p>
+    <app-release-letter-tatc [tatc]="l.tatcAtSubmission" moment="submission" [titleKey]="'documents.releaseLetter.tatc.atSubmission'" [timeZone]="r.timeZone" />
+    @if (l.tatcAtApproval; as approval) {
+      <app-release-letter-tatc [tatc]="approval" moment="approval" [titleKey]="'documents.releaseLetter.tatc.atApproval'" [timeZone]="r.timeZone" />
+    }
+    <p class="small text-muted mb-0">{{ 'documents.releaseLetter.provisional' | transloco }}</p>
+  </section>
+
+  <app-service-request-overview [request]="r" />
+}
