@@ -23,6 +23,11 @@ public sealed class Payment : BaseAuditableEntity
     public Guid ClientId { get; set; }
     public Guid BillOfLadingId { get; set; }
 
+    // NF-14 / M1-03: pago ejecutado bajo un acceso otorgado o mandato. ClientId es la organización
+    // mandataria que pagó; OnBehalfOfClientId, el mandante; AccessGrantId, el acceso usado.
+    public Guid? OnBehalfOfClientId { get; set; }
+    public Guid? AccessGrantId { get; set; }
+
     public Client Client { get; set; } = null!;
     public BillOfLading BillOfLading { get; set; } = null!;
     public ICollection<PaymentDetail> Details { get; set; } = [];

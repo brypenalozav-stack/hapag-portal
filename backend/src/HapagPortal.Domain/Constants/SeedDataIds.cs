@@ -144,6 +144,17 @@ public static class SeedDataIds
     public static readonly Guid LocalCharge12 = Guid.Parse("33333333-0009-0009-0009-000000000012");
     public static readonly Guid ServiceOrder04 = Guid.Parse("AAAAAAAA-0010-0010-0010-000000000004");
 
+    // Fase 1 Ola B — accesos a terceros de demostración
+    public static readonly Guid DemoAccessGrant01 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000001");
+    public static readonly Guid DemoAccessGrant02 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000002");
+    public static readonly Guid DemoDefaultGrantee01 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000011");
+    public static readonly Guid DemoOpenAccessSetting01 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000021");
+    public static readonly Guid DemoAccessAudit01 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000031");
+    public static readonly Guid DemoAccessAudit02 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000032");
+    public static readonly Guid DemoAccessAudit03 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000033");
+    public static readonly Guid DemoAccessAudit04 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000034");
+    public static readonly Guid DemoAccessAudit05 = Guid.Parse("CCCCCCCC-0012-0012-0012-000000000035");
+
     // Audit Logs
     public static readonly Guid AuditLog01 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000001");
     public static readonly Guid AuditLog02 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000002");

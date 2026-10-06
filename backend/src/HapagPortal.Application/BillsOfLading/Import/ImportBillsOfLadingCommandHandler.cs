@@ -1,7 +1,9 @@
 namespace HapagPortal.Application.BillsOfLading.Import;
 
+using HapagPortal.Application.Common.Access;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.ThirdPartyAccess.Common;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.Domain.Results;
@@ -22,6 +24,8 @@ public sealed class ImportBillsOfLadingCommandHandler(IApplicationDbContext dbCo
 
         var errors = new List<ImportRowError>();
         var created = 0;
+        var now = DateTime.UtcNow;
+        AccessMatrixSnapshot? matrix = null;
 
         for (var i = 0; i < request.Rows.Count; i++)
         {
@@ -48,6 +52,9 @@ public sealed class ImportBillsOfLadingCommandHandler(IApplicationDbContext dbCo
                 ClientId = row.ClientId
             };
             dbContext.BillsOfLading.Add(bl);
+
+            // Roles del embarque: el titular es Customer (M1-11).
+            var parties = new List<ShipmentParty> { new(row.ClientId, ShipmentRoleCodes.Customer) };
 
             if (!string.IsNullOrWhiteSpace(row.ConsigneeName))
             {
@@ -76,8 +83,14 @@ public sealed class ImportBillsOfLadingCommandHandler(IApplicationDbContext dbCo
                         Role = ShipmentRoleCodes.Consignee,
                         Source = ShipmentRoleSources.Import
                     });
+                    parties.Add(new ShipmentParty(consignee.Id, ShipmentRoleCodes.Consignee));
                 }
             }
+
+            // BL nuevo: terceros por defecto de cada parte (M1-13) y reconciliación de los accesos
+            // anticipados por booking con el rol oficial (M1-20).
+            matrix ??= await AccessMatrixSnapshot.LoadAsync(dbContext, cancellationToken);
+            await ShipmentArrivalAccess.ApplyAsync(dbContext, matrix, bl, parties, AccessActor.System, now, cancellationToken);
 
             dbContext.BLCargoItems.Add(new BLCargoItem
             {

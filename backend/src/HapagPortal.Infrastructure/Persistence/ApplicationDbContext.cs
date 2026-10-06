@@ -25,6 +25,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<ShipmentAction> ShipmentActions => Set<ShipmentAction>();
     public DbSet<ShipmentAccessRule> ShipmentAccessRules => Set<ShipmentAccessRule>();
     public DbSet<OrganizationDocument> OrganizationDocuments => Set<OrganizationDocument>();
+    public DbSet<AccessGrant> AccessGrants => Set<AccessGrant>();
+    public DbSet<DefaultGrantee> DefaultGrantees => Set<DefaultGrantee>();
+    public DbSet<OpenAccessSetting> OpenAccessSettings => Set<OpenAccessSetting>();
+    public DbSet<ShipmentAssociation> ShipmentAssociations => Set<ShipmentAssociation>();
+    public DbSet<VisibilityWidening> VisibilityWidenings => Set<VisibilityWidening>();
+    public DbSet<AccessAuditEntry> AccessAuditEntries => Set<AccessAuditEntry>();
     public DbSet<CustomsManifest> CustomsManifests => Set<CustomsManifest>();
     public DbSet<CustomsTransmission> CustomsTransmissions => Set<CustomsTransmission>();
     public DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents => Set<CustomsTransmissionEvent>();
@@ -58,6 +64,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         SeedDeadlineRules(modelBuilder);
         SeedAccessMatrix(modelBuilder);
         SeedOrganizationAccessDemo(modelBuilder);
+        SeedThirdPartyAccessDemo(modelBuilder);
     }
 
     /// <summary>
@@ -151,6 +158,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             AccessPermissions.OperateShipments, AccessPermissions.ViewAllShipments,
             AccessPermissions.ReviewOrganizations, AccessPermissions.CheckOrganizationsAr,
             AccessPermissions.ManageAccessMatrix,
+            // Fase 1 Ola B: accesos a terceros (M1-12 a M1-24).
+            AccessPermissions.ManageThirdPartyAccess,
         };
 
         modelBuilder.Entity<Permission>().HasData(permissions.Select(p => new Permission
@@ -174,6 +183,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             (RoleCodes.OrgAdmin, AccessPermissions.ManageOrganizationUsers),
             (RoleCodes.OrgAdmin, AccessPermissions.ApproveJoinRequests),
             (RoleCodes.OrgAdmin, AccessPermissions.OperateShipments),
+            (RoleCodes.OrgAdmin, AccessPermissions.ManageThirdPartyAccess),
             (RoleCodes.OrgOperator, AccessPermissions.OperateShipments),
         };
 
@@ -470,6 +480,180 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             CreatedBy = "SYSTEM"
         }));
     }
+
+    /// <summary>
+    /// Datos de demostración de Fase 1 Ola B (M1-12 a M1-23): Importadora Demo otorga a la agencia de
+    /// aduanas un acceso con permisos limitados sobre un BL y un mandato con términos aceptados sobre
+    /// otro, la tiene como tercero por defecto, y Pacific Trading activa el acceso abierto por BL.
+    /// </summary>
+    private static void SeedThirdPartyAccessDemo(ModelBuilder modelBuilder)
+    {
+        var created = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+        var validTo = new DateTime(2027, 3, 31, 23, 59, 0, DateTimeKind.Utc);
+
+        // Techo: lo que Importadora Demo (Customer y Consignee de BL01 y BL02) posee sobre esos BL.
+        var customer = Array.IndexOf(ShipmentRoleCodes.MatrixColumns, ShipmentRoleCodes.Customer);
+        var consignee = Array.IndexOf(ShipmentRoleCodes.MatrixColumns, ShipmentRoleCodes.Consignee);
+        var ceiling = ActionCodeList.Format(AccessMatrixBaseline.Actions
+            .Where(a => a.Scope == ShipmentActionScopes.Shipment
+                && (a.Levels[customer] == AccessLevels.Allowed || a.Levels[consignee] == AccessLevels.Allowed))
+            .Select(a => a.Code));
+
+        modelBuilder.Entity<AccessGrant>().HasData(
+            // Acceso individual con permisos limitados: consulta, recargos mandatorios y demurrage (X (o) otorgado).
+            new AccessGrant
+            {
+                Id = SeedDataIds.DemoAccessGrant01,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GrantorRole = ShipmentRoleCodes.Customer,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                BillOfLadingId = SeedDataIds.BL01,
+                BookingNumber = "HLCUBKG2501001",
+                GrantType = AccessGrantTypes.Individual,
+                ActionCodes = ActionCodeList.Format(
+                [
+                    ShipmentActionCodes.ViewShipment, ShipmentActionCodes.ViewReleaseRequirements,
+                    ShipmentActionCodes.ViewTracking, ShipmentActionCodes.ViewBlIssuance,
+                    ShipmentActionCodes.PayMandatoryLocalCharges, ShipmentActionCodes.PayImportDemurrage
+                ]),
+                CeilingActionCodes = ceiling,
+                ValidityType = AccessValidityTypes.UntilDate,
+                ValidFrom = created,
+                ValidTo = validTo,
+                Status = AccessGrantStatus.Active,
+                GrantedByUserId = SeedDataIds.DemoUserCL,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            // Mandato digital (M1-03): alcance de pago de flete y recargos, vigencia definida, términos aceptados.
+            new AccessGrant
+            {
+                Id = SeedDataIds.DemoAccessGrant02,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GrantorRole = ShipmentRoleCodes.Customer,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                BillOfLadingId = SeedDataIds.BL02,
+                BookingNumber = "HLCUBKG2502004",
+                GrantType = AccessGrantTypes.Individual,
+                ActionCodes = ActionCodeList.Format(
+                [
+                    ShipmentActionCodes.ViewShipment, ShipmentActionCodes.PayFreight,
+                    ShipmentActionCodes.PayMandatoryLocalCharges
+                ]),
+                CeilingActionCodes = ceiling,
+                ValidityType = AccessValidityTypes.UntilDate,
+                ValidFrom = created,
+                ValidTo = validTo,
+                Status = AccessGrantStatus.Active,
+                GrantedByUserId = SeedDataIds.DemoUserCL,
+                IsMandate = true,
+                TermsVersion = MandateTerms.CurrentVersion,
+                TermsAcceptedAt = created,
+                TermsAcceptedByUserId = SeedDataIds.DemoUserCL,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            });
+
+        // Tercero por defecto (M1-13): nivel base de M1-11, 180 días por BL nuevo.
+        modelBuilder.Entity<DefaultGrantee>().HasData(new DefaultGrantee
+        {
+            Id = SeedDataIds.DemoDefaultGrantee01,
+            GrantorClientId = SeedDataIds.DemoClientCL,
+            GranteeClientId = SeedDataIds.AgentClientCL,
+            DurationDays = 180,
+            IsActive = true,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        });
+
+        // Acceso abierto por número de BL (M1-17) de Pacific Trading, titular de BL07.
+        modelBuilder.Entity<OpenAccessSetting>().HasData(new OpenAccessSetting
+        {
+            Id = SeedDataIds.DemoOpenAccessSetting01,
+            ClientId = SeedDataIds.PacificTradingClient,
+            IsEnabled = true,
+            ActionCodes = ActionCodeList.Format(
+            [
+                ShipmentActionCodes.ViewShipment, ShipmentActionCodes.ViewTracking, ShipmentActionCodes.ViewBlIssuance,
+                ShipmentActionCodes.ViewReleaseRequirements, ShipmentActionCodes.PayMandatoryLocalCharges
+            ]),
+            ChangedAt = created,
+            CreatedAt = created,
+            CreatedBy = "SYSTEM"
+        });
+
+        modelBuilder.Entity<AccessAuditEntry>().HasData(
+            new AccessAuditEntry
+            {
+                Id = SeedDataIds.DemoAccessAudit01,
+                OccurredAt = created,
+                EventType = AccessAuditEvents.GrantCreated,
+                BillOfLadingId = SeedDataIds.BL01,
+                BlNumber = "HLCUVAL250100123",
+                BookingNumber = "HLCUBKG2501001",
+                AccessGrantId = SeedDataIds.DemoAccessGrant01,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = """{"grantType":"Individual","source":"seed"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = SeedDataIds.DemoAccessAudit02,
+                OccurredAt = created,
+                EventType = AccessAuditEvents.GrantCreated,
+                BillOfLadingId = SeedDataIds.BL02,
+                BlNumber = "HLCUVAL250200456",
+                BookingNumber = "HLCUBKG2502004",
+                AccessGrantId = SeedDataIds.DemoAccessGrant02,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = """{"grantType":"Individual","isMandate":true,"source":"seed"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = SeedDataIds.DemoAccessAudit03,
+                OccurredAt = created,
+                EventType = AccessAuditEvents.MandateTermsAccepted,
+                BillOfLadingId = SeedDataIds.BL02,
+                BlNumber = "HLCUVAL250200456",
+                BookingNumber = "HLCUBKG2502004",
+                AccessGrantId = SeedDataIds.DemoAccessGrant02,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = $$"""{"termsVersion":"{{MandateTerms.CurrentVersion}}"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = SeedDataIds.DemoAccessAudit04,
+                OccurredAt = created,
+                EventType = AccessAuditEvents.DefaultGranteeAdded,
+                GrantorClientId = SeedDataIds.DemoClientCL,
+                GranteeClientId = SeedDataIds.AgentClientCL,
+                ActorUserId = SeedDataIds.DemoUserCL,
+                ActorEmail = "demo@importadorademo.cl",
+                ActorClientId = SeedDataIds.DemoClientCL,
+                Details = """{"durationDays":180,"source":"seed"}"""
+            },
+            new AccessAuditEntry
+            {
+                Id = SeedDataIds.DemoAccessAudit05,
+                OccurredAt = created,
+                EventType = AccessAuditEvents.OpenAccessEnabled,
+                GrantorClientId = SeedDataIds.PacificTradingClient,
+                ActorEmail = "seed",
+                Details = """{"isEnabled":true,"source":"seed"}"""
+            });
+    }
+
 
     private static void SeedCurrencies(ModelBuilder modelBuilder)
     {

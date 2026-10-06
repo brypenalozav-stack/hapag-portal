@@ -21,6 +21,12 @@ public interface IApplicationDbContext
     DbSet<ShipmentAction> ShipmentActions { get; }
     DbSet<ShipmentAccessRule> ShipmentAccessRules { get; }
     DbSet<OrganizationDocument> OrganizationDocuments { get; }
+    DbSet<AccessGrant> AccessGrants { get; }
+    DbSet<DefaultGrantee> DefaultGrantees { get; }
+    DbSet<OpenAccessSetting> OpenAccessSettings { get; }
+    DbSet<ShipmentAssociation> ShipmentAssociations { get; }
+    DbSet<VisibilityWidening> VisibilityWidenings { get; }
+    DbSet<AccessAuditEntry> AccessAuditEntries { get; }
     DbSet<CustomsManifest> CustomsManifests { get; }
     DbSet<CustomsTransmission> CustomsTransmissions { get; }
     DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents { get; }

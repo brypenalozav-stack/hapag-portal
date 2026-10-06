@@ -87,6 +87,12 @@ public sealed class CreatePaymentCommandHandler(
         // Matriz de M1-11 por concepto y perfil del usuario (M1-02): sin ambos, no se paga.
         if (!RequiredActions(paymentType).All(permissions.CanExecute))
             return Result<PaymentResponseDto>.Failure(Error.Forbidden);
+
+        // NF-14 / M1-03: si el pago lo habilita un acceso otorgado (mandato), queda identificado el
+        // mandante además de la organización y el usuario mandatario que lo ejecuta.
+        var grant = RequiredActions(paymentType)
+            .Select(permissions.GrantFor)
+            .FirstOrDefault(g => g is not null);
         var paymentMethod = PaymentMethodMap.GetValueOrDefault(request.Method, request.Method);
 
         // Determine currency from BL or country
@@ -160,7 +166,9 @@ public sealed class CreatePaymentCommandHandler(
             Currency = currency,
             Status = PaymentStatus.Pending,
             Country = request.Country,
-            PaymentDate = DateTime.UtcNow
+            PaymentDate = DateTime.UtcNow,
+            OnBehalfOfClientId = grant?.GrantorOrganizationId,
+            AccessGrantId = grant?.GrantId
         };
 
         dbContext.Payments.Add(payment);

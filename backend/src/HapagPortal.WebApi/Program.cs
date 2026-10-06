@@ -4,6 +4,7 @@ using Asp.Versioning;
 using HapagPortal.Application;
 using HapagPortal.Infrastructure.DependencyInjection;
 using HapagPortal.Infrastructure.Persistence;
+using HapagPortal.WebApi.BackgroundServices;
 using HapagPortal.WebApi.Middleware;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -28,6 +29,9 @@ if (!string.IsNullOrEmpty(pgHost))
 // Application & Infrastructure
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+// Vencimiento automático de accesos a terceros y mandatos (M1-14, M1-03).
+builder.Services.AddHostedService<AccessGrantExpiryWorker>();
 
 // Controllers
 builder.Services.AddControllers()

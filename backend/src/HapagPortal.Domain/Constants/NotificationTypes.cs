@@ -11,4 +11,11 @@ public static class NotificationTypes
     public const string JoinRequestRejected = "JoinRequestRejected";
     public const string OrganizationApproved = "OrganizationApproved";
     public const string OrganizationRejected = "OrganizationRejected";
+
+    // Accesos a terceros (M1-12, M1-14, M1-22)
+    public const string AccessGranted = "AccessGranted";
+    public const string AccessUpdated = "AccessUpdated";
+    public const string AccessRevoked = "AccessRevoked";
+    public const string AccessExpired = "AccessExpired";
+    public const string AccessRevokedByCascade = "AccessRevokedByCascade";
 }

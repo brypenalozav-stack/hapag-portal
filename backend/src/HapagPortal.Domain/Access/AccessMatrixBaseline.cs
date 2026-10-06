@@ -79,9 +79,10 @@ public static class AccessMatrixBaseline
         new(ShipmentActionCodes.ViewAccessAudit, "Consultar la auditoría de accesos de un BL o booking", Admin, View, Shipment, [O, O, O, O, X, X], None),
         new(ShipmentActionCodes.EnableParentCompanyVisibility, "Habilitar la visibilidad de los BL hacia la empresa matriz", Admin, Operate, Organization, [O, O, O, O, X, X], None),
         new(ShipmentActionCodes.ExtendDataVisibility, "Ampliar la visibilidad de un dato del BL a otro rol", Admin, Operate, Shipment, [O, O, O, O, X, X], None),
-        // Excepción del documento: el tercero de un Freight Forwarder puede recibir acceso anticipado por booking.
-        new(ShipmentActionCodes.GrantEarlyBookingAccess, "Otorgar acceso anticipado por booking a un futuro shipper", Admin, Operate, Shipment, [O, X, X, X, X, X],
-            [new(ShipmentRoleCodes.ThirdParty, OrganizationTypes.FreightForwarder, O)]),
+        // La excepción del documento ("el tercero de un Freight Forwarder puede recibir acceso anticipado
+        // por booking") es sobre quién lo RECIBE, no sobre quién lo otorga: se aplica en
+        // EarlyBookingAccess.CanReceive y no como nivel de esta acción.
+        new(ShipmentActionCodes.GrantEarlyBookingAccess, "Otorgar acceso anticipado por booking a un futuro shipper", Admin, Operate, Shipment, [O, X, X, X, X, X], None),
         new(ShipmentActionCodes.HaveOwnUsers, "Tener usuarios propios asociados a la organización", Admin, Operate, Organization, [O, O, O, O, O, O], None),
         new(ShipmentActionCodes.ApproveJoinRequests, "Revisar y aprobar solicitudes de registro a la organización", Admin, Operate, Organization, [O, O, O, O, O, O], None),
         new(ShipmentActionCodes.PreCreateCarrier, "Pre-crear el perfil de un transportista sin cuenta", Admin, Operate, Organization, [O, O, O, O, X, X], None),

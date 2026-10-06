@@ -12,7 +12,8 @@ using Microsoft.EntityFrameworkCore;
 /// <summary>
 /// Listado único de los BL y bookings accesibles por el usuario (M2-06), con filtros por BL,
 /// booking, nave, viaje, estado, operación importación/exportación (M2-07) y país (M1-04).
-/// El universo lo define el evaluador de accesos (M1-11); la ausencia de un BL no implica ausencia de deuda.
+/// El universo lo define el evaluador de accesos (M1-11): propios, recibidos por acceso otorgado y
+/// autoasociados (M1-12, M1-18), con su origen. La ausencia de un BL no implica ausencia de deuda.
 /// </summary>
 public sealed record SearchShipmentsQuery(
     string? BlNumber = null,
@@ -117,7 +118,9 @@ public sealed class SearchShipmentsQueryHandler(
             })
             .ToListAsync(cancellationToken);
 
-        var roles = await accessEvaluator.GetRolesAsync(scope, rows.Select(r => r.Bl).ToList(), cancellationToken);
+        var bls = rows.Select(r => r.Bl).ToList();
+        var roles = await accessEvaluator.GetRolesAsync(scope, bls, cancellationToken);
+        var sources = await accessEvaluator.GetAccessSourcesAsync(scope, bls, cancellationToken);
 
         var items = rows.Select(r =>
         {
@@ -136,7 +139,7 @@ public sealed class SearchShipmentsQueryHandler(
                 r.Bl.ETD,
                 r.Bl.ETA,
                 blRoles,
-                blRoles.Count == 0 && scope.IsAdmin ? ShipmentAccessSources.Admin : ShipmentAccessSources.Own,
+                sources.GetValueOrDefault(r.Bl.Id) ?? ShipmentAccessSources.Own,
                 r.HasPendingCharges);
         }).ToList();
 

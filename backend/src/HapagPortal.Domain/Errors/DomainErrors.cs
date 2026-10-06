@@ -133,6 +133,88 @@ public static class DomainErrors
             new("ShipmentAccess.InvalidRole", "The role is not a column of the access matrix.");
     }
 
+    public static class AccessGrant
+    {
+        public static Error NotFound(Guid id) =>
+            new("AccessGrant.NotFound", $"The access grant '{id}' was not found.");
+
+        public static Error GranteeNotFound(Guid id) =>
+            new("AccessGrant.GranteeNotFound", $"The organization '{id}' cannot receive access.");
+
+        public static readonly Error SelfGrant =
+            new("AccessGrant.SelfGrant", "An organization cannot grant access to itself.");
+
+        public static readonly Error NotAllowed =
+            new("AccessGrant.NotAllowed", "Your organization cannot grant, change or revoke access on this shipment.");
+
+        public static Error ExceedsGrantorLevel(IEnumerable<string> codes) =>
+            new("AccessGrant.ExceedsGrantorLevel",
+                $"You cannot grant permissions you do not hold on this shipment: {string.Join(", ", codes)}.");
+
+        public static Error NotGrantable(IEnumerable<string> codes) =>
+            new("AccessGrant.NotGrantable",
+                $"These permissions cannot be granted to the recipient (level X in M1-11): {string.Join(", ", codes)}.");
+
+        public static Error UnknownActions(IEnumerable<string> codes) =>
+            new("AccessGrant.UnknownActions", $"Unknown or inactive action codes: {string.Join(", ", codes)}.");
+
+        public static Error InvalidValidity(string message) =>
+            new("AccessGrant.InvalidValidity", message);
+
+        public static readonly Error NotOpen =
+            new("AccessGrant.NotOpen", "The access grant is no longer active.");
+
+        public static readonly Error NotPendingAcceptance =
+            new("AccessGrant.NotPendingAcceptance", "The mandate is not pending terms acceptance.");
+
+        public static Error TermsVersionMismatch(string current) =>
+            new("AccessGrant.TermsVersionMismatch", $"The current mandate terms version is '{current}'.");
+
+        public static readonly Error EarlyBookingNotAllowed =
+            new("AccessGrant.EarlyBookingNotAllowed", "Only the customer of the booking can grant early booking access.");
+
+        public static readonly Error EarlyBookingRecipient =
+            new("AccessGrant.EarlyBookingRecipient",
+                "Early booking access is received by the future shipper or consignee, or by a Freight Forwarder as third party.");
+    }
+
+    public static class DefaultGrantee
+    {
+        public static Error NotFound(Guid id) =>
+            new("DefaultGrantee.NotFound", $"The default grantee '{id}' was not found.");
+
+        public static readonly Error AlreadyExists =
+            new("DefaultGrantee.AlreadyExists", "The organization is already configured as a default grantee.");
+    }
+
+    public static class OpenAccess
+    {
+        public static readonly Error NotAllowed =
+            new("OpenAccess.NotAllowed", "Your organization cannot configure open access by BL number.");
+
+        public static readonly Error NotAvailable =
+            new("OpenAccess.NotAvailable", "Self-association is only available for a BL viewed through open access.");
+    }
+
+    public static class ShipmentAssociation
+    {
+        public static readonly Error AlreadyExists =
+            new("ShipmentAssociation.AlreadyExists", "Your organization is already associated with this BL.");
+    }
+
+    public static class VisibilityWidening
+    {
+        public static Error NotFound(Guid id) =>
+            new("VisibilityWidening.NotFound", $"The visibility widening '{id}' was not found.");
+
+        public static readonly Error InvalidTargetRole =
+            new("VisibilityWidening.InvalidTargetRole", "The target role must be Customer, Shipper or Consignee and differ from yours.");
+
+        public static Error NotWidenable(IEnumerable<string> codes) =>
+            new("VisibilityWidening.NotWidenable",
+                $"These data can only be widened when the target role has level X (o): {string.Join(", ", codes)}.");
+    }
+
     public static class ServiceOrder
     {
         public static Error NotFound(Guid id) =>

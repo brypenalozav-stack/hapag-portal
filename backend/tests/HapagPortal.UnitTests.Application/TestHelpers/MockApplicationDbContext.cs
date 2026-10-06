@@ -22,6 +22,12 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<ShipmentAction> ShipmentActionList { get; } = [];
     public List<ShipmentAccessRule> ShipmentAccessRuleList { get; } = [];
     public List<OrganizationDocument> OrganizationDocumentList { get; } = [];
+    public List<AccessGrant> AccessGrantList { get; } = [];
+    public List<DefaultGrantee> DefaultGranteeList { get; } = [];
+    public List<OpenAccessSetting> OpenAccessSettingList { get; } = [];
+    public List<ShipmentAssociation> ShipmentAssociationList { get; } = [];
+    public List<VisibilityWidening> VisibilityWideningList { get; } = [];
+    public List<AccessAuditEntry> AccessAuditEntryList { get; } = [];
     public List<CustomsManifest> CustomsManifestList { get; } = [];
     public List<CustomsTransmission> CustomsTransmissionList { get; } = [];
     public List<CustomsTransmissionEvent> CustomsTransmissionEventList { get; } = [];
@@ -57,6 +63,12 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<ShipmentAction> ShipmentActions => MockDbSetHelper.CreateMockDbSet(ShipmentActionList);
     public DbSet<ShipmentAccessRule> ShipmentAccessRules => MockDbSetHelper.CreateMockDbSet(ShipmentAccessRuleList);
     public DbSet<OrganizationDocument> OrganizationDocuments => MockDbSetHelper.CreateMockDbSet(OrganizationDocumentList);
+    public DbSet<AccessGrant> AccessGrants => MockDbSetHelper.CreateMockDbSet(AccessGrantList);
+    public DbSet<DefaultGrantee> DefaultGrantees => MockDbSetHelper.CreateMockDbSet(DefaultGranteeList);
+    public DbSet<OpenAccessSetting> OpenAccessSettings => MockDbSetHelper.CreateMockDbSet(OpenAccessSettingList);
+    public DbSet<ShipmentAssociation> ShipmentAssociations => MockDbSetHelper.CreateMockDbSet(ShipmentAssociationList);
+    public DbSet<VisibilityWidening> VisibilityWidenings => MockDbSetHelper.CreateMockDbSet(VisibilityWideningList);
+    public DbSet<AccessAuditEntry> AccessAuditEntries => MockDbSetHelper.CreateMockDbSet(AccessAuditEntryList);
     public DbSet<CustomsManifest> CustomsManifests => MockDbSetHelper.CreateMockDbSet(CustomsManifestList);
     public DbSet<CustomsTransmission> CustomsTransmissions => MockDbSetHelper.CreateMockDbSet(CustomsTransmissionList);
     public DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents => MockDbSetHelper.CreateMockDbSet(CustomsTransmissionEventList);

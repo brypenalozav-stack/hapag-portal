@@ -1,5 +1,6 @@
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Domain.Common;
+using HapagPortal.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -27,6 +28,10 @@ public sealed class AuditableEntityInterceptor(ICurrentUserService currentUserSe
     private void ApplyAuditInfo(DbContext? context)
     {
         if (context is null) return;
+
+        // M1-23: la auditoría de accesos es append-only.
+        if (context.ChangeTracker.Entries<AccessAuditEntry>().Any(e => e.State is EntityState.Modified or EntityState.Deleted))
+            throw new InvalidOperationException("Access audit entries are append-only and cannot be modified or deleted.");
 
         var now = DateTime.UtcNow;
         var userId = currentUserService.UserId?.ToString() ?? "system";

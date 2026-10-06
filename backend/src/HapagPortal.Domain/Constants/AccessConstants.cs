@@ -124,6 +124,9 @@ public static class AccessPermissions
     public const string ApproveJoinRequests = "org.requests.approve";
     public const string OperateShipments = "shipments.operate";
 
+    // Accesos a terceros (M1-12 a M1-24): otorgar, revocar, defaults, acceso abierto y ampliaciones.
+    public const string ManageThirdPartyAccess = "org.access.manage";
+
     // Internos (M8-04, M8-06, M1-11)
     public const string ViewAllShipments = "shipments.view-all";
     public const string ReviewOrganizations = "organizations.review";

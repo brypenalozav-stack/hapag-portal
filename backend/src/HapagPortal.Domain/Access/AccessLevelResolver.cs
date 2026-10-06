@@ -29,6 +29,26 @@ public static class AccessLevelResolver
         grantorHasPermission && targetLevel is AccessLevels.Allowed or AccessLevels.OnGrant;
 
     /// <summary>
+    /// Una acción habilitada por un acceso otorgado (M1-12, M1-15, M1-17). Sin conjunto explícito
+    /// aplica el nivel base del receptor (solo O); con conjunto explícito, las acciones elegidas cuyo
+    /// nivel no sea X (O o X (o)), de modo que también se puede retirar una O. En ambos casos nunca
+    /// fuera del <paramref name="ceiling"/>: lo que el otorgante posee sobre el embarque.
+    /// </summary>
+    public static bool IsAllowedByGrant(
+        string level,
+        string actionCode,
+        IReadOnlyCollection<string>? explicitActions,
+        IReadOnlyCollection<string>? ceiling)
+    {
+        if (ceiling is not null && !ceiling.Contains(actionCode))
+            return false;
+
+        return explicitActions is null
+            ? level == AccessLevels.Allowed
+            : explicitActions.Contains(actionCode) && level is AccessLevels.Allowed or AccessLevels.OnGrant;
+    }
+
+    /// <summary>
     /// Nivel de una acción para un rol. La regla específica del tipo de organización
     /// (excepciones de Freight Forwarder) prevalece sobre la general; sin regla, X.
     /// </summary>

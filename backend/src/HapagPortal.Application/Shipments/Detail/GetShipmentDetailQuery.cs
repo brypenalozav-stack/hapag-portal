@@ -12,7 +12,9 @@ using Microsoft.EntityFrameworkCore;
 
 /// <summary>
 /// Detalle de un embarque con contenedores, cargos, demurrage y ODS, filtrado en el servidor según
-/// la matriz de M1-11 (M2-06). Un BL sin acceso responde NotFound, sin revelar su existencia.
+/// la matriz de M1-11 y los accesos otorgados (M2-06, M1-12, M1-15). Con el acceso abierto del titular
+/// activo, el número exacto muestra lo que habilita su conjunto de permisos (M1-17) y ofrece la
+/// autoasociación (M1-18). Un BL sin acceso responde NotFound, sin revelar su existencia.
 /// </summary>
 public sealed record GetShipmentDetailQuery(string BlNumber) : IQuery<ShipmentDetailDto>;
 
@@ -36,7 +38,12 @@ public sealed class GetShipmentDetailQueryHandler(
         var scope = await accessEvaluator.GetScopeAsync(cancellationToken);
         var blNumber = request.BlNumber.Trim();
 
-        var bl = await accessEvaluator.FilterAccessible(dbContext.BillsOfLading.AsNoTracking(), scope)
+        // Propios, otorgados o autoasociados; si no, el número exacto ingresado con acceso abierto (M1-17).
+        var source = accessEvaluator.FilterAccessible(dbContext.BillsOfLading.AsNoTracking(), scope);
+        if (!await source.AnyAsync(b => b.BLNumber == blNumber, cancellationToken))
+            source = accessEvaluator.FilterOpenAccess(dbContext.BillsOfLading.AsNoTracking(), scope);
+
+        var bl = await source
             .Include(b => b.Containers)
             .Include(b => b.LocalCharges)
             .Include(b => b.DemurrageCharges)
@@ -124,9 +131,11 @@ public sealed class GetShipmentDetailQueryHandler(
             bl.Shipper,
             bl.Consignee,
             permissions.Roles,
-            permissions.Roles.Count == 0 && permissions.IsAdmin ? ShipmentAccessSources.Admin : ShipmentAccessSources.Own,
+            permissions.AccessSource,
             permissions.AllowedActions,
             permissions.CanOperate,
+            permissions.CanSelfAssociate,
+            permissions.RequiresAssociationForPayment,
             freight,
             bl.Containers.Select(c => new BLContainerDto(
                 c.Id, c.ContainerNumber, c.ContainerType, c.SealNumber, c.Weight, c.Status)).ToList(),
