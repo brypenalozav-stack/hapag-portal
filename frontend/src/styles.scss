@@ -564,6 +564,11 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.85rem;
 }
 
+// Opción de medio de pago con logo (app-payment-logo): el radio se centra con la pastilla del logo (2 rem).
+.form-check:has(app-payment-logo) > .form-check-input {
+  margin-top: 0.5rem;
+}
+
 // Encabezado ordenable (app-sort-header): el botón ocupa la celda y hereda el estilo del encabezado.
 .hl-table thead th.hl-sortable {
   padding: 0;

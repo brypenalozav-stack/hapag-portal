@@ -19,6 +19,7 @@ import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../shared/payment-errors';
 import { focusAfterRender } from '../../shared/focus-after-render';
 import { ToastService } from '../../core/services/toast.service';
+import { PaymentLogoComponent } from '../../shared/components/payment-logo/payment-logo';
 
 /** Errores tras los cuales el intento terminó con certeza: el próximo usa una clave nueva. */
 const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotency.AlreadyExists']);
@@ -32,7 +33,7 @@ const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotenc
 @Component({
   selector: 'app-account-payments',
   standalone: true,
-  imports: [
+  imports: [PaymentLogoComponent, 
     RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
     PaymentBlockBannerComponent,
   ],

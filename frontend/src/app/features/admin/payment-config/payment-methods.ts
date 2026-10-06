@@ -21,6 +21,7 @@ import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ChangeLogComponent } from './change-log';
 import { ModalService } from '../../../core/services/modal.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { PaymentLogoComponent } from '../../../shared/components/payment-logo/payment-logo';
 
 interface MethodForm {
   code: string;
@@ -66,7 +67,7 @@ function emptyForm(country: string): MethodForm {
 @Component({
   selector: 'app-payment-methods',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, LoadingSpinnerComponent, StateMessageComponent, ChangeLogComponent],
+  imports: [PaymentLogoComponent, FormsModule, TranslocoPipe, CodeLabelPipe, LoadingSpinnerComponent, StateMessageComponent, ChangeLogComponent],
   templateUrl: './payment-methods.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })

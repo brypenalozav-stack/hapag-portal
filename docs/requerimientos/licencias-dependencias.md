@@ -76,3 +76,24 @@ Otro modelo solo puede configurarse si su licencia está aprobada por la OSI (po
 ### Ola H (Fase 2): finanzas
 
 Sin paquetes nuevos en el backend. La exportación del estado de cuenta a planilla (M7-03) genera XLSX (Office Open XML mínimo) con `System.IO.Compression` de la biblioteca base de .NET (MIT) y CSV RFC 4180 en UTF-8 con BOM, sin ClosedXML, EPPlus ni NPOI.
+
+### UX/UI (Fase 2): componentes, menú y rendimiento
+
+| Dependencia | Versión exacta | Dónde | Licencia | Fase |
+|---|---|---|---|---|
+| @fontsource/inter (subconjunto latino, pesos 300–700; reemplaza la carga desde Google Fonts) | 5.x (`frontend/package-lock.json`) | `frontend/angular.json` (`styles`) | OFL-1.1 | UX/UI |
+| @fontsource/montserrat (subconjunto latino, pesos 500–800) | 5.x (`frontend/package-lock.json`) | `frontend/angular.json` (`styles`) | OFL-1.1 | UX/UI |
+
+Se retira `bootstrap.bundle.min.js` del arranque (el único componente que lo usaba, el menú del usuario, es ahora propio). Los íconos del menú y de los medios de pago propios del portal (depósito, USD digital, línea de crédito) son trazos de Bootstrap Icons (MIT), ya usados en el proyecto.
+
+**Logos de medios de pago** (`frontend/public/payment-methods/*.png`, generados a partir de SVG): son marcas de sus titulares y se muestran solo para identificar el medio de pago junto a su nombre.
+
+| Archivo | Origen del vector | Nota |
+|---|---|---|
+| `bank-button-bch.png` | Wikimedia Commons, «Banco de Chile Logotipo.svg» (dominio público como obra; marca de Banco de Chile) | Logotipo completo: la marca no tiene un símbolo separado. |
+| `bank-button-santander.png` | Wikimedia Commons, «Banco Santander Logotipo.svg» (dominio público como obra; marca de Banco Santander) | Solo la llama. |
+| `bank-button-bci.png` | Wikimedia Commons, «Bci Logotype.svg» (dominio público como obra; marca de Bci) | Solo la figura de colores. |
+| `khipu.png` | Logotipo publicado en khipu.com | Solo la «K», en el morado de la marca. |
+| `deposit.png`, `digital-usd.png`, `credit-line.png` | Bootstrap Icons (MIT) | Colores del portal. |
+
+Antes de producción, conviene confirmar con cada banco y con Khipu el uso de sus logos según sus manuales de marca o kits para comercios.

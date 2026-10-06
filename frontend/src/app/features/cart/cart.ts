@@ -24,6 +24,7 @@ import { paymentErrorMessage } from '../../shared/payment-errors';
 import { focusAfterRender } from '../../shared/focus-after-render';
 import { ModalService } from '../../core/services/modal.service';
 import { ToastService } from '../../core/services/toast.service';
+import { PaymentLogoComponent } from '../../shared/components/payment-logo/payment-logo';
 
 /** Estado del cierre de un sub-carro. */
 interface CheckoutState {
@@ -52,7 +53,7 @@ const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'Cart.Conflict', '
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [
+  imports: [PaymentLogoComponent, 
     RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe,
     LoadingSpinnerComponent, StateMessageComponent, PaymentBlockBannerComponent,
   ],
