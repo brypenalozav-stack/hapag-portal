@@ -3,11 +3,17 @@ namespace HapagPortal.Application.Payments.Commands.Confirm;
 using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Payments.Common;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Confirmación interna (Finanzas, p. ej. depósito verificado). Pasa por el ciclo de vida del pago: queda
+/// en el historial (NF-02), asigna el comprobante y encola la liberación de los ítems (NF-03). Un pago ya
+/// cobrado se confirma también durante un bloqueo de pagos (M8-07 bloquea iniciar, no reconocer abonos).
+/// </summary>
 public sealed class ConfirmPaymentCommandHandler(
     IApplicationDbContext dbContext,
     ICurrentUserService currentUserService)
@@ -33,12 +39,13 @@ public sealed class ConfirmPaymentCommandHandler(
         if (payment.Status == PaymentStatus.Cancelled)
             return Result<PaymentResponseDto>.Failure(DomainErrors.Payment.AlreadyCancelled);
 
-        if (payment.Status is not (PaymentStatus.Pending or PaymentStatus.Processing))
+        if (payment.Status is not (PaymentStatus.Pending or PaymentStatus.Processing or PaymentStatus.PendingVerification))
             return Result<PaymentResponseDto>.Failure(DomainErrors.Payment.InvalidStatus);
 
-        payment.Status = PaymentStatus.Confirmed;
-        payment.ConfirmedAt = DateTime.UtcNow;
-        payment.ConfirmedBy = currentUserService.Email;
+        var confirmed = await PaymentLifecycle.ConfirmAsync(
+            dbContext, payment, PaymentActor.From(currentUserService), null, DateTime.UtcNow, cancellationToken);
+        if (confirmed.IsFailure)
+            return Result<PaymentResponseDto>.Failure(confirmed.Error);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

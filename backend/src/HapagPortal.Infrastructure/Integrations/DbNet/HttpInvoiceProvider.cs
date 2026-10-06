@@ -70,6 +70,49 @@ public sealed class HttpInvoiceProvider(HttpClient httpClient, ISecretResolver s
         return Result<InvoiceDocument?>.Success(result.Value is { } dto ? ToDocument(dto) : null);
     }
 
+    /// <summary>
+    /// PDF del documento: <c>getDocument</c> entrega su <c>pdfUrl</c> y se descarga con la misma API key.
+    /// Sin documento o sin PDF: <c>Success(null)</c>.
+    /// </summary>
+    public async Task<Result<byte[]?>> GetPdfAsync(
+        string folio,
+        CancellationToken cancellationToken = default)
+    {
+        var document = await GetAsync(folio, cancellationToken);
+        if (document.IsFailure)
+            return Result<byte[]?>.Failure(document.Error);
+
+        if (document.Value?.PdfUrl is not { Length: > 0 } pdfUrl || !Uri.TryCreate(httpClient.BaseAddress, pdfUrl, out var uri))
+            return Result<byte[]?>.Success(null);
+
+        var apiKey = await secretResolver.ResolveAsync(Endpoint.SecretType, null, cancellationToken);
+        if (string.IsNullOrWhiteSpace(apiKey))
+            return Result<byte[]?>.Failure(DomainErrors.Integration.NotConfigured(Endpoint.System));
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+        request.Headers.TryAddWithoutValidation(Endpoint.ApiKeyHeader, apiKey);
+        request.Options.Set(IntegrationLoggingHandler.OperationKey, "getDocumentPdf");
+
+        try
+        {
+            using var response = await httpClient.SendAsync(request, cancellationToken);
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return Result<byte[]?>.Success(null);
+            if (!response.IsSuccessStatusCode)
+                return Result<byte[]?>.Failure(DomainErrors.Integration.Unavailable(Endpoint.System));
+
+            return Result<byte[]?>.Success(await response.Content.ReadAsByteArrayAsync(cancellationToken));
+        }
+        catch (HttpRequestException)
+        {
+            return Result<byte[]?>.Failure(DomainErrors.Integration.Unavailable(Endpoint.System));
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return Result<byte[]?>.Failure(DomainErrors.Integration.Timeout(Endpoint.System));
+        }
+    }
+
     private static InvoiceDocument ToDocument(DocumentDto dto) => new(
         dto.Folio,
         dto.DocumentType,

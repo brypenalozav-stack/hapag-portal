@@ -2,6 +2,7 @@ using System.Text.Json;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Maintainers;
 using HapagPortal.Application.InternalChargeRules;
+using HapagPortal.Application.Payments.Maintainers;
 using HapagPortal.Application.Tariffs.Common;
 using HapagPortal.Domain.Access;
 using HapagPortal.Domain.Constants;
@@ -63,6 +64,14 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<WarehouseChangeBatch> WarehouseChangeBatches => Set<WarehouseChangeBatch>();
     public DbSet<WarehouseChangeBatchItem> WarehouseChangeBatchItems => Set<WarehouseChangeBatchItem>();
     public DbSet<BusinessHoliday> BusinessHolidays => Set<BusinessHoliday>();
+    public DbSet<Cart> Carts => Set<Cart>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
+    public DbSet<PaymentStatusChange> PaymentStatusChanges => Set<PaymentStatusChange>();
+    public DbSet<PaymentOutboxMessage> PaymentOutboxMessages => Set<PaymentOutboxMessage>();
+    public DbSet<PaymentCurrencyRule> PaymentCurrencyRules => Set<PaymentCurrencyRule>();
+    public DbSet<PaymentMethodConfig> PaymentMethodConfigs => Set<PaymentMethodConfig>();
+    public DbSet<PaymentBlockWindow> PaymentBlockWindows => Set<PaymentBlockWindow>();
+    public DbSet<CustomerInvoice> CustomerInvoices => Set<CustomerInvoice>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -81,6 +90,418 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         SeedThirdPartyAccessDemo(modelBuilder);
         SeedChargeCatalogAndTariffs(modelBuilder);
         SeedChargeRulesDemo(modelBuilder);
+        SeedPaymentConfiguration(modelBuilder);
+        SeedPaymentsDemo(modelBuilder);
+    }
+
+    /// <summary>
+    /// Fase 1 Ola D: monedas por recargo del ejemplo de M5-04 (Fletes USD/EUR/CLP, Gate In y EDS CLP,
+    /// Demurrage USD/CLP en Chile) y su par en Bolivia, medios de pago por país (M5-03: Khipu, botón de
+    /// bancos, depósito con boleta y el espacio reservado de dólares digitales) y ventanas de bloqueo de
+    /// pagos (M8-07), con su alta en el registro de cambios (NF-15).
+    /// </summary>
+    private static void SeedPaymentConfiguration(ModelBuilder modelBuilder)
+    {
+        var created = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        var currencies = new (string Country, string Concept, string[] Currencies)[]
+        {
+            (CountryCodes.Chile, PaymentConcepts.Freight, ["USD", "EUR", "CLP"]),
+            (CountryCodes.Chile, ChargeConceptCodes.GateIn, ["CLP"]),
+            (CountryCodes.Chile, ChargeConceptCodes.Eds, ["CLP"]),
+            (CountryCodes.Chile, ChargeConceptCodes.Demurrage, ["USD", "CLP"]),
+            (CountryCodes.Bolivia, PaymentConcepts.Freight, ["USD", "BOB"]),
+            (CountryCodes.Bolivia, ChargeConceptCodes.GateIn, ["BOB"]),
+            (CountryCodes.Bolivia, ChargeConceptCodes.Eds, ["BOB"]),
+            (CountryCodes.Bolivia, ChargeConceptCodes.Demurrage, ["BOB", "USD"]),
+            (CountryCodes.Bolivia, ChargeConceptCodes.AdvanceDemurrageBo, ["USD", "BOB"]),
+        };
+
+        var rules = currencies
+            .SelectMany(c => c.Currencies.Select(currency => new PaymentCurrencyRule
+            {
+                Id = DeterministicGuid($"payment-currency:{c.Country}:{c.Concept}:{currency}"),
+                Country = c.Country,
+                ConceptCode = c.Concept,
+                Currency = currency,
+                IsEnabled = true,
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            }))
+            .ToList();
+
+        modelBuilder.Entity<PaymentCurrencyRule>().HasData(rules);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(rules.Select(r => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:payment-currency:{r.Id}"),
+            Maintainer = MaintainerNames.PaymentCurrency,
+            EntityId = r.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(PaymentCurrencySnapshot.From(r), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        var methods = new[]
+        {
+            Method(CountryCodes.Chile, PaymentMethodCodes.Khipu, "Khipu", "Transferencia simplificada con Khipu", PaymentMethodKinds.Online, PaymentProviderKeys.Khipu, "CLP", 10),
+            Method(CountryCodes.Chile, PaymentMethodCodes.BankButtonBancoChile, "Botón de pago Banco de Chile", "Pago en línea desde la banca del Banco de Chile", PaymentMethodKinds.Online, PaymentProviderKeys.BancoChile, "CLP,USD", 20),
+            Method(CountryCodes.Chile, PaymentMethodCodes.BankButtonSantander, "Botón de pago Santander", "Pago en línea desde la banca de Santander", PaymentMethodKinds.Online, PaymentProviderKeys.Santander, "CLP", 30),
+            Method(CountryCodes.Chile, PaymentMethodCodes.BankButtonBci, "Botón de pago Bci", "Pago en línea desde la banca de Bci", PaymentMethodKinds.Online, PaymentProviderKeys.Bci, "CLP", 40),
+            Method(CountryCodes.Chile, PaymentMethodCodes.Deposit, "Depósito bancario (boleta)", "Boleta para depósito o transferencia; Finanzas confirma el abono", PaymentMethodKinds.Deposit, null, "CLP,USD,EUR", 50),
+            Method(CountryCodes.Chile, PaymentMethodCodes.DigitalUsd, "Dólares digitales", "Reservado (M5-03): se habilita cuando se defina el proveedor", PaymentMethodKinds.Online, null, "USD", 90, enabled: false),
+            Method(CountryCodes.Bolivia, PaymentMethodCodes.Deposit, "Depósito o transferencia bancaria (boleta)", "Boleta para depósito o transferencia; Finanzas confirma el abono", PaymentMethodKinds.Deposit, null, "BOB,USD", 10),
+            Method(CountryCodes.Bolivia, PaymentMethodCodes.DigitalUsd, "Dólares digitales", "Reservado (M5-03): se habilita cuando se defina el proveedor", PaymentMethodKinds.Online, null, "USD", 90, enabled: false),
+        };
+
+        foreach (var method in methods)
+        {
+            method.CreatedAt = created;
+            method.CreatedBy = "SYSTEM";
+        }
+
+        modelBuilder.Entity<PaymentMethodConfig>().HasData(methods);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(methods.Select(m => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:payment-method:{m.Id}"),
+            Maintainer = MaintainerNames.PaymentMethod,
+            EntityId = m.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(PaymentMethodSnapshot.From(m), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = created,
+            ChangedBy = "SYSTEM"
+        }));
+
+        var windows = new[]
+        {
+            new PaymentBlockWindow
+            {
+                Id = SeedDataIds.BlockWindowPast,
+                Country = CountryCodes.Chile,
+                StartDate = new DateOnly(2026, 9, 30),
+                StartTime = new TimeOnly(20, 0),
+                EndDate = new DateOnly(2026, 9, 30),
+                EndTime = new TimeOnly(23, 59),
+                Reason = "Cierre contable de septiembre",
+                ClientMessage = "Los pagos están suspendidos temporalmente por el cierre contable mensual. Podrá pagar nuevamente desde las 23:59 (hora de Chile).",
+                CreatedAt = created.AddDays(-5),
+                CreatedBy = "SYSTEM"
+            },
+            new PaymentBlockWindow
+            {
+                Id = SeedDataIds.BlockWindowFuture,
+                Country = null,
+                StartDate = new DateOnly(2026, 10, 31),
+                StartTime = new TimeOnly(21, 0),
+                EndDate = new DateOnly(2026, 11, 1),
+                EndTime = new TimeOnly(6, 0),
+                Reason = "Cierre contable de octubre",
+                ClientMessage = "Los pagos están suspendidos temporalmente por el cierre contable mensual. Podrá pagar nuevamente a partir de las 06:00 (hora local).",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+            new PaymentBlockWindow
+            {
+                Id = SeedDataIds.BlockWindowFutureBO,
+                Country = CountryCodes.Bolivia,
+                StartDate = new DateOnly(2026, 12, 24),
+                StartTime = new TimeOnly(18, 0),
+                EndDate = new DateOnly(2026, 12, 26),
+                EndTime = new TimeOnly(8, 0),
+                Reason = "Mantenimiento de la conciliación bancaria de fin de año",
+                ClientMessage = "Los pagos en línea no están disponibles por mantenimiento hasta el 26-12 a las 08:00 (hora de Bolivia).",
+                CreatedAt = created,
+                CreatedBy = "SYSTEM"
+            },
+        };
+
+        modelBuilder.Entity<PaymentBlockWindow>().HasData(windows);
+        modelBuilder.Entity<MaintainerChangeLog>().HasData(windows.Select(w => new MaintainerChangeLog
+        {
+            Id = DeterministicGuid($"maintainer-log:payment-block:{w.Id}"),
+            Maintainer = MaintainerNames.PaymentBlockWindow,
+            EntityId = w.Id,
+            Action = MaintainerActions.Created,
+            NewValue = JsonSerializer.Serialize(PaymentBlockWindowSnapshot.From(w), MaintainerChangeLogger.JsonOptions),
+            ChangedAt = w.CreatedAt,
+            ChangedBy = "SYSTEM"
+        }));
+
+        static PaymentMethodConfig Method(
+            string country, string code, string name, string description, string kind, string? provider, string currencies,
+            int order, bool enabled = true) => new()
+        {
+            Id = DeterministicGuid($"payment-method:{country}:{code}"),
+            Code = code,
+            Name = name,
+            Description = description,
+            Country = country,
+            Kind = kind,
+            ProviderKey = provider,
+            Currencies = currencies,
+            IsEnabled = enabled,
+            DisplayOrder = order
+        };
+    }
+
+    /// <summary>
+    /// Datos de demostración de la Ola D: facturas locales en la caché (M7-01) para Importadora Demo
+    /// (factura de demurrage, vencida, pagada, sin folio, nota de crédito, en EUR), Comercial Altiplano y el
+    /// cliente con crédito, y pagos históricos del portal (M7-02): uno del carro con Khipu, uno pagado por
+    /// la agencia bajo mandato (pagador distinto del RUT de facturación), una boleta de depósito emitida
+    /// (no anulable por el cliente, M5-02), uno fallido por indisponibilidad de la plataforma (NF-12) y
+    /// uno de Bolivia confirmado por Finanzas, con su historial de estados (NF-02).
+    /// </summary>
+    private static void SeedPaymentsDemo(ModelBuilder modelBuilder)
+    {
+        var synced = new DateTime(2026, 10, 5, 11, 0, 0, DateTimeKind.Utc);
+
+        CustomerInvoice Invoice(
+            Guid id, Guid organizationId, string legalName, string taxId, string country, string? sii, string source,
+            string type, DateOnly issue, DateOnly? due, Guid? blId, string? bl, string? booking, decimal net, decimal tax,
+            string currency, string status, bool payable, string? concept = null, DateTime? paidAt = null) => new()
+        {
+            Id = id,
+            OrganizationId = organizationId,
+            SiiNumber = sii,
+            SourceNumber = source,
+            DocumentType = type,
+            IssueDate = issue,
+            DueDate = due,
+            BillOfLadingId = blId,
+            BlNumber = bl,
+            BookingNumber = booking,
+            LegalName = legalName,
+            TaxId = taxId,
+            NetAmount = net,
+            TaxAmount = tax,
+            TotalAmount = net + tax,
+            Currency = currency,
+            Status = status,
+            SiiStatus = sii is null ? null : "ACCEPTED",
+            IsPayable = payable,
+            Country = country,
+            ConceptCode = concept,
+            PaidAt = paidAt,
+            SyncedAt = synced,
+            Source = "DUMMY",
+            CreatedAt = synced,
+            CreatedBy = "SYSTEM"
+        };
+
+        const string importadora = "Importadora Demo SpA";
+        const string importadoraTaxId = "76123456-7";
+        const string altiplano = "Comercial Altiplano SRL";
+        const string andes = "Distribuidora Andes Crédito SpA";
+
+        modelBuilder.Entity<CustomerInvoice>().HasData(
+            Invoice(SeedDataIds.InvoiceDemurrageBL09, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                "100245", "FAC-DEM-2026-0915", InvoiceDocumentTypes.ExemptInvoice, new(2026, 9, 15), new(2026, 10, 15),
+                SeedDataIds.BL09, "HLCUSAI260400910", "HLCUBKG2604091", 510000m, 0m, "CLP", InvoiceStatus.Pending, true,
+                ChargeConceptCodes.Demurrage),
+            Invoice(SeedDataIds.InvoiceOverdueBL01, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                "100198", "HL-CL-2026-003987", InvoiceDocumentTypes.Invoice, new(2026, 8, 20), new(2026, 9, 19),
+                SeedDataIds.BL01, "HLCUVAL250100123", "HLCUBKG2501001", 120000m, 22800m, "CLP", InvoiceStatus.Pending, true),
+            Invoice(SeedDataIds.InvoicePaidBL02, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                "100150", "HL-CL-2026-003501", InvoiceDocumentTypes.Invoice, new(2026, 7, 10), new(2026, 8, 9),
+                SeedDataIds.BL02, "HLCUVAL250200456", "HLCUBKG2502004", 185000m, 35150m, "CLP", InvoiceStatus.Paid, false,
+                paidAt: new DateTime(2026, 8, 5, 15, 0, 0, DateTimeKind.Utc)),
+            Invoice(SeedDataIds.InvoiceNoFolioBL06, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                null, "HL-CL-2026-004601", InvoiceDocumentTypes.ExemptInvoice, new(2026, 10, 2), new(2026, 11, 1),
+                SeedDataIds.BL06, "HLCUSAI260300610", "HLCUBKG2603061", 350m, 0m, "USD", InvoiceStatus.Pending, true),
+            Invoice(SeedDataIds.InvoiceCreditNoteBL01, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                "100301", "HL-CL-2026-004700", InvoiceDocumentTypes.CreditNote, new(2026, 9, 25), null,
+                SeedDataIds.BL01, "HLCUVAL250100123", "HLCUBKG2501001", 15000m, 2850m, "CLP", InvoiceStatus.Paid, false),
+            Invoice(SeedDataIds.InvoiceEurBL10, SeedDataIds.DemoClientCL, importadora, importadoraTaxId, CountryCodes.Chile,
+                "100260", "HL-CL-2026-004530", InvoiceDocumentTypes.ExemptInvoice, new(2026, 9, 28), new(2026, 10, 28),
+                SeedDataIds.BL10, "HLCUSAI260401020", "HLCUBKG2604102", 480m, 0m, "EUR", InvoiceStatus.Pending, true),
+            Invoice(SeedDataIds.InvoicePendingBO, SeedDataIds.DemoClientBO, altiplano, "1023456017", CountryCodes.Bolivia,
+                "2026-000812", "HL-BO-2026-000812", InvoiceDocumentTypes.Invoice, new(2026, 9, 10), new(2026, 10, 10),
+                SeedDataIds.BL04, "HLCUARI260100045", "HLCUBKG2601045", 1280m, 166.40m, "BOB", InvoiceStatus.Pending, true),
+            Invoice(SeedDataIds.InvoicePaidBO, SeedDataIds.DemoClientBO, altiplano, "1023456017", CountryCodes.Bolivia,
+                "2026-000790", "HL-BO-2026-000790", InvoiceDocumentTypes.Invoice, new(2026, 8, 30), new(2026, 9, 29),
+                SeedDataIds.BL05, "HLCUIQQ260200078", "HLCUBKG2602078", 690m, 89.70m, "BOB", InvoiceStatus.Paid, false,
+                paidAt: new DateTime(2026, 9, 5, 14, 0, 0, DateTimeKind.Utc)),
+            Invoice(SeedDataIds.InvoiceCreditCustomer01, SeedDataIds.CreditDemoClient, andes, "76000002-2", CountryCodes.Chile,
+                "100277", "HL-CL-2026-004588", InvoiceDocumentTypes.Invoice, new(2026, 9, 26), new(2026, 10, 26),
+                SeedDataIds.BL11, "HLCUVAP260401130", "HLCUBKG2604113", 95000m, 18050m, "CLP", InvoiceStatus.Pending, true),
+            Invoice(SeedDataIds.InvoiceCreditCustomer02, SeedDataIds.CreditDemoClient, andes, "76000002-2", CountryCodes.Chile,
+                "100278", "HL-CL-2026-004589", InvoiceDocumentTypes.ExemptInvoice, new(2026, 9, 26), new(2026, 10, 26),
+                SeedDataIds.BL11, "HLCUVAP260401130", "HLCUBKG2604113", 380m, 0m, "USD", InvoiceStatus.Pending, true));
+
+        Payment Seeded(
+            Guid id, string number, Guid clientId, string origin, string method, string? provider, string currency,
+            decimal amount, decimal tax, string status, DateTime paidAt, Guid? createdBy, string payerTaxId, string payerName) => new()
+        {
+            Id = id,
+            PaymentNumber = number,
+            PaymentType = origin,
+            PaymentMethod = method,
+            PaymentMethodCode = method,
+            ProviderKey = provider,
+            Amount = amount,
+            TaxAmount = tax,
+            TotalAmount = amount + tax,
+            Currency = currency,
+            Status = status,
+            StatusChangedAt = paidAt,
+            Country = currency == "BOB" ? CountryCodes.Bolivia : CountryCodes.Chile,
+            PaymentDate = paidAt,
+            ClientId = clientId,
+            Origin = origin,
+            CreatedByUserId = createdBy,
+            ExternalReference = number,
+            PayerTaxId = payerTaxId,
+            PayerName = payerName,
+            CreatedAt = paidAt,
+            CreatedBy = createdBy?.ToString() ?? "SYSTEM"
+        };
+
+        var khipuPaid = new DateTime(2026, 9, 12, 15, 20, 0, DateTimeKind.Utc);
+        var mandatePaid = new DateTime(2026, 9, 20, 14, 5, 0, DateTimeKind.Utc);
+        var slipIssued = new DateTime(2026, 10, 3, 13, 30, 0, DateTimeKind.Utc);
+        var failedAt = new DateTime(2026, 10, 4, 16, 45, 0, DateTimeKind.Utc);
+        var boliviaPaid = new DateTime(2026, 9, 5, 14, 0, 0, DateTimeKind.Utc);
+
+        var payment09 = Seeded(SeedDataIds.Payment09, "PAY-20260912-1A2B3C4D", SeedDataIds.DemoClientCL, PaymentOrigins.Cart,
+            PaymentMethodCodes.Khipu, PaymentProviderKeys.Khipu, "CLP", 70000m, 13300m, PaymentStatus.Confirmed, khipuPaid,
+            SeedDataIds.DemoUserCL, importadoraTaxId, importadora);
+        payment09.ConfirmedAt = khipuPaid;
+        payment09.ConfirmedBy = "KHIPU_WEBHOOK";
+        payment09.ReceiptNumber = "RCP-20260912-7F3A21C4";
+        payment09.ProviderReference = "DUMMY-KHIPU-PAY-20260912-1A2B3C4D";
+        payment09.ProviderTransactionId = "KHP-TXN-8812345";
+
+        // La agencia paga el flete de BL02 bajo el mandato de Importadora Demo: pagador ≠ RUT de facturación.
+        var payment10 = Seeded(SeedDataIds.Payment10, "PAY-20260920-5E6F7A8B", SeedDataIds.AgentClientCL, PaymentOrigins.Cart,
+            PaymentMethodCodes.BankButtonBancoChile, PaymentProviderKeys.BancoChile, "CLP", 4940000m, 0m, PaymentStatus.Confirmed,
+            mandatePaid, SeedDataIds.AgentUserCL, "96555444-3", "Agencia Marítima del Pacífico Ltda");
+        payment10.ConfirmedAt = mandatePaid;
+        payment10.ConfirmedBy = "BANCOCHILE_WEBHOOK";
+        payment10.ReceiptNumber = "RCP-20260920-2B4D6F80";
+        payment10.ProviderReference = "DUMMY-BANCOCHILE-PAY-20260920-5E6F7A8B";
+        payment10.ProviderTransactionId = "BCH-TXN-55100231";
+        payment10.ExchangeRate = 950m;
+        payment10.BillOfLadingId = SeedDataIds.BL02;
+        payment10.OnBehalfOfClientId = SeedDataIds.DemoClientCL;
+        payment10.AccessGrantId = SeedDataIds.DemoAccessGrant02;
+
+        // Boleta de depósito emitida: el cliente ya no puede anularla (M5-02); Finanzas verifica el abono.
+        var payment11 = Seeded(SeedDataIds.Payment11, "PAY-20261003-9C8B7A6D", SeedDataIds.DemoClientCL, PaymentOrigins.Cart,
+            PaymentMethodCodes.Deposit, null, "CLP", 45000m, 8550m, PaymentStatus.PendingVerification, slipIssued,
+            SeedDataIds.DemoUserCL, importadoraTaxId, importadora);
+        payment11.SlipNumber = "BDP-20261003-5C7D9E1F";
+        payment11.SlipIssuedAt = slipIssued;
+        payment11.BillOfLadingId = SeedDataIds.BL06;
+
+        var payment12 = Seeded(SeedDataIds.Payment12, "PAY-20261004-3D2C1B0A", SeedDataIds.DemoClientCL, PaymentOrigins.Cart,
+            PaymentMethodCodes.Khipu, PaymentProviderKeys.Khipu, "CLP", 85000m, 16150m, PaymentStatus.Failed, failedAt,
+            SeedDataIds.DemoUserCL, importadoraTaxId, importadora);
+        payment12.FailureReason = PaymentFailureReasons.ProviderUnavailable;
+        payment12.BillOfLadingId = SeedDataIds.BL09;
+
+        var payment13 = Seeded(SeedDataIds.Payment13, "PAY-20260903-4A5B6C7D", SeedDataIds.DemoClientBO, PaymentOrigins.Cart,
+            PaymentMethodCodes.Deposit, null, "BOB", 820m, 106.60m, PaymentStatus.Confirmed, boliviaPaid,
+            SeedDataIds.DemoUserBO, "1023456017", altiplano);
+        payment13.ConfirmedAt = boliviaPaid;
+        payment13.ConfirmedBy = "admin@hapag-lloyd.cl";
+        payment13.ReceiptNumber = "RCP-20260905-8E9F0A1B";
+        payment13.SlipNumber = "BDP-20260903-1F2E3D4C";
+        payment13.SlipIssuedAt = boliviaPaid.AddDays(-2);
+
+        modelBuilder.Entity<Payment>().HasData(payment09, payment10, payment11, payment12, payment13);
+
+        PaymentDetail Detail(
+            Guid paymentId, int line, string itemType, Guid? sourceId, string concept, string description, Guid? blId, string? bl,
+            string? booking, decimal amount, decimal tax, string currency, string billingTaxId, string billingName,
+            decimal? originalAmount = null, string? originalCurrency = null, decimal? rate = null, DateTime? releasedAt = null) => new()
+        {
+            Id = DeterministicGuid($"payment-detail:{paymentId}:{line}"),
+            PaymentId = paymentId,
+            ConceptType = concept,
+            Description = description,
+            Amount = amount,
+            TaxAmount = tax,
+            Currency = currency,
+            ItemType = itemType,
+            SourceId = sourceId,
+            BillOfLadingId = blId,
+            BlNumber = bl,
+            BookingNumber = booking,
+            BillingTaxId = billingTaxId,
+            BillingName = billingName,
+            OriginalAmount = originalAmount ?? amount + tax,
+            OriginalCurrency = originalCurrency ?? currency,
+            ExchangeRate = rate,
+            ReleasedAt = releasedAt
+        };
+
+        modelBuilder.Entity<PaymentDetail>().HasData(
+            // Historial: recargos de pagos anteriores, sin fuente vigente que liberar.
+            Detail(SeedDataIds.Payment09, 1, PayableItemTypes.LocalCharge, null, ChargeConceptCodes.Isps, "ISPS - histórico",
+                SeedDataIds.BL02, "HLCUVAL250200456", "HLCUBKG2502004", 25000m, 4750m, "CLP", importadoraTaxId, importadora,
+                releasedAt: khipuPaid),
+            Detail(SeedDataIds.Payment09, 2, PayableItemTypes.LocalCharge, null, ChargeConceptCodes.BlFee, "Emisión de BL - histórico",
+                SeedDataIds.BL06, "HLCUSAI260300610", "HLCUBKG2603061", 45000m, 8550m, "CLP", importadoraTaxId, importadora,
+                releasedAt: khipuPaid),
+            Detail(SeedDataIds.Payment10, 1, PayableItemTypes.Freight, SeedDataIds.BL02, PaymentConcepts.Freight, "Flete Busan - Valparaíso",
+                SeedDataIds.BL02, "HLCUVAL250200456", "HLCUBKG2502004", 4940000m, 0m, "CLP", importadoraTaxId, importadora,
+                5200m, "USD", 950m, mandatePaid),
+            Detail(SeedDataIds.Payment11, 1, PayableItemTypes.LocalCharge, SeedDataIds.LocalCharge10, ChargeConceptCodes.BlFee,
+                "BL Documentation Fee (export)", SeedDataIds.BL06, "HLCUSAI260300610", "HLCUBKG2603061", 45000m, 8550m, "CLP",
+                importadoraTaxId, importadora),
+            Detail(SeedDataIds.Payment12, 1, PayableItemTypes.LocalCharge, SeedDataIds.LocalCharge13, ChargeConceptCodes.Mhd,
+                "MHD - HLXU3034001", SeedDataIds.BL09, "HLCUSAI260400910", "HLCUBKG2604091", 85000m, 16150m, "CLP",
+                importadoraTaxId, importadora),
+            Detail(SeedDataIds.Payment13, 1, PayableItemTypes.LocalCharge, null, ChargeConceptCodes.GateIn, "Gate In - histórico",
+                SeedDataIds.BL05, "HLCUIQQ260200078", "HLCUBKG2602078", 820m, 106.60m, "BOB", "1023456017", altiplano,
+                releasedAt: boliviaPaid));
+
+        var history = new (Guid PaymentId, int Order, string? From, string To, DateTime At, string By, Guid? UserId, string? Reason)[]
+        {
+            (SeedDataIds.Payment09, 1, null, PaymentStatus.Pending, khipuPaid.AddMinutes(-2), "demo@importadorademo.cl", SeedDataIds.DemoUserCL, null),
+            (SeedDataIds.Payment09, 2, PaymentStatus.Pending, PaymentStatus.Processing, khipuPaid.AddMinutes(-2), "SYSTEM", null, "Initiated in Khipu"),
+            (SeedDataIds.Payment09, 3, PaymentStatus.Processing, PaymentStatus.Confirmed, khipuPaid, "KHIPU_WEBHOOK", null, null),
+            (SeedDataIds.Payment10, 1, null, PaymentStatus.Pending, mandatePaid.AddMinutes(-3), "agente@maritimpacifico.cl", SeedDataIds.AgentUserCL, null),
+            (SeedDataIds.Payment10, 2, PaymentStatus.Pending, PaymentStatus.Processing, mandatePaid.AddMinutes(-3), "SYSTEM", null, "Initiated in BancoChile"),
+            (SeedDataIds.Payment10, 3, PaymentStatus.Processing, PaymentStatus.Confirmed, mandatePaid, "BANCOCHILE_WEBHOOK", null, null),
+            (SeedDataIds.Payment11, 1, null, PaymentStatus.Pending, slipIssued.AddMinutes(-10), "demo@importadorademo.cl", SeedDataIds.DemoUserCL, null),
+            (SeedDataIds.Payment11, 2, PaymentStatus.Pending, PaymentStatus.PendingVerification, slipIssued, "demo@importadorademo.cl", SeedDataIds.DemoUserCL, "Deposit slip issued"),
+            (SeedDataIds.Payment12, 1, null, PaymentStatus.Pending, failedAt.AddSeconds(-30), "demo@importadorademo.cl", SeedDataIds.DemoUserCL, null),
+            (SeedDataIds.Payment12, 2, PaymentStatus.Pending, PaymentStatus.Failed, failedAt, "SYSTEM", null, PaymentFailureReasons.ProviderUnavailable),
+            (SeedDataIds.Payment13, 1, null, PaymentStatus.Pending, boliviaPaid.AddDays(-2).AddMinutes(-5), "demo@altiplano.bo", SeedDataIds.DemoUserBO, null),
+            (SeedDataIds.Payment13, 2, PaymentStatus.Pending, PaymentStatus.PendingVerification, boliviaPaid.AddDays(-2), "demo@altiplano.bo", SeedDataIds.DemoUserBO, "Deposit slip issued"),
+            (SeedDataIds.Payment13, 3, PaymentStatus.PendingVerification, PaymentStatus.Confirmed, boliviaPaid, "admin@hapag-lloyd.cl", SeedDataIds.AdminUser, null),
+        };
+
+        modelBuilder.Entity<PaymentStatusChange>().HasData(history.Select(h => new PaymentStatusChange
+        {
+            Id = DeterministicGuid($"payment-status:{h.PaymentId}:{h.Order}"),
+            PaymentId = h.PaymentId,
+            FromStatus = h.From,
+            ToStatus = h.To,
+            ChangedAt = h.At,
+            ChangedBy = h.By,
+            ChangedByUserId = h.UserId,
+            Reason = h.Reason
+        }));
+
+        // M5-05: tipo de cambio y vigencia usados en la conversión del pago bajo mandato.
+        modelBuilder.Entity<ExchangeRateRecord>().HasData(new ExchangeRateRecord
+        {
+            Id = DeterministicGuid($"exchange-rate:payment:{SeedDataIds.Payment10}"),
+            TransactionType = ExchangeRateTransactionTypes.Payment,
+            TransactionId = SeedDataIds.Payment10,
+            FromCurrency = "USD",
+            ToCurrency = "CLP",
+            Rate = 950m,
+            EffectiveDate = new DateOnly(2026, 9, 20),
+            Source = "DUMMY",
+            Approved = true,
+            SourceAmount = 5200m,
+            ConvertedAmount = 4940000m,
+            CapturedAt = mandatePaid.AddMinutes(-3)
+        });
     }
 
     /// <summary>
@@ -628,6 +1049,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             AccessPermissions.ManageAccessMatrix,
             // Fase 1 Ola B: accesos a terceros (M1-12 a M1-24).
             AccessPermissions.ManageThirdPartyAccess,
+            // Fase 1 Ola D: Finanzas (M5-02, NF-03, NF-04) y bloqueo de pagos por horario (M8-07).
+            PaymentPermissions.Finance, PaymentPermissions.ManageBlockWindows,
         };
 
         modelBuilder.Entity<Permission>().HasData(permissions.Select(p => new Permission
@@ -1160,6 +1583,18 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 LastUpdated = now,
                 CreatedAt = now,
                 CreatedBy = "SYSTEM"
+            },
+            // Ola D: los fletes pueden pagarse en EUR (ejemplo de M5-04).
+            new Currency
+            {
+                Id = SeedDataIds.CurrencyEUR,
+                Code = "EUR",
+                Name = "Euro",
+                Symbol = "€",
+                ExchangeRateToUSD = 0.92m,
+                LastUpdated = now,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM"
             });
     }
 
@@ -1608,6 +2043,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             Shipper = "Korea Auto Parts Inc.",
             FreightAmount = 5200m,
             FreightCurrency = "USD",
+            // Ola D: flete pagado por la agencia bajo mandato (pago PAY-20260920-5E6F7A8B).
+            FreightPaidAt = new DateTime(2026, 9, 20, 14, 5, 0, DateTimeKind.Utc),
             Status = "InTransit",
             Country = CountryCodes.Chile,
             ClientId = SeedDataIds.DemoClientCL,

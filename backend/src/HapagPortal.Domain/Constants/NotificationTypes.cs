@@ -18,4 +18,7 @@ public static class NotificationTypes
     public const string AccessRevoked = "AccessRevoked";
     public const string AccessExpired = "AccessExpired";
     public const string AccessRevokedByCascade = "AccessRevokedByCascade";
+
+    // Pagos (M5-01, NF-03)
+    public const string PaymentConfirmed = "PaymentConfirmed";
 }

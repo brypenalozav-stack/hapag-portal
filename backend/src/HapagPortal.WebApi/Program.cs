@@ -36,6 +36,9 @@ builder.Services.AddHostedService<AccessGrantExpiryWorker>();
 // Solicitudes masivas de cambio de almacén en segundo plano (M3-05, NF-19).
 builder.Services.AddHostedService<WarehouseChangeBatchWorker>();
 
+// Pasos posteriores a la confirmación de pagos con reintento (NF-03).
+builder.Services.AddHostedService<PaymentOutboxWorker>();
+
 // Controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

@@ -15,6 +15,14 @@ public interface IInvoiceProvider
     Task<Result<InvoiceDocument?>> GetAsync(
         string folio,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// PDF del documento tributario por folio (M7-01). Folio inexistente o sin PDF: <c>Success(null)</c>.
+    /// El Dummy entrega un PDF de marcador hasta la generación documental de la Ola E.
+    /// </summary>
+    Task<Result<byte[]?>> GetPdfAsync(
+        string folio,
+        CancellationToken cancellationToken = default);
 }
 
 /// <summary>Solicitud de emisión. <c>DocumentType</c> según SII: 33, 34, 39, 41, 61 o 110.</summary>

@@ -190,6 +190,27 @@ public static class SeedDataIds
     public static readonly Guid RuleFreeWarehouseChangeCL = Guid.Parse("EEEEEEEE-0015-0015-0015-000000000001");
     public static readonly Guid RuleAdvanceDemurrageBO = Guid.Parse("EEEEEEEE-0015-0015-0015-000000000002");
 
+    // Fase 1 Ola D — carro, medios y monedas de pago, bloqueos, facturas e historial
+    public static readonly Guid CurrencyEUR = Guid.Parse("A1B2C3D4-0001-0001-0001-000000000004");
+    public static readonly Guid Payment09 = Guid.Parse("55555555-000B-000B-000B-000000000009");
+    public static readonly Guid Payment10 = Guid.Parse("55555555-000B-000B-000B-000000000010");
+    public static readonly Guid Payment11 = Guid.Parse("55555555-000B-000B-000B-000000000011");
+    public static readonly Guid Payment12 = Guid.Parse("55555555-000B-000B-000B-000000000012");
+    public static readonly Guid Payment13 = Guid.Parse("55555555-000B-000B-000B-000000000013");
+    public static readonly Guid BlockWindowPast = Guid.Parse("FFFFFFFF-0016-0016-0016-000000000001");
+    public static readonly Guid BlockWindowFuture = Guid.Parse("FFFFFFFF-0016-0016-0016-000000000002");
+    public static readonly Guid BlockWindowFutureBO = Guid.Parse("FFFFFFFF-0016-0016-0016-000000000003");
+    public static readonly Guid InvoiceDemurrageBL09 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000001");
+    public static readonly Guid InvoiceOverdueBL01 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000002");
+    public static readonly Guid InvoicePaidBL02 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000003");
+    public static readonly Guid InvoiceNoFolioBL06 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000004");
+    public static readonly Guid InvoiceCreditNoteBL01 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000005");
+    public static readonly Guid InvoiceEurBL10 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000006");
+    public static readonly Guid InvoicePendingBO = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000007");
+    public static readonly Guid InvoicePaidBO = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000008");
+    public static readonly Guid InvoiceCreditCustomer01 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000009");
+    public static readonly Guid InvoiceCreditCustomer02 = Guid.Parse("FFFFFFFF-0017-0017-0017-000000000010");
+
     // Audit Logs
     public static readonly Guid AuditLog01 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000001");
     public static readonly Guid AuditLog02 = Guid.Parse("BBBBBBBB-0011-0011-0011-000000000002");

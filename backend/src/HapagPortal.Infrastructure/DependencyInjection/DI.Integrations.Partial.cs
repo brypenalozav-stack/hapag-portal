@@ -90,6 +90,9 @@ public static partial class DependencyInjectionExtensions
                 sp.GetRequiredService<HttpBancoChilePaymentProvider>());
         }
 
+        // M5-03: el medio de pago configurado elige el proveedor por su clave.
+        services.AddScoped<IPaymentProviderResolver, PaymentProviderResolver>();
+
         if (realSystems.Contains(IntegrationSystems.DbNet))
         {
             services.AddRealClient<HttpInvoiceProvider>(configuration, IntegrationSystems.DbNet);

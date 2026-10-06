@@ -153,6 +153,11 @@ public static class MaintainerNames
 {
     public const string Tariff = "Tariff";
     public const string InternalChargeRule = "InternalChargeRule";
+
+    // Ola D: monedas por recargo (M5-04), medios de pago (M5-03) y bloqueo de pagos por horario (M8-07).
+    public const string PaymentCurrency = "PaymentCurrency";
+    public const string PaymentMethod = "PaymentMethod";
+    public const string PaymentBlockWindow = "PaymentBlockWindow";
 }
 
 public static class MaintainerActions

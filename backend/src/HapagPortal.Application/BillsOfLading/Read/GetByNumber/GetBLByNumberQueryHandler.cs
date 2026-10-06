@@ -33,7 +33,7 @@ public sealed class GetBLByNumberQueryHandler(
                 DomainErrors.BillOfLading.NotFoundByNumber(request.BLNumber));
         }
 
-        var freightStatus = bl.Payments?.Any(p => p.PaymentType == "Freight" && p.Status == "Confirmed") == true
+        var freightStatus = (bl.FreightPaidAt != null || bl.Payments?.Any(p => p.PaymentType == "Freight" && p.Status == "Confirmed") == true)
             ? "PAID" : "PENDING";
 
         var dto = new BillOfLadingResponseDto(

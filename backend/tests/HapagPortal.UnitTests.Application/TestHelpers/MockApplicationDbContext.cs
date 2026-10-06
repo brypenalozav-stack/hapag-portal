@@ -56,6 +56,14 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public List<WarehouseChangeBatch> WarehouseChangeBatchList { get; } = [];
     public List<WarehouseChangeBatchItem> WarehouseChangeBatchItemList { get; } = [];
     public List<BusinessHoliday> BusinessHolidayList { get; } = [];
+    public List<Cart> CartList { get; } = [];
+    public List<CartItem> CartItemList { get; } = [];
+    public List<PaymentStatusChange> PaymentStatusChangeList { get; } = [];
+    public List<PaymentOutboxMessage> PaymentOutboxMessageList { get; } = [];
+    public List<PaymentCurrencyRule> PaymentCurrencyRuleList { get; } = [];
+    public List<PaymentMethodConfig> PaymentMethodConfigList { get; } = [];
+    public List<PaymentBlockWindow> PaymentBlockWindowList { get; } = [];
+    public List<CustomerInvoice> CustomerInvoiceList { get; } = [];
 
     public DbSet<Client> Clients => MockDbSetHelper.CreateMockDbSet(ClientList);
     public DbSet<User> Users => MockDbSetHelper.CreateMockDbSet(UserList);
@@ -107,6 +115,14 @@ public sealed class MockApplicationDbContext : IApplicationDbContext
     public DbSet<WarehouseChangeBatch> WarehouseChangeBatches => MockDbSetHelper.CreateMockDbSet(WarehouseChangeBatchList);
     public DbSet<WarehouseChangeBatchItem> WarehouseChangeBatchItems => MockDbSetHelper.CreateMockDbSet(WarehouseChangeBatchItemList);
     public DbSet<BusinessHoliday> BusinessHolidays => MockDbSetHelper.CreateMockDbSet(BusinessHolidayList);
+    public DbSet<Cart> Carts => MockDbSetHelper.CreateMockDbSet(CartList);
+    public DbSet<CartItem> CartItems => MockDbSetHelper.CreateMockDbSet(CartItemList);
+    public DbSet<PaymentStatusChange> PaymentStatusChanges => MockDbSetHelper.CreateMockDbSet(PaymentStatusChangeList);
+    public DbSet<PaymentOutboxMessage> PaymentOutboxMessages => MockDbSetHelper.CreateMockDbSet(PaymentOutboxMessageList);
+    public DbSet<PaymentCurrencyRule> PaymentCurrencyRules => MockDbSetHelper.CreateMockDbSet(PaymentCurrencyRuleList);
+    public DbSet<PaymentMethodConfig> PaymentMethodConfigs => MockDbSetHelper.CreateMockDbSet(PaymentMethodConfigList);
+    public DbSet<PaymentBlockWindow> PaymentBlockWindows => MockDbSetHelper.CreateMockDbSet(PaymentBlockWindowList);
+    public DbSet<CustomerInvoice> CustomerInvoices => MockDbSetHelper.CreateMockDbSet(CustomerInvoiceList);
 
     public int SaveChangesCallCount { get; private set; }
 

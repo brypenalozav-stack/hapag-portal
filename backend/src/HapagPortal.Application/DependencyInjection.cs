@@ -5,6 +5,9 @@ using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Access;
 using HapagPortal.Application.Demurrage.Common;
 using HapagPortal.Application.ExchangeRates.Common;
+using HapagPortal.Application.Payments.Common;
+using HapagPortal.Application.Payments.PostProcessing;
+using HapagPortal.Application.ShoppingCart;
 using HapagPortal.Application.Tariffs.Common;
 using HapagPortal.Application.WarehouseChanges.Common;
 using HapagPortal.Application.Common.Behaviors;
@@ -28,6 +31,14 @@ public static class DependencyInjection
         services.AddScoped<IResponsibilityLetterStatus, PendingResponsibilityLetterStatus>();
         services.AddScoped<DemurrageStatusBuilder>();
         services.AddScoped<WarehouseChangeService>();
+
+        // Fase 1 Ola D: carro, pagos y pasos posteriores a la confirmación (NF-03).
+        services.AddScoped<PayableItemResolver>();
+        services.AddScoped<PaymentCheckoutService>();
+        services.AddScoped<CartViewBuilder>();
+        services.AddScoped<PaymentPostProcessor>();
+        services.AddScoped<IPaymentPostStep, ReleasePaymentItemsStep>();
+        services.AddScoped<IPaymentPostStep, NotifyPaymentStep>();
 
         services.AddMediatR(config =>
         {

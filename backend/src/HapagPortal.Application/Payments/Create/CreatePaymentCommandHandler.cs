@@ -3,6 +3,7 @@ namespace HapagPortal.Application.Payments.Create;
 using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Payments.Common;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.Domain.Errors;
@@ -81,6 +82,11 @@ public sealed class CreatePaymentCommandHandler(
         if (bl is null || !permissions.Can(ShipmentActionCodes.ViewShipment))
             return Result<PaymentResponseDto>.Failure(
                 DomainErrors.BillOfLading.NotFound(request.BlId));
+
+        // M8-07: durante una ventana de bloqueo no se inician pagos.
+        var open = await PaymentBlocks.EnsureOpenAsync(dbContext, request.Country, DateTime.UtcNow, cancellationToken);
+        if (open.IsFailure)
+            return Result<PaymentResponseDto>.Failure(open.Error);
 
         var paymentType = PaymentTypeMap.GetValueOrDefault(request.Type, request.Type);
 
@@ -168,10 +174,12 @@ public sealed class CreatePaymentCommandHandler(
             Country = request.Country,
             PaymentDate = DateTime.UtcNow,
             OnBehalfOfClientId = grant?.GrantorOrganizationId,
-            AccessGrantId = grant?.GrantId
+            AccessGrantId = grant?.GrantId,
+            CreatedByUserId = currentUserService.UserId
         };
 
         dbContext.Payments.Add(payment);
+        PaymentLifecycle.Created(dbContext, payment, PaymentActor.From(currentUserService), DateTime.UtcNow);
 
         foreach (var detail in details)
         {
@@ -201,7 +209,8 @@ public sealed class CreatePaymentCommandHandler(
 
             if (!gatewayResult.Success)
             {
-                payment.Status = PaymentStatus.Failed;
+                await PaymentLifecycle.FailAsync(
+                    dbContext, payment, PaymentActor.System, PaymentFailureReasons.ProviderUnavailable, DateTime.UtcNow, cancellationToken);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 return Result<PaymentResponseDto>.Failure(
@@ -209,7 +218,7 @@ public sealed class CreatePaymentCommandHandler(
             }
 
             payment.ExternalReference = gatewayResult.ExternalReference;
-            payment.Status = PaymentStatus.Processing;
+            PaymentLifecycle.Transition(dbContext, payment, PaymentStatus.Processing, PaymentActor.System, null, DateTime.UtcNow);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);

@@ -57,7 +57,7 @@ public sealed class GetMyBLsQueryHandler(
             bl.ETA,
             bl.FreightAmount,
             bl.FreightCurrency,
-            bl.Payments?.Any(p => p.PaymentType == "Freight" && p.Status == "Confirmed") == true ? "PAID" : "PENDING",
+            (bl.FreightPaidAt != null || bl.Payments?.Any(p => p.PaymentType == "Freight" && p.Status == "Confirmed") == true) ? "PAID" : "PENDING",
             bl.Status,
             bl.Country,
             bl.ClientId,

@@ -49,6 +49,159 @@ public static class DomainErrors
             new("Payment.InvalidAmount", "The payment amount is invalid.");
     }
 
+    /// <summary>Ciclo de vida de los pagos de la Ola D (NF-01, NF-02, NF-03, NF-12, M5-02, M8-07).</summary>
+    public static class PaymentFlow
+    {
+        public static Error InvalidTransition(string from, string to) =>
+            new("Payment.InvalidTransition", $"The payment cannot change from '{from}' to '{to}'.");
+
+        public static readonly Error ProviderUnavailable =
+            new("Payment.ProviderUnavailable", "The payment platform did not respond. The payment was not processed and no charge was made; you can try again.");
+
+        public static Error Blocked(string message) =>
+            new("Payment.Blocked", message);
+
+        public static readonly Error SlipAlreadyIssued =
+            new("Payment.SlipAlreadyIssued", "The deposit slip was already issued and can no longer be cancelled by the client. Contact Finance.");
+
+        public static readonly Error InProgress =
+            new("Payment.InProgress", "The payment is being processed by the payment platform and cannot be cancelled.");
+
+        public static readonly Error NotDeposit =
+            new("Payment.NotDeposit", "Only bank deposit payments issue a deposit slip.");
+
+        public static readonly Error IdempotencyKeyRequired =
+            new("Payment.IdempotencyKeyRequired", "The Idempotency-Key header is required.");
+
+        public static readonly Error IdempotencyConflict =
+            new("PaymentIdempotency.AlreadyExists", "The idempotency key was already used for a different payment request.");
+
+        public static readonly Error ReceiptNotAvailable =
+            new("Payment.ReceiptNotAvailable", "The payment has no receipt yet.");
+
+        public static Error OperationNotFound(Guid id) =>
+            new("PaymentOperation.NotFound", $"The post-payment operation '{id}' was not found.");
+
+        public static readonly Error OperationNotRetryable =
+            new("PaymentOperation.NotRetryable", "Only pending or stuck post-payment operations can be retried.");
+    }
+
+    /// <summary>Carro de compra (M5-01, M5-04, M5-07, M5-08, M5-09, M1-18, M4-02, M4-04).</summary>
+    public static class Cart
+    {
+        public static readonly Error CreditCustomer =
+            new("Cart.CreditCustomer", "Customers with credit pay their charges from the account payment view, not from the cart.");
+
+        public static readonly Error AssociationRequired =
+            new("Cart.AssociationRequired", "Associate yourself to the bill of lading before adding its charges to the cart.");
+
+        public static readonly Error ResponsibilityLetterRequired =
+            new("Cart.ResponsibilityLetterRequired", "The responsibility letter is required before paying this bill of lading.");
+
+        public static readonly Error ZeroValue =
+            new("Cart.ZeroValue", "The item has no amount to pay.");
+
+        public static readonly Error NotPayable =
+            new("Cart.NotPayable", "The item is not payable.");
+
+        public static readonly Error AlreadyPaid =
+            new("Cart.AlreadyPaid", "The item was already paid.");
+
+        public static readonly Error ItemInPayment =
+            new("Cart.ItemInPayment", "The item is included in a payment in progress.");
+
+        public static readonly Error Duplicate =
+            new("CartItem.AlreadyExists", "The item is already in the cart.");
+
+        public static Error CurrencyNotAllowed(string currency, IEnumerable<string> allowed) =>
+            new("Cart.CurrencyNotAllowed", $"The item cannot be paid in {currency}. Enabled currencies: {string.Join(", ", allowed)}.");
+
+        public static readonly Error NoPaymentCurrency =
+            new("Cart.NoPaymentCurrency", "The item has no enabled payment currency.");
+
+        public static readonly Error BillingTaxIdNotAllowed =
+            new("Cart.BillingTaxIdNotAllowed", "The billing tax ID is not enabled for this item.");
+
+        public static readonly Error PayDemurrageInvoice =
+            new("Cart.PayDemurrageInvoice", "The demurrage line is invoiced; add the invoice to the cart instead.");
+
+        public static Error ItemNotFound(Guid id) =>
+            new("CartItem.NotFound", $"The cart item '{id}' was not found.");
+
+        public static readonly Error SourceNotFound =
+            new("PayableItem.NotFound", "The item to pay was not found.");
+
+        public static readonly Error Empty =
+            new("Cart.Empty", "There are no items to pay in this currency.");
+
+        public static readonly Error ItemLocked =
+            new("Cart.ItemLocked", "The item belongs to a payment in progress and cannot be changed.");
+
+        public static Error InvalidItem(string blOrConcept, Error inner) =>
+            new(inner.Code, $"{blOrConcept}: {inner.Message}");
+    }
+
+    /// <summary>Pago de clientes con condición de crédito desde su vista propia (M5-07).</summary>
+    public static class AccountPayment
+    {
+        public static readonly Error NotCreditCustomer =
+            new("AccountPayment.NotCreditCustomer", "Only customers with credit pay from the account payment view; use the cart.");
+
+        public static readonly Error MixedCountries =
+            new("AccountPayment.MixedCountries", "All the items of one payment must belong to the same country.");
+    }
+
+    public static class PaymentMethodConfig
+    {
+        public static Error NotFound(Guid id) =>
+            new("PaymentMethod.NotFound", $"The payment method '{id}' was not found.");
+
+        public static Error NotAvailable(string code, string currency) =>
+            new("PaymentMethod.NotAvailable", $"The payment method '{code}' is not enabled for {currency}.");
+
+        public static readonly Error AlreadyExists =
+            new("PaymentMethod.AlreadyExists", "A payment method with the same code already exists for the country.");
+
+        public static readonly Error ProviderRequired =
+            new("PaymentMethod.ProviderRequired", "Online payment methods require a registered provider; deposit methods have none.");
+    }
+
+    public static class PaymentCurrencyRule
+    {
+        public static Error NotFound(Guid id) =>
+            new("PaymentCurrency.NotFound", $"The payment currency rule '{id}' was not found.");
+
+        public static readonly Error AlreadyExists =
+            new("PaymentCurrency.AlreadyExists", "The currency is already configured for the concept and country.");
+    }
+
+    public static class PaymentBlockWindow
+    {
+        public static Error NotFound(Guid id) =>
+            new("PaymentBlockWindow.NotFound", $"The payment block window '{id}' was not found.");
+
+        public static readonly Error AlreadyStarted =
+            new("PaymentBlockWindow.AlreadyStarted", "The block window already started and can no longer be modified.");
+
+        public static readonly Error AlreadyEnded =
+            new("PaymentBlockWindow.AlreadyEnded", "The block window already ended.");
+    }
+
+    public static class Invoice
+    {
+        public static Error NotFound(Guid id) =>
+            new("Invoice.NotFound", $"The invoice '{id}' was not found.");
+
+        public static readonly Error NotFoundByNumber =
+            new("Invoice.NotFound", "The invoice was not found.");
+
+        public static readonly Error PdfNotAvailable =
+            new("Invoice.PdfNotAvailable", "The invoice has no issued tax document to download.");
+
+        public static readonly Error FolioRequired =
+            new("Invoice.FolioRequired", "Only invoices with an issued tax folio can be downloaded together.");
+    }
+
     public static class LocalCharge
     {
         public static Error NotFound(Guid id) =>

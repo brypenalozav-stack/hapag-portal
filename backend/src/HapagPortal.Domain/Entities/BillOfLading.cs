@@ -33,6 +33,9 @@ public sealed class BillOfLading : BaseAuditableEntity
     public string? FreightTerms { get; set; }     // Prepaid | Collect
     public string? Incoterm { get; set; }
 
+    /// <summary>Flete pagado desde el carro o la vista de crédito (Ola D, liberación de NF-03).</summary>
+    public DateTime? FreightPaidAt { get; set; }
+
     public Client Client { get; set; } = null!;
     public BillOfLading? ParentBL { get; set; }
     public ICollection<BLContainer> Containers { get; set; } = [];

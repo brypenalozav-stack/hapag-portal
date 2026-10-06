@@ -62,7 +62,7 @@ public sealed class GetShipmentDetailQueryHandler(
             ? new ShipmentFreightDto(
                 bl.FreightAmount,
                 bl.FreightCurrency,
-                bl.Payments.Any(p => p.PaymentType == "Freight" && p.Status == PaymentStatus.Confirmed) ? "PAID" : "PENDING")
+                (bl.FreightPaidAt != null || bl.Payments.Any(p => p.PaymentType == "Freight" && p.Status == PaymentStatus.Confirmed)) ? "PAID" : "PENDING")
             : null;
 
         var canSeeLocalCharges = permissions.Can(ShipmentActionCodes.PayMandatoryLocalCharges)

@@ -55,6 +55,14 @@ public interface IApplicationDbContext
     DbSet<WarehouseChangeBatch> WarehouseChangeBatches { get; }
     DbSet<WarehouseChangeBatchItem> WarehouseChangeBatchItems { get; }
     DbSet<BusinessHoliday> BusinessHolidays { get; }
+    DbSet<Cart> Carts { get; }
+    DbSet<CartItem> CartItems { get; }
+    DbSet<PaymentStatusChange> PaymentStatusChanges { get; }
+    DbSet<PaymentOutboxMessage> PaymentOutboxMessages { get; }
+    DbSet<PaymentCurrencyRule> PaymentCurrencyRules { get; }
+    DbSet<PaymentMethodConfig> PaymentMethodConfigs { get; }
+    DbSet<PaymentBlockWindow> PaymentBlockWindows { get; }
+    DbSet<CustomerInvoice> CustomerInvoices { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

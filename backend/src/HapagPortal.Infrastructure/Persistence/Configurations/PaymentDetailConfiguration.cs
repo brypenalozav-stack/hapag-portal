@@ -28,5 +28,17 @@ internal sealed class PaymentDetailConfiguration : IEntityTypeConfiguration<Paym
 
         builder.Property(e => e.TaxAmount)
             .HasPrecision(18, 2);
+
+        // Fase 1 Ola D: fuente, BL, RUT de facturación (M5-09) y monto de origen (M5-08).
+        builder.Property(e => e.ItemType).HasMaxLength(30);
+        builder.Property(e => e.BlNumber).HasMaxLength(50);
+        builder.Property(e => e.BookingNumber).HasMaxLength(50);
+        builder.Property(e => e.BillingTaxId).HasMaxLength(20);
+        builder.Property(e => e.BillingName).HasMaxLength(200);
+        builder.Property(e => e.OriginalAmount).HasPrecision(18, 2);
+        builder.Property(e => e.OriginalCurrency).HasMaxLength(5);
+        builder.Property(e => e.ExchangeRate).HasPrecision(18, 6);
+
+        builder.HasIndex(e => new { e.ItemType, e.SourceId });
     }
 }

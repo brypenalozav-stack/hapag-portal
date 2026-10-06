@@ -113,6 +113,14 @@ public sealed class GetTransactionExchangeRatesQueryHandler(
             .FilterAccessible(dbContext.BillsOfLading.AsNoTracking(), scope)
             .AnyAsync(b => b.Id == blId.Value, cancellationToken);
 
+        // Ola D: un pago del carro puede reunir varios BL; lo ve la organización que pagó o el mandante.
+        if (!accessible && request.TransactionType == ExchangeRateTransactionTypes.Payment && scope.OrganizationId is { } organizationId)
+        {
+            accessible = await dbContext.Payments.AsNoTracking().AnyAsync(
+                p => p.Id == request.TransactionId && (p.ClientId == organizationId || p.OnBehalfOfClientId == organizationId),
+                cancellationToken);
+        }
+
         if (!accessible)
             return Result<IReadOnlyList<TransactionExchangeRateDto>>.Failure(
                 Error.NotFound(request.TransactionType));
