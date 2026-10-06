@@ -141,7 +141,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (item of d.pendingPayments.items; track item.itemType + item.sourceId) {
+            @for (item of pendingTable.rows(); track item.itemType + item.sourceId) {
               <tr [attr.data-testid]="'dashboard-pending-' + item.sourceId">
                 <td>
                   <span class="fw-semibold d-block">{{ conceptLabel(item) }}</span>
@@ -185,6 +185,11 @@
           </tbody>
         </table>
       </div>
+      @if (pendingTable.paged()) {
+        <app-paginator [page]="pendingTable.page()" [pageSize]="pendingTable.pageSize()" [total]="pendingTable.total()" [pageSizeOptions]="[10, 20, 50]"
+                       [label]="'dashboard.pending.pagination' | transloco" idPrefix="dashboard-pending-pager"
+                       (pageChange)="pendingTable.setPage($event)" (pageSizeChange)="pendingTable.setPageSize($event)" />
+      }
       @if (d.pendingPayments.truncated) {
         <p class="small text-muted p-3 mb-0">{{ 'dashboard.pending.truncated' | transloco: { shown: d.pendingPayments.items.length, total: d.pendingPayments.count } }}</p>
       }

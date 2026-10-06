@@ -41,22 +41,23 @@
     } @else if (operations().length === 0) {
       <app-state-message kind="empty" [messageKey]="'admin.finance.operations.empty'" />
     } @else {
+      <app-table-filter [table]="operationsTable" [totalOf]="operations().length" inputId="finance-operations-table-filter" />
       <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.finance.operations.caption' | transloco">
         <table class="hl-table">
           <caption class="visually-hidden">{{ 'admin.finance.operations.caption' | transloco }}</caption>
           <thead>
             <tr>
-              <th scope="col">{{ 'admin.finance.operations.col.payment' | transloco }}</th>
-              <th scope="col">{{ 'admin.finance.operations.col.job' | transloco }}</th>
-              <th scope="col">{{ 'admin.finance.operations.col.status' | transloco }}</th>
-              <th scope="col">{{ 'admin.finance.operations.col.attempts' | transloco }}</th>
-              <th scope="col">{{ 'admin.finance.operations.col.next' | transloco }}</th>
+              <th scope="col" appSortHeader="payment" [sort]="operationsTable.sort()" (sortChange)="operationsTable.setSort($event)">{{ 'admin.finance.operations.col.payment' | transloco }}</th>
+              <th scope="col" appSortHeader="job" [sort]="operationsTable.sort()" (sortChange)="operationsTable.setSort($event)">{{ 'admin.finance.operations.col.job' | transloco }}</th>
+              <th scope="col" appSortHeader="status" [sort]="operationsTable.sort()" (sortChange)="operationsTable.setSort($event)">{{ 'admin.finance.operations.col.status' | transloco }}</th>
+              <th scope="col" appSortHeader="attempts" [sort]="operationsTable.sort()" (sortChange)="operationsTable.setSort($event)">{{ 'admin.finance.operations.col.attempts' | transloco }}</th>
+              <th scope="col" appSortHeader="next" [sort]="operationsTable.sort()" (sortChange)="operationsTable.setSort($event)">{{ 'admin.finance.operations.col.next' | transloco }}</th>
               <th scope="col">{{ 'admin.finance.operations.col.error' | transloco }}</th>
               <th scope="col"><span class="visually-hidden">{{ 'admin.finance.operations.col.actions' | transloco }}</span></th>
             </tr>
           </thead>
           <tbody>
-            @for (op of operations(); track op.id) {
+            @for (op of operationsTable.rows(); track op.id) {
               <tr>
                 <td class="fw-semibold">{{ op.paymentNumber }}</td>
                 <td>{{ op.jobType | codeLabel: jobKeys }}</td>
@@ -73,10 +74,16 @@
                   }
                 </td>
               </tr>
+            } @empty {
+              <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
             }
           </tbody>
         </table>
       </div>
+      @if (operationsTable.paged()) {
+        <app-paginator [page]="operationsTable.page()" [pageSize]="operationsTable.pageSize()" [total]="operationsTable.total()" [label]="'admin.finance.operations.pagination' | transloco"
+                       idPrefix="finance-operations-pager" (pageChange)="operationsTable.setPage($event)" (pageSizeChange)="operationsTable.setPageSize($event)" />
+      }
     }
   </div>
 </section>
@@ -155,24 +162,25 @@
     } @else if (reconciliation().length === 0) {
       <app-state-message kind="empty" [messageKey]="'admin.finance.reconciliation.empty'" />
     } @else {
+      <app-table-filter [table]="reconciliationTable" [totalOf]="reconciliation().length" inputId="finance-reconciliation-table-filter" />
       <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.finance.reconciliation.caption' | transloco">
         <table class="hl-table">
           <caption class="visually-hidden">{{ 'admin.finance.reconciliation.caption' | transloco }}</caption>
           <thead>
             <tr>
-              <th scope="col">{{ 'admin.finance.reconciliation.col.payment' | transloco }}</th>
-              <th scope="col">{{ 'admin.finance.reconciliation.col.status' | transloco }}</th>
-              <th scope="col">{{ 'admin.finance.reconciliation.col.method' | transloco }}</th>
-              <th scope="col" class="text-end">{{ 'admin.finance.reconciliation.col.total' | transloco }}</th>
-              <th scope="col">{{ 'admin.finance.reconciliation.col.dates' | transloco }}</th>
+              <th scope="col" appSortHeader="payment" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.payment' | transloco }}</th>
+              <th scope="col" appSortHeader="status" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.status' | transloco }}</th>
+              <th scope="col" appSortHeader="method" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.method' | transloco }}</th>
+              <th scope="col" class="text-end" appSortHeader="total" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.total' | transloco }}</th>
+              <th scope="col" appSortHeader="dates" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.dates' | transloco }}</th>
               <th scope="col">{{ 'admin.finance.reconciliation.col.references' | transloco }}</th>
               <th scope="col">{{ 'admin.finance.reconciliation.col.document' | transloco }}</th>
-              <th scope="col">{{ 'admin.finance.reconciliation.col.reconciliation' | transloco }}</th>
+              <th scope="col" appSortHeader="reconciliation" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.reconciliation' | transloco }}</th>
               <th scope="col"><span class="visually-hidden">{{ 'admin.finance.reconciliation.col.actions' | transloco }}</span></th>
             </tr>
           </thead>
           <tbody>
-            @for (row of reconciliation(); track row.paymentId) {
+            @for (row of reconciliationTable.rows(); track row.paymentId) {
               <tr>
                 <td>
                   <span class="fw-semibold d-block">{{ row.paymentNumber }}</span>
@@ -201,10 +209,16 @@
                   }
                 </td>
               </tr>
+            } @empty {
+              <tr><td colspan="9" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
             }
           </tbody>
         </table>
       </div>
+      @if (reconciliationTable.paged()) {
+        <app-paginator [page]="reconciliationTable.page()" [pageSize]="reconciliationTable.pageSize()" [total]="reconciliationTable.total()" [label]="'admin.finance.reconciliation.pagination' | transloco"
+                       idPrefix="finance-reconciliation-pager" (pageChange)="reconciliationTable.setPage($event)" (pageSizeChange)="reconciliationTable.setPageSize($event)" />
+      }
     }
   </div>
 </section>

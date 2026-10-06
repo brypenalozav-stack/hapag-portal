@@ -6,6 +6,10 @@ import { DeadlineService } from '../../../core/services/deadline.service';
 import { DeadlineItem, DeadlineRule } from '../../../core/models/deadline.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
+import { ClientTable } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /**
  * Tablero de control de plazos aduaneros (semáforo). Muestra las instancias calculadas por el
@@ -15,7 +19,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 @Component({
   selector: 'app-deadlines',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, HlDatePipe, LoadingSpinnerComponent],
+  imports: [FormsModule, TranslocoPipe, HlDatePipe, LoadingSpinnerComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './deadlines.html',
   styles: [':host { display: block; }'],
 })
@@ -24,6 +28,18 @@ export class DeadlinesComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   items = signal<DeadlineItem[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre los plazos cargados. */
+  readonly table = new ClientTable(this.items, {
+    searchText: (i) => [i.ruleName, i.ruleCode, i.blNumber, i.severity, this.statusText(i.status)].join(' '),
+    sortValues: {
+      rule: (i) => i.ruleName,
+      bl: (i) => i.blNumber,
+      severity: (i) => i.severity,
+      baseEvent: (i) => i.baseEventAt,
+      due: (i) => i.dueAt,
+      status: (i) => this.statusText(i.status),
+    },
+  });
   rules = signal<DeadlineRule[]>([]);
   loading = signal(false);
   error = signal('');
@@ -64,6 +80,12 @@ export class DeadlinesComponent implements OnInit {
   }
 
   /** Clave de traducción del estado; null si el estado no tiene texto (se muestra tal cual). */
+  /** Texto del estado para buscar y ordenar. */
+  statusText(status: string): string {
+    const key = this.statusKey(status);
+    return key ? translate(key) : status;
+  }
+
   statusKey(status: string): string | null {
     switch (status) {
       case 'Overdue': return 'admin.deadlines.status.overdue';

@@ -16,6 +16,10 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 const USER_ERRORS: Record<string, string> = {
   'User.EmailExists': 'organization.users.errors.emailExists',
@@ -32,7 +36,7 @@ const NEW_USER = 'new';
 @Component({
   selector: 'app-organization-users',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './organization-users.html',
 })
 export class OrganizationUsersComponent implements OnInit {
@@ -47,6 +51,17 @@ export class OrganizationUsersComponent implements OnInit {
   readonly membershipKeys = MEMBERSHIP_STATUS_KEYS;
 
   users = signal<OrganizationUser[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre los usuarios de la organización. */
+  readonly table = new ClientTable(this.users, {
+    searchText: (u) => [u.fullName, u.email, codeText(u.profile, this.profileKeys), codeText(u.membershipStatus, this.membershipKeys)].join(' '),
+    sortValues: {
+      name: (u) => u.fullName,
+      email: (u) => u.email,
+      profile: (u) => codeText(u.profile, this.profileKeys),
+      status: (u) => (u.membershipStatus !== 'Active' ? codeText(u.membershipStatus, this.membershipKeys) : u.isActive ? '0' : '1'),
+      lastLogin: (u) => u.lastLoginAt,
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   actionError = signal('');

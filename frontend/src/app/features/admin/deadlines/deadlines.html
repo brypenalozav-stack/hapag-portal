@@ -54,17 +54,24 @@
     @if (loading()) {
       <app-loading-spinner />
     } @else {
+      @if (items().length > 0) {
+        <app-table-filter [table]="table" [totalOf]="items().length" inputId="deadlines-table-filter" />
+      }
       <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.deadlines.list.caption' | transloco">
         <table class="hl-table">
           <caption class="visually-hidden">{{ 'admin.deadlines.list.caption' | transloco }}</caption>
           <thead>
             <tr>
-              <th scope="col">{{ 'admin.deadlines.col.rule' | transloco }}</th><th scope="col">{{ 'admin.deadlines.col.bl' | transloco }}</th><th scope="col">{{ 'admin.deadlines.col.severity' | transloco }}</th>
-              <th scope="col">{{ 'admin.deadlines.col.baseEvent' | transloco }}</th><th scope="col">{{ 'admin.deadlines.col.due' | transloco }}</th><th scope="col">{{ 'admin.deadlines.col.status' | transloco }}</th>
+              <th scope="col" appSortHeader="rule" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.deadlines.col.rule' | transloco }}</th>
+              <th scope="col" appSortHeader="bl" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.deadlines.col.bl' | transloco }}</th>
+              <th scope="col" appSortHeader="severity" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.deadlines.col.severity' | transloco }}</th>
+              <th scope="col" appSortHeader="baseEvent" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.deadlines.col.baseEvent' | transloco }}</th>
+              <th scope="col" appSortHeader="due" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.deadlines.col.due' | transloco }}</th>
+              <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.deadlines.col.status' | transloco }}</th>
             </tr>
           </thead>
           <tbody>
-            @for (i of items(); track i.id) {
+            @for (i of table.rows(); track i.id) {
               <tr>
                 <td class="fw-semibold">{{ i.ruleName }}</td>
                 <td>{{ i.blNumber || ('admin.deadlines.manifestOnly' | transloco) }}</td>
@@ -78,10 +85,16 @@
             }
             @if (items().length === 0) {
               <tr><td colspan="6" class="text-center text-muted py-4">{{ 'admin.deadlines.empty' | transloco }}</td></tr>
+            } @else if (table.total() === 0) {
+              <tr><td colspan="6" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
             }
           </tbody>
         </table>
       </div>
+      @if (table.paged()) {
+        <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.deadlines.list.pagination' | transloco"
+                       idPrefix="deadlines-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+      }
     }
   </div>
 } @else {

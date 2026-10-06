@@ -411,7 +411,8 @@
       "validity": "Desde {{ from }} hasta {{ to }}",
       "validityOpenEnd": "que se retire",
       "validityOpenStart": "la publicación",
-      "willNotify": "Se avisará a los clientes al publicar"
+      "willNotify": "Se avisará a los clientes al publicar",
+      "pagination": "Paginación de avisos"
     },
     "apiClients": {
       "channel": {
@@ -962,7 +963,8 @@
       "removeLabel": "Dar de baja la regla de {{ concept }} ({{ country }})",
       "removed": "Se dio de baja la regla de {{ concept }}.",
       "subtitle": "Qué conceptos de cobro pueden imputar a su línea de crédito los clientes con condición de crédito, y a qué concepto de crédito de Nexus.",
-      "title": "Conceptos imputables a crédito"
+      "title": "Conceptos imputables a crédito",
+      "pagination": "Paginación de reglas de imputación"
     },
     "customs": {
       "amendment": {
@@ -1019,7 +1021,8 @@
         "retry": "Reintentar",
         "title": "Transmisiones",
         "transmitBl": "Transmitir B/L",
-        "transmitHeader": "Transmitir encabezado"
+        "transmitHeader": "Transmitir encabezado",
+        "pagination": "Paginación de transmisiones"
       }
     },
     "dangerousGoodsImport": {
@@ -1069,7 +1072,8 @@
       },
       "list": {
         "caption": "Plazos en seguimiento",
-        "title": "Plazos"
+        "title": "Plazos",
+        "pagination": "Paginación de plazos"
       },
       "loadError": "Error al cargar el tablero de plazos.",
       "manifestOnly": "— (manifiesto)",
@@ -1160,7 +1164,8 @@
       "slip": "Boleta {{ number }}",
       "subtitle": "Verifique el abono contra el comprobante y confirme el pago, o rechace el comprobante con el motivo.",
       "title": "Comprobantes de depósito",
-      "uploaded": "Enviado el {{ date }} por {{ user }}"
+      "uploaded": "Enviado el {{ date }} por {{ user }}",
+      "pagination": "Paginación de comprobantes de depósito"
     },
     "finance": {
       "cancel": {
@@ -1199,7 +1204,8 @@
         "retryLabel": "Reintentar {{ job }} del pago {{ number }}",
         "search": "Buscar",
         "status": "Estado",
-        "title": "Operaciones posteriores al pago"
+        "title": "Operaciones posteriores al pago",
+        "pagination": "Paginación de operaciones"
       },
       "reconciliation": {
         "all": "Todos",
@@ -1228,7 +1234,8 @@
         "status": "Estado del pago",
         "title": "Conciliación de pagos",
         "to": "Hasta",
-        "transaction": "Transacción: {{ value }}"
+        "transaction": "Transacción: {{ value }}",
+        "pagination": "Paginación de la conciliación"
       },
       "subtitle": "Operaciones detenidas, conciliación y anulación de boletas emitidas.",
       "title": "Finanzas: pagos"
@@ -1603,7 +1610,8 @@
         "historyLabel": "Ver el historial de la regla de {{ account }}",
         "identifiers": "RUT/NIT {{ taxId }} · Match Code {{ matchCode }}",
         "loadError": "No se pudieron cargar las reglas.",
-        "new": "Nueva regla"
+        "new": "Nueva regla",
+        "pagination": "Paginación de reglas internas"
       },
       "snapshot": {
         "account": "Cuenta: {{ name }}, RUT/NIT {{ taxId }}, Match Code {{ matchCode }}",
@@ -1661,7 +1669,8 @@
       "subtitle": "Solicitudes de organizaciones para que su empresa matriz vea sus BL; se aprueban o rechazan con motivo",
       "title": "Vinculaciones con empresa matriz",
       "visibilityOff": "Sin visibilidad de BL",
-      "visibilityOn": "Con visibilidad de BL"
+      "visibilityOn": "Con visibilidad de BL",
+      "pagination": "Paginación de vínculos"
     },
     "organizations": {
       "caption": "Organizaciones registradas",
@@ -1868,7 +1877,8 @@
       },
       "subtitle": "Ventanas en que no se puede pagar en el portal (M8-07). Se activan y terminan solas; la consulta sigue disponible.",
       "title": "Bloqueo programado de pagos",
-      "window": "Del {{ startDate }} {{ startTime }} al {{ endDate }} {{ endTime }}"
+      "window": "Del {{ startDate }} {{ startTime }} al {{ endDate }} {{ endTime }}",
+      "pagination": "Paginación de bloqueos de pago"
     },
     "paymentConfig": {
       "history": {
@@ -2072,7 +2082,8 @@
         "historyLabel": "Registro de cambios de la regla {{ rule }}",
         "loadError": "No se pudieron cargar las reglas de publicación.",
         "modifiedValue": "{{ user }}, {{ date }}",
-        "new": "Nueva regla"
+        "new": "Nueva regla",
+        "pagination": "Paginación de reglas de publicación"
       },
       "snapshot": {
         "none": "Sin valor anterior",
@@ -2307,7 +2318,8 @@
         "loadError": "No pudimos cargar los servicios.",
         "new": "Nuevo servicio",
         "subtitle": "Servicios que los clientes pueden solicitar sobre sus embarques: condiciones, formulario, cobro y equipos.",
-        "title": "Servicios on demand"
+        "title": "Servicios on demand",
+        "pagination": "Paginación de servicios"
       },
       "snapshot": {
         "field": "{{ key }} ({{ type }})",
@@ -2508,7 +2520,8 @@
       "receipt": "Comprobante {{ number }}",
       "receiptDocument": "Recibo {{ number }}",
       "subtitle": "Pagos liberados antes de su factura e imputaciones a crédito, con el cruce con la factura emitida después.",
-      "title": "Anticipos y cruces con facturas"
+      "title": "Anticipos y cruces con facturas",
+      "pagination": "Paginación de liquidaciones"
     },
     "tariffs": {
       "editor": {
@@ -2624,7 +2637,8 @@
         "new": "Nueva tarifa",
         "subtitle": "Valores que el portal aplica a los cobros. Cada cambio queda registrado.",
         "tiers": "Tramos: {{ count }} ({{ unit }}, {{ currency }})",
-        "title": "Tarifas de cargos locales"
+        "title": "Tarifas de cargos locales",
+        "pagination": "Paginación de tarifas"
       },
       "snapshot": {
         "amount": "Monto: {{ amount }}",
@@ -2797,7 +2811,7 @@
   },
   "app": {
     "footer": {
-      "copyright": "© 2025 Hapag-Lloyd AG. Todos los derechos reservados."
+      "copyright": "© {{ year }} Hapag-Lloyd AG. Todos los derechos reservados."
     },
     "skipLink": "Saltar al contenido principal"
   },
@@ -2846,7 +2860,7 @@
       "title": "Unirse a una organización"
     },
     "login": {
-      "copyright": "© 2025 Hapag-Lloyd AG. Todos los derechos reservados.",
+      "copyright": "© {{ year }} Hapag-Lloyd AG. Todos los derechos reservados.",
       "email": "Correo Electrónico",
       "emailInvalid": "Ingrese un correo válido.",
       "emailPlaceholder": "usuario@empresa.com",
@@ -4209,7 +4223,8 @@
       "goLabel": "Ver {{ concept }} {{ reference }}",
       "inCart": "En el carro",
       "title": "Pendientes de pago",
-      "truncated": "Se muestran {{ shown }} de {{ total }} pendientes."
+      "truncated": "Se muestran {{ shown }} de {{ total }} pendientes.",
+      "pagination": "Páginas de pendientes de pago"
     },
     "requests": {
       "caption": "Gestiones en curso y terminadas en los últimos 30 días",
@@ -5155,7 +5170,8 @@
         "skippedItem": "{{ reference }}: {{ reason }}",
         "updated": "{{ name }} actualizado; {assigned, plural, =0 {sin embarques nuevos} one {# embarque asignado} other {# embarques asignados}}."
       },
-      "title": "Transportistas pre-creados"
+      "title": "Transportistas pre-creados",
+      "pagination": "Paginación de transportistas"
     },
     "commercialConditions": {
       "credit": "Condición de crédito",
@@ -5410,7 +5426,8 @@
       "invited": "Invitación enviada a {{ email }}.",
       "neverLoggedIn": "Nunca",
       "title": "Usuarios de la organización",
-      "updated": "Usuario {{ email }} actualizado."
+      "updated": "Usuario {{ email }} actualizado.",
+      "pagination": "Paginación de usuarios"
     }
   },
   "paymentHistory": {
@@ -5820,7 +5837,8 @@
       "other": "Otro",
       "release": "Liberación de Carga",
       "weighing": "Pesaje VGM"
-    }
+    },
+    "pagination": "Paginación de órdenes de servicio"
   },
   "serviceRequests": {
     "available": {
@@ -6521,6 +6539,16 @@
         "assistant": "Asistente"
       },
       "preferences": "Preferencias"
+    },
+    "tableFilter": {
+      "label": "Filtrar la tabla",
+      "placeholder": "Escriba para filtrar",
+      "count": "{{ shown }} de {{ total }}",
+      "noMatches": "Ninguna fila coincide con el filtro."
+    },
+    "sectionNav": {
+      "label": "Secciones de esta página",
+      "title": "Ir a"
     }
   },
   "shipments": {

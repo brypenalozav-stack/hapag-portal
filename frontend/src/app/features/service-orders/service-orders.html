@@ -98,21 +98,22 @@
   </div>
 } @else {
   <div class="hl-card">
+    <app-table-filter [table]="table" [totalOf]="orders().length" inputId="service-orders-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'serviceOrders.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'serviceOrders.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'serviceOrders.col.number' | transloco }}</th>
-            <th scope="col">{{ 'serviceOrders.col.bl' | transloco }}</th>
-            <th scope="col">{{ 'serviceOrders.col.type' | transloco }}</th>
+            <th scope="col" appSortHeader="number" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'serviceOrders.col.number' | transloco }}</th>
+            <th scope="col" appSortHeader="bl" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'serviceOrders.col.bl' | transloco }}</th>
+            <th scope="col" appSortHeader="type" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'serviceOrders.col.type' | transloco }}</th>
             <th scope="col">{{ 'serviceOrders.col.description' | transloco }}</th>
-            <th scope="col">{{ 'serviceOrders.col.date' | transloco }}</th>
-            <th scope="col">{{ 'serviceOrders.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="date" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'serviceOrders.col.date' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'serviceOrders.col.status' | transloco }}</th>
           </tr>
         </thead>
         <tbody>
-          @for (order of orders(); track order.id) {
+          @for (order of table.rows(); track order.id) {
             <tr>
               <td class="fw-semibold">{{ order.orderNumber ?? order.id.substring(0, 8) }}</td>
               <td>{{ order.blNumber }}</td>
@@ -123,9 +124,15 @@
               <td>{{ order.createdAt | hlDate }}</td>
               <td><app-status-badge [status]="order.status" /></td>
             </tr>
+          } @empty {
+            <tr><td colspan="6" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'serviceOrders.pagination' | transloco"
+                     idPrefix="service-orders-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   </div>
 }

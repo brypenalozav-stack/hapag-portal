@@ -21,6 +21,10 @@ import { RuleSnapshotComponent } from './rule-snapshot';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ModalService } from '../../../core/services/modal.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 interface RuleForm {
   ruleType: InternalChargeRuleType;
@@ -62,7 +66,7 @@ function emptyForm(): RuleForm {
 @Component({
   selector: 'app-internal-rules',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, RuleSnapshotComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, RuleSnapshotComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './internal-rules.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -84,6 +88,18 @@ export class InternalRulesComponent implements OnInit {
   includeInactive = false;
 
   rules = signal<InternalChargeRule[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre el resultado de la búsqueda. */
+  readonly table = new ClientTable(this.rules, {
+    searchText: (r) => [codeText(r.ruleType, this.typeKeys), r.accountName, r.taxId, r.matchCode, r.country, r.reason].join(' '),
+    sortValues: {
+      type: (r) => codeText(r.ruleType, this.typeKeys),
+      account: (r) => r.accountName,
+      country: (r) => r.country,
+      maxUses: (r) => r.maxUsesPerBl,
+      validity: (r) => r.validFrom,
+      status: (r) => r.isActive,
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');

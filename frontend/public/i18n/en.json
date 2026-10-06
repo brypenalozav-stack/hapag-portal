@@ -411,7 +411,8 @@
       "validity": "From {{ from }} to {{ to }}",
       "validityOpenEnd": "withdrawal",
       "validityOpenStart": "publication",
-      "willNotify": "Customers will be notified when it is published"
+      "willNotify": "Customers will be notified when it is published",
+      "pagination": "Announcements pagination"
     },
     "apiClients": {
       "channel": {
@@ -962,7 +963,8 @@
       "removeLabel": "Remove the rule for {{ concept }} ({{ country }})",
       "removed": "The rule for {{ concept }} was removed.",
       "subtitle": "Which charge concepts customers with credit terms can impute to their credit line, and to which Nexus credit concept.",
-      "title": "Concepts imputable to credit"
+      "title": "Concepts imputable to credit",
+      "pagination": "Imputation rules pagination"
     },
     "customs": {
       "amendment": {
@@ -1019,7 +1021,8 @@
         "retry": "Retry",
         "title": "Transmissions",
         "transmitBl": "Transmit B/L",
-        "transmitHeader": "Transmit header"
+        "transmitHeader": "Transmit header",
+        "pagination": "Transmissions pagination"
       }
     },
     "dangerousGoodsImport": {
@@ -1069,7 +1072,8 @@
       },
       "list": {
         "caption": "Tracked deadlines",
-        "title": "Deadlines"
+        "title": "Deadlines",
+        "pagination": "Deadlines pagination"
       },
       "loadError": "Could not load the deadline board.",
       "manifestOnly": "— (manifest)",
@@ -1160,7 +1164,8 @@
       "slip": "Payment slip {{ number }}",
       "subtitle": "Check the deposit against the proof and confirm the payment, or reject the proof with the reason.",
       "title": "Deposit proofs",
-      "uploaded": "Sent on {{ date }} by {{ user }}"
+      "uploaded": "Sent on {{ date }} by {{ user }}",
+      "pagination": "Deposit proofs pagination"
     },
     "finance": {
       "cancel": {
@@ -1199,7 +1204,8 @@
         "retryLabel": "Retry {{ job }} for payment {{ number }}",
         "search": "Search",
         "status": "Status",
-        "title": "Post-payment operations"
+        "title": "Post-payment operations",
+        "pagination": "Operations pagination"
       },
       "reconciliation": {
         "all": "All",
@@ -1228,7 +1234,8 @@
         "status": "Payment status",
         "title": "Payment reconciliation",
         "to": "To",
-        "transaction": "Transaction: {{ value }}"
+        "transaction": "Transaction: {{ value }}",
+        "pagination": "Reconciliation pagination"
       },
       "subtitle": "Stuck operations, reconciliation and cancellation of issued payment slips.",
       "title": "Finance: payments"
@@ -1603,7 +1610,8 @@
         "historyLabel": "View the history of the rule for {{ account }}",
         "identifiers": "Tax ID {{ taxId }} · Match Code {{ matchCode }}",
         "loadError": "The rules could not be loaded.",
-        "new": "New rule"
+        "new": "New rule",
+        "pagination": "Internal rules pagination"
       },
       "snapshot": {
         "account": "Account: {{ name }}, tax ID {{ taxId }}, Match Code {{ matchCode }}",
@@ -1661,7 +1669,8 @@
       "subtitle": "Requests from organizations for their parent company to see their BLs; approve them or reject them with a reason",
       "title": "Parent company links",
       "visibilityOff": "Without BL visibility",
-      "visibilityOn": "With BL visibility"
+      "visibilityOn": "With BL visibility",
+      "pagination": "Links pagination"
     },
     "organizations": {
       "caption": "Registered organizations",
@@ -1868,7 +1877,8 @@
       },
       "subtitle": "Windows during which payments cannot be made in the portal (M8-07). They start and end automatically; looking up information remains available.",
       "title": "Scheduled payment blocks",
-      "window": "From {{ startDate }} {{ startTime }} to {{ endDate }} {{ endTime }}"
+      "window": "From {{ startDate }} {{ startTime }} to {{ endDate }} {{ endTime }}",
+      "pagination": "Payment blocks pagination"
     },
     "paymentConfig": {
       "history": {
@@ -2072,7 +2082,8 @@
         "historyLabel": "Change log of rule {{ rule }}",
         "loadError": "The publication rules could not be loaded.",
         "modifiedValue": "{{ user }}, {{ date }}",
-        "new": "New rule"
+        "new": "New rule",
+        "pagination": "Publication rules pagination"
       },
       "snapshot": {
         "none": "No previous value",
@@ -2307,7 +2318,8 @@
         "loadError": "We could not load the services.",
         "new": "New service",
         "subtitle": "Services customers can request on their shipments: conditions, form, charge and teams.",
-        "title": "On-demand services"
+        "title": "On-demand services",
+        "pagination": "Services pagination"
       },
       "snapshot": {
         "field": "{{ key }} ({{ type }})",
@@ -2508,7 +2520,8 @@
       "receipt": "Receipt {{ number }}",
       "receiptDocument": "Advance receipt {{ number }}",
       "subtitle": "Payments released before their invoice and credit imputations, with the match to the invoice issued later.",
-      "title": "Advances and invoice matching"
+      "title": "Advances and invoice matching",
+      "pagination": "Settlements pagination"
     },
     "tariffs": {
       "editor": {
@@ -2624,7 +2637,8 @@
         "new": "New tariff",
         "subtitle": "Values the portal applies to charges. Every change is recorded.",
         "tiers": "Tiers: {{ count }} ({{ unit }}, {{ currency }})",
-        "title": "Local charge tariffs"
+        "title": "Local charge tariffs",
+        "pagination": "Tariffs pagination"
       },
       "snapshot": {
         "amount": "Amount: {{ amount }}",
@@ -2797,7 +2811,7 @@
   },
   "app": {
     "footer": {
-      "copyright": "© 2025 Hapag-Lloyd AG. All rights reserved."
+      "copyright": "© {{ year }} Hapag-Lloyd AG. All rights reserved."
     },
     "skipLink": "Skip to main content"
   },
@@ -2846,7 +2860,7 @@
       "title": "Join an organization"
     },
     "login": {
-      "copyright": "© 2025 Hapag-Lloyd AG. All rights reserved.",
+      "copyright": "© {{ year }} Hapag-Lloyd AG. All rights reserved.",
       "email": "Email",
       "emailInvalid": "Enter a valid email.",
       "emailPlaceholder": "user@company.com",
@@ -4209,7 +4223,8 @@
       "goLabel": "View {{ concept }} {{ reference }}",
       "inCart": "In the cart",
       "title": "Pending payments",
-      "truncated": "Showing {{ shown }} of {{ total }} pending items."
+      "truncated": "Showing {{ shown }} of {{ total }} pending items.",
+      "pagination": "Pending payments pages"
     },
     "requests": {
       "caption": "Requests in progress and finished in the last 30 days",
@@ -5155,7 +5170,8 @@
         "skippedItem": "{{ reference }}: {{ reason }}",
         "updated": "{{ name }} updated; {assigned, plural, =0 {no new shipments} one {# shipment assigned} other {# shipments assigned}}."
       },
-      "title": "Pre-created hauliers"
+      "title": "Pre-created hauliers",
+      "pagination": "Carriers pagination"
     },
     "commercialConditions": {
       "credit": "Credit terms",
@@ -5410,7 +5426,8 @@
       "invited": "Invitation sent to {{ email }}.",
       "neverLoggedIn": "Never",
       "title": "Organization users",
-      "updated": "User {{ email }} updated."
+      "updated": "User {{ email }} updated.",
+      "pagination": "Users pagination"
     }
   },
   "paymentHistory": {
@@ -5820,7 +5837,8 @@
       "other": "Other",
       "release": "Cargo Release",
       "weighing": "VGM Weighing"
-    }
+    },
+    "pagination": "Service orders pagination"
   },
   "serviceRequests": {
     "available": {
@@ -6521,6 +6539,16 @@
         "assistant": "Assistant"
       },
       "preferences": "Preferences"
+    },
+    "tableFilter": {
+      "label": "Filter the table",
+      "placeholder": "Type to filter",
+      "count": "{{ shown }} of {{ total }}",
+      "noMatches": "No rows match the filter."
+    },
+    "sectionNav": {
+      "label": "Sections on this page",
+      "title": "Go to"
     }
   },
   "shipments": {

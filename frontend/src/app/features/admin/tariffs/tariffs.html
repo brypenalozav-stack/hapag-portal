@@ -52,23 +52,24 @@
   <app-state-message kind="empty" [messageKey]="'admin.tariffs.list.empty'" />
 } @else {
   <div class="hl-card">
+    <app-table-filter [table]="table" [totalOf]="tariffs().length" inputId="tariffs-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.tariffs.list.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.tariffs.list.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'admin.tariffs.list.col.concept' | transloco }}</th>
-            <th scope="col">{{ 'admin.tariffs.list.col.code' | transloco }}</th>
-            <th scope="col">{{ 'admin.tariffs.list.col.country' | transloco }}</th>
-            <th scope="col">{{ 'admin.tariffs.list.col.containerType' | transloco }}</th>
-            <th scope="col" class="text-end">{{ 'admin.tariffs.list.col.value' | transloco }}</th>
-            <th scope="col">{{ 'admin.tariffs.list.col.validity' | transloco }}</th>
-            <th scope="col">{{ 'admin.tariffs.list.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="concept" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.concept' | transloco }}</th>
+            <th scope="col" appSortHeader="code" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.code' | transloco }}</th>
+            <th scope="col" appSortHeader="country" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.country' | transloco }}</th>
+            <th scope="col" appSortHeader="containerType" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.containerType' | transloco }}</th>
+            <th scope="col" class="text-end" appSortHeader="value" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.value' | transloco }}</th>
+            <th scope="col" appSortHeader="validity" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.validity' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.status' | transloco }}</th>
             <th scope="col"><span class="visually-hidden">{{ 'admin.tariffs.list.col.actions' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (t of tariffs(); track t.id) {
+          @for (t of table.rows(); track t.id) {
             <tr>
               <td class="fw-semibold">{{ t.conceptCode | codeLabel: conceptKeys }}</td>
               <td>{{ t.code ?? '—' }}</td>
@@ -96,9 +97,15 @@
                 </a>
               </td>
             </tr>
+          } @empty {
+            <tr><td colspan="8" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.tariffs.list.pagination' | transloco"
+                     idPrefix="tariffs-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   </div>
 }

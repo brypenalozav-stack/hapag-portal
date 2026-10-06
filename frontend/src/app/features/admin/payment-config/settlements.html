@@ -118,23 +118,24 @@
   <app-state-message kind="empty" [messageKey]="'admin.settlements.empty'" />
 } @else {
   <div class="hl-card mb-4">
+    <app-table-filter [table]="table" [totalOf]="rows().length" inputId="settlements-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.settlements.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.settlements.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'admin.settlements.col.payment' | transloco }}</th>
-            <th scope="col">{{ 'admin.settlements.col.kind' | transloco }}</th>
-            <th scope="col">{{ 'admin.settlements.col.charge' | transloco }}</th>
-            <th scope="col">{{ 'admin.settlements.col.parties' | transloco }}</th>
-            <th scope="col" class="text-end">{{ 'admin.settlements.col.amount' | transloco }}</th>
-            <th scope="col">{{ 'admin.settlements.col.date' | transloco }}</th>
-            <th scope="col">{{ 'admin.settlements.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="payment" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.settlements.col.payment' | transloco }}</th>
+            <th scope="col" appSortHeader="kind" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.settlements.col.kind' | transloco }}</th>
+            <th scope="col" appSortHeader="charge" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.settlements.col.charge' | transloco }}</th>
+            <th scope="col" appSortHeader="parties" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.settlements.col.parties' | transloco }}</th>
+            <th scope="col" class="text-end" appSortHeader="amount" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.settlements.col.amount' | transloco }}</th>
+            <th scope="col" appSortHeader="date" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.settlements.col.date' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.settlements.col.status' | transloco }}</th>
             <th scope="col"><span class="visually-hidden">{{ 'admin.settlements.col.actions' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (row of rows(); track row.id) {
+          @for (row of table.rows(); track row.id) {
             <tr [attr.data-testid]="'settlement-row-' + row.paymentNumber + '-' + row.conceptCode">
               <td>
                 <span class="fw-semibold d-block">{{ row.paymentNumber }}</span>
@@ -182,9 +183,15 @@
                 }
               </td>
             </tr>
+          } @empty {
+            <tr><td colspan="8" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.settlements.pagination' | transloco"
+                     idPrefix="settlements-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   </div>
 }

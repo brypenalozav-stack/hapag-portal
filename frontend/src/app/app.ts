@@ -29,6 +29,8 @@ export class AppComponent {
   /** Tema claro u oscuro (M11-07): se aplica desde el arranque, con o sin sesión. */
   readonly theme = inject(ThemeService);
   sidebarOpen = signal(false);
+  /** Año del pie de página. */
+  readonly year = new Date().getFullYear();
 
   constructor() {
     // Con sesión, el encabezado de escritorio suma la barra del menú principal (--navbar-height en styles.scss).

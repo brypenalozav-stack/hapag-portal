@@ -23,6 +23,10 @@ import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ChangeLogComponent } from './change-log';
 import { ModalService } from '../../../core/services/modal.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 interface RuleForm {
   country: string;
@@ -58,7 +62,7 @@ function emptyForm(country: string): RuleForm {
 @Component({
   selector: 'app-credit-imputation-rules',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, ChangeLogComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, ChangeLogComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './credit-imputation-rules.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -79,6 +83,18 @@ export class CreditImputationRulesComponent implements OnInit {
   country = '';
   includeDisabled = true;
   rules = signal<CreditImputationRule[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre el resultado de la búsqueda. */
+  readonly table = new ClientTable(this.rules, {
+    searchText: (r) =>
+      [this.conceptName(r), r.conceptCode, r.country, codeText(r.nexusCreditConcept, this.nexusKeys), r.notes, r.modifiedBy ?? r.createdBy].join(' '),
+    sortValues: {
+      concept: (r) => this.conceptName(r),
+      country: (r) => r.country,
+      nexusConcept: (r) => codeText(r.nexusCreditConcept, this.nexusKeys),
+      status: (r) => r.isEnabled,
+      modified: (r) => r.modifiedAt ?? r.createdAt,
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');

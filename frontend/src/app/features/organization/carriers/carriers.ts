@@ -18,6 +18,10 @@ import { focusAfterRender } from '../../../shared/focus-after-render';
 import { adminErrorMessage } from '../../../shared/administration-errors';
 import { GRANT_ERRORS } from '../../access/shared/access-errors';
 import { ToastService } from '../../../core/services/toast.service';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 interface CarrierForm {
   legalName: string;
@@ -56,7 +60,7 @@ function emptyForm(country: 'CL' | 'BO'): CarrierForm {
 @Component({
   selector: 'app-carriers',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './carriers.html',
 })
 export class CarriersComponent implements OnInit {
@@ -74,6 +78,15 @@ export class CarriersComponent implements OnInit {
   readonly grantStatusKeys = ACCESS_GRANT_STATUS_KEYS;
 
   carriers = signal<CarrierPreRegistration[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre los transportistas. */
+  readonly table = new ClientTable(this.carriers, {
+    searchText: (c) =>
+      [c.legalName, c.taxId, c.country, c.email, codeText(c.status, this.statusKeys), c.assignments.map((a) => a.blNumber ?? a.bookingNumber).join(' ')].join(' '),
+    sortValues: {
+      carrier: (c) => c.legalName,
+      status: (c) => codeText(c.status, this.statusKeys),
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   actionError = signal('');

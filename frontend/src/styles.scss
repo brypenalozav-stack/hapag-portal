@@ -835,6 +835,11 @@ $hl-ship-mask: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vie
 // La barra superior fija no tapa el elemento enfocado al desplazarse (WCAG 2.4.11).
 html {
   scroll-padding-top: calc(var(--navbar-height) + 0.5rem);
+
+  // Con la barra "Ir a" (app-section-nav) también fija, se deja su alto.
+  &:has(app-section-nav .hl-section-nav) {
+    scroll-padding-top: calc(var(--navbar-height) + 3.75rem);
+  }
 }
 
 // Enlace para saltar al contenido (WCAG 2.4.1): primer elemento enfocable, visible solo con foco.

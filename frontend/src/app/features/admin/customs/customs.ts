@@ -5,6 +5,10 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { CustomsService } from '../../../core/services/customs.service';
 import { Manifest, Transmission } from '../../../core/models/customs.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { ClientTable } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /**
  * Transmisión a Aduana: crea manifiestos, transmite el encabezado y luego los B/L,
@@ -14,7 +18,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 @Component({
   selector: 'app-customs',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, LoadingSpinnerComponent],
+  imports: [FormsModule, TranslocoPipe, LoadingSpinnerComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './customs.html',
   styles: [':host { display: block; }'],
 })
@@ -24,6 +28,17 @@ export class CustomsComponent implements OnInit {
 
   manifests = signal<Manifest[]>([]);
   transmissions = signal<Transmission[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre las transmisiones del manifiesto. */
+  readonly table = new ClientTable(this.transmissions, {
+    searchText: (t) => [t.stage, t.kind, t.blNumber, t.status, t.responseCode, t.responseMessage].join(' '),
+    sortValues: {
+      stage: (t) => t.stage,
+      kind: (t) => t.kind,
+      bl: (t) => t.blNumber,
+      status: (t) => t.status,
+      attempts: (t) => t.attemptCount,
+    },
+  });
   selected = signal<Manifest | null>(null);
   loading = signal(false);
   busy = signal(false);

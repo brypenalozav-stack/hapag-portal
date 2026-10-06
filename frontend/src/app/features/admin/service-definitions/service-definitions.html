@@ -47,22 +47,23 @@
   <app-state-message kind="empty" [messageKey]="'admin.serviceDefinitions.list.empty'" />
 } @else {
   <div class="hl-card">
+    <app-table-filter [table]="table" [totalOf]="definitions().length" inputId="service-definitions-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.serviceDefinitions.list.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.serviceDefinitions.list.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'admin.serviceDefinitions.list.col.order' | transloco }}</th>
-            <th scope="col">{{ 'admin.serviceDefinitions.list.col.service' | transloco }}</th>
+            <th scope="col" appSortHeader="order" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.serviceDefinitions.list.col.order' | transloco }}</th>
+            <th scope="col" appSortHeader="service" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.serviceDefinitions.list.col.service' | transloco }}</th>
             <th scope="col">{{ 'admin.serviceDefinitions.list.col.scope' | transloco }}</th>
-            <th scope="col">{{ 'admin.serviceDefinitions.list.col.pricing' | transloco }}</th>
+            <th scope="col" appSortHeader="pricing" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.serviceDefinitions.list.col.pricing' | transloco }}</th>
             <th scope="col">{{ 'admin.serviceDefinitions.list.col.teams' | transloco }}</th>
-            <th scope="col">{{ 'admin.serviceDefinitions.list.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.serviceDefinitions.list.col.status' | transloco }}</th>
             <th scope="col"><span class="visually-hidden">{{ 'admin.serviceDefinitions.list.col.actions' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (d of definitions(); track d.id) {
+          @for (d of table.rows(); track d.id) {
             <tr [attr.data-testid]="'definition-' + d.code">
               <td>{{ d.displayOrder }}</td>
               <td>
@@ -93,9 +94,15 @@
                 </a>
               </td>
             </tr>
+          } @empty {
+            <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.serviceDefinitions.list.pagination' | transloco"
+                     idPrefix="service-definitions-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   </div>
 }

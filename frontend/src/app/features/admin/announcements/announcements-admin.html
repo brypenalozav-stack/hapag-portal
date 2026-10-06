@@ -169,21 +169,22 @@
   <app-state-message kind="empty" [messageKey]="'admin.announcements.empty'" />
 } @else {
   <div class="hl-card mb-4">
+    <app-table-filter [table]="table" [totalOf]="items().length" inputId="announcements-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.announcements.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.announcements.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'admin.announcements.col.title' | transloco }}</th>
-            <th scope="col">{{ 'admin.announcements.col.segment' | transloco }}</th>
-            <th scope="col">{{ 'admin.announcements.col.validity' | transloco }}</th>
-            <th scope="col">{{ 'admin.announcements.col.status' | transloco }}</th>
-            <th scope="col">{{ 'admin.announcements.col.published' | transloco }}</th>
+            <th scope="col" appSortHeader="title" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.announcements.col.title' | transloco }}</th>
+            <th scope="col" appSortHeader="segment" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.announcements.col.segment' | transloco }}</th>
+            <th scope="col" appSortHeader="validity" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.announcements.col.validity' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.announcements.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="published" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.announcements.col.published' | transloco }}</th>
             <th scope="col"><span class="visually-hidden">{{ 'admin.announcements.col.actions' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (a of items(); track a.id) {
+          @for (a of table.rows(); track a.id) {
             <tr [attr.data-testid]="'announcement-row-' + a.id">
               <td>
                 <span class="fw-semibold d-block" lang="es">{{ a.titleEs }}</span>
@@ -237,10 +238,16 @@
                 </div>
               </td>
             </tr>
+          } @empty {
+            <tr><td colspan="6" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.announcements.pagination' | transloco"
+                     idPrefix="announcements-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   </div>
 }
 

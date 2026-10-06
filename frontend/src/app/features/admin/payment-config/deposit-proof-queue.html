@@ -107,22 +107,23 @@
   <app-state-message kind="empty" [messageKey]="'admin.depositProofs.empty'" />
 } @else {
   <div class="hl-card mb-4">
+    <app-table-filter [table]="table" [totalOf]="items().length" inputId="deposit-proofs-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.depositProofs.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.depositProofs.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'admin.depositProofs.col.payment' | transloco }}</th>
-            <th scope="col">{{ 'admin.depositProofs.col.payer' | transloco }}</th>
-            <th scope="col" class="text-end">{{ 'admin.depositProofs.col.total' | transloco }}</th>
+            <th scope="col" appSortHeader="payment" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.depositProofs.col.payment' | transloco }}</th>
+            <th scope="col" appSortHeader="payer" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.depositProofs.col.payer' | transloco }}</th>
+            <th scope="col" class="text-end" appSortHeader="total" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.depositProofs.col.total' | transloco }}</th>
             <th scope="col">{{ 'admin.depositProofs.col.proof' | transloco }}</th>
-            <th scope="col">{{ 'admin.depositProofs.col.deposit' | transloco }}</th>
-            <th scope="col">{{ 'admin.depositProofs.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="deposit" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.depositProofs.col.deposit' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.depositProofs.col.status' | transloco }}</th>
             <th scope="col"><span class="visually-hidden">{{ 'admin.depositProofs.col.actions' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (item of items(); track item.proof.id) {
+          @for (item of table.rows(); track item.proof.id) {
             <tr [attr.data-testid]="'proof-row-' + item.paymentNumber">
               <td>
                 <span class="fw-semibold d-block">{{ item.paymentNumber }}</span>
@@ -166,9 +167,15 @@
                 }
               </td>
             </tr>
+          } @empty {
+            <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.depositProofs.pagination' | transloco"
+                     idPrefix="deposit-proofs-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   </div>
 }

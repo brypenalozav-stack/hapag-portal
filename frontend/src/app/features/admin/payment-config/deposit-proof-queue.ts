@@ -16,6 +16,10 @@ import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { saveBlob } from '../../../shared/save-blob';
 import { ToastService } from '../../../core/services/toast.service';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 type Decision = 'verify' | 'reject';
 
@@ -28,7 +32,7 @@ type Decision = 'verify' | 'reject';
 @Component({
   selector: 'app-deposit-proof-queue',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './deposit-proof-queue.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -49,6 +53,29 @@ export class DepositProofQueueComponent implements OnInit {
   status = 'Submitted';
   country = '';
   items = signal<DepositProofQueueItem[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre la cola cargada. */
+  readonly table = new ClientTable(this.items, {
+    searchText: (i) =>
+      [
+        i.paymentNumber,
+        i.slipNumber,
+        i.blNumbers.join(' '),
+        i.payerName,
+        i.payerTaxId,
+        i.proof.fileName,
+        i.proof.bankName,
+        i.proof.bankReference,
+        codeText(i.proof.status, this.statusKeys),
+        codeText(i.paymentStatus, this.paymentStatusKeys),
+      ].join(' '),
+    sortValues: {
+      payment: (i) => i.paymentNumber,
+      payer: (i) => i.payerName,
+      total: (i) => i.totalAmount,
+      deposit: (i) => i.proof.depositDate,
+      status: (i) => codeText(i.proof.status, this.statusKeys),
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');
