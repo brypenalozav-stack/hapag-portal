@@ -524,14 +524,8 @@
           </table>
         </div>
       }
-      <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'admin.apiClients.log.pagination' | transloco">
-        <span class="small text-muted">{{ 'admin.apiClients.log.total' | transloco: { total: logTotal() } }}</span>
-        <div class="d-flex align-items-center gap-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="logPage() <= 1" (click)="changeLogPage(-1)">{{ 'admin.apiClients.log.previous' | transloco }}</button>
-          <span class="small">{{ 'admin.apiClients.log.page' | transloco: { page: logPage(), pages: logPages } }}</span>
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="logPage() >= logPages" (click)="changeLogPage(1)">{{ 'admin.apiClients.log.next' | transloco }}</button>
-        </div>
-      </nav>
+      <app-paginator [page]="logPage()" [pageSize]="logPageSize()" [total]="logTotal()" [label]="'admin.apiClients.log.pagination' | transloco"
+                     idPrefix="api-log-pager" (pageChange)="changeLogPage($event)" (pageSizeChange)="changeLogPageSize($event)" />
     </div>
   </section>
 }

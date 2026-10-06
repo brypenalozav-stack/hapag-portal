@@ -27,6 +27,7 @@ import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../shared/payment-errors';
 import { saveBlob } from '../../shared/save-blob';
 import { ToastService } from '../../core/services/toast.service';
+import { PaginatorComponent } from '../../shared/components/paginator/paginator';
 
 const PAGE_SIZE = 20;
 
@@ -58,7 +59,7 @@ function emptyFilters(): InvoiceFilters {
   standalone: true,
   imports: [
     FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
-    AddToCartDialogComponent,
+    AddToCartDialogComponent, PaginatorComponent,
   ],
   templateUrl: './invoices.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
@@ -82,6 +83,9 @@ export class InvoicesComponent implements OnInit {
   organizationId = '';
   filters: InvoiceFilters = emptyFilters();
   page = signal(1);
+  pageSize = signal(PAGE_SIZE);
+  /** Con el tamaño por defecto y una sola página se muestra solo el total. */
+  readonly defaultPageSize = PAGE_SIZE;
 
   list = signal<InvoiceList | null>(null);
   loading = signal(true);
@@ -124,7 +128,7 @@ export class InvoicesComponent implements OnInit {
       organizationId: this.organizationId || undefined,
       ...this.filters,
       page,
-      pageSize: PAGE_SIZE,
+      pageSize: this.pageSize(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (list) => {
         this.list.set(list);
@@ -138,6 +142,12 @@ export class InvoicesComponent implements OnInit {
         else this.error.set(paymentErrorMessage(err, 'invoices.errors.load'));
       },
     });
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.search(1);
   }
 
   /** La información no se mezcla entre organizaciones: cambiar de organización vuelve a consultar. */

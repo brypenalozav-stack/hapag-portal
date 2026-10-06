@@ -751,6 +751,7 @@
       "hide": "Ocultar",
       "loadError": "Error al cargar la auditoría.",
       "next": "Siguiente",
+      "pagination": "Paginación de la auditoría",
       "previous": "Anterior",
       "search": "Buscar",
       "showing": "Mostrando {{ shown }} de {{ total }} encontrados",
@@ -2764,6 +2765,7 @@
       },
       "new": "Nuevo Usuario",
       "next": "Siguiente",
+      "pagination": "Paginación de usuarios",
       "previous": "Anterior",
       "showing": "Mostrando {{ shown }} de {{ total }} encontrados",
       "subtitle": "Usuarios de la plataforma",
@@ -6484,6 +6486,40 @@
     },
     "toast": {
       "close": "Cerrar aviso"
+    },
+    "paginator": {
+      "range": "Mostrando {{ from }}–{{ to }} de {{ total }}",
+      "pageSize": "Filas por página",
+      "first": "Primera página",
+      "last": "Última página",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "goTo": "Ir a la página {{ page }}"
+    },
+    "sort": {
+      "ascending": "ordenar de menor a mayor",
+      "descending": "ordenar de mayor a menor",
+      "reset": "quitar el orden"
+    },
+    "menu": {
+      "group": {
+        "home": "Inicio",
+        "shipments": "Embarques",
+        "payments": "Pagos y facturación",
+        "services": "Servicios",
+        "organization": "Mi organización",
+        "operations": "Operación",
+        "administration": "Administración"
+      },
+      "column": {
+        "queues": "Bandejas",
+        "dataLoad": "Carga de datos",
+        "reports": "Reportes y auditoría",
+        "general": "General",
+        "chargesTariffs": "Cobros y tarifas",
+        "paymentsConfig": "Pagos",
+        "assistant": "Asistente"
+      }
     }
   },
   "shipments": {

@@ -22,12 +22,16 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { AccessSourceBadgeComponent } from '../../../shared/components/access-source-badge/access-source-badge';
 import { OrganizationNetworkService } from '../../../core/services/organization-network.service';
 import { ParentLinkOrganization } from '../../../core/models/organization-network.model';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /** Filtros de texto del listado (M2-06), reflejados en los query params. */
 const TEXT_FILTERS = ['blNumber', 'bookingNumber', 'vessel', 'voyage', 'status'] as const;
 
 /** Valor del query param `operation` cuando el usuario elige ver ambas operaciones. */
 const ALL_OPERATIONS = 'ALL';
+
+/** Filas por página por defecto; otro tamaño viaja en el query param `pageSize`. */
+const DEFAULT_PAGE_SIZE = 20;
 
 /**
  * Listado único de embarques (M2-06): todos los BL y bookings accesibles por el usuario, con
@@ -46,7 +50,7 @@ const ALL_OPERATIONS = 'ALL';
   imports: [
     ReactiveFormsModule, RouterLink, TranslocoPipe, CodeLabelPipe,
     StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
-    AccessSourceBadgeComponent,
+    AccessSourceBadgeComponent, PaginatorComponent,
   ],
   templateUrl: './shipment-list.html',
   styles: [':host { display: block; }'],
@@ -61,7 +65,6 @@ export class ShipmentListComponent {
   private readonly destroyRef = inject(DestroyRef);
   readonly auth = inject(AuthService);
 
-  readonly pageSize = 20;
   readonly operationKeys = SHIPMENT_OPERATION_KEYS;
   readonly documentTypeKeys = TRANSPORT_DOCUMENT_TYPE_KEYS;
   readonly issuanceKeys = BL_ISSUANCE_STATUS_KEYS;
@@ -100,6 +103,7 @@ export class ShipmentListComponent {
   shipments = signal<ShipmentListItem[]>([]);
   total = signal(0);
   page = signal(1);
+  pageSize = signal(DEFAULT_PAGE_SIZE);
   loading = signal(true);
   error = signal('');
   /** NF-11: la última consulta falló con HTTP 5xx o sin conexión. */
@@ -123,10 +127,6 @@ export class ShipmentListComponent {
     });
   }
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.total() / this.pageSize));
-  }
-
   load(): void {
     const raw = this.filters.getRawValue();
     this.loading.set(true);
@@ -138,7 +138,7 @@ export class ShipmentListComponent {
       organizationId: raw.organizationId,
       operation: this.operation(),
       page: this.page(),
-      pageSize: this.pageSize,
+      pageSize: this.pageSize(),
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
@@ -184,17 +184,21 @@ export class ShipmentListComponent {
     this.navigate(1);
   }
 
-  changePage(delta: number): void {
-    const next = this.page() + delta;
-    if (next < 1 || next > this.totalPages) return;
-    this.navigate(next);
+  changePage(page: number): void {
+    this.navigate(page);
   }
 
-  private navigate(page: number): void {
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.navigate(1, size);
+  }
+
+  private navigate(page: number, pageSize = this.pageSize()): void {
     const raw = this.filters.getRawValue();
     const queryParams: Record<string, string | number | null> = {
       operation: this.operation() || ALL_OPERATIONS,
       page: page > 1 ? page : null,
+      pageSize: pageSize !== DEFAULT_PAGE_SIZE ? pageSize : null,
       country: raw.country || null,
       published: this.auth.isInternal() && raw.published ? raw.published : null,
       organizationId: raw.organizationId || null,
@@ -229,5 +233,7 @@ export class ShipmentListComponent {
 
     const page = Number(params.get('page'));
     this.page.set(Number.isInteger(page) && page > 0 ? page : 1);
+    const pageSize = Number(params.get('pageSize'));
+    this.pageSize.set(Number.isInteger(pageSize) && pageSize > 0 && pageSize <= 100 ? pageSize : DEFAULT_PAGE_SIZE);
   }
 }

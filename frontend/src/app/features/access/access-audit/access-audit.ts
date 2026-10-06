@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /**
  * Auditoría de accesos (M1-23): historial de un BL o booking (o, sin filtros, de la propia
@@ -20,14 +21,14 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 @Component({
   selector: 'app-access-audit',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent],
   templateUrl: './access-audit.html',
 })
 export class AccessAuditComponent implements OnInit {
   private readonly service = inject(AccessService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly pageSize = 50;
+  pageSize = signal(50);
   readonly eventKeys = ACCESS_AUDIT_EVENT_KEYS;
 
   blNumber = signal('');
@@ -40,7 +41,6 @@ export class AccessAuditComponent implements OnInit {
   loadFailed = signal(false);
   error = signal('');
 
-  totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
 
   ngOnInit(): void {
     this.load();
@@ -54,7 +54,7 @@ export class AccessAuditComponent implements OnInit {
       blNumber: this.blNumber().trim(),
       bookingNumber: this.bookingNumber().trim(),
       page: this.page(),
-      pageSize: this.pageSize,
+      pageSize: this.pageSize(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.entries.set(result.items);
@@ -89,10 +89,15 @@ export class AccessAuditComponent implements OnInit {
     this.search();
   }
 
-  changePage(delta: number): void {
-    const next = this.page() + delta;
-    if (next < 1 || next > this.totalPages()) return;
-    this.page.set(next);
+  changePage(page: number): void {
+    this.page.set(page);
+    this.load();
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.page.set(1);
     this.load();
   }
 }

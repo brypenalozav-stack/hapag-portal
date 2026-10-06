@@ -189,17 +189,7 @@
         </tbody>
       </table>
     </div>
-    <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'shipments.list.pagination.label' | transloco">
-      <span class="small text-muted">{{ 'shipments.list.pagination.showing' | transloco: { shown: shipments().length, total: total() } }}</span>
-      <div class="d-flex align-items-center gap-2">
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">
-          {{ 'shipments.list.pagination.previous' | transloco }}
-        </button>
-        <span class="small">{{ 'shipments.list.pagination.page' | transloco: { page: page(), pages: totalPages } }}</span>
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">
-          {{ 'shipments.list.pagination.next' | transloco }}
-        </button>
-      </div>
-    </nav>
+    <app-paginator [page]="page()" [pageSize]="pageSize()" [total]="total()" [label]="'shipments.list.pagination.label' | transloco"
+                   idPrefix="shipments-pager" (pageChange)="changePage($event)" (pageSizeChange)="changePageSize($event)" />
   </div>
 }

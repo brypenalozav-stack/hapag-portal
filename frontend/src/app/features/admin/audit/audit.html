@@ -81,13 +81,7 @@
         </tbody>
       </table>
     </div>
-    <div class="d-flex justify-content-between align-items-center p-3">
-      <span class="small text-muted">{{ 'admin.audit.showing' | transloco: { shown: items().length, total: total() } }}</span>
-      <div class="btn-group">
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">{{ 'admin.audit.previous' | transloco }}</button>
-        <span class="btn btn-sm btn-outline-secondary disabled">{{ page() }} / {{ totalPages }}</span>
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">{{ 'admin.audit.next' | transloco }}</button>
-      </div>
-    </div>
+    <app-paginator [page]="page()" [pageSize]="pageSize()" [total]="total()" [label]="'admin.audit.pagination' | transloco"
+                   idPrefix="audit-pager" (pageChange)="changePage($event)" (pageSizeChange)="changePageSize($event)" />
   }
 </div>

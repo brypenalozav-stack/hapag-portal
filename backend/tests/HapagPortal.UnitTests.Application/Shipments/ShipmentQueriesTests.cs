@@ -101,6 +101,21 @@ public sealed class ShipmentQueriesTests
     }
 
     [Fact]
+    public async Task Search_ShouldSortByRequestedColumnAcrossPages()
+    {
+        Own("BL-S2", ShipmentRoleCodes.Consignee, vessel: "Charlie Express");
+        Own("BL-S1", ShipmentRoleCodes.Consignee, vessel: "Alpha Express");
+        Own("BL-S3", ShipmentRoleCodes.Consignee, vessel: "Bravo Express");
+
+        var asc = await _search.Handle(new SearchShipmentsQuery(Sort: "vessel", Direction: "asc"), CancellationToken.None);
+        var descSecondPage = await _search.Handle(
+            new SearchShipmentsQuery(Page: 2, PageSize: 2, Sort: "vessel", Direction: "desc"), CancellationToken.None);
+
+        asc.Value.Items.Select(i => i.Vessel).Should().Equal("Alpha Express", "Bravo Express", "Charlie Express");
+        descSecondPage.Value.Items.Select(i => i.Vessel).Should().Equal("Alpha Express");
+    }
+
+    [Fact]
     public async Task Search_ShouldFlagPendingLocalCharges()
     {
         var bl = Own("BL-PEND", ShipmentRoleCodes.Consignee);

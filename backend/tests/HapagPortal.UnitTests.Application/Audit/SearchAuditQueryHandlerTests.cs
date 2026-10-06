@@ -64,4 +64,48 @@ public sealed class SearchAuditQueryHandlerTests
         result.Value.Items.Should().HaveCount(2);
         result.Value.Total.Should().Be(3);
     }
+
+    [Fact]
+    public async Task OrdersByRequestedColumnAndDirection()
+    {
+        var handler = new SearchAuditQueryHandler(_db);
+
+        var result = await handler.Handle(
+            new SearchAuditQuery(null, null, null, null, null, Sort: "action", Direction: "asc"), CancellationToken.None);
+
+        result.Value.Items.Select(i => i.Action).Should().Equal("Create", "Create", "Update");
+        // Mismo valor de columna: desempata por fecha descendente, estable entre páginas.
+        result.Value.Items[0].Timestamp.Should().BeAfter(result.Value.Items[1].Timestamp);
+    }
+
+    [Fact]
+    public async Task OrdersDescendingWhenRequested()
+    {
+        var handler = new SearchAuditQueryHandler(_db);
+
+        var result = await handler.Handle(
+            new SearchAuditQuery(null, null, null, null, null, Sort: "entityName", Direction: "desc"), CancellationToken.None);
+
+        result.Value.Items[0].EntityName.Should().Be("User");
+    }
+
+    [Theory]
+    [InlineData("password", null)]
+    [InlineData("timestamp", "sideways")]
+    public void RejectsUnknownSortColumnOrDirection(string sort, string? direction)
+    {
+        var validation = new SearchAuditQueryValidator().Validate(
+            new SearchAuditQuery(null, null, null, null, null, Sort: sort, Direction: direction));
+
+        validation.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AcceptsKnownSortColumnCaseInsensitive()
+    {
+        var validation = new SearchAuditQueryValidator().Validate(
+            new SearchAuditQuery(null, null, null, null, null, Sort: "TIMESTAMP", Direction: "DESC"));
+
+        validation.IsValid.Should().BeTrue();
+    }
 }

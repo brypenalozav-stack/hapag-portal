@@ -2,6 +2,7 @@ namespace HapagPortal.Application.Invoices;
 
 using System.IO.Compression;
 using FluentValidation;
+using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Payments.Settlements;
@@ -69,7 +70,19 @@ public sealed record GetInvoicesQuery(
     string? Currency = null,
     string? DocumentType = null,
     int Page = 1,
-    int PageSize = 20) : IQuery<InvoiceListDto>;
+    int PageSize = 20,
+    string? Sort = null,
+    string? Direction = null) : IQuery<InvoiceListDto>
+{
+    /// <summary>Columnas por las que se puede ordenar el listado (<c>sort</c>, con <c>direction</c> asc|desc).</summary>
+    public static readonly SortMap<Domain.Entities.CustomerInvoice> Sorts = new SortMap<Domain.Entities.CustomerInvoice>()
+        .Add("issueDate", i => i.IssueDate)
+        .Add("dueDate", i => i.DueDate)
+        .Add("number", i => i.SiiNumber ?? i.SourceNumber)
+        .Add("blNumber", i => i.BlNumber)
+        .Add("totalAmount", i => i.TotalAmount)
+        .Add("currency", i => i.Currency);
+}
 
 public sealed record GetInvoicePdfQuery(Guid Id) : IQuery<InvoiceFileDto>;
 
@@ -87,6 +100,14 @@ public sealed class GetInvoicesQueryValidator : AbstractValidator<GetInvoicesQue
         RuleFor(x => x.PageSize).InclusiveBetween(1, 200);
         RuleFor(x => x.BlNumber).MaximumLength(50);
         RuleFor(x => x.BookingNumber).MaximumLength(50);
+
+        RuleFor(x => x.Sort)
+            .Must(GetInvoicesQuery.Sorts.IsValid)
+            .WithMessage($"Sort must be one of: {string.Join(", ", GetInvoicesQuery.Sorts.Names)}.");
+
+        RuleFor(x => x.Direction)
+            .Must(SortMap<CustomerInvoice>.IsValidDirection)
+            .WithMessage("Direction must be 'asc' or 'desc'.");
         RuleFor(x => x.Status)
             .Must(s => s is null || InvoiceStatus.All.Contains(s))
             .WithMessage("Status must be Pending, Overdue, Paid, Cancelled or Superseded.");
@@ -259,8 +280,13 @@ public sealed class GetInvoicesQueryHandler(
         var today = BusinessCalendar.LocalDate(country, DateTime.UtcNow);
 
         // "Vencida" depende de la fecha del país: el filtro por estado se aplica sobre el estado calculado.
-        var filtered = invoices
-            .Where(i => request.Status is null || InvoiceView.StatusOf(i, today) == request.Status)
+        var filtered = GetInvoicesQuery.Sorts
+            .Apply(
+                invoices.Where(i => request.Status is null || InvoiceView.StatusOf(i, today) == request.Status).AsQueryable(),
+                request.Sort,
+                request.Direction,
+                q => q.OrderByDescending(i => i.IssueDate).ThenByDescending(i => i.SourceNumber),
+                q => q.ThenByDescending(i => i.SourceNumber))
             .ToList();
 
         var inCart = await InCartAsync(filtered.Select(i => i.Id).ToList(), cancellationToken);

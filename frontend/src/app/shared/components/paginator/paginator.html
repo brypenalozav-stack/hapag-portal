@@ -1,0 +1,60 @@
+<nav class="hl-paginator" [attr.aria-label]="label()" [attr.data-testid]="idPrefix()">
+  <p class="hl-paginator__range" [attr.data-testid]="idPrefix() + '-range'">
+    {{ 'shared.paginator.range' | transloco: { from: from(), to: to(), total: total() } }}
+  </p>
+
+  @if (pageSizeOptions().length > 0) {
+    <div class="hl-paginator__size">
+      <label class="form-label small mb-0" [for]="idPrefix() + '-size'">{{ 'shared.paginator.pageSize' | transloco }}</label>
+      <select class="form-select form-select-sm" [id]="idPrefix() + '-size'" (change)="onPageSize($event)">
+        @for (size of pageSizeOptions(); track size) {
+          <option [value]="size" [selected]="size === pageSize()">{{ size }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  @if (pages() > 1) {
+    <ul class="hl-paginator__pages">
+      <li>
+        <button type="button" class="btn btn-sm btn-outline-secondary hl-paginator__btn" [disabled]="page() <= 1" (click)="go(1)"
+                [attr.aria-label]="'shared.paginator.first' | transloco">
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+            <path fill-rule="evenodd" d="M2 1.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-1 0V2a.5.5 0 0 1 .5-.5"/>
+          </svg>
+        </button>
+      </li>
+      <li>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="go(page() - 1)">
+          {{ 'shared.paginator.previous' | transloco }}
+        </button>
+      </li>
+      @for (slot of slots(); track $index) {
+        <li>
+          @if (slot === 'gap') {
+            <span class="hl-paginator__gap" aria-hidden="true">…</span>
+          } @else {
+            <button type="button" class="btn btn-sm hl-paginator__btn" [class.btn-secondary]="slot === page()" [class.btn-outline-secondary]="slot !== page()"
+                    [attr.aria-current]="slot === page() ? 'page' : null" [attr.aria-label]="'shared.paginator.goTo' | transloco: { page: slot }"
+                    (click)="go(slot)">{{ slot }}</button>
+          }
+        </li>
+      }
+      <li>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= pages()" (click)="go(page() + 1)">
+          {{ 'shared.paginator.next' | transloco }}
+        </button>
+      </li>
+      <li>
+        <button type="button" class="btn btn-sm btn-outline-secondary hl-paginator__btn" [disabled]="page() >= pages()" (click)="go(pages())"
+                [attr.aria-label]="'shared.paginator.last' | transloco">
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+            <path fill-rule="evenodd" d="M14 1.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-1 0V2a.5.5 0 0 1 .5-.5"/>
+          </svg>
+        </button>
+      </li>
+    </ul>
+  }
+</nav>

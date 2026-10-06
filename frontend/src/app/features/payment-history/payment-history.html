@@ -113,12 +113,9 @@
       </div>
     </div>
 
-    @if (totalPages() > 1) {
-      <nav class="d-flex align-items-center gap-2" [attr.aria-label]="'paymentHistory.pagination.label' | transloco">
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="search(page() - 1)">{{ 'paymentHistory.pagination.previous' | transloco }}</button>
-        <span class="small">{{ 'paymentHistory.pagination.status' | transloco: { page: page(), pages: totalPages(), total: r.total } }}</span>
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="search(page() + 1)">{{ 'paymentHistory.pagination.next' | transloco }}</button>
-      </nav>
+    @if (totalPages() > 1 || pageSize() !== defaultPageSize) {
+      <app-paginator [page]="page()" [pageSize]="pageSize()" [total]="r.total" [label]="'paymentHistory.pagination.label' | transloco"
+                     idPrefix="payment-history-pager" (pageChange)="search($event)" (pageSizeChange)="changePageSize($event)" />
     } @else {
       <p class="small text-muted">{{ 'paymentHistory.count' | transloco: { count: r.total } }}</p>
     }

@@ -79,16 +79,6 @@
       </tbody>
     </table>
   </div>
-  <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'thirdPartyAccess.audit.pagination.label' | transloco">
-    <span class="small text-muted">{{ 'thirdPartyAccess.audit.pagination.showing' | transloco: { shown: entries().length, total: total() } }}</span>
-    <div class="d-flex align-items-center gap-2">
-      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">
-        {{ 'thirdPartyAccess.audit.pagination.previous' | transloco }}
-      </button>
-      <span class="small">{{ 'thirdPartyAccess.audit.pagination.page' | transloco: { page: page(), pages: totalPages() } }}</span>
-      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="changePage(1)">
-        {{ 'thirdPartyAccess.audit.pagination.next' | transloco }}
-      </button>
-    </div>
-  </nav>
+  <app-paginator [page]="page()" [pageSize]="pageSize()" [total]="total()" [label]="'thirdPartyAccess.audit.pagination.label' | transloco"
+                 idPrefix="access-audit-pager" (pageChange)="changePage($event)" (pageSizeChange)="changePageSize($event)" />
 }

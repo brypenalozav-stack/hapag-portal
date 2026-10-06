@@ -187,14 +187,8 @@
         </tbody>
       </table>
     </div>
-    <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'admin.impersonation.sessions.pagination' | transloco">
-      <span class="small text-muted">{{ 'admin.impersonation.sessions.showing' | transloco: { shown: sessions().length, total: total() } }}</span>
-      <div class="d-flex align-items-center gap-2">
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">{{ 'admin.impersonation.sessions.previous' | transloco }}</button>
-        <span class="small">{{ 'admin.impersonation.sessions.page' | transloco: { page: page(), pages: totalPages } }}</span>
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">{{ 'admin.impersonation.sessions.next' | transloco }}</button>
-      </div>
-    </nav>
+    <app-paginator [page]="page()" [pageSize]="pageSize()" [total]="total()" [label]="'admin.impersonation.sessions.pagination' | transloco"
+                   idPrefix="impersonation-sessions-pager" (pageChange)="changePage($event)" (pageSizeChange)="changePageSize($event)" />
   }
 </section>
 
@@ -240,14 +234,8 @@
           </tbody>
         </table>
       </div>
-      <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'admin.impersonation.audit.pagination' | transloco">
-        <span class="small text-muted">{{ 'admin.impersonation.sessions.showing' | transloco: { shown: requests().length, total: requestsTotal() } }}</span>
-        <div class="d-flex align-items-center gap-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="requestsPage() <= 1" (click)="changeRequestsPage(-1)">{{ 'admin.impersonation.sessions.previous' | transloco }}</button>
-          <span class="small">{{ 'admin.impersonation.sessions.page' | transloco: { page: requestsPage(), pages: requestPages } }}</span>
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="requestsPage() >= requestPages" (click)="changeRequestsPage(1)">{{ 'admin.impersonation.sessions.next' | transloco }}</button>
-        </div>
-      </nav>
+      <app-paginator [page]="requestsPage()" [pageSize]="requestsPageSize()" [total]="requestsTotal()" [label]="'admin.impersonation.audit.pagination' | transloco"
+                     idPrefix="impersonation-requests-pager" (pageChange)="changeRequestsPage($event)" (pageSizeChange)="changeRequestsPageSize($event)" />
     }
   </section>
 }

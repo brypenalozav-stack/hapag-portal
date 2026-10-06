@@ -37,6 +37,7 @@ import { focusAfterRender } from '../../../shared/focus-after-render';
 import { apiClientErrorMessage } from '../../../shared/api-client-errors';
 import { ModalService } from '../../../core/services/modal.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /** Formato mínimo de un correo (el servidor lo vuelve a validar). */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -86,7 +87,7 @@ type PendingConfirmation = { kind: 'client' } | null;
 @Component({
   selector: 'app-api-clients',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent],
   templateUrl: './api-clients.html',
   styles: [`
     :host { display: block; }
@@ -160,6 +161,7 @@ export class ApiClientsComponent implements OnInit {
   log = signal<ApiClientRequestLog[]>([]);
   logTotal = signal(0);
   logPage = signal(1);
+  logPageSize = signal<number>(API_CLIENT_LIMITS.LOG_PAGE_SIZE);
   logLoading = signal(false);
   logError = signal('');
   operationFilter = signal('');
@@ -171,10 +173,6 @@ export class ApiClientsComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
-  }
-
-  get logPages(): number {
-    return Math.max(1, Math.ceil(this.logTotal() / API_CLIENT_LIMITS.LOG_PAGE_SIZE));
   }
 
   load(): void {
@@ -502,7 +500,7 @@ export class ApiClientsComponent implements OnInit {
     if (!client) return;
     this.logLoading.set(true);
     this.logError.set('');
-    this.service.requests(client.id, this.logPage()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.requests(client.id, this.logPage(), this.logPageSize()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
         this.log.set(r.items);
         this.logTotal.set(r.total);
@@ -517,10 +515,15 @@ export class ApiClientsComponent implements OnInit {
     });
   }
 
-  changeLogPage(delta: number): void {
-    const next = this.logPage() + delta;
-    if (next < 1 || next > this.logPages) return;
-    this.logPage.set(next);
+  changeLogPage(page: number): void {
+    this.logPage.set(page);
+    this.loadLog();
+  }
+
+  /** Otro tamaño de página de la bitácora vuelve a la primera página. */
+  changeLogPageSize(size: number): void {
+    this.logPageSize.set(size);
+    this.logPage.set(1);
     this.loadLog();
   }
 

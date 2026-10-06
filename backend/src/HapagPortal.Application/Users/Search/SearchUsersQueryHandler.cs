@@ -44,9 +44,13 @@ public sealed class SearchUsersQueryHandler(IApplicationDbContext dbContext)
 
         var total = await query.CountAsync(cancellationToken);
 
-        var users = await query
-            .OrderBy(u => u.DisplayId ?? int.MaxValue)
-            .ThenBy(u => u.LastName)
+        var users = await SearchUsersQuery.Sorts
+            .Apply(
+                query,
+                request.Sort,
+                request.Direction,
+                q => q.OrderBy(u => u.DisplayId ?? int.MaxValue).ThenBy(u => u.LastName),
+                q => q.ThenBy(u => u.Id))
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);

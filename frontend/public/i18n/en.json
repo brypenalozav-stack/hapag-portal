@@ -751,6 +751,7 @@
       "hide": "Hide",
       "loadError": "Could not load the audit log.",
       "next": "Next",
+      "pagination": "Audit pagination",
       "previous": "Previous",
       "search": "Search",
       "showing": "Showing {{ shown }} of {{ total }} found",
@@ -2764,6 +2765,7 @@
       },
       "new": "New User",
       "next": "Next",
+      "pagination": "Users pagination",
       "previous": "Previous",
       "showing": "Showing {{ shown }} of {{ total }} found",
       "subtitle": "Platform users",
@@ -6484,6 +6486,40 @@
     },
     "toast": {
       "close": "Close notice"
+    },
+    "paginator": {
+      "range": "Showing {{ from }}–{{ to }} of {{ total }}",
+      "pageSize": "Rows per page",
+      "first": "First page",
+      "last": "Last page",
+      "previous": "Previous",
+      "next": "Next",
+      "goTo": "Go to page {{ page }}"
+    },
+    "sort": {
+      "ascending": "sort ascending",
+      "descending": "sort descending",
+      "reset": "remove sorting"
+    },
+    "menu": {
+      "group": {
+        "home": "Home",
+        "shipments": "Shipments",
+        "payments": "Payments & billing",
+        "services": "Services",
+        "organization": "My organization",
+        "operations": "Operations",
+        "administration": "Administration"
+      },
+      "column": {
+        "queues": "Queues",
+        "dataLoad": "Data loading",
+        "reports": "Reports & audit",
+        "general": "General",
+        "chargesTariffs": "Charges & tariffs",
+        "paymentsConfig": "Payments",
+        "assistant": "Assistant"
+      }
     }
   },
   "shipments": {

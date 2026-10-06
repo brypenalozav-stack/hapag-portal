@@ -5,11 +5,12 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AdminUserService } from '../../../core/services/admin-user.service';
 import { AdminUser, RoleOption } from '../../../core/models/admin-user.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, TranslocoPipe, LoadingSpinnerComponent],
+  imports: [FormsModule, ReactiveFormsModule, TranslocoPipe, LoadingSpinnerComponent, PaginatorComponent],
   templateUrl: './users.html',
   styles: [':host { display: block; }'],
 })
@@ -22,7 +23,7 @@ export class UsersComponent implements OnInit {
   roles = signal<RoleOption[]>([]);
   total = signal(0);
   page = signal(1);
-  pageSize = 10;
+  pageSize = signal(10);
   loading = signal(false);
   error = signal('');
 
@@ -62,7 +63,7 @@ export class UsersComponent implements OnInit {
       roleCode: this.roleFilter || undefined,
       search: this.searchTerm || undefined,
       page: this.page(),
-      pageSize: this.pageSize,
+      pageSize: this.pageSize(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.users.set(res.items);
@@ -122,14 +123,15 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.total() / this.pageSize));
+  changePage(page: number): void {
+    this.page.set(page);
+    this.load();
   }
 
-  changePage(delta: number): void {
-    const next = this.page() + delta;
-    if (next < 1 || next > this.totalPages) return;
-    this.page.set(next);
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.page.set(1);
     this.load();
   }
 }
