@@ -31,6 +31,7 @@ import { AddToCartDialogComponent, AddToCartTarget } from '../../../shared/compo
 import { ShipmentDocumentsComponent } from '../../documents/shipment-documents/shipment-documents';
 import { ShipmentIssuanceComponent } from '../shipment-issuance/shipment-issuance';
 import { ShipmentTatcComponent } from '../shipment-tatc/shipment-tatc';
+import { AvailableServicesComponent } from '../../service-requests/available-services/available-services';
 
 /** Orígenes del acceso con los que se muestra la sección "Accesos" del BL. */
 const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
@@ -48,6 +49,8 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
  * M6-09); la carta de responsabilidad emitida desde los cargos o desde los documentos actualiza ambas.
  * Ola F: estado de emisión del documento de transporte (M2-02), TATC del BL de importación por contenedor
  * (M2-09) y, para el administrador interno, la publicación del BL por DIFU de destino final (M2-01).
+ * Fase 2, Ola G: sección "Servicios disponibles" con los servicios on demand del BL o booking que el usuario puede ver
+ * (M2-03, M2-04), la estimación del cobro y el acceso a la solicitud; a pedido, los no disponibles con el motivo.
  */
 @Component({
   selector: 'app-shipment-detail',
@@ -56,7 +59,7 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
     RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, CodeLabelPipe,
     StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
     AccessSourceBadgeComponent, ShipmentAccessComponent, ChargesPanelComponent, AddToCartDialogComponent,
-    ShipmentDocumentsComponent, ShipmentIssuanceComponent, ShipmentTatcComponent,
+    ShipmentDocumentsComponent, ShipmentIssuanceComponent, ShipmentTatcComponent, AvailableServicesComponent,
   ],
   templateUrl: './shipment-detail.html',
   styleUrl: './shipment-detail.scss',

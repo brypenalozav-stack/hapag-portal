@@ -1,0 +1,150 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'warehouse.history.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/warehouse">{{ 'warehouse.title' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ 'warehouse.history.title' | transloco }}</li>
+    </ol>
+  </nav>
+  <h1>{{ 'warehouse.history.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'warehouse.history.subtitle' | transloco }}</p>
+</div>
+
+<form class="hl-card p-3 mb-3" role="search" novalidate [attr.aria-label]="'warehouse.history.filters.label' | transloco" (ngSubmit)="search()">
+  @if (filterError()) {
+    <div class="alert alert-danger py-2" role="alert">{{ filterError() | transloco }}</div>
+  }
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="wh-history-bl" class="form-label small fw-semibold">{{ 'warehouse.history.filters.bl' | transloco }}</label>
+      <input id="wh-history-bl" type="text" class="form-control" name="blNumber" autocomplete="off" [(ngModel)]="filters.blNumber" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="wh-history-status" class="form-label small fw-semibold">{{ 'warehouse.history.filters.status' | transloco }}</label>
+      <select id="wh-history-status" class="form-select" name="status" [(ngModel)]="filters.status">
+        <option value="">{{ 'warehouse.history.filters.all' | transloco }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="wh-history-from" class="form-label small fw-semibold">{{ 'warehouse.history.filters.from' | transloco }}</label>
+      <input id="wh-history-from" type="date" class="form-control" name="from" aria-describedby="wh-history-dates-help" [(ngModel)]="filters.from" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="wh-history-to" class="form-label small fw-semibold">{{ 'warehouse.history.filters.to' | transloco }}</label>
+      <input id="wh-history-to" type="date" class="form-control" name="to" aria-describedby="wh-history-dates-help" [(ngModel)]="filters.to" />
+    </div>
+    <div class="col-lg-3 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'warehouse.history.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'warehouse.history.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+  <p id="wh-history-dates-help" class="form-text mb-0">{{ 'warehouse.history.filters.datesHelp' | transloco }}</p>
+</form>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search(page())" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (result(); as r) {
+  @if (r.items.length === 0) {
+    <app-state-message kind="empty" [messageKey]="'warehouse.history.empty'" />
+  } @else {
+    <div class="hl-card mb-3">
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'warehouse.history.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'warehouse.history.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'warehouse.history.col.date' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.col.status' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.col.shipment' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.col.change' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'warehouse.history.col.amount' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.col.payer' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.col.billing' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.col.requestedBy' | transloco }}</th>
+              <th scope="col"><span class="visually-hidden">{{ 'warehouse.history.col.actions' | transloco }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of r.items; track item.id) {
+              <tr [attr.data-testid]="'wh-history-' + item.blNumber">
+                <td>{{ item.createdAt | hlDate: 'datetime' : item.timeZone }}</td>
+                <td><span class="hl-badge" [class]="statusClass(item)">{{ item.status | codeLabel: statusKeys }}</span></td>
+                <td>
+                  <span class="fw-semibold d-block">{{ item.blNumber }}</span>
+                  @if (item.bookingNumber) {
+                    <span class="small text-muted d-block">{{ 'warehouse.history.booking' | transloco: { booking: item.bookingNumber } }}</span>
+                  }
+                  @if (item.containerNumber) {
+                    <span class="small text-muted d-block">{{ 'warehouse.history.container' | transloco: { container: item.containerNumber } }}</span>
+                  }
+                  @if (item.batchId) {
+                    <span class="small text-muted d-block">{{ 'warehouse.history.batchLine' | transloco: { line: item.batchLineNumber ?? '—' } }}</span>
+                  }
+                </td>
+                <td>{{ 'warehouse.history.fromTo' | transloco: { from: item.fromWarehouse, to: item.toWarehouse } }}</td>
+                <td class="text-end">
+                  @if (item.isFree) {
+                    <span class="d-block">{{ 'warehouse.history.free' | transloco }}</span>
+                    @if (item.entitlementSource) {
+                      <span class="small text-muted">{{ item.entitlementSource | codeLabel: sourceKeys }}</span>
+                    }
+                  } @else {
+                    {{ item.amount | hlCurrency: item.currency }}
+                  }
+                </td>
+                <!-- Razón social y RUT de quien pagó (M3-06): solo con un pago confirmado -->
+                <td data-testid="wh-history-payer">
+                  @if (item.payer; as payer) {
+                    <span class="d-block">{{ payer.name }}</span>
+                    <span class="small">{{ 'warehouse.history.taxId' | transloco: { taxId: payer.taxId } }}</span>
+                  } @else {
+                    <span class="small text-muted">{{ (item.isFree ? 'warehouse.history.noPaymentFree' : 'warehouse.history.noPayment') | transloco }}</span>
+                  }
+                </td>
+                <td>
+                  @if (item.billingTaxId) {
+                    <span class="d-block">{{ item.billingTaxId }}</span>
+                    @if (item.billingName) {
+                      <span class="small text-muted">{{ item.billingName }}</span>
+                    }
+                  } @else {
+                    <span aria-hidden="true">—</span>
+                    <span class="visually-hidden">{{ 'warehouse.history.noBilling' | transloco }}</span>
+                  }
+                </td>
+                <td class="small text-break">
+                  @if (item.requestedBy; as by) {
+                    <span class="d-block">{{ by.name }}</span>
+                  }
+                  {{ item.requestedByEmail ?? '—' }}
+                </td>
+                <td>
+                  <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/warehouse/history', item.id]"
+                     [attr.aria-label]="'warehouse.history.viewLabel' | transloco: { bl: item.blNumber, date: (item.createdAt | hlDate: 'datetime' : item.timeZone) }">
+                    {{ 'warehouse.history.view' | transloco }}
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="d-flex align-items-center gap-2" [attr.aria-label]="'warehouse.history.pagination.label' | transloco">
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="search(page() - 1)">{{ 'warehouse.history.pagination.previous' | transloco }}</button>
+        <span class="small">{{ 'warehouse.history.pagination.status' | transloco: { page: page(), pages: totalPages(), total: r.total } }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="search(page() + 1)">{{ 'warehouse.history.pagination.next' | transloco }}</button>
+      </nav>
+    } @else {
+      <p class="small text-muted">{{ 'warehouse.history.count' | transloco: { count: r.total } }}</p>
+    }
+  }
+}

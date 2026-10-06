@@ -683,6 +683,20 @@ html {
   color: var(--hl-text-muted);
 }
 
+// Mensaje de error junto al campo, además del resumen de errores (guía §3.2): rojo oscuro en el tema claro; en el
+// oscuro, el texto del tema (el rojo no llega a 4,5:1 sobre las superficies oscuras) y el peso lo distingue.
+.hl-field-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--bs-danger-text-emphasis);
+}
+
+[data-bs-theme="dark"] .hl-field-error {
+  color: var(--hl-emphasis);
+}
+
 // Estados vacío y error (NF-11, app-state-message)
 .hl-state-message {
   svg {

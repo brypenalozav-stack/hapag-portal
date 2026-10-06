@@ -1,0 +1,114 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'serviceRequests.list.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'serviceRequests.list.subtitle' | transloco }}</p>
+  </div>
+  @if (auth.canOperate()) {
+    <a routerLink="/service-requests/new" class="btn btn-hl-orange">{{ 'serviceRequests.list.new' | transloco }}</a>
+  }
+</div>
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'serviceRequests.list.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="requests-status" class="form-label small fw-semibold">{{ 'serviceRequests.list.filters.status' | transloco }}</label>
+      <select id="requests-status" class="form-select" name="status" [(ngModel)]="filters.status">
+        <option value="">{{ 'serviceRequests.list.filters.all' | transloco }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="requests-service" class="form-label small fw-semibold">{{ 'serviceRequests.list.filters.service' | transloco }}</label>
+      <select id="requests-service" class="form-select" name="definitionCode" [(ngModel)]="filters.definitionCode">
+        <option value="">{{ 'serviceRequests.list.filters.allServices' | transloco }}</option>
+        @for (code of definitionCodes; track code) {
+          <option [value]="code">{{ code | codeLabel: definitionKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="requests-bl" class="form-label small fw-semibold">{{ 'serviceRequests.list.filters.bl' | transloco }}</label>
+      <input id="requests-bl" type="text" class="form-control" name="blNumber" autocomplete="off" [(ngModel)]="filters.blNumber" />
+    </div>
+    <div class="col-sm-6 col-lg-3 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'serviceRequests.list.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'serviceRequests.list.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search(page())" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (result(); as r) {
+  @if (r.items.length === 0) {
+    <app-state-message kind="empty" [messageKey]="'serviceRequests.list.empty'" />
+  } @else {
+    <div class="hl-card mb-3">
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'serviceRequests.list.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'serviceRequests.list.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'serviceRequests.list.col.request' | transloco }}</th>
+              <th scope="col">{{ 'serviceRequests.list.col.service' | transloco }}</th>
+              <th scope="col">{{ 'serviceRequests.list.col.shipment' | transloco }}</th>
+              <th scope="col">{{ 'serviceRequests.list.col.status' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'serviceRequests.list.col.total' | transloco }}</th>
+              <th scope="col">{{ 'serviceRequests.list.col.created' | transloco }}</th>
+              <th scope="col">{{ 'serviceRequests.list.col.updated' | transloco }}</th>
+              <th scope="col"><span class="visually-hidden">{{ 'serviceRequests.list.col.actions' | transloco }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of r.items; track item.id) {
+              <tr [attr.data-testid]="'request-row-' + item.requestNumber">
+                <td class="fw-semibold">{{ item.requestNumber }}</td>
+                <td>{{ name(item) }}</td>
+                <td>
+                  <span class="d-block">{{ item.blNumber }}</span>
+                  @if (item.bookingNumber) {
+                    <span class="small text-muted">{{ 'serviceRequests.list.booking' | transloco: { booking: item.bookingNumber } }}</span>
+                  }
+                </td>
+                <td><span class="hl-badge" [class]="statusClass(item)">{{ item.status | codeLabel: statusKeys }}</span></td>
+                <td class="text-end">
+                  @if (item.isExempt) {
+                    {{ 'serviceRequests.list.exempt' | transloco }}
+                  } @else if (item.currency && item.totalAmount > 0) {
+                    {{ item.totalAmount | hlCurrency: item.currency }}
+                  } @else {
+                    {{ 'serviceRequests.list.noCharge' | transloco }}
+                  }
+                </td>
+                <td>{{ item.createdAt | hlDate: 'datetime' }}</td>
+                <td>{{ item.statusChangedAt | hlDate: 'datetime' }}</td>
+                <td>
+                  <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/service-requests', item.id]"
+                     [attr.aria-label]="'serviceRequests.list.viewLabel' | transloco: { number: item.requestNumber }">
+                    {{ 'serviceRequests.list.view' | transloco }}
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="d-flex align-items-center gap-2" [attr.aria-label]="'serviceRequests.list.pagination.label' | transloco">
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="search(page() - 1)">{{ 'serviceRequests.list.pagination.previous' | transloco }}</button>
+        <span class="small">{{ 'serviceRequests.list.pagination.status' | transloco: { page: page(), pages: totalPages(), total: r.total } }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="search(page() + 1)">{{ 'serviceRequests.list.pagination.next' | transloco }}</button>
+      </nav>
+    } @else {
+      <p class="small text-muted">{{ 'serviceRequests.list.count' | transloco: { count: r.total } }}</p>
+    }
+  }
+}

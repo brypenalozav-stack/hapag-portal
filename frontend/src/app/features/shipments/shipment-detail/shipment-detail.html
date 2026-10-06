@@ -310,6 +310,9 @@
     </section>
   }
 
+  <!-- Servicios on demand del embarque (M2-03, M2-04, M3-07 a M3-15) -->
+  <app-available-services [blNumber]="s.blNumber" />
+
   <!-- Repositorio documental del embarque y solicitudes de documentos (M6-01 a M6-09) -->
   <app-shipment-documents [blNumber]="s.blNumber" [canOperate]="s.canOperate" (changed)="onDocumentsChanged()" />
 

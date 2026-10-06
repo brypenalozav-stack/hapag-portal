@@ -1089,6 +1089,329 @@
         "transmissions": "Transmisiones a Aduana"
       }
     },
+    "serviceDefinitions": {
+      "editor": {
+        "billing": {
+          "acceptanceRequired": "Exigir que el cliente acepte la tarifa antes de enviar",
+          "billingRequired": "Exigir los datos de facturación",
+          "legend": "Facturación y aceptación"
+        },
+        "breadcrumbLabel": "Ruta de navegación",
+        "cancel": "Volver al listado",
+        "conditions": {
+          "countries": "Países",
+          "legend": "Condiciones de aplicación",
+          "multiple": "Permitir más de una solicitud por BL",
+          "operations": "Operaciones",
+          "reference": "Se solicita con",
+          "requiresContainers": "El embarque debe tener contenedores",
+          "statuses": "Estados del BL exigidos",
+          "statusesHelp": "Separados por coma, por ejemplo Arrived, Released. En blanco, cualquier estado.",
+          "window": "Ventana del embarque"
+        },
+        "create": "Crear el servicio",
+        "created": "Servicio creado.",
+        "deactivate": "Desactivar",
+        "deactivated": "Servicio desactivado.",
+        "editTitle": "Editar servicio on demand",
+        "errors": {
+          "action": "Elija la acción de la matriz de accesos.",
+          "code": "El código debe empezar con una letra y tener entre 2 y 50 letras, números o guiones bajos.",
+          "concept": "Elija el concepto de cobro.",
+          "containersFields": "El formulario admite un solo campo de contenedores.",
+          "countries": "Elija al menos un país.",
+          "deactivate": "No pudimos desactivar el servicio.",
+          "deadlineRule": "Con el plazo aduanero, ingrese la regla de plazo.",
+          "fieldKey": "Campo {{ number }}: la clave debe empezar con minúscula y tener solo letras y números.",
+          "fieldKeyDuplicated": "Campo {{ number }}: la clave ya está en otro campo.",
+          "fieldLabelEn": "Campo {{ number }}: ingrese la etiqueta en inglés.",
+          "fieldLabelEs": "Campo {{ number }}: ingrese la etiqueta en español.",
+          "max": "Campo {{ number }}: el máximo debe ser un número.",
+          "maxLength": "Campo {{ number }}: el largo máximo debe ser un entero mayor que cero.",
+          "measure": "El campo de la medida debe ser un campo numérico del formulario.",
+          "min": "Campo {{ number }}: el mínimo debe ser un número.",
+          "minMax": "Campo {{ number }}: el mínimo no puede ser mayor que el máximo.",
+          "nameEn": "Ingrese el nombre en inglés.",
+          "nameEs": "Ingrese el nombre en español.",
+          "offset": "El desfase debe ser un número entero de horas.",
+          "operations": "Elija al menos una operación.",
+          "optionDuplicated": "Campo {{ number }}, opción {{ option }}: el valor está repetido.",
+          "optionLabels": "Campo {{ number }}, opción {{ option }}: ingrese los textos en español y en inglés.",
+          "optionValue": "Campo {{ number }}, opción {{ option }}: ingrese el valor.",
+          "options": "Campo {{ number }}: la selección necesita al menos una opción.",
+          "order": "El orden debe ser un número entero.",
+          "perContainer": "Para cobrar por contenedor, el formulario necesita un campo de contenedores.",
+          "sourceChargePerRequest": "Con cargos del sistema de origen, la cantidad debe ser por solicitud.",
+          "submit": "No pudimos guardar el servicio.",
+          "summaryTitle": "Revise estos datos:",
+          "timingMilestone": "Para usar una regla de plazo, elija un hito del embarque.",
+          "tooManyFields": "El formulario admite hasta {{ max }} campos."
+        },
+        "fields": {
+          "add": "Agregar campo",
+          "added": "Se agregó el campo {{ number }}.",
+          "empty": "El servicio no pide datos adicionales.",
+          "help": "Campos que el cliente completa, en el orden en que se muestran. Hasta {{ max }} campos.",
+          "helpEn": "Ayuda en inglés",
+          "helpEs": "Ayuda en español",
+          "integer": "Solo enteros",
+          "key": "Clave",
+          "keyHelp": "La clave empieza con minúscula y solo lleva letras y números (máximo 40), por ejemplo returnDate.",
+          "labelEn": "Etiqueta en inglés",
+          "labelEs": "Etiqueta en español",
+          "legend": "Formulario del servicio",
+          "max": "Máximo",
+          "maxLength": "Largo máximo",
+          "maxReached": "El formulario admite hasta {{ max }} campos.",
+          "min": "Mínimo",
+          "moveDown": "Bajar",
+          "moveDownLabel": "Bajar el campo {{ name }}",
+          "moveUp": "Subir",
+          "moveUpLabel": "Subir el campo {{ name }}",
+          "moved": "El campo {{ name }} quedó en la posición {{ position }} de {{ total }}.",
+          "remove": "Quitar",
+          "removeLabel": "Quitar el campo {{ name }}",
+          "removed": "Se quitó el campo {{ name }}.",
+          "required": "Obligatorio",
+          "title": "Campo {{ number }}: {{ name }}",
+          "type": "Tipo",
+          "unnamed": "campo {{ number }} sin clave"
+        },
+        "formTitle": "Definición del servicio",
+        "general": {
+          "action": "Acción de la matriz de accesos",
+          "actionHelp": "El servicio se muestra solo a los roles a los que la matriz habilita esta acción.",
+          "active": "Activo",
+          "code": "Código",
+          "codeHelp": "Letras, números y guion bajo; empieza con una letra. Se guarda en mayúsculas.",
+          "descriptionEn": "Descripción en inglés",
+          "descriptionEs": "Descripción en español",
+          "legend": "Datos generales",
+          "nameEn": "Nombre en inglés",
+          "nameEs": "Nombre en español",
+          "order": "Orden"
+        },
+        "inactiveNotice": "El servicio está inactivo: los clientes no lo ven. Márquelo como activo y guarde para reactivarlo.",
+        "loadError": "No pudimos cargar el servicio.",
+        "newTitle": "Nuevo servicio on demand",
+        "notFound": "No encontramos el servicio.",
+        "options": {
+          "add": "Agregar opción",
+          "addLabel": "Agregar una opción al campo {{ name }}",
+          "added": "Se agregó la opción {{ number }}.",
+          "caption": "Opciones del campo {{ name }}",
+          "col": {
+            "actions": "Acciones",
+            "labelEn": "Texto en inglés",
+            "labelEs": "Texto en español",
+            "value": "Valor"
+          },
+          "labelEnLabel": "Texto en inglés de la opción {{ number }}",
+          "labelEsLabel": "Texto en español de la opción {{ number }}",
+          "remove": "Quitar",
+          "removeLabel": "Quitar la opción {{ number }} del campo {{ name }}",
+          "removed": "Se quitó la opción {{ number }}.",
+          "title": "Opciones",
+          "valueLabel": "Valor de la opción {{ number }}"
+        },
+        "pricing": {
+          "concept": "Concepto de cobro",
+          "conceptPlaceholder": "Seleccione el concepto",
+          "exemption": "Concepto de exención en Nexus",
+          "exemptionHelp": "Opcional. Por ejemplo XOM: con una excepción vigente no se cobra.",
+          "lateTariffCode": "Código de tarifa fuera de plazo",
+          "lateTariffCodeHelp": "Opcional. Se usa después del hito, por ejemplo FUERA_PLAZO.",
+          "legend": "Cobro",
+          "measure": "Campo con la medida de los tramos",
+          "measureHelp": "Campo numérico del formulario con que se elige el tramo de la tarifa.",
+          "measureNone": "Ninguno (tiempo desde el hito o por unidades)",
+          "mode": "Modo de cobro",
+          "modeHelp": "Tarifa del portal (genera un cargo local del BL) o cargos registrados en el sistema de origen.",
+          "quantity": "Cantidad",
+          "soc": "No cobrar los contenedores del embarcador (SOC)",
+          "tariffCode": "Código de tarifa en plazo",
+          "tariffCodeHelp": "Opcional. Código de la tarifa del mantenedor, por ejemplo PLAZO.",
+          "tariffsLink": "Ir a Tarifas",
+          "tariffsNote": "Los montos y los tramos de la tarifa se mantienen en el mantenedor de tarifas.",
+          "taxable": "Afecto a impuesto (IVA del país)"
+        },
+        "save": "Guardar cambios",
+        "subtitle": "Defina dónde aplica el servicio, qué datos pide, cómo se cobra y qué equipo lo aprueba o lo atiende.",
+        "teams": {
+          "approval": "Equipo que aprueba",
+          "fulfillment": "Equipo que atiende",
+          "legend": "Equipos y documento de salida",
+          "output": "Exigir un documento de salida para completar"
+        },
+        "timing": {
+          "deadlineRule": "Regla de plazo aduanero",
+          "deadlineRuleHelp": "Exigida con el plazo aduanero, por ejemplo BL_EMPTY_OUT.",
+          "legend": "Plazo",
+          "milestone": "Hito del embarque",
+          "offset": "Desfase en horas",
+          "offsetHelp": "Horas que se suman (o restan, con signo menos) al hito. Por ejemplo 72 o -48.",
+          "rule": "Regla de plazo"
+        },
+        "updated": "Cambios guardados."
+      },
+      "history": {
+        "caption": "Registro de cambios del servicio",
+        "col": {
+          "action": "Acción",
+          "current": "Valor nuevo",
+          "date": "Fecha",
+          "previous": "Valor anterior",
+          "user": "Usuario"
+        },
+        "empty": "No hay cambios registrados.",
+        "title": "Registro de cambios"
+      },
+      "list": {
+        "approval": "Aprueba: {{ team }}",
+        "caption": "Definiciones de servicios on demand",
+        "col": {
+          "actions": "Acciones",
+          "order": "Orden",
+          "pricing": "Cobro",
+          "scope": "Operación y países",
+          "service": "Servicio",
+          "status": "Estado",
+          "teams": "Equipos"
+        },
+        "edit": "Editar",
+        "editLabel": "Editar {{ service }}",
+        "empty": "No hay servicios con estos filtros.",
+        "filters": {
+          "allCountries": "Todos los países",
+          "allOperations": "Todas las operaciones",
+          "clear": "Limpiar",
+          "country": "País",
+          "includeInactive": "Incluir inactivos",
+          "label": "Filtros de los servicios",
+          "operation": "Operación",
+          "search": "Buscar"
+        },
+        "fulfillment": "Atiende: {{ team }}",
+        "loadError": "No pudimos cargar los servicios.",
+        "new": "Nuevo servicio",
+        "subtitle": "Servicios que los clientes pueden solicitar sobre sus embarques: condiciones, formulario, cobro y equipos.",
+        "title": "Servicios on demand"
+      },
+      "snapshot": {
+        "field": "{{ key }} ({{ type }})",
+        "fields": "{count, plural, one {# campo:} other {# campos:}}",
+        "noFields": "Sin campos",
+        "none": "Sin valor",
+        "pricing": "Cobro: {{ mode }}, {{ concept }}",
+        "scope": "{{ code }}: {{ operations }} en {{ countries }}",
+        "tariffs": "Tarifas: en plazo {{ inTime }}, fuera de plazo {{ late }}",
+        "teams": "Aprueba {{ approval }}; atiende {{ fulfillment }}",
+        "timing": "Plazo: {{ milestone }} con {{ offset }} h, {{ rule }}"
+      },
+      "status": {
+        "active": "Activo",
+        "inactive": "Inactivo"
+      }
+    },
+    "serviceRequests": {
+      "queue": {
+        "caption": "Solicitudes de servicio de los clientes",
+        "col": {
+          "actions": "Acciones",
+          "organization": "Organización",
+          "request": "Solicitud",
+          "service": "Servicio",
+          "shipment": "Embarque",
+          "since": "Último cambio",
+          "status": "Estado",
+          "team": "Equipo",
+          "total": "Total"
+        },
+        "count": "{count, plural, =0 {Sin solicitudes} one {# solicitud} other {# solicitudes}}",
+        "empty": "No hay solicitudes con estos filtros.",
+        "emptyActionable": "No hay solicitudes por atender.",
+        "exempt": "Exenta",
+        "filters": {
+          "actionable": "Por atender",
+          "actionableHelp": "Sin estado ni BL, la bandeja muestra lo que hay que atender: pendientes de aprobación y en curso, de la más antigua a la más reciente.",
+          "allCountries": "Todos",
+          "allServices": "Todos los servicios",
+          "allTeams": "Todos los equipos",
+          "bl": "BL o booking",
+          "clear": "Limpiar",
+          "country": "País",
+          "label": "Filtros de la bandeja",
+          "search": "Buscar",
+          "service": "Servicio",
+          "status": "Estado",
+          "team": "Equipo"
+        },
+        "loadError": "No pudimos cargar la bandeja.",
+        "noCharge": "Sin cobro",
+        "pagination": {
+          "label": "Páginas de la bandeja",
+          "next": "Siguiente",
+          "previous": "Anterior",
+          "status": "Página {{ page }} de {{ pages }} ({{ total }} solicitudes)"
+        },
+        "review": "Revisar",
+        "reviewLabel": "Revisar la solicitud {{ number }}",
+        "subtitle": "Solicitudes de los clientes para aprobar o atender por el equipo ED y Customer Service.",
+        "title": "Solicitudes de servicio"
+      },
+      "review": {
+        "actionError": "No pudimos registrar la acción.",
+        "actionsTitle": "Acciones del equipo",
+        "approve": {
+          "notes": "Notas para el cliente (opcional)",
+          "submit": "Aprobar la solicitud",
+          "title": "Aprobar"
+        },
+        "approved": "Solicitud {{ number }} aprobada.",
+        "breadcrumbCurrent": "Solicitud",
+        "breadcrumbLabel": "Ruta de navegación",
+        "complete": {
+          "notes": "Notas para el cliente (opcional)",
+          "outputRequired": "Suba el documento de salida antes de completar la solicitud.",
+          "submit": "Completar la solicitud",
+          "title": "Completar la atención"
+        },
+        "completed": "Solicitud {{ number }} completada.",
+        "loadError": "No pudimos cargar la solicitud.",
+        "notFound": "No encontramos la solicitud.",
+        "note": {
+          "done": "Nota agregada a la solicitud {{ number }}.",
+          "help": "La nota queda en la línea de tiempo de la solicitud, sin cambiar su estado.",
+          "label": "Nota",
+          "required": "Escriba la nota.",
+          "submit": "Agregar la nota",
+          "title": "Agregar una nota"
+        },
+        "output": {
+          "done": "Documento de salida cargado en la solicitud {{ number }}.",
+          "file": "Archivo del documento",
+          "fileSize": "El documento supera los 10 MB.",
+          "fileType": "El documento debe ser PDF, PNG o JPG.",
+          "required": "Elija el archivo del documento de salida.",
+          "requiredNotice": "Este servicio exige el documento de salida para completarse.",
+          "submit": "Subir el documento",
+          "title": "Documento de salida",
+          "uploadedNotice": "El documento de salida ya está cargado; puede subir otra versión."
+        },
+        "pendingApproval": "La solicitud espera la aprobación de {{ team }}. Al aprobarla se genera el cargo con la tarifa que el cliente aceptó.",
+        "reject": {
+          "help": "El cliente verá este motivo en el detalle de su solicitud.",
+          "reason": "Motivo del rechazo",
+          "required": "Ingrese el motivo del rechazo.",
+          "submit": "Rechazar la solicitud",
+          "title": "Rechazar"
+        },
+        "rejected": "Solicitud {{ number }} rechazada.",
+        "requiredMark": "(obligatorio)",
+        "title": "Revisar la solicitud {{ number }}",
+        "titleLoading": "Revisar la solicitud"
+      }
+    },
     "tariffs": {
       "editor": {
         "amount": "Monto",
@@ -1674,8 +1997,12 @@
     },
     "chargeConcept": {
       "advanceDemurrageBo": "Demoras anticipadas",
+      "blCorrection": "Corrección o aclaración de BL",
       "blFee": "Emisión de BL",
+      "blHouseTransmission": "Transmisión de BL hijo",
       "demurrage": "Demurrage",
+      "dropOff": "Drop Off",
+      "earlyArrival": "Ingreso anticipado (Early)",
       "eds": "EDS",
       "freight": "Flete",
       "gateIn": "Gate In",
@@ -1684,12 +2011,17 @@
       "ipo": "IPO",
       "isps": "ISPS",
       "lateArrival": "Llegada tardía",
+      "matrixLate": "Matriz fuera de plazo",
       "mhd": "MHD",
+      "opening": "Apertura",
+      "sealManagement": "Gestión de sellos",
       "thc": "THC",
       "thcRf": "THC reefer",
       "transitFee": "Tránsito",
       "transshipmentCert": "Certificado de transbordo",
-      "warehouseChange": "Cambio de almacén"
+      "valuation": "Valorización",
+      "warehouseChange": "Cambio de almacén",
+      "xom": "XOM (administración de contenedor)"
     },
     "chargeErrors": {
       "advanceNotRequired": "La cuenta no está sujeta a demoras anticipadas.",
@@ -1977,6 +2309,7 @@
       "invoice": "Factura",
       "responsibilityLetter": "Carta de responsabilidad",
       "serviceOrder": "Orden de servicio",
+      "serviceRequest": "Solicitud de servicio",
       "shipment": "Embarque",
       "tatcBatch": "Solicitud masiva de TATC",
       "warehouseChange": "Cambio de almacén",
@@ -1999,6 +2332,134 @@
       "fulfilled": "cumplido",
       "missing": "falta",
       "pending": "en revisión"
+    },
+    "serviceActorKind": {
+      "client": "Cliente",
+      "internal": "Equipo Hapag-Lloyd",
+      "system": "Sistema"
+    },
+    "serviceAvailabilityWindow": {
+      "afterArrival": "Después del arribo",
+      "afterDeparture": "Después del zarpe",
+      "always": "Siempre",
+      "beforeDeparture": "Antes del zarpe"
+    },
+    "serviceDefinition": {
+      "blCorrection": "Corrección o aclaración de BL",
+      "blHouseTransmission": "Transmisión de BL hijo",
+      "dropOff": "Drop Off SCL",
+      "earlyArrival": "Early",
+      "gateInReturn": "Gate In por devolución de unidades",
+      "lateArrival": "Late Arrival",
+      "matrixLate": "Matriz fuera de plazo",
+      "sealManagement": "Gestión de sellos",
+      "xom": "Administración de contenedor (XOM)"
+    },
+    "serviceFieldType": {
+      "containers": "Contenedores del BL",
+      "date": "Fecha",
+      "file": "Archivo adjunto",
+      "number": "Número",
+      "select": "Selección",
+      "text": "Texto",
+      "textarea": "Texto largo"
+    },
+    "serviceMilestone": {
+      "customsDeadline": "Plazo aduanero",
+      "none": "Sin hito",
+      "vesselArrival": "Arribo de la nave",
+      "vesselDeparture": "Zarpe de la nave"
+    },
+    "serviceMilestoneSource": {
+      "customsDeadline": "Plazo aduanero del BL o de su manifiesto",
+      "eta": "Arribo de la nave (ETA)",
+      "etd": "Zarpe de la nave (ETD)"
+    },
+    "servicePricingMode": {
+      "none": "Sin cobro",
+      "sourceCharge": "Cargo del sistema de origen",
+      "tariff": "Tarifa del portal"
+    },
+    "serviceQuantityMode": {
+      "perContainer": "Por contenedor",
+      "perRequest": "Por solicitud"
+    },
+    "serviceReferenceType": {
+      "bl": "Número de BL",
+      "booking": "Número de booking"
+    },
+    "serviceRequestErrors": {
+      "associationRequired": "Primero debe asociarse al BL desde el detalle del embarque.",
+      "attachmentNotFound": "No encontramos el archivo.",
+      "billingDataRequired": "Faltan datos de facturación.",
+      "billingTaxIdNotAllowed": "El RUT de facturación debe ser el de su organización o el de un mandante habilitado.",
+      "blNotFound": "No encontramos el BL o booking, o no tiene acceso a él.",
+      "conceptNotFound": "El concepto de cobro no existe en el mantenedor de tarifas.",
+      "conditionsUnavailable": "No pudimos consultar las exenciones en Nexus. Intente de nuevo en unos minutos.",
+      "containersRequired": "Debe elegir al menos un contenedor.",
+      "definitionExists": "Ya existe un servicio con ese código.",
+      "definitionInvalid": "La definición tiene una referencia que no existe (por ejemplo, la regla de plazo).",
+      "definitionInvalidSchema": "El formulario del servicio no es válido. Revise los campos.",
+      "definitionNotFound": "El servicio no existe o no está disponible para usted.",
+      "forbidden": "Su rol en el embarque o su perfil no le permite hacer esta acción.",
+      "invalidTransition": "La solicitud cambió de estado. Actualice la página.",
+      "measureRequired": "Falta el dato con que se calcula la tarifa por tramos.",
+      "noSourceCharge": "El sistema de origen no registra el cargo para este embarque.",
+      "notAssignedToTeam": "La solicitud no está asignada a su equipo.",
+      "notAvailable": "El servicio ya no está disponible para este embarque.",
+      "notEditable": "La solicitud ya no se puede modificar.",
+      "notFound": "No encontramos la solicitud.",
+      "outputDocumentRequired": "Debe subir el documento de salida antes de completar.",
+      "paymentInProgress": "No se puede anular: el cargo está en un pago en curso o ya pagado.",
+      "sourceUnavailable": "El sistema de origen no responde. Intente de nuevo en unos minutos.",
+      "tariffChanged": "La tarifa cambió. Revise el nuevo total y acéptelo otra vez.",
+      "tariffNotAccepted": "Debe aceptar la tarifa para enviar la solicitud.",
+      "tariffNotCovered": "La tarifa vigente no cubre este caso. Contacte a Customer Service.",
+      "tariffNotInForce": "No hay tarifa vigente para el servicio.",
+      "unavailable": "El servicio no está disponible en este momento. Intente de nuevo en unos minutos.",
+      "unknownAction": "La acción de la matriz de accesos no existe o no está activa.",
+      "unknownFileField": "El archivo no corresponde a un campo del formulario.",
+      "warehouseChangeNotFound": "No encontramos el cambio de almacén."
+    },
+    "serviceRequestStatus": {
+      "approved": "Aprobada",
+      "cancelled": "Anulada",
+      "completed": "Completada",
+      "draft": "Borrador",
+      "inProgress": "En curso",
+      "paid": "Pagada",
+      "pendingApproval": "Pendiente de aprobación",
+      "pendingPayment": "Pendiente de pago",
+      "rejected": "Rechazada",
+      "submitted": "Enviada"
+    },
+    "serviceTeam": {
+      "customerService": "Customer Service",
+      "ed": "Equipo ED",
+      "none": "Sin equipo"
+    },
+    "serviceTiming": {
+      "inTime": "Dentro de plazo",
+      "late": "Fuera de plazo",
+      "notApplicable": "Sin plazo"
+    },
+    "serviceTimingRule": {
+      "inTimeAndLate": "Tarifa en plazo y fuera de plazo",
+      "lateOnly": "Solo fuera de plazo",
+      "none": "Sin plazo"
+    },
+    "serviceUnavailableReason": {
+      "alreadyDeparted": "La nave ya zarpó.",
+      "alreadyRequested": "Ya hay una solicitud de este servicio para el embarque.",
+      "blStatus": "El estado del embarque no lo permite.",
+      "milestoneUnavailable": "No hay fecha del hito del embarque para calcular el plazo.",
+      "noContainers": "El embarque no tiene contenedores para este servicio.",
+      "noPermission": "Su rol en el embarque o su perfil no le permite solicitarlo.",
+      "noSourceCharge": "El sistema de origen no registra el cargo para este embarque.",
+      "notArrived": "La nave aún no arriba.",
+      "notDeparted": "La nave aún no zarpa.",
+      "notOverdue": "Todavía está dentro de plazo: el cobro aplica solo fuera de plazo.",
+      "tariffNotInForce": "No hay tarifa vigente para el servicio."
     },
     "shipmentDocumentOrigin": {
       "payment": "Emitido al confirmarse el pago",
@@ -2104,6 +2565,13 @@
       "cancelled": "Anulada",
       "completed": "Completada",
       "pending": "Pendiente de pago"
+    },
+    "warehouseHistoryEvent": {
+      "cancelled": "Anulado",
+      "completed": "Completado",
+      "freeEntitlementApplied": "Cambio gratuito aplicado",
+      "paymentStatusChanged": "Cambio de estado del pago",
+      "requested": "Solicitado"
     },
     "wideningStatus": {
       "active": "Vigente",
@@ -2284,6 +2752,10 @@
       "pay": {
         "description": "Pague cargos, flete y servicios agregados al carro.",
         "title": "Pagar cargos y servicios"
+      },
+      "requestService": {
+        "description": "Sellos, Drop Off, correcciones de BL, BL hijo y otros servicios de su embarque.",
+        "title": "Solicitar un servicio"
       },
       "shipments": {
         "description": "Estado, documentos y cargos de cada BL o booking.",
@@ -2718,7 +3190,15 @@
       "accessRevoked": "Acceso a embarques revocado",
       "accessRevokedByCascade": "Acceso revocado en cadena",
       "accessUpdated": "Acceso a embarques modificado",
-      "documentIssued": "Documento del embarque emitido"
+      "documentIssued": "Documento del embarque emitido",
+      "serviceRequestApproved": "Solicitud de servicio aprobada",
+      "serviceRequestCancelled": "Solicitud de servicio anulada",
+      "serviceRequestCompleted": "Solicitud de servicio completada",
+      "serviceRequestInProgress": "Solicitud de servicio en curso",
+      "serviceRequestPaid": "Solicitud de servicio pagada",
+      "serviceRequestPendingApproval": "Solicitud de servicio pendiente de aprobación",
+      "serviceRequestPendingPayment": "Solicitud de servicio pendiente de pago",
+      "serviceRequestRejected": "Solicitud de servicio rechazada"
     }
   },
   "organization": {
@@ -3103,6 +3583,359 @@
       "weighing": "Pesaje VGM"
     }
   },
+  "serviceRequests": {
+    "available": {
+      "acceptanceRequired": "Pide aceptar la tarifa antes de enviar.",
+      "approval": "Lo aprueba: {{ team }}.",
+      "availableBadge": "Disponible",
+      "billingRequired": "Pide los datos de facturación.",
+      "byBooking": "Se solicita con el número de booking.",
+      "empty": "No hay servicios disponibles para este embarque en este momento.",
+      "emptyAll": "No hay servicios para este embarque.",
+      "estimate": "Valor estimado con todos los contenedores: {{ amount }}",
+      "estimateFree": "Sin cobro estimado.",
+      "estimateLater": "El valor se calcula al completar el formulario.",
+      "fulfillment": "Lo atiende: {{ team }}.",
+      "includeUnavailable": "Mostrar también los no disponibles",
+      "loadError": "No pudimos cargar los servicios del embarque.",
+      "reasons": "Por qué no está disponible:",
+      "reference": "BL {{ bl }}, booking {{ booking }}, {{ operation }} ({{ country }})",
+      "request": "Solicitar",
+      "requestLabel": "Solicitar {{ service }}",
+      "retry": "Reintentar",
+      "title": "Servicios disponibles",
+      "unavailable": "No pudimos consultar los servicios del embarque. Intente de nuevo en unos minutos.",
+      "unavailableBadge": "No disponible"
+    },
+    "detail": {
+      "attachments": {
+        "caption": "Archivos de la solicitud",
+        "col": {
+          "actions": "Acciones",
+          "file": "Archivo",
+          "kind": "Tipo",
+          "size": "Tamaño",
+          "uploaded": "Subido"
+        },
+        "download": "Descargar",
+        "downloadError": "No pudimos descargar el archivo.",
+        "downloadLabel": "Descargar {{ name }}",
+        "downloaded": "Se descargó {{ name }}.",
+        "empty": "La solicitud no tiene archivos.",
+        "output": "Documento de salida",
+        "title": "Archivos",
+        "uploadedBy": "{{ date }} por {{ user }}"
+      },
+      "billing": {
+        "address": "Dirección",
+        "email": "Correo",
+        "name": "Razón social",
+        "taxId": "RUT o NIT",
+        "title": "Facturación"
+      },
+      "breadcrumbCurrent": "Solicitud",
+      "breadcrumbLabel": "Ruta de navegación",
+      "cancel": {
+        "confirm": "Sí, anular",
+        "done": "Solicitud {{ number }} anulada.",
+        "error": "No pudimos anular la solicitud.",
+        "help": "Si la anula, el cargo del servicio se retira y sale del carro. No se puede deshacer.",
+        "keep": "No anular",
+        "reason": "Motivo (opcional)",
+        "start": "Anular la solicitud",
+        "title": "Anular la solicitud"
+      },
+      "continue": "Continuar la solicitud",
+      "draftNotice": "Es un borrador: aún no se ha enviado.",
+      "inProgress": "La solicitud la está atendiendo {{ team }}.",
+      "loadError": "No pudimos cargar la solicitud.",
+      "notFound": "No encontramos la solicitud o no pertenece a su organización.",
+      "payment": {
+        "added": "El cargo de la solicitud {{ number }} quedó en el carro.",
+        "help": "El servicio se presta una vez confirmado el pago.",
+        "title": "Pago del servicio"
+      },
+      "pendingApproval": "La solicitud está en revisión de {{ team }}. Le avisaremos cuando la apruebe o la rechace.",
+      "quote": {
+        "title": "Valor del servicio"
+      },
+      "summary": {
+        "bl": "BL",
+        "booking": "Booking",
+        "createdAt": "Creada",
+        "noTeam": "Ninguno",
+        "operation": "Operación",
+        "operationValue": "{{ operation }} ({{ country }})",
+        "organization": "Organización",
+        "payment": "Pago",
+        "receipt": "Comprobante {{ number }}",
+        "rejectionReason": "Motivo del rechazo",
+        "requestedBy": "Solicitada por",
+        "status": "Estado",
+        "statusChangedAt": "Último cambio",
+        "submittedAt": "Enviada",
+        "tariffAccepted": "Tarifa aceptada",
+        "team": "Equipo a cargo",
+        "teamNotes": "Notas del equipo",
+        "title": "Estado y embarque"
+      },
+      "timeline": {
+        "title": "Línea de tiempo"
+      },
+      "title": "Solicitud {{ number }}",
+      "titleLoading": "Solicitud de servicio",
+      "upload": {
+        "done": "Se adjuntó {{ name }}.",
+        "error": "No pudimos adjuntar el archivo.",
+        "field": "Campo",
+        "fieldRequired": "Elija el campo del archivo.",
+        "file": "Archivo",
+        "fileRequired": "Elija un archivo.",
+        "fileSize": "El archivo supera los 10 MB.",
+        "fileType": "El archivo debe ser PDF, PNG o JPG.",
+        "submit": "Adjuntar",
+        "title": "Adjuntar un archivo al borrador"
+      },
+      "values": {
+        "title": "Datos de la solicitud"
+      }
+    },
+    "files": {
+      "sizeKb": "{{ size }} KB",
+      "sizeMb": "{{ size }} MB"
+    },
+    "form": {
+      "accept": "Acepto la tarifa del servicio por un total de {{ amount }}.",
+      "attached": "Archivo adjunto: {{ name }}",
+      "back": "Volver",
+      "billing": {
+        "activity": "Giro (opcional)",
+        "address": "Dirección",
+        "email": "Correo de facturación",
+        "emailHelp": "A este correo llega la factura.",
+        "errors": {
+          "addressRequired": "Ingrese la dirección.",
+          "emailFormat": "El correo no es válido. Use el formato nombre@empresa.cl.",
+          "emailRequired": "Ingrese el correo de facturación.",
+          "nameRequired": "Ingrese la razón social.",
+          "server": "Revise los datos de facturación.",
+          "taxIdFormat": "El RUT o NIT no tiene el formato esperado. Revise el ejemplo bajo el campo.",
+          "taxIdNotAllowed": "El RUT de facturación debe ser el de su organización o el de un mandante habilitado para este servicio.",
+          "taxIdRequired": "Ingrese el RUT o NIT de facturación."
+        },
+        "intro": "Ingrese los datos con que se emitirá la factura del servicio. Se completan con los de su organización; puede usar los de un mandante habilitado.",
+        "name": "Razón social",
+        "taxId": "RUT o NIT de facturación",
+        "taxIdHelpBo": "NIT solo con números, por ejemplo 1029384756.",
+        "taxIdHelpCl": "RUT con guion y dígito verificador, por ejemplo 76.123.456-7."
+      },
+      "breadcrumbLabel": "Ruta de navegación",
+      "cancel": "Salir sin enviar",
+      "containers": {
+        "all": "Seleccionar todos",
+        "allSelected": "{count, plural, one {Se seleccionó # contenedor} other {Se seleccionaron # contenedores}}",
+        "clear": "Quitar la selección",
+        "none": "El embarque no tiene contenedores disponibles.",
+        "noneSelected": "Se quitó la selección de contenedores.",
+        "option": "{{ number }} ({{ type }})",
+        "soc": "Contenedor del embarcador (SOC)"
+      },
+      "continue": "Continuar",
+      "draft": {
+        "continuing": "Está completando el borrador {{ number }}.",
+        "error": "No pudimos guardar el borrador.",
+        "save": "Guardar borrador",
+        "saved": "Borrador {{ number }} guardado.",
+        "view": "Ver el borrador"
+      },
+      "draftNotFound": "No encontramos el borrador.",
+      "errors": {
+        "acceptTariff": "Debe aceptar la tarifa para enviar la solicitud.",
+        "containersRequired": "Seleccione al menos un contenedor en {{ label }}.",
+        "date": "{{ label }}: ingrese una fecha válida.",
+        "fileRequired": "Adjunte el archivo de {{ label }}.",
+        "fileSize": "El archivo de {{ label }} supera los 10 MB.",
+        "fileType": "El archivo de {{ label }} debe ser PDF, PNG o JPG.",
+        "integer": "{{ label }}: ingrese un número entero.",
+        "max": "{{ label }}: el valor debe ser {{ max }} o menos.",
+        "maxLength": "{{ label }}: use hasta {{ max }} caracteres.",
+        "min": "{{ label }}: el valor debe ser {{ min }} o más.",
+        "number": "{{ label }}: ingrese un número, por ejemplo 12 o 12,5.",
+        "required": "Ingrese {{ label }}.",
+        "selectInvalid": "{{ label }}: elija una de las opciones.",
+        "selectRequired": "Seleccione {{ label }}.",
+        "server": "Revise {{ label }}.",
+        "serverForm": "Revise los datos del servicio.",
+        "submit": "No pudimos enviar la solicitud.",
+        "summaryTitle": "Revise estos datos:"
+      },
+      "hints": {
+        "date": "Elija la fecha en el calendario o escríbala.",
+        "file": "PDF, PNG o JPG de hasta 10 MB.",
+        "integer": "Solo números enteros.",
+        "max": "Valor máximo: {{ max }}.",
+        "maxLength": "Hasta {{ max }} caracteres.",
+        "min": "Valor mínimo: {{ min }}.",
+        "range": "Valor entre {{ min }} y {{ max }}."
+      },
+      "loadError": "No pudimos cargar el servicio.",
+      "noFields": "Este servicio no pide datos adicionales.",
+      "notAvailable": "Este servicio no se puede solicitar ahora para el embarque.",
+      "notEditable": "La solicitud {{ number }} ya fue enviada y no se puede modificar.",
+      "notOffered": "El servicio no se ofrece para este embarque o no está disponible para usted.",
+      "quote": {
+        "changed": "La tarifa cambió. Revise el nuevo total y acéptelo otra vez.",
+        "changedNotice": "La tarifa vigente cambió desde que la revisó. Este es el nuevo total: acéptelo otra vez para enviar.",
+        "error": "No pudimos calcular el valor del servicio.",
+        "loading": "Calculando el valor con la tarifa vigente…",
+        "ready": "Valor calculado. Revise el total antes de enviar.",
+        "readyFree": "El servicio no tiene cobro para este embarque.",
+        "retry": "Calcular de nuevo"
+      },
+      "required": "(obligatorio)",
+      "result": {
+        "addedToCart": "El cargo de la solicitud {{ number }} quedó en el carro.",
+        "announce": "Solicitud {{ number }} enviada. Estado: {{ status }}.",
+        "completed": "No tiene cobro y quedó completada.",
+        "inProgress": "No tiene cobro y ya la está atendiendo {{ team }}.",
+        "list": "Ir a Mis solicitudes",
+        "pendingApproval": "La revisará {{ team }}. Le avisaremos cuando la apruebe o la rechace; también puede ver el estado en Mis solicitudes.",
+        "pendingPayment": "El cargo del servicio está listo. Páguelo para que se preste el servicio.",
+        "submitted": "La solicitud quedó registrada.",
+        "title": "Solicitud {{ number }} enviada",
+        "view": "Ver la solicitud"
+      },
+      "review": {
+        "approvalNote": "Después de enviarla, la solicitud pasa a revisión de {{ team }}, que la aprueba o la rechaza.",
+        "billing": "Facturación",
+        "billingLine": "{{ name }}, RUT o NIT {{ taxId }}, factura a {{ email }}",
+        "data": "Datos ingresados",
+        "fulfillmentNote": "Después del pago, la atiende {{ team }}.",
+        "quote": "Valor del servicio"
+      },
+      "search": {
+        "bl": "BL",
+        "booking": "Booking",
+        "label": "Buscar el embarque",
+        "required": "Ingrese el número de BL o de booking.",
+        "submit": "Ver servicios",
+        "type": "Buscar por",
+        "value": "Número de BL o booking"
+      },
+      "selectPlaceholder": "Seleccione una opción",
+      "shipment": "BL {{ bl }}, booking {{ booking }}, {{ operation }} ({{ country }})",
+      "steps": {
+        "announce": "Paso {{ number }} de {{ total }}: {{ name }}",
+        "billing": "Datos de facturación",
+        "confirm": "Revisión y envío",
+        "details": "Datos del servicio",
+        "item": "Paso {{ number }}: {{ name }}",
+        "label": "Pasos de la solicitud"
+      },
+      "submit": "Enviar solicitud",
+      "subtitle": "Elija el embarque y el servicio, complete los datos, revise el valor y envíe la solicitud.",
+      "title": "Solicitar un servicio"
+    },
+    "list": {
+      "booking": "Booking {{ booking }}",
+      "caption": "Solicitudes de servicios",
+      "col": {
+        "actions": "Acciones",
+        "created": "Creada",
+        "request": "Solicitud",
+        "service": "Servicio",
+        "shipment": "Embarque",
+        "status": "Estado",
+        "total": "Total",
+        "updated": "Último cambio"
+      },
+      "count": "{count, plural, =0 {Sin solicitudes} one {# solicitud} other {# solicitudes}}",
+      "empty": "No hay solicitudes con estos filtros.",
+      "exempt": "Exenta",
+      "filters": {
+        "all": "Todos los estados",
+        "allServices": "Todos los servicios",
+        "bl": "BL o booking",
+        "clear": "Limpiar",
+        "label": "Filtros de las solicitudes",
+        "search": "Buscar",
+        "service": "Servicio",
+        "status": "Estado"
+      },
+      "loadError": "No pudimos cargar sus solicitudes.",
+      "new": "Solicitar un servicio",
+      "noCharge": "Sin cobro",
+      "pagination": {
+        "label": "Páginas de las solicitudes",
+        "next": "Siguiente",
+        "previous": "Anterior",
+        "status": "Página {{ page }} de {{ pages }} ({{ total }} solicitudes)"
+      },
+      "subtitle": "Solicitudes de servicios de su organización, con su estado y su historial.",
+      "title": "Mis solicitudes",
+      "view": "Ver",
+      "viewLabel": "Ver la solicitud {{ number }}"
+    },
+    "payment": {
+      "accountPayments": "Pagar desde mi cuenta",
+      "addToCart": "Agregar al carro",
+      "caption": "Cargos de la solicitud",
+      "cartLabel": "{{ service }}, solicitud {{ number }}",
+      "col": {
+        "concept": "Concepto",
+        "status": "Estado",
+        "total": "Total"
+      },
+      "inCart": "En el carro",
+      "viewCart": "Ver el carro"
+    },
+    "quote": {
+      "col": {
+        "amount": "Neto",
+        "concept": "Concepto",
+        "container": "Contenedor",
+        "outcome": "Resultado",
+        "payable": "A pagar",
+        "tariff": "Tarifa",
+        "total": "Total",
+        "type": "Tipo"
+      },
+      "elapsedLate": "Tiempo fuera de plazo",
+      "excluded": "No se cobran los contenedores del embarcador (SOC): {{ containers }}.",
+      "exempt": "El servicio no tiene cobro: aplica una exención vigente.",
+      "exemptionReference": "Referencia de la exención: {{ reference }}",
+      "linesCaption": "Detalle del cobro por contenedor",
+      "measure": "Medida",
+      "milestone": "Hito del plazo",
+      "net": "Neto",
+      "noCharge": "Sin cobro",
+      "perRequest": "Por solicitud",
+      "pricing": "Cobro",
+      "quantity": "Cantidad",
+      "quotedAt": "Calculado el {{ date }} con la tarifa vigente en ese momento.",
+      "sourceCaption": "Cargos del sistema de origen con las reglas de exención",
+      "tariff": "Tarifa",
+      "tariffSource": "Origen: {{ source }}",
+      "tax": "Impuesto ({{ rate }} %)",
+      "tier": "Tramo aplicado",
+      "tierAmount": "Valor del tramo: {{ amount }}",
+      "tierRange": "De {{ from }} a {{ to }} ({{ unit }})",
+      "total": "Total",
+      "units": "{{ units }} ({{ unit }})"
+    },
+    "timeline": {
+      "actor": "por {{ kind }}: {{ name }}",
+      "empty": "Todavía no hay cambios registrados.",
+      "from": "desde {{ status }}",
+      "label": "Cambios de estado de la solicitud",
+      "note": "Nota"
+    },
+    "values": {
+      "empty": "Sin dato",
+      "noFields": "El servicio no pide datos adicionales.",
+      "noFile": "Sin archivo"
+    }
+  },
   "shared": {
     "addToCart": {
       "added": "{count, plural, one {{{ label }} se agregó al carro en {{ currency }}.} other {Se agregaron # ítems al carro en {{ currency }}.}}",
@@ -3284,7 +4117,10 @@
         "paymentsFinance": "Finanzas: pagos",
         "publicationRules": "Reglas de publicación",
         "reports": "Reportes",
+        "serviceDefinitions": "Servicios on demand",
         "serviceOrders": "Órdenes de Servicio",
+        "serviceRequestQueue": "Solicitudes de servicio",
+        "serviceRequests": "Mis solicitudes",
         "shipments": "Embarques",
         "tariffs": "Tarifas",
         "tatc": "Solicitar TATC",
@@ -4008,6 +4844,84 @@
       "submit": "{count, plural, =0 {Enviar solicitud masiva} one {Enviar solicitud masiva (# línea)} other {Enviar solicitud masiva (# líneas)}}",
       "submitted": "{count, plural, one {Solicitud masiva recibida con # línea.} other {Solicitud masiva recibida con # líneas.}}",
       "title": "Solicitud masiva"
+    },
+    "history": {
+      "batchLine": "Solicitud masiva, línea {{ line }}",
+      "booking": "Booking {{ booking }}",
+      "breadcrumbLabel": "Ruta de navegación",
+      "caption": "Historial de cambios de almacén",
+      "col": {
+        "actions": "Acciones",
+        "amount": "Valor",
+        "billing": "RUT de facturación",
+        "change": "Cambio",
+        "date": "Fecha",
+        "payer": "Pagado por",
+        "requestedBy": "Solicitado por",
+        "shipment": "Embarque",
+        "status": "Estado"
+      },
+      "container": "Contenedor {{ container }}",
+      "count": "{count, plural, =0 {Sin cambios} one {# cambio} other {# cambios}}",
+      "detail": {
+        "allContainers": "Todo el BL",
+        "batch": "Solicitud masiva",
+        "bl": "BL",
+        "booking": "Booking",
+        "breadcrumbCurrent": "Detalle",
+        "breadcrumbLabel": "Ruta de navegación",
+        "col": {
+          "actor": "Usuario",
+          "date": "Fecha",
+          "event": "Evento",
+          "notes": "Notas",
+          "reference": "Referencia",
+          "status": "Estado"
+        },
+        "container": "Contenedor",
+        "loadError": "No pudimos cargar el cambio de almacén.",
+        "noEvents": "No hay eventos registrados.",
+        "notFound": "No encontramos el cambio de almacén o no pertenece a su organización.",
+        "payment": "Pago",
+        "receipt": "Comprobante {{ number }}",
+        "summary": "Resumen",
+        "tariff": "Tarifa {{ code }}",
+        "timeline": "Trazabilidad",
+        "timelineCaption": "Eventos del cambio de almacén",
+        "title": "Cambio de almacén del BL {{ bl }}",
+        "titleLoading": "Cambio de almacén"
+      },
+      "empty": "No hay cambios de almacén con estos filtros.",
+      "filters": {
+        "all": "Todos los estados",
+        "bl": "BL o booking",
+        "clear": "Limpiar",
+        "datesHelp": "Fecha de la solicitud en la hora local del país del embarque.",
+        "from": "Desde",
+        "label": "Filtros del historial",
+        "rangeError": "La fecha hasta no puede ser anterior a la fecha desde.",
+        "search": "Buscar",
+        "status": "Estado",
+        "to": "Hasta"
+      },
+      "free": "Gratuito",
+      "fromTo": "De {{ from }} a {{ to }}",
+      "link": "Ver historial de cambios",
+      "loadError": "No pudimos cargar el historial.",
+      "noBilling": "Sin RUT de facturación",
+      "noPayment": "Sin pago confirmado",
+      "noPaymentFree": "No requiere pago",
+      "pagination": {
+        "label": "Páginas del historial",
+        "next": "Siguiente",
+        "previous": "Anterior",
+        "status": "Página {{ page }} de {{ pages }} ({{ total }} cambios)"
+      },
+      "subtitle": "Solicitudes de su organización con su estado, quién las pidió y quién las pagó.",
+      "taxId": "RUT o NIT {{ taxId }}",
+      "title": "Historial de cambios de almacén",
+      "view": "Ver detalle",
+      "viewLabel": "Ver el detalle del cambio del BL {{ bl }} del {{ date }}"
     },
     "progress": {
       "back": "Volver a cambio de almacén",

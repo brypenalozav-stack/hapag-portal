@@ -1,0 +1,106 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'serviceRequests.detail.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/service-requests">{{ 'serviceRequests.list.title' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ request()?.requestNumber ?? ('serviceRequests.detail.breadcrumbCurrent' | transloco) }}</li>
+    </ol>
+  </nav>
+  <h1 id="srv-detail-title" tabindex="-1">
+    @if (request(); as r) {
+      {{ 'serviceRequests.detail.title' | transloco: { number: r.requestNumber } }}
+    } @else {
+      {{ 'serviceRequests.detail.titleLoading' | transloco }}
+    }
+  </h1>
+  @if (request(); as r) {
+    <p class="text-muted mb-0">{{ name(r) }}</p>
+  }
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (request(); as r) {
+  <!-- Lo que el cliente puede hacer ahora, según el estado -->
+  @switch (r.status) {
+    @case ('Draft') {
+      <div class="alert alert-info d-flex flex-wrap align-items-center gap-2" role="note">
+        <span class="me-auto">{{ 'serviceRequests.detail.draftNotice' | transloco }}</span>
+        @if (r.canEdit) {
+          <a class="btn btn-sm btn-hl-orange" routerLink="/service-requests/new" [queryParams]="{ draft: r.id }">{{ 'serviceRequests.detail.continue' | transloco }}</a>
+        }
+      </div>
+    }
+    @case ('PendingApproval') {
+      <div class="alert alert-info" role="note" data-testid="srv-pending-approval">
+        {{ 'serviceRequests.detail.pendingApproval' | transloco: { team: ((r.assignedTeam ?? r.approvalTeam) | codeLabel: teamKeys) } }}
+      </div>
+    }
+    @case ('PendingPayment') {
+      <section class="hl-card p-4 mb-4" aria-labelledby="srv-payment-title">
+        <h2 id="srv-payment-title" class="section-title mb-2">{{ 'serviceRequests.detail.payment.title' | transloco }}</h2>
+        <p class="small text-muted">{{ 'serviceRequests.detail.payment.help' | transloco }}</p>
+        <app-service-request-payment [request]="r" (added)="onPaymentAdded()" />
+      </section>
+    }
+    @case ('InProgress') {
+      <div class="alert alert-info" role="note">
+        {{ 'serviceRequests.detail.inProgress' | transloco: { team: ((r.assignedTeam ?? r.fulfillmentTeam) | codeLabel: teamKeys) } }}
+      </div>
+    }
+  }
+
+  @if (r.canCancel) {
+    @if (confirmingCancel()) {
+      <form class="hl-card p-4 mb-4" novalidate aria-labelledby="srv-cancel-title" (submit)="confirmCancel($event)" data-testid="srv-cancel-form">
+        <h2 id="srv-cancel-title" class="section-title mb-2" tabindex="-1">{{ 'serviceRequests.detail.cancel.title' | transloco }}</h2>
+        <p class="small">{{ 'serviceRequests.detail.cancel.help' | transloco }}</p>
+        @if (cancelError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ cancelError() }}</div>
+        }
+        <label for="srv-cancel-reason" class="form-label small fw-semibold">{{ 'serviceRequests.detail.cancel.reason' | transloco }}</label>
+        <textarea id="srv-cancel-reason" class="form-control mb-3" rows="2" maxlength="1000" name="cancelReason" [(ngModel)]="cancelReason"></textarea>
+        <div class="d-flex flex-wrap gap-2">
+          <button type="submit" class="btn btn-danger" [disabled]="cancelling()">{{ 'serviceRequests.detail.cancel.confirm' | transloco }}</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="stopCancel()">{{ 'serviceRequests.detail.cancel.keep' | transloco }}</button>
+        </div>
+      </form>
+    } @else {
+      <div class="mb-4">
+        <button id="srv-cancel-start" type="button" class="btn btn-outline-secondary" (click)="startCancel()">{{ 'serviceRequests.detail.cancel.start' | transloco }}</button>
+      </div>
+    }
+  }
+
+  <app-service-request-overview [request]="r">
+    @if (r.canEdit && fileFields().length > 0) {
+      <form srvAttachmentsFooter class="p-3 border-top" novalidate aria-labelledby="srv-upload-title" (submit)="upload($event)">
+        <h3 id="srv-upload-title" class="h6 fw-bold">{{ 'serviceRequests.detail.upload.title' | transloco }}</h3>
+        @if (uploadError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ uploadError() }}</div>
+        }
+        <div class="row g-2 align-items-end">
+          <div class="col-md-4">
+            <label for="srv-upload-field" class="form-label small fw-semibold">{{ 'serviceRequests.detail.upload.field' | transloco }}</label>
+            <select id="srv-upload-field" class="form-select" name="uploadField" [(ngModel)]="uploadField">
+              @for (field of fileFields(); track field.key) {
+                <option [value]="field.key">{{ fileFieldLabel(field.key) }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-5">
+            <label for="srv-upload-file" class="form-label small fw-semibold">{{ 'serviceRequests.detail.upload.file' | transloco }}</label>
+            <input id="srv-upload-file" type="file" class="form-control" [accept]="fileAccept" aria-describedby="srv-upload-help" (change)="onUploadFile($event)" />
+            <div id="srv-upload-help" class="form-text">{{ 'serviceRequests.form.hints.file' | transloco }}</div>
+          </div>
+          <div class="col-md-3">
+            <button type="submit" class="btn btn-outline-secondary w-100" [disabled]="uploading()">{{ 'serviceRequests.detail.upload.submit' | transloco }}</button>
+          </div>
+        </div>
+      </form>
+    }
+  </app-service-request-overview>
+}

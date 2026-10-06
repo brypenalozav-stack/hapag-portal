@@ -1089,6 +1089,329 @@
         "transmissions": "Customs Transmissions"
       }
     },
+    "serviceDefinitions": {
+      "editor": {
+        "billing": {
+          "acceptanceRequired": "Require the customer to accept the tariff before submitting",
+          "billingRequired": "Require billing details",
+          "legend": "Billing and acceptance"
+        },
+        "breadcrumbLabel": "Breadcrumb",
+        "cancel": "Back to the list",
+        "conditions": {
+          "countries": "Countries",
+          "legend": "Conditions",
+          "multiple": "Allow more than one request per BL",
+          "operations": "Operations",
+          "reference": "Requested with",
+          "requiresContainers": "The shipment must have containers",
+          "statuses": "Required BL statuses",
+          "statusesHelp": "Comma separated, for example Arrived, Released. Blank means any status.",
+          "window": "Shipment window"
+        },
+        "create": "Create the service",
+        "created": "Service created.",
+        "deactivate": "Deactivate",
+        "deactivated": "Service deactivated.",
+        "editTitle": "Edit on-demand service",
+        "errors": {
+          "action": "Choose the access matrix action.",
+          "code": "The code must start with a letter and have 2 to 50 letters, digits or underscores.",
+          "concept": "Choose the charge concept.",
+          "containersFields": "The form allows only one containers field.",
+          "countries": "Choose at least one country.",
+          "deactivate": "We could not deactivate the service.",
+          "deadlineRule": "With the customs deadline, enter the deadline rule.",
+          "fieldKey": "Field {{ number }}: the key must start with a lower-case letter and have only letters and digits.",
+          "fieldKeyDuplicated": "Field {{ number }}: the key is already used by another field.",
+          "fieldLabelEn": "Field {{ number }}: enter the English label.",
+          "fieldLabelEs": "Field {{ number }}: enter the Spanish label.",
+          "max": "Field {{ number }}: the maximum must be a number.",
+          "maxLength": "Field {{ number }}: the maximum length must be a whole number above zero.",
+          "measure": "The measure field must be a numeric field of the form.",
+          "min": "Field {{ number }}: the minimum must be a number.",
+          "minMax": "Field {{ number }}: the minimum cannot be greater than the maximum.",
+          "nameEn": "Enter the English name.",
+          "nameEs": "Enter the Spanish name.",
+          "offset": "The offset must be a whole number of hours.",
+          "operations": "Choose at least one operation.",
+          "optionDuplicated": "Field {{ number }}, option {{ option }}: the value is repeated.",
+          "optionLabels": "Field {{ number }}, option {{ option }}: enter the Spanish and English texts.",
+          "optionValue": "Field {{ number }}, option {{ option }}: enter the value.",
+          "options": "Field {{ number }}: the selection needs at least one option.",
+          "order": "The order must be a whole number.",
+          "perContainer": "To charge per container, the form needs a containers field.",
+          "sourceChargePerRequest": "With source system charges, the quantity must be per request.",
+          "submit": "We could not save the service.",
+          "summaryTitle": "Please check these details:",
+          "timingMilestone": "To use a deadline rule, choose a shipment milestone.",
+          "tooManyFields": "The form allows up to {{ max }} fields."
+        },
+        "fields": {
+          "add": "Add field",
+          "added": "Field {{ number }} added.",
+          "empty": "The service does not ask for additional details.",
+          "help": "Fields the customer fills in, in the order they are shown. Up to {{ max }} fields.",
+          "helpEn": "English help",
+          "helpEs": "Spanish help",
+          "integer": "Whole numbers only",
+          "key": "Key",
+          "keyHelp": "The key starts with a lower-case letter and has only letters and digits (max 40), for example returnDate.",
+          "labelEn": "English label",
+          "labelEs": "Spanish label",
+          "legend": "Service form",
+          "max": "Maximum",
+          "maxLength": "Maximum length",
+          "maxReached": "The form allows up to {{ max }} fields.",
+          "min": "Minimum",
+          "moveDown": "Move down",
+          "moveDownLabel": "Move field {{ name }} down",
+          "moveUp": "Move up",
+          "moveUpLabel": "Move field {{ name }} up",
+          "moved": "Field {{ name }} is now in position {{ position }} of {{ total }}.",
+          "remove": "Remove",
+          "removeLabel": "Remove field {{ name }}",
+          "removed": "Field {{ name }} removed.",
+          "required": "Required",
+          "title": "Field {{ number }}: {{ name }}",
+          "type": "Type",
+          "unnamed": "field {{ number }} without key"
+        },
+        "formTitle": "Service definition",
+        "general": {
+          "action": "Access matrix action",
+          "actionHelp": "The service is only shown to the roles the matrix enables for this action.",
+          "active": "Active",
+          "code": "Code",
+          "codeHelp": "Letters, digits and underscore; it starts with a letter. Stored in upper case.",
+          "descriptionEn": "English description",
+          "descriptionEs": "Spanish description",
+          "legend": "General details",
+          "nameEn": "English name",
+          "nameEs": "Spanish name",
+          "order": "Order"
+        },
+        "inactiveNotice": "The service is inactive: customers do not see it. Mark it as active and save to reactivate it.",
+        "loadError": "We could not load the service.",
+        "newTitle": "New on-demand service",
+        "notFound": "We could not find the service.",
+        "options": {
+          "add": "Add option",
+          "addLabel": "Add an option to field {{ name }}",
+          "added": "Option {{ number }} added.",
+          "caption": "Options of field {{ name }}",
+          "col": {
+            "actions": "Actions",
+            "labelEn": "English text",
+            "labelEs": "Spanish text",
+            "value": "Value"
+          },
+          "labelEnLabel": "English text of option {{ number }}",
+          "labelEsLabel": "Spanish text of option {{ number }}",
+          "remove": "Remove",
+          "removeLabel": "Remove option {{ number }} from field {{ name }}",
+          "removed": "Option {{ number }} removed.",
+          "title": "Options",
+          "valueLabel": "Value of option {{ number }}"
+        },
+        "pricing": {
+          "concept": "Charge concept",
+          "conceptPlaceholder": "Select the concept",
+          "exemption": "Nexus exemption concept",
+          "exemptionHelp": "Optional. For example XOM: with an exception in force there is no charge.",
+          "lateTariffCode": "Late tariff code",
+          "lateTariffCodeHelp": "Optional. Used after the milestone, for example FUERA_PLAZO.",
+          "legend": "Charge",
+          "measure": "Field with the tier measure",
+          "measureHelp": "Numeric form field used to choose the tariff tier.",
+          "measureNone": "None (time since the milestone or per unit)",
+          "mode": "Charge mode",
+          "modeHelp": "Portal tariff (generates a local charge on the BL) or charges recorded in the source system.",
+          "quantity": "Quantity",
+          "soc": "Do not charge shipper-owned containers (SOC)",
+          "tariffCode": "In-time tariff code",
+          "tariffCodeHelp": "Optional. Tariff code from the maintainer, for example PLAZO.",
+          "tariffsLink": "Go to Tariffs",
+          "tariffsNote": "Tariff amounts and tiers are kept in the tariff maintainer.",
+          "taxable": "Subject to tax (country VAT)"
+        },
+        "save": "Save changes",
+        "subtitle": "Define where the service applies, what it asks for, how it is charged and which team approves or handles it.",
+        "teams": {
+          "approval": "Approving team",
+          "fulfillment": "Handling team",
+          "legend": "Teams and output document",
+          "output": "Require an output document to complete"
+        },
+        "timing": {
+          "deadlineRule": "Customs deadline rule",
+          "deadlineRuleHelp": "Required with the customs deadline, for example BL_EMPTY_OUT.",
+          "legend": "Deadline",
+          "milestone": "Shipment milestone",
+          "offset": "Offset in hours",
+          "offsetHelp": "Hours added to (or, with a minus sign, subtracted from) the milestone. For example 72 or -48.",
+          "rule": "Deadline rule"
+        },
+        "updated": "Changes saved."
+      },
+      "history": {
+        "caption": "Service change log",
+        "col": {
+          "action": "Action",
+          "current": "New value",
+          "date": "Date",
+          "previous": "Previous value",
+          "user": "User"
+        },
+        "empty": "There are no recorded changes.",
+        "title": "Change log"
+      },
+      "list": {
+        "approval": "Approves: {{ team }}",
+        "caption": "On-demand service definitions",
+        "col": {
+          "actions": "Actions",
+          "order": "Order",
+          "pricing": "Charge",
+          "scope": "Operation and countries",
+          "service": "Service",
+          "status": "Status",
+          "teams": "Teams"
+        },
+        "edit": "Edit",
+        "editLabel": "Edit {{ service }}",
+        "empty": "There are no services with these filters.",
+        "filters": {
+          "allCountries": "All countries",
+          "allOperations": "All operations",
+          "clear": "Clear",
+          "country": "Country",
+          "includeInactive": "Include inactive",
+          "label": "Service filters",
+          "operation": "Operation",
+          "search": "Search"
+        },
+        "fulfillment": "Handles: {{ team }}",
+        "loadError": "We could not load the services.",
+        "new": "New service",
+        "subtitle": "Services customers can request on their shipments: conditions, form, charge and teams.",
+        "title": "On-demand services"
+      },
+      "snapshot": {
+        "field": "{{ key }} ({{ type }})",
+        "fields": "{count, plural, one {# field:} other {# fields:}}",
+        "noFields": "No fields",
+        "none": "No value",
+        "pricing": "Charge: {{ mode }}, {{ concept }}",
+        "scope": "{{ code }}: {{ operations }} in {{ countries }}",
+        "tariffs": "Tariffs: in time {{ inTime }}, late {{ late }}",
+        "teams": "Approves {{ approval }}; handles {{ fulfillment }}",
+        "timing": "Deadline: {{ milestone }} with {{ offset }} h, {{ rule }}"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "serviceRequests": {
+      "queue": {
+        "caption": "Customer service requests",
+        "col": {
+          "actions": "Actions",
+          "organization": "Organization",
+          "request": "Request",
+          "service": "Service",
+          "shipment": "Shipment",
+          "since": "Last change",
+          "status": "Status",
+          "team": "Team",
+          "total": "Total"
+        },
+        "count": "{count, plural, =0 {No requests} one {# request} other {# requests}}",
+        "empty": "There are no requests with these filters.",
+        "emptyActionable": "There are no requests to handle.",
+        "exempt": "Exempt",
+        "filters": {
+          "actionable": "To handle",
+          "actionableHelp": "Without status or BL, the queue shows what needs handling: pending approval and in progress, oldest first.",
+          "allCountries": "All",
+          "allServices": "All services",
+          "allTeams": "All teams",
+          "bl": "BL or booking",
+          "clear": "Clear",
+          "country": "Country",
+          "label": "Queue filters",
+          "search": "Search",
+          "service": "Service",
+          "status": "Status",
+          "team": "Team"
+        },
+        "loadError": "We could not load the queue.",
+        "noCharge": "No charge",
+        "pagination": {
+          "label": "Queue pages",
+          "next": "Next",
+          "previous": "Previous",
+          "status": "Page {{ page }} of {{ pages }} ({{ total }} requests)"
+        },
+        "review": "Review",
+        "reviewLabel": "Review request {{ number }}",
+        "subtitle": "Customer requests to be approved or handled by the ED team and Customer Service.",
+        "title": "Service requests"
+      },
+      "review": {
+        "actionError": "We could not record the action.",
+        "actionsTitle": "Team actions",
+        "approve": {
+          "notes": "Notes for the customer (optional)",
+          "submit": "Approve the request",
+          "title": "Approve"
+        },
+        "approved": "Request {{ number }} approved.",
+        "breadcrumbCurrent": "Request",
+        "breadcrumbLabel": "Breadcrumb",
+        "complete": {
+          "notes": "Notes for the customer (optional)",
+          "outputRequired": "Upload the output document before completing the request.",
+          "submit": "Complete the request",
+          "title": "Complete the service"
+        },
+        "completed": "Request {{ number }} completed.",
+        "loadError": "We could not load the request.",
+        "notFound": "We could not find the request.",
+        "note": {
+          "done": "Note added to request {{ number }}.",
+          "help": "The note is added to the request timeline without changing its status.",
+          "label": "Note",
+          "required": "Write the note.",
+          "submit": "Add the note",
+          "title": "Add a note"
+        },
+        "output": {
+          "done": "Output document uploaded to request {{ number }}.",
+          "file": "Document file",
+          "fileSize": "The document is larger than 10 MB.",
+          "fileType": "The document must be a PDF, PNG or JPG.",
+          "required": "Choose the output document file.",
+          "requiredNotice": "This service requires the output document to be completed.",
+          "submit": "Upload the document",
+          "title": "Output document",
+          "uploadedNotice": "The output document is already uploaded; you can upload another version."
+        },
+        "pendingApproval": "The request is waiting for approval by {{ team }}. Approving it generates the charge with the tariff the customer accepted.",
+        "reject": {
+          "help": "The customer will see this reason in the request detail.",
+          "reason": "Rejection reason",
+          "required": "Enter the rejection reason.",
+          "submit": "Reject the request",
+          "title": "Reject"
+        },
+        "rejected": "Request {{ number }} rejected.",
+        "requiredMark": "(required)",
+        "title": "Review request {{ number }}",
+        "titleLoading": "Review the request"
+      }
+    },
     "tariffs": {
       "editor": {
         "amount": "Amount",
@@ -1674,8 +1997,12 @@
     },
     "chargeConcept": {
       "advanceDemurrageBo": "Advance demurrage",
+      "blCorrection": "BL correction or clarification",
       "blFee": "BL fee",
+      "blHouseTransmission": "House BL transmission",
       "demurrage": "Demurrage",
+      "dropOff": "Drop Off",
+      "earlyArrival": "Early arrival",
       "eds": "EDS",
       "freight": "Freight",
       "gateIn": "Gate In",
@@ -1684,12 +2011,17 @@
       "ipo": "IPO",
       "isps": "ISPS",
       "lateArrival": "Late arrival",
+      "matrixLate": "Late matrix submission",
       "mhd": "MHD",
+      "opening": "Opening",
+      "sealManagement": "Seal management",
       "thc": "THC",
       "thcRf": "THC reefer",
       "transitFee": "Transit fee",
       "transshipmentCert": "Transshipment certificate",
-      "warehouseChange": "Warehouse change"
+      "valuation": "Valuation",
+      "warehouseChange": "Warehouse change",
+      "xom": "XOM (container administration)"
     },
     "chargeErrors": {
       "advanceNotRequired": "The account is not subject to advance demurrage.",
@@ -1977,6 +2309,7 @@
       "invoice": "Invoice",
       "responsibilityLetter": "Letter of indemnity",
       "serviceOrder": "Service order",
+      "serviceRequest": "Service request",
       "shipment": "Shipment",
       "tatcBatch": "Bulk TATC request",
       "warehouseChange": "Warehouse change",
@@ -1999,6 +2332,134 @@
       "fulfilled": "fulfilled",
       "missing": "missing",
       "pending": "under review"
+    },
+    "serviceActorKind": {
+      "client": "Customer",
+      "internal": "Hapag-Lloyd team",
+      "system": "System"
+    },
+    "serviceAvailabilityWindow": {
+      "afterArrival": "After arrival",
+      "afterDeparture": "After departure",
+      "always": "Always",
+      "beforeDeparture": "Before departure"
+    },
+    "serviceDefinition": {
+      "blCorrection": "BL correction or clarification",
+      "blHouseTransmission": "House BL transmission",
+      "dropOff": "Drop Off SCL",
+      "earlyArrival": "Early arrival",
+      "gateInReturn": "Gate In for returned export units",
+      "lateArrival": "Late Arrival",
+      "matrixLate": "Late matrix submission",
+      "sealManagement": "Seal management",
+      "xom": "Container administration (XOM)"
+    },
+    "serviceFieldType": {
+      "containers": "BL containers",
+      "date": "Date",
+      "file": "File attachment",
+      "number": "Number",
+      "select": "Selection",
+      "text": "Text",
+      "textarea": "Long text"
+    },
+    "serviceMilestone": {
+      "customsDeadline": "Customs deadline",
+      "none": "No milestone",
+      "vesselArrival": "Vessel arrival",
+      "vesselDeparture": "Vessel departure"
+    },
+    "serviceMilestoneSource": {
+      "customsDeadline": "Customs deadline of the BL or its manifest",
+      "eta": "Vessel arrival (ETA)",
+      "etd": "Vessel departure (ETD)"
+    },
+    "servicePricingMode": {
+      "none": "No charge",
+      "sourceCharge": "Source system charge",
+      "tariff": "Portal tariff"
+    },
+    "serviceQuantityMode": {
+      "perContainer": "Per container",
+      "perRequest": "Per request"
+    },
+    "serviceReferenceType": {
+      "bl": "BL number",
+      "booking": "Booking number"
+    },
+    "serviceRequestErrors": {
+      "associationRequired": "You must first associate with the BL from the shipment detail.",
+      "attachmentNotFound": "We could not find the file.",
+      "billingDataRequired": "Billing details are missing.",
+      "billingTaxIdNotAllowed": "The billing tax ID must be your organization’s or an enabled mandator’s.",
+      "blNotFound": "We could not find the BL or booking, or you do not have access to it.",
+      "conceptNotFound": "The charge concept does not exist in the tariff maintainer.",
+      "conditionsUnavailable": "We could not check the exemptions in Nexus. Please try again in a few minutes.",
+      "containersRequired": "You must select at least one container.",
+      "definitionExists": "A service with that code already exists.",
+      "definitionInvalid": "The definition refers to something that does not exist (for example, the deadline rule).",
+      "definitionInvalidSchema": "The service form is not valid. Check the fields.",
+      "definitionNotFound": "The service does not exist or is not available to you.",
+      "forbidden": "Your role on the shipment or your profile does not allow this action.",
+      "invalidTransition": "The request status changed. Refresh the page.",
+      "measureRequired": "The value used to calculate the tiered tariff is missing.",
+      "noSourceCharge": "The source system has no charge recorded for this shipment.",
+      "notAssignedToTeam": "The request is not assigned to your team.",
+      "notAvailable": "The service is no longer available for this shipment.",
+      "notEditable": "The request can no longer be changed.",
+      "notFound": "We could not find the request.",
+      "outputDocumentRequired": "You must upload the output document before completing.",
+      "paymentInProgress": "It cannot be cancelled: the charge is in a payment in progress or already paid.",
+      "sourceUnavailable": "The source system is not responding. Please try again in a few minutes.",
+      "tariffChanged": "The tariff changed. Review the new total and accept it again.",
+      "tariffNotAccepted": "You must accept the tariff to submit the request.",
+      "tariffNotCovered": "The tariff in force does not cover this case. Contact Customer Service.",
+      "tariffNotInForce": "There is no tariff in force for the service.",
+      "unavailable": "The service is not available right now. Please try again in a few minutes.",
+      "unknownAction": "The access matrix action does not exist or is not active.",
+      "unknownFileField": "The file does not belong to a form field.",
+      "warehouseChangeNotFound": "We could not find the warehouse change."
+    },
+    "serviceRequestStatus": {
+      "approved": "Approved",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "draft": "Draft",
+      "inProgress": "In progress",
+      "paid": "Paid",
+      "pendingApproval": "Pending approval",
+      "pendingPayment": "Pending payment",
+      "rejected": "Rejected",
+      "submitted": "Submitted"
+    },
+    "serviceTeam": {
+      "customerService": "Customer Service",
+      "ed": "ED team",
+      "none": "No team"
+    },
+    "serviceTiming": {
+      "inTime": "Within the deadline",
+      "late": "After the deadline",
+      "notApplicable": "No deadline"
+    },
+    "serviceTimingRule": {
+      "inTimeAndLate": "In-time and late tariffs",
+      "lateOnly": "Late only",
+      "none": "No deadline"
+    },
+    "serviceUnavailableReason": {
+      "alreadyDeparted": "The vessel has already sailed.",
+      "alreadyRequested": "There is already a request for this service on the shipment.",
+      "blStatus": "The shipment status does not allow it.",
+      "milestoneUnavailable": "There is no shipment milestone date to calculate the deadline.",
+      "noContainers": "The shipment has no containers for this service.",
+      "noPermission": "Your role on the shipment or your profile does not allow you to request it.",
+      "noSourceCharge": "The source system has no charge recorded for this shipment.",
+      "notArrived": "The vessel has not arrived yet.",
+      "notDeparted": "The vessel has not sailed yet.",
+      "notOverdue": "It is still within the deadline: the charge only applies after it.",
+      "tariffNotInForce": "There is no tariff in force for the service."
     },
     "shipmentDocumentOrigin": {
       "payment": "Issued when the payment was confirmed",
@@ -2104,6 +2565,13 @@
       "cancelled": "Cancelled",
       "completed": "Completed",
       "pending": "Awaiting payment"
+    },
+    "warehouseHistoryEvent": {
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "freeEntitlementApplied": "Free change applied",
+      "paymentStatusChanged": "Payment status change",
+      "requested": "Requested"
     },
     "wideningStatus": {
       "active": "Active",
@@ -2284,6 +2752,10 @@
       "pay": {
         "description": "Pay charges, freight and services added to the cart.",
         "title": "Pay charges and services"
+      },
+      "requestService": {
+        "description": "Seals, Drop Off, BL corrections, house BL and other services for your shipment.",
+        "title": "Request a service"
       },
       "shipments": {
         "description": "Status, documents and charges of each BL or booking.",
@@ -2718,7 +3190,15 @@
       "accessRevoked": "Shipment access revoked",
       "accessRevokedByCascade": "Access revoked by cascade",
       "accessUpdated": "Shipment access changed",
-      "documentIssued": "Shipment document issued"
+      "documentIssued": "Shipment document issued",
+      "serviceRequestApproved": "Service request approved",
+      "serviceRequestCancelled": "Service request cancelled",
+      "serviceRequestCompleted": "Service request completed",
+      "serviceRequestInProgress": "Service request in progress",
+      "serviceRequestPaid": "Service request paid",
+      "serviceRequestPendingApproval": "Service request pending approval",
+      "serviceRequestPendingPayment": "Service request pending payment",
+      "serviceRequestRejected": "Service request rejected"
     }
   },
   "organization": {
@@ -3103,6 +3583,359 @@
       "weighing": "VGM Weighing"
     }
   },
+  "serviceRequests": {
+    "available": {
+      "acceptanceRequired": "Asks you to accept the tariff before submitting.",
+      "approval": "Approved by: {{ team }}.",
+      "availableBadge": "Available",
+      "billingRequired": "Asks for billing details.",
+      "byBooking": "Requested with the booking number.",
+      "empty": "There are no services available for this shipment right now.",
+      "emptyAll": "There are no services for this shipment.",
+      "estimate": "Estimated value with all containers: {{ amount }}",
+      "estimateFree": "No estimated charge.",
+      "estimateLater": "The value is calculated when you complete the form.",
+      "fulfillment": "Handled by: {{ team }}.",
+      "includeUnavailable": "Also show unavailable services",
+      "loadError": "We could not load the shipment services.",
+      "reasons": "Why it is not available:",
+      "reference": "BL {{ bl }}, booking {{ booking }}, {{ operation }} ({{ country }})",
+      "request": "Request",
+      "requestLabel": "Request {{ service }}",
+      "retry": "Retry",
+      "title": "Available services",
+      "unavailable": "We could not check the shipment services. Please try again in a few minutes.",
+      "unavailableBadge": "Not available"
+    },
+    "detail": {
+      "attachments": {
+        "caption": "Request files",
+        "col": {
+          "actions": "Actions",
+          "file": "File",
+          "kind": "Type",
+          "size": "Size",
+          "uploaded": "Uploaded"
+        },
+        "download": "Download",
+        "downloadError": "We could not download the file.",
+        "downloadLabel": "Download {{ name }}",
+        "downloaded": "{{ name }} downloaded.",
+        "empty": "The request has no files.",
+        "output": "Output document",
+        "title": "Files",
+        "uploadedBy": "{{ date }} by {{ user }}"
+      },
+      "billing": {
+        "address": "Address",
+        "email": "Email",
+        "name": "Legal name",
+        "taxId": "Tax ID",
+        "title": "Billing"
+      },
+      "breadcrumbCurrent": "Request",
+      "breadcrumbLabel": "Breadcrumb",
+      "cancel": {
+        "confirm": "Yes, cancel",
+        "done": "Request {{ number }} cancelled.",
+        "error": "We could not cancel the request.",
+        "help": "If you cancel it, the service charge is withdrawn and removed from the cart. This cannot be undone.",
+        "keep": "Do not cancel",
+        "reason": "Reason (optional)",
+        "start": "Cancel the request",
+        "title": "Cancel the request"
+      },
+      "continue": "Continue the request",
+      "draftNotice": "This is a draft: it has not been submitted yet.",
+      "inProgress": "The request is being handled by {{ team }}.",
+      "loadError": "We could not load the request.",
+      "notFound": "We could not find the request or it does not belong to your organization.",
+      "payment": {
+        "added": "The charge for request {{ number }} is in the cart.",
+        "help": "The service is provided once the payment is confirmed.",
+        "title": "Service payment"
+      },
+      "pendingApproval": "The request is being reviewed by {{ team }}. We will let you know when it is approved or rejected.",
+      "quote": {
+        "title": "Service value"
+      },
+      "summary": {
+        "bl": "BL",
+        "booking": "Booking",
+        "createdAt": "Created",
+        "noTeam": "None",
+        "operation": "Operation",
+        "operationValue": "{{ operation }} ({{ country }})",
+        "organization": "Organization",
+        "payment": "Payment",
+        "receipt": "Receipt {{ number }}",
+        "rejectionReason": "Rejection reason",
+        "requestedBy": "Requested by",
+        "status": "Status",
+        "statusChangedAt": "Last change",
+        "submittedAt": "Submitted",
+        "tariffAccepted": "Tariff accepted",
+        "team": "Team in charge",
+        "teamNotes": "Team notes",
+        "title": "Status and shipment"
+      },
+      "timeline": {
+        "title": "Timeline"
+      },
+      "title": "Request {{ number }}",
+      "titleLoading": "Service request",
+      "upload": {
+        "done": "{{ name }} attached.",
+        "error": "We could not attach the file.",
+        "field": "Field",
+        "fieldRequired": "Choose the field for the file.",
+        "file": "File",
+        "fileRequired": "Choose a file.",
+        "fileSize": "The file is larger than 10 MB.",
+        "fileType": "The file must be a PDF, PNG or JPG.",
+        "submit": "Attach",
+        "title": "Attach a file to the draft"
+      },
+      "values": {
+        "title": "Request details"
+      }
+    },
+    "files": {
+      "sizeKb": "{{ size }} KB",
+      "sizeMb": "{{ size }} MB"
+    },
+    "form": {
+      "accept": "I accept the service tariff for a total of {{ amount }}.",
+      "attached": "Attached file: {{ name }}",
+      "back": "Back",
+      "billing": {
+        "activity": "Line of business (optional)",
+        "address": "Address",
+        "email": "Billing email",
+        "emailHelp": "The invoice is sent to this email.",
+        "errors": {
+          "addressRequired": "Enter the address.",
+          "emailFormat": "The email is not valid. Use the format name@company.com.",
+          "emailRequired": "Enter the billing email.",
+          "nameRequired": "Enter the legal name.",
+          "server": "Check the billing details.",
+          "taxIdFormat": "The tax ID does not have the expected format. Check the example below the field.",
+          "taxIdNotAllowed": "The billing tax ID must be your organization’s or that of a mandator enabled for this service.",
+          "taxIdRequired": "Enter the billing tax ID."
+        },
+        "intro": "Enter the details for the service invoice. They are prefilled with your organization’s; you can use an enabled mandator’s.",
+        "name": "Legal name",
+        "taxId": "Billing tax ID (RUT or NIT)",
+        "taxIdHelpBo": "NIT with digits only, for example 1029384756.",
+        "taxIdHelpCl": "RUT with hyphen and check digit, for example 76.123.456-7."
+      },
+      "breadcrumbLabel": "Breadcrumb",
+      "cancel": "Leave without submitting",
+      "containers": {
+        "all": "Select all",
+        "allSelected": "{count, plural, one {# container selected} other {# containers selected}}",
+        "clear": "Clear selection",
+        "none": "The shipment has no containers available.",
+        "noneSelected": "Container selection cleared.",
+        "option": "{{ number }} ({{ type }})",
+        "soc": "Shipper-owned container (SOC)"
+      },
+      "continue": "Continue",
+      "draft": {
+        "continuing": "You are completing draft {{ number }}.",
+        "error": "We could not save the draft.",
+        "save": "Save draft",
+        "saved": "Draft {{ number }} saved.",
+        "view": "View the draft"
+      },
+      "draftNotFound": "We could not find the draft.",
+      "errors": {
+        "acceptTariff": "You must accept the tariff to submit the request.",
+        "containersRequired": "Select at least one container in {{ label }}.",
+        "date": "{{ label }}: enter a valid date.",
+        "fileRequired": "Attach the file for {{ label }}.",
+        "fileSize": "The file for {{ label }} is larger than 10 MB.",
+        "fileType": "The file for {{ label }} must be a PDF, PNG or JPG.",
+        "integer": "{{ label }}: enter a whole number.",
+        "max": "{{ label }}: the value must be {{ max }} or less.",
+        "maxLength": "{{ label }}: use up to {{ max }} characters.",
+        "min": "{{ label }}: the value must be {{ min }} or more.",
+        "number": "{{ label }}: enter a number, for example 12 or 12.5.",
+        "required": "Enter {{ label }}.",
+        "selectInvalid": "{{ label }}: choose one of the options.",
+        "selectRequired": "Select {{ label }}.",
+        "server": "Check {{ label }}.",
+        "serverForm": "Check the service details.",
+        "submit": "We could not submit the request.",
+        "summaryTitle": "Please check these details:"
+      },
+      "hints": {
+        "date": "Pick the date in the calendar or type it.",
+        "file": "PDF, PNG or JPG up to 10 MB.",
+        "integer": "Whole numbers only.",
+        "max": "Maximum value: {{ max }}.",
+        "maxLength": "Up to {{ max }} characters.",
+        "min": "Minimum value: {{ min }}.",
+        "range": "Value between {{ min }} and {{ max }}."
+      },
+      "loadError": "We could not load the service.",
+      "noFields": "This service does not ask for additional details.",
+      "notAvailable": "This service cannot be requested for the shipment right now.",
+      "notEditable": "Request {{ number }} has already been submitted and cannot be changed.",
+      "notOffered": "The service is not offered for this shipment or is not available to you.",
+      "quote": {
+        "changed": "The tariff changed. Review the new total and accept it again.",
+        "changedNotice": "The tariff in force changed since you reviewed it. This is the new total: accept it again to submit.",
+        "error": "We could not calculate the service value.",
+        "loading": "Calculating the value with the tariff in force…",
+        "ready": "Value calculated. Review the total before submitting.",
+        "readyFree": "The service has no charge for this shipment.",
+        "retry": "Calculate again"
+      },
+      "required": "(required)",
+      "result": {
+        "addedToCart": "The charge for request {{ number }} is in the cart.",
+        "announce": "Request {{ number }} submitted. Status: {{ status }}.",
+        "completed": "It has no charge and is completed.",
+        "inProgress": "It has no charge and {{ team }} is already handling it.",
+        "list": "Go to My requests",
+        "pendingApproval": "{{ team }} will review it. We will let you know when it is approved or rejected; you can also follow it in My requests.",
+        "pendingPayment": "The service charge is ready. Pay it so the service can be provided.",
+        "submitted": "The request was recorded.",
+        "title": "Request {{ number }} submitted",
+        "view": "View the request"
+      },
+      "review": {
+        "approvalNote": "Once submitted, the request goes to {{ team }} for review, who approve or reject it.",
+        "billing": "Billing",
+        "billingLine": "{{ name }}, tax ID {{ taxId }}, invoice to {{ email }}",
+        "data": "Details entered",
+        "fulfillmentNote": "After payment, it is handled by {{ team }}.",
+        "quote": "Service value"
+      },
+      "search": {
+        "bl": "BL",
+        "booking": "Booking",
+        "label": "Find the shipment",
+        "required": "Enter the BL or booking number.",
+        "submit": "See services",
+        "type": "Search by",
+        "value": "BL or booking number"
+      },
+      "selectPlaceholder": "Select an option",
+      "shipment": "BL {{ bl }}, booking {{ booking }}, {{ operation }} ({{ country }})",
+      "steps": {
+        "announce": "Step {{ number }} of {{ total }}: {{ name }}",
+        "billing": "Billing details",
+        "confirm": "Review and submit",
+        "details": "Service details",
+        "item": "Step {{ number }}: {{ name }}",
+        "label": "Request steps"
+      },
+      "submit": "Submit request",
+      "subtitle": "Choose the shipment and the service, fill in the details, review the value and submit the request.",
+      "title": "Request a service"
+    },
+    "list": {
+      "booking": "Booking {{ booking }}",
+      "caption": "Service requests",
+      "col": {
+        "actions": "Actions",
+        "created": "Created",
+        "request": "Request",
+        "service": "Service",
+        "shipment": "Shipment",
+        "status": "Status",
+        "total": "Total",
+        "updated": "Last change"
+      },
+      "count": "{count, plural, =0 {No requests} one {# request} other {# requests}}",
+      "empty": "There are no requests with these filters.",
+      "exempt": "Exempt",
+      "filters": {
+        "all": "All statuses",
+        "allServices": "All services",
+        "bl": "BL or booking",
+        "clear": "Clear",
+        "label": "Request filters",
+        "search": "Search",
+        "service": "Service",
+        "status": "Status"
+      },
+      "loadError": "We could not load your requests.",
+      "new": "Request a service",
+      "noCharge": "No charge",
+      "pagination": {
+        "label": "Request pages",
+        "next": "Next",
+        "previous": "Previous",
+        "status": "Page {{ page }} of {{ pages }} ({{ total }} requests)"
+      },
+      "subtitle": "Service requests of your organization, with their status and history.",
+      "title": "My requests",
+      "view": "View",
+      "viewLabel": "View request {{ number }}"
+    },
+    "payment": {
+      "accountPayments": "Pay from my account",
+      "addToCart": "Add to cart",
+      "caption": "Request charges",
+      "cartLabel": "{{ service }}, request {{ number }}",
+      "col": {
+        "concept": "Concept",
+        "status": "Status",
+        "total": "Total"
+      },
+      "inCart": "In the cart",
+      "viewCart": "View cart"
+    },
+    "quote": {
+      "col": {
+        "amount": "Net",
+        "concept": "Concept",
+        "container": "Container",
+        "outcome": "Outcome",
+        "payable": "To pay",
+        "tariff": "Tariff",
+        "total": "Total",
+        "type": "Type"
+      },
+      "elapsedLate": "Time after the deadline",
+      "excluded": "Shipper-owned containers (SOC) are not charged: {{ containers }}.",
+      "exempt": "The service has no charge: an exemption in force applies.",
+      "exemptionReference": "Exemption reference: {{ reference }}",
+      "linesCaption": "Charge detail per container",
+      "measure": "Measure",
+      "milestone": "Deadline milestone",
+      "net": "Net",
+      "noCharge": "No charge",
+      "perRequest": "Per request",
+      "pricing": "Charge",
+      "quantity": "Quantity",
+      "quotedAt": "Calculated on {{ date }} with the tariff in force at that time.",
+      "sourceCaption": "Source system charges with the exemption rules",
+      "tariff": "Tariff",
+      "tariffSource": "Source: {{ source }}",
+      "tax": "Tax ({{ rate }}%)",
+      "tier": "Tier applied",
+      "tierAmount": "Tier value: {{ amount }}",
+      "tierRange": "From {{ from }} to {{ to }} ({{ unit }})",
+      "total": "Total",
+      "units": "{{ units }} ({{ unit }})"
+    },
+    "timeline": {
+      "actor": "by {{ kind }}: {{ name }}",
+      "empty": "No changes recorded yet.",
+      "from": "from {{ status }}",
+      "label": "Request status changes",
+      "note": "Note"
+    },
+    "values": {
+      "empty": "No value",
+      "noFields": "The service does not ask for additional details.",
+      "noFile": "No file"
+    }
+  },
   "shared": {
     "addToCart": {
       "added": "{count, plural, one {{{ label }} was added to the cart in {{ currency }}.} other {# items were added to the cart in {{ currency }}.}}",
@@ -3284,7 +4117,10 @@
         "paymentsFinance": "Finance: payments",
         "publicationRules": "Publication rules",
         "reports": "Reports",
+        "serviceDefinitions": "On-demand services",
         "serviceOrders": "Service Orders",
+        "serviceRequestQueue": "Service requests",
+        "serviceRequests": "My requests",
         "shipments": "Shipments",
         "tariffs": "Tariffs",
         "tatc": "Request TATC",
@@ -4008,6 +4844,84 @@
       "submit": "{count, plural, =0 {Send bulk request} one {Send bulk request (# line)} other {Send bulk request (# lines)}}",
       "submitted": "{count, plural, one {Bulk request received with # line.} other {Bulk request received with # lines.}}",
       "title": "Bulk request"
+    },
+    "history": {
+      "batchLine": "Bulk request, line {{ line }}",
+      "booking": "Booking {{ booking }}",
+      "breadcrumbLabel": "Breadcrumb",
+      "caption": "Warehouse change history",
+      "col": {
+        "actions": "Actions",
+        "amount": "Value",
+        "billing": "Billing tax ID",
+        "change": "Change",
+        "date": "Date",
+        "payer": "Paid by",
+        "requestedBy": "Requested by",
+        "shipment": "Shipment",
+        "status": "Status"
+      },
+      "container": "Container {{ container }}",
+      "count": "{count, plural, =0 {No changes} one {# change} other {# changes}}",
+      "detail": {
+        "allContainers": "Whole BL",
+        "batch": "Bulk request",
+        "bl": "BL",
+        "booking": "Booking",
+        "breadcrumbCurrent": "Detail",
+        "breadcrumbLabel": "Breadcrumb",
+        "col": {
+          "actor": "User",
+          "date": "Date",
+          "event": "Event",
+          "notes": "Notes",
+          "reference": "Reference",
+          "status": "Status"
+        },
+        "container": "Container",
+        "loadError": "We could not load the warehouse change.",
+        "noEvents": "There are no recorded events.",
+        "notFound": "We could not find the warehouse change or it does not belong to your organization.",
+        "payment": "Payment",
+        "receipt": "Receipt {{ number }}",
+        "summary": "Summary",
+        "tariff": "Tariff {{ code }}",
+        "timeline": "Traceability",
+        "timelineCaption": "Warehouse change events",
+        "title": "Warehouse change for BL {{ bl }}",
+        "titleLoading": "Warehouse change"
+      },
+      "empty": "There are no warehouse changes with these filters.",
+      "filters": {
+        "all": "All statuses",
+        "bl": "BL or booking",
+        "clear": "Clear",
+        "datesHelp": "Request date in the local time of the shipment country.",
+        "from": "From",
+        "label": "History filters",
+        "rangeError": "The to date cannot be before the from date.",
+        "search": "Search",
+        "status": "Status",
+        "to": "To"
+      },
+      "free": "Free",
+      "fromTo": "From {{ from }} to {{ to }}",
+      "link": "View change history",
+      "loadError": "We could not load the history.",
+      "noBilling": "No billing tax ID",
+      "noPayment": "No confirmed payment",
+      "noPaymentFree": "No payment needed",
+      "pagination": {
+        "label": "History pages",
+        "next": "Next",
+        "previous": "Previous",
+        "status": "Page {{ page }} of {{ pages }} ({{ total }} changes)"
+      },
+      "subtitle": "Requests of your organization with their status, who requested them and who paid for them.",
+      "taxId": "Tax ID {{ taxId }}",
+      "title": "Warehouse change history",
+      "view": "View detail",
+      "viewLabel": "View the detail of the change for BL {{ bl }} on {{ date }}"
     },
     "progress": {
       "back": "Back to warehouse change",

@@ -135,6 +135,15 @@ export const NOTIFICATION_TYPE_KEYS: Record<string, string> = {
   AccessExpired: 'notifications.type.accessExpired',
   AccessRevokedByCascade: 'notifications.type.accessRevokedByCascade',
   DocumentIssued: 'notifications.type.documentIssued',
+  // Fase 2, Ola G: cambios de estado de las solicitudes de servicios on demand.
+  ServiceRequestPendingApproval: 'notifications.type.serviceRequestPendingApproval',
+  ServiceRequestApproved: 'notifications.type.serviceRequestApproved',
+  ServiceRequestRejected: 'notifications.type.serviceRequestRejected',
+  ServiceRequestPendingPayment: 'notifications.type.serviceRequestPendingPayment',
+  ServiceRequestPaid: 'notifications.type.serviceRequestPaid',
+  ServiceRequestInProgress: 'notifications.type.serviceRequestInProgress',
+  ServiceRequestCompleted: 'notifications.type.serviceRequestCompleted',
+  ServiceRequestCancelled: 'notifications.type.serviceRequestCancelled',
 };
 
 /** Texto corto del nivel (O, X, X (o)) y su descripción (lectura de las matrices de M1-11). */
@@ -220,6 +229,16 @@ export const CHARGE_CONCEPT_KEYS: Record<string, string> = {
   FREIGHT: 'common.chargeConcept.freight',
   INVOICE: 'common.chargeConcept.invoice',
   TRANSSHIPMENT_CERT: 'common.chargeConcept.transshipmentCert',
+  // Fase 2, Ola G: conceptos de los servicios on demand (M3-07 a M3-14) y la homologación de M2-03.
+  SEAL_MANAGEMENT: 'common.chargeConcept.sealManagement',
+  EARLY_ARRIVAL: 'common.chargeConcept.earlyArrival',
+  DROP_OFF: 'common.chargeConcept.dropOff',
+  XOM: 'common.chargeConcept.xom',
+  BL_CORRECTION: 'common.chargeConcept.blCorrection',
+  BL_HOUSE_TRANSMISSION: 'common.chargeConcept.blHouseTransmission',
+  MATRIX_LATE: 'common.chargeConcept.matrixLate',
+  OPENING: 'common.chargeConcept.opening',
+  VALUATION: 'common.chargeConcept.valuation',
 };
 
 /** Resultado de las reglas sobre un cargo (M4-01 a M4-03). */
@@ -608,6 +627,7 @@ export const DASHBOARD_REQUEST_KIND_KEYS: Record<string, string> = {
   TatcBatch: 'common.requestKind.tatcBatch',
   BlCopy: 'common.requestKind.blCopy',
   ResponsibilityLetter: 'common.requestKind.responsibilityLetter',
+  ServiceRequest: 'common.requestKind.serviceRequest',
 };
 
 /** Estado de una gestión del dashboard: reúne los estados de las solicitudes del portal. */
@@ -623,6 +643,14 @@ export const DASHBOARD_REQUEST_STATUS_KEYS: Record<string, string> = {
   Cancelled: 'common.requestStatus.cancelled',
   Issued: 'common.requestStatus.issued',
   Superseded: 'common.requestStatus.superseded',
+  // Fase 2, Ola G: estados propios de las solicitudes de servicios on demand.
+  Draft: 'common.serviceRequestStatus.draft',
+  Submitted: 'common.serviceRequestStatus.submitted',
+  PendingApproval: 'common.serviceRequestStatus.pendingApproval',
+  Approved: 'common.serviceRequestStatus.approved',
+  Rejected: 'common.serviceRequestStatus.rejected',
+  PendingPayment: 'common.serviceRequestStatus.pendingPayment',
+  Paid: 'common.serviceRequestStatus.paid',
 };
 
 /** Variante de .hl-badge por estado de la gestión (el texto acompaña siempre al color). */
@@ -638,6 +666,13 @@ export const DASHBOARD_REQUEST_STATUS_CLASS: Record<string, string> = {
   Failed: 'hl-badge--failed',
   Cancelled: 'hl-badge--failed',
   Superseded: 'hl-badge--processing',
+  Draft: 'hl-badge--processing',
+  Submitted: 'hl-badge--processing',
+  PendingApproval: 'hl-badge--pending',
+  Approved: 'hl-badge--confirmed',
+  Rejected: 'hl-badge--failed',
+  PendingPayment: 'hl-badge--pending',
+  Paid: 'hl-badge--confirmed',
 };
 
 /** Estado de un pendiente de pago del dashboard. */
@@ -824,4 +859,196 @@ export const PORTAL_ERRORS: Record<string, string> = {
   'DangerousGood.InvalidImport': 'common.portalErrors.invalidImport',
   'Integration.Unavailable': 'common.portalErrors.sourceUnavailable',
   'Integration.Timeout': 'common.portalErrors.sourceUnavailable',
+};
+
+// ---------------------------------------------------------------------------
+// Fase 2, Ola G: servicios on demand configurables (M2-03, M2-04, M3-07 a M3-15) e historial del cambio de
+// almacén (M3-06).
+// ---------------------------------------------------------------------------
+
+/** Estado de una solicitud de servicio. */
+export const SERVICE_REQUEST_STATUS_KEYS: Record<string, string> = {
+  Draft: 'common.serviceRequestStatus.draft',
+  Submitted: 'common.serviceRequestStatus.submitted',
+  PendingApproval: 'common.serviceRequestStatus.pendingApproval',
+  Approved: 'common.serviceRequestStatus.approved',
+  Rejected: 'common.serviceRequestStatus.rejected',
+  PendingPayment: 'common.serviceRequestStatus.pendingPayment',
+  Paid: 'common.serviceRequestStatus.paid',
+  InProgress: 'common.serviceRequestStatus.inProgress',
+  Completed: 'common.serviceRequestStatus.completed',
+  Cancelled: 'common.serviceRequestStatus.cancelled',
+};
+
+/** Variante de .hl-badge por estado de la solicitud (el texto acompaña siempre al color). */
+export const SERVICE_REQUEST_STATUS_CLASS: Record<string, string> = {
+  Draft: 'hl-badge--processing',
+  Submitted: 'hl-badge--processing',
+  PendingApproval: 'hl-badge--pending',
+  Approved: 'hl-badge--confirmed',
+  Rejected: 'hl-badge--failed',
+  PendingPayment: 'hl-badge--pending',
+  Paid: 'hl-badge--confirmed',
+  InProgress: 'hl-badge--processing',
+  Completed: 'hl-badge--confirmed',
+  Cancelled: 'hl-badge--failed',
+};
+
+/**
+ * Servicios sembrados (definiciones del mantenedor), para los filtros por servicio. Las filas muestran el nombre que
+ * informa el servidor; un servicio nuevo del mantenedor se busca por su código.
+ */
+export const SERVICE_DEFINITION_KEYS: Record<string, string> = {
+  SEAL_MANAGEMENT: 'common.serviceDefinition.sealManagement',
+  LATE_ARRIVAL: 'common.serviceDefinition.lateArrival',
+  EARLY_ARRIVAL: 'common.serviceDefinition.earlyArrival',
+  DROP_OFF_SCL: 'common.serviceDefinition.dropOff',
+  XOM: 'common.serviceDefinition.xom',
+  BL_CORRECTION: 'common.serviceDefinition.blCorrection',
+  BL_HOUSE_TRANSMISSION: 'common.serviceDefinition.blHouseTransmission',
+  MATRIX_LATE: 'common.serviceDefinition.matrixLate',
+  GATE_IN_RETURN: 'common.serviceDefinition.gateInReturn',
+};
+
+/** Equipo interno que aprueba o atiende (ED, Customer Service). */
+export const SERVICE_TEAM_KEYS: Record<string, string> = {
+  None: 'common.serviceTeam.none',
+  ED: 'common.serviceTeam.ed',
+  CustomerService: 'common.serviceTeam.customerService',
+};
+
+/** Motivo por el que un servicio no está disponible para el embarque o el usuario. */
+export const SERVICE_UNAVAILABLE_REASON_KEYS: Record<string, string> = {
+  BL_STATUS: 'common.serviceUnavailableReason.blStatus',
+  NOT_DEPARTED: 'common.serviceUnavailableReason.notDeparted',
+  ALREADY_DEPARTED: 'common.serviceUnavailableReason.alreadyDeparted',
+  NOT_ARRIVED: 'common.serviceUnavailableReason.notArrived',
+  NO_CONTAINERS: 'common.serviceUnavailableReason.noContainers',
+  NOT_OVERDUE: 'common.serviceUnavailableReason.notOverdue',
+  MILESTONE_UNAVAILABLE: 'common.serviceUnavailableReason.milestoneUnavailable',
+  ALREADY_REQUESTED: 'common.serviceUnavailableReason.alreadyRequested',
+  NO_SOURCE_CHARGE: 'common.serviceUnavailableReason.noSourceCharge',
+  NO_PERMISSION: 'common.serviceUnavailableReason.noPermission',
+  TARIFF_NOT_IN_FORCE: 'common.serviceUnavailableReason.tariffNotInForce',
+};
+
+/** Dentro o fuera de plazo respecto del hito del embarque (M3-13, M3-14). */
+export const SERVICE_TIMING_KEYS: Record<string, string> = {
+  NotApplicable: 'common.serviceTiming.notApplicable',
+  InTime: 'common.serviceTiming.inTime',
+  Late: 'common.serviceTiming.late',
+};
+
+export const SERVICE_TIMING_CLASS: Record<string, string> = {
+  NotApplicable: 'hl-badge--processing',
+  InTime: 'hl-badge--confirmed',
+  Late: 'hl-badge--pending',
+};
+
+/** Hito desde el que se mide el plazo en la cotización. */
+export const SERVICE_MILESTONE_SOURCE_KEYS: Record<string, string> = {
+  CUSTOMS_DEADLINE: 'common.serviceMilestoneSource.customsDeadline',
+  ETD: 'common.serviceMilestoneSource.etd',
+  ETA: 'common.serviceMilestoneSource.eta',
+};
+
+export const SERVICE_PRICING_MODE_KEYS: Record<string, string> = {
+  None: 'common.servicePricingMode.none',
+  Tariff: 'common.servicePricingMode.tariff',
+  SourceCharge: 'common.servicePricingMode.sourceCharge',
+};
+
+export const SERVICE_QUANTITY_MODE_KEYS: Record<string, string> = {
+  PerRequest: 'common.serviceQuantityMode.perRequest',
+  PerContainer: 'common.serviceQuantityMode.perContainer',
+};
+
+/** Hito del embarque que usa la definición. */
+export const SERVICE_MILESTONE_KEYS: Record<string, string> = {
+  None: 'common.serviceMilestone.none',
+  VesselDeparture: 'common.serviceMilestone.vesselDeparture',
+  VesselArrival: 'common.serviceMilestone.vesselArrival',
+  CustomsDeadline: 'common.serviceMilestone.customsDeadline',
+};
+
+export const SERVICE_TIMING_RULE_KEYS: Record<string, string> = {
+  None: 'common.serviceTimingRule.none',
+  InTimeAndLate: 'common.serviceTimingRule.inTimeAndLate',
+  LateOnly: 'common.serviceTimingRule.lateOnly',
+};
+
+export const SERVICE_AVAILABILITY_WINDOW_KEYS: Record<string, string> = {
+  Always: 'common.serviceAvailabilityWindow.always',
+  BeforeDeparture: 'common.serviceAvailabilityWindow.beforeDeparture',
+  AfterDeparture: 'common.serviceAvailabilityWindow.afterDeparture',
+  AfterArrival: 'common.serviceAvailabilityWindow.afterArrival',
+};
+
+export const SERVICE_REFERENCE_TYPE_KEYS: Record<string, string> = {
+  BL: 'common.serviceReferenceType.bl',
+  Booking: 'common.serviceReferenceType.booking',
+};
+
+/** Tipo de un campo del formulario del servicio. */
+export const SERVICE_FIELD_TYPE_KEYS: Record<string, string> = {
+  text: 'common.serviceFieldType.text',
+  textarea: 'common.serviceFieldType.textarea',
+  date: 'common.serviceFieldType.date',
+  number: 'common.serviceFieldType.number',
+  select: 'common.serviceFieldType.select',
+  file: 'common.serviceFieldType.file',
+  containers: 'common.serviceFieldType.containers',
+};
+
+/** Quién registró un evento de la línea de tiempo. */
+export const SERVICE_ACTOR_KIND_KEYS: Record<string, string> = {
+  Client: 'common.serviceActorKind.client',
+  Internal: 'common.serviceActorKind.internal',
+  System: 'common.serviceActorKind.system',
+};
+
+/** Evento de la trazabilidad de un cambio de almacén (M3-06). */
+export const WAREHOUSE_HISTORY_EVENT_KEYS: Record<string, string> = {
+  Requested: 'common.warehouseHistoryEvent.requested',
+  FreeEntitlementApplied: 'common.warehouseHistoryEvent.freeEntitlementApplied',
+  PaymentStatusChanged: 'common.warehouseHistoryEvent.paymentStatusChanged',
+  Completed: 'common.warehouseHistoryEvent.completed',
+  Cancelled: 'common.warehouseHistoryEvent.cancelled',
+};
+
+/**
+ * Códigos de error del backend de la Ola G → claves Transloco. Los textos del servidor vienen en inglés y no se
+ * muestran tal cual.
+ */
+export const SERVICE_REQUEST_ERRORS: Record<string, string> = {
+  'BillOfLading.NotFound': 'common.serviceRequestErrors.blNotFound',
+  'Error.Forbidden': 'common.serviceRequestErrors.forbidden',
+  'Cart.AssociationRequired': 'common.serviceRequestErrors.associationRequired',
+  'ServiceDefinition.NotFound': 'common.serviceRequestErrors.definitionNotFound',
+  'ServiceDefinition.AlreadyExists': 'common.serviceRequestErrors.definitionExists',
+  'ServiceDefinition.UnknownAction': 'common.serviceRequestErrors.unknownAction',
+  'ServiceDefinition.Invalid': 'common.serviceRequestErrors.definitionInvalid',
+  'ServiceDefinition.InvalidSchema': 'common.serviceRequestErrors.definitionInvalidSchema',
+  'ChargeConcept.NotFound': 'common.serviceRequestErrors.conceptNotFound',
+  'ServiceRequest.NotFound': 'common.serviceRequestErrors.notFound',
+  'ServiceRequest.NotAvailable': 'common.serviceRequestErrors.notAvailable',
+  'ServiceRequest.ContainersRequired': 'common.serviceRequestErrors.containersRequired',
+  'ServiceRequest.MeasureRequired': 'common.serviceRequestErrors.measureRequired',
+  'ServiceRequest.NoSourceCharge': 'common.serviceRequestErrors.noSourceCharge',
+  'ServiceRequest.BillingTaxIdNotAllowed': 'common.serviceRequestErrors.billingTaxIdNotAllowed',
+  'ServiceRequest.BillingDataRequired': 'common.serviceRequestErrors.billingDataRequired',
+  'ServiceRequest.TariffNotAccepted': 'common.serviceRequestErrors.tariffNotAccepted',
+  'ServiceRequest.TariffChanged': 'common.serviceRequestErrors.tariffChanged',
+  'ServiceRequest.NotEditable': 'common.serviceRequestErrors.notEditable',
+  'ServiceRequest.PaymentInProgress': 'common.serviceRequestErrors.paymentInProgress',
+  'ServiceRequest.InvalidTransition': 'common.serviceRequestErrors.invalidTransition',
+  'ServiceRequest.UnknownFileField': 'common.serviceRequestErrors.unknownFileField',
+  'ServiceRequest.OutputDocumentRequired': 'common.serviceRequestErrors.outputDocumentRequired',
+  'ServiceRequest.NotAssignedToTeam': 'common.serviceRequestErrors.notAssignedToTeam',
+  'ServiceRequestAttachment.NotFound': 'common.serviceRequestErrors.attachmentNotFound',
+  'Tariff.NotInForce': 'common.serviceRequestErrors.tariffNotInForce',
+  'Tariff.NotCovered': 'common.serviceRequestErrors.tariffNotCovered',
+  'ChargeRules.ConditionsUnavailable': 'common.serviceRequestErrors.conditionsUnavailable',
+  'Integration.Unavailable': 'common.serviceRequestErrors.sourceUnavailable',
+  'WarehouseChange.NotFound': 'common.serviceRequestErrors.warehouseChangeNotFound',
 };

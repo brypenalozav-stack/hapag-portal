@@ -1,0 +1,132 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.serviceRequests.queue.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.serviceRequests.queue.subtitle' | transloco }}</p>
+</div>
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.serviceRequests.queue.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-2">
+      <label for="queue-status" class="form-label small fw-semibold">{{ 'admin.serviceRequests.queue.filters.status' | transloco }}</label>
+      <select id="queue-status" class="form-select" name="status" aria-describedby="queue-status-help" [(ngModel)]="filters.status">
+        <option value="">{{ 'admin.serviceRequests.queue.filters.actionable' | transloco }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="queue-team" class="form-label small fw-semibold">{{ 'admin.serviceRequests.queue.filters.team' | transloco }}</label>
+      <select id="queue-team" class="form-select" name="team" [(ngModel)]="filters.team">
+        <option value="">{{ 'admin.serviceRequests.queue.filters.allTeams' | transloco }}</option>
+        @for (t of teams; track t) {
+          <option [value]="t">{{ t | codeLabel: teamKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="queue-service" class="form-label small fw-semibold">{{ 'admin.serviceRequests.queue.filters.service' | transloco }}</label>
+      <select id="queue-service" class="form-select" name="definitionCode" [(ngModel)]="filters.definitionCode">
+        <option value="">{{ 'admin.serviceRequests.queue.filters.allServices' | transloco }}</option>
+        @for (code of definitionCodes; track code) {
+          <option [value]="code">{{ code | codeLabel: definitionKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-1">
+      <label for="queue-country" class="form-label small fw-semibold">{{ 'admin.serviceRequests.queue.filters.country' | transloco }}</label>
+      <select id="queue-country" class="form-select" name="country" [(ngModel)]="filters.country">
+        <option value="">{{ 'admin.serviceRequests.queue.filters.allCountries' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="queue-bl" class="form-label small fw-semibold">{{ 'admin.serviceRequests.queue.filters.bl' | transloco }}</label>
+      <input id="queue-bl" type="text" class="form-control" name="blNumber" autocomplete="off" [(ngModel)]="filters.blNumber" />
+    </div>
+    <div class="col-sm-6 col-lg-2 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'admin.serviceRequests.queue.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'admin.serviceRequests.queue.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+  <p id="queue-status-help" class="form-text mb-0">{{ 'admin.serviceRequests.queue.filters.actionableHelp' | transloco }}</p>
+</form>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search(page())" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (result(); as r) {
+  @if (r.items.length === 0) {
+    <app-state-message kind="empty" [messageKey]="actionableOnly() ? 'admin.serviceRequests.queue.emptyActionable' : 'admin.serviceRequests.queue.empty'" />
+  } @else {
+    <div class="hl-card mb-3">
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.serviceRequests.queue.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.serviceRequests.queue.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.serviceRequests.queue.col.request' | transloco }}</th>
+              <th scope="col">{{ 'admin.serviceRequests.queue.col.service' | transloco }}</th>
+              <th scope="col">{{ 'admin.serviceRequests.queue.col.organization' | transloco }}</th>
+              <th scope="col">{{ 'admin.serviceRequests.queue.col.shipment' | transloco }}</th>
+              <th scope="col">{{ 'admin.serviceRequests.queue.col.status' | transloco }}</th>
+              <th scope="col">{{ 'admin.serviceRequests.queue.col.team' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.serviceRequests.queue.col.total' | transloco }}</th>
+              <th scope="col">{{ 'admin.serviceRequests.queue.col.since' | transloco }}</th>
+              <th scope="col"><span class="visually-hidden">{{ 'admin.serviceRequests.queue.col.actions' | transloco }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of r.items; track item.id) {
+              <tr [attr.data-testid]="'queue-row-' + item.requestNumber">
+                <td class="fw-semibold">{{ item.requestNumber }}</td>
+                <td>{{ name(item) }}</td>
+                <td>
+                  <span class="d-block">{{ item.organizationName ?? '—' }}</span>
+                  @if (item.requestedByEmail) {
+                    <span class="small text-muted text-break">{{ item.requestedByEmail }}</span>
+                  }
+                </td>
+                <td>
+                  <span class="d-block">{{ item.blNumber }}</span>
+                  <span class="small text-muted">{{ item.country }}</span>
+                </td>
+                <td><span class="hl-badge" [class]="statusClass(item)">{{ item.status | codeLabel: statusKeys }}</span></td>
+                <td>{{ item.assignedTeam ? (item.assignedTeam | codeLabel: teamKeys) : '—' }}</td>
+                <td class="text-end">
+                  @if (item.isExempt) {
+                    {{ 'admin.serviceRequests.queue.exempt' | transloco }}
+                  } @else if (item.currency && item.totalAmount > 0) {
+                    {{ item.totalAmount | hlCurrency: item.currency }}
+                  } @else {
+                    {{ 'admin.serviceRequests.queue.noCharge' | transloco }}
+                  }
+                </td>
+                <td>{{ item.statusChangedAt | hlDate: 'datetime' }}</td>
+                <td>
+                  <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/admin/service-requests', item.id]"
+                     [attr.aria-label]="'admin.serviceRequests.queue.reviewLabel' | transloco: { number: item.requestNumber }">
+                    {{ 'admin.serviceRequests.queue.review' | transloco }}
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="d-flex align-items-center gap-2" [attr.aria-label]="'admin.serviceRequests.queue.pagination.label' | transloco">
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="search(page() - 1)">{{ 'admin.serviceRequests.queue.pagination.previous' | transloco }}</button>
+        <span class="small">{{ 'admin.serviceRequests.queue.pagination.status' | transloco: { page: page(), pages: totalPages(), total: r.total } }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="search(page() + 1)">{{ 'admin.serviceRequests.queue.pagination.next' | transloco }}</button>
+      </nav>
+    } @else {
+      <p class="small text-muted">{{ 'admin.serviceRequests.queue.count' | transloco: { count: r.total } }}</p>
+    }
+  }
+}

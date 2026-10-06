@@ -58,6 +58,7 @@ import { ORGANIZACION_PRUEBA, USUARIO_PRUEBA } from './session';
 import { OpcionesOlaD, SimulacionOlaD } from './ola-d-mocks';
 import { SimulacionOlaE } from './ola-e-mocks';
 import { SimulacionOlaF } from './ola-f-mocks';
+import { SimulacionOlaG } from './ola-g-mocks';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
 export const BL_PRUEBA: BillOfLading = {
@@ -1739,18 +1740,22 @@ const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo
  * emitirse la carta de responsabilidad.
  * Ola F: dashboard, emisión y TATC del BL, reglas de publicación, enlace de Dispute, asistente y buscador DG los
  * responde ola-f-mocks.ts, que además agrega al listado de embarques el estado de emisión y la publicación.
+ * Fase 2, Ola G: servicios on demand, solicitudes, bandeja interna, mantenedor de definiciones e historial del cambio de
+ * almacén los responde ola-g-mocks.ts, que registra en el carro de la Ola D los cargos que generan las solicitudes.
  */
 export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promise<void> {
   let consultasLote = 0;
   const olaD = new SimulacionOlaD(opciones);
   const olaE = new SimulacionOlaE(olaD);
   const olaF = new SimulacionOlaF();
+  const olaG = new SimulacionOlaG(olaD);
   await page.route('**/api/v1/**', async (route: Route) => {
     const request = route.request();
     const url = new URL(request.url());
     const ruta = url.pathname.replace(/^.*\/api\/v1\//, '').replace(/\/$/, '');
     const metodo = request.method();
 
+    if (await olaG.responder(route, ruta, metodo, url)) return;
     if (await olaF.responder(route, ruta, metodo, url)) return;
     if (await olaE.responder(route, ruta, metodo)) return;
     if (await olaD.responder(route, ruta, metodo, url)) return;
@@ -1781,7 +1786,7 @@ export async function simularApi(page: Page, opciones: OpcionesOlaD = {}): Promi
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(olaF.ajustar(ruta, olaE.ajustar(ruta, cuerpo))),
+      body: JSON.stringify(olaG.ajustar(ruta, olaF.ajustar(ruta, olaE.ajustar(ruta, cuerpo)))),
     });
   });
 }

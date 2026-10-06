@@ -76,6 +76,10 @@ export const API_ENDPOINTS = {
   CONFIG_DISPUTE_LINK: 'config/dispute-link',
   ASSISTANT: 'assistant',
   DANGEROUS_GOODS: 'dangerous-goods',
+  // Fase 2, Ola G
+  SERVICE_REQUESTS: 'service-requests',
+  ADMIN_SERVICE_REQUESTS: 'admin/service-requests',
+  SERVICE_DEFINITIONS: 'service-definitions',
 } as const;
 
 /**
@@ -101,4 +105,6 @@ export const PERMISSIONS = {
   PAYMENTS_FINANCE: 'payments.finance',
   /** Ventanas de bloqueo de pagos por horario (M8-07). */
   MANAGE_PAYMENT_BLOCKS: 'payment-blocks.manage',
+  /** Bandeja interna de solicitudes de servicios on demand (ED, Customer Service; Fase 2, Ola G). */
+  PROCESS_SERVICE_REQUESTS: 'service-requests.process',
 } as const;

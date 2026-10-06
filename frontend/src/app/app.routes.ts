@@ -140,6 +140,38 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  // Fase 2, Ola G: historial y trazabilidad del cambio de almacén (M3-06).
+  {
+    path: 'warehouse/history',
+    loadComponent: () =>
+      import('./features/warehouse/warehouse-history/warehouse-history').then((m) => m.WarehouseHistoryComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'warehouse/history/:id',
+    loadComponent: () =>
+      import('./features/warehouse/warehouse-history/warehouse-history-detail').then((m) => m.WarehouseHistoryDetailComponent),
+    canActivate: [authGuard],
+  },
+  // Fase 2, Ola G: servicios on demand (M2-03, M2-04, M3-07 a M3-15): mis solicitudes, nueva solicitud y detalle.
+  {
+    path: 'service-requests',
+    loadComponent: () =>
+      import('./features/service-requests/service-request-list/service-request-list').then((m) => m.ServiceRequestListComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'service-requests/new',
+    loadComponent: () =>
+      import('./features/service-requests/service-request-form/service-request-form').then((m) => m.ServiceRequestFormComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'service-requests/:id',
+    loadComponent: () =>
+      import('./features/service-requests/service-request-detail/service-request-detail').then((m) => m.ServiceRequestDetailComponent),
+    canActivate: [authGuard],
+  },
   {
     path: 'service-orders',
     loadComponent: () =>
@@ -322,6 +354,38 @@ export const routes: Routes = [
     path: 'admin/dangerous-goods',
     loadComponent: () =>
       import('./features/admin/dangerous-goods-import/dangerous-goods-import').then((m) => m.DangerousGoodsImportComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  // Fase 2, Ola G: bandeja interna de solicitudes de servicios (ED, Customer Service) y mantenedor de definiciones
+  // de servicios on demand con su registro de cambios (M2-03, M2-04, NF-15).
+  {
+    path: 'admin/service-requests',
+    loadComponent: () =>
+      import('./features/admin/service-requests/service-request-queue').then((m) => m.ServiceRequestQueueComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PROCESS_SERVICE_REQUESTS)],
+  },
+  {
+    path: 'admin/service-requests/:id',
+    loadComponent: () =>
+      import('./features/admin/service-requests/service-request-review').then((m) => m.ServiceRequestReviewComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.PROCESS_SERVICE_REQUESTS)],
+  },
+  {
+    path: 'admin/service-definitions',
+    loadComponent: () =>
+      import('./features/admin/service-definitions/service-definitions').then((m) => m.ServiceDefinitionsComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/service-definitions/new',
+    loadComponent: () =>
+      import('./features/admin/service-definitions/service-definition-editor').then((m) => m.ServiceDefinitionEditorComponent),
+    canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
+  },
+  {
+    path: 'admin/service-definitions/:id',
+    loadComponent: () =>
+      import('./features/admin/service-definitions/service-definition-editor').then((m) => m.ServiceDefinitionEditorComponent),
     canActivate: [authGuard, internalGuard, permissionGuard(PERMISSIONS.MANAGE_MAINTAINERS)],
   },
   { path: '**', redirectTo: '/dashboard' },

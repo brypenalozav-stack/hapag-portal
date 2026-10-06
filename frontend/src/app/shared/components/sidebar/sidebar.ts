@@ -32,6 +32,8 @@ export class SidebarComponent {
   canManagePaymentBlocks = computed(() => this.auth.hasPermission(PERMISSIONS.MANAGE_PAYMENT_BLOCKS));
   /** Herramientas de Finanzas (M5-02, NF-03, NF-04). */
   canUseFinance = computed(() => this.auth.hasPermission(PERMISSIONS.PAYMENTS_FINANCE));
+  /** Bandeja de solicitudes de servicios on demand (Fase 2, Ola G). */
+  canProcessServiceRequests = computed(() => this.auth.hasPermission(PERMISSIONS.PROCESS_SERVICE_REQUESTS));
   closed = output<void>();
 
   onLinkClick(): void {

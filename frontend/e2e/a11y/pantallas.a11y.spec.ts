@@ -32,6 +32,16 @@ import {
   PAGO_CON_DOCUMENTOS,
 } from '../fixtures/ola-e-mocks';
 import { BL_ORIGEN_CAIDO, BL_TATC } from '../fixtures/ola-f-mocks';
+import {
+  BL_DROP_OFF,
+  BL_FORMULARIO,
+  BL_HIJO,
+  BOOKING_SELLOS,
+  CAMBIO_PAGADO,
+  SERVICIO_FORMULARIO,
+  SOLICITUD,
+  idDefinicion,
+} from '../fixtures/ola-g-mocks';
 import { IDIOMAS, Idioma, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin, sembrarTema } from '../fixtures/session';
 
 /**
@@ -65,6 +75,11 @@ import { IDIOMAS, Idioma, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin
  * "no disponible", rechazo y derivación a la casilla, y el cierre con respaldo (M10-01 a M10-05), buscador DG con
  * resultados, no clasificado y sin coincidencias (M10-06) y los mantenedores de la base de conocimiento, casillas y
  * base DG. Las pantallas de la Ola F se revisan también con el tema oscuro (M11-07, `tema: 'dark'`).
+ * Fase 2, Ola G (tema claro y oscuro): servicios disponibles del embarque con los no disponibles y sus motivos, formulario
+ * dinámico con todos los tipos de campo y su resumen de errores, facturación con errores, cotización fuera de plazo con
+ * tramo y la de Drop Off con aceptación de tarifa, mis solicitudes, detalle con línea de tiempo y documento de salida,
+ * detalle pendiente de pago con la anulación, historial del cambio de almacén y su trazabilidad, bandeja interna y
+ * revisión, y el mantenedor de definiciones (listado, editor con un campo de selección e historial, y errores).
  */
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -228,6 +243,132 @@ const PANTALLAS_OLA_F: { id: string; ruta: string; sesion: Sesion; preparar?: (p
   },
   { id: 'admin-assistant-mailboxes', ruta: '/admin/assistant-mailboxes', sesion: 'admin' },
   { id: 'admin-dangerous-goods-import', ruta: '/admin/dangerous-goods', sesion: 'admin' },
+];
+
+/** Lleva la solicitud del formulario al último paso (revisión y cotización). */
+function hastaRevision(llenar: (page: Page) => Promise<void>): (page: Page) => Promise<void> {
+  return async (page) => {
+    await llenar(page);
+    await page.getByTestId('srv-next').click();
+    await page.locator('#srv-billing-address').fill('Av. Apoquindo 4500, Las Condes');
+    await page.getByTestId('srv-next').click();
+    await expect(page.getByTestId('service-quote')).toBeVisible();
+  };
+}
+
+/** Pantallas de la Ola G que se revisan en tema claro y oscuro (M11-07). */
+const PANTALLAS_OLA_G: { id: string; ruta: string; sesion: Sesion; preparar?: (page: Page) => Promise<void> }[] = [
+  {
+    id: 'service-available-with-reasons',
+    ruta: `/service-requests/new?bl=${BL_HIJO}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.locator('#available-include-unavailable').check();
+      await expect(page.getByTestId('available-reasons-SEAL_MANAGEMENT')).toBeVisible();
+    },
+  },
+  {
+    id: 'shipment-detail-available-services',
+    ruta: `/shipments/${BL_DROP_OFF}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('available-service-DROP_OFF_SCL')).toBeVisible();
+    },
+  },
+  {
+    id: 'service-form-all-fields-errors',
+    ruta: `/service-requests/new?bl=${BL_FORMULARIO}&code=${SERVICIO_FORMULARIO}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.getByTestId('srv-next').click();
+      await expect(page.getByTestId('srv-error-summary')).toBeFocused();
+    },
+  },
+  {
+    id: 'service-form-billing-errors',
+    ruta: `/service-requests/new?booking=${BOOKING_SELLOS}&code=SEAL_MANAGEMENT`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await page.locator('#srv-field-containers-0').check();
+      await page.locator('#srv-field-sealNumbers').fill('SL-100');
+      await page.getByTestId('srv-next').click();
+      await page.locator('#srv-billing-taxId').fill('');
+      await page.getByTestId('srv-next').click();
+      await expect(page.getByTestId('srv-error-summary')).toBeFocused();
+    },
+  },
+  {
+    id: 'service-quote-late-tier',
+    ruta: `/service-requests/new?bl=${BL_HIJO}&code=BL_HOUSE_TRANSMISSION`,
+    sesion: 'cliente',
+    preparar: hastaRevision(async (page) => {
+      await page.locator('#srv-field-houseBlNumbers').fill('HB-2610-01');
+    }),
+  },
+  {
+    id: 'service-quote-acceptance',
+    ruta: `/service-requests/new?bl=${BL_DROP_OFF}&code=DROP_OFF_SCL`,
+    sesion: 'cliente',
+    preparar: hastaRevision(async (page) => {
+      await page.locator('#srv-field-containers-1').check();
+      await page.locator('#srv-field-returnDate').fill('2026-10-20');
+      await page.locator('#srv-field-depot').selectOption('SCL_PUDAHUEL');
+    }),
+  },
+  { id: 'service-requests-list', ruta: '/service-requests', sesion: 'cliente' },
+  {
+    id: 'service-request-detail-timeline',
+    ruta: `/service-requests/${SOLICITUD.BL_HIJO_COMPLETADA}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('service-timeline')).toBeVisible();
+      await expect(page.getByTestId('srv-output')).toBeVisible();
+    },
+  },
+  {
+    id: 'service-request-detail-payment',
+    ruta: `/service-requests/${SOLICITUD.SELLOS_POR_PAGAR}`,
+    sesion: 'cliente',
+    preparar: async (page) => {
+      await expect(page.getByTestId('service-payment-add')).toBeVisible();
+      await page.locator('#srv-cancel-start').click();
+      await expect(page.locator('#srv-cancel-title')).toBeFocused();
+    },
+  },
+  { id: 'warehouse-history', ruta: '/warehouse/history', sesion: 'cliente' },
+  { id: 'warehouse-history-detail', ruta: `/warehouse/history/${CAMBIO_PAGADO}`, sesion: 'cliente' },
+  { id: 'admin-service-requests-queue', ruta: '/admin/service-requests', sesion: 'admin' },
+  {
+    id: 'admin-service-request-review',
+    ruta: `/admin/service-requests/${SOLICITUD.DROP_OFF_PENDIENTE}`,
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.locator('form:has(#srv-reject-reason) button[type="submit"]').click();
+      await expect(page.locator('#srv-reject-reason')).toBeFocused();
+    },
+  },
+  { id: 'admin-service-definitions', ruta: '/admin/service-definitions', sesion: 'admin' },
+  {
+    id: 'admin-service-definition-editor',
+    ruta: `/admin/service-definitions/${idDefinicion('DROP_OFF_SCL')}`,
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.locator('#def-add-field').click();
+      await expect(page.locator('#def-field-4-key')).toBeFocused();
+      await page.locator('#def-field-4-type').selectOption('select');
+      await expect(page.locator('#def-field-4-option-0-value')).toBeVisible();
+      await expect(page.getByTestId('definition-history')).toBeVisible();
+    },
+  },
+  {
+    id: 'admin-service-definition-new-errors',
+    ruta: '/admin/service-definitions/new',
+    sesion: 'admin',
+    preparar: async (page) => {
+      await page.getByTestId('definition-submit').click();
+      await expect(page.locator('form .alert-danger').first()).toBeFocused();
+    },
+  },
 ];
 
 const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opciones?: OpcionesOlaD; preparar?: (page: Page) => Promise<void> }[] = [
@@ -423,6 +564,9 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opcion
   // Ola F, en tema claro y oscuro (M11-07)
   ...PANTALLAS_OLA_F,
   ...PANTALLAS_OLA_F.map((p) => ({ ...p, id: `${p.id}-dark`, tema: 'dark' as const })),
+  // Fase 2, Ola G, en tema claro y oscuro (M11-07)
+  ...PANTALLAS_OLA_G,
+  ...PANTALLAS_OLA_G.map((p) => ({ ...p, id: `${p.id}-dark`, tema: 'dark' as const })),
 ];
 
 async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opciones?: OpcionesOlaD, tema: Tema = 'light'): Promise<void> {
