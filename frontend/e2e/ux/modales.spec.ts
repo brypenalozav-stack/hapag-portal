@@ -56,7 +56,7 @@ test('quitar un ítem del carro pide confirmación; cancelar y Esc no quitan nad
   await expect(aviso).toContainText('THC se quitó del carro.');
   await expect(page.locator('div[aria-live="polite"]')).toHaveText('THC se quitó del carro.');
   for (const tema of ['light', 'dark'] as const) {
-    await page.emulateMedia({ colorScheme: tema });
+    await page.emulateMedia({ colorScheme: tema, reducedMotion: 'reduce' });
     const axe = await new AxeBuilder({ page }).include('[data-testid="toasts"]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
     expect(axe.violations, `axe toast ${tema}`).toEqual([]);
   }

@@ -18,7 +18,7 @@ test('el detalle del embarque ofrece "Ir a" con los grupos y lleva el foco al t√
   await expect(enlace).toHaveAttribute('aria-current', 'location');
 
   for (const tema of ['light', 'dark'] as const) {
-    await page.emulateMedia({ colorScheme: tema });
+    await page.emulateMedia({ colorScheme: tema, reducedMotion: 'reduce' });
     const axe = await new AxeBuilder({ page }).include('[data-testid="section-nav"]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
     expect(axe.violations, `axe ${tema}`).toEqual([]);
   }

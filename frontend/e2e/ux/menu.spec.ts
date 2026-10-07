@@ -26,7 +26,7 @@ test('los grupos se abren con teclado, Esc cierra y el foco vuelve al grupo', as
   await expect(menu.getByRole('link', { name: 'Facturas' })).toBeVisible();
 
   for (const tema of ['light', 'dark'] as const) {
-    await page.emulateMedia({ colorScheme: tema });
+    await page.emulateMedia({ colorScheme: tema, reducedMotion: 'reduce' });
     const axe = await new AxeBuilder({ page }).include('.hl-mainnav').withTags(TAGS).analyze();
     expect(axe.violations, `axe menú ${tema}`).toEqual([]);
   }

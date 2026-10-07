@@ -164,8 +164,11 @@ for (const perfil of ['cliente', 'interno'] as const) {
     else await abrirAdmin(page);
     const grupo = perfil === 'cliente' ? 'Documentos y trámites' : 'Administración';
     for (const tema of ['light', 'dark'] as const) {
-      await page.emulateMedia({ colorScheme: tema });
+      // Sin animaciones (como las demás pruebas de axe): con el panel aún apareciendo, axe medía el texto a medio fundido.
+      await page.emulateMedia({ colorScheme: tema, reducedMotion: 'reduce' });
       await menuPrincipal(page).getByRole('button', { name: grupo }).click();
+      // Los enlaces del panel con texto ya traducido (el de Dispute llega después, con la configuración del país).
+      for (const enlace of await page.locator('header .hl-mega:visible a').all()) await expect(enlace).not.toHaveText('');
       const menu = await new AxeBuilder({ page }).include('header').withTags(TAGS).analyze();
       expect(menu.violations, `axe menú ${perfil} ${tema}`).toEqual([]);
       await page.keyboard.press('Escape');

@@ -121,7 +121,7 @@ test('Chile: el camino muestra cada requisito con su estado y su acción, y el T
   await expect(page.getByTestId('release-container-HLXU7654321')).toContainText('Sin TATC (SOW)');
 
   for (const tema of ['light', 'dark'] as const) {
-    await page.emulateMedia({ colorScheme: tema });
+    await page.emulateMedia({ colorScheme: tema, reducedMotion: 'reduce' }); // sin transiciones de color a medio cambiar de tema
     const axe = await new AxeBuilder({ page }).include('#contenido-principal').withTags(TAGS).analyze();
     expect(axe.violations, `axe consulta BL ${tema}`).toEqual([]);
   }

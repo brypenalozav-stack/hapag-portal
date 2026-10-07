@@ -121,7 +121,7 @@ test('el perfil interno ve el grupo Interno con la publicación por DIFU', async
 
 for (const tema of ['light', 'dark'] as const) {
   test(`detalle del BL sin violaciones de axe (${tema})`, async ({ page }) => {
-    await page.emulateMedia({ colorScheme: tema });
+    await page.emulateMedia({ colorScheme: tema, reducedMotion: 'reduce' });
     await simularApi(page);
     await sembrarSesion(page, { lang: 'es' });
     await page.goto(DETALLE);
