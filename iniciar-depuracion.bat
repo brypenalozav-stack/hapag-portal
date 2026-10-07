@@ -28,6 +28,9 @@ set "Integrations__Storage__Mode=Local"
 set "ConnectionStrings__DefaultConnection=Host=localhost;Port=5432;Database=HapagPortalDb;Username=postgres;Password=postgres"
 rem El proyecto apunta a .NET 9; permite ejecutarlo con un runtime mas nuevo si es el unico instalado.
 set "DOTNET_ROLL_FORWARD=LatestMajor"
+rem URL publicas para las pasarelas de pago: adonde vuelve el pagador y adonde notifica la pasarela.
+set "Payments__PublicBaseUrl=%WEB_URL%"
+set "Payments__ApiPublicBaseUrl=%API_URL%"
 
 echo.
 echo === Verificando requisitos ===
@@ -57,15 +60,21 @@ echo PostgreSQL listo.
 
 echo.
 echo === 2/3 API .NET ===
+rem Pasarelas con credenciales de prueba en scripts\dev\credenciales-prueba.json: modo Real contra su ambiente de pruebas.
+if not exist "%ROOT%scripts\dev\credenciales-prueba.json" copy /Y "%ROOT%scripts\dev\credenciales-prueba.example.json" "%ROOT%scripts\dev\credenciales-prueba.json" >nul
+node "%ROOT%scripts\dev\configurar-pasarelas.mjs" modos
+if exist "%ROOT%scripts\dev\pasarelas-env.cmd" call "%ROOT%scripts\dev\pasarelas-env.cmd"
 call :puerto_activo 5072
 if %ERRORLEVEL%==0 (
   echo Ya hay algo escuchando en el puerto 5072; se asume que es la API.
+  echo Si cambio credenciales-prueba.json, cierre la ventana "Portal - API (.NET)" y vuelva a ejecutar este archivo.
 ) else (
   start "Portal - API (.NET)" /D "%ROOT%backend\src\HapagPortal.WebApi" cmd /k dotnet run --launch-profile http
   echo Compilando e iniciando la API ^(la primera vez puede tardar unos minutos^)...
   call :esperar_url "%API_URL%/health" 300 || (echo [ERROR] La API no respondio. Revise la ventana "Portal - API (.NET)". & goto :fin_error)
 )
 echo API lista en %API_URL%  ^(Swagger: %API_URL%/swagger^)
+node "%ROOT%scripts\dev\configurar-pasarelas.mjs" secretos
 
 echo.
 echo === 3/3 Frontend Angular ===
@@ -89,7 +98,8 @@ echo === Listo ===
 echo   Sitio:   %WEB_URL%
 echo   API:     %API_URL%/swagger
 echo   Usuarios de demo: admin@hapag-lloyd.cl o demo@importadorademo.cl / Admin123!
-echo   Pagos en linea en modo de prueba: el portal muestra un simulador de la pasarela ^(sin cargo real^).
+echo   Pagos en linea: las pasarelas con credenciales de prueba ^(scripts\dev\credenciales-prueba.json^) usan su
+echo   ambiente de pruebas real ^(Santander/Getnet viene listo^); el resto muestra el simulador del portal ^(sin cargo real^).
 echo   Para depurar el backend en VS Code o Visual Studio: "Asociar al proceso" HapagPortal.WebApi.
 echo   Para detener todo, cierre las ventanas "Portal - ...".
 start "" "%WEB_URL%"
