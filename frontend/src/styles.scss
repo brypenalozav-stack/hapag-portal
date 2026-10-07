@@ -831,6 +831,269 @@ $hl-ship-mask: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vie
 .bg-hl-light { background-color: var(--hl-light-gray) !important; }
 
 // ---------------------------------------------------------------------------
+// Detalle del BL (cierre de Fase 1, UX): encabezado fijo con la próxima acción, grupos del índice y
+// marcadores de las secciones diferidas. Global para no pasar el presupuesto de estilos por componente.
+// ---------------------------------------------------------------------------
+.hl-bl-header {
+  position: sticky;
+  top: var(--navbar-height);
+  z-index: 1010;
+  margin: -0.5rem -1.5rem 1.5rem;
+  padding: 0.85rem 1.5rem 0.5rem;
+  border-bottom: 1px solid var(--hl-border);
+  background-color: var(--hl-surface);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+  &__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+  }
+
+  &__id {
+    flex: 1 1 22rem;
+    min-width: 0;
+  }
+
+  &__eyebrow {
+    margin-bottom: 0.15rem;
+    color: var(--hl-text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--hl-emphasis);
+    font-size: 1.5rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  &__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.75rem;
+    margin: 0.6rem 0 0;
+
+    dt {
+      color: var(--hl-text-muted);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    dd {
+      margin: 0;
+      color: var(--hl-emphasis);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+  }
+
+  // Compacto al desplazar: una barra delgada con el BL, su estado y el siguiente paso.
+  &.is-collapsed {
+    padding-top: 0.45rem;
+
+    .hl-bl-header__eyebrow,
+    .hl-bl-header__facts,
+    .hl-bl-next__title,
+    .hl-bl-next__text,
+    .hl-bl-next__bar,
+    .hl-bl-next__link {
+      display: none;
+    }
+
+    .hl-bl-header__main {
+      align-items: center;
+    }
+
+    .hl-bl-header__title {
+      font-size: 1.05rem;
+    }
+
+    .hl-bl-next {
+      display: flex;
+      flex: 0 1 auto;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 0.75rem;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+
+    .hl-bl-next__actions {
+      margin: 0;
+    }
+  }
+}
+
+.hl-bl-next {
+  flex: 0 1 24rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--hl-border);
+  border-radius: 0.75rem;
+  background-color: var(--hl-surface-muted);
+
+  &__title {
+    margin-bottom: 0.4rem;
+    color: var(--hl-text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__progress {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__count {
+    color: var(--hl-emphasis);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  &__bar {
+    height: 0.35rem;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    border-radius: 50rem;
+    background-color: var(--hl-border);
+
+    span {
+      display: block;
+      height: 100%;
+      background-color: var(--hl-green-700);
+    }
+  }
+
+  &__text {
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+  }
+
+  &__link {
+    color: var(--hl-link);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+}
+
+// Grupos del índice: título h2 visible como separador y anclas bajo el encabezado fijo.
+.hl-bl-group {
+  margin-bottom: 2rem;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    color: var(--hl-emphasis);
+    font-size: 1.2rem;
+    font-weight: 700;
+    scroll-margin-top: calc(var(--navbar-height) + var(--hl-sticky-extra, 7rem) + 0.75rem);
+
+    &::after {
+      flex: 1;
+      height: 1px;
+      background-color: var(--hl-border);
+      content: '';
+    }
+  }
+
+  // Marcador de una sección diferida: reserva su alto mientras carga.
+  &__placeholder {
+    min-height: 12rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+// Disclosure del resumen (partes y emisión): botón con aria-expanded.
+.hl-disclosure {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: var(--hl-link);
+  font-weight: 600;
+
+  // Marca decorativa en un span aria-hidden: no forma parte del nombre accesible del botón.
+  &__icon::before {
+    display: inline-block;
+    content: '▸';
+    transition: transform 0.15s;
+  }
+
+  &[aria-expanded='true'] &__icon::before {
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .hl-bl-header {
+    margin-top: -0.25rem;
+    padding-top: 0.6rem;
+
+    &__title {
+      font-size: 1.2rem;
+    }
+
+    // En pantallas chicas la próxima acción va en una línea: el detalle sigue en la consulta de liberación.
+    .hl-bl-next {
+      flex-basis: 100%;
+      padding: 0.5rem 0.75rem;
+    }
+
+    &.is-collapsed {
+      .hl-bl-header__main {
+        gap: 0.35rem;
+      }
+
+      .hl-bl-header__title {
+        font-size: 0.95rem;
+      }
+
+      .hl-bl-next__overall {
+        display: none;
+      }
+
+      .hl-bl-next {
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        padding: 0;
+      }
+
+      .hl-bl-next__count {
+        font-size: 0.8rem;
+      }
+    }
+
+    .hl-section-nav .hl-section-nav__title {
+      display: none;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Accesibilidad (Fase 5c; guía UI/a11y/i18n §3.5)
 // ---------------------------------------------------------------------------
 
@@ -841,6 +1104,11 @@ html {
   // Con la barra "Ir a" (app-section-nav) también fija, se deja su alto.
   &:has(app-section-nav .hl-section-nav) {
     scroll-padding-top: calc(var(--navbar-height) + 3.75rem);
+  }
+
+  // Encabezado fijo del detalle del BL: su alto real lo publica el componente en --hl-sticky-extra.
+  &:has([data-hl-sticky]) {
+    scroll-padding-top: calc(var(--navbar-height) + var(--hl-sticky-extra, 7rem) + 0.75rem);
   }
 }
 

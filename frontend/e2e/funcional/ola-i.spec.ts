@@ -14,6 +14,7 @@ import {
   TRANSPORTISTA,
 } from '../fixtures/ola-i-mocks';
 import { ORGANIZACION_PRUEBA, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
  * Fase 2, Ola I (pruebas funcionales con el backend simulado):
@@ -40,6 +41,8 @@ async function abrir(page: Page, ruta: string, opciones: OpcionesOlaD & Opciones
   else if (sesion === 'cliente') await sembrarSesion(page, { lang: 'es' });
   else await sembrarIdioma(page, 'es');
   await page.goto(ruta);
+  // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
+  if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
   await expect(page.getByTestId('table-skeleton')).toHaveCount(0);

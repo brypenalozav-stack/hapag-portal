@@ -29,6 +29,8 @@ export class ShipmentTatcComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   blNumber = input.required<string>();
+  /** Nivel del título: 3 dentro de un grupo del detalle del BL, cuyo h2 es el título del grupo. */
+  readonly headingLevel = input<2 | 3>(2);
 
   readonly statusKeys = TATC_STATUS_KEYS;
   readonly statusClass = TATC_STATUS_CLASS;

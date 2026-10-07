@@ -21,7 +21,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
   template: `
     @if (current(); as i) {
       <section class="hl-card p-4 mb-4" aria-labelledby="shipment-issuance-title" data-testid="shipment-issuance">
-        <h2 id="shipment-issuance-title" class="section-title mb-3">{{ 'shipments.detail.issuance.title' | transloco }}</h2>
+        <h2 [attr.aria-level]="headingLevel() === 3 ? 3 : null" id="shipment-issuance-title" class="section-title mb-3">{{ 'shipments.detail.issuance.title' | transloco }}</h2>
         @if (i.available) {
           <dl class="row g-3 mb-0">
             <div class="col-sm-6 col-lg-3">
@@ -82,6 +82,8 @@ export class ShipmentIssuanceComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   issuance = input.required<ShipmentIssuance>();
+  /** Nivel del título: 3 dentro de un grupo del detalle del BL, cuyo h2 es el título del grupo. */
+  readonly headingLevel = input<2 | 3>(2);
 
   readonly documentTypeKeys = TRANSPORT_DOCUMENT_TYPE_KEYS;
   readonly statusKeys = BL_ISSUANCE_STATUS_KEYS;

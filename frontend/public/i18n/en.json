@@ -6769,7 +6769,29 @@
         "unavailable": "The TATC system did not respond: we cannot show the current status. Try again in a few minutes."
       },
       "title": "Shipment {{ bl }}",
-      "releaseStatusLink": "See release status and TATC"
+      "releaseStatusLink": "See release status and TATC",
+      "summary": {
+        "nextAction": "Next action",
+        "routeLabel": "Route",
+        "route": "{{ pol }} → {{ pod }}",
+        "loading": "Checking the release requirements…",
+        "unavailable": "We could not check the release requirements right now. Review them in the release status page.",
+        "released": "All release requirements are met.",
+        "inProgress": "Some requirements are in progress: you do not need to do anything for now."
+      },
+      "groups": {
+        "summary": "Summary",
+        "containers": "Containers",
+        "charges": "Charges and payments",
+        "documents": "Documents",
+        "access": "Access and services",
+        "internal": "Internal"
+      },
+      "more": {
+        "parties": "Shipment parties and roles",
+        "partiesAndIssuance": "Parties, roles and BL issuance"
+      },
+      "viewFull": "See the full detail of BL {{ bl }}"
     },
     "list": {
       "caption": "Accessible shipments",

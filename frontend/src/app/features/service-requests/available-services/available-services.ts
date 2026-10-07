@@ -38,6 +38,8 @@ export class AvailableServicesComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   blNumber = input<string | null>(null);
+  /** Nivel del título: 3 dentro de un grupo del detalle del BL, cuyo h2 es el título del grupo. */
+  readonly headingLevel = input<2 | 3>(2);
   bookingNumber = input<string | null>(null);
 
   readonly reasonKeys = SERVICE_UNAVAILABLE_REASON_KEYS;
