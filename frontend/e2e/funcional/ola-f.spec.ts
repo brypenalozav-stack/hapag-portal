@@ -213,11 +213,13 @@ test('el selector de tema aplica data-bs-theme y la preferencia persiste (M11-07
   await page.emulateMedia({ colorScheme: 'light' });
   await abrir(page, '/dashboard');
   const html = page.locator('html');
-  const selector = page.getByRole('combobox', { name: 'Tema' });
-  await expect(selector).toHaveValue('auto');
+  // El tema está en las preferencias del menú del usuario.
+  const tema = () => page.locator('#hl-user-menu').getByRole('group', { name: 'Tema' });
+  await page.getByRole('button', { name: /Menú de usuario/ }).click();
+  await expect(tema().getByRole('button', { name: 'Según el sistema' })).toHaveAttribute('aria-pressed', 'true');
   await expect(html).toHaveAttribute('data-bs-theme', 'light');
 
-  await selector.selectOption('dark');
+  await tema().getByRole('button', { name: 'Oscuro' }).click();
   await expect(html).toHaveAttribute('data-bs-theme', 'dark');
   await expect(page.locator(POLITE)).toHaveText('Tema cambiado: Oscuro.');
   expect(await page.evaluate(() => localStorage.getItem('hl_theme'))).toBe('dark');
@@ -225,10 +227,11 @@ test('el selector de tema aplica data-bs-theme y la preferencia persiste (M11-07
   await page.reload();
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(html).toHaveAttribute('data-bs-theme', 'dark');
-  await expect(page.getByRole('combobox', { name: 'Tema' })).toHaveValue('dark');
+  await page.getByRole('button', { name: /Menú de usuario/ }).click();
+  await expect(tema().getByRole('button', { name: 'Oscuro' })).toHaveAttribute('aria-pressed', 'true');
 
   // "Según el sistema" sigue la preferencia del sistema operativo.
-  await page.getByRole('combobox', { name: 'Tema' }).selectOption('auto');
+  await tema().getByRole('button', { name: 'Según el sistema' }).click();
   await expect(html).toHaveAttribute('data-bs-theme', 'light');
   await page.emulateMedia({ colorScheme: 'dark' });
   await expect(html).toHaveAttribute('data-bs-theme', 'dark');
@@ -237,7 +240,7 @@ test('el selector de tema aplica data-bs-theme y la preferencia persiste (M11-07
 test('el enlace de Dispute abre el sitio externo en una pestaña nueva (M2-05)', async ({ page }) => {
   await abrir(page, '/dashboard');
   const menu = page.getByRole('navigation', { name: 'Menú principal' });
-  await menu.getByRole('button', { name: 'Servicios' }).click();
+  await menu.getByRole('button', { name: 'Documentos y trámites' }).click();
   const enlace = menu
     .getByRole('link', { name: 'Dispute de productos digitales (se abre en una pestaña nueva)' });
   await expect(enlace).toHaveAttribute('href', URL_DISPUTE);

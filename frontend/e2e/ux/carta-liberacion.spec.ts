@@ -72,7 +72,7 @@ async function abrir(page: Page, ruta: string, embarques: ShipmentListItem[] = [
 test('el menú lleva a la carta de liberación; el selector muestra la información del BL y su formulario', async ({ page }) => {
   const consultas = await abrir(page, '/dashboard');
   const menu = page.getByRole('navigation', { name: 'Menú principal' });
-  await menu.getByRole('button', { name: 'Servicios' }).click();
+  await menu.getByRole('button', { name: 'Documentos y trámites' }).click();
   await menu.getByRole('link', { name: 'Carta de liberación' }).click();
   await expect(page).toHaveURL(/\/release-letter$/);
 
@@ -140,7 +140,7 @@ test('quien no opera en Bolivia no ve el acceso en el menú', async ({ page }) =
   await sembrarSesion(page, { lang: 'es', organizacion: { ...ORGANIZACION_PRUEBA, operatingCountries: ['CL'] } });
   await page.goto('/dashboard');
   const menu = page.getByRole('navigation', { name: 'Menú principal' });
-  await menu.getByRole('button', { name: 'Servicios' }).click();
+  await menu.getByRole('button', { name: 'Documentos y trámites' }).click();
   await expect(menu.getByRole('link', { name: 'Tarifas locales' })).toBeVisible();
   await expect(menu.getByRole('link', { name: 'Carta de liberación' })).toHaveCount(0);
 });

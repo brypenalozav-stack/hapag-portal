@@ -3,7 +3,7 @@ import { simularApi } from '../fixtures/api-mocks';
 import { sembrarSesion } from '../fixtures/session';
 
 /**
- * Fase 5b: el selector ES/EN de la barra superior cambia el idioma en caliente, sin recargar
+ * Fase 5b: el selector ES/EN (preferencias del menú del usuario) cambia el idioma en caliente, sin recargar
  * la página, y los formatos siguen Q8 (CLP sin decimales, USD con 2; fechas por idioma y país).
  */
 
@@ -39,6 +39,8 @@ test('cambia de español a inglés sin recargar y reformatea montos y fechas', a
     window.__noReload = true;
   });
 
+  // El idioma está en las preferencias del menú del usuario.
+  await page.getByRole('button', { name: /Menú de usuario/ }).click();
   const botonEn = page.getByRole('button', { name: 'English' });
   await expect(botonEn).toHaveAttribute('aria-pressed', 'false');
   await botonEn.click();
@@ -67,6 +69,7 @@ test('el cambio de idioma muestra la pantalla de carga global hasta que el sitio
   await expect(page.locator('h1').first()).toHaveText('Historial de pagos');
 
   const cargando = page.getByTestId('global-loader');
+  await page.getByRole('button', { name: /Menú de usuario/ }).click();
   await page.getByRole('button', { name: /English|Inglés/ }).click();
   await expect(cargando).toBeVisible();
   await expect(cargando.getByRole('status')).toContainText(/Cambiando idioma|Switching language/);

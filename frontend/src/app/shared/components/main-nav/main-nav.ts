@@ -2,17 +2,16 @@ import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, e
 import { NgTemplateOutlet } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
-import { TranslocoPipe, translate } from '@jsverse/transloco';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { filter, map } from 'rxjs';
 import { PERMISSIONS } from '../../../core/constants/app.constants';
 import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../core/services/cart.service';
 import { FeatureService } from '../../../core/services/feature.service';
-import { LocaleService } from '../../../core/services/locale.service';
-import { THEME_PREFERENCES, ThemePreference, ThemeService } from '../../../core/services/theme.service';
-import { ToastService } from '../../../core/services/toast.service';
+import { WorkspaceService } from '../../../core/services/workspace.service';
 import { DisputeLinkComponent } from '../dispute-link/dispute-link';
-import { MAIN_MENU, MenuContext, MenuGroup, MenuLink } from './main-nav.config';
+import { WorkspaceSwitcherComponent } from '../workspace-switcher/workspace-switcher';
+import { MENUS, MenuContext, MenuGroup, MenuLink } from './main-nav.config';
 
 /** Espera antes de abrir o cerrar un panel con el puntero: evita aperturas al pasar de largo. */
 const HOVER_OPEN_MS = 120;
@@ -26,13 +25,14 @@ type RouteLink = Extract<MenuLink, { kind: 'route' }>;
  *   de divulgación (aria-expanded/aria-controls); se abre con clic, Enter/Espacio o al detener el puntero, y se
  *   cierra con Esc (el foco vuelve al botón), al hacer clic fuera, al salir el foco o al navegar.
  * - Móvil: panel lateral #hl-sidebar con los grupos en acordeón; lo abre el botón de menú de la barra superior.
- * Ambas variantes muestran solo lo que el perfil puede usar (mismas reglas que las rutas protegidas).
+ * Ambas variantes muestran el menú del espacio de trabajo activo (portal de clientes o backoffice, WorkspaceService) y
+ * solo lo que el perfil puede usar (mismas reglas que las rutas protegidas).
  */
 @Component({
   selector: 'app-main-nav',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, RouterLink, TranslocoPipe, DisputeLinkComponent],
+  imports: [NgTemplateOutlet, RouterLink, TranslocoPipe, DisputeLinkComponent, WorkspaceSwitcherComponent],
   templateUrl: './main-nav.html',
   styleUrl: './main-nav.scss',
   host: {
@@ -46,15 +46,7 @@ export class MainNavComponent {
   private readonly features = inject(FeatureService);
   private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly toast = inject(ToastService);
-  readonly locale = inject(LocaleService);
-  readonly themes = inject(ThemeService);
-  readonly themeOptions = THEME_PREFERENCES;
-  readonly themeKeys: Record<ThemePreference, string> = {
-    auto: 'shared.navbar.theme.auto',
-    light: 'shared.navbar.theme.light',
-    dark: 'shared.navbar.theme.dark',
-  };
+  private readonly workspaces = inject(WorkspaceService);
 
   /** Panel lateral móvil abierto (lo controla el botón de menú de la barra superior). */
   readonly mobileOpen = input(false);
@@ -86,15 +78,15 @@ export class MainNavComponent {
     feature: (...names) => this.features.enabled(...names),
   }));
 
-  /** Grupos y columnas con al menos un destino visible para el perfil. */
+  /** Grupos y columnas del espacio activo con al menos un destino visible para el perfil. */
   readonly groups = computed<MenuGroup[]>(() => {
     const c = this.context();
-    return MAIN_MENU.map((g) => ({
+    return MENUS[this.workspaces.current()].map((g) => ({
       ...g,
       columns: g.columns
         .map((col) => ({ ...col, links: col.links.filter((l) => l.kind === 'dispute' || !l.visible || l.visible(c)) }))
         .filter((col) => col.links.length > 0),
-    })).filter((g) => g.columns.length > 0);
+    })).filter((g) => !!g.route || g.columns.length > 0);
   });
 
   constructor() {
@@ -191,12 +183,5 @@ export class MainNavComponent {
 
   closeMobile(): void {
     this.closed.emit();
-  }
-
-  /** Igual que el selector de la barra superior: cambia el tema y lo confirma. */
-  onTheme(event: Event): void {
-    const preference = (event.target as HTMLSelectElement).value as ThemePreference;
-    this.themes.setPreference(preference);
-    this.toast.success(translate('shared.navbar.theme.changed', { theme: translate(this.themeKeys[preference]) }));
   }
 }
