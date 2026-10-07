@@ -24,6 +24,14 @@ export class PaymentService {
     return this.api.get<PaymentStatusDetail>(`${API_ENDPOINTS.PAYMENTS}/${id}/status`);
   }
 
+  /**
+   * Vuelta desde la pasarela: pide al portal que consulte a la pasarela el estado del pago en curso y devuelve el
+   * estado. La vuelta no confirma por sí sola: el portal solo confirma lo que informa la pasarela.
+   */
+  verify(id: string): Observable<PaymentStatusDetail> {
+    return this.api.post<PaymentStatusDetail>(`${API_ENDPOINTS.PAYMENTS}/${id}/verify`, {});
+  }
+
   /** Emite la boleta de depósito: desde ese momento el cliente ya no puede anularla (M5-02). */
   issueSlip(id: string): Observable<PaymentStatusDetail> {
     return this.api.post<PaymentStatusDetail>(`${API_ENDPOINTS.PAYMENTS}/${id}/issue-slip`, {});

@@ -222,6 +222,7 @@ public sealed class PaymentCheckoutService(
 
         payment.ProviderReference = initiation.Value.ProviderReference;
         payment.RedirectUrl = initiation.Value.RedirectUrl;
+        payment.RedirectForm = PaymentRedirectForms.Serialize(initiation.Value.Form);
         PaymentLifecycle.Transition(
             dbContext, payment, PaymentStatus.Processing, PaymentActor.System, $"Initiated in {method.ProviderKey}", DateTime.UtcNow);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -319,6 +320,7 @@ public sealed class PaymentCheckoutService(
 
         try
         {
+            // Rutas relativas: el adaptador Real las completa con la URL pública configurada (Payments:PublicBaseUrl).
             return await provider.InitiateAsync(
                 new PaymentInitiationRequest(
                     payment.ExternalReference!,
@@ -326,8 +328,12 @@ public sealed class PaymentCheckoutService(
                     payment.Currency,
                     $"Hapag-Lloyd {payment.PaymentNumber}",
                     $"/payments/{payment.Id}/result",
-                    $"/api/v1/payments/webhook/{method.ProviderKey!.ToLowerInvariant()}",
-                    payment.PayerTaxId),
+                    PaymentWebhookRoutes.PathFor(method.ProviderKey!),
+                    payment.PayerTaxId,
+                    currentUserService.Email,
+                    payment.PayerName,
+                    currentUserService.IpAddress,
+                    currentUserService.UserAgent),
                 cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
@@ -353,7 +359,8 @@ public sealed class PaymentCheckoutService(
             PaymentViews.Summary(payment, details),
             nextAction,
             nextAction == NextActionRedirect ? payment.RedirectUrl : null,
-            replayed);
+            replayed,
+            nextAction == NextActionRedirect ? PaymentRedirectForms.Deserialize(payment.RedirectForm) : null);
     }
 }
 

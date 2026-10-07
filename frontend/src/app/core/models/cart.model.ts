@@ -216,11 +216,23 @@ export interface PaymentSummary {
   items: PaymentItem[];
 }
 
+/**
+ * Formulario firmado que el navegador envía a la pasarela (botones bancarios por POST): el portal lo envía solo y,
+ * si el envío automático no ocurre, ofrece el botón "Continuar al banco".
+ */
+export interface PaymentRedirectForm {
+  method: string;
+  action: string;
+  fields: Record<string, string>;
+}
+
 /** POST /cart/checkout y POST /account-payments/checkout. */
 export interface CheckoutResult {
   payment: PaymentSummary;
   nextAction: CheckoutNextAction;
   redirectUrl?: string | null;
+  /** Viene en vez de una URL cuando la pasarela exige un formulario firmado por POST. */
+  redirectForm?: PaymentRedirectForm | null;
   replayed: boolean;
 }
 

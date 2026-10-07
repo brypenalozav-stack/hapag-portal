@@ -5498,6 +5498,15 @@
     "subtitle": "Pagos hechos en el portal por su organización, como pagadora o como mandante, con su boleta o comprobante.",
     "title": "Historial de pagos"
   },
+  "paymentRedirect": {
+    "title": "Pago en el sitio del banco",
+    "heading": "Le estamos llevando al banco",
+    "text": "Le estamos llevando al sitio seguro del banco para que autorice el pago.",
+    "continue": "Continuar al banco",
+    "help": "Si no avanza en unos segundos, presione «Continuar al banco». Al terminar, el banco le devolverá al portal con el resultado.",
+    "missing": "Este paso ya no está disponible. Revise el estado de su pago.",
+    "viewStatus": "Ver el estado del pago"
+  },
   "paymentResult": {
     "announce": {
       "cancelled": "Pago {{ number }} anulado. No hubo cobro.",

@@ -86,7 +86,7 @@ jobs:
 
       - name: Contract tests (schemathesis)
         run: |
-          for x in nexus fis khipu banco-chile dbnet tracking; do
+          for x in nexus fis khipu dbnet tracking; do
             schemathesis run "docs/integraciones/contratos/$x.openapi.yaml" --url "http://localhost:5199/$x" \
               --checks not_a_server_error,status_code_conformance,content_type_conformance,response_schema_conformance || exit 1
           done

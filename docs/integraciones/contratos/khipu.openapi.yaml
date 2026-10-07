@@ -7,16 +7,21 @@ info:
   description: |
     PROPUESTA – pendiente de validación con Finanzas – Fer
 
-    Reproduce la API pública v3 de Khipu para crear un pago y consultarlo. Las rutas y los nombres de campo
-    (`payment_id`, `notification_token`, `transaction_id`, `status`, …) son los que publica Khipu; este documento no
-    los redefine. Debe contrastarse con la documentación vigente de Khipu antes de pasar a Validado.
+    Reproduce la API pública v3 de Khipu (https://docs.khipu.com, servidor `https://payment-api.khipu.com`) en las
+    operaciones que usa el portal: crear un pago, consultarlo por `payment_id` y anular un pago pendiente. Las rutas y los
+    nombres de campo son los que publica Khipu; este documento no los redefine. La v3 NO tiene consulta por
+    `notification_token` (era de las versiones 1.3/2.0): el portal la eliminó.
 
-    Autenticación: cabecera `x-api-key`. Las respuestas de error se describen con `Problem` (RFC 9457) para el
-    manejo uniforme en el portal y en el simulador; el formato exacto del cuerpo de error de Khipu se confirma en la
-    validación.
+    Autenticación: cabecera `x-api-key` (secreto `KHIPU_SECRET`). Las respuestas de error se describen con `Problem`
+    (RFC 9457) para el manejo uniforme en el portal y en el simulador; el formato exacto del cuerpo de error de Khipu se
+    confirma en la validación.
 
-    La notificación entrante llega a `POST /api/v1/payments/webhook/khipu` del portal; hoy se autentica con secreto
-    compartido (`X-Webhook-Secret`). En modo Real, la Fase 6c agrega la verificación del pago con este contrato.
+    Notificación (`webhooks.notificacionV3`): Khipu hace POST con JSON a `notify_url`
+    (`/api/v1/payments/webhook/khipu` del portal) y firma el cuerpo crudo en la cabecera
+    `x-khipu-signature: t=<unix ms>,s=<base64>`, con `s = Base64(HMAC-SHA256(secreto de la cuenta de cobro, t + "." + cuerpo))`
+    (secreto `KHIPU_WEBHOOK_SECRET`). El portal verifica la firma en tiempo constante, exige `t` dentro de 5 minutos,
+    consulta `GET /v3/payments/{id}` y compara monto, moneda y `transaction_id` antes de confirmar. Detalle y fuentes en
+    `docs/integraciones/pasarelas-pago.md`.
     Fichas: M5-01, M5-03, M7-02, NF-01, NF-04, NF-12. Tareas de Pendientes: 47–49 y 53.
   x-contrato: CT-KHIPU
   x-estado: PROPUESTA – pendiente de validación con Finanzas – Fer
@@ -91,84 +96,6 @@ paths:
           $ref: '#/components/responses/InternalServerError'
         '503':
           $ref: '#/components/responses/ServiceUnavailable'
-    get:
-      operationId: getPaymentByNotificationToken
-      summary: Consultar un pago por notification_token
-      description: |-
-        Verificación de la notificación (Fase 6c, `VerifyNotificationAsync`): con el `notification_token` recibido, el portal obtiene el pago y compara `transaction_id`, `amount` y `status` antes de confirmar.
-
-        Esta consulta corresponde a `GET /payments?notification_token=` de la API pública de Khipu. Finanzas – Fer debe confirmar con la documentación vigente que la v3 la mantiene; si no, la verificación usa `GET /v3/payments/{id}` con el `payment_id` de la notificación.
-      tags:
-      - Pagos
-      parameters:
-      - name: notification_token
-        in: query
-        required: true
-        description: Token recibido en la notificación de Khipu.
-        schema:
-          type: string
-          minLength: 1
-        example: j8kPBHaPNy3PkCh2iqTYjXxGZnzW6vBzbZJzqDCe5
-      responses:
-        '200':
-          description: Pago asociado al token.
-          headers:
-            X-Correlation-Id:
-              $ref: '#/components/headers/CorrelationId'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaymentResponse'
-              examples:
-                pagado:
-                  value:
-                    payment_id: gqzdy6chjne9
-                    payment_url: https://khipu.com/payment/info/gqzdy6chjne9
-                    simplified_transfer_url: https://app.khipu.com/payment/simplified/gqzdy6chjne9
-                    transfer_url: https://khipu.com/payment/manual/gqzdy6chjne9
-                    app_url: khipu:///pos/gqzdy6chjne9
-                    ready_for_terminal: false
-                    notification_token: j8kPBHaPNy3PkCh2iqTYjXxGZnzW6vBzbZJzqDCe5
-                    receiver_id: 985101
-                    conciliation_date: '2026-10-20T14:32:10Z'
-                    subject: Pago PAY-2026-000123 – BL HLCUSCL2609A1234
-                    amount: 245000
-                    currency: CLP
-                    status: done
-                    status_detail: normal
-                    body: Cargos locales de importación
-                    picture_url: ''
-                    receipt_url: https://khipu.com/payment/receipt/gqzdy6chjne9
-                    return_url: https://portal.example/pagos/PAY-2026-000123/retorno
-                    cancel_url: https://portal.example/pagos/PAY-2026-000123/cancelado
-                    notify_url: https://portal.example/api/v1/payments/webhook/khipu
-                    notify_api_version: '3.0'
-                    expires_date: '2026-10-21T14:00:00Z'
-                    attachment_urls: []
-                    bank: Banco de Chile
-                    bank_id: Bawdf
-                    payer_name: Importadora Ejemplo SpA
-                    payer_email: pagos@importadora.example
-                    personal_identifier: 76000001-1
-                    bank_account_number: 001234567890
-                    out_of_date_conciliation: false
-                    transaction_id: PAY-2026-000123
-                    custom: null
-                    responsible_user_email: null
-                    send_reminders: false
-                    send_email: false
-                    payment_method: simplified_transfer
-                    funds_source: debit
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailable'
   /v3/payments/{id}:
     parameters:
     - $ref: '#/components/parameters/CorrelationId'
@@ -205,7 +132,6 @@ paths:
                     transfer_url: https://khipu.com/payment/manual/gqzdy6chjne9
                     app_url: khipu:///pos/gqzdy6chjne9
                     ready_for_terminal: false
-                    notification_token: j8kPBHaPNy3PkCh2iqTYjXxGZnzW6vBzbZJzqDCe5
                     receiver_id: 985101
                     conciliation_date: '2026-10-20T14:32:10Z'
                     subject: Pago PAY-2026-000123 – BL HLCUSCL2609A1234
@@ -246,6 +172,96 @@ paths:
           $ref: '#/components/responses/InternalServerError'
         '503':
           $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      operationId: deletePaymentById
+      summary: Anular un pago pendiente
+      description: Anula un pago que aún está `pending` (Finanzas anula un pago en curso). Un pago pagado no se puede
+        anular.
+      tags:
+      - Pagos
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador del pago (`payment_id`).
+        schema:
+          type: string
+        example: gqzdy6chjne9
+      responses:
+        '200':
+          description: Pago anulado.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                - message
+              examples:
+                anulado:
+                  value:
+                    message: Payment deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+webhooks:
+  notificacionV3:
+    post:
+      operationId: khipuNotificationV3
+      summary: Notificación de pago (API de notificación 3.0)
+      description: Khipu la envía a `notify_url` (`POST /api/v1/payments/webhook/khipu` del portal). El portal responde
+        200 rápido y procesa de forma idempotente por `payment_id`; el estado se consulta siempre con `getPaymentById`.
+      parameters:
+      - name: x-khipu-signature
+        in: header
+        required: true
+        description: '`t=<unix ms>,s=<Base64(HMAC-SHA256(KHIPU_WEBHOOK_SECRET, t + "." + cuerpo crudo))>`.'
+        schema:
+          type: string
+        example: t=1759838400000,s=Q2l0YSBkZSBlamVtcGxvLCBubyBlcyB1bmEgZmlybWEgcmVhbA==
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_id:
+                  type: string
+                receiver_id:
+                  type: integer
+                subject:
+                  type: string
+                amount:
+                  description: Número o texto con punto decimal ("245000.0000").
+                  type:
+                  - number
+                  - string
+                currency:
+                  type: string
+                transaction_id:
+                  type: string
+                payer_email:
+                  type: string
+              required:
+              - payment_id
+      responses:
+        '200':
+          description: Notificación recibida.
+        '401':
+          description: Firma inválida o fuera de tiempo; no cambia nada.
 components:
   parameters:
     CorrelationId:
@@ -522,9 +538,6 @@ components:
           type: string
         ready_for_terminal:
           type: boolean
-        notification_token:
-          type: string
-          description: Token que Khipu entrega en la notificación.
         receiver_id:
           type: integer
           description: Cuenta de cobro de Hapag-Lloyd (secreto KHIPU_RECEIVER_ID).
@@ -629,7 +642,6 @@ components:
           - 'null'
       required:
       - payment_id
-      - notification_token
       - receiver_id
       - subject
       - amount

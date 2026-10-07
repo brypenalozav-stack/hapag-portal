@@ -47,6 +47,10 @@ public static class DomainErrors
 
         public static readonly Error InvalidAmount =
             new("Payment.InvalidAmount", "The payment amount is invalid.");
+
+        /// <summary>La pasarela informa otra referencia, monto o moneda que el pago del portal: no se confirma.</summary>
+        public static readonly Error VerificationMismatch =
+            new("Payment.VerificationMismatch", "The payment platform reported a reference, amount or currency that does not match the payment.");
     }
 
     /// <summary>Ciclo de vida de los pagos de la Ola D (NF-01, NF-02, NF-03, NF-12, M5-02, M8-07).</summary>

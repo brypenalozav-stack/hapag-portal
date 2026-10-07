@@ -8,8 +8,8 @@ El portal mantiene operativos los tres medios de pago actuales:
 
 | Medio | Tipo | Proveedor en el código |
 |---|---|---|
-| Khipu | En línea | `HttpKhipuPaymentProvider` |
-| Botón de bancos | En línea | `HttpBancoChilePaymentProvider` (Banco de Chile). Santander y BCI aún no tienen proveedor propio; dependen de los contratos CT-SANT y CT-BCI |
+| Khipu | En línea | `HttpKhipuPaymentProvider` (API v3) |
+| Botón de bancos | En línea | Santander: `GetnetPaymentProvider` (Getnet Web Checkout). BCI: `BciPagosPaymentProvider` (Bci Pagos). Banco de Chile: `BancoChileFormPaymentProvider` (formulario firmado configurable, sin configurar hasta recibir el manual del banco). Detalle en `docs/integraciones/pasarelas-pago.md` |
 | Depósito bancario mediante boleta | Depósito | Sin proveedor. Se emite la boleta y Finanzas confirma el abono |
 
 Los contratos de cada integración siguen como **propuesta pendiente de validación** con Finanzas y Nexus/IT (ver `docs/requerimientos/matriz-trazabilidad.md`, fila M5-03).

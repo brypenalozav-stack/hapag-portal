@@ -1,0 +1,20 @@
+<div class="hl-page-header">
+  <h1>{{ 'paymentRedirect.title' | transloco }}</h1>
+</div>
+
+@if (form(); as f) {
+  <section class="hl-card p-4" aria-labelledby="payment-redirect-heading">
+    <h2 id="payment-redirect-heading" class="h5 fw-bold">{{ 'paymentRedirect.heading' | transloco }}</h2>
+    <p role="status" data-testid="payment-redirect-status">{{ 'paymentRedirect.text' | transloco }}</p>
+    <form #bankForm [attr.action]="f.action" [attr.method]="method()" data-testid="payment-redirect-form">
+      @for (field of fields(); track field.name) {
+        <input type="hidden" [attr.name]="field.name" [value]="field.value" />
+      }
+      <button type="submit" class="btn btn-hl-orange">{{ 'paymentRedirect.continue' | transloco }}</button>
+    </form>
+    <p class="small text-muted mt-3 mb-0">{{ 'paymentRedirect.help' | transloco }}</p>
+  </section>
+} @else {
+  <div class="alert alert-info" role="status" data-testid="payment-redirect-missing">{{ 'paymentRedirect.missing' | transloco }}</div>
+  <a [routerLink]="['/payments', id(), 'result']" class="btn btn-outline-secondary">{{ 'paymentRedirect.viewStatus' | transloco }}</a>
+}

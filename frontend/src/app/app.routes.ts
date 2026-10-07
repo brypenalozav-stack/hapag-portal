@@ -101,6 +101,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    // Formulario firmado de un botón bancario (M5-03): se envía solo al sitio del banco.
+    path: 'payments/:id/redirect',
+    loadComponent: () =>
+      import('./features/payments/payment-redirect/payment-redirect').then((m) => m.PaymentRedirectComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'payments/:id/result',
     loadComponent: () =>
       import('./features/payments/payment-result/payment-result').then((m) => m.PaymentResultComponent),

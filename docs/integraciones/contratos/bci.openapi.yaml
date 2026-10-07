@@ -1,541 +1,171 @@
-# CT-BCI – BCI – pagos
-# Contrato de integración en estado PROPUESTA (Fase 6a). Ver docs/integraciones/README.md.
+# CT-BCI – Botón BCI = Bci Pagos (ex Pago Fácil), API REST apis.pgf.cl
+# Contrato de integración en estado PROPUESTA. Ver docs/integraciones/pasarelas-pago.md.
 openapi: 3.1.0
 info:
-  title: BCI – pagos
-  version: 0.1.0
+  title: BCI – Bci Pagos
+  version: 1.0.0
   description: |
     PROPUESTA – pendiente de validación con Finanzas – Fer
 
-    Propuesta de contrato de pago para BCI: iniciar el pago, consultar su estado y recibir la notificación firmada.
-    Igual a CT-BCH. La tarea 116 confirma la modalidad de integración y las reglas de confirmación y conciliación. La ruta del webhook es una propuesta: hoy no existe. En el plan solo hay adaptador Dummy.
-    Fichas: M5-01, M5-03, M7-02, NF-01, NF-04, NF-12. Tareas de Pendientes: 116–118.
+    El botón de pago BCI se implementa con Bci Pagos (ex Pago Fácil), cuya API REST pública está en
+    https://apis.pgf.cl (desarrollo https://apis-dev.pgf.cl; `Integrations:BciPagos:BaseUrl`). Referencias:
+    https://apis.pgf.cl/ y el SDK oficial https://github.com/PSTPAGOFACIL/sdk-apis-php-signature (SignatureHelper.php).
+    Este documento resume solo lo que usa el portal.
+
+    Confirmado en las fuentes públicas: la creación `POST /trxs` y la firma `x_signature` = hex minúscula de
+    HMAC-SHA256(mensaje, token_secret), donde el mensaje concatena clave + valor de los campos escalares de primer nivel
+    (sin `x_signature`) ordenados por clave en orden ordinal. Supuesto (por confirmar con Bci Pagos): la forma exacta de
+    cada elemento de `pay_url`, el formato de `status` en `GET /trxs/{id}` y el formato del callback; el portal los lee
+    con tolerancia, los textos de estado son configurables y el callback siempre se confirma volviendo a consultar.
+
+    Credenciales del contrato: `BCIPAGOS_ACCOUNT_ID` (token_service), `BCIPAGOS_TOKEN_SECRET`, `BCIPAGOS_USERNAME` y
+    `BCIPAGOS_PASSWORD` (consulta de estado con JWT). Callback del portal: `POST /api/v1/payments/webhook/bci` (se envía
+    en `x_url_callback`).
+    Fichas: M5-01, M5-03, M7-02. Tareas de Pendientes: 116–118.
   x-contrato: CT-BCI
   x-estado: PROPUESTA – pendiente de validación con Finanzas – Fer
   x-responsable: Finanzas – Fer
   x-puerto:
-  - IPaymentProvider("Bci")
+  - IPaymentProvider("Bci") → BciPagosPaymentProvider
   x-tareas-pendientes: 116–118
 servers:
-- url: '{baseUrl}'
-  description: URL base configurada en `Integrations:Bci:BaseUrl`. La URL productiva la entrega el responsable al validar
-    el contrato; por defecto apunta al simulador local (Fase 6c).
-  variables:
-    baseUrl:
-      default: http://localhost:5199/bci
-security:
-- ApiKey: []
+- url: https://apis-dev.pgf.cl
+  description: Desarrollo.
+- url: https://apis.pgf.cl
+  description: Producción.
 tags:
-- name: Pagos
-- name: Notificaciones
+- name: Transacciones
+- name: Usuarios
 paths:
-  /payments:
-    parameters:
-    - $ref: '#/components/parameters/CorrelationId'
+  /trxs:
     post:
-      operationId: initiatePayment
-      summary: Iniciar un pago
-      description: Registra el cobro en el banco y devuelve la URL de pago (M5-01, M5-03).
+      operationId: createTrx
+      summary: Crear la transacción
+      description: Sin cabecera de autorización; la autenticidad la da `x_signature`.
       tags:
-      - Pagos
-      parameters:
-      - name: Idempotency-Key
-        in: header
-        required: true
-        description: Clave de idempotencia (NF-01). Reenviar la misma clave devuelve el mismo pago sin crear otro.
-        schema:
-          type: string
-          maxLength: 64
-        example: PAY-2026-000123
+      - Transacciones
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PaymentInitiationRequest'
-            examples:
-              cargosLocales:
-                value:
-                  externalReference: PAY-2026-000123
-                  amount: 245000
-                  currency: CLP
-                  subject: Cargos locales BL HLCUSCL2609A1234
-                  payerTaxId: 76000001-1
-                  returnUrl: https://portal.example/pagos/PAY-2026-000123/retorno
-                  cancelUrl: https://portal.example/pagos/PAY-2026-000123/cancelado
-                  notifyUrl: https://portal.example/api/v1/payments/webhook/bci
-                  expiresAt: '2026-10-21T14:00:00Z'
+              type: object
+              required: [x_account_id, x_amount, x_currency, x_reference, x_customer_email, x_url_complete, x_url_callback,
+                x_url_cancel, x_shop_country, x_session_id, x_signature]
+              properties:
+                x_account_id:
+                  type: string
+                x_amount:
+                  type: integer
+                  minimum: 500
+                  description: CLP entero; se firma como texto ("53550").
+                x_currency:
+                  type: string
+                  example: CLP
+                x_reference:
+                  type: string
+                  description: Referencia del portal, única por servicio.
+                x_customer_email:
+                  type: string
+                x_url_complete:
+                  type: string
+                x_url_callback:
+                  type: string
+                x_url_cancel:
+                  type: string
+                x_shop_country:
+                  type: string
+                  example: CL
+                x_session_id:
+                  type: string
+                  maxLength: 61
+                x_signature:
+                  type: string
       responses:
         '200':
-          description: Pago iniciado.
-          headers:
-            X-Correlation-Id:
-              $ref: '#/components/headers/CorrelationId'
+          description: Transacción creada.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaymentInitiation'
-              examples:
-                iniciado:
-                  value:
-                    reference: BCI-7781230
-                    externalReference: PAY-2026-000123
-                    status: PENDING
-                    redirectUrl: https://pagos.bci.example/checkout/BCI-7781230
-                    expiresAt: '2026-10-21T14:00:00Z'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailable'
-  /payments/{reference}:
-    parameters:
-    - $ref: '#/components/parameters/CorrelationId'
-    get:
-      operationId: getPayment
-      summary: Consultar un pago
-      description: Estado vigente del pago, para verificar la notificación y conciliar (NF-04).
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                  body:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      data:
+                        type: object
+                        properties:
+                          id_trx:
+                            type:
+                            - string
+                            - integer
+                          pay_url:
+                            description: Opciones de pago (textos u objetos con url/link/href); el portal usa "gateway".
+  /users/login:
+    post:
+      operationId: login
+      summary: Obtener el JWT de consulta
       tags:
-      - Pagos
+      - Usuarios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: JWT en `token`, `access_token` o `body.data.token`.
+  /trxs/{id_trx}:
+    get:
+      operationId: getTrx
+      summary: Consultar la transacción
+      tags:
+      - Transacciones
+      security:
+      - Bearer: []
       parameters:
-      - name: reference
+      - name: id_trx
         in: path
         required: true
-        description: Referencia del pago en el banco.
         schema:
           type: string
-        example: BCI-7781230
       responses:
         '200':
-          description: Estado del pago.
-          headers:
-            X-Correlation-Id:
-              $ref: '#/components/headers/CorrelationId'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaymentStatus'
-              examples:
-                confirmado:
-                  value:
-                    reference: BCI-7781230
-                    externalReference: PAY-2026-000123
-                    status: CONFIRMED
-                    amount: 245000
-                    currency: CLP
-                    transactionId: 000981234567
-                    payerTaxId: 76000001-1
-                    paidAt: '2026-10-20T14:31:55Z'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailable'
+          description: '`data` con `id_trx`, `order_id_tienda` (= x_reference), `amount`, `status`, `auth_code` y `responce_code`.'
 webhooks:
-  paymentNotification:
+  callback:
     post:
-      operationId: receivePaymentNotification
-      summary: Notificación de pago hacia el portal
-      description: 'El banco notifica el resultado a `/api/v1/payments/webhook/bci`. El portal valida el secreto y la firma,
-        y la notificación es idempotente: repetirla no duplica la confirmación.'
-      tags:
-      - Notificaciones
-      parameters:
-      - $ref: '#/components/parameters/CorrelationId'
-      - name: X-Webhook-Secret
-        in: header
-        required: true
-        description: Secreto compartido (`Payments:Webhooks:Bci:Secret`).
-        schema:
-          type: string
-      - name: X-Signature
-        in: header
-        required: true
-        description: HMAC-SHA256 del cuerpo crudo, en hexadecimal minúsculo. La clave se lee de `Payments:Webhooks:Bci:SigningKey`.
-          El portal compara en tiempo constante.
-        schema:
-          type: string
-          pattern: ^[0-9a-f]{64}$
-        example: 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
+      operationId: bciPagosCallback
+      summary: Callback de la transacción (formato no publicado)
+      description: '`POST /api/v1/payments/webhook/bci` del portal. Si trae `x_signature` se verifica con el mismo HMAC; el
+        estado siempre se vuelve a consultar con `getTrx`.'
       requestBody:
-        required: true
         content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
           application/json:
             schema:
-              $ref: '#/components/schemas/PaymentNotification'
-            examples:
-              confirmado:
-                value:
-                  transactionId: 000981234567
-                  externalReference: PAY-2026-000123
-                  status: CONFIRMED
-                  amount: 245000
-                  currency: CLP
-                  paidAt: '2026-10-20T14:31:55Z'
+              type: object
       responses:
         '200':
-          description: Notificación aceptada.
-          headers:
-            X-Correlation-Id:
-              $ref: '#/components/headers/CorrelationId'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Recibido.
         '401':
-          description: Secreto o firma inválidos. El pago no cambia.
-          headers:
-            X-Correlation-Id:
-              $ref: '#/components/headers/CorrelationId'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-              examples:
-                firmaInvalida:
-                  value:
-                    type: about:blank
-                    title: No autorizado
-                    status: 401
-                    detail: La firma X-Signature no corresponde al cuerpo recibido.
-                    instance: /ejemplo
-                    correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailable'
+          description: Firma inválida.
 components:
-  parameters:
-    CorrelationId:
-      name: X-Correlation-Id
-      in: header
-      required: false
-      description: Identificador de correlación (NF-27). El portal lo envía en cada llamada; si falta, el servicio genera
-        uno y lo devuelve en la respuesta.
-      schema:
-        type: string
-        maxLength: 64
-      example: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
-  headers:
-    CorrelationId:
-      description: Mismo valor recibido en la solicitud, o uno generado por el servicio.
-      schema:
-        type: string
-        maxLength: 64
-    RetryAfter:
-      description: Segundos que el cliente debe esperar antes de reintentar (RFC 9110 §10.2.3).
-      schema:
-        type: integer
-        minimum: 0
-  responses:
-    BadRequest:
-      description: 'Solicitud inválida: parámetro faltante o con formato incorrecto.'
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/CorrelationId'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Problem'
-          examples:
-            parametroInvalido:
-              value:
-                type: about:blank
-                title: Solicitud inválida
-                status: 400
-                detail: Uno o más parámetros no cumplen el formato esperado.
-                instance: /ejemplo
-                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
-                errors:
-                - field: taxId
-                  message: Debe tener el formato 12345678-9.
-    NotFound:
-      description: El recurso solicitado no existe.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/CorrelationId'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Problem'
-          examples:
-            noEncontrado:
-              value:
-                type: about:blank
-                title: Recurso no encontrado
-                status: 404
-                detail: No existe un recurso con el identificador indicado.
-                instance: /ejemplo
-                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
-    TooManyRequests:
-      description: Se superó el límite de solicitudes. El cliente reintenta después de `Retry-After`.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/CorrelationId'
-        Retry-After:
-          $ref: '#/components/headers/RetryAfter'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Problem'
-          examples:
-            limite:
-              value:
-                type: about:blank
-                title: Demasiadas solicitudes
-                status: 429
-                detail: Se superó el límite de solicitudes por minuto.
-                instance: /ejemplo
-                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
-    InternalServerError:
-      description: Error interno del servicio.
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/CorrelationId'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Problem'
-          examples:
-            errorInterno:
-              value:
-                type: about:blank
-                title: Error interno
-                status: 500
-                detail: El servicio no pudo procesar la solicitud.
-                instance: /ejemplo
-                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
-    ServiceUnavailable:
-      description: Servicio no disponible temporalmente (mantención o dependencia caída).
-      headers:
-        X-Correlation-Id:
-          $ref: '#/components/headers/CorrelationId'
-        Retry-After:
-          $ref: '#/components/headers/RetryAfter'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Problem'
-          examples:
-            noDisponible:
-              value:
-                type: about:blank
-                title: Servicio no disponible
-                status: 503
-                detail: El servicio está en mantención. Reintente más tarde.
-                instance: /ejemplo
-                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
-  schemas:
-    Problem:
-      type: object
-      description: Detalle de error según RFC 9457 (`application/problem+json`). Admite miembros de extensión.
-      properties:
-        type:
-          type: string
-          format: uri-reference
-          default: about:blank
-          description: URI que identifica el tipo de problema.
-        title:
-          type: string
-          description: Resumen legible del tipo de problema.
-        status:
-          type: integer
-          minimum: 100
-          maximum: 599
-          description: Código HTTP.
-        detail:
-          type: string
-          description: Explicación específica de esta ocurrencia.
-        instance:
-          type: string
-          format: uri-reference
-          description: URI de la ocurrencia concreta.
-        correlationId:
-          type: string
-          description: 'Extensión: valor de `X-Correlation-Id`.'
-        errors:
-          type: array
-          description: 'Extensión: errores de validación por campo.'
-          items:
-            type: object
-            properties:
-              field:
-                type: string
-              message:
-                type: string
-            required:
-            - field
-            - message
-      required:
-      - title
-      - status
-      additionalProperties: true
-    PaymentInitiationRequest:
-      type: object
-      properties:
-        externalReference:
-          type: string
-          maxLength: 50
-          description: Número de pago del portal (`Payment.PaymentNumber`).
-        amount:
-          type: number
-          exclusiveMinimum: 0
-        currency:
-          type: string
-          enum:
-          - CLP
-          - USD
-        subject:
-          type: string
-          maxLength: 140
-        payerTaxId:
-          type: string
-          pattern: ^[0-9]{7,8}-[0-9Kk]$
-          description: RUT chileno con guion y dígito verificador.
-        returnUrl:
-          type: string
-          format: uri
-        cancelUrl:
-          type: string
-          format: uri
-        notifyUrl:
-          type: string
-          format: uri
-          description: URL del webhook del portal.
-        expiresAt:
-          type: string
-          format: date-time
-      required:
-      - externalReference
-      - amount
-      - currency
-      - subject
-      - returnUrl
-      - notifyUrl
-    PaymentInitiation:
-      type: object
-      properties:
-        reference:
-          type: string
-          description: Referencia del pago en el banco.
-        externalReference:
-          type: string
-        status:
-          type: string
-          enum:
-          - PENDING
-          - AUTHORIZED
-          - CONFIRMED
-          - REJECTED
-          - EXPIRED
-          - CANCELLED
-          description: Estado del pago en el banco. `CONFIRMED` es el único estado que confirma el cobro en el portal.
-        redirectUrl:
-          type: string
-          format: uri
-          description: URL a la que se redirige al pagador.
-        expiresAt:
-          type: string
-          format: date-time
-      required:
-      - reference
-      - externalReference
-      - status
-      - redirectUrl
-    PaymentStatus:
-      type: object
-      properties:
-        reference:
-          type: string
-        externalReference:
-          type: string
-        status:
-          type: string
-          enum:
-          - PENDING
-          - AUTHORIZED
-          - CONFIRMED
-          - REJECTED
-          - EXPIRED
-          - CANCELLED
-          description: Estado del pago en el banco. `CONFIRMED` es el único estado que confirma el cobro en el portal.
-        amount:
-          type: number
-        currency:
-          type: string
-          enum:
-          - CLP
-          - USD
-        transactionId:
-          type:
-          - string
-          - 'null'
-          description: Número de transacción bancaria (NF-04).
-        payerTaxId:
-          type:
-          - string
-          - 'null'
-        paidAt:
-          type:
-          - string
-          - 'null'
-          format: date-time
-      required:
-      - reference
-      - externalReference
-      - status
-      - amount
-      - currency
-    PaymentNotification:
-      type: object
-      description: Cuerpo de la notificación que el banco envía al portal.
-      properties:
-        transactionId:
-          type: string
-        externalReference:
-          type: string
-        status:
-          type: string
-          enum:
-          - PENDING
-          - AUTHORIZED
-          - CONFIRMED
-          - REJECTED
-          - EXPIRED
-          - CANCELLED
-          description: Estado del pago en el banco. `CONFIRMED` es el único estado que confirma el cobro en el portal.
-        amount:
-          type: number
-        currency:
-          type: string
-          enum:
-          - CLP
-          - USD
-        paidAt:
-          type:
-          - string
-          - 'null'
-          format: date-time
-      required:
-      - transactionId
-      - externalReference
-      - status
-      - amount
   securitySchemes:
-    ApiKey:
-      type: apiKey
-      in: header
-      name: X-Api-Key
-      description: Clave de API. En el portal se guarda cifrada como secreto `BCI_API_KEY` (NF-09).
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

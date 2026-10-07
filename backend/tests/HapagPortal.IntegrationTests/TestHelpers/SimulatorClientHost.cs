@@ -27,7 +27,6 @@ public static class SimulatorClientHost
         ["Nexus"] = ("nexus", nameof(HttpNexusClient)),
         ["Fis"] = ("fis", nameof(HttpShipmentSource)),
         ["Khipu"] = ("khipu", nameof(HttpKhipuPaymentProvider)),
-        ["BancoChile"] = ("banco-chile", nameof(HttpBancoChilePaymentProvider)),
         ["DbNet"] = ("dbnet", nameof(HttpInvoiceProvider)),
         ["Tracking"] = ("tracking", nameof(HttpTrackingProvider)),
     };
