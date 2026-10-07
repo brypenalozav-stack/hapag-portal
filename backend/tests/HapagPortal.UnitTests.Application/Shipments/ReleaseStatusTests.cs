@@ -13,7 +13,7 @@ using HapagPortal.Application.Documents.Repository;
 using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.Application.Shipments.Common;
 using HapagPortal.Application.Shipments.Detail;
-using HapagPortal.Application.Shipments.Release;
+using HapagPortal.Application.Shipments.LiberationStatus;
 using HapagPortal.Application.Shipments.Tatc;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;

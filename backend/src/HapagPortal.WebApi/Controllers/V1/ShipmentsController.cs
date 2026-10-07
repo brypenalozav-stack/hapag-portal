@@ -3,7 +3,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 using Asp.Versioning;
 using HapagPortal.Application.Shipments.Detail;
 using HapagPortal.Application.Shipments.Issuance;
-using HapagPortal.Application.Shipments.Release;
+using HapagPortal.Application.Shipments.LiberationStatus;
 using HapagPortal.Application.Shipments.Search;
 using HapagPortal.Application.Shipments.Tatc;
 using HapagPortal.Application.ThirdPartyAccess.OpenAccess;
