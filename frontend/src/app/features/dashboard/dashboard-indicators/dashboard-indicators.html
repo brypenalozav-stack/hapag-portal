@@ -61,7 +61,7 @@
                   <tr>
                     <td><a [routerLink]="['/shipments', shipment.blNumber]">{{ shipment.blNumber }}</a></td>
                     <td>{{ shipment.port ?? '—' }}</td>
-                    <td class="small">{{ shipment.date ? (shipment.date | hlDate: 'datetime') : '—' }}</td>
+                    <td class="small text-nowrap">{{ shipment.date ? (shipment.date | hlDate: 'datetime') : '—' }}</td>
                   </tr>
                 }
               </tbody>

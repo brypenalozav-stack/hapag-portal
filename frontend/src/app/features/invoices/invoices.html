@@ -144,8 +144,8 @@
                 </td>
                 <td data-testid="invoice-source">{{ inv.sourceNumber }}</td>
                 <td>{{ inv.documentType | codeLabel: docTypeKeys }}</td>
-                <td>{{ inv.issueDate | hlDate: 'localDate' }}</td>
-                <td>{{ inv.dueDate ? (inv.dueDate | hlDate: 'localDate') : '—' }}</td>
+                <td class="text-nowrap">{{ inv.issueDate | hlDate: 'localDate' }}</td>
+                <td class="text-nowrap">{{ inv.dueDate ? (inv.dueDate | hlDate: 'localDate') : '—' }}</td>
                 <td>
                   {{ inv.blNumber ?? '—' }}
                   @if (inv.bookingNumber) {
@@ -153,16 +153,16 @@
                   }
                 </td>
                 <td>{{ inv.legalName }}</td>
-                <td>{{ inv.taxId }}</td>
-                <td class="text-end">{{ inv.totalAmount | hlCurrency: inv.currency }}</td>
+                <td class="text-nowrap">{{ inv.taxId }}</td>
+                <td class="text-end text-nowrap">{{ inv.totalAmount | hlCurrency: inv.currency }}</td>
                 <td>{{ inv.currency }}</td>
-                <td>
+                <td class="hl-cell-text">
                   <span class="hl-badge" [class]="statusClass(inv)">{{ inv.status | codeLabel: statusKeys }}</span>
                   <!-- Fase 2, Ola H: refacturación IAO (M3-11) y factura cubierta por un pago anticipado (M3-19) -->
                   @if (inv.supersededByInvoiceId) {
                     <span class="small d-block mt-1" data-testid="invoice-superseded-by">
                       @if (related(inv.supersededByInvoiceId); as other) {
-                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="goToRow(other)">{{ 'invoices.supersededBy' | transloco: { number: label(other) } }}</button>
+                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline text-start" (click)="goToRow(other)">{{ 'invoices.supersededBy' | transloco: { number: label(other) } }}</button>
                       } @else {
                         {{ 'invoices.supersededByOther' | transloco }}
                       }
@@ -171,7 +171,7 @@
                   @if (inv.supersedesInvoiceId) {
                     <span class="small d-block mt-1" data-testid="invoice-supersedes">
                       @if (related(inv.supersedesInvoiceId); as other) {
-                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="goToRow(other)">{{ 'invoices.supersedes' | transloco: { number: label(other) } }}</button>
+                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline text-start" (click)="goToRow(other)">{{ 'invoices.supersedes' | transloco: { number: label(other) } }}</button>
                       } @else {
                         {{ 'invoices.supersedesOther' | transloco }}
                       }
@@ -187,18 +187,15 @@
                   }
                 </td>
                 <td>
-                  <div class="d-flex flex-wrap gap-1">
+                  <!-- Orden fijo (PDF, carro, refacturación); sin PDF queda su hueco: las acciones se alinean entre filas -->
+                  <div class="hl-actions">
                     @if (inv.canDownload) {
                       <button type="button" class="btn btn-sm btn-outline-secondary" (click)="downloadPdf(inv)"
                               [attr.aria-label]="'invoices.download.pdfLabel' | transloco: { number: label(inv) }">
                         {{ 'invoices.download.pdf' | transloco }}
                       </button>
-                    }
-                    @if (canReinvoice(inv)) {
-                      <a class="btn btn-sm btn-outline-secondary" routerLink="/reinvoicing/new" [queryParams]="{ invoiceId: inv.id }"
-                         [attr.aria-label]="'invoices.reinvoiceLabel' | transloco: { number: label(inv) }">
-                        {{ 'invoices.reinvoice' | transloco }}
-                      </a>
+                    } @else {
+                      <span class="btn btn-sm btn-outline-secondary hl-actions__slot" aria-hidden="true">{{ 'invoices.download.pdf' | transloco }}</span>
                     }
                     @if (inv.inCart) {
                       <span class="small fw-semibold">{{ 'invoices.inCart' | transloco }}</span>
@@ -207,6 +204,12 @@
                               [attr.aria-label]="'invoices.addToCartLabel' | transloco: { number: label(inv) }">
                         {{ 'invoices.addToCart' | transloco }}
                       </button>
+                    }
+                    @if (canReinvoice(inv)) {
+                      <a class="btn btn-sm btn-outline-secondary" routerLink="/reinvoicing/new" [queryParams]="{ invoiceId: inv.id }"
+                         [attr.aria-label]="'invoices.reinvoiceLabel' | transloco: { number: label(inv) }">
+                        {{ 'invoices.reinvoice' | transloco }}
+                      </a>
                     }
                   </div>
                 </td>

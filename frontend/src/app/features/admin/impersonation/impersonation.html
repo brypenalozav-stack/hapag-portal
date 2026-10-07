@@ -173,7 +173,7 @@
               </td>
               <td class="small">{{ 'admin.impersonation.sessions.activity' | transloco: { requests: s.requestCount, blocked: s.blockedCount } }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openAudit(s)"
                           [attr.aria-label]="'admin.impersonation.sessions.auditLabel' | transloco: { name: s.subject.fullName || s.subject.email, date: (s.startedAt | hlDate: 'datetime') }">{{ 'admin.impersonation.sessions.audit' | transloco }}</button>
                   @if (s.status === 'Active') {
@@ -219,7 +219,7 @@
           <tbody>
             @for (r of requests(); track r.id) {
               <tr>
-                <td>{{ r.timestamp | hlDate: 'datetimeSeconds' }}</td>
+                <td class="text-nowrap">{{ r.timestamp | hlDate: 'datetimeSeconds' }}</td>
                 <td>
                   @if (r.action === 'BlockedWrite') {
                     <span class="hl-badge hl-badge--failed">{{ r.action | codeLabel: requestActionKeys }}</span>

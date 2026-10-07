@@ -171,7 +171,7 @@
               <tbody>
                 @for (container of s.containers; track container.id) {
                   <tr>
-                    <td class="fw-semibold">{{ container.containerNumber }}</td>
+                    <td class="fw-semibold text-nowrap">{{ container.containerNumber }}</td>
                     <td>{{ container.type }}</td>
                     <td>{{ container.size }}</td>
                     <td>{{ container.sealNumber }}</td>
@@ -251,11 +251,11 @@
                   <tbody>
                     @for (charge of demurrage; track charge.id) {
                       <tr>
-                        <td class="fw-semibold">{{ charge.containerNumber }}</td>
+                        <td class="fw-semibold text-nowrap">{{ charge.containerNumber }}</td>
                         <td class="text-end">{{ charge.freeDays }}</td>
                         <td class="text-end">{{ charge.demurrageDays }}</td>
-                        <td class="text-end">{{ charge.dailyRate | hlCurrency: charge.currency }}</td>
-                        <td class="text-end">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
+                        <td class="text-end text-nowrap">{{ charge.dailyRate | hlCurrency: charge.currency }}</td>
+                        <td class="text-end text-nowrap">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
                         <td><app-status-badge [status]="charge.isExempt ? 'EXEMPT' : charge.status" /></td>
                       </tr>
                     }
@@ -290,11 +290,11 @@
                   <tbody>
                     @for (order of s.serviceOrders; track order.id) {
                       <tr>
-                        <td class="fw-semibold">{{ order.orderNumber }}</td>
+                        <td class="fw-semibold text-nowrap">{{ order.orderNumber }}</td>
                         <td>{{ order.orderType }}</td>
                         <td><app-status-badge [status]="order.status" /></td>
-                        <td>{{ order.requestedAt | hlDate: 'datetime' }}</td>
-                        <td>{{ order.completedAt ? (order.completedAt | hlDate: 'datetime') : '—' }}</td>
+                        <td class="text-nowrap">{{ order.requestedAt | hlDate: 'datetime' }}</td>
+                        <td class="text-nowrap">{{ order.completedAt ? (order.completedAt | hlDate: 'datetime') : '—' }}</td>
                       </tr>
                     }
                   </tbody>

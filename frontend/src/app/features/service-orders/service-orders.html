@@ -121,7 +121,7 @@
                 @if (typeKey(order.type); as key) { {{ key | transloco }} } @else { {{ order.type }} }
               </td>
               <td class="text-truncate" style="max-width: 250px;">{{ order.description }}</td>
-              <td>{{ order.createdAt | hlDate }}</td>
+              <td class="text-nowrap">{{ order.createdAt | hlDate }}</td>
               <td><app-status-badge [status]="order.status" /></td>
             </tr>
           } @empty {

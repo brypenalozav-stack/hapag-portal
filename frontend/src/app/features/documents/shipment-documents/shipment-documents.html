@@ -76,12 +76,12 @@
                   }
                 </td>
                 <td>
-                  <span class="fw-semibold d-block">{{ doc.documentNumber }}</span>
+                  <span class="fw-semibold d-block text-nowrap">{{ doc.documentNumber }}</span>
                   <span class="small text-muted d-block">{{ 'documents.section.verificationCode' | transloco: { code: doc.verificationCode } }}</span>
                 </td>
-                <td>{{ doc.issuedAt | hlDate: 'datetime' : d.timeZone }}</td>
+                <td class="text-nowrap">{{ doc.issuedAt | hlDate: 'datetime' : d.timeZone }}</td>
                 <td>
-                  <span class="d-block">{{ doc.blNumber }}</span>
+                  <span class="d-block text-nowrap">{{ doc.blNumber }}</span>
                   @if (doc.bookingNumber) {
                     <span class="small text-muted d-block">{{ 'documents.section.booking' | transloco: { booking: doc.bookingNumber } }}</span>
                   }
@@ -100,7 +100,7 @@
                   }
                 </td>
                 <td>
-                  <div class="d-flex flex-wrap gap-1">
+                  <div class="hl-actions">
                     <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === doc.id" (click)="download(doc)"
                             [attr.aria-label]="'documents.section.downloadLabel' | transloco: { type: (doc.documentType | codeLabel: typeKeys), number: doc.documentNumber }">
                       {{ 'documents.section.download' | transloco }}
@@ -142,8 +142,8 @@
               @for (item of d.related; track item.id) {
                 <tr>
                   <td>{{ item.kind | codeLabel: relatedKeys }}</td>
-                  <td class="fw-semibold">{{ item.number }}</td>
-                  <td>{{ item.issuedAt | hlDate: 'datetime' : d.timeZone }}</td>
+                  <td class="fw-semibold text-nowrap">{{ item.number }}</td>
+                  <td class="text-nowrap">{{ item.issuedAt | hlDate: 'datetime' : d.timeZone }}</td>
                   <td>{{ item.description ?? '—' }}</td>
                   <td>
                     <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === item.id" (click)="downloadRelated(item)"

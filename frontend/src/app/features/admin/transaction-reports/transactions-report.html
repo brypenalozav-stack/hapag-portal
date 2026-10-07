@@ -121,9 +121,9 @@
                 </td>
                 <td class="text-end">{{ s.transactions | hlNumber: '1.0-0' }}</td>
                 <td class="text-end">{{ s.items | hlNumber: '1.0-0' }}</td>
-                <td class="text-end">{{ s.amount | hlCurrency: s.currency }}</td>
-                <td class="text-end">{{ s.taxAmount | hlCurrency: s.currency }}</td>
-                <td class="text-end fw-semibold">{{ s.total | hlCurrency: s.currency }}</td>
+                <td class="text-end text-nowrap">{{ s.amount | hlCurrency: s.currency }}</td>
+                <td class="text-end text-nowrap">{{ s.taxAmount | hlCurrency: s.currency }}</td>
+                <td class="text-end fw-semibold text-nowrap">{{ s.total | hlCurrency: s.currency }}</td>
               </tr>
             }
           </tbody>
@@ -156,10 +156,10 @@
           <tbody>
             @for (row of r.items.items; track row.paymentId + row.service + $index) {
               <tr>
-                <td>{{ row.confirmedAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ row.confirmedAt | hlDate: 'datetime' }}</td>
                 <td>
-                  <span class="d-block">{{ row.paymentNumber }}</span>
-                  @if (row.receiptNumber) { <span class="small text-muted">{{ row.receiptNumber }}</span> }
+                  <span class="d-block text-nowrap">{{ row.paymentNumber }}</span>
+                  @if (row.receiptNumber) { <span class="small text-muted text-nowrap">{{ row.receiptNumber }}</span> }
                 </td>
                 <td>
                   <span class="d-block">{{ row.organization?.name ?? '—' }}</span>

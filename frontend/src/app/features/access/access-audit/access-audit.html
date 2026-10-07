@@ -49,7 +49,7 @@
       <tbody>
         @for (entry of entries(); track entry.id) {
           <tr>
-            <td>{{ entry.occurredAt | hlDate: 'datetimeSeconds' }}</td>
+            <td class="text-nowrap">{{ entry.occurredAt | hlDate: 'datetimeSeconds' }}</td>
             <td class="fw-semibold">{{ entry.eventType | codeLabel: eventKeys }}</td>
             <td>
               @if (entry.blNumber) {

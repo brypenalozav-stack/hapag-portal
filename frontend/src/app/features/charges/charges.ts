@@ -20,14 +20,14 @@ import { ChargesPanelComponent } from './charges-panel/charges-panel';
     </div>
 
     <div class="hl-card p-4 mb-4">
-      <form class="row g-3 align-items-end" role="search" [attr.aria-label]="'charges.search.label' | transloco" (ngSubmit)="search()">
+      <form class="row g-3 hl-form-row" role="search" [attr.aria-label]="'charges.search.label' | transloco" (ngSubmit)="search()">
         <div class="col-md-8 col-lg-6">
           <label for="charges-bl-number" class="form-label fw-semibold">{{ 'charges.search.blNumber' | transloco }}</label>
           <input id="charges-bl-number" type="text" class="form-control" name="blNumber" autocomplete="off"
                  aria-describedby="charges-bl-number-help" [(ngModel)]="searchBlNumber" />
           <div id="charges-bl-number-help" class="form-text">{{ 'charges.search.help' | transloco }}</div>
         </div>
-        <div class="col-auto">
+        <div class="col-auto hl-form-action hl-form-action--lg-label">
           <button type="submit" class="btn btn-hl-orange px-4" [disabled]="!searchBlNumber.trim()">{{ 'charges.search.submit' | transloco }}</button>
         </div>
       </form>

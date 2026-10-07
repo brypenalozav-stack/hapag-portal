@@ -119,7 +119,7 @@
                                  [checked]="isSelected(shipment)" (change)="toggleShipment(shipment, $event)"
                                  [attr.aria-label]="'thirdPartyAccess.grantDialog.shipments.selectLabel' | transloco: { bl: shipment.blNumber }" />
                         </td>
-                        <td class="fw-semibold">{{ shipment.blNumber }}</td>
+                        <td class="fw-semibold text-nowrap">{{ shipment.blNumber }}</td>
                         <td>{{ shipment.bookingNumber ?? '—' }}</td>
                         <td>{{ shipment.vessel ?? '—' }}</td>
                       </tr>

@@ -93,7 +93,7 @@
               <td class="fw-semibold">{{ line.containerNumber ?? ('serviceRequests.quote.perRequest' | transloco) }}</td>
               <td>{{ line.containerType ?? '—' }}</td>
               <td>{{ line.tariffCode ?? q.tariffCode ?? '—' }}</td>
-              <td class="text-end">{{ line.amount | hlCurrency: q.currency }}</td>
+              <td class="text-end text-nowrap">{{ line.amount | hlCurrency: q.currency }}</td>
             </tr>
           }
         </tbody>
@@ -123,8 +123,8 @@
                 }
               </td>
               <td>{{ charge.outcome | codeLabel: outcomeKeys }}</td>
-              <td class="text-end">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
-              <td class="text-end">{{ charge.payableTotal | hlCurrency: charge.currency }}</td>
+              <td class="text-end text-nowrap">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
+              <td class="text-end text-nowrap">{{ charge.payableTotal | hlCurrency: charge.currency }}</td>
             </tr>
           }
         </tbody>

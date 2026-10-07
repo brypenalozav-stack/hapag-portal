@@ -79,7 +79,7 @@
                   }
                 </td>
                 <td class="small">{{ billingOf(item) }}</td>
-                <td class="text-end">{{ item.totalAmount | hlCurrency: item.currency }}</td>
+                <td class="text-end text-nowrap">{{ item.totalAmount | hlCurrency: item.currency }}</td>
               </tr>
             }
           </tbody>

@@ -66,12 +66,12 @@
         <tbody>
           @for (line of p.lines; track line.containerNumber) {
             <tr>
-              <td class="fw-semibold">{{ line.containerNumber }}</td>
-              <td>{{ line.untilDate | hlDate: 'localDate' }}</td>
+              <td class="fw-semibold text-nowrap">{{ line.containerNumber }}</td>
+              <td class="text-nowrap">{{ line.untilDate | hlDate: 'localDate' }}</td>
               <td class="text-end">{{ line.elapsedDays }}</td>
               <td class="text-end">{{ line.freeDays }}</td>
               <td class="text-end">{{ line.demurrageDays }}</td>
-              <td class="text-end">{{ line.totalAmount | hlCurrency: line.currency }}</td>
+              <td class="text-end text-nowrap">{{ line.totalAmount | hlCurrency: line.currency }}</td>
               <td>{{ line.tariffSource | codeLabel: sourceKeys }}</td>
             </tr>
           }

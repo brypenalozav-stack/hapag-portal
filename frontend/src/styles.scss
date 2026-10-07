@@ -299,6 +299,22 @@ h1, h2, h3, h4, h5, h6 {
     vertical-align: middle;
   }
 
+  // Encabezado de fila (th scope="row"): mismo espaciado y borde que las celdas.
+  tbody th {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: start;
+    border-bottom: 1px solid var(--hl-border);
+    vertical-align: middle;
+  }
+
+  // Badges y botones de una celda no se parten: "Agregar al carro" en dos líneas desalineaba las filas.
+  .hl-badge,
+  .btn {
+    white-space: nowrap;
+  }
+
   tbody tr {
     background-color: var(--hl-surface);
     transition: background-color 0.15s;
@@ -314,7 +330,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 // Buttons. Texto blanco sobre los tonos -700 (5,23:1 y 5,48:1): $hl-orange y $hl-green no alcanzan 4,5:1.
+// Deshabilitados conservan su color (con la opacidad de Bootstrap): sin las variables --bs-btn-disabled-* quedaban
+// transparentes con texto gris y parecían otro tipo de botón.
+.btn-hl-orange,
+.btn-hl-green,
+.btn-hl-blue {
+  --bs-btn-disabled-color: var(--hl-white);
+}
+
 .btn-hl-orange {
+  --bs-btn-disabled-bg: var(--hl-orange-700);
+  --bs-btn-disabled-border-color: var(--hl-orange-700);
   background-color: var(--hl-orange-700);
   border-color: var(--hl-orange-700);
   color: var(--hl-white);
@@ -332,6 +358,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-hl-green {
+  --bs-btn-disabled-bg: var(--hl-green-700);
+  --bs-btn-disabled-border-color: var(--hl-green-700);
   background-color: var(--hl-green-700);
   border-color: var(--hl-green-700);
   color: var(--hl-white);
@@ -345,6 +373,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-hl-blue {
+  --bs-btn-disabled-bg: var(--hl-blue);
+  --bs-btn-disabled-border-color: var(--hl-blue);
   background-color: var(--hl-blue);
   border-color: var(--hl-blue);
   color: var(--hl-white);
@@ -357,15 +387,24 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Status badges
+// Status badges. Radio de 0,75rem: con una línea se ve como píldora y, si el texto largo se parte (fuera de las tablas),
+// queda como rectángulo redondeado en vez de un óvalo deformado. En las tablas no se parte: la tabla se desplaza.
 .hl-badge {
   font-size: 0.75rem;
   font-weight: 600;
+  line-height: 1.25;
   padding: 0.3em 0.75em;
-  border-radius: 50rem;
+  border-radius: 0.75rem;
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
+  max-width: 100%;
+  text-align: start;
+  vertical-align: middle;
+
+  > svg {
+    flex-shrink: 0;
+  }
 
   &--pending {
     background-color: var(--bs-warning-bg-subtle);
@@ -1530,6 +1569,100 @@ html {
 
   &--error svg {
     color: var(--bs-danger-text-emphasis);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Maquetación compartida de formularios y tablas
+// ---------------------------------------------------------------------------
+
+// Las celdas de encabezado con texto solo para lectores (.visually-hidden, position: absolute) no tienen un ancestro
+// posicionado dentro de la tabla y ensanchaban la página entera: el contenedor con desplazamiento es su referencia.
+.table-responsive {
+  position: relative;
+}
+
+// Acciones de una fila (o de una tarjeta): en línea, en un orden fijo y con el mismo espacio. En las tablas no se
+// parten (la tabla se desplaza en pantallas chicas); fuera de ellas pasan a la línea siguiente si no caben.
+.hl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.hl-table .hl-actions {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+// Celdas de texto: con poco espacio, la tabla se desplaza en vez de partir el texto en una palabra por línea (los
+// nombres, los RUT y las fechas quedaban en columnas de 4 o 5 líneas). Las de casillas y botones conservan su ancho.
+.hl-table tbody td:not(:has(.form-check-input, .btn)) {
+  min-width: 8rem;
+}
+
+// Celda con texto corrido (notas, referencias) en una tabla de muchas columnas: no se estrecha hasta una palabra por línea.
+.hl-table .hl-cell-text {
+  min-width: 14rem;
+}
+
+// Nombre de una organización o persona: se parte en pocas líneas, no una palabra por línea.
+.hl-table .hl-cell-name {
+  min-width: 10rem;
+}
+
+// Hueco del tamaño de una acción que la fila no tiene: las acciones de las filas quedan en la misma columna.
+.hl-actions__slot {
+  visibility: hidden;
+}
+
+// Fila de formulario con texto de ayuda bajo los campos: las etiquetas quedan arriba en una misma línea, los campos
+// alineados y la ayuda debajo sin desplazar nada. El botón de la fila (.hl-form-action) se alinea con los campos
+// gracias a un espaciador del alto de una etiqueta, que solo se muestra cuando las columnas van lado a lado
+// (desde md; --sm y --lg para filas que se apilan en otro punto). Etiquetas .small por defecto; --lg si no lo son.
+.hl-form-row {
+  align-items: flex-start;
+
+  // En bloque (no inline-block): el alto de la etiqueta es exactamente su línea más el margen, como el espaciador.
+  .form-label {
+    display: block;
+  }
+}
+
+.hl-form-action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  &::before {
+    content: '';
+    display: none;
+    flex-basis: 100%;
+    height: calc(0.875rem * 1.5 + 0.5rem);
+    margin-bottom: -0.5rem;
+  }
+
+  &--lg-label::before {
+    height: calc(1rem * 1.5 + 0.5rem);
+  }
+}
+
+@media (min-width: 576px) {
+  .hl-form-action--sm::before {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .hl-form-action:not(.hl-form-action--sm):not(.hl-form-action--lg)::before {
+    display: block;
+  }
+}
+
+@media (min-width: 992px) {
+  .hl-form-action--lg::before {
+    display: block;
   }
 }
 

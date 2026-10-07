@@ -101,7 +101,7 @@
                     <span class="d-block">{{ item.billingName }}</span>
                     <span class="small text-muted" data-testid="cart-item-billing">{{ 'cart.item.taxId' | transloco: { taxId: item.billingTaxId } }}</span>
                   </td>
-                  <td class="text-end">{{ item.totalAmount | hlCurrency: item.currency }}</td>
+                  <td class="text-end text-nowrap">{{ item.totalAmount | hlCurrency: item.currency }}</td>
                   <td>
                     @if (!item.lockedByPaymentId && item.allowedCurrencies.length > 1 && canOperate()) {
                       <label class="visually-hidden" [for]="'cart-currency-' + item.id">

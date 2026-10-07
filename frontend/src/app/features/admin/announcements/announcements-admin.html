@@ -221,7 +221,7 @@
                 }
               </td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(a)"
                           [attr.aria-label]="'admin.announcements.editLabel' | transloco: { title: a.titleEs }">{{ 'admin.announcements.edit' | transloco }}</button>
                   @if (a.status === 'Published') {

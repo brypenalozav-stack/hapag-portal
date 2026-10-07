@@ -219,7 +219,7 @@
               <tbody>
                 @for (request of recentRequests(); track request.kind + request.id) {
                   <tr>
-                    <td>
+                    <td class="hl-cell-text">
                       <span class="fw-semibold d-block">{{ request.kind | codeLabel: requestKindKeys }}</span>
                       <span class="small text-muted">{{ request.reference }} · {{ request.createdAt | hlDate: 'datetime' }}</span>
                     </td>
@@ -265,7 +265,7 @@
               <tbody>
                 @for (doc of recentDocuments(); track doc.id) {
                   <tr>
-                    <td>
+                    <td class="hl-cell-text">
                       <span class="fw-semibold d-block">{{ doc.documentType | codeLabel: documentTypeKeys }}</span>
                       <span class="small text-muted">{{ doc.documentNumber }} · {{ doc.issuedAt | hlDate: 'datetime' }}</span>
                     </td>

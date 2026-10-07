@@ -44,7 +44,22 @@
       <button type="button" class="btn btn-outline-secondary" (click)="newRequest()">{{ 'warehouse.single.result.another' | transloco }}</button>
     </div>
   } @else {
-    <form class="row g-3 align-items-end mb-3" (submit)="loadQuote($event)">
+    <!-- Resumen de errores al inicio del formulario (guía §3.2): el foco pasa a él al enviar -->
+    @if (singleErrors().length > 0) {
+      <div #singleErrorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="warehouse-single-errors-title">
+        <h3 id="warehouse-single-errors-title" class="h6 fw-bold">{{ 'warehouse.single.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of singleErrors(); track error.key) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (singleError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ singleError() }}</div>
+    }
+
+    <form class="row g-3 hl-form-row mb-3" (submit)="loadQuote($event)">
       <div class="col-md-5">
         <label for="warehouse-bl" class="form-label small fw-semibold">{{ 'warehouse.single.blNumber' | transloco }}</label>
         <input id="warehouse-bl" type="text" class="form-control" autocomplete="off" required [value]="blNumber()" (input)="onBlNumber($event)" />
@@ -55,8 +70,8 @@
                [value]="containerNumber()" (input)="onContainer($event)" />
         <div id="warehouse-container-help" class="form-text">{{ 'warehouse.single.containerHelp' | transloco }}</div>
       </div>
-      <div class="col-md-3">
-        <button type="submit" class="btn btn-outline-secondary w-100" [disabled]="!blNumber().trim()">{{ 'warehouse.single.quote' | transloco }}</button>
+      <div class="col-md-3 hl-form-action">
+        <button type="submit" class="btn btn-outline-secondary" [disabled]="!blNumber().trim()">{{ 'warehouse.single.quote' | transloco }}</button>
       </div>
     </form>
 
@@ -108,20 +123,7 @@
         <div class="alert alert-warning py-2" role="note">{{ (quoteBlockedKey() ?? 'warehouse.single.blocked.generic') | transloco }}</div>
       } @else {
         <form novalidate (submit)="submitSingle($event)">
-          @if (singleErrors().length > 0) {
-            <div #singleErrorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="warehouse-single-errors-title">
-              <h3 id="warehouse-single-errors-title" class="h6 fw-bold">{{ 'warehouse.single.errors.summaryTitle' | transloco }}</h3>
-              <ul class="mb-0">
-                @for (error of singleErrors(); track error.key) {
-                  <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
-                }
-              </ul>
-            </div>
-          }
-          @if (singleError()) {
-            <div class="alert alert-danger py-2" role="alert">{{ singleError() }}</div>
-          }
-          <div class="row g-3 mb-3">
+          <div class="row g-3 hl-form-row mb-3">
             <div class="col-md-6">
               <label for="warehouse-from" class="form-label small fw-semibold">{{ 'warehouse.single.from' | transloco }}</label>
               <input id="warehouse-from" type="text" class="form-control" autocomplete="off" aria-describedby="warehouse-from-help"
@@ -222,9 +224,9 @@
                            [checked]="isShipmentSelected(s.blNumber)" (change)="toggleShipment(s.blNumber, $event)"
                            [attr.aria-label]="'warehouse.bulk.shipments.selectLabel' | transloco: { bl: s.blNumber }" />
                   </td>
-                  <td class="fw-semibold">{{ s.blNumber }}</td>
+                  <td class="fw-semibold text-nowrap">{{ s.blNumber }}</td>
                   <td>{{ s.vessel ?? '—' }}</td>
-                  <td>{{ s.eta ? (s.eta | hlDate) : '—' }}</td>
+                  <td class="text-nowrap">{{ s.eta ? (s.eta | hlDate) : '—' }}</td>
                 </tr>
               }
             </tbody>

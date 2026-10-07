@@ -101,9 +101,9 @@
                   {{ (user.isActive ? 'organization.users.active' : 'organization.users.inactive') | transloco }}
                 }
               </td>
-              <td>{{ user.lastLoginAt ? (user.lastLoginAt | hlDate: 'datetime') : ('organization.users.neverLoggedIn' | transloco) }}</td>
+              <td class="text-nowrap">{{ user.lastLoginAt ? (user.lastLoginAt | hlDate: 'datetime') : ('organization.users.neverLoggedIn' | transloco) }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary"
                           [attr.aria-label]="'organization.users.editLabel' | transloco: { name: user.fullName }"
                           (click)="openEdit(user)">

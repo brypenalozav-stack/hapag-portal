@@ -32,10 +32,10 @@
               <tbody>
                 @for (invoice of d.invoices; track invoice.invoiceNumber) {
                   <tr>
-                    <td class="fw-semibold">{{ invoice.invoiceNumber }}</td>
-                    <td class="text-end">{{ invoice.amount | hlCurrency: invoice.currency }}</td>
+                    <td class="fw-semibold text-nowrap">{{ invoice.invoiceNumber }}</td>
+                    <td class="text-end text-nowrap">{{ invoice.amount | hlCurrency: invoice.currency }}</td>
                     <td>{{ invoice.currency }}</td>
-                    <td>{{ invoice.dueDate ? (invoice.dueDate | hlDate: 'date' : d.timeZone) : '—' }}</td>
+                    <td class="text-nowrap">{{ invoice.dueDate ? (invoice.dueDate | hlDate: 'date' : d.timeZone) : '—' }}</td>
                   </tr>
                 }
               </tbody>
@@ -77,12 +77,12 @@
               <tbody>
                 @for (line of d.lines; track line.id) {
                   <tr>
-                    <td class="fw-semibold">{{ line.containerNumber }}</td>
+                    <td class="fw-semibold text-nowrap">{{ line.containerNumber }}</td>
                     <td>{{ 'demurrage.panel.lines.period' | transloco: { from: (line.startDate | hlDate: 'date' : d.timeZone), to: (line.endDate | hlDate: 'date' : d.timeZone) } }}</td>
                     <td class="text-end">{{ line.freeDays }}</td>
                     <td class="text-end">{{ line.demurrageDays }}</td>
-                    <td class="text-end">{{ line.dailyRate | hlCurrency: line.currency }}</td>
-                    <td class="text-end">{{ line.totalAmount | hlCurrency: line.currency }}</td>
+                    <td class="text-end text-nowrap">{{ line.dailyRate | hlCurrency: line.currency }}</td>
+                    <td class="text-end text-nowrap">{{ line.totalAmount | hlCurrency: line.currency }}</td>
                     <td>{{ lineStatus(line) | codeLabel: statusKeys }}</td>
                   </tr>
                 }
@@ -163,9 +163,9 @@
               @for (concept of d.otherConcepts; track concept.chargeId) {
                 <tr>
                   <td class="fw-semibold">{{ concept.conceptCode | codeLabel: conceptKeys }}</td>
-                  <td class="text-end">{{ concept.totalAmount | hlCurrency: concept.currency }}</td>
-                  <td class="text-end">{{ concept.deduction | hlCurrency: concept.currency }}</td>
-                  <td class="text-end fw-semibold">{{ concept.payableTotal | hlCurrency: concept.currency }}</td>
+                  <td class="text-end text-nowrap">{{ concept.totalAmount | hlCurrency: concept.currency }}</td>
+                  <td class="text-end text-nowrap">{{ concept.deduction | hlCurrency: concept.currency }}</td>
+                  <td class="text-end fw-semibold text-nowrap">{{ concept.payableTotal | hlCurrency: concept.currency }}</td>
                   <td>{{ concept.status | codeLabel: statusKeys }}</td>
                   <td>
                     @if (concept.action !== 'AddToCart') {

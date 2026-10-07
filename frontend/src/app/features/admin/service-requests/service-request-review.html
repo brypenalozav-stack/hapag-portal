@@ -71,7 +71,7 @@
         @if (r.requiresOutputDocument) {
           <p class="small mb-2">{{ (hasOutput() ? 'admin.serviceRequests.review.output.uploadedNotice' : 'admin.serviceRequests.review.output.requiredNotice') | transloco }}</p>
         }
-        <div class="row g-2 align-items-end">
+        <div class="row g-2 hl-form-row">
           <div class="col-md-8">
             <label for="srv-output-file" class="form-label small fw-semibold">{{ 'admin.serviceRequests.review.output.file' | transloco }}</label>
             <input id="srv-output-file" type="file" class="form-control" [accept]="fileAccept" aria-describedby="srv-output-help"
@@ -83,8 +83,8 @@
               {{ 'serviceRequests.form.hints.file' | transloco }}
             </div>
           </div>
-          <div class="col-md-4">
-            <button type="submit" class="btn btn-outline-secondary w-100" [disabled]="!!busy()">{{ 'admin.serviceRequests.review.output.submit' | transloco }}</button>
+          <div class="col-md-4 hl-form-action">
+            <button type="submit" class="btn btn-outline-secondary" [disabled]="!!busy()">{{ 'admin.serviceRequests.review.output.submit' | transloco }}</button>
           </div>
         </div>
       </form>

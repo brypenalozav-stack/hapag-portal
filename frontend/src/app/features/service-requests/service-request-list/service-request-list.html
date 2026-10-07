@@ -68,10 +68,10 @@
           <tbody>
             @for (item of r.items; track item.id) {
               <tr [attr.data-testid]="'request-row-' + item.requestNumber">
-                <td class="fw-semibold">{{ item.requestNumber }}</td>
+                <td class="fw-semibold text-nowrap">{{ item.requestNumber }}</td>
                 <td>{{ name(item) }}</td>
                 <td>
-                  <span class="d-block">{{ item.blNumber }}</span>
+                  <span class="d-block text-nowrap">{{ item.blNumber }}</span>
                   @if (item.bookingNumber) {
                     <span class="small text-muted">{{ 'serviceRequests.list.booking' | transloco: { booking: item.bookingNumber } }}</span>
                   }
@@ -86,8 +86,8 @@
                     {{ 'serviceRequests.list.noCharge' | transloco }}
                   }
                 </td>
-                <td>{{ item.createdAt | hlDate: 'datetime' }}</td>
-                <td>{{ item.statusChangedAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ item.createdAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ item.statusChangedAt | hlDate: 'datetime' }}</td>
                 <td>
                   <a class="btn btn-sm btn-outline-secondary" [routerLink]="detailLink(item)"
                      [attr.aria-label]="'serviceRequests.list.viewLabel' | transloco: { number: item.requestNumber }">

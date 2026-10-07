@@ -124,7 +124,7 @@
                       <span class="d-block small text-muted">{{ charge.description }}</span>
                     }
                   </td>
-                  <td class="text-end">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
+                  <td class="text-end text-nowrap">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
                   <td>
                     <span class="hl-badge" [class]="outcomeClass(charge.outcome)">{{ charge.outcome | codeLabel: outcomeKeys }}</span>
                   </td>

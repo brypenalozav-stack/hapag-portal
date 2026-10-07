@@ -212,7 +212,7 @@
                 <td>{{ document.documentType | codeLabel: documentTypeKeys }}</td>
                 <td class="text-break">{{ document.fileName }}</td>
                 <td class="text-end">{{ 'admin.organizations.review.documents.sizeKb' | transloco: { size: (document.sizeBytes / 1024 | hlNumber: '1.0-0') } }}</td>
-                <td>{{ document.uploadedAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ document.uploadedAt | hlDate: 'datetime' }}</td>
                 <td>
                   <button type="button" class="btn btn-sm btn-outline-secondary"
                           [attr.aria-label]="'admin.organizations.review.documents.downloadLabel' | transloco: { name: document.fileName }"

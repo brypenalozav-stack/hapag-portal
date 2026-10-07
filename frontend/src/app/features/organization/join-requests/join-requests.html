@@ -46,7 +46,7 @@
               <td class="fw-semibold">{{ request.fullName }}</td>
               <td>{{ request.email }}</td>
               <td>{{ request.organizationName }}</td>
-              <td>{{ request.requestedAt | hlDate: 'datetime' }}</td>
+              <td class="text-nowrap">{{ request.requestedAt | hlDate: 'datetime' }}</td>
               <td>
                 <label class="visually-hidden" [for]="'join-profile-' + request.userId">
                   {{ 'organization.joinRequests.profileLabel' | transloco: { name: request.fullName } }}
@@ -59,7 +59,7 @@
                 </select>
               </td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-hl-green" [disabled]="busy() === request.userId"
                           [attr.aria-label]="'organization.joinRequests.approveLabel' | transloco: { name: request.fullName }"
                           (click)="approve(request)">

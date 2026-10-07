@@ -62,10 +62,10 @@
             <tbody>
               @for (container of t.containers; track container.containerNumber) {
                 <tr [attr.data-testid]="'tatc-' + container.containerNumber">
-                  <td class="fw-semibold">{{ container.containerNumber }}</td>
+                  <td class="fw-semibold text-nowrap">{{ container.containerNumber }}</td>
                   <td>{{ container.tatcNumber ?? '—' }}</td>
                   <td><span class="hl-badge" [class]="statusClass[container.status] || 'hl-badge--processing'">{{ container.status | codeLabel: statusKeys }}</span></td>
-                  <td>{{ container.issuedAt ? (container.issuedAt | hlDate: 'datetime') : '—' }}</td>
+                  <td class="text-nowrap">{{ container.issuedAt ? (container.issuedAt | hlDate: 'datetime') : '—' }}</td>
                   <td>{{ container.warehouseCode ?? '—' }}</td>
                   <td>
                     @for (reason of container.pendingReasons; track reason) {

@@ -176,7 +176,7 @@
                 <span class="d-block small">{{ 'admin.guides.modifiedBy' | transloco: { date: ((g.modifiedAt ?? g.createdAt) | hlDate: 'datetime'), user: g.modifiedBy ?? g.createdBy ?? '' } }}</span>
               </td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(g)"
                           [attr.aria-label]="'admin.guides.editLabel' | transloco: { name: g.nameEs }">{{ 'admin.guides.edit' | transloco }}</button>
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(g)"

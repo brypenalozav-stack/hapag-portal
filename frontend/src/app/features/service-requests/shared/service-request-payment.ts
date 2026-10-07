@@ -36,7 +36,7 @@ import { localized } from './service-text';
               <tr>
                 <td class="fw-semibold">{{ charge.conceptCode | codeLabel: conceptKeys }}</td>
                 <td>{{ charge.status | codeLabel: chargeStatusKeys }}</td>
-                <td class="text-end">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
+                <td class="text-end text-nowrap">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
               </tr>
             }
           </tbody>

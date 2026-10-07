@@ -94,7 +94,7 @@
         @if (uploadError()) {
           <div class="alert alert-danger py-2" role="alert">{{ uploadError() }}</div>
         }
-        <div class="row g-2 align-items-end">
+        <div class="row g-2 hl-form-row">
           <div class="col-md-4">
             <label for="srv-upload-field" class="form-label small fw-semibold">{{ 'serviceRequests.detail.upload.field' | transloco }}</label>
             <select id="srv-upload-field" class="form-select" name="uploadField" [(ngModel)]="uploadField">
@@ -108,8 +108,8 @@
             <input id="srv-upload-file" type="file" class="form-control" [accept]="fileAccept" aria-describedby="srv-upload-help" (change)="onUploadFile($event)" />
             <div id="srv-upload-help" class="form-text">{{ 'serviceRequests.form.hints.file' | transloco }}</div>
           </div>
-          <div class="col-md-3">
-            <button type="submit" class="btn btn-outline-secondary w-100" [disabled]="uploading()">{{ 'serviceRequests.detail.upload.submit' | transloco }}</button>
+          <div class="col-md-3 hl-form-action">
+            <button type="submit" class="btn btn-outline-secondary" [disabled]="uploading()">{{ 'serviceRequests.detail.upload.submit' | transloco }}</button>
           </div>
         </div>
       </form>

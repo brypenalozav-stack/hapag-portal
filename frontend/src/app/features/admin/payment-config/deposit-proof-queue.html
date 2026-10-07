@@ -126,7 +126,7 @@
           @for (item of table.rows(); track item.proof.id) {
             <tr [attr.data-testid]="'proof-row-' + item.paymentNumber">
               <td>
-                <span class="fw-semibold d-block">{{ item.paymentNumber }}</span>
+                <span class="fw-semibold d-block text-nowrap">{{ item.paymentNumber }}</span>
                 @if (item.slipNumber) {
                   <span class="small d-block">{{ 'admin.depositProofs.slip' | transloco: { number: item.slipNumber } }}</span>
                 }
@@ -139,7 +139,7 @@
                 <span class="d-block">{{ item.payerName ?? '—' }}</span>
                 <span class="d-block">{{ item.payerTaxId ?? '—' }}</span>
               </td>
-              <td class="text-end hl-num">{{ item.totalAmount | hlCurrency: item.currency }}</td>
+              <td class="text-end hl-num text-nowrap">{{ item.totalAmount | hlCurrency: item.currency }}</td>
               <td class="small">
                 <button type="button" class="btn btn-link btn-sm p-0 text-break text-start" [disabled]="downloading() === item.proof.id" (click)="download(item)"
                         [attr.aria-label]="'admin.depositProofs.downloadLabel' | transloco: { name: item.proof.fileName, number: item.paymentNumber }">{{ item.proof.fileName }}</button>

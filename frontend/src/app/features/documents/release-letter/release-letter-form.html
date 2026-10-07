@@ -294,7 +294,7 @@
             @for (r of d.requests; track r.id) {
               <tr [attr.data-testid]="'release-request-' + r.requestNumber">
                 <td><a [routerLink]="['/release-letters', r.id]">{{ r.requestNumber }}</a></td>
-                <td>{{ r.createdAt | hlDate: 'datetime' : timeZone }}</td>
+                <td class="text-nowrap">{{ r.createdAt | hlDate: 'datetime' : timeZone }}</td>
                 <td><span class="hl-badge" [class]="requestStatusClass[r.status] || 'hl-badge--processing'">{{ r.status | codeLabel: requestStatusKeys }}</span></td>
               </tr>
             }

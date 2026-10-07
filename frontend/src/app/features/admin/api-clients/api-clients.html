@@ -272,7 +272,7 @@
               </td>
               <td>{{ 'admin.apiClients.list.rateValue' | transloco: { count: c.rateLimitPerMinute } }}</td>
               <td><span class="hl-badge" [class]="statusClass[c.status] || 'hl-badge--processing'">{{ c.status | codeLabel: statusKeys }}</span></td>
-              <td>{{ c.lastUsedAt ? (c.lastUsedAt | hlDate: 'datetime') : ('admin.apiClients.list.neverUsed' | transloco) }}</td>
+              <td class="text-nowrap">{{ c.lastUsedAt ? (c.lastUsedAt | hlDate: 'datetime') : ('admin.apiClients.list.neverUsed' | transloco) }}</td>
               <td>
                 <button type="button" class="btn btn-sm btn-outline-secondary" [id]="'api-client-open-' + c.id" (click)="open(c)"
                         [attr.aria-label]="'admin.apiClients.list.openLabel' | transloco: { name: c.name }">{{ 'admin.apiClients.list.open' | transloco }}</button>
@@ -366,9 +366,9 @@
             @for (k of c.keys; track k.id) {
               <tr [attr.data-testid]="'api-key-' + k.prefix">
                 <td><span class="font-monospace">{{ k.prefix }}</span></td>
-                <td>{{ k.createdAt | hlDate: 'datetime' }}</td>
-                <td>{{ k.expiresAt ? (k.expiresAt | hlDate: 'datetime') : ('admin.apiClients.detail.keys.noExpiry' | transloco) }}</td>
-                <td>{{ k.lastUsedAt ? (k.lastUsedAt | hlDate: 'datetime') : ('admin.apiClients.list.neverUsed' | transloco) }}</td>
+                <td class="text-nowrap">{{ k.createdAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ k.expiresAt ? (k.expiresAt | hlDate: 'datetime') : ('admin.apiClients.detail.keys.noExpiry' | transloco) }}</td>
+                <td class="text-nowrap">{{ k.lastUsedAt ? (k.lastUsedAt | hlDate: 'datetime') : ('admin.apiClients.list.neverUsed' | transloco) }}</td>
                 <td>
                   @if (k.active) {
                     <span class="hl-badge hl-badge--confirmed">{{ 'admin.apiClients.detail.keys.active' | transloco }}</span>
@@ -491,7 +491,7 @@
             <tbody>
               @for (r of filteredLog(); track r.id) {
                 <tr [attr.data-testid]="'api-log-' + r.id">
-                  <td>{{ r.receivedAt | hlDate: 'datetimeSeconds' }}</td>
+                  <td class="text-nowrap">{{ r.receivedAt | hlDate: 'datetimeSeconds' }}</td>
                   <td>{{ r.operation | codeLabel: operationKeys }}</td>
                   <td class="small">
                     <span class="font-monospace d-block">{{ r.method }} {{ r.path }}</span>

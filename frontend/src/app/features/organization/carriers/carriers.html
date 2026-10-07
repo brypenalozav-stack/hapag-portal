@@ -175,7 +175,7 @@
               </td>
               <td>
                 @if (canManage() && c.status !== 'Activated') {
-                  <div class="d-flex flex-wrap gap-1">
+                  <div class="hl-actions">
                     <button type="button" class="btn btn-sm btn-outline-secondary" (click)="startAssign(c)"
                             [attr.aria-label]="'organization.carriers.assign.label' | transloco: { name: c.legalName }">{{ 'organization.carriers.assign.open' | transloco }}</button>
                     <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="resending() === c.id" (click)="resend(c)"
