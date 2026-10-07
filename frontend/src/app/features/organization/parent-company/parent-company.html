@@ -49,13 +49,7 @@
             </div>
             @if (v.canManage) {
               <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
-                @if (confirmingRemove()) {
-                  <span class="small">{{ 'organization.parentCompany.removeQuestion' | transloco: { name: link.parent.name } }}</span>
-                  <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busy()" (click)="remove()">{{ 'organization.parentCompany.removeConfirm' | transloco }}</button>
-                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelRemove()">{{ 'organization.parentCompany.removeCancel' | transloco }}</button>
-                } @else {
-                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="askRemove()">{{ 'organization.parentCompany.remove' | transloco }}</button>
-                }
+                <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busy()" (click)="askRemove()">{{ 'organization.parentCompany.remove' | transloco }}</button>
               </div>
             }
           }

@@ -16,6 +16,7 @@ import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { lineConcept, totalsByCurrency } from '../statement-text';
+import { PaymentLogoComponent } from '../../../shared/components/payment-logo/payment-logo';
 
 /** Errores tras los cuales el intento terminó con certeza: el próximo usa una clave nueva. */
 const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotency.AlreadyExists']);
@@ -30,7 +31,7 @@ const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotenc
 @Component({
   selector: 'app-statement-checkout',
   standalone: true,
-  imports: [TranslocoPipe, CodeLabelPipe, HlCurrencyPipe],
+  imports: [PaymentLogoComponent, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe],
   templateUrl: './statement-checkout.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })

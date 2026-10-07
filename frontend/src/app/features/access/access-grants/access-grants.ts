@@ -46,6 +46,8 @@ import {
   validityOf,
 } from '../shared/access-form';
 import { GRANT_ERRORS } from '../shared/access-errors';
+import { ToastService } from '../../../core/services/toast.service';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /** Clase de la insignia por estado; el texto del estado siempre acompaña al color (1.4.1). */
 const STATUS_BADGE: Record<AccessGrantStatus, string> = {
@@ -70,20 +72,21 @@ type RevokeTarget = { kind: 'single'; grant: AccessGrant } | { kind: 'bulk'; ids
   standalone: true,
   imports: [
     FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
-    GrantDialogComponent, ValidityFieldsComponent, PermissionChecklistComponent,
+    GrantDialogComponent, ValidityFieldsComponent, PermissionChecklistComponent, PaginatorComponent,
   ],
   templateUrl: './access-grants.html',
 })
 export class AccessGrantsComponent implements OnInit {
   private readonly service = inject(AccessService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly host = inject(ElementRef<HTMLElement>);
 
   /** Permiso org.access.manage: otorgar, editar y revocar. */
   canManage = input(false);
 
-  readonly pageSize = 20;
+  pageSize = signal(20);
   readonly statuses = ACCESS_GRANT_STATUSES;
   readonly directions: readonly AccessGrantDirection[] = ['Given', 'Received'];
   readonly statusKeys = ACCESS_GRANT_STATUS_KEYS;
@@ -105,7 +108,6 @@ export class AccessGrantsComponent implements OnInit {
   loadFailed = signal(false);
   actionError = signal('');
 
-  totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
 
   // Selección para revocar varios a la vez
   selection = signal<Set<string>>(new Set());
@@ -149,7 +151,7 @@ export class AccessGrantsComponent implements OnInit {
       status: this.status(),
       reference: this.reference().trim(),
       page: this.page(),
-      pageSize: this.pageSize,
+      pageSize: this.pageSize(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.grants.set(result.items);
@@ -180,10 +182,15 @@ export class AccessGrantsComponent implements OnInit {
     this.search();
   }
 
-  changePage(delta: number): void {
-    const next = this.page() + delta;
-    if (next < 1 || next > this.totalPages()) return;
-    this.page.set(next);
+  changePage(page: number): void {
+    this.page.set(page);
+    this.load();
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.page.set(1);
     this.load();
   }
 
@@ -287,7 +294,7 @@ export class AccessGrantsComponent implements OnInit {
         this.saving.set(false);
         this.editing.set(null);
         this.grants.update((list) => list.map((g) => (g.id === updated.id ? updated : g)));
-        this.announcer.announce(translate('thirdPartyAccess.grants.edit.saved', { name: grant.grantee.name, reference: this.referenceOf(grant) }));
+        this.toast.success(translate('thirdPartyAccess.grants.edit.saved', { name: grant.grantee.name, reference: this.referenceOf(grant) }));
       },
       error: (err) => {
         this.saving.set(false);

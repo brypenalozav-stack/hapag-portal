@@ -221,7 +221,7 @@ export const BL_SIN_FLETE = 'HLCUVAP260300720';
 /** Ola B: BL ajeno con acceso abierto activo (M1-17, M1-18); no aparece en el listado. */
 export const BL_ACCESO_ABIERTO = 'HLCUVAP260399999';
 
-const EMBARQUES: ShipmentListItem[] = [
+export const EMBARQUES: ShipmentListItem[] = [
   {
     id: BL_PRUEBA.id,
     blNumber: BL_PRUEBA.blNumber,

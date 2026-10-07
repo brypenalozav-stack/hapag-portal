@@ -25,6 +25,7 @@ import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { DemurrageCalculatorComponent } from '../demurrage-calculator/demurrage-calculator';
 import { AddToCartDialogComponent, AddToCartTarget } from '../../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Moneda local de cada país: la conversión de demoras anticipadas en USD se informa en ella (M5-05). */
 const COUNTRY_CURRENCY: Record<string, string> = { CL: 'CLP', BO: 'BOB' };
@@ -52,6 +53,7 @@ export class DemurragePanelComponent {
   private readonly service = inject(DemurrageService);
   readonly cart = inject(CartService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   blNumber = input.required<string>();
@@ -171,7 +173,7 @@ export class DemurragePanelComponent {
       next: (status) => {
         this.advanceBusy.set(false);
         this.data.set(status);
-        this.announcer.announce(translate('demurrage.panel.advance.generated'));
+        this.toast.success(translate('demurrage.panel.advance.generated'));
       },
       error: (err) => {
         this.advanceBusy.set(false);

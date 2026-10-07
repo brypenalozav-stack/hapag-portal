@@ -1,7 +1,8 @@
 import { DOCUMENT, Injectable, computed, inject, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, take } from 'rxjs';
 import { AuthService } from './auth.service';
+import { LoadingOverlayService } from './loading-overlay.service';
 
 export type AppLang = 'es' | 'en';
 export type AppLocale = 'es-CL' | 'es-BO' | 'en';
@@ -28,6 +29,7 @@ export class LocaleService {
   private readonly transloco = inject(TranslocoService);
   private readonly auth = inject(AuthService);
   private readonly document = inject(DOCUMENT);
+  private readonly overlay = inject(LoadingOverlayService);
 
   readonly lang = signal<AppLang>(this.loadLang());
 
@@ -47,8 +49,24 @@ export class LocaleService {
     );
   }
 
+  /**
+   * Cambia el idioma con la pantalla de carga global: primero se cargan los textos del idioma nuevo y
+   * recién entonces se activa, para que el sitio nunca quede a medio traducir.
+   */
   setLang(lang: AppLang): void {
-    if (!AVAILABLE_LANGS.includes(lang)) return;
+    if (!AVAILABLE_LANGS.includes(lang) || lang === this.lang()) return;
+    const end = this.overlay.begin('shared.globalLoader.changingLanguage');
+    this.transloco.load(lang).pipe(take(1)).subscribe({
+      next: () => this.activate(lang),
+      error: (err: unknown) => {
+        console.warn('No se pudieron cargar los textos del idioma:', err);
+        end();
+      },
+      complete: end,
+    });
+  }
+
+  private activate(lang: AppLang): void {
     this.lang.set(lang);
     try {
       localStorage.setItem(LANG_KEY, lang);

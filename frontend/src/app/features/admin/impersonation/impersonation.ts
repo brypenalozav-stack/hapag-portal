@@ -24,8 +24,10 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { adminErrorMessage } from '../../../shared/administration-errors';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface FormError {
   fieldId: string;
@@ -44,7 +46,7 @@ const REQUESTS_PAGE_SIZE = 50;
 @Component({
   selector: 'app-impersonation',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent],
   templateUrl: './impersonation.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -53,6 +55,7 @@ export class ImpersonationComponent implements OnInit {
   private readonly organizations = inject(AdminOrganizationService);
   private readonly impersonation = inject(ImpersonationService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -62,7 +65,6 @@ export class ImpersonationComponent implements OnInit {
   readonly requestActionKeys = IMPERSONATION_REQUEST_ACTION_KEYS;
   readonly profileKeys = ORGANIZATION_PROFILE_KEYS;
   readonly typeKeys = ORGANIZATION_TYPE_KEYS;
-  readonly requestsPageSize = REQUESTS_PAGE_SIZE;
 
   // Inicio de sesión
   orgSearch = '';
@@ -84,6 +86,7 @@ export class ImpersonationComponent implements OnInit {
   sessions = signal<ImpersonationSession[]>([]);
   total = signal(0);
   page = signal(1);
+  pageSize = signal(SESSIONS_PAGE_SIZE);
   sessionsLoading = signal(true);
   sessionsFailed = signal(false);
   actionError = signal('');
@@ -94,6 +97,7 @@ export class ImpersonationComponent implements OnInit {
   requests = signal<ImpersonationRequestEntry[]>([]);
   requestsTotal = signal(0);
   requestsPage = signal(1);
+  requestsPageSize = signal(REQUESTS_PAGE_SIZE);
   requestsLoading = signal(false);
 
   private readonly errorSummary = viewChild<ElementRef<HTMLElement>>('errorSummary');
@@ -101,14 +105,6 @@ export class ImpersonationComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSessions();
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.total() / SESSIONS_PAGE_SIZE));
-  }
-
-  get requestPages(): number {
-    return Math.max(1, Math.ceil(this.requestsTotal() / REQUESTS_PAGE_SIZE));
   }
 
   searchOrganizations(): void {
@@ -185,7 +181,7 @@ export class ImpersonationComponent implements OnInit {
     this.sessionsLoading.set(true);
     this.sessionsFailed.set(false);
     this.service.getSessions({
-      status: this.statusFilter, from: this.from, to: this.to, page: this.page(), pageSize: SESSIONS_PAGE_SIZE,
+      status: this.statusFilter, from: this.from, to: this.to, page: this.page(), pageSize: this.pageSize(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
         this.sessions.set(r.items);
@@ -206,10 +202,15 @@ export class ImpersonationComponent implements OnInit {
     this.loadSessions();
   }
 
-  changePage(delta: number): void {
-    const next = this.page() + delta;
-    if (next < 1 || next > this.totalPages) return;
-    this.page.set(next);
+  changePage(page: number): void {
+    this.page.set(page);
+    this.loadSessions();
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.page.set(1);
     this.loadSessions();
   }
 
@@ -220,7 +221,7 @@ export class ImpersonationComponent implements OnInit {
     this.service.endSession(s.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.endingId.set(null);
-        this.announcer.announce(translate('admin.impersonation.sessions.ended', { name: s.subject.fullName || s.subject.email }));
+        this.toast.success(translate('admin.impersonation.sessions.ended', { name: s.subject.fullName || s.subject.email }));
         this.loadSessions();
       },
       error: (err) => {
@@ -242,10 +243,15 @@ export class ImpersonationComponent implements OnInit {
     this.auditSession.set(null);
   }
 
-  changeRequestsPage(delta: number): void {
-    const next = this.requestsPage() + delta;
-    if (next < 1 || next > this.requestPages) return;
-    this.requestsPage.set(next);
+  changeRequestsPage(page: number): void {
+    this.requestsPage.set(page);
+    this.loadRequests(false);
+  }
+
+  /** Otro tamaño de página del registro vuelve a la primera página. */
+  changeRequestsPageSize(size: number): void {
+    this.requestsPageSize.set(size);
+    this.requestsPage.set(1);
     this.loadRequests(false);
   }
 
@@ -253,7 +259,7 @@ export class ImpersonationComponent implements OnInit {
     const s = this.auditSession();
     if (!s) return;
     this.requestsLoading.set(true);
-    this.service.getSessionRequests(s.id, this.requestsPage(), REQUESTS_PAGE_SIZE).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.getSessionRequests(s.id, this.requestsPage(), this.requestsPageSize()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
         this.requests.set(r.items);
         this.requestsTotal.set(r.total);

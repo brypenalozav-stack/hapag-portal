@@ -21,6 +21,7 @@ import { focusAfterRender } from '../../../shared/focus-after-render';
 import { adminErrorMessage } from '../../../shared/administration-errors';
 import { todayInput } from '../../../shared/date-input';
 import { ChangeLogComponent } from '../payment-config/change-log';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 interface CounterForm {
   country: 'CL' | 'BO';
@@ -63,7 +64,7 @@ function dateOnly(value: string | null | undefined): string {
 @Component({
   selector: 'app-counter',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, ChangeLogComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, ChangeLogComponent, PaginatorComponent],
   templateUrl: './counter.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -90,6 +91,7 @@ export class CounterComponent implements OnInit {
   records = signal<CounterRecord[]>([]);
   total = signal(0);
   page = signal(1);
+  pageSize = signal(PAGE_SIZE);
   loading = signal(true);
   loadFailed = signal(false);
   actionError = signal('');
@@ -118,16 +120,12 @@ export class CounterComponent implements OnInit {
     if (bl) this.openRecord(bl);
   }
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.total() / PAGE_SIZE));
-  }
-
   load(): void {
     this.loading.set(true);
     this.loadFailed.set(false);
     this.service.search({
       blNumber: this.blFilter.trim().toUpperCase(), country: this.country, syncStatus: this.syncStatus,
-      deconsolidated: this.deconsolidated, page: this.page(), pageSize: PAGE_SIZE,
+      deconsolidated: this.deconsolidated, page: this.page(), pageSize: this.pageSize(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
         this.records.set(r.items);
@@ -148,10 +146,15 @@ export class CounterComponent implements OnInit {
     this.load();
   }
 
-  changePage(delta: number): void {
-    const next = this.page() + delta;
-    if (next < 1 || next > this.totalPages) return;
-    this.page.set(next);
+  changePage(page: number): void {
+    this.page.set(page);
+    this.load();
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.page.set(1);
     this.load();
   }
 

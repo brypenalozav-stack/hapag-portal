@@ -94,7 +94,7 @@
 }
 
 @if (loading()) {
-  <app-loading-spinner />
+  <app-table-skeleton [columns]="13" />
 } @else if (loadFailed()) {
   <app-state-message kind="error" (retry)="search(page())" />
 } @else if (error()) {
@@ -110,16 +110,16 @@
           <thead>
             <tr>
               <th scope="col"><span class="visually-hidden">{{ 'invoices.col.select' | transloco }}</span></th>
-              <th scope="col">{{ 'invoices.col.siiNumber' | transloco }}</th>
+              <th scope="col" appSortHeader="number" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.siiNumber' | transloco }}</th>
               <th scope="col">{{ 'invoices.col.sourceNumber' | transloco }}</th>
               <th scope="col">{{ 'invoices.col.documentType' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.issueDate' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.dueDate' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.reference' | transloco }}</th>
+              <th scope="col" appSortHeader="issueDate" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.issueDate' | transloco }}</th>
+              <th scope="col" appSortHeader="dueDate" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.dueDate' | transloco }}</th>
+              <th scope="col" appSortHeader="blNumber" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.reference' | transloco }}</th>
               <th scope="col">{{ 'invoices.col.legalName' | transloco }}</th>
               <th scope="col">{{ 'invoices.col.taxId' | transloco }}</th>
-              <th scope="col" class="text-end">{{ 'invoices.col.amount' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.currency' | transloco }}</th>
+              <th scope="col" class="text-end" appSortHeader="totalAmount" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.amount' | transloco }}</th>
+              <th scope="col" appSortHeader="currency" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.currency' | transloco }}</th>
               <th scope="col">{{ 'invoices.col.status' | transloco }}</th>
               <th scope="col"><span class="visually-hidden">{{ 'invoices.col.actions' | transloco }}</span></th>
             </tr>
@@ -215,12 +215,9 @@
       </div>
     </div>
 
-    @if (totalPages() > 1) {
-      <nav class="d-flex align-items-center gap-2" [attr.aria-label]="'invoices.pagination.label' | transloco">
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="search(page() - 1)">{{ 'invoices.pagination.previous' | transloco }}</button>
-        <span class="small">{{ 'invoices.pagination.status' | transloco: { page: page(), pages: totalPages(), total: l.total } }}</span>
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="search(page() + 1)">{{ 'invoices.pagination.next' | transloco }}</button>
-      </nav>
+    @if (totalPages() > 1 || pageSize() !== defaultPageSize) {
+      <app-paginator [page]="page()" [pageSize]="pageSize()" [total]="l.total" [label]="'invoices.pagination.label' | transloco"
+                     idPrefix="invoices-pager" (pageChange)="search($event)" (pageSizeChange)="changePageSize($event)" />
     } @else {
       <p class="small text-muted">{{ 'invoices.count' | transloco: { count: l.total } }}</p>
     }

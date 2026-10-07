@@ -42,17 +42,6 @@
   </form>
 }
 
-@if (deleting(); as item) {
-  <form class="p-3 border-top border-bottom" (submit)="confirmDelete($event)">
-    <h4 id="access-default-delete-title" class="h6 fw-bold" tabindex="-1">{{ 'thirdPartyAccess.defaults.deleteTitle' | transloco: { name: item.grantee.name } }}</h4>
-    <p class="small mb-2">{{ 'thirdPartyAccess.defaults.deleteHelp' | transloco }}</p>
-    <div class="d-flex gap-2">
-      <button type="button" class="btn btn-outline-secondary" (click)="cancelDelete()">{{ 'thirdPartyAccess.defaults.cancel' | transloco }}</button>
-      <button type="submit" class="btn btn-danger" [disabled]="deleteBusy()">{{ 'thirdPartyAccess.defaults.confirmDelete' | transloco }}</button>
-    </div>
-  </form>
-}
-
 @if (actionError()) {
   <div class="alert alert-danger py-2 m-3" role="alert">{{ actionError() }}</div>
 }

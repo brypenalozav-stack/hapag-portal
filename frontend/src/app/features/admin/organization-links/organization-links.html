@@ -48,20 +48,21 @@
   <app-state-message kind="empty" [messageKey]="'admin.organizationLinks.empty'" />
 } @else {
   <div class="hl-card">
+    <app-table-filter [table]="table" [totalOf]="links().length" inputId="organization-links-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.organizationLinks.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.organizationLinks.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'admin.organizationLinks.col.organization' | transloco }}</th>
-            <th scope="col">{{ 'admin.organizationLinks.col.parent' | transloco }}</th>
-            <th scope="col">{{ 'admin.organizationLinks.col.requested' | transloco }}</th>
-            <th scope="col">{{ 'admin.organizationLinks.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="organization" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.organizationLinks.col.organization' | transloco }}</th>
+            <th scope="col" appSortHeader="parent" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.organizationLinks.col.parent' | transloco }}</th>
+            <th scope="col" appSortHeader="requested" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.organizationLinks.col.requested' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.organizationLinks.col.status' | transloco }}</th>
             <th scope="col"><span class="visually-hidden">{{ 'admin.organizationLinks.col.actions' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (l of links(); track l.id) {
+          @for (l of table.rows(); track l.id) {
             <tr [attr.data-testid]="'link-' + l.id">
               <td>
                 <span class="fw-semibold d-block">{{ l.organization.name }}</span>
@@ -96,9 +97,15 @@
                 }
               </td>
             </tr>
+          } @empty {
+            <tr><td colspan="5" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.organizationLinks.pagination' | transloco"
+                     idPrefix="organization-links-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   </div>
 }

@@ -111,19 +111,20 @@
   } @else if (carriers().length === 0) {
     <app-state-message kind="empty" [messageKey]="'organization.carriers.empty'" />
   } @else {
+    <app-table-filter [table]="table" [totalOf]="carriers().length" inputId="carriers-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'organization.carriers.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'organization.carriers.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'organization.carriers.col.carrier' | transloco }}</th>
-            <th scope="col">{{ 'organization.carriers.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="carrier" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'organization.carriers.col.carrier' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'organization.carriers.col.status' | transloco }}</th>
             <th scope="col">{{ 'organization.carriers.col.assignments' | transloco }}</th>
             <th scope="col"><span class="visually-hidden">{{ 'organization.carriers.col.actions' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (c of carriers(); track c.id) {
+          @for (c of table.rows(); track c.id) {
             <tr [attr.data-testid]="'carrier-' + c.taxId">
               <td>
                 <span class="fw-semibold d-block">{{ c.legalName }}</span>
@@ -183,9 +184,15 @@
                 }
               </td>
             </tr>
+          } @empty {
+            <tr><td colspan="4" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'organization.carriers.pagination' | transloco"
+                     idPrefix="carriers-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   }
 </section>

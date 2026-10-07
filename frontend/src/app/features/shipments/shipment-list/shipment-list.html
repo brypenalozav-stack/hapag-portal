@@ -104,7 +104,7 @@
 }
 
 @if (loading()) {
-  <app-loading-spinner />
+  <app-table-skeleton [columns]="9" />
 } @else if (loadFailed()) {
   <app-state-message kind="error" (retry)="load()" />
 } @else if (shipments().length === 0) {
@@ -116,13 +116,13 @@
         <caption class="visually-hidden">{{ 'shipments.list.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'shipments.list.col.blNumber' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.bookingNumber' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.vessel' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.voyage' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.status' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.operation' | transloco }}</th>
-            <th scope="col">{{ 'shipments.list.col.country' | transloco }}</th>
+            <th scope="col" appSortHeader="blNumber" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.blNumber' | transloco }}</th>
+            <th scope="col" appSortHeader="bookingNumber" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.bookingNumber' | transloco }}</th>
+            <th scope="col" appSortHeader="vessel" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.vessel' | transloco }}</th>
+            <th scope="col" appSortHeader="voyage" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.voyage' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="operation" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.operation' | transloco }}</th>
+            <th scope="col" appSortHeader="country" [sort]="sort()" (sortChange)="onSort($event)">{{ 'shipments.list.col.country' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.issuance' | transloco }}</th>
             <th scope="col">{{ 'shipments.list.col.accessSource' | transloco }}</th>
             @if (showOrigin()) {
@@ -189,17 +189,7 @@
         </tbody>
       </table>
     </div>
-    <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'shipments.list.pagination.label' | transloco">
-      <span class="small text-muted">{{ 'shipments.list.pagination.showing' | transloco: { shown: shipments().length, total: total() } }}</span>
-      <div class="d-flex align-items-center gap-2">
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="changePage(-1)">
-          {{ 'shipments.list.pagination.previous' | transloco }}
-        </button>
-        <span class="small">{{ 'shipments.list.pagination.page' | transloco: { page: page(), pages: totalPages } }}</span>
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages" (click)="changePage(1)">
-          {{ 'shipments.list.pagination.next' | transloco }}
-        </button>
-      </div>
-    </nav>
+    <app-paginator [page]="page()" [pageSize]="pageSize()" [total]="total()" [label]="'shipments.list.pagination.label' | transloco"
+                   idPrefix="shipments-pager" (pageChange)="changePage($event)" (pageSizeChange)="changePageSize($event)" />
   </div>
 }

@@ -16,6 +16,8 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
 import { adminErrorMessage } from '../../../shared/administration-errors';
 import { saveBlob } from '../../../shared/save-blob';
+import { ToastService } from '../../../core/services/toast.service';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 const PAGE_SIZE = 50;
 
@@ -30,7 +32,7 @@ const PAGE_SIZE = 50;
   standalone: true,
   imports: [
     FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe,
-    LoadingSpinnerComponent, StateMessageComponent,
+    LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent,
   ],
   templateUrl: './exceptions-report.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
@@ -39,6 +41,7 @@ export class ExceptionsReportComponent implements OnInit {
   private readonly service = inject(TransactionReportService);
   private readonly locale = inject(LocaleService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly types = EXCEPTION_TYPES;
@@ -53,6 +56,7 @@ export class ExceptionsReportComponent implements OnInit {
 
   report = signal<ExceptionReport | null>(null);
   page = signal(1);
+  pageSize = signal(PAGE_SIZE);
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');
@@ -60,11 +64,6 @@ export class ExceptionsReportComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
-  }
-
-  get totalPages(): number {
-    const items = this.report()?.items;
-    return items ? Math.max(1, Math.ceil(items.total / PAGE_SIZE)) : 1;
   }
 
   private filters() {
@@ -80,7 +79,7 @@ export class ExceptionsReportComponent implements OnInit {
     this.loading.set(true);
     this.loadFailed.set(false);
     this.error.set('');
-    this.service.getExceptions({ ...this.filters(), page: this.page(), pageSize: PAGE_SIZE }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.getExceptions({ ...this.filters(), page: this.page(), pageSize: this.pageSize() }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (report) => {
         this.report.set(report);
         this.from = report.from;
@@ -95,10 +94,15 @@ export class ExceptionsReportComponent implements OnInit {
     });
   }
 
-  changePage(delta: number): void {
-    const next = this.page() + delta;
-    if (next < 1 || next > this.totalPages) return;
-    this.page.set(next);
+  changePage(page: number): void {
+    this.page.set(page);
+    this.load();
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.page.set(1);
     this.load();
   }
 
@@ -111,7 +115,7 @@ export class ExceptionsReportComponent implements OnInit {
         this.exporting.set(null);
         const name = `excepciones-${report.from.replace(/-/g, '')}-${report.to.replace(/-/g, '')}.${format}`;
         saveBlob(blob, name);
-        this.announcer.announce(translate('admin.transactionReports.exported', { name }));
+        this.toast.success(translate('admin.transactionReports.exported', { name }));
       },
       error: (err) => {
         this.exporting.set(null);

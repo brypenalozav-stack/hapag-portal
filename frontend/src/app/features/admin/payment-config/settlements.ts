@@ -19,6 +19,10 @@ import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /** Identificador de la factura (GUID) para el cruce manual. */
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -37,7 +41,7 @@ interface MatchError {
 @Component({
   selector: 'app-settlements',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './settlements.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -56,6 +60,33 @@ export class SettlementsComponent implements OnInit {
 
   filters: SettlementSearch = { status: '', kind: '', country: '', blNumber: '', from: '', to: '' };
   rows = signal<ChargeSettlement[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre el resultado de la búsqueda. */
+  readonly table = new ClientTable(this.rows, {
+    searchText: (r) =>
+      [
+        r.paymentNumber,
+        r.receiptNumber,
+        r.receiptDocumentNumber,
+        codeText(r.kind, this.kindKeys),
+        codeText(r.conceptCode, this.conceptKeys),
+        r.blNumber,
+        r.bookingNumber,
+        r.country,
+        r.payerName,
+        r.payerTaxId,
+        r.billingTaxId,
+        codeText(r.status, this.statusKeys),
+      ].join(' '),
+    sortValues: {
+      payment: (r) => r.paymentNumber,
+      kind: (r) => codeText(r.kind, this.kindKeys),
+      charge: (r) => codeText(r.conceptCode, this.conceptKeys),
+      parties: (r) => r.payerName,
+      amount: (r) => r.amount,
+      date: (r) => r.settledAt,
+      status: (r) => codeText(r.status, this.statusKeys),
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');

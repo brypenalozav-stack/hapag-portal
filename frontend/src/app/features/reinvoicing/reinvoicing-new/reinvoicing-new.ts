@@ -18,6 +18,7 @@ import { focusAfterRender } from '../../../shared/focus-after-render';
 import { billingErrorKeys } from '../../service-requests/shared/service-text';
 import { ReinvoicingStepsComponent } from '../reinvoicing-steps';
 import { ineligibleReason, isEmail, normalizeTaxId, reinvoicingErrorMessage } from '../reinvoicing-text';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface BillingForm {
   taxId: string;
@@ -63,6 +64,7 @@ export class ReinvoicingNewComponent implements OnInit {
   private readonly service = inject(ReinvoicingService);
   readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -173,7 +175,7 @@ export class ReinvoicingNewComponent implements OnInit {
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (detail) => {
         this.saving.set(false);
-        this.announcer.announce(translate('reinvoicing.new.created', { number: detail.request.requestNumber }));
+        this.toast.success(translate('reinvoicing.new.created', { number: detail.request.requestNumber }));
         this.router.navigate(['/reinvoicing', detail.request.id]);
       },
       error: (err) => {

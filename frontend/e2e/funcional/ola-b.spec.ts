@@ -32,6 +32,7 @@ async function abrirConSesion(page: Page, ruta: string, lang: 'es' | 'en' = 'es'
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
 }
 
 /** Busca y elige al destinatario en el selector del flujo único. */
@@ -208,7 +209,9 @@ test('terceros por defecto: agregar, editar y quitar (M1-13)', async ({ page }) 
   // Quitar
   await tabla.getByRole('button', { name: `Quitar a ${AGENCIA.name} de los terceros por defecto` }).click();
   const baja = page.waitForRequest((r) => r.method() === 'DELETE' && /\/api\/v1\/access\/defaults\/[^/]+$/.test(r.url()));
-  await panel.getByRole('button', { name: 'Quitar', exact: true }).click();
+  const modal = page.getByTestId('app-modal');
+  await expect(modal.getByRole('heading')).toHaveText(`Quitar a ${AGENCIA.name} de los terceros por defecto`);
+  await modal.getByRole('button', { name: 'Quitar', exact: true }).click();
   await baja;
   await expect(page.locator(POLITE)).toHaveText(`${AGENCIA.name} ya no es tercero por defecto.`);
 });

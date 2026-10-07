@@ -16,6 +16,12 @@ import { StateMessageComponent, isServiceUnavailable } from '../../../shared/com
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { ClientTable } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 interface RuleForm {
   country: 'CL' | 'BO';
@@ -47,13 +53,15 @@ function emptyForm(): RuleForm {
 @Component({
   selector: 'app-publication-rules',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './publication-rules.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
 export class PublicationRulesComponent implements OnInit {
   private readonly service = inject(PublicationRuleService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -64,6 +72,19 @@ export class PublicationRulesComponent implements OnInit {
   includeInactive = false;
 
   rules = signal<ShipmentPublicationRule[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre el resultado de la búsqueda. */
+  readonly table = new ClientTable(this.rules, {
+    searchText: (r) =>
+      [r.finalDestinationCode, r.finalDestinationName, r.dischargePortCode, r.country, r.description, r.modifiedBy ?? r.createdBy].join(' '),
+    sortValues: {
+      destination: (r) => r.finalDestinationCode,
+      port: (r) => r.dischargePortCode,
+      country: (r) => r.country,
+      description: (r) => r.description,
+      modified: (r) => r.modifiedAt ?? r.createdAt,
+      status: (r) => r.isActive,
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');
@@ -196,11 +217,19 @@ export class PublicationRulesComponent implements OnInit {
     });
   }
 
-  deactivate(rule: ShipmentPublicationRule): void {
+  async deactivate(rule: ShipmentPublicationRule): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.deactivate.title',
+      message: 'shared.modal.deactivate.message',
+      params: { name: this.ruleName(rule) },
+      confirmLabel: 'shared.modal.deactivate.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.actionError.set('');
     this.service.deactivateRule(rule.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.announcer.announce(translate('admin.publicationRules.list.deactivated', { rule: this.ruleName(rule) }));
+        this.toast.success(translate('admin.publicationRules.list.deactivated', { rule: this.ruleName(rule) }));
         this.search();
       },
       error: (err) => {

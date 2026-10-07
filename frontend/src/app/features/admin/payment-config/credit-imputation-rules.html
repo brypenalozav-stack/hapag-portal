@@ -115,22 +115,23 @@
   <app-state-message kind="empty" [messageKey]="'admin.creditRules.empty'" />
 } @else {
   <div class="hl-card mb-4">
+    <app-table-filter [table]="table" [totalOf]="rules().length" inputId="credit-rules-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.creditRules.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.creditRules.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'admin.creditRules.col.concept' | transloco }}</th>
-            <th scope="col">{{ 'admin.creditRules.col.country' | transloco }}</th>
-            <th scope="col">{{ 'admin.creditRules.col.nexusConcept' | transloco }}</th>
-            <th scope="col">{{ 'admin.creditRules.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="concept" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.creditRules.col.concept' | transloco }}</th>
+            <th scope="col" appSortHeader="country" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.creditRules.col.country' | transloco }}</th>
+            <th scope="col" appSortHeader="nexusConcept" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.creditRules.col.nexusConcept' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.creditRules.col.status' | transloco }}</th>
             <th scope="col">{{ 'admin.creditRules.col.notes' | transloco }}</th>
-            <th scope="col">{{ 'admin.creditRules.col.modified' | transloco }}</th>
+            <th scope="col" appSortHeader="modified" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.creditRules.col.modified' | transloco }}</th>
             <th scope="col"><span class="visually-hidden">{{ 'admin.creditRules.col.actions' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (r of rules(); track r.id) {
+          @for (r of table.rows(); track r.id) {
             <tr [attr.data-testid]="'credit-rule-' + r.country + '-' + r.conceptCode">
               <td>
                 <span class="fw-semibold d-block">{{ conceptName(r) }}</span>
@@ -152,10 +153,16 @@
                 </div>
               </td>
             </tr>
+          } @empty {
+            <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.creditRules.pagination' | transloco"
+                     idPrefix="credit-rules-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   </div>
 }
 

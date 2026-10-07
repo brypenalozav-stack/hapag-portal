@@ -15,6 +15,11 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { saveBlob } from '../../../shared/save-blob';
+import { ToastService } from '../../../core/services/toast.service';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 type Decision = 'verify' | 'reject';
 
@@ -27,7 +32,7 @@ type Decision = 'verify' | 'reject';
 @Component({
   selector: 'app-deposit-proof-queue',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './deposit-proof-queue.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -35,6 +40,7 @@ export class DepositProofQueueComponent implements OnInit {
   private readonly service = inject(PaymentConfigService);
   private readonly proofs = inject(DepositProofService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -47,6 +53,29 @@ export class DepositProofQueueComponent implements OnInit {
   status = 'Submitted';
   country = '';
   items = signal<DepositProofQueueItem[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre la cola cargada. */
+  readonly table = new ClientTable(this.items, {
+    searchText: (i) =>
+      [
+        i.paymentNumber,
+        i.slipNumber,
+        i.blNumbers.join(' '),
+        i.payerName,
+        i.payerTaxId,
+        i.proof.fileName,
+        i.proof.bankName,
+        i.proof.bankReference,
+        codeText(i.proof.status, this.statusKeys),
+        codeText(i.paymentStatus, this.paymentStatusKeys),
+      ].join(' '),
+    sortValues: {
+      payment: (i) => i.paymentNumber,
+      payer: (i) => i.payerName,
+      total: (i) => i.totalAmount,
+      deposit: (i) => i.proof.depositDate,
+      status: (i) => codeText(i.proof.status, this.statusKeys),
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');
@@ -93,7 +122,7 @@ export class DepositProofQueueComponent implements OnInit {
       next: (blob) => {
         this.downloading.set(null);
         saveBlob(blob, item.proof.fileName);
-        this.announcer.announce(translate('admin.depositProofs.downloaded', { name: item.proof.fileName }));
+        this.toast.success(translate('admin.depositProofs.downloaded', { name: item.proof.fileName }));
       },
       error: (err) => {
         this.downloading.set(null);

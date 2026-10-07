@@ -41,6 +41,7 @@ async function abrir(page: Page, ruta: string, opciones: OpcionesOlaD & Opciones
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
 }
 
 test('bandeja: aprobar la solicitud de vinculación desde la notificación y verla resuelta (M1-25, M1-08)', async ({ page }) => {
@@ -199,7 +200,8 @@ test('vista como cliente: inicio, banner, escritura bloqueada y término que res
   await expect(page).toHaveURL(/\/admin\/impersonation$/);
   await expect(page.getByTestId('impersonation-banner')).toHaveCount(0);
   await expect(page.getByTestId('impersonation-ended')).toContainText('Terminó la vista como cliente. Volvió a su sesión de administrador.');
-  await expect(page.getByRole('link', { name: 'Inicio de administración' })).toBeVisible();
+  // El menú vuelve a ser el del administrador (grupo Administración).
+  await expect(page.getByRole('navigation', { name: 'Menú principal' }).getByRole('button', { name: 'Administración' })).toBeVisible();
   const ultima = page.locator('tr[data-testid^="impersonation-session-"]').first();
   await expect(ultima).toContainText('Carla Rojas');
   await expect(ultima).toContainText('Terminada');
@@ -352,6 +354,7 @@ test('Counter en el detalle del embarque para perfiles internos, con el acceso a
 
 test('área de administración: secciones con contadores y accesos directos según permisos (M8-05)', async ({ page }) => {
   await abrir(page, '/dashboard', {}, 'admin');
+  await page.getByRole('navigation', { name: 'Menú principal' }).getByRole('button', { name: 'Administración' }).click();
   await page.getByTestId('sidebar-admin-home').click();
   await expect(page).toHaveURL(/\/admin$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Administración');

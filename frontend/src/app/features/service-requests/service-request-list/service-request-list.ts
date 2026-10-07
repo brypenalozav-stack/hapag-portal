@@ -16,6 +16,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { localized, serviceErrorMessage } from '../shared/service-text';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 const PAGE_SIZE = 20;
 
@@ -38,7 +39,7 @@ function emptyFilters(): RequestFilters {
 @Component({
   selector: 'app-service-request-list',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent],
   templateUrl: './service-request-list.html',
   styles: [':host { display: block; }'],
 })
@@ -58,6 +59,9 @@ export class ServiceRequestListComponent implements OnInit {
 
   filters: RequestFilters = emptyFilters();
   page = signal(1);
+  pageSize = signal(PAGE_SIZE);
+  /** Con el tamaño por defecto y una sola página se muestra solo el total. */
+  readonly defaultPageSize = PAGE_SIZE;
   result = signal<PagedResult<ServiceRequestSummary> | null>(null);
   loading = signal(true);
   loadFailed = signal(false);
@@ -82,7 +86,7 @@ export class ServiceRequestListComponent implements OnInit {
     this.loading.set(true);
     this.loadFailed.set(false);
     this.error.set('');
-    this.service.list({ ...this.filters, page, pageSize: PAGE_SIZE }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.list({ ...this.filters, page, pageSize: this.pageSize() }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.result.set(result);
         this.loading.set(false);
@@ -93,6 +97,12 @@ export class ServiceRequestListComponent implements OnInit {
         else this.error.set(serviceErrorMessage(err, 'serviceRequests.list.loadError'));
       },
     });
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.search(1);
   }
 
   clearFilters(): void {

@@ -16,7 +16,7 @@ import { PortalLinkService } from '../../../core/services/portal-link.service';
   template: `
     @if (links.disputeUrl(); as url) {
       @if (variant() === 'sidebar') {
-        <a class="sidebar-link" [href]="url" target="_blank" rel="noopener noreferrer" data-testid="dispute-link" (click)="activated.emit()">
+        <a class="sidebar-link hl-menu-link" [href]="url" target="_blank" rel="noopener noreferrer" data-testid="dispute-link" (click)="activated.emit()">
           <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
             <path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9 9 0 0 0 8 15"/>
           </svg>

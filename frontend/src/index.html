@@ -24,14 +24,42 @@
         root.setAttribute('data-hl-theme-pref', pref);
       })();
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <style>
+      /* Carga del arranque: visible hasta que Angular reemplaza el contenido de <app-root>. */
+      .hl-boot { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; background: #ffffff; color: #33424f; font: 600 1rem system-ui, -apple-system, sans-serif; }
+      [data-bs-theme='dark'] .hl-boot { background: #1a202c; color: #e2e8f0; }
+      .hl-boot svg { width: 8rem; height: auto; }
+      .hl-boot__vessel { transform-box: view-box; transform-origin: 60px 58px; animation: hl-boot-pitch 2.6s ease-in-out infinite; }
+      .hl-boot__waves { animation: hl-boot-waves 1.2s linear infinite; }
+      @keyframes hl-boot-pitch { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-2px) rotate(1.5deg); } }
+      @keyframes hl-boot-waves { to { transform: translateX(-30px); } }
+      @media (prefers-reduced-motion: reduce) { .hl-boot__vessel, .hl-boot__waves { animation: none; } }
+    </style>
   </head>
   <body>
-    <app-root></app-root>
+    <app-root>
+      <div class="hl-boot" role="status">
+        <svg viewBox="0 0 120 72" aria-hidden="true" focusable="false">
+          <g class="hl-boot__vessel">
+            <rect x="18" y="14" width="5" height="7" rx="1" fill="#ff6600" />
+            <rect x="14" y="21" width="13" height="23" rx="1" fill="#ffffff" stroke="#33424f" />
+            <rect x="32" y="36" width="64" height="7.6" fill="#b84a00" />
+            <rect x="32" y="28" width="54" height="7.6" fill="#004d6c" />
+            <rect x="42" y="20" width="34" height="7.6" fill="#007a33" />
+            <path d="M6 44 H114 L106 58 H18 Z" fill="#33424f" />
+            <path d="M10 50 H110 L108.6 52.4 H11.6 Z" fill="#ff6600" />
+          </g>
+          <g class="hl-boot__waves"><path d="M0 60 q7.5 -4 15 0 t15 0 q7.5 -4 15 0 t15 0 q7.5 -4 15 0 t15 0 q7.5 -4 15 0 t15 0 q7.5 -4 15 0 t15 0 q7.5 -4 15 0 t15 0 q7.5 -4 15 0 t15 0 q7.5 -4 15 0 t15 0 V80 H0 Z" fill="#004d6c" opacity="0.85" /></g>
+        </svg>
+        <span id="hl-boot-text">Cargando portal...</span>
+      </div>
+      <script>
+        try {
+          if (window.localStorage.getItem('hl_lang') === 'en') document.getElementById('hl-boot-text').textContent = 'Loading portal...';
+        } catch (e) {
+          // Sin almacenamiento disponible: queda el texto en español.
+        }
+      </script>
+    </app-root>
   </body>
 </html>

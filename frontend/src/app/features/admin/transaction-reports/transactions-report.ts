@@ -16,6 +16,8 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { HlNumberPipe } from '../../../shared/pipes/hl-number.pipe';
 import { adminErrorMessage } from '../../../shared/administration-errors';
 import { saveBlob } from '../../../shared/save-blob';
+import { ToastService } from '../../../core/services/toast.service';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 const PAGE_SIZE = 50;
 
@@ -35,7 +37,7 @@ function exportName(prefix: string, from: string, to: string, format: string): s
   standalone: true,
   imports: [
     FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe,
-    LoadingSpinnerComponent, StateMessageComponent,
+    LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent,
   ],
   templateUrl: './transactions-report.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
@@ -44,6 +46,7 @@ export class TransactionsReportComponent implements OnInit {
   private readonly reports = inject(TransactionReportService);
   private readonly locale = inject(LocaleService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly categories = TRANSACTION_CATEGORIES;
@@ -60,6 +63,7 @@ export class TransactionsReportComponent implements OnInit {
 
   report = signal<TransactionReport | null>(null);
   page = signal(1);
+  pageSize = signal(PAGE_SIZE);
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');
@@ -67,11 +71,6 @@ export class TransactionsReportComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
-  }
-
-  get totalPages(): number {
-    const items = this.report()?.items;
-    return items ? Math.max(1, Math.ceil(items.total / PAGE_SIZE)) : 1;
   }
 
   private filters() {
@@ -90,7 +89,7 @@ export class TransactionsReportComponent implements OnInit {
     this.loading.set(true);
     this.loadFailed.set(false);
     this.error.set('');
-    this.reports.getTransactions({ ...this.filters(), page: this.page(), pageSize: PAGE_SIZE }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.reports.getTransactions({ ...this.filters(), page: this.page(), pageSize: this.pageSize() }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (report) => {
         this.report.set(report);
         // El servidor aplica el rango por defecto: el formulario lo muestra.
@@ -106,10 +105,15 @@ export class TransactionsReportComponent implements OnInit {
     });
   }
 
-  changePage(delta: number): void {
-    const next = this.page() + delta;
-    if (next < 1 || next > this.totalPages) return;
-    this.page.set(next);
+  changePage(page: number): void {
+    this.page.set(page);
+    this.load();
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.page.set(1);
     this.load();
   }
 
@@ -131,7 +135,7 @@ export class TransactionsReportComponent implements OnInit {
         this.exporting.set(null);
         const name = exportName('transacciones', report.from, report.to, format);
         saveBlob(blob, name);
-        this.announcer.announce(translate('admin.transactionReports.exported', { name }));
+        this.toast.success(translate('admin.transactionReports.exported', { name }));
       },
       error: (err) => {
         this.exporting.set(null);

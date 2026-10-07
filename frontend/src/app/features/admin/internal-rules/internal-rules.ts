@@ -19,6 +19,12 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { RuleSnapshotComponent } from './rule-snapshot';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 interface RuleForm {
   ruleType: InternalChargeRuleType;
@@ -60,13 +66,15 @@ function emptyForm(): RuleForm {
 @Component({
   selector: 'app-internal-rules',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, RuleSnapshotComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, RuleSnapshotComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './internal-rules.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
 export class InternalRulesComponent implements OnInit {
   private readonly service = inject(TariffService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -80,6 +88,18 @@ export class InternalRulesComponent implements OnInit {
   includeInactive = false;
 
   rules = signal<InternalChargeRule[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre el resultado de la búsqueda. */
+  readonly table = new ClientTable(this.rules, {
+    searchText: (r) => [codeText(r.ruleType, this.typeKeys), r.accountName, r.taxId, r.matchCode, r.country, r.reason].join(' '),
+    sortValues: {
+      type: (r) => codeText(r.ruleType, this.typeKeys),
+      account: (r) => r.accountName,
+      country: (r) => r.country,
+      maxUses: (r) => r.maxUsesPerBl,
+      validity: (r) => r.validFrom,
+      status: (r) => r.isActive,
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');
@@ -228,11 +248,19 @@ export class InternalRulesComponent implements OnInit {
     });
   }
 
-  deactivate(rule: InternalChargeRule): void {
+  async deactivate(rule: InternalChargeRule): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.deactivate.title',
+      message: 'shared.modal.deactivate.message',
+      params: { name: this.accountOf(rule) },
+      confirmLabel: 'shared.modal.deactivate.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.actionError.set('');
     this.service.deactivateRule(rule.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.announcer.announce(translate('admin.internalRules.list.deactivated', { account: this.accountOf(rule) }));
+        this.toast.success(translate('admin.internalRules.list.deactivated', { account: this.accountOf(rule) }));
         this.search();
       },
       error: (err) => {

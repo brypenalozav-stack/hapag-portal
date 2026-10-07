@@ -392,38 +392,25 @@
       </div>
 
       <!-- Confirmación de una revocación -->
-      @if (confirmation(); as pending) {
-        @if (pending.kind === 'key') {
-          <div class="alert alert-warning" role="group" aria-labelledby="api-client-confirm-title" data-testid="api-key-confirm">
-            <h3 id="api-client-confirm-title" class="h6 fw-bold" tabindex="-1">{{ 'admin.apiClients.detail.keys.confirmTitle' | transloco: { prefix: pending.key.prefix } }}</h3>
-            <p class="small">{{ 'admin.apiClients.detail.keys.confirmText' | transloco }}</p>
-            <div class="d-flex flex-wrap gap-2">
-              <button type="button" class="btn btn-danger" [disabled]="acting()" (click)="confirmRevokeKey(pending.key)" data-testid="api-key-confirm-yes">
-                {{ 'admin.apiClients.detail.keys.confirm' | transloco }}
-              </button>
-              <button type="button" class="btn btn-outline-secondary" (click)="cancelConfirmation()">{{ 'admin.apiClients.detail.keys.keep' | transloco }}</button>
-            </div>
+      @if (confirmation()) {
+        <form class="alert alert-warning" novalidate aria-labelledby="api-client-confirm-title" (submit)="confirmRevokeClient($event)" data-testid="api-client-revoke-confirm">
+          <h3 id="api-client-confirm-title" class="h6 fw-bold" tabindex="-1">{{ 'admin.apiClients.detail.revoke.confirmTitle' | transloco: { name: c.name } }}</h3>
+          <p class="small">{{ 'admin.apiClients.detail.revoke.confirmText' | transloco }}</p>
+          <label for="api-client-revoke-reason" class="form-label small fw-semibold">{{ 'admin.apiClients.detail.revoke.reason' | transloco }}</label>
+          <textarea id="api-client-revoke-reason" class="form-control mb-1" rows="2" required [attr.maxlength]="limits.REVOKE_REASON_MAX"
+                    aria-describedby="api-client-revoke-reason-help" [attr.aria-invalid]="revokeReasonError() ? true : null"
+                    [(ngModel)]="revokeReason" [ngModelOptions]="{ standalone: true }"></textarea>
+          <div id="api-client-revoke-reason-help" class="form-text mt-0 mb-2">
+            @if (revokeReasonError(); as error) {
+              <span class="hl-field-error mt-0">{{ error | transloco }}</span>
+            }
+            {{ 'admin.apiClients.detail.revoke.reasonHelp' | transloco }}
           </div>
-        } @else {
-          <form class="alert alert-warning" novalidate aria-labelledby="api-client-confirm-title" (submit)="confirmRevokeClient($event)" data-testid="api-client-revoke-confirm">
-            <h3 id="api-client-confirm-title" class="h6 fw-bold" tabindex="-1">{{ 'admin.apiClients.detail.revoke.confirmTitle' | transloco: { name: c.name } }}</h3>
-            <p class="small">{{ 'admin.apiClients.detail.revoke.confirmText' | transloco }}</p>
-            <label for="api-client-revoke-reason" class="form-label small fw-semibold">{{ 'admin.apiClients.detail.revoke.reason' | transloco }}</label>
-            <textarea id="api-client-revoke-reason" class="form-control mb-1" rows="2" required [attr.maxlength]="limits.REVOKE_REASON_MAX"
-                      aria-describedby="api-client-revoke-reason-help" [attr.aria-invalid]="revokeReasonError() ? true : null"
-                      [(ngModel)]="revokeReason" [ngModelOptions]="{ standalone: true }"></textarea>
-            <div id="api-client-revoke-reason-help" class="form-text mt-0 mb-2">
-              @if (revokeReasonError(); as error) {
-                <span class="hl-field-error mt-0">{{ error | transloco }}</span>
-              }
-              {{ 'admin.apiClients.detail.revoke.reasonHelp' | transloco }}
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-              <button type="submit" class="btn btn-danger" [disabled]="acting()" data-testid="api-client-revoke-yes">{{ 'admin.apiClients.detail.revoke.confirm' | transloco }}</button>
-              <button type="button" class="btn btn-outline-secondary" (click)="cancelConfirmation()">{{ 'admin.apiClients.detail.revoke.keep' | transloco }}</button>
-            </div>
-          </form>
-        }
+          <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-danger" [disabled]="acting()" data-testid="api-client-revoke-yes">{{ 'admin.apiClients.detail.revoke.confirm' | transloco }}</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="cancelConfirmation()">{{ 'admin.apiClients.detail.revoke.keep' | transloco }}</button>
+          </div>
+        </form>
       }
 
       @if (c.status === 'Active') {
@@ -537,14 +524,8 @@
           </table>
         </div>
       }
-      <nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3" [attr.aria-label]="'admin.apiClients.log.pagination' | transloco">
-        <span class="small text-muted">{{ 'admin.apiClients.log.total' | transloco: { total: logTotal() } }}</span>
-        <div class="d-flex align-items-center gap-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="logPage() <= 1" (click)="changeLogPage(-1)">{{ 'admin.apiClients.log.previous' | transloco }}</button>
-          <span class="small">{{ 'admin.apiClients.log.page' | transloco: { page: logPage(), pages: logPages } }}</span>
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="logPage() >= logPages" (click)="changeLogPage(1)">{{ 'admin.apiClients.log.next' | transloco }}</button>
-        </div>
-      </nav>
+      <app-paginator [page]="logPage()" [pageSize]="logPageSize()" [total]="logTotal()" [label]="'admin.apiClients.log.pagination' | transloco"
+                     idPrefix="api-log-pager" (pageChange)="changeLogPage($event)" (pageSizeChange)="changeLogPageSize($event)" />
     </div>
   </section>
 }

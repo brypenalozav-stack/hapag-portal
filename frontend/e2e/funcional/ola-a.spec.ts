@@ -19,6 +19,7 @@ async function abrirConSesion(page: Page, ruta: string): Promise<void> {
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
 }
 
 test('registro de organización con tipo: queda pendiente de aprobación (M1-07)', async ({ page }) => {
@@ -99,9 +100,11 @@ test('embarques: el filtro importación/exportación filtra y se mantiene al nav
 
   // La selección se mantiene al volver al listado desde el menú (M2-07).
   const menu = page.getByRole('navigation', { name: 'Menú principal' });
+  await menu.getByRole('button', { name: 'Pagos y facturación' }).click();
   await menu.getByRole('link', { name: 'Historial de pagos' }).click();
   await expect(page).toHaveURL(/\/payment-history$/);
-  await menu.getByRole('link', { name: 'Embarques' }).click();
+  await menu.getByRole('button', { name: 'Embarques' }).click();
+  await menu.getByRole('link', { name: 'Embarques', exact: true }).click();
   await expect(page).toHaveURL(/\/shipments$/);
   await expect(page.getByRole('button', { name: 'Exportación' })).toHaveAttribute('aria-pressed', 'true');
   await expect(filas).toHaveCount(2);

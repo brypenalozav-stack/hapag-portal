@@ -14,6 +14,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { serviceErrorMessage } from '../../service-requests/shared/service-text';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 const PAGE_SIZE = 20;
 
@@ -47,7 +48,7 @@ function emptyFilters(): HistoryFilters {
 @Component({
   selector: 'app-warehouse-history',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent],
   templateUrl: './warehouse-history.html',
   styles: [':host { display: block; }'],
 })
@@ -65,6 +66,9 @@ export class WarehouseHistoryComponent implements OnInit {
 
   filters: HistoryFilters = emptyFilters();
   page = signal(1);
+  pageSize = signal(PAGE_SIZE);
+  /** Con el tamaño por defecto y una sola página se muestra solo el total. */
+  readonly defaultPageSize = PAGE_SIZE;
   result = signal<PagedResult<WarehouseChangeHistoryItem> | null>(null);
   loading = signal(true);
   loadFailed = signal(false);
@@ -93,7 +97,7 @@ export class WarehouseHistoryComponent implements OnInit {
     this.loading.set(true);
     this.loadFailed.set(false);
     this.error.set('');
-    this.service.getHistory({ ...f, page, pageSize: PAGE_SIZE }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.getHistory({ ...f, page, pageSize: this.pageSize() }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.result.set(result);
         this.loading.set(false);
@@ -104,6 +108,12 @@ export class WarehouseHistoryComponent implements OnInit {
         else this.error.set(serviceErrorMessage(err, 'warehouse.history.loadError'));
       },
     });
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.search(1);
   }
 
   clearFilters(): void {

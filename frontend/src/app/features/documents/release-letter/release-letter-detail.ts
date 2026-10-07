@@ -18,6 +18,7 @@ import { focusAfterRender } from '../../../shared/focus-after-render';
 import { saveBlob } from '../../../shared/save-blob';
 import { ServiceRequestOverviewComponent } from '../../service-requests/shared/service-request-overview';
 import { ReleaseLetterTatcComponent } from './release-letter-tatc';
+import { ToastService } from '../../../core/services/toast.service';
 
 /**
  * Seguimiento de una carta de liberación y desconsolidado (M6-08): estado (pendiente de aprobación de Customer Service,
@@ -39,6 +40,7 @@ export class ReleaseLetterDetailComponent implements OnInit {
   private readonly service = inject(DocumentService);
   private readonly requests = inject(ServiceRequestService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -93,7 +95,7 @@ export class ReleaseLetterDetailComponent implements OnInit {
       next: (blob) => {
         this.downloading.set(false);
         saveBlob(blob, doc.fileName);
-        this.announcer.announce(translate('documents.section.downloaded', { number: doc.documentNumber }));
+        this.toast.success(translate('documents.section.downloaded', { number: doc.documentNumber }));
       },
       error: (err) => {
         this.downloading.set(false);
@@ -128,7 +130,7 @@ export class ReleaseLetterDetailComponent implements OnInit {
         this.cancelling.set(false);
         this.confirmingCancel.set(false);
         this.letter.set({ ...l, request: updated });
-        this.announcer.announce(translate('documents.releaseLetter.detail.cancelled', { number: updated.requestNumber }));
+        this.toast.success(translate('documents.releaseLetter.detail.cancelled', { number: updated.requestNumber }));
         focusAfterRender(this.injector, () => document.getElementById('release-detail-title'));
       },
       error: (err) => {

@@ -35,6 +35,9 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { apiClientErrorMessage } from '../../../shared/api-client-errors';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /** Formato mínimo de un correo (el servidor lo vuelve a validar). */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -72,7 +75,7 @@ function emptyForm(): ClientForm {
 }
 
 /** Confirmación pendiente sobre el cliente abierto: revocar una clave o el cliente completo. */
-type PendingConfirmation = { kind: 'key'; key: ApiClientKey } | { kind: 'client' } | null;
+type PendingConfirmation = { kind: 'client' } | null;
 
 /**
  * Canal de requerimientos vía Web Service (Fase 2, Ola J, M3-17; permiso `api-clients.manage`): clientes del canal por
@@ -84,7 +87,7 @@ type PendingConfirmation = { kind: 'key'; key: ApiClientKey } | { kind: 'client'
 @Component({
   selector: 'app-api-clients',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent],
   templateUrl: './api-clients.html',
   styles: [`
     :host { display: block; }
@@ -94,8 +97,10 @@ type PendingConfirmation = { kind: 'key'; key: ApiClientKey } | { kind: 'client'
 })
 export class ApiClientsComponent implements OnInit {
   private readonly service = inject(ApiClientService);
+  private readonly modal = inject(ModalService);
   private readonly organizations = inject(AdminOrganizationService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -156,6 +161,7 @@ export class ApiClientsComponent implements OnInit {
   log = signal<ApiClientRequestLog[]>([]);
   logTotal = signal(0);
   logPage = signal(1);
+  logPageSize = signal<number>(API_CLIENT_LIMITS.LOG_PAGE_SIZE);
   logLoading = signal(false);
   logError = signal('');
   operationFilter = signal('');
@@ -167,10 +173,6 @@ export class ApiClientsComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
-  }
-
-  get logPages(): number {
-    return Math.max(1, Math.ceil(this.logTotal() / API_CLIENT_LIMITS.LOG_PAGE_SIZE));
   }
 
   load(): void {
@@ -228,7 +230,7 @@ export class ApiClientsComponent implements OnInit {
     if (!s) return;
     const done = () => {
       this.copied.set(true);
-      this.announcer.announce(translate('admin.apiClients.secret.copied'));
+      this.toast.success(translate('admin.apiClients.secret.copied'));
     };
     const fail = () => this.announcer.announce(translate('admin.apiClients.secret.copyFailed'), 'assertive');
     try {
@@ -419,9 +421,17 @@ export class ApiClientsComponent implements OnInit {
     });
   }
 
-  askRevokeKey(key: ApiClientKey): void {
-    this.confirmation.set({ kind: 'key', key });
-    focusAfterRender(this.injector, () => document.getElementById('api-client-confirm-title'));
+  async askRevokeKey(key: ApiClientKey): Promise<void> {
+    this.confirmation.set(null);
+    const confirmed = await this.modal.confirm({
+      title: 'admin.apiClients.detail.keys.confirmTitle',
+      message: 'admin.apiClients.detail.keys.confirmText',
+      params: { prefix: key.prefix },
+      confirmLabel: 'admin.apiClients.detail.keys.confirm',
+      cancelLabel: 'admin.apiClients.detail.keys.keep',
+      tone: 'danger',
+    });
+    if (confirmed) this.confirmRevokeKey(key);
   }
 
   askRevokeClient(): void {
@@ -432,9 +442,8 @@ export class ApiClientsComponent implements OnInit {
   }
 
   cancelConfirmation(): void {
-    const pending = this.confirmation();
     this.confirmation.set(null);
-    focusAfterRender(this.injector, () => document.getElementById(pending?.kind === 'key' ? `api-key-revoke-${pending.key.id}` : 'api-client-revoke'));
+    focusAfterRender(this.injector, () => document.getElementById('api-client-revoke'));
   }
 
   confirmRevokeKey(key: ApiClientKey): void {
@@ -445,9 +454,8 @@ export class ApiClientsComponent implements OnInit {
     this.service.revokeKey(client.id, key.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (updated) => {
         this.acting.set(false);
-        this.confirmation.set(null);
         this.replaceClient(updated);
-        this.announcer.announce(translate('admin.apiClients.detail.keys.revoked', { prefix: key.prefix }));
+        this.toast.success(translate('admin.apiClients.detail.keys.revoked', { prefix: key.prefix }));
         focusAfterRender(this.injector, () => document.getElementById('api-client-keys-title'));
       },
       error: (err) => this.failDetail(err, 'admin.apiClients.detail.keys.revokeError', () => this.acting.set(false)),
@@ -492,7 +500,7 @@ export class ApiClientsComponent implements OnInit {
     if (!client) return;
     this.logLoading.set(true);
     this.logError.set('');
-    this.service.requests(client.id, this.logPage()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.requests(client.id, this.logPage(), this.logPageSize()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
         this.log.set(r.items);
         this.logTotal.set(r.total);
@@ -507,10 +515,15 @@ export class ApiClientsComponent implements OnInit {
     });
   }
 
-  changeLogPage(delta: number): void {
-    const next = this.logPage() + delta;
-    if (next < 1 || next > this.logPages) return;
-    this.logPage.set(next);
+  changeLogPage(page: number): void {
+    this.logPage.set(page);
+    this.loadLog();
+  }
+
+  /** Otro tamaño de página de la bitácora vuelve a la primera página. */
+  changeLogPageSize(size: number): void {
+    this.logPageSize.set(size);
+    this.logPage.set(1);
     this.loadLog();
   }
 

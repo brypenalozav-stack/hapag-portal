@@ -17,6 +17,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /**
  * Bandeja interna de organizaciones (M8-04, M8-06): registros por estado para validar al
@@ -27,7 +28,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
   standalone: true,
   imports: [
     FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlDatePipe,
-    CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
+    CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent,
   ],
   templateUrl: './organizations.html',
   styles: [':host { display: block; }'],
@@ -40,7 +41,7 @@ export class AdminOrganizationsComponent implements OnInit {
   readonly types = REGISTRABLE_ORGANIZATION_TYPES;
   readonly statusKeys = ORGANIZATION_STATUS_KEYS;
   readonly typeKeys = ORGANIZATION_TYPE_KEYS;
-  readonly pageSize = 20;
+  pageSize = signal(20);
 
   statusFilter: OrganizationStatus | '' = '';
   typeFilter: OrganizationType | '' = '';
@@ -58,10 +59,6 @@ export class AdminOrganizationsComponent implements OnInit {
     this.load();
   }
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.total() / this.pageSize));
-  }
-
   load(): void {
     this.loading.set(true);
     this.error.set('');
@@ -71,7 +68,7 @@ export class AdminOrganizationsComponent implements OnInit {
       organizationType: this.typeFilter,
       search: this.searchTerm.trim(),
       page: this.page(),
-      pageSize: this.pageSize,
+      pageSize: this.pageSize(),
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
@@ -97,10 +94,15 @@ export class AdminOrganizationsComponent implements OnInit {
     this.load();
   }
 
-  changePage(delta: number): void {
-    const next = this.page() + delta;
-    if (next < 1 || next > this.totalPages) return;
-    this.page.set(next);
+  changePage(page: number): void {
+    this.page.set(page);
+    this.load();
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.page.set(1);
     this.load();
   }
 }

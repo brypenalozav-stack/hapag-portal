@@ -18,6 +18,8 @@ import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../shared/payment-errors';
 import { focusAfterRender } from '../../shared/focus-after-render';
+import { ToastService } from '../../core/services/toast.service';
+import { PaymentLogoComponent } from '../../shared/components/payment-logo/payment-logo';
 
 /** Errores tras los cuales el intento terminó con certeza: el próximo usa una clave nueva. */
 const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotency.AlreadyExists']);
@@ -31,7 +33,7 @@ const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotenc
 @Component({
   selector: 'app-account-payments',
   standalone: true,
-  imports: [
+  imports: [PaymentLogoComponent, 
     RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
     PaymentBlockBannerComponent,
   ],
@@ -43,6 +45,7 @@ export class AccountPaymentsComponent implements OnInit {
   private readonly payments = inject(PaymentService);
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -260,7 +263,7 @@ export class AccountPaymentsComponent implements OnInit {
   }
 
   private afterCheckout(result: CheckoutResult): void {
-    this.announcer.announce(translate('accountPayments.checkout.created', { number: result.payment.paymentNumber }));
+    this.toast.success(translate('accountPayments.checkout.created', { number: result.payment.paymentNumber }));
     const url = result.nextAction === 'Redirect' ? result.redirectUrl : null;
     if (url && /^https?:\/\//i.test(url)) {
       window.location.assign(url);

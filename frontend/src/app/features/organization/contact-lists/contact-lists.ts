@@ -13,6 +13,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { adminErrorMessage } from '../../../shared/administration-errors';
+import { ToastService } from '../../../core/services/toast.service';
 
 const EMAIL = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
 
@@ -36,6 +37,7 @@ export function parseEmails(text: string): string[] {
 export class ContactListsComponent implements OnInit {
   private readonly service = inject(OrganizationNetworkService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -132,7 +134,7 @@ export class ContactListsComponent implements OnInit {
         this.saving.set(false);
         this.view.update((v) => (v ? { ...v, lists: [...v.lists.filter((l) => l.reportType !== type), list] } : v));
         this.editing.set(null);
-        this.announcer.announce(translate('organization.contactLists.saved', { type: translate(CONTACT_REPORT_TYPE_KEYS[type] ?? type), count: list.emails.length }));
+        this.toast.success(translate('organization.contactLists.saved', { type: translate(CONTACT_REPORT_TYPE_KEYS[type] ?? type), count: list.emails.length }));
         this.loadHistory();
       },
       error: (err) => {

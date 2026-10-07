@@ -18,6 +18,7 @@ import { ServiceInputValuesComponent } from './service-input-values';
 import { ServiceQuoteComponent } from './service-quote';
 import { ServiceRequestTimelineComponent } from './service-request-timeline';
 import { fieldLabel, fileSize, isOutput, serviceErrorMessage } from './service-text';
+import { ToastService } from '../../../core/services/toast.service';
 
 /**
  * Detalle de una solicitud de servicio, común al cliente y a la bandeja interna: estado y equipo, embarque, motivo del
@@ -36,6 +37,7 @@ export class ServiceRequestOverviewComponent {
   private readonly adminService = inject(AdminServiceRequestService);
   private readonly locale = inject(LocaleService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   request = input.required<ServiceRequestDetail>();
@@ -75,7 +77,7 @@ export class ServiceRequestOverviewComponent {
       next: (blob) => {
         this.downloading.set(null);
         saveBlob(blob, a.fileName);
-        this.announcer.announce(translate('serviceRequests.detail.attachments.downloaded', { name: a.fileName }));
+        this.toast.success(translate('serviceRequests.detail.attachments.downloaded', { name: a.fileName }));
       },
       error: (err) => {
         this.downloading.set(null);

@@ -18,6 +18,11 @@ import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
+import { ToastService } from '../../../core/services/toast.service';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /** Estados de pago que Finanzas puede anular: boleta emitida o pago en curso (M5-02). */
 const CANCELLABLE = ['PendingVerification', 'Processing', 'Pending'];
@@ -32,13 +37,14 @@ const CANCELLABLE = ['PendingVerification', 'Processing', 'Pending'];
 @Component({
   selector: 'app-payments-finance',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './payments-finance.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
 export class PaymentsFinanceComponent implements OnInit {
   private readonly service = inject(PaymentConfigService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -52,6 +58,18 @@ export class PaymentsFinanceComponent implements OnInit {
   // Operaciones (NF-03)
   operationStatus = '';
   operations = signal<PaymentOperation[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador de las operaciones pendientes. */
+  readonly operationsTable = new ClientTable(this.operations, {
+    searchText: (o) =>
+      [o.paymentNumber, codeText(o.jobType, this.jobKeys), codeText(o.status, this.operationStatusKeys), o.lastError].join(' '),
+    sortValues: {
+      payment: (o) => o.paymentNumber,
+      job: (o) => codeText(o.jobType, this.jobKeys),
+      status: (o) => codeText(o.status, this.operationStatusKeys),
+      attempts: (o) => o.attempts,
+      next: (o) => o.nextAttemptAt,
+    },
+  });
   operationsLoading = signal(true);
   operationsFailed = signal(false);
   operationsError = signal('');
@@ -60,6 +78,31 @@ export class PaymentsFinanceComponent implements OnInit {
   // Conciliación (NF-04)
   filters: ReconciliationSearch = { from: '', to: '', country: '', status: '' };
   reconciliation = signal<PaymentReconciliation[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador de la conciliación. */
+  readonly reconciliationTable = new ClientTable(this.reconciliation, {
+    searchText: (r) =>
+      [
+        r.paymentNumber,
+        r.country,
+        r.payerTaxId,
+        codeText(r.status, this.paymentStatusKeys),
+        r.method,
+        r.externalReference,
+        r.providerReference,
+        r.providerTransactionId,
+        r.receiptNumber,
+        r.slipNumber,
+        codeText(r.reconciliationStatus, this.reconciliationKeys),
+      ].join(' '),
+    sortValues: {
+      payment: (r) => r.paymentNumber,
+      status: (r) => codeText(r.status, this.paymentStatusKeys),
+      method: (r) => r.method,
+      total: (r) => r.totalAmount,
+      dates: (r) => r.createdAt,
+      reconciliation: (r) => codeText(r.reconciliationStatus, this.reconciliationKeys),
+    },
+  });
   reconciliationLoading = signal(true);
   reconciliationFailed = signal(false);
   reconciliationError = signal('');
@@ -105,7 +148,7 @@ export class PaymentsFinanceComponent implements OnInit {
       next: (updated) => {
         this.retrying.set(null);
         const status = translate(PAYMENT_OPERATION_STATUS_KEYS[updated.status] ?? 'common.paymentOperationStatus.pending');
-        this.announcer.announce(translate('admin.finance.operations.retried', { number: updated.paymentNumber, status }));
+        this.toast.success(translate('admin.finance.operations.retried', { number: updated.paymentNumber, status }));
         this.loadOperations();
       },
       error: (err) => {

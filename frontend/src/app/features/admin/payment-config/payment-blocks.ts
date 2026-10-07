@@ -18,6 +18,11 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ChangeLogComponent } from './change-log';
+import { ModalService } from '../../../core/services/modal.service';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /** Valor del selector de país para "todos los países" (country: null en la API). */
 const ALL_COUNTRIES = 'ALL';
@@ -61,12 +66,13 @@ function emptyForm(): WindowForm {
 @Component({
   selector: 'app-payment-blocks',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, ChangeLogComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, ChangeLogComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './payment-blocks.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
 export class PaymentBlocksComponent implements OnInit {
   private readonly service = inject(PaymentConfigService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -78,6 +84,18 @@ export class PaymentBlocksComponent implements OnInit {
   country = '';
   includeCancelled = false;
   windows = signal<PaymentBlockWindow[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre el resultado de la búsqueda. */
+  readonly table = new ClientTable(this.windows, {
+    searchText: (w) =>
+      [this.countryLabel(w.country), w.reason, w.clientMessage, codeText(w.status, this.statusKeys), w.startDate, w.endDate, w.modifiedBy ?? w.createdBy].join(' '),
+    sortValues: {
+      country: (w) => this.countryLabel(w.country),
+      window: (w) => `${w.startDate} ${w.startTime}`,
+      reason: (w) => w.reason,
+      status: (w) => codeText(w.status, this.statusKeys),
+      changed: (w) => w.modifiedAt ?? w.createdAt,
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');
@@ -216,7 +234,15 @@ export class PaymentBlocksComponent implements OnInit {
   }
 
   /** Cancela una ventana programada o termina antes una activa. */
-  cancelWindow(window: PaymentBlockWindow): void {
+  async cancelWindow(window: PaymentBlockWindow): Promise<void> {
+    const ending = window.status === 'Active';
+    const confirmed = await this.modal.confirm({
+      title: ending ? 'shared.modal.endBlock.title' : 'shared.modal.cancelBlock.title',
+      message: ending ? 'shared.modal.endBlock.message' : 'shared.modal.cancelBlock.message',
+      confirmLabel: ending ? 'shared.modal.endBlock.action' : 'shared.modal.cancelBlock.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.actionError.set('');
     this.service.cancelBlockWindow(window.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {

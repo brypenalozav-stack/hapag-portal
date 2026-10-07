@@ -34,6 +34,7 @@ import { ShipmentDocumentsComponent } from '../../documents/shipment-documents/s
 import { ShipmentIssuanceComponent } from '../shipment-issuance/shipment-issuance';
 import { ShipmentTatcComponent } from '../shipment-tatc/shipment-tatc';
 import { AvailableServicesComponent } from '../../service-requests/available-services/available-services';
+import { SectionNavComponent } from '../../../shared/components/section-nav/section-nav';
 
 /** Orígenes del acceso con los que se muestra la sección "Accesos" del BL. */
 const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
@@ -60,7 +61,7 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
   selector: 'app-shipment-detail',
   standalone: true,
   imports: [
-    RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, CodeLabelPipe,
+    SectionNavComponent, RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, CodeLabelPipe,
     StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
     AccessSourceBadgeComponent, ShipmentAccessComponent, ChargesPanelComponent, AddToCartDialogComponent,
     ShipmentDocumentsComponent, ShipmentIssuanceComponent, ShipmentTatcComponent, AvailableServicesComponent,

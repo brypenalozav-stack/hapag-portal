@@ -119,12 +119,9 @@
       </div>
     </div>
 
-    @if (totalPages() > 1) {
-      <nav class="d-flex align-items-center gap-2" [attr.aria-label]="'admin.serviceRequests.queue.pagination.label' | transloco">
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() <= 1" (click)="search(page() - 1)">{{ 'admin.serviceRequests.queue.pagination.previous' | transloco }}</button>
-        <span class="small">{{ 'admin.serviceRequests.queue.pagination.status' | transloco: { page: page(), pages: totalPages(), total: r.total } }}</span>
-        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="search(page() + 1)">{{ 'admin.serviceRequests.queue.pagination.next' | transloco }}</button>
-      </nav>
+    @if (totalPages() > 1 || pageSize() !== defaultPageSize) {
+      <app-paginator [page]="page()" [pageSize]="pageSize()" [total]="r.total" [label]="'admin.serviceRequests.queue.pagination.label' | transloco"
+                     idPrefix="service-request-queue-pager" (pageChange)="search($event)" (pageSizeChange)="changePageSize($event)" />
     } @else {
       <p class="small text-muted">{{ 'admin.serviceRequests.queue.count' | transloco: { count: r.total } }}</p>
     }

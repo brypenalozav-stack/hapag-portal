@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { OrganizationNetworkService } from '../../../core/services/organization-network.service';
-import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Código del registro cuando el correo o el RUT corresponden a un transportista pre-creado (M1-09). */
 export const PRE_CREATED_ACCOUNT_EXISTS = 'Registration.PreCreatedAccountExists';
@@ -37,7 +37,7 @@ export const PRE_CREATED_ACCOUNT_EXISTS = 'Registration.PreCreatedAccountExists'
 })
 export class PreCreatedNoticeComponent {
   private readonly service = inject(OrganizationNetworkService);
-  private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   /** Correo ingresado en el formulario, para reenviar la invitación. */
@@ -60,6 +60,6 @@ export class PreCreatedNoticeComponent {
   private done(): void {
     this.sending.set(false);
     this.sent.set(true);
-    this.announcer.announce(translate('auth.preCreated.resent'));
+    this.toast.success(translate('auth.preCreated.resent'));
   }
 }

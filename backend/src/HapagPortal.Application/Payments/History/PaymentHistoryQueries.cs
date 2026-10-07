@@ -27,7 +27,18 @@ public sealed record GetPaymentHistoryQuery(
     string? Status = null,
     string? BlNumber = null,
     int Page = 1,
-    int PageSize = 20) : IQuery<PagedResult<PaymentHistoryItemDto>>;
+    int PageSize = 20,
+    string? Sort = null,
+    string? Direction = null) : IQuery<PagedResult<PaymentHistoryItemDto>>
+{
+    /// <summary>Columnas por las que se puede ordenar el historial (<c>sort</c>, con <c>direction</c> asc|desc).</summary>
+    public static readonly SortMap<Domain.Entities.Payment> Sorts = new SortMap<Domain.Entities.Payment>()
+        .Add("paymentDate", p => p.PaymentDate)
+        .Add("paymentNumber", p => p.PaymentNumber)
+        .Add("totalAmount", p => p.TotalAmount)
+        .Add("currency", p => p.Currency)
+        .Add("status", p => p.Status);
+}
 
 public sealed record GetPaymentHistoryItemQuery(Guid PaymentId) : IQuery<PaymentHistoryItemDto>;
 
@@ -46,6 +57,13 @@ public sealed class GetPaymentHistoryQueryValidator : AbstractValidator<GetPayme
             .Must(s => s is null || PaymentStatus.All.Contains(s))
             .WithMessage("Status must be a valid payment status.");
         RuleFor(x => x.BlNumber).MaximumLength(50);
+        RuleFor(x => x.Sort)
+            .Must(GetPaymentHistoryQuery.Sorts.IsValid)
+            .WithMessage($"Sort must be one of: {string.Join(", ", GetPaymentHistoryQuery.Sorts.Names)}.");
+
+        RuleFor(x => x.Direction)
+            .Must(SortMap<Domain.Entities.Payment>.IsValidDirection)
+            .WithMessage("Direction must be 'asc' or 'desc'.");
         RuleFor(x => x)
             .Must(x => x.From is null || x.To is null || x.From <= x.To)
             .WithName("To")
@@ -193,8 +211,16 @@ public sealed class GetPaymentHistoryQueryHandler(
             query = query.Where(p => paymentIds.Contains(p.Id) || (p.BillOfLadingId != null && blIds.Contains(p.BillOfLadingId.Value)));
         }
 
-        var payments = (await query.OrderByDescending(p => p.PaymentDate).ToListAsync(cancellationToken))
+        var loaded = (await query.ToListAsync(cancellationToken))
             .Where(p => InPeriod(p, request.From, request.To))
+            .AsQueryable();
+        var payments = GetPaymentHistoryQuery.Sorts
+            .Apply(
+                loaded,
+                request.Sort,
+                request.Direction,
+                q => q.OrderByDescending(p => p.PaymentDate),
+                q => q.ThenByDescending(p => p.PaymentDate))
             .ToList();
 
         var page = payments

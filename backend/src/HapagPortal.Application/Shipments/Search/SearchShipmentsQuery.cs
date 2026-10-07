@@ -1,6 +1,7 @@
 namespace HapagPortal.Application.Shipments.Search;
 
 using FluentValidation;
+using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Common.Models;
@@ -31,7 +32,21 @@ public sealed record SearchShipmentsQuery(
     bool? Published = null,
     int Page = 1,
     int PageSize = 20,
-    Guid? OrganizationId = null) : IQuery<PagedResult<ShipmentListItemDto>>;
+    Guid? OrganizationId = null,
+    string? Sort = null,
+    string? Direction = null) : IQuery<PagedResult<ShipmentListItemDto>>
+{
+    /// <summary>Columnas por las que se puede ordenar el listado (<c>sort</c>, con <c>direction</c> asc|desc).</summary>
+    public static readonly SortMap<Domain.Entities.BillOfLading> Sorts = new SortMap<Domain.Entities.BillOfLading>()
+        .Add("blNumber", b => b.BLNumber)
+        .Add("bookingNumber", b => b.BookingNumber)
+        .Add("vessel", b => b.Vessel)
+        .Add("voyage", b => b.Voyage)
+        .Add("status", b => b.Status)
+        .Add("operation", b => b.ShipmentType)
+        .Add("country", b => b.Country)
+        .Add("eta", b => b.ETA ?? b.CreatedAt);
+}
 
 public sealed class SearchShipmentsQueryValidator : AbstractValidator<SearchShipmentsQuery>
 {
@@ -46,6 +61,14 @@ public sealed class SearchShipmentsQueryValidator : AbstractValidator<SearchShip
             .Must(c => CountryCodes.ValidCountries.Contains(c!.Trim().ToUpperInvariant()))
             .WithMessage("Country must be 'CL' or 'BO'.")
             .When(x => !string.IsNullOrWhiteSpace(x.Country));
+
+        RuleFor(x => x.Sort)
+            .Must(SearchShipmentsQuery.Sorts.IsValid)
+            .WithMessage($"Sort must be one of: {string.Join(", ", SearchShipmentsQuery.Sorts.Names)}.");
+
+        RuleFor(x => x.Direction)
+            .Must(SortMap<Domain.Entities.BillOfLading>.IsValidDirection)
+            .WithMessage("Direction must be 'asc' or 'desc'.");
     }
 }
 
@@ -136,9 +159,13 @@ public sealed class SearchShipmentsQueryHandler(
 
         var total = await query.CountAsync(cancellationToken);
 
-        var rows = await query
-            .OrderByDescending(b => b.ETA ?? b.CreatedAt)
-            .ThenBy(b => b.BLNumber)
+        var rows = await SearchShipmentsQuery.Sorts
+            .Apply(
+                query,
+                request.Sort,
+                request.Direction,
+                q => q.OrderByDescending(b => b.ETA ?? b.CreatedAt).ThenBy(b => b.BLNumber),
+                q => q.ThenBy(b => b.BLNumber))
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(b => new

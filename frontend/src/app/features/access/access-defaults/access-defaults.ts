@@ -22,6 +22,8 @@ import { GranteePickerComponent } from '../shared/grantee-picker';
 import { PermissionChecklistComponent } from '../shared/permission-checklist';
 import { PermissionsFormValue, basePermissions, explicitCodes, permissionsOf } from '../shared/access-form';
 import { GRANT_ERRORS } from '../shared/access-errors';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Formulario abierto: alta de un tercero por defecto o edición de uno existente. */
 type DefaultForm = { kind: 'new' } | { kind: 'edit'; item: DefaultGrantee };
@@ -42,7 +44,9 @@ type DefaultForm = { kind: 'new' } | { kind: 'edit'; item: DefaultGrantee };
 })
 export class AccessDefaultsComponent implements OnInit {
   private readonly service = inject(AccessService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly host = inject(ElementRef<HTMLElement>);
 
@@ -68,7 +72,6 @@ export class AccessDefaultsComponent implements OnInit {
   formError = signal('');
   saving = signal(false);
 
-  deleting = signal<DefaultGrantee | null>(null);
   deleteBusy = signal(false);
 
   ngOnInit(): void {
@@ -93,7 +96,6 @@ export class AccessDefaultsComponent implements OnInit {
   }
 
   openNew(): void {
-    this.deleting.set(null);
     this.grantee.set(null);
     this.permissions.set(basePermissions());
     this.durationDays.set(null);
@@ -105,7 +107,6 @@ export class AccessDefaultsComponent implements OnInit {
   }
 
   openEdit(item: DefaultGrantee): void {
-    this.deleting.set(null);
     this.grantee.set(null);
     this.permissions.set(permissionsOf(item.actionCodes));
     this.durationDays.set(item.durationDays);
@@ -199,28 +200,27 @@ export class AccessDefaultsComponent implements OnInit {
     });
   }
 
-  startDelete(item: DefaultGrantee): void {
+  async startDelete(item: DefaultGrantee): Promise<void> {
     this.form.set(null);
-    this.deleting.set(item);
-    this.focus('access-default-delete-title');
+    const confirmed = await this.modal.confirm({
+      title: 'thirdPartyAccess.defaults.deleteTitle',
+      message: 'thirdPartyAccess.defaults.deleteHelp',
+      params: { name: item.grantee.name },
+      confirmLabel: 'thirdPartyAccess.defaults.confirmDelete',
+      cancelLabel: 'thirdPartyAccess.defaults.cancel',
+      tone: 'danger',
+    });
+    if (confirmed) this.delete(item);
   }
 
-  cancelDelete(): void {
-    this.deleting.set(null);
-  }
-
-  confirmDelete(event: Event): void {
-    event.preventDefault();
-    const item = this.deleting();
-    if (!item) return;
+  private delete(item: DefaultGrantee): void {
     this.deleteBusy.set(true);
     this.actionError.set('');
     this.service.deleteDefault(item.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.deleteBusy.set(false);
-        this.deleting.set(null);
         this.items.update((list) => list.filter((d) => d.id !== item.id));
-        this.announcer.announce(translate('thirdPartyAccess.defaults.removed', { name: item.grantee.name }));
+        this.toast.success(translate('thirdPartyAccess.defaults.removed', { name: item.grantee.name }));
       },
       error: (err) => {
         this.deleteBusy.set(false);

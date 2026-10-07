@@ -141,22 +141,23 @@
   <app-state-message kind="empty" [messageKey]="'admin.internalRules.list.empty'" />
 } @else {
   <div class="hl-card mb-4">
+    <app-table-filter [table]="table" [totalOf]="rules().length" inputId="internal-rules-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.internalRules.list.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.internalRules.list.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'admin.internalRules.list.col.type' | transloco }}</th>
-            <th scope="col">{{ 'admin.internalRules.list.col.account' | transloco }}</th>
-            <th scope="col">{{ 'admin.internalRules.list.col.country' | transloco }}</th>
-            <th scope="col">{{ 'admin.internalRules.list.col.maxUses' | transloco }}</th>
-            <th scope="col">{{ 'admin.internalRules.list.col.validity' | transloco }}</th>
-            <th scope="col">{{ 'admin.internalRules.list.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="type" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.internalRules.list.col.type' | transloco }}</th>
+            <th scope="col" appSortHeader="account" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.internalRules.list.col.account' | transloco }}</th>
+            <th scope="col" appSortHeader="country" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.internalRules.list.col.country' | transloco }}</th>
+            <th scope="col" appSortHeader="maxUses" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.internalRules.list.col.maxUses' | transloco }}</th>
+            <th scope="col" appSortHeader="validity" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.internalRules.list.col.validity' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.internalRules.list.col.status' | transloco }}</th>
             <th scope="col"><span class="visually-hidden">{{ 'admin.internalRules.list.col.actions' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (rule of rules(); track rule.id) {
+          @for (rule of table.rows(); track rule.id) {
             <tr>
               <td class="fw-semibold">{{ rule.ruleType | codeLabel: typeKeys }}</td>
               <td>
@@ -192,10 +193,16 @@
                 </div>
               </td>
             </tr>
+          } @empty {
+            <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.internalRules.list.pagination' | transloco"
+                     idPrefix="internal-rules-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   </div>
 }
 

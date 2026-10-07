@@ -52,6 +52,8 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { serviceErrorMessage } from '../../service-requests/shared/service-text';
 import { ServiceDefinitionSnapshotComponent } from './service-definition-snapshot';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Opción de una selección en edición. */
 interface OptionRow {
@@ -191,8 +193,10 @@ function optional(text: string): string | null {
 })
 export class ServiceDefinitionEditorComponent implements OnInit {
   private readonly service = inject(ServiceDefinitionService);
+  private readonly modal = inject(ModalService);
   private readonly tariffs = inject(TariffService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -374,7 +378,7 @@ export class ServiceDefinitionEditorComponent implements OnInit {
       integer: false, helpEs: '', helpEn: '', options: [],
     }];
     const index = this.fields.length - 1;
-    this.announcer.announce(translate('admin.serviceDefinitions.editor.fields.added', { number: index + 1 }));
+    this.toast.success(translate('admin.serviceDefinitions.editor.fields.added', { number: index + 1 }));
     focusAfterRender(this.injector, () => document.getElementById(`def-field-${index}-key`));
   }
 
@@ -382,7 +386,7 @@ export class ServiceDefinitionEditorComponent implements OnInit {
     const name = this.fieldName(this.fields[index], index);
     this.fields = this.fields.filter((_, i) => i !== index);
     if (this.form.measureFieldKey && !this.fields.some((f) => f.key === this.form.measureFieldKey)) this.form.measureFieldKey = '';
-    this.announcer.announce(translate('admin.serviceDefinitions.editor.fields.removed', { name }));
+    this.toast.success(translate('admin.serviceDefinitions.editor.fields.removed', { name }));
     focusAfterRender(this.injector, () => document.getElementById(this.fields.length > 0 ? `def-field-${Math.min(index, this.fields.length - 1)}-key` : 'def-add-field'));
   }
 
@@ -419,14 +423,14 @@ export class ServiceDefinitionEditorComponent implements OnInit {
     field.options = [...field.options, { uid: this.nextUid++, value: '', labelEs: '', labelEn: '' }];
     const optionIndex = field.options.length - 1;
     if (focus) {
-      this.announcer.announce(translate('admin.serviceDefinitions.editor.options.added', { number: optionIndex + 1 }));
+      this.toast.success(translate('admin.serviceDefinitions.editor.options.added', { number: optionIndex + 1 }));
       focusAfterRender(this.injector, () => document.getElementById(`def-field-${fieldIndex}-option-${optionIndex}-value`));
     }
   }
 
   removeOption(field: FieldRow, fieldIndex: number, optionIndex: number): void {
     field.options = field.options.filter((_, i) => i !== optionIndex);
-    this.announcer.announce(translate('admin.serviceDefinitions.editor.options.removed', { number: optionIndex + 1 }));
+    this.toast.success(translate('admin.serviceDefinitions.editor.options.removed', { number: optionIndex + 1 }));
     focusAfterRender(this.injector, () => document.getElementById(`def-field-${fieldIndex}-add-option`));
   }
 
@@ -609,7 +613,14 @@ export class ServiceDefinitionEditorComponent implements OnInit {
   }
 
   /** Desactiva la definición; queda en el registro de cambios (NF-15). */
-  deactivate(): void {
+  async deactivate(): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.deactivateCurrent.title',
+      message: 'shared.modal.deactivateCurrent.message',
+      confirmLabel: 'shared.modal.deactivateCurrent.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     const id = this.id();
     if (!id) return;
     this.deactivating.set(true);
@@ -617,7 +628,7 @@ export class ServiceDefinitionEditorComponent implements OnInit {
     this.service.deactivate(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.deactivating.set(false);
-        this.announcer.announce(translate('admin.serviceDefinitions.editor.deactivated'));
+        this.toast.success(translate('admin.serviceDefinitions.editor.deactivated'));
         this.load();
       },
       error: (err) => {

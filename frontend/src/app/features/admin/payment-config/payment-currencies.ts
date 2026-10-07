@@ -16,6 +16,7 @@ import { StateMessageComponent, isServiceUnavailable } from '../../../shared/com
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ChangeLogComponent } from './change-log';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Campos del registro de cambios de una moneda habilitada. */
 const SNAPSHOT_KEYS: Record<string, string> = {
@@ -40,6 +41,7 @@ const SNAPSHOT_KEYS: Record<string, string> = {
 export class PaymentCurrenciesComponent implements OnInit {
   private readonly service = inject(PaymentConfigService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -133,7 +135,7 @@ export class PaymentCurrenciesComponent implements OnInit {
     this.service.setCurrencies(row.country, row.conceptCode, currencies).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.saving.set(false);
-        this.announcer.announce(translate('admin.paymentCurrencies.saved', { concept: this.conceptLabel(row) }));
+        this.toast.success(translate('admin.paymentCurrencies.saved', { concept: this.conceptLabel(row) }));
         this.editing.set(null);
         this.load();
         if (this.historyRow()?.conceptCode === row.conceptCode) this.openHistory(row);

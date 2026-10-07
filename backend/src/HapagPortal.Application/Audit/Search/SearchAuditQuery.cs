@@ -1,5 +1,7 @@
 namespace HapagPortal.Application.Audit.Search;
 
+using FluentValidation;
+using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Common.Models;
@@ -23,7 +25,31 @@ public sealed record SearchAuditQuery(
     DateTime? From,
     DateTime? To,
     int Page = 1,
-    int PageSize = 20) : IQuery<PagedResult<AuditLogDto>>;
+    int PageSize = 20,
+    string? Sort = null,
+    string? Direction = null) : IQuery<PagedResult<AuditLogDto>>
+{
+    /// <summary>Columnas por las que se puede ordenar el registro (<c>sort</c>, con <c>direction</c> asc|desc).</summary>
+    public static readonly SortMap<Domain.Entities.AuditLog> Sorts = new SortMap<Domain.Entities.AuditLog>()
+        .Add("timestamp", a => a.Timestamp)
+        .Add("entityName", a => a.EntityName)
+        .Add("action", a => a.Action)
+        .Add("userId", a => a.UserId);
+}
+
+public sealed class SearchAuditQueryValidator : AbstractValidator<SearchAuditQuery>
+{
+    public SearchAuditQueryValidator()
+    {
+        RuleFor(x => x.Sort)
+            .Must(SearchAuditQuery.Sorts.IsValid)
+            .WithMessage($"Sort must be one of: {string.Join(", ", SearchAuditQuery.Sorts.Names)}.");
+
+        RuleFor(x => x.Direction)
+            .Must(SortMap<Domain.Entities.AuditLog>.IsValidDirection)
+            .WithMessage("Direction must be 'asc' or 'desc'.");
+    }
+}
 
 public sealed class SearchAuditQueryHandler(IApplicationDbContext dbContext)
     : IQueryHandler<SearchAuditQuery, PagedResult<AuditLogDto>>
@@ -50,8 +76,13 @@ public sealed class SearchAuditQueryHandler(IApplicationDbContext dbContext)
 
         var total = await query.CountAsync(cancellationToken);
 
-        var items = await query
-            .OrderByDescending(a => a.Timestamp)
+        var items = await SearchAuditQuery.Sorts
+            .Apply(
+                query,
+                request.Sort,
+                request.Direction,
+                q => q.OrderByDescending(a => a.Timestamp),
+                q => q.ThenByDescending(a => a.Timestamp))
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(a => new AuditLogDto(

@@ -11,6 +11,10 @@ import { StateMessageComponent, isServiceUnavailable } from '../../../shared/com
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /**
  * Mantenedor de tarifas de cargos locales (M8-01) del portal interno: listado con filtros por país,
@@ -20,7 +24,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 @Component({
   selector: 'app-tariffs',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './tariffs.html',
   styles: [':host { display: block; }'],
 })
@@ -38,6 +42,19 @@ export class TariffsComponent implements OnInit {
 
   concepts = signal<ChargeConcept[]>([]);
   tariffs = signal<Tariff[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre el resultado de la búsqueda. */
+  readonly table = new ClientTable(this.tariffs, {
+    searchText: (t) => [codeText(t.conceptCode, this.conceptKeys), t.conceptCode, t.code, t.country, t.containerType, t.currency, t.amount].join(' '),
+    sortValues: {
+      concept: (t) => codeText(t.conceptCode, this.conceptKeys),
+      code: (t) => t.code,
+      country: (t) => t.country,
+      containerType: (t) => t.containerType,
+      value: (t) => t.amount,
+      validity: (t) => t.validFrom,
+      status: (t) => t.isActive,
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');

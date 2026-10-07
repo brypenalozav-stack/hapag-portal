@@ -38,6 +38,7 @@ import { HlDatePipe } from '../../pipes/hl-date.pipe';
 import { focusAfterRender } from '../../focus-after-render';
 import { saveBlob } from '../../save-blob';
 import { isServiceUnavailable } from '../state-message/state-message';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Conversación de la pestaña (M10-01): se recupera su historial al recargar mientras dure la sesión. */
 const SESSION_KEY = 'hl_assistant_session';
@@ -74,6 +75,7 @@ export class AssistantComponent {
   private readonly auth = inject(AuthService);
   private readonly documents = inject(DocumentService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -362,7 +364,7 @@ export class AssistantComponent {
     this.documents.downloadRelated(action.path).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (blob) => {
         saveBlob(blob, name);
-        this.announcer.announce(translate('shared.assistant.downloaded', { label: action.label }));
+        this.toast.success(translate('shared.assistant.downloaded', { label: action.label }));
       },
       error: (err) => {
         const message = translate(apiErrorKey(err, PORTAL_ERRORS, 'shared.assistant.errors.download'));
@@ -386,7 +388,7 @@ export class AssistantComponent {
         // Sin Content-Disposition legible, el número del documento (última palabra de la etiqueta) nombra el archivo.
         const fallback = `${action.label.trim().split(/\s+/).at(-1) || action.blNumber || 'documento'}.pdf`;
         saveBlob(file.blob, file.fileName ?? fallback);
-        this.announcer.announce(translate('shared.assistant.downloaded', { label: action.label }));
+        this.toast.success(translate('shared.assistant.downloaded', { label: action.label }));
       },
       error: (err) => {
         this.deliveryBusy.set(null);

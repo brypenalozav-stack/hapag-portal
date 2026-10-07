@@ -28,6 +28,7 @@ import { ServiceRequestPaymentComponent } from '../../service-requests/shared/se
 import { ServiceRequestTimelineComponent } from '../../service-requests/shared/service-request-timeline';
 import { ReinvoicingStep, ReinvoicingStepsComponent } from '../reinvoicing-steps';
 import { reinvoicingErrorMessage } from '../reinvoicing-text';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface FormError {
   fieldId: string;
@@ -56,6 +57,7 @@ export class ReinvoicingDetailComponent implements OnInit {
   private readonly requests = inject(ServiceRequestService);
   readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -256,7 +258,7 @@ export class ReinvoicingDetailComponent implements OnInit {
       next: (blob) => {
         this.downloading.set(null);
         saveBlob(blob, a.fileName);
-        this.announcer.announce(translate('reinvoicing.detail.approval.downloaded', { name: a.fileName }));
+        this.toast.success(translate('reinvoicing.detail.approval.downloaded', { name: a.fileName }));
       },
       error: (err) => {
         this.downloading.set(null);
@@ -269,7 +271,7 @@ export class ReinvoicingDetailComponent implements OnInit {
 
   onPaymentAdded(): void {
     const d = this.detail();
-    if (d) this.announcer.announce(translate('reinvoicing.detail.payment.added', { number: d.request.requestNumber }));
+    if (d) this.toast.success(translate('reinvoicing.detail.payment.added', { number: d.request.requestNumber }));
   }
 
   focusField(event: Event, fieldId: string): void {

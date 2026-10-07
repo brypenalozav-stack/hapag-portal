@@ -8,11 +8,15 @@ import { BillOfLadingService } from '../../core/services/bl.service';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
 import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
+import { ClientTable } from '../../shared/utils/client-table';
+import { TableFilterComponent } from '../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../shared/components/paginator/paginator';
 
 @Component({
   selector: 'app-service-orders',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslocoPipe, HlDatePipe, StatusBadgeComponent, LoadingSpinnerComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, HlDatePipe, StatusBadgeComponent, LoadingSpinnerComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './service-orders.html',
   styleUrl: './service-orders.scss',
 })
@@ -23,6 +27,17 @@ export class ServiceOrdersComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   orders = signal<ServiceOrder[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre las órdenes del cliente. */
+  readonly table = new ClientTable(this.orders, {
+    searchText: (o) => [o.orderNumber, o.blNumber, this.typeText(o.type), o.description, o.status].join(' '),
+    sortValues: {
+      number: (o) => o.orderNumber ?? o.id,
+      bl: (o) => o.blNumber,
+      type: (o) => this.typeText(o.type),
+      date: (o) => o.createdAt,
+      status: (o) => o.status,
+    },
+  });
   loading = signal(false);
   error = signal('');
   showForm = signal(false);
@@ -114,6 +129,12 @@ export class ServiceOrdersComponent implements OnInit {
   }
 
   /** Clave de traducción del tipo de orden; null si el tipo no tiene texto (se muestra tal cual). */
+  /** Texto del tipo de orden para buscar y ordenar. */
+  typeText(value: string): string {
+    const key = this.typeKey(value);
+    return key ? translate(key) : value;
+  }
+
   typeKey(value: string): string | null {
     return this.orderTypes.find((t) => t.value === value)?.labelKey ?? null;
   }

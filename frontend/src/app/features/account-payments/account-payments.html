@@ -139,7 +139,8 @@
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="account-payments-method" [id]="'account-method-' + method.code"
                        [checked]="methodCode() === method.code" (change)="selectMethod(method.code)" />
-                <label class="form-check-label" [for]="'account-method-' + method.code">
+                <label class="form-check-label d-inline-flex align-items-center gap-2" [for]="'account-method-' + method.code">
+                  <app-payment-logo [method]="method" />
                   {{ 'accountPayments.pay.methodOption' | transloco: { name: method.name, kind: (method.kind | codeLabel: kindKeys) } }}
                 </label>
               </div>

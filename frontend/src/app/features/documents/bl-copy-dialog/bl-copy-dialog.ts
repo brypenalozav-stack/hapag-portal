@@ -19,6 +19,7 @@ import { DocumentDelivery } from '../../../core/models/document.model';
 import { documentErrorMessage } from '../../../shared/document-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { saveBlob } from '../../../shared/save-blob';
+import { ToastService } from '../../../core/services/toast.service';
 
 type CopyVersion = 'valued' | 'nonValued';
 
@@ -44,6 +45,7 @@ const VERSION_KEYS: Record<CopyVersion, { name: string; help: string }> = {
 export class BlCopyDialogComponent implements AfterViewInit {
   private readonly service = inject(DocumentService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -134,7 +136,7 @@ export class BlCopyDialogComponent implements AfterViewInit {
     this.service.download(this.blNumber(), doc.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (blob) => {
         saveBlob(blob, doc.fileName);
-        this.announcer.announce(translate('documents.section.downloaded', { number: doc.documentNumber }));
+        this.toast.success(translate('documents.section.downloaded', { number: doc.documentNumber }));
       },
       error: (err) => {
         const message = documentErrorMessage(err, 'documents.section.downloadError');

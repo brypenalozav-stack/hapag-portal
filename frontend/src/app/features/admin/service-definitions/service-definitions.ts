@@ -16,6 +16,10 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { localized, serviceErrorMessage } from '../../service-requests/shared/service-text';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /**
  * Mantenedor de servicios on demand (M2-03, M2-04; permiso `maintainers.manage`): definiciones por país y operación,
@@ -25,7 +29,7 @@ import { localized, serviceErrorMessage } from '../../service-requests/shared/se
 @Component({
   selector: 'app-service-definitions',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, LoadingSpinnerComponent, StateMessageComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './service-definitions.html',
   styles: [':host { display: block; }'],
 })
@@ -44,6 +48,26 @@ export class ServiceDefinitionsComponent implements OnInit {
   includeInactive = false;
 
   definitions = signal<ServiceDefinition[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre el resultado de la búsqueda. */
+  readonly table = new ClientTable(this.definitions, {
+    searchText: (d) =>
+      [
+        this.name(d),
+        d.code,
+        d.operations.map((op) => codeText(op, this.operationKeys)).join(' '),
+        d.countries.join(' '),
+        codeText(d.pricingMode, this.pricingKeys),
+        codeText(d.chargeConceptCode, this.conceptKeys),
+        codeText(d.approvalTeam, this.teamKeys),
+        codeText(d.fulfillmentTeam, this.teamKeys),
+      ].join(' '),
+    sortValues: {
+      order: (d) => d.displayOrder,
+      service: (d) => this.name(d),
+      pricing: (d) => codeText(d.pricingMode, this.pricingKeys),
+      status: (d) => d.isActive,
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   error = signal('');

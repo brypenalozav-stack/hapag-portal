@@ -18,6 +18,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { localized, serviceErrorMessage } from '../../service-requests/shared/service-text';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 const PAGE_SIZE = 20;
 
@@ -42,7 +43,7 @@ function emptyFilters(): QueueFilters {
 @Component({
   selector: 'app-service-request-queue',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, PaginatorComponent],
   templateUrl: './service-request-queue.html',
   styles: [':host { display: block; }'],
 })
@@ -61,6 +62,9 @@ export class ServiceRequestQueueComponent implements OnInit {
 
   filters: QueueFilters = emptyFilters();
   page = signal(1);
+  pageSize = signal(PAGE_SIZE);
+  /** Con el tamaño por defecto y una sola página se muestra solo el total. */
+  readonly defaultPageSize = PAGE_SIZE;
   result = signal<PagedResult<ServiceRequestSummary> | null>(null);
   loading = signal(true);
   loadFailed = signal(false);
@@ -87,7 +91,7 @@ export class ServiceRequestQueueComponent implements OnInit {
     this.loadFailed.set(false);
     this.error.set('');
     this.actionableOnly.set(!this.filters.status && !this.filters.blNumber.trim());
-    this.service.list({ ...this.filters, page, pageSize: PAGE_SIZE }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.list({ ...this.filters, page, pageSize: this.pageSize() }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.result.set(result);
         this.loading.set(false);
@@ -98,6 +102,12 @@ export class ServiceRequestQueueComponent implements OnInit {
         else this.error.set(serviceErrorMessage(err, 'admin.serviceRequests.queue.loadError'));
       },
     });
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.search(1);
   }
 
   clearFilters(): void {

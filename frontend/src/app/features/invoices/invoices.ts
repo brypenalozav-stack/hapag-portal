@@ -18,7 +18,6 @@ import {
 } from '../../core/models/invoice.model';
 import { PAYMENT_CURRENCIES } from '../../core/models/payment-config.model';
 import { INVOICE_DOCUMENT_TYPE_KEYS, INVOICE_STATUS_CLASS, INVOICE_STATUS_KEYS } from '../../core/i18n/labels';
-import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../shared/components/state-message/state-message';
 import { AddToCartDialogComponent, AddToCartTarget } from '../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
 import { CodeLabelPipe } from '../../shared/pipes/code-label.pipe';
@@ -26,6 +25,10 @@ import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../shared/payment-errors';
 import { saveBlob } from '../../shared/save-blob';
+import { ToastService } from '../../core/services/toast.service';
+import { PaginatorComponent } from '../../shared/components/paginator/paginator';
+import { SortHeaderComponent, SortState, sortParams } from '../../shared/components/sort-header/sort-header';
+import { TableSkeletonComponent } from '../../shared/components/table-skeleton/table-skeleton';
 
 const PAGE_SIZE = 20;
 
@@ -56,8 +59,8 @@ function emptyFilters(): InvoiceFilters {
   selector: 'app-invoices',
   standalone: true,
   imports: [
-    FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
-    AddToCartDialogComponent,
+    FormsModule, RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, StateMessageComponent,
+    AddToCartDialogComponent, PaginatorComponent, SortHeaderComponent, TableSkeletonComponent,
   ],
   templateUrl: './invoices.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
@@ -67,6 +70,7 @@ export class InvoicesComponent implements OnInit {
   readonly cart = inject(CartService);
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly statusKeys = INVOICE_STATUS_KEYS;
@@ -80,6 +84,11 @@ export class InvoicesComponent implements OnInit {
   organizationId = '';
   filters: InvoiceFilters = emptyFilters();
   page = signal(1);
+  pageSize = signal(PAGE_SIZE);
+  /** Con el tamaño por defecto y una sola página se muestra solo el total. */
+  readonly defaultPageSize = PAGE_SIZE;
+  /** Orden por columna; `null` es el orden por defecto del servidor. */
+  sort = signal<SortState | null>(null);
 
   list = signal<InvoiceList | null>(null);
   loading = signal(true);
@@ -122,7 +131,8 @@ export class InvoicesComponent implements OnInit {
       organizationId: this.organizationId || undefined,
       ...this.filters,
       page,
-      pageSize: PAGE_SIZE,
+      pageSize: this.pageSize(),
+      ...sortParams(this.sort()),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (list) => {
         this.list.set(list);
@@ -136,6 +146,18 @@ export class InvoicesComponent implements OnInit {
         else this.error.set(paymentErrorMessage(err, 'invoices.errors.load'));
       },
     });
+  }
+
+  /** Otro tamaño de página vuelve a la primera página. */
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.search(1);
+  }
+
+  /** Otro orden vuelve a la primera página. */
+  onSort(sort: SortState | null): void {
+    this.sort.set(sort);
+    this.search(1);
   }
 
   /** La información no se mezcla entre organizaciones: cambiar de organización vuelve a consultar. */
@@ -198,7 +220,7 @@ export class InvoicesComponent implements OnInit {
     this.service.downloadPdf(invoice.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (blob) => {
         saveBlob(blob, `factura-${this.label(invoice)}.pdf`);
-        this.announcer.announce(translate('invoices.download.pdfDone', { number: this.label(invoice) }));
+        this.toast.success(translate('invoices.download.pdfDone', { number: this.label(invoice) }));
       },
       error: (err) => this.fail(err, 'invoices.download.error'),
     });
@@ -214,7 +236,7 @@ export class InvoicesComponent implements OnInit {
       next: (blob) => {
         this.downloading.set(false);
         saveBlob(blob, 'facturas.zip');
-        this.announcer.announce(translate('invoices.download.zipDone', { count: ids.length }));
+        this.toast.success(translate('invoices.download.zipDone', { count: ids.length }));
       },
       error: (err) => {
         this.downloading.set(false);

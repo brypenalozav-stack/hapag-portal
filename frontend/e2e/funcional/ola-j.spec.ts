@@ -306,13 +306,17 @@ test('canal Web Service: rotación con gracia, revocación de una clave y del cl
     if (r.method() === 'POST' && /\/keys\/[^/]+\/revoke$/.test(r.url())) revocaciones++;
   });
   await detalle.getByRole('button', { name: `Revocar la clave ${CLIENTE_WS.prefijo}` }).click();
-  await expect(detalle.getByTestId('api-key-confirm')).toContainText(`¿Revocar la clave ${CLIENTE_WS.prefijo}?`);
-  await expect(page.locator('#api-client-confirm-title')).toBeFocused();
-  await detalle.getByRole('button', { name: 'No, mantenerla' }).click();
-  await expect(detalle.getByTestId('api-key-confirm')).toHaveCount(0);
+  // La confirmación es un modal: abre con el foco en "No, mantenerla" y, al cerrarlo, el foco vuelve al botón.
+  const modal = page.getByTestId('app-modal');
+  const revocarClave = detalle.getByRole('button', { name: `Revocar la clave ${CLIENTE_WS.prefijo}` });
+  await expect(modal.getByRole('heading')).toHaveText(`¿Revocar la clave ${CLIENTE_WS.prefijo}?`);
+  await expect(modal.getByRole('button', { name: 'No, mantenerla' })).toBeFocused();
+  await modal.getByRole('button', { name: 'No, mantenerla' }).click();
+  await expect(modal).toBeHidden();
+  await expect(revocarClave).toBeFocused();
   expect(revocaciones).toBe(0);
-  await detalle.getByRole('button', { name: `Revocar la clave ${CLIENTE_WS.prefijo}` }).click();
-  await detalle.getByTestId('api-key-confirm-yes').click();
+  await revocarClave.click();
+  await modal.getByTestId('app-modal-confirm').click();
   await expect(page.locator(POLITE)).toContainText(`Clave ${CLIENTE_WS.prefijo} revocada.`);
   await expect(detalle.getByTestId(`api-key-${CLIENTE_WS.prefijo}`)).toContainText('Sin uso posible');
   expect(revocaciones).toBe(1);

@@ -855,8 +855,8 @@ const PANTALLAS_OLA_J: { id: string; ruta: string; sesion: Sesion; preparar?: (p
     preparar: async (page) => {
       await abrirClienteWs(page);
       await page.locator('#api-key-revoke-k5000000-0000-4000-8000-000000000001').click();
-      await expect(page.getByTestId('api-key-confirm')).toBeVisible();
-      await expect(page.locator('#api-client-confirm-title')).toBeFocused();
+      await expect(page.getByTestId('app-modal')).toBeVisible();
+      await expect(page.getByTestId('app-modal-cancel')).toBeFocused();
     },
   },
 ];
@@ -1085,6 +1085,7 @@ async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opc
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
 }
 

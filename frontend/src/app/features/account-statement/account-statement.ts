@@ -51,6 +51,7 @@ import { focusAfterRender } from '../../shared/focus-after-render';
 import { saveBlob } from '../../shared/save-blob';
 import { StatementCheckoutComponent } from './statement-checkout/statement-checkout';
 import { agingBucketLabel, lineConcept, totalsByCurrency } from './statement-text';
+import { ToastService } from '../../core/services/toast.service';
 
 interface StatementFilterForm {
   blNumber: string;
@@ -113,6 +114,7 @@ export class AccountStatementComponent implements OnInit {
   private readonly payments = inject(PaymentService);
   private readonly locale = inject(LocaleService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -328,7 +330,7 @@ export class AccountStatementComponent implements OnInit {
       next: (result) => {
         this.adding.set(false);
         this.batchResult.set(result);
-        this.announcer.announce(translate('accountStatement.cart.added', { count: result.addedCount }));
+        this.toast.success(translate('accountStatement.cart.added', { count: result.addedCount }));
         focusAfterRender(this.injector, () => this.batchHeading()?.nativeElement);
         this.search();
       },

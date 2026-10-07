@@ -14,6 +14,8 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { adminErrorMessage } from '../../../shared/administration-errors';
 import { ChangeLogComponent } from '../payment-config/change-log';
+import { ModalService } from '../../../core/services/modal.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface GuideForm {
   code: string;
@@ -72,7 +74,9 @@ function emptyForm(): GuideForm {
 })
 export class GuidesAdminComponent implements OnInit {
   private readonly service = inject(GuideService);
+  private readonly modal = inject(ModalService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -240,11 +244,19 @@ export class GuidesAdminComponent implements OnInit {
     });
   }
 
-  remove(g: GuideDefinition): void {
+  async remove(g: GuideDefinition): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'shared.modal.remove.title',
+      message: 'shared.modal.remove.message',
+      params: { name: g.nameEs },
+      confirmLabel: 'shared.modal.remove.action',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     this.actionError.set('');
     this.service.remove(g.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.announcer.announce(translate('admin.guides.removed', { name: g.nameEs }));
+        this.toast.success(translate('admin.guides.removed', { name: g.nameEs }));
         this.load();
       },
       error: (err) => {

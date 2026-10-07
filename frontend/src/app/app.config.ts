@@ -6,7 +6,7 @@ import {
   provideAppInitializer,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withPreloading } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideTransloco } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
@@ -14,11 +14,13 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 import { LocaleService } from './core/services/locale.service';
+import { IdlePreloadingStrategy } from './core/routing/idle-preloading.strategy';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withComponentInputBinding()),
+    // Las pantallas más usadas se precargan cuando el navegador está desocupado (data.preload).
+    provideRouter(routes, withComponentInputBinding(), withPreloading(IdlePreloadingStrategy)),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideTransloco({
       config: {

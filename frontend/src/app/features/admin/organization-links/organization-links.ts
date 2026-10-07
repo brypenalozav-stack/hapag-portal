@@ -12,6 +12,11 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { adminErrorMessage } from '../../../shared/administration-errors';
+import { ToastService } from '../../../core/services/toast.service';
+import { ClientTable, codeText } from '../../../shared/utils/client-table';
+import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 /**
  * Revisión interna de las vinculaciones con la empresa matriz (Fase 2, Ola I, M1-21; permiso `organizations.review`):
@@ -21,13 +26,14 @@ import { adminErrorMessage } from '../../../shared/administration-errors';
 @Component({
   selector: 'app-organization-links',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent],
+  imports: [FormsModule, TranslocoPipe, CodeLabelPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './organization-links.html',
   styles: [':host { display: block; }'],
 })
 export class OrganizationLinksComponent implements OnInit {
   private readonly service = inject(OrganizationNetworkService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -38,6 +44,28 @@ export class OrganizationLinksComponent implements OnInit {
 
   status = 'Pending';
   links = signal<ParentLink[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre el resultado de la búsqueda. */
+  readonly table = new ClientTable(this.links, {
+    searchText: (l) =>
+      [
+        l.organization.name,
+        l.organization.country,
+        codeText(l.organization.organizationType, this.typeKeys),
+        l.parent.name,
+        l.parent.country,
+        codeText(l.parent.organizationType, this.typeKeys),
+        l.requestedBy,
+        l.notes,
+        codeText(l.status, this.statusKeys),
+        l.decisionNotes,
+      ].join(' '),
+    sortValues: {
+      organization: (l) => l.organization.name,
+      parent: (l) => l.parent.name,
+      requested: (l) => l.requestedAt,
+      status: (l) => codeText(l.status, this.statusKeys),
+    },
+  });
   loading = signal(true);
   loadFailed = signal(false);
   actionError = signal('');
@@ -77,7 +105,7 @@ export class OrganizationLinksComponent implements OnInit {
     this.service.approveParentLink(link.id, this.notesFor[link.id]?.trim() || undefined).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.busyId.set(null);
-        this.announcer.announce(translate('admin.organizationLinks.approved', { organization: link.organization.name, parent: link.parent.name }));
+        this.toast.success(translate('admin.organizationLinks.approved', { organization: link.organization.name, parent: link.parent.name }));
         this.load();
       },
       error: (err) => this.fail(err),
@@ -110,7 +138,7 @@ export class OrganizationLinksComponent implements OnInit {
       next: () => {
         this.busyId.set(null);
         this.rejecting.set(null);
-        this.announcer.announce(translate('admin.organizationLinks.rejected', { organization: link.organization.name }));
+        this.toast.success(translate('admin.organizationLinks.rejected', { organization: link.organization.name }));
         this.load();
       },
       error: (err) => this.fail(err),

@@ -1,8 +1,8 @@
-import { Component, DestroyRef, computed, inject, input, output, signal, OnInit } from '@angular/core';
+import { Component, DestroyRef, ElementRef, computed, inject, input, output, signal, viewChild, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
-import { switchMap } from 'rxjs';
+import { filter, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -10,6 +10,7 @@ import { OrganizationService } from '../../../core/services/organization.service
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { CartService } from '../../../core/services/cart.service';
 import { THEME_PREFERENCES, ThemePreference, ThemeService } from '../../../core/services/theme.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-navbar',
@@ -17,6 +18,10 @@ import { THEME_PREFERENCES, ThemePreference, ThemeService } from '../../../core/
   imports: [RouterLink, TranslocoPipe],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
+  host: {
+    '(document:click)': 'onDocumentClick($event)',
+    '(document:keydown.escape)': 'onEscape()',
+  },
 })
 export class NavbarComponent implements OnInit {
   readonly auth = inject(AuthService);
@@ -34,6 +39,7 @@ export class NavbarComponent implements OnInit {
   };
   private readonly organizations = inject(OrganizationService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   /** Estado del menú lateral móvil, para `aria-expanded` del botón de menú. */
   sidebarOpen = input(false);
@@ -67,7 +73,7 @@ export class NavbarComponent implements OnInit {
       next: () => {
         this.changingCountry.set(false);
         const name = translate(country === 'BO' ? 'common.country.bo' : 'common.country.cl');
-        this.announcer.announce(translate('shared.navbar.country.changed', { country: name }));
+        this.toast.success(translate('shared.navbar.country.changed', { country: name }));
       },
       error: () => {
         this.changingCountry.set(false);
@@ -76,11 +82,44 @@ export class NavbarComponent implements OnInit {
     });
   }
 
+  /** Menú del usuario (correo, organización, perfil y salir). */
+  readonly userMenuOpen = signal(false);
+  private readonly userMenuButton = viewChild<ElementRef<HTMLButtonElement>>('userMenuButton');
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  constructor() {
+    // Elegir una opción navega: el menú se cierra con la navegación.
+    inject(Router)
+      .events.pipe(filter((e) => e instanceof NavigationEnd), takeUntilDestroyed())
+      .subscribe(() => this.userMenuOpen.set(false));
+  }
+
+  toggleUserMenu(): void {
+    this.userMenuOpen.update((open) => !open);
+  }
+
+  closeUserMenu(): void {
+    this.userMenuOpen.set(false);
+  }
+
+  onDocumentClick(event: MouseEvent): void {
+    if (this.userMenuOpen() && !this.host.nativeElement.querySelector('.hl-user-menu')?.contains(event.target as Node)) {
+      this.userMenuOpen.set(false);
+    }
+  }
+
+  /** Esc cierra el menú y devuelve el foco a su botón (WCAG 2.1.2). */
+  onEscape(): void {
+    if (!this.userMenuOpen()) return;
+    this.userMenuOpen.set(false);
+    this.userMenuButton()?.nativeElement.focus();
+  }
+
   /** Cambia el tema y lo anuncia; la preferencia se conserva entre sesiones (hl_theme). */
   onTheme(event: Event): void {
     const preference = (event.target as HTMLSelectElement).value as ThemePreference;
     this.themes.setPreference(preference);
-    this.announcer.announce(translate('shared.navbar.theme.changed', { theme: translate(this.themeKeys[preference]) }));
+    this.toast.success(translate('shared.navbar.theme.changed', { theme: translate(this.themeKeys[preference]) }));
   }
 
   logout(): void {

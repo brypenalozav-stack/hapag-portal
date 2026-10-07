@@ -150,8 +150,13 @@
           @for (m of methods(); track m.id) {
             <tr>
               <td>
-                <span class="fw-semibold d-block">{{ m.name }}</span>
-                <span class="small text-muted">{{ m.code }}</span>
+                <div class="d-flex align-items-center gap-2">
+                  <app-payment-logo [method]="m" />
+                  <div>
+                    <span class="fw-semibold d-block">{{ m.name }}</span>
+                    <span class="small text-muted">{{ m.code }}</span>
+                  </div>
+                </div>
               </td>
               <td>{{ m.kind | codeLabel: kindKeys }}</td>
               <td>{{ m.providerKey ?? '—' }}</td>

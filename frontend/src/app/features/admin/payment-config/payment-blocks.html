@@ -110,22 +110,23 @@
   <app-state-message kind="empty" [messageKey]="'admin.paymentBlocks.empty'" />
 } @else {
   <div class="hl-card mb-4">
+    <app-table-filter [table]="table" [totalOf]="windows().length" inputId="payment-blocks-table-filter" />
     <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.paymentBlocks.caption' | transloco">
       <table class="hl-table">
         <caption class="visually-hidden">{{ 'admin.paymentBlocks.caption' | transloco }}</caption>
         <thead>
           <tr>
-            <th scope="col">{{ 'admin.paymentBlocks.col.country' | transloco }}</th>
-            <th scope="col">{{ 'admin.paymentBlocks.col.window' | transloco }}</th>
-            <th scope="col">{{ 'admin.paymentBlocks.col.reason' | transloco }}</th>
+            <th scope="col" appSortHeader="country" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.paymentBlocks.col.country' | transloco }}</th>
+            <th scope="col" appSortHeader="window" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.paymentBlocks.col.window' | transloco }}</th>
+            <th scope="col" appSortHeader="reason" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.paymentBlocks.col.reason' | transloco }}</th>
             <th scope="col">{{ 'admin.paymentBlocks.col.message' | transloco }}</th>
-            <th scope="col">{{ 'admin.paymentBlocks.col.status' | transloco }}</th>
-            <th scope="col">{{ 'admin.paymentBlocks.col.changed' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.paymentBlocks.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="changed" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.paymentBlocks.col.changed' | transloco }}</th>
             <th scope="col"><span class="visually-hidden">{{ 'admin.paymentBlocks.col.actions' | transloco }}</span></th>
           </tr>
         </thead>
         <tbody>
-          @for (w of windows(); track w.id) {
+          @for (w of table.rows(); track w.id) {
             <tr>
               <td>{{ countryLabel(w.country) }}</td>
               <td>
@@ -155,10 +156,16 @@
                 </div>
               </td>
             </tr>
+          } @empty {
+            <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.paymentBlocks.pagination' | transloco"
+                     idPrefix="payment-blocks-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
   </div>
 }
 

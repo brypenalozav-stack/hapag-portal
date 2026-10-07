@@ -24,6 +24,7 @@ import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { parseBulkLines } from './bulk-lines';
 import { focusAfterRender } from '../../shared/focus-after-render';
 import { AddToCartDialogComponent, AddToCartTarget } from '../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
+import { ToastService } from '../../core/services/toast.service';
 
 interface FormError {
   fieldId: string;
@@ -67,6 +68,7 @@ export class WarehouseComponent implements OnInit {
   private readonly service = inject(WarehouseChangeService);
   private readonly shipmentService = inject(ShipmentService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   readonly cart = inject(CartService);
   private readonly destroyRef = inject(DestroyRef);
@@ -339,7 +341,7 @@ export class WarehouseComponent implements OnInit {
     if (selected.length === 0) return;
     this.appendLines(selected);
     this.selectedShipments.set(new Set());
-    this.announcer.announce(translate('warehouse.bulk.shipments.added', { count: selected.length }));
+    this.toast.success(translate('warehouse.bulk.shipments.added', { count: selected.length }));
   }
 
   private appendLines(lines: string[]): void {
@@ -360,7 +362,7 @@ export class WarehouseComponent implements OnInit {
     this.service.submitBulk(this.parsed().items).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (batch) => {
         this.bulkBusy.set(false);
-        this.announcer.announce(translate('warehouse.bulk.submitted', { count: batch.totalItems }));
+        this.toast.success(translate('warehouse.bulk.submitted', { count: batch.totalItems }));
         this.router.navigate(['/warehouse/bulk', batch.id]);
       },
       error: (err) => {

@@ -18,6 +18,7 @@ import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ServiceRequestOverviewComponent } from '../shared/service-request-overview';
 import { ServiceRequestPaymentComponent } from '../shared/service-request-payment';
 import { fieldLabel, localized, serviceErrorMessage } from '../shared/service-text';
+import { ToastService } from '../../../core/services/toast.service';
 
 /**
  * Detalle de una solicitud de servicio del cliente: estado, datos, cobro, adjuntos y línea de tiempo (M3-12, M3-13);
@@ -38,6 +39,7 @@ export class ServiceRequestDetailComponent implements OnInit {
   private readonly service = inject(ServiceRequestService);
   private readonly locale = inject(LocaleService);
   private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -182,6 +184,6 @@ export class ServiceRequestDetailComponent implements OnInit {
 
   onPaymentAdded(): void {
     const r = this.request();
-    if (r) this.announcer.announce(translate('serviceRequests.detail.payment.added', { number: r.requestNumber }));
+    if (r) this.toast.success(translate('serviceRequests.detail.payment.added', { number: r.requestNumber }));
   }
 }

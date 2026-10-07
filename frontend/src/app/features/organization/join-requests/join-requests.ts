@@ -3,13 +3,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { OrganizationService } from '../../../core/services/organization.service';
-import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { JoinRequest, ORGANIZATION_PROFILES, OrganizationProfile } from '../../../core/models/organization.model';
 import { ORGANIZATION_PROFILE_KEYS } from '../../../core/i18n/labels';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
+import { ToastService } from '../../../core/services/toast.service';
 
 /**
  * Bandeja de solicitudes de vinculación a la organización (M1-08): el administrador aprueba
@@ -23,7 +23,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 })
 export class JoinRequestsComponent implements OnInit {
   private readonly service = inject(OrganizationService);
-  private readonly announcer = inject(LiveAnnouncerService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly profiles = ORGANIZATION_PROFILES;
@@ -76,7 +76,7 @@ export class JoinRequestsComponent implements OnInit {
       next: () => {
         this.busy.set(null);
         this.remove(request);
-        this.announcer.announce(translate('organization.joinRequests.approved', { name: request.fullName }));
+        this.toast.success(translate('organization.joinRequests.approved', { name: request.fullName }));
       },
       error: () => {
         this.busy.set(null);
@@ -106,7 +106,7 @@ export class JoinRequestsComponent implements OnInit {
         this.busy.set(null);
         this.rejecting.set(null);
         this.remove(request);
-        this.announcer.announce(translate('organization.joinRequests.rejected', { name: request.fullName }));
+        this.toast.success(translate('organization.joinRequests.rejected', { name: request.fullName }));
       },
       error: () => {
         this.busy.set(null);

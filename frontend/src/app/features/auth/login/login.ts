@@ -27,6 +27,8 @@ const LOGIN_ERRORS: Record<string, string> = {
   styleUrl: './login.scss',
 })
 export class LoginComponent {
+  /** Año del aviso de derechos. */
+  readonly year = new Date().getFullYear();
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);

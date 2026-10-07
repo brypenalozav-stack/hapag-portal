@@ -85,17 +85,24 @@
           </div>
         </div>
 
+        @if (transmissions().length > 0) {
+          <app-table-filter [table]="table" [totalOf]="transmissions().length" inputId="customs-transmissions-table-filter" />
+        }
         <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.customs.transmissions.caption' | transloco">
           <table class="hl-table">
             <caption class="visually-hidden">{{ 'admin.customs.transmissions.caption' | transloco }}</caption>
             <thead>
               <tr>
-                <th scope="col">{{ 'admin.customs.transmissions.col.stage' | transloco }}</th><th scope="col">{{ 'admin.customs.transmissions.col.kind' | transloco }}</th><th scope="col">{{ 'admin.customs.transmissions.col.bl' | transloco }}</th><th scope="col">{{ 'admin.customs.transmissions.col.status' | transloco }}</th>
-                <th scope="col">{{ 'admin.customs.transmissions.col.attempts' | transloco }}</th><th scope="col">{{ 'admin.customs.transmissions.col.ack' | transloco }}</th><th scope="col"><span class="visually-hidden">{{ 'admin.customs.transmissions.col.actions' | transloco }}</span></th>
+                <th scope="col" appSortHeader="stage" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.customs.transmissions.col.stage' | transloco }}</th>
+                <th scope="col" appSortHeader="kind" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.customs.transmissions.col.kind' | transloco }}</th>
+                <th scope="col" appSortHeader="bl" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.customs.transmissions.col.bl' | transloco }}</th>
+                <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.customs.transmissions.col.status' | transloco }}</th>
+                <th scope="col" appSortHeader="attempts" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.customs.transmissions.col.attempts' | transloco }}</th>
+                <th scope="col">{{ 'admin.customs.transmissions.col.ack' | transloco }}</th><th scope="col"><span class="visually-hidden">{{ 'admin.customs.transmissions.col.actions' | transloco }}</span></th>
               </tr>
             </thead>
             <tbody>
-              @for (t of transmissions(); track t.id) {
+              @for (t of table.rows(); track t.id) {
                 <tr>
                   <td>{{ t.stage }}</td>
                   <td>{{ t.kind }}</td>
@@ -114,10 +121,16 @@
               }
               @if (transmissions().length === 0) {
                 <tr><td colspan="7" class="text-center text-muted py-4">{{ 'admin.customs.transmissions.empty' | transloco }}</td></tr>
+              } @else if (table.total() === 0) {
+                <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
               }
             </tbody>
           </table>
         </div>
+        @if (table.paged()) {
+          <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.customs.transmissions.pagination' | transloco"
+                         idPrefix="customs-transmissions-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+        }
       </div>
 
       <div class="hl-card">

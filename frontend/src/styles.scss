@@ -61,13 +61,20 @@
   --hl-input-bg: #{t.$hl-white};
   --hl-emphasis: #{t.$hl-dark};
   --hl-link: #{t.$hl-orange-700};
-  --sidebar-width: 260px;
-  --navbar-height: 60px;
+  // Encabezado: barra superior (logo y utilidades) y, con sesión en escritorio, la barra del menú principal.
+  --topbar-height: 60px;
+  --mainnav-height: 48px;
+  --navbar-height: var(--topbar-height);
 }
 
-// Foco blanco sobre la barra de navegación y el menú lateral (fondo $hl-dark)
-.hl-navbar,
-.hl-sidebar {
+@media (min-width: 992px) {
+  :root.hl-has-mainnav {
+    --navbar-height: calc(var(--topbar-height) + var(--mainnav-height));
+  }
+}
+
+// Foco blanco sobre la barra superior (fondo $hl-dark)
+.hl-navbar {
   --hl-focus: #{t.$hl-white};
 }
 
@@ -155,7 +162,7 @@ h1, h2, h3, h4, h5, h6 {
 // Navbar
 .hl-navbar {
   background-color: var(--hl-dark);
-  height: var(--navbar-height);
+  height: var(--topbar-height);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 1030;
 
@@ -199,82 +206,10 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Sidebar
-.hl-sidebar {
-  background-color: var(--hl-dark);
-  width: var(--sidebar-width);
-  min-height: calc(100vh - var(--navbar-height));
-  position: fixed;
-  top: var(--navbar-height);
-  // Anclado abajo para que el menú se desplace cuando no cabe (el de los perfiles internos es largo).
-  bottom: 0;
-  left: 0;
-  z-index: 1020;
-  overflow-y: auto;
-  transition: transform 0.3s ease;
-
-  .sidebar-nav {
-    padding: 1rem 0;
-  }
-
-  .sidebar-section-title {
-    color: rgba(255, 255, 255, 0.7); // 6,02:1 sobre $hl-dark (WCAG 1.4.3)
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 0.75rem 1.25rem 0.5rem;
-    margin-top: 0.5rem;
-  }
-
-  .sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.65rem 1.25rem;
-    color: rgba(255, 255, 255, 0.75);
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.2s;
-    border-left: 3px solid transparent;
-
-    svg {
-      width: 18px;
-      height: 18px;
-      flex-shrink: 0;
-      opacity: 0.7;
-    }
-
-    &:hover {
-      color: var(--hl-white);
-      background-color: rgba(255, 255, 255, 0.06);
-      border-left-color: var(--hl-green);
-
-      svg {
-        opacity: 1;
-      }
-    }
-
-    &.active {
-      color: var(--hl-white);
-      background-color: rgba(255, 255, 255, 0.1);
-      border-left-color: var(--hl-orange);
-
-      svg {
-        opacity: 1;
-      }
-    }
-  }
-}
-
-// Main content
 .hl-main-content {
-  margin-left: var(--sidebar-width);
   margin-top: var(--navbar-height);
   padding: 1.5rem;
   min-height: calc(100vh - var(--navbar-height));
-  transition: margin-left 0.3s ease;
 }
 
 // Cards
@@ -497,17 +432,341 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Loading spinner
+// Loading spinner: carga de sección con la nave del portal (app-loading-spinner).
 .hl-spinner-overlay {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 3rem;
+}
 
+// Enlace del menú principal (app-main-nav): global porque también lo usa el enlace externo de Dispute.
+.hl-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  color: var(--bs-body-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  svg {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: var(--hl-blue);
+  }
+
+  &:hover {
+    background-color: var(--hl-surface-muted);
+    color: var(--hl-emphasis);
+    text-decoration: underline;
+  }
+
+  &.active {
+    background-color: var(--hl-surface-muted);
+    box-shadow: inset 3px 0 0 var(--hl-orange);
+    font-weight: 600;
+  }
+}
+
+[data-bs-theme='dark'] .hl-menu-link svg {
+  color: var(--hl-dark-text);
+}
+
+// En el panel lateral móvil (fondo $hl-dark) el enlace va en blanco.
+.hl-drawer .hl-menu-link {
+  margin: 0 0.5rem;
+  color: rgba(255, 255, 255, 0.85);
+
+  svg {
+    color: currentColor;
+    opacity: 0.8;
+  }
+
+  &:hover,
+  &.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--hl-white);
+  }
+}
+
+// Panel lateral móvil del menú principal (app-main-nav): reglas globales por el presupuesto de estilos del componente.
+.hl-drawer__col-title {
+  margin: 0.5rem 0 0.25rem;
+  padding: 0 1.25rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hl-drawer-backdrop {
+  position: fixed;
+  inset: var(--navbar-height) 0 0;
+  z-index: 1019;
+  padding: 0;
+  border: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: default;
+}
+
+// Fondo atenuado bajo el panel abierto del menú principal (escritorio).
+.hl-mega-backdrop {
+  position: fixed;
+  inset: var(--navbar-height) 0 0;
+  z-index: 1028;
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s ease,
+    visibility 0s linear 0.2s;
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+}
+
+// Preferencias del panel: solo cuando la barra superior las oculta (< 768 px); global para no exceder el presupuesto de estilos del componente.
+.hl-drawer__prefs {
+  margin-top: 1rem;
+  padding: 0.75rem 1.25rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+
+  .hl-drawer__col-title {
+    margin: 0.5rem 0 0.25rem;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.hl-drawer__label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--hl-white);
+  font-size: 0.85rem;
+}
+
+// Opción de medio de pago con logo (app-payment-logo): el radio se centra con la pastilla del logo (2 rem).
+.form-check:has(app-payment-logo) > .form-check-input {
+  margin-top: 0.5rem;
+}
+
+// Encabezado ordenable (app-sort-header): el botón ocupa la celda y hereda el estilo del encabezado.
+.hl-table thead th.hl-sortable {
+  padding: 0;
+}
+
+.hl-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--hl-white);
+    outline-offset: -4px;
+  }
+}
+
+.hl-sort-btn__icon {
+  flex-shrink: 0;
+  opacity: 0.55;
+
+  &.is-active {
+    opacity: 1;
+  }
+}
+
+// Cifras alineadas a la derecha y con ancho fijo para comparar montos en columna.
+.hl-table .hl-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+// Skeleton de carga (app-table-skeleton): filas grises con un brillo que avanza.
+.hl-skeleton {
+  display: block;
+  height: 0.9rem;
+  border-radius: 0.25rem;
+  background: linear-gradient(90deg, var(--hl-border) 25%, var(--hl-surface-muted) 50%, var(--hl-border) 75%);
+  background-size: 200% 100%;
+  animation: hl-skeleton-shine 1.4s ease-in-out infinite;
+}
+
+@keyframes hl-skeleton-shine {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-skeleton {
+    animation: none;
+  }
+}
+
+// Diálogo modal nativo (<dialog>): base común de los diálogos del portal y del modal de ModalService.
+.hl-dialog {
+  width: min(44rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--hl-border);
+  border-radius: 0.75rem;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+
+  &--sm {
+    width: min(30rem, calc(100vw - 2rem));
+  }
+
+  &--lg {
+    width: min(52rem, calc(100vw - 2rem));
+  }
+
+  &[open] {
+    animation: hl-dialog-in 0.2s ease-out;
+  }
+
+  &::backdrop {
+    background-color: rgb(0 0 0 / 50%);
+    backdrop-filter: blur(2px);
+  }
+
+  &[open]::backdrop {
+    animation: hl-dialog-backdrop-in 0.2s ease-out;
+  }
+}
+
+.hl-dialog__header,
+.hl-dialog__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.hl-dialog__header {
+  justify-content: space-between;
+  border-bottom: 1px solid var(--hl-border);
+}
+
+.hl-dialog__footer {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  border-top: 1px solid var(--hl-border);
+}
+
+.hl-dialog__body {
+  padding: 1rem 1.25rem;
+}
+
+.hl-dialog__icon--danger {
+  flex-shrink: 0;
+  color: var(--bs-danger-text-emphasis);
+}
+
+@keyframes hl-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hl-dialog-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-dialog[open],
+  .hl-dialog[open]::backdrop {
+    animation: none;
+  }
+}
+
+// Spinners en línea (botones y textos): la silueta de la nave cabecea en lugar del aro de Bootstrap.
+// Toma el color del texto (currentColor), así que respeta el contraste del botón en ambos temas.
+$hl-ship-mask: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 8h3v6H5zM6 5.5h1.4V8H6zM9 10h3.2v4H9zM12.6 10h3.2v4h-3.2zM16.2 10h3v4h-3zM9 6.2h3.2v3.4H9zM12.6 6.2h3.2v3.4h-3.2zM3 14.6h18l-2.4 4H5.6z'/%3E%3Cpath d='M1.5 21.4c1.6 0 1.6-1.1 3.2-1.1s1.6 1.1 3.2 1.1 1.6-1.1 3.2-1.1 1.6 1.1 3.2 1.1 1.6-1.1 3.2-1.1 1.6 1.1 3.2 1.1' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E";
+
+.spinner-border {
+  --bs-spinner-width: 1.5rem;
+  --bs-spinner-height: 1.5rem;
+  --bs-spinner-animation-speed: 1.4s;
+  --bs-spinner-animation-name: hl-ship-bob;
+  border: 0;
+  border-radius: 0;
+  background-color: currentColor;
+  vertical-align: -0.2em;
+  -webkit-mask: url($hl-ship-mask) center / contain no-repeat;
+  mask: url($hl-ship-mask) center / contain no-repeat;
+  animation-timing-function: ease-in-out;
+}
+
+.spinner-border-sm {
+  --bs-spinner-width: 1.15rem;
+  --bs-spinner-height: 1.15rem;
+}
+
+@keyframes hl-ship-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+
+  50% {
+    transform: translateY(-2px) rotate(6deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
   .spinner-border {
-    color: var(--hl-orange);
-    width: 2.5rem;
-    height: 2.5rem;
+    animation: none;
   }
 }
 
@@ -518,8 +777,6 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.8rem;
   padding: 1rem 1.5rem;
   text-align: center;
-  margin-left: var(--sidebar-width);
-  transition: margin-left 0.3s ease;
 }
 
 // Page header
@@ -539,28 +796,6 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Responsive
-@media (max-width: 991.98px) {
-  // Cerrado, el menú lateral queda fuera de la pantalla y fuera del orden de foco (visibility).
-  .hl-sidebar {
-    transform: translateX(-100%);
-    visibility: hidden;
-    transition: transform 0.3s ease, visibility 0.3s;
-
-    &.show {
-      transform: translateX(0);
-      visibility: visible;
-    }
-  }
-
-  .hl-main-content {
-    margin-left: 0;
-  }
-
-  .hl-footer {
-    margin-left: 0;
-  }
-}
 
 // Scrollbar
 ::-webkit-scrollbar {
@@ -600,6 +835,11 @@ h1, h2, h3, h4, h5, h6 {
 // La barra superior fija no tapa el elemento enfocado al desplazarse (WCAG 2.4.11).
 html {
   scroll-padding-top: calc(var(--navbar-height) + 0.5rem);
+
+  // Con la barra "Ir a" (app-section-nav) también fija, se deja su alto.
+  &:has(app-section-nav .hl-section-nav) {
+    scroll-padding-top: calc(var(--navbar-height) + 3.75rem);
+  }
 }
 
 // Enlace para saltar al contenido (WCAG 2.4.1): primer elemento enfocable, visible solo con foco.
