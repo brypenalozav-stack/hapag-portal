@@ -49,13 +49,16 @@ test('un pendiente del dashboard se agrega al carro (M1-05, M5-01)', async ({ pa
 
   const carro = page.getByTestId('navbar-cart');
   await expect(carro).toHaveAccessibleName('Carro de compra, 3 ítems');
-  const fila = page.getByTestId(`dashboard-pending-${ITEM.GATE_IN}`);
-  await expect(fila).toContainText('Gate In');
-  await expect(page.getByTestId(`dashboard-pending-${ITEM.THC}`)).toContainText('En el carro');
+  // Los cargos del BL van en una sola fila de "Requiere su acción": Gate In por agregar y THC ya en el carro.
+  const fila = page.getByTestId('dashboard-action-HLCU0000001');
+  await expect(fila).toContainText('2 cargos por pagar');
+  await expect(fila).toContainText('1 ya está en el carro');
   // La factura vencida se muestra con su vencimiento.
-  await expect(page.getByTestId(`dashboard-pending-${ITEM.FACTURA_VENCIDA}`)).toContainText('Vencido');
+  const factura = page.getByTestId('dashboard-action-HL-CL-2026-003987');
+  await expect(factura).toContainText('Vencido');
+  await expect(factura).toContainText('Vence el 30-09-2026');
 
-  await fila.getByRole('button', { name: 'Agregar Gate In HLCU0000001 al carro' }).click();
+  await fila.getByRole('button', { name: 'Agregar al carro: BL HLCU0000001' }).click();
   const dialogo = page.getByRole('dialog', { name: 'Agregar al carro' });
   await expect(dialogo.locator('#add-to-cart-billing')).toBeVisible();
   const envio = page.waitForRequest((r) => r.method() === 'POST' && r.url().endsWith('/api/v1/cart/items'));
@@ -64,18 +67,19 @@ test('un pendiente del dashboard se agrega al carro (M1-05, M5-01)', async ({ pa
 
   await expect(dialogo).toHaveCount(0);
   await expect(carro).toHaveAccessibleName('Carro de compra, 4 ítems');
-  await expect(fila).toContainText('En el carro');
+  await expect(fila).toContainText('2 ya están en el carro');
   await expect(fila.getByRole('button', { name: /Agregar/ })).toHaveCount(0);
-  // "Ver" lleva a los cargos del BL.
-  await expect(fila.getByRole('link', { name: 'Ver Gate In HLCU0000001' })).toHaveAttribute('href', '/charges/HLCU0000001');
+  // Con todo en el carro, la acción lleva al carro.
+  await expect(fila.getByRole('link', { name: 'Ir al carro: BL HLCU0000001' })).toHaveAttribute('href', '/cart');
 });
 
-test('los accesos rápidos nombran los servicios sin términos técnicos (M1-01)', async ({ page }) => {
+test('los accesos rápidos son atajos a tareas sin términos técnicos (M1-01)', async ({ page }) => {
   await abrir(page, '/dashboard');
   const servicios = page.getByRole('navigation', { name: '¿Qué necesita hacer?' });
+  await expect(servicios.getByRole('listitem')).toHaveCount(4);
+  await expect(servicios.getByRole('link', { name: /Consultar un BL/ })).toHaveAttribute('href', '/bl-status');
   await expect(servicios.getByRole('link', { name: /Pagar cargos y servicios/ })).toHaveAttribute('href', '/cart');
-  await expect(servicios.getByRole('link', { name: /Cambiar de almacén/ })).toHaveAttribute('href', '/warehouse');
-  await expect(servicios.getByRole('link', { name: /Buscar mercancías peligrosas/ })).toHaveAttribute('href', '/dangerous-goods');
+  await expect(servicios.getByRole('link', { name: /Solicitar carta de liberación/ })).toHaveAttribute('href', '/release-letter');
 });
 
 test('el asistente responde el estado de un BL con el enlace al detalle (M10-01, M10-03)', async ({ page }) => {

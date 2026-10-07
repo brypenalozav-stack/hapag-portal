@@ -4128,8 +4128,7 @@
       "col": {
         "actions": "Acciones",
         "bl": "BL",
-        "document": "Documento",
-        "issuedAt": "Emitido"
+        "document": "Documento"
       },
       "download": "Descargar",
       "downloadError": "No se pudo descargar el documento. Intente nuevamente.",
@@ -4168,18 +4167,6 @@
         "empty": "No hay embarques para mostrar.",
         "title": "Embarques por estado"
       },
-      "demurrage": {
-        "caption": "BL con demurrage en riesgo",
-        "col": {
-          "amount": "Monto",
-          "bl": "BL",
-          "state": "Estado"
-        },
-        "empty": "No hay demurrage en riesgo.",
-        "lines": "{count, plural, one {# línea pendiente} other {# líneas pendientes}}",
-        "noAmount": "Monto aún no calculado",
-        "title": "Demurrage en riesgo"
-      },
       "departures": {
         "caption": "Próximos zarpes en los próximos 14 días, por ETD",
         "col": {
@@ -4191,8 +4178,7 @@
       "shipments": {
         "col": {
           "bl": "BL",
-          "port": "Puerto",
-          "vessel": "Nave y viaje"
+          "port": "Puerto"
         }
       },
       "title": "Indicadores operativos",
@@ -4200,33 +4186,12 @@
     },
     "loadError": "No se pudo cargar el dashboard.",
     "pending": {
-      "add": "Agregar al carro",
-      "addLabel": "Agregar {{ concept }} {{ reference }} al carro",
-      "bl": "BL {{ bl }}",
-      "caption": "Servicios pendientes de pago, primero los vencidos",
-      "cartLabel": "{{ concept }} del BL {{ bl }}",
-      "col": {
-        "actions": "Acciones",
-        "amount": "Monto",
-        "reference": "Referencia",
-        "service": "Servicio",
-        "status": "Estado"
-      },
-      "creditNote": "Su organización tiene crédito: estos pendientes se pagan desde «Pagar desde mi cuenta».",
-      "dueDate": "Vence el {{ date }}",
-      "empty": "No tiene servicios pendientes de pago.",
-      "go": "Ver",
-      "goLabel": "Ver {{ concept }} {{ reference }}",
-      "inCart": "En el carro",
-      "title": "Pendientes de pago",
-      "truncated": "Se muestran {{ shown }} de {{ total }} pendientes.",
-      "pagination": "Páginas de pendientes de pago"
+      "truncated": "Se muestran {{ shown }} de {{ total }} pendientes."
     },
     "requests": {
       "caption": "Gestiones en curso y terminadas en los últimos 30 días",
       "col": {
         "actions": "Acciones",
-        "date": "Fecha",
         "request": "Gestión",
         "status": "Estado"
       },
@@ -4244,22 +4209,6 @@
         "description": "Saldos, vencimientos, antigüedad de la deuda y pago de varias facturas a la vez.",
         "title": "Ver mi estado de cuenta"
       },
-      "dangerousGoods": {
-        "description": "Consulte la clase y el número ONU de una carga.",
-        "title": "Buscar mercancías peligrosas"
-      },
-      "demurrage": {
-        "description": "Revise y calcule el cobro por días adicionales de contenedor.",
-        "title": "Consultar demurrage"
-      },
-      "faq": {
-        "description": "Respuestas a las dudas más comunes.",
-        "title": "Preguntas frecuentes"
-      },
-      "invoices": {
-        "description": "Consulte, descargue y pague sus facturas.",
-        "title": "Ver mis facturas"
-      },
       "pay": {
         "description": "Pague cargos, flete y servicios agregados al carro.",
         "title": "Pagar cargos y servicios"
@@ -4268,25 +4217,26 @@
         "description": "Sellos, Drop Off, correcciones de BL, BL hijo y otros servicios de su embarque.",
         "title": "Solicitar un servicio"
       },
-      "shipments": {
-        "description": "Estado, documentos y cargos de cada BL o booking.",
-        "title": "Ver mis embarques"
-      },
       "tatc": {
         "description": "Pida el TATC de varios BL de una misma localidad.",
         "title": "Solicitar TATC"
       },
       "title": "¿Qué necesita hacer?",
-      "warehouse": {
-        "description": "Solicite el traslado de su carga a otro almacén.",
-        "title": "Cambiar de almacén"
+      "checkBl": {
+        "title": "Consultar un BL",
+        "description": "Estado de liberación, requisitos pendientes y TATC de un BL."
+      },
+      "findShipment": {
+        "title": "Buscar un embarque",
+        "description": "Encuentre un BL o booking y revise su estado."
+      },
+      "releaseLetter": {
+        "title": "Solicitar carta de liberación",
+        "description": "Importaciones de Bolivia: suba la carta y siga su revisión."
       }
     },
     "summary": {
-      "accountPayments": "Pagar desde mi cuenta",
       "byOperation": "{{ imports }} de importación y {{ exports }} de exportación",
-      "demurrageAtRisk": "Demurrage en riesgo",
-      "goToCart": "Ir al carro de compra",
       "noPending": "Sin saldos pendientes",
       "pendingPayments": "Pendientes de pago",
       "requestsHelp": "Solicitudes del portal aún en proceso.",
@@ -4294,13 +4244,57 @@
       "shipments": "Embarques",
       "title": "Resumen",
       "totalsLabel": "Saldo pendiente por moneda",
-      "viewDemurrage": "Ver demurrage",
-      "viewShipments": "Ver embarques",
-      "withPendingCharges": "{count, plural, =0 {Ningún embarque con cargos pendientes} one {# embarque con cargos pendientes} other {# embarques con cargos pendientes}}"
+      "viewShipments": "Ver embarques"
     },
     "title": "Dashboard",
     "unavailable": "No pudimos obtener el resumen en este momento: el servicio no está disponible temporalmente. Sus datos no se perdieron.",
-    "welcome": "Bienvenido, {{ name }}"
+    "welcome": "Bienvenido, {{ name }}",
+    "action": {
+      "heading": "Requiere su acción",
+      "count": "{count, plural, one {# pendiente} other {# pendientes}}",
+      "creditNote": "Su organización tiene crédito: los cargos se pagan desde «Pagar desde mi cuenta».",
+      "reasonsLabel": "Motivos",
+      "statusLabel": "Ver el estado de liberación del BL {{ bl }}",
+      "actionLabel": "{{ action }}: {{ reference }}",
+      "cartLabel": "{{ concept }} del BL {{ bl }}",
+      "dueDate": "Vence el {{ date }}",
+      "showAll": "Ver todo ({{ count }})",
+      "showLess": "Ver menos",
+      "empty": {
+        "title": "Todo al día",
+        "text": "No tiene pagos ni trámites pendientes. Le avisaremos aquí cuando algo requiera su acción."
+      },
+      "urgency": {
+        "overdue": "Vencido",
+        "urgent": "Urgente",
+        "pending": "Pendiente"
+      },
+      "reason": {
+        "charges": "{count, plural, one {# cargo por pagar} other {# cargos por pagar}}",
+        "invoice": "{count, plural, one {# factura por pagar} other {# facturas por pagar}}",
+        "demurrageLines": "{count, plural, one {# línea de demurrage por pagar} other {# líneas de demurrage por pagar}}",
+        "demurrageAtRisk": "Demurrage en riesgo: {{ state }}",
+        "inCart": "{count, plural, one {# ya está en el carro} other {# ya están en el carro}}",
+        "requestDraft": "Solicitud {{ reference }} sin enviar",
+        "requestPendingPayment": "Solicitud {{ reference }} pendiente de pago",
+        "releaseLetterRejected": "Carta de liberación {{ reference }} rechazada"
+      },
+      "do": {
+        "addToCart": "Agregar al carro",
+        "goToCart": "Ir al carro",
+        "payAccount": "Pagar desde mi cuenta",
+        "viewCharges": "Ver cargos",
+        "reviewDemurrage": "Revisar demurrage",
+        "continueRequest": "Continuar solicitud",
+        "payRequest": "Pagar solicitud",
+        "uploadLetter": "Subir nueva carta"
+      },
+      "title": {
+        "bl": "BL {{ reference }}",
+        "invoice": "Factura {{ reference }}",
+        "other": "Trámite {{ reference }}"
+      }
+    }
   },
   "demurrage": {
     "calculator": {
