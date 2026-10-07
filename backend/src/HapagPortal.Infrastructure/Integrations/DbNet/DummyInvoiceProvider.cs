@@ -1,6 +1,9 @@
 using System.Collections.Concurrent;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Documents.Common;
 using HapagPortal.Domain.Results;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace HapagPortal.Infrastructure.Integrations.DbNet;
@@ -9,9 +12,14 @@ namespace HapagPortal.Infrastructure.Integrations.DbNet;
 /// Emisor simulado de documentos tributarios (CT-DBNET), en memoria. Asigna folios correlativos desde
 /// 100001. Determinista: una <c>ExternalReference</c> que contiene "REJECT" queda REJECTED; el resto,
 /// ACCEPTED. Emitir dos veces la misma referencia devuelve el documento ya emitido (idempotencia).
-/// El PDF es un marcador determinista por folio (M7-01) hasta la Ola E.
+/// El PDF es una representación simulada de la factura sincronizada en el portal (M7-01), con el renderizador
+/// documental del portal: marcada como no válida tributariamente hasta conectar CT-DBNET.
 /// </summary>
-public sealed class DummyInvoiceProvider(ILogger<DummyInvoiceProvider> logger) : IInvoiceProvider
+public sealed class DummyInvoiceProvider(
+    ILogger<DummyInvoiceProvider> logger,
+    IServiceScopeFactory scopeFactory,
+    IPdfDocumentRenderer renderer,
+    DocumentSettings documentSettings) : IInvoiceProvider
 {
     private readonly ConcurrentDictionary<string, InvoiceDocument> _byFolio = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, InvoiceDocument> _byReference = new(StringComparer.OrdinalIgnoreCase);
@@ -64,18 +72,62 @@ public sealed class DummyInvoiceProvider(ILogger<DummyInvoiceProvider> logger) :
     }
 
     /// <summary>
-    /// PDF de marcador para cualquier folio (las facturas de la caché del portal no se emitieron en este
-    /// Dummy). La generación documental real llega con la Ola E.
+    /// PDF simulado de la factura del portal con ese folio (M7-01). Antes devolvía un marcador de pocos bytes que
+    /// ningún visor podía abrir. Sin factura en el portal, se usa el documento emitido por este Dummy.
     /// </summary>
-    public Task<Result<byte[]?>> GetPdfAsync(
+    public async Task<Result<byte[]?>> GetPdfAsync(
         string folio,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(folio))
-            return Task.FromResult(Result<byte[]?>.Success(null));
+            return Result<byte[]?>.Success(null);
 
-        var content = System.Text.Encoding.ASCII.GetBytes(
-            $"%PDF-1.4\n% Hapag-Lloyd placeholder DTE folio {folio.Trim()}\n%%EOF\n");
-        return Task.FromResult(Result<byte[]?>.Success(content));
+        var number = folio.Trim();
+        await using var scope = scopeFactory.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+
+        var invoice = await dbContext.CustomerInvoices.AsNoTracking()
+            .Where(i => i.SiiNumber == number)
+            .OrderByDescending(i => i.IssueDate)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (invoice is null)
+        {
+            if (!_byFolio.TryGetValue(number, out var issued))
+                return Result<byte[]?>.Success(null);
+
+            invoice = new Domain.Entities.CustomerInvoice
+            {
+                SiiNumber = issued.Folio,
+                SourceNumber = issued.ExternalReference,
+                DocumentType = issued.DocumentType switch
+                {
+                    34 => Domain.Constants.InvoiceDocumentTypes.ExemptInvoice,
+                    56 => Domain.Constants.InvoiceDocumentTypes.DebitNote,
+                    61 => Domain.Constants.InvoiceDocumentTypes.CreditNote,
+                    _ => Domain.Constants.InvoiceDocumentTypes.Invoice
+                },
+                IssueDate = issued.IssueDate,
+                LegalName = "-",
+                TaxId = "-",
+                NetAmount = issued.TotalAmount,
+                TotalAmount = issued.TotalAmount,
+                Currency = issued.Currency,
+                Status = Domain.Constants.InvoiceStatus.Pending,
+                Country = Domain.Constants.CountryCodes.Chile,
+                Source = "DUMMY"
+            };
+        }
+
+        var conceptName = invoice.ConceptCode is null
+            ? null
+            : await dbContext.ChargeConcepts.AsNoTracking()
+                .Where(c => c.Code == invoice.ConceptCode)
+                .Select(c => c.Name)
+                .FirstOrDefaultAsync(cancellationToken);
+
+        var model = PortalPdfs.SimulatedInvoice(
+            invoice, documentSettings.IssuerFor(invoice.Country), conceptName, DateTime.UtcNow);
+        return Result<byte[]?>.Success(renderer.Render(model));
     }
 }

@@ -23,6 +23,9 @@ public sealed class IntegrationsRegistrationTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddSingleton(Substitute.For<ISecretResolver>());
+        // Registrados por AddInfrastructure: el Dummy de DBNet genera su PDF con el renderizador del portal.
+        services.AddSingleton(Substitute.For<IPdfDocumentRenderer>());
+        services.AddSingleton(new HapagPortal.Application.Documents.Common.DocumentSettings());
         services.AddIntegrations(configuration);
 
         return services.BuildServiceProvider();
