@@ -45,6 +45,18 @@ export const routes: Routes = [
     data: { preload: true },
   },
   // Ola E: repositorio documental del embarque en su propia página (M6-09), para enlaces directos.
+  // Consulta de BL y TATC con el estado de liberación (M2-09, CL-IMP-13, BO-IMP-13).
+  {
+    path: 'bl-status',
+    loadComponent: () => import('./features/release-status/release-status').then((m) => m.ReleaseStatusComponent),
+    canActivate: [authGuard],
+    data: { preload: true },
+  },
+  {
+    path: 'bl-status/:blNumber',
+    loadComponent: () => import('./features/release-status/release-status').then((m) => m.ReleaseStatusComponent),
+    canActivate: [authGuard],
+  },
   {
     path: 'shipments/:blNumber/documents',
     loadComponent: () =>
@@ -234,6 +246,24 @@ export const routes: Routes = [
     path: 'dangerous-goods',
     loadComponent: () =>
       import('./features/dangerous-goods/dangerous-goods').then((m) => m.DangerousGoodsComponent),
+    canActivate: [authGuard],
+  },
+  // Enlaces externos del país: tarifarios oficiales de Hapag-Lloyd y portal de devoluciones de dinero.
+  {
+    path: 'local-tariffs',
+    loadComponent: () => import('./features/local-tariffs/local-tariffs').then((m) => m.LocalTariffsComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'refunds',
+    loadComponent: () => import('./features/refunds/refunds').then((m) => m.RefundsComponent),
+    canActivate: [authGuard],
+  },
+  // Carta de liberación y desconsolidado de Bolivia (M6-08) con selector de BL; el formulario es el de cada BL.
+  {
+    path: 'release-letter',
+    loadComponent: () =>
+      import('./features/release-letter-page/release-letter-page').then((m) => m.ReleaseLetterPageComponent),
     canActivate: [authGuard],
   },
   {

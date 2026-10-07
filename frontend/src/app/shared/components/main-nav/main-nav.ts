@@ -79,6 +79,7 @@ export class MainNavComponent {
     admin: this.auth.isAdmin(),
     cartEnabled: this.cart.cartEnabled(),
     accountPaymentsEnabled: this.cart.accountPaymentsEnabled(),
+    bolivia: this.auth.getCountry() === 'BO' || this.auth.operatingCountries().includes('BO'),
     can: (...keys) => this.auth.hasPermission(...keys.map((k) => PERMISSIONS[k])),
   }));
 

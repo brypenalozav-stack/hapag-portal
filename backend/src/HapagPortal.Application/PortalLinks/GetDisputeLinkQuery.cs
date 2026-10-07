@@ -16,6 +16,12 @@ public sealed class PortalLinkSettings
     public const string SectionName = "PortalLinks";
 
     public Dictionary<string, string> Dispute { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Portal de devoluciones de dinero por país; vacío = la página informa que aún no está disponible.</summary>
+    public Dictionary<string, string> Refunds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Tarifarios oficiales por código (<c>LocalTariffCodes</c>).</summary>
+    public Dictionary<string, string> LocalTariffs { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
 
 /// <summary>

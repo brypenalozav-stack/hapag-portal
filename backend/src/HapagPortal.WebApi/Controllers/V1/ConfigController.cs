@@ -40,6 +40,16 @@ public sealed class ConfigController : ApiController
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 
+    /// <summary>Enlaces externos del país: portal de devoluciones y tarifarios oficiales.</summary>
+    [HttpGet("external-links")]
+    public async Task<IActionResult> GetExternalLinks(
+        [FromQuery] string? country,
+        CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetExternalLinksQuery(country), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
     [HttpGet("payment-methods/{country}")]
     public async Task<IActionResult> GetPaymentMethods(
         string country,

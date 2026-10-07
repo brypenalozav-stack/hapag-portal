@@ -1,0 +1,142 @@
+<div class="hl-page-header">
+  <h1>{{ 'localTariffs.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'localTariffs.subtitle' | transloco }}</p>
+</div>
+
+<div class="lt-layout">
+  <div class="lt-main">
+    <!-- El portal no aloja las tarifas: se dice antes de los enlaces -->
+    <div class="lt-callout mb-4" role="note" data-testid="local-tariffs-notice">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+        @for (d of icons.info; track $index) { <path [attr.d]="d" /> }
+      </svg>
+      <p class="mb-0"><strong>{{ 'localTariffs.notice.title' | transloco }}:</strong> {{ 'localTariffs.notice.text' | transloco }}</p>
+    </div>
+
+    <section class="mb-4" aria-labelledby="lt-cards-title">
+      <h2 id="lt-cards-title" class="section-title mb-3">{{ 'localTariffs.cardsTitle' | transloco }}</h2>
+
+      @switch (state()) {
+        @case ('error') {
+          <app-state-message kind="error" messageKey="localTariffs.loadError" (retry)="retry()" />
+        }
+        @case ('ready') {
+          <ul class="lt-grid" role="list">
+            @for (card of cards(); track card.code) {
+              <li class="hl-card lt-card" [class.lt-card--off]="!card.url" [attr.data-testid]="'local-tariffs-card-' + card.code">
+                <span class="lt-card__icon" aria-hidden="true">
+                  <svg focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                    @for (d of icons[card.code]; track $index) { <path [attr.d]="d" /> }
+                  </svg>
+                </span>
+                <h3 class="lt-card__title" [id]="'lt-title-' + card.code">{{ keys[card.code].title | transloco }}</h3>
+                <p class="lt-card__description">{{ keys[card.code].description | transloco }}</p>
+                <div class="lt-card__footer">
+                  @if (card.url; as url) {
+                    <!-- Nombre accesible: la acción, el tarifario y el aviso de pestaña nueva (empieza con el texto visible) -->
+                    <a class="btn btn-hl-orange lt-card__cta stretched-link" [href]="url" target="_blank" rel="noopener noreferrer"
+                       [attr.aria-label]="'localTariffs.openLabel' | transloco: { title: (keys[card.code].title | transloco) }"
+                       [attr.data-testid]="'local-tariffs-open-' + card.code">
+                      {{ 'localTariffs.open' | transloco }}
+                      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        @for (d of icons.external; track $index) { <path fill-rule="evenodd" [attr.d]="d" /> }
+                      </svg>
+                    </a>
+                    <span class="lt-card__domain">{{ 'localTariffs.site' | transloco: { domain: card.domain } }}</span>
+                  } @else {
+                    <p class="lt-card__unavailable mb-0" [attr.data-testid]="'local-tariffs-unavailable-' + card.code">
+                      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        @for (d of icons.unavailable; track $index) { <path [attr.d]="d" /> }
+                      </svg>
+                      {{ 'localTariffs.unavailable' | transloco }}
+                    </p>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        }
+        @default {
+          <!-- Mientras se consultan los enlaces: tarjetas de esqueleto con el estado anunciado -->
+          <div role="status" data-testid="local-tariffs-loading">
+            <span class="visually-hidden">{{ 'localTariffs.loading' | transloco }}</span>
+            <div class="lt-grid" aria-hidden="true">
+              @for (code of order; track code) {
+                <div class="hl-card lt-card">
+                  <span class="hl-skeleton lt-skeleton--icon"></span>
+                  <span class="hl-skeleton w-75 mb-2"></span>
+                  <span class="hl-skeleton w-100 mb-1"></span>
+                  <span class="hl-skeleton w-50 mb-3"></span>
+                  <span class="hl-skeleton lt-skeleton--button"></span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </section>
+
+    <!-- Ayuda en acordeones nativos: se abren con Enter/Espacio y el lector anuncia su estado -->
+    <div class="lt-help">
+      <details class="hl-card lt-disclosure" data-testid="local-tariffs-guide">
+        <summary class="lt-disclosure__summary">
+          <svg class="lt-disclosure__icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+            @for (d of icons.guide; track $index) { <path [attr.d]="d" /> }
+          </svg>
+          <span class="lt-disclosure__title">{{ 'localTariffs.guide.title' | transloco }}</span>
+          <svg class="lt-disclosure__chevron" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            @for (d of icons.chevron; track $index) { <path fill-rule="evenodd" [attr.d]="d" /> }
+          </svg>
+        </summary>
+        <div class="lt-disclosure__body">
+          <p class="mb-2">{{ 'localTariffs.guide.intro' | transloco }}</p>
+          <dl class="lt-guide mb-0">
+            @for (code of order; track code) {
+              <div class="lt-guide__item">
+                <dt>{{ keys[code].title | transloco }}</dt>
+                <dd>{{ keys[code].guide | transloco }}</dd>
+              </div>
+            }
+          </dl>
+        </div>
+      </details>
+
+      <details class="hl-card lt-disclosure" data-testid="local-tariffs-considerations">
+        <summary class="lt-disclosure__summary">
+          <svg class="lt-disclosure__icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+            @for (d of icons.considerations; track $index) { <path [attr.d]="d" /> }
+          </svg>
+          <span class="lt-disclosure__title">{{ 'localTariffs.considerations.title' | transloco }}</span>
+          <svg class="lt-disclosure__chevron" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            @for (d of icons.chevron; track $index) { <path fill-rule="evenodd" [attr.d]="d" /> }
+          </svg>
+        </summary>
+        <div class="lt-disclosure__body">
+          <ul class="lt-checklist mb-0">
+            <li>{{ 'localTariffs.considerations.validity' | transloco }}</li>
+            <li>{{ 'localTariffs.considerations.access' | transloco }}</li>
+            <li>{{ 'localTariffs.considerations.newTab' | transloco }}</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <aside class="lt-aside" aria-labelledby="lt-quick-title">
+    <div class="hl-card p-3">
+      <h2 id="lt-quick-title" class="lt-aside__title">{{ 'localTariffs.quick.title' | transloco }}</h2>
+      <ul class="list-unstyled mb-0">
+        @for (q of quickLinks; track q.route) {
+          <li>
+            <a class="lt-quick-link" [routerLink]="q.route">
+              <span>{{ q.key | transloco }}</span>
+              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                @for (d of icons.arrow; track $index) { <path fill-rule="evenodd" [attr.d]="d" /> }
+              </svg>
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  </aside>
+</div>

@@ -97,3 +97,9 @@ Se retira `bootstrap.bundle.min.js` del arranque (el único componente que lo us
 | `deposit.png`, `digital-usd.png`, `credit-line.png` | Bootstrap Icons (MIT) | Colores del portal. |
 
 Antes de producción, conviene confirmar con cada banco y con Khipu el uso de sus logos según sus manuales de marca o kits para comercios.
+
+### Consulta BL y liberación (Fase 1, M2-09)
+
+| Dependencia | Versión exacta | Dónde | Licencia | Fase |
+|---|---|---|---|---|
+| QRCoder (código QR del comprobante de TATC; genera PNG sin System.Drawing) | 1.6.0 | `backend/src/HapagPortal.Infrastructure/HapagPortal.Infrastructure.csproj` | MIT | Consulta BL |

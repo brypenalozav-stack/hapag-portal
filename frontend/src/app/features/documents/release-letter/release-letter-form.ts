@@ -82,6 +82,8 @@ export class ReleaseLetterFormComponent {
   private readonly injector = inject(Injector);
 
   blNumber = input.required<string>();
+  /** Dentro de otra página (Carta de liberación con selector de BL): sin encabezado ni migas propias. */
+  embedded = input(false);
 
   readonly timeZone = BOLIVIA_TIME_ZONE;
   readonly limits = LIMITS;

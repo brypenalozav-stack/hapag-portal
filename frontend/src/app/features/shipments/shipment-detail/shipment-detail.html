@@ -5,7 +5,15 @@
       <li class="breadcrumb-item active" aria-current="page">{{ blNumber() }}</li>
     </ol>
   </nav>
-  <h1>{{ 'shipments.detail.title' | transloco: { bl: blNumber() } }}</h1>
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <h1>{{ 'shipments.detail.title' | transloco: { bl: blNumber() } }}</h1>
+    @if (shipment()?.operation === 'IMPORT') {
+      <!-- Consulta BL: paso a paso de los requisitos de liberación y TATC (M2-09) -->
+      <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/bl-status', blNumber()]" data-testid="shipment-release-status-link">
+        {{ 'shipments.detail.releaseStatusLink' | transloco }}
+      </a>
+    }
+  </div>
 </div>
 
 @if (loading()) {

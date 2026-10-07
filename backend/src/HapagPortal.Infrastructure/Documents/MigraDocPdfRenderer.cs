@@ -5,6 +5,7 @@ using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using PdfSharp.Fonts;
+using QRCoder;
 
 namespace HapagPortal.Infrastructure.Documents;
 
@@ -48,6 +49,7 @@ public sealed class MigraDocPdfRenderer : IPdfDocumentRenderer
         AddHeader(section, model);
         AddFooter(section, model);
         AddTitle(section, model);
+        AddQrCode(section, model.QrPayload);
         AddFieldGrid(section, model.References);
 
         foreach (var part in model.Sections)
@@ -68,6 +70,24 @@ public sealed class MigraDocPdfRenderer : IPdfDocumentRenderer
         using var stream = new MemoryStream();
         renderer.PdfDocument.Save(stream, false);
         return stream.ToArray();
+    }
+
+    /// <summary>Código QR (QRCoder, MIT) alineado a la derecha, de 3,2 cm; sin texto no se dibuja.</summary>
+    private static void AddQrCode(Section section, string? payload)
+    {
+        if (string.IsNullOrWhiteSpace(payload))
+            return;
+
+        using var generator = new QRCodeGenerator();
+        using var data = generator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.M);
+        var png = new PngByteQRCode(data).GetGraphic(8);
+
+        var holder = section.AddParagraph();
+        holder.Format.Alignment = ParagraphAlignment.Right;
+        holder.Format.SpaceAfter = Unit.FromPoint(4);
+        var image = holder.AddImage("base64:" + Convert.ToBase64String(png));
+        image.Width = Unit.FromCentimeter(3.2);
+        image.LockAspectRatio = true;
     }
 
     /// <summary>El resolvedor de fuentes es global en PDFsharp y solo puede fijarse una vez por proceso.</summary>

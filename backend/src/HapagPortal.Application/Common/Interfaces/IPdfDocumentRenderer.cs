@@ -13,6 +13,7 @@ public interface IPdfDocumentRenderer
 /// <summary>
 /// Modelo de un documento. Es serializable (JSON) para guardar con el registro los datos con que se
 /// generó y poder volver a generarlo. <c>IssuedAt</c> es UTC y se presenta en <c>TimeZoneId</c> (NF-22).
+/// <c>QrPayload</c>: texto que se imprime como código QR junto a las referencias (p. ej. el comprobante de TATC).
 /// </summary>
 public sealed record PdfDocumentModel(
     string Title,
@@ -26,7 +27,8 @@ public sealed record PdfDocumentModel(
     IReadOnlyList<PdfSection> Sections,
     string? VerificationCode,
     string? SignatureNote,
-    string? Footer);
+    string? Footer,
+    string? QrPayload = null);
 
 public sealed record PdfField(string Label, string? Value);
 
