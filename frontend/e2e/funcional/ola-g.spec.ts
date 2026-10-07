@@ -332,7 +332,7 @@ test('Dashboard y Mis solicitudes: acceso rápido, filtro por estado y envío de
   await expect(servicios.getByRole('link', { name: /Solicitar un servicio/ })).toHaveAttribute('href', '/service-requests/new');
 
   const menu = page.getByRole('navigation', { name: 'Menú principal' });
-  await menu.getByRole('button', { name: 'Servicios' }).click();
+  await menu.getByRole('button', { name: 'Documentos y trámites' }).click();
   await menu.getByRole('link', { name: 'Mis solicitudes' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mis solicitudes');
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);

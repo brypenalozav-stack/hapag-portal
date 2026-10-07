@@ -6364,7 +6364,13 @@
         "label": "Theme",
         "light": "Light"
       },
-      "userMenu": "User menu: {{ name }}"
+      "userMenu": "User menu: {{ name }}",
+      "workspace": {
+        "label": "Workspace",
+        "customer": "Customer portal",
+        "backoffice": "Backoffice",
+        "changed": "Workspace: {{ name }}. The main menu changed."
+      }
     },
     "paymentBlock": {
       "consultAvailable": "Meanwhile you can look up your information and prepare the cart; payments are not possible.",
@@ -6389,44 +6395,43 @@
         "cart": "Cart",
         "counter": "Counter",
         "creditImputationRules": "Credit imputation",
-        "customs": "Customs Transmission",
+        "customs": "Customs transmission",
         "dangerousGoods": "Dangerous goods",
         "dangerousGoodsImport": "Dangerous goods base",
-        "dashboard": "Dashboard",
-        "deadlines": "Deadline Control",
+        "deadlines": "Deadline control",
         "demurrage": "Demurrage",
         "depositProofs": "Deposit proofs",
         "exceptionsReport": "Exceptions report",
-        "faq": "FAQ",
+        "faq": "Frequently asked questions",
         "guides": "Portal guides",
         "impersonation": "View as customer",
         "internalRules": "Charge rules",
         "invoices": "Invoices",
-        "localCharges": "Local Charges",
-        "organization": "My organization",
+        "localCharges": "Local charges",
         "organizationLinks": "Parent companies",
         "paymentBlocks": "Payment blocks",
         "paymentCurrencies": "Payment currencies",
         "paymentHistory": "Payment history",
         "paymentMethods": "Payment methods",
-        "paymentsFinance": "Finance: payments",
+        "paymentsFinance": "Payments & reconciliation",
         "publicationRules": "Publication rules",
-        "reports": "Reports",
+        "reports": "Management reports",
         "serviceDefinitions": "On-demand services",
-        "serviceOrders": "Service Orders",
+        "serviceOrders": "Service orders",
         "serviceRequestQueue": "Service requests",
         "serviceRequests": "My requests",
         "settlements": "Advances and matching",
-        "shipments": "Shipments",
+        "shipments": "My shipments",
         "tariffs": "Tariffs",
         "tatc": "Request TATC",
         "transactionsReport": "Transactions report",
         "users": "Users",
-        "warehouse": "Warehouse Change",
+        "warehouse": "Warehouse change",
         "localTariffs": "Local tariffs",
         "refunds": "Refunds",
         "releaseLetter": "Release letter",
-        "releaseStatus": "BL status"
+        "releaseStatus": "BL inquiry",
+        "allShipments": "All shipments"
       },
       "section": {
         "adminArea": "Administration area",
@@ -6517,20 +6522,28 @@
       "group": {
         "home": "Home",
         "shipments": "Shipments",
-        "payments": "Payments & billing",
-        "services": "Services",
-        "organization": "My organization",
+        "payments": "Payments",
+        "documents": "Documents & requests",
+        "help": "Help",
         "operations": "Operations",
+        "finance": "Finance",
+        "reports": "Reports & audit",
         "administration": "Administration"
       },
       "column": {
+        "tracking": "Tracking",
+        "cargo": "Cargo & containers",
+        "pay": "Pay",
+        "billing": "Invoices & payments made",
+        "procedures": "Requests",
+        "references": "Tariffs & links",
         "queues": "Queues",
-        "dataLoad": "Data loading",
-        "reports": "Reports & audit",
-        "general": "General",
+        "shipmentsData": "Shipments & data loading",
+        "payments": "Payments",
+        "paymentsConfig": "Payment settings",
+        "usersAccess": "Users & access",
         "chargesTariffs": "Charges & tariffs",
-        "paymentsConfig": "Payments",
-        "assistant": "Assistant"
+        "content": "Content & assistant"
       },
       "preferences": "Preferences"
     },
@@ -6558,6 +6571,16 @@
         "deposit": "deposit"
       },
       "optionLabel": "{{ name }}, {{ kind }}"
+    },
+    "search": {
+      "label": "Shipment finder",
+      "placeholder": "BL, booking or container",
+      "submit": "Go to shipment",
+      "open": "Open the shipment finder",
+      "hint": "Enter a BL, booking or container number. Keyboard shortcut: slash.",
+      "invalid": "Enter at least 4 characters of a BL, booking or container number.",
+      "notFound": "We could not find a shipment with that number. Check the number or look for it in My shipments.",
+      "error": "The search could not be completed. Please try again."
     }
   },
   "shipments": {

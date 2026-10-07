@@ -14,7 +14,7 @@ test('los grupos se abren con teclado, Esc cierra y el foco vuelve al grupo', as
   await sembrarSesion(page, { lang: 'es' });
   await page.goto('/dashboard');
   const menu = page.getByRole('navigation', { name: 'Menú principal' });
-  const pagos = menu.getByRole('button', { name: 'Pagos y facturación' });
+  const pagos = menu.getByRole('button', { name: 'Pagos' });
 
   await expect(menu.getByRole('link', { name: 'Inicio' })).toHaveAttribute('aria-current', 'page');
   await expect(pagos).toHaveAttribute('aria-expanded', 'false');
@@ -43,7 +43,7 @@ test('los grupos se abren con teclado, Esc cierra y el foco vuelve al grupo', as
   await expect(pagos).toHaveClass(/is-active/);
 });
 
-test('el cliente no ve Operación ni Administración; el administrador sí', async ({ page, browser }) => {
+test('el cliente no ve Operación ni Administración', async ({ page }) => {
   await simularApi(page);
   await sembrarSesion(page, { lang: 'es' });
   await page.goto('/dashboard');
@@ -51,15 +51,16 @@ test('el cliente no ve Operación ni Administración; el administrador sí', asy
   await expect(menu.getByRole('button', { name: 'Embarques' })).toBeVisible();
   await expect(menu.getByRole('button', { name: 'Operación' })).toHaveCount(0);
   await expect(menu.getByRole('button', { name: 'Administración' })).toHaveCount(0);
+});
 
-  const admin = await browser.newPage();
-  await simularApi(admin);
-  await sembrarSesionAdmin(admin, 'es');
-  await admin.goto('/dashboard');
-  const menuAdmin = admin.getByRole('navigation', { name: 'Menú principal' });
+// Página propia de la fixture (aplicación en memoria): no depende de un servidor en :4300.
+test('el administrador ve Administración en el backoffice', async ({ page }) => {
+  await simularApi(page);
+  await sembrarSesionAdmin(page, 'es');
+  await page.goto('/dashboard');
+  const menuAdmin = page.getByRole('navigation', { name: 'Menú principal' });
   await menuAdmin.getByRole('button', { name: 'Administración' }).click();
   await expect(menuAdmin.getByRole('link', { name: 'Usuarios' })).toBeVisible();
-  await admin.close();
 });
 
 test('menú del usuario sin Bootstrap JS: abre con clic, Esc cierra y devuelve el foco, navegar lo cierra', async ({ page }) => {

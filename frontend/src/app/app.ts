@@ -8,6 +8,7 @@ import { NavbarComponent } from './shared/components/navbar/navbar';
 import { MainNavComponent } from './shared/components/main-nav/main-nav';
 import { AssistantComponent } from './shared/components/assistant/assistant';
 import { ThemeService } from './core/services/theme.service';
+import { WorkspaceService } from './core/services/workspace.service';
 import { GuideHostComponent } from './shared/components/guide/guide-host';
 import { ImpersonationBannerComponent } from './shared/components/impersonation-banner/impersonation-banner';
 import { GlobalLoaderComponent } from './shared/components/global-loader/global-loader';
@@ -36,6 +37,8 @@ export class AppComponent {
   readonly year = new Date().getFullYear();
 
   constructor() {
+    // Espacio de trabajo (portal de clientes o backoffice): se crea al arrancar para seguir la primera navegación a /admin.
+    inject(WorkspaceService);
     // Con sesión, el encabezado de escritorio suma la barra del menú principal (--navbar-height en styles.scss).
     effect(() => this.document.documentElement.classList.toggle('hl-has-mainnav', this.auth.isAuthenticated()));
   }

@@ -23,10 +23,3 @@
 .hl-theme-select {
   width: auto;
 }
-
-// Con sesión y en pantallas angostas, tema e idioma están en el panel lateral: la barra no se desborda.
-@media (max-width: 767.98px) {
-  .hl-navbar__prefs--collapsible {
-    display: none !important;
-  }
-}

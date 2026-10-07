@@ -6364,7 +6364,13 @@
         "label": "Tema",
         "light": "Claro"
       },
-      "userMenu": "Menú de usuario: {{ name }}"
+      "userMenu": "Menú de usuario: {{ name }}",
+      "workspace": {
+        "label": "Espacio de trabajo",
+        "customer": "Portal clientes",
+        "backoffice": "Backoffice",
+        "changed": "Espacio de trabajo: {{ name }}. El menú principal cambió."
+      }
     },
     "paymentBlock": {
       "consultAvailable": "Mientras tanto puede consultar su información y preparar el carro; no se puede pagar.",
@@ -6389,44 +6395,43 @@
         "cart": "Carro de compra",
         "counter": "Counter",
         "creditImputationRules": "Imputación a crédito",
-        "customs": "Transmisión Aduana",
+        "customs": "Transmisión a Aduana",
         "dangerousGoods": "Mercancías peligrosas",
         "dangerousGoodsImport": "Base de mercancías peligrosas",
-        "dashboard": "Dashboard",
-        "deadlines": "Control de Plazos",
+        "deadlines": "Control de plazos",
         "demurrage": "Demurrage",
         "depositProofs": "Comprobantes de depósito",
         "exceptionsReport": "Reporte de excepciones",
-        "faq": "FAQ",
+        "faq": "Preguntas frecuentes",
         "guides": "Guías del portal",
         "impersonation": "Vista como cliente",
         "internalRules": "Reglas de cobro",
         "invoices": "Facturas",
-        "localCharges": "Cargos Locales",
-        "organization": "Mi organización",
+        "localCharges": "Cargos locales",
         "organizationLinks": "Empresas matriz",
         "paymentBlocks": "Bloqueo de pagos",
         "paymentCurrencies": "Monedas de pago",
         "paymentHistory": "Historial de pagos",
         "paymentMethods": "Medios de pago",
-        "paymentsFinance": "Finanzas: pagos",
+        "paymentsFinance": "Pagos y conciliación",
         "publicationRules": "Reglas de publicación",
-        "reports": "Reportes",
+        "reports": "Reportes de gestión",
         "serviceDefinitions": "Servicios on demand",
-        "serviceOrders": "Órdenes de Servicio",
+        "serviceOrders": "Órdenes de servicio",
         "serviceRequestQueue": "Solicitudes de servicio",
         "serviceRequests": "Mis solicitudes",
         "settlements": "Anticipos y cruces",
-        "shipments": "Embarques",
+        "shipments": "Mis embarques",
         "tariffs": "Tarifas",
         "tatc": "Solicitar TATC",
         "transactionsReport": "Reporte de transacciones",
         "users": "Usuarios",
-        "warehouse": "Cambio Almacén",
+        "warehouse": "Cambio de almacén",
         "localTariffs": "Tarifas locales",
         "refunds": "Devoluciones",
         "releaseLetter": "Carta de liberación",
-        "releaseStatus": "Consulta BL"
+        "releaseStatus": "Consulta de BL",
+        "allShipments": "Todos los embarques"
       },
       "section": {
         "adminArea": "Área de administración",
@@ -6517,20 +6522,28 @@
       "group": {
         "home": "Inicio",
         "shipments": "Embarques",
-        "payments": "Pagos y facturación",
-        "services": "Servicios",
-        "organization": "Mi organización",
+        "payments": "Pagos",
+        "documents": "Documentos y trámites",
+        "help": "Ayuda",
         "operations": "Operación",
+        "finance": "Finanzas",
+        "reports": "Reportes y auditoría",
         "administration": "Administración"
       },
       "column": {
+        "tracking": "Seguimiento",
+        "cargo": "Carga y contenedores",
+        "pay": "Pagar",
+        "billing": "Facturas y pagos realizados",
+        "procedures": "Trámites",
+        "references": "Tarifas y enlaces",
         "queues": "Bandejas",
-        "dataLoad": "Carga de datos",
-        "reports": "Reportes y auditoría",
-        "general": "General",
+        "shipmentsData": "Embarques y carga de datos",
+        "payments": "Pagos",
+        "paymentsConfig": "Configuración de pagos",
+        "usersAccess": "Usuarios y accesos",
         "chargesTariffs": "Cobros y tarifas",
-        "paymentsConfig": "Pagos",
-        "assistant": "Asistente"
+        "content": "Contenido y asistente"
       },
       "preferences": "Preferencias"
     },
@@ -6558,6 +6571,16 @@
         "deposit": "depósito"
       },
       "optionLabel": "{{ name }}, {{ kind }}"
+    },
+    "search": {
+      "label": "Buscador de embarques",
+      "placeholder": "BL, booking o contenedor",
+      "submit": "Ir al embarque",
+      "open": "Abrir el buscador de embarques",
+      "hint": "Ingrese un número de BL, booking o contenedor. Atajo de teclado: barra diagonal.",
+      "invalid": "Ingrese al menos 4 caracteres de un número de BL, booking o contenedor.",
+      "notFound": "No encontramos un embarque con ese número. Revise el número o búsquelo en Mis embarques.",
+      "error": "No se pudo realizar la búsqueda. Intente nuevamente."
     }
   },
   "shipments": {
