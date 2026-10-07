@@ -3,10 +3,7 @@
 --
 -- Cuándo ejecutarlo: DESPUÉS de desplegar la versión del PR #44, para que el esquema esté al día y se eliminen
 -- también los usuarios de demostración que agregan las migraciones nuevas.
--- Cómo (el hash BCrypt de la contraseña se entrega aparte y no se guarda en el repositorio):
---   psql "<DATABASE_PUBLIC_URL de Railway>" -v demo_hash='<hash BCrypt>' -f scripts/sql/usuario-demo-unico.sql
--- En una consola SQL sin psql (p. ej. la de Railway): quite la línea \set ON_ERROR_STOP y reemplace :'demo_hash'
--- por el hash entre comillas simples.
+-- Cómo: en Railway, abra la base PostgreSQL > pestaña "Data" (o "Query"), pegue TODO este archivo y ejecútelo.
 --
 -- Todo va en una transacción: si algo falla, no se aplica nada. Antes de ejecutarlo, respalde la base
 -- (Railway: Backups, o pg_dump).
@@ -19,15 +16,10 @@
 --   3. Elimina a los demás usuarios. Sus roles se borran en cascada. Los registros históricos (pagos,
 --      solicitudes, auditoría) se conservan: guardan el usuario como texto o como id sin llave foránea.
 --
--- Ni la contraseña ni su hash están en este archivo: el hash BCrypt (costo 12) se pasa como parámetro.
+-- La contraseña no está en este archivo: solo su hash BCrypt (costo 12). Se entregó aparte.
 -- =============================================================================================================
 
-\set ON_ERROR_STOP on
-
 BEGIN;
-
--- Hash de la contraseña del usuario demo, recibido como parámetro de psql (-v demo_hash=...).
-SELECT set_config('portal.demo_hash', :'demo_hash', true);
 
 -- Vista previa: usuarios antes del cambio.
 SELECT "Email", "UserType", "IsActive" FROM "Users" ORDER BY "Email";
@@ -35,17 +27,13 @@ SELECT "Email", "UserType", "IsActive" FROM "Users" ORDER BY "Email";
 DO $$
 DECLARE
     demo_email   CONSTANT text := 'demo@hapaglloyd.cl';
-    demo_hash    CONSTANT text := current_setting('portal.demo_hash', true);
+    demo_hash    CONSTANT text := '$2a$12$6.GmxVGs5VabWL1xy8gzZ.GrKftqiOf2iLKsLK9qIJqEgZc0BaCmm';
     internal_org uuid;
     admin_role   uuid;
     demo_id      uuid;
     removed      uuid[];
     t            record;
 BEGIN
-    IF demo_hash IS NULL OR demo_hash !~ '^\$2[aby]\$[0-9]{2}\$.{53}$' THEN
-        RAISE EXCEPTION 'Falta el hash BCrypt de la contraseña: ejecute psql con -v demo_hash=''<hash>''.';
-    END IF;
-
     -- Organización interna de Hapag-Lloyd (la del administrador del sistema).
     SELECT "Id" INTO internal_org FROM "Clients"
      WHERE "OrganizationType" = 'Internal' AND "DeletedAt" IS NULL
