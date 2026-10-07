@@ -112,18 +112,13 @@
           <thead>
             <tr>
               <th scope="col"><span class="visually-hidden">{{ 'invoices.col.select' | transloco }}</span></th>
-              <th scope="col" appSortHeader="number" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.siiNumber' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.sourceNumber' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.documentType' | transloco }}</th>
-              <th scope="col" appSortHeader="issueDate" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.issueDate' | transloco }}</th>
+              <th scope="col" appSortHeader="number" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.document' | transloco }}</th>
               <th scope="col" appSortHeader="dueDate" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.dueDate' | transloco }}</th>
               <th scope="col" appSortHeader="blNumber" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.reference' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.legalName' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.taxId' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.party' | transloco }}</th>
               <th scope="col" class="text-end" appSortHeader="totalAmount" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.amount' | transloco }}</th>
-              <th scope="col" appSortHeader="currency" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.currency' | transloco }}</th>
               <th scope="col">{{ 'invoices.col.status' | transloco }}</th>
-              <th scope="col"><span class="visually-hidden">{{ 'invoices.col.actions' | transloco }}</span></th>
+              <th scope="col" class="hl-col-sticky-end"><span class="visually-hidden">{{ 'invoices.col.actions' | transloco }}</span></th>
             </tr>
           </thead>
           <tbody>
@@ -135,28 +130,35 @@
                          [attr.aria-label]="(inv.canDownload ? 'invoices.selectLabel' : 'invoices.selectDisabledLabel') | transloco: { number: label(inv) }" />
                 </td>
                 <!-- Número SII y número del sistema de origen, diferenciados (M7-01) -->
-                <td class="fw-semibold" data-testid="invoice-sii">
-                  @if (inv.siiNumber) {
-                    {{ inv.siiNumber }}
-                  } @else {
-                    <span class="small fw-normal">{{ 'invoices.noFolio' | transloco }}</span>
-                  }
+                <!-- Una columna por documento: número SII destacado y, debajo, tipo y número del sistema de origen (M7-01) -->
+                <td class="text-nowrap">
+                  <span class="fw-semibold d-block" data-testid="invoice-sii">
+                    @if (inv.siiNumber) {
+                      {{ inv.siiNumber }}
+                    } @else {
+                      <span class="small fw-normal">{{ 'invoices.noFolio' | transloco }}</span>
+                    }
+                  </span>
+                  <span class="small text-muted d-block">{{ inv.documentType | codeLabel: docTypeKeys }}</span>
+                  <span class="small text-muted d-block">{{ 'invoices.sourceNumber' | transloco }} <span data-testid="invoice-source">{{ inv.sourceNumber }}</span></span>
                 </td>
-                <td data-testid="invoice-source">{{ inv.sourceNumber }}</td>
-                <td>{{ inv.documentType | codeLabel: docTypeKeys }}</td>
-                <td class="text-nowrap">{{ inv.issueDate | hlDate: 'localDate' }}</td>
-                <td class="text-nowrap">{{ inv.dueDate ? (inv.dueDate | hlDate: 'localDate') : '—' }}</td>
+                <!-- Vencimiento destacado (define si se puede pagar a tiempo) y la emisión debajo -->
+                <td class="text-nowrap">
+                  {{ inv.dueDate ? (inv.dueDate | hlDate: 'localDate') : '—' }}
+                  <span class="small text-muted d-block">{{ 'invoices.issuedOn' | transloco: { date: (inv.issueDate | hlDate: 'localDate') } }}</span>
+                </td>
                 <td>
                   {{ inv.blNumber ?? '—' }}
                   @if (inv.bookingNumber) {
                     <span class="small text-muted d-block">{{ 'invoices.booking' | transloco: { booking: inv.bookingNumber } }}</span>
                   }
                 </td>
-                <td>{{ inv.legalName }}</td>
-                <td class="text-nowrap">{{ inv.taxId }}</td>
+                <td class="hl-cell-name">
+                  {{ inv.legalName }}
+                  <span class="small text-muted d-block text-nowrap">{{ inv.taxId }}</span>
+                </td>
                 <td class="text-end text-nowrap">{{ inv.totalAmount | hlCurrency: inv.currency }}</td>
-                <td>{{ inv.currency }}</td>
-                <td class="hl-cell-text">
+                <td class="hl-cell-name">
                   <span class="hl-badge" [class]="statusClass(inv)">{{ inv.status | codeLabel: statusKeys }}</span>
                   <!-- Fase 2, Ola H: refacturación IAO (M3-11) y factura cubierta por un pago anticipado (M3-19) -->
                   @if (inv.supersededByInvoiceId) {
@@ -186,7 +188,7 @@
                     }
                   }
                 </td>
-                <td>
+                <td class="hl-col-sticky-end">
                   <!-- Orden fijo (PDF, carro, refacturación); sin PDF queda su hueco: las acciones se alinean entre filas -->
                   <div class="hl-actions">
                     @if (inv.canDownload) {

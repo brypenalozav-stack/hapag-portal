@@ -309,9 +309,10 @@ h1, h2, h3, h4, h5, h6 {
     vertical-align: middle;
   }
 
-  // Badges y botones de una celda no se parten: "Agregar al carro" en dos líneas desalineaba las filas.
+  // Badges y botones de una celda no se parten: "Agregar al carro" en dos líneas desalineaba las filas. Los
+  // botones con forma de enlace (btn-link) son texto corrido y sí se parten: si no, ensanchaban la columna.
   .hl-badge,
-  .btn {
+  .btn:not(.btn-link) {
     white-space: nowrap;
   }
 
@@ -1615,6 +1616,20 @@ html {
 // Hueco del tamaño de una acción que la fila no tiene: las acciones de las filas quedan en la misma columna.
 .hl-actions__slot {
   visibility: hidden;
+}
+
+// Columna de acciones fija al borde derecho de una tabla que se desplaza: los botones de la fila (PDF, pagar)
+// quedan visibles sin desplazar la tabla. Toma el fondo de la fila (también la cebra y el tema oscuro).
+.hl-table .hl-col-sticky-end {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background-color: inherit;
+  box-shadow: -6px 0 6px -6px rgba(0, 0, 0, 0.25);
+}
+
+.hl-table thead .hl-col-sticky-end {
+  background-color: var(--hl-dark);
 }
 
 // Fila de formulario con texto de ayuda bajo los campos: las etiquetas quedan arriba en una misma línea, los campos

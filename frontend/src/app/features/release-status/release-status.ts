@@ -84,7 +84,7 @@ export class ReleaseStatusComponent {
   readonly downloading = signal<string | null>(null);
 
   readonly tatcKeys = TATC_STATUS_KEYS;
-  readonly tatcClass = TATC_STATUS_CLASS;
+  readonly tatcClass: Readonly<Partial<Record<string, string>>> = TATC_STATUS_CLASS;
   readonly reasonKeys = TATC_PENDING_REASON_KEYS;
 
   /** Solicitudes automáticas ya hechas en esta sesión (una por BL). */

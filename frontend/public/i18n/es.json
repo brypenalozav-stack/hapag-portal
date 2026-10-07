@@ -4864,17 +4864,12 @@
     "col": {
       "actions": "Acciones",
       "amount": "Monto",
-      "currency": "Moneda",
-      "documentType": "Tipo",
+      "document": "Documento",
       "dueDate": "Vencimiento",
-      "issueDate": "Emisión",
-      "legalName": "Razón social",
+      "party": "Razón social y RUT",
       "reference": "BL o booking",
       "select": "Elegir",
-      "siiNumber": "N.° SII",
-      "sourceNumber": "N.° sistema de origen",
-      "status": "Estado",
-      "taxId": "RUT"
+      "status": "Estado"
     },
     "count": "{count, plural, one {# factura} other {# facturas}}",
     "coveredBy": "Cubierta por el recibo {{ receipt }} (pago {{ payment }})",
@@ -4907,6 +4902,7 @@
       "to": "Emitidas hasta"
     },
     "inCart": "En el carro",
+    "issuedOn": "Emitida el {{ date }}",
     "lastUpdated": "Última actualización: {{ date }}",
     "noFolio": "Sin folio",
     "organization": "Organización",
@@ -4927,6 +4923,7 @@
     "reinvoiceLabel": "Refacturar la factura {{ number }} a otra razón social",
     "selectDisabledLabel": "La factura {{ number }} no tiene folio SII: no se puede descargar",
     "selectLabel": "Elegir la factura {{ number }} para descargar",
+    "sourceNumber": "Origen",
     "statementLink": "Ver estado de cuenta",
     "subtitle": "Facturas locales de las organizaciones a las que tiene acceso, sin mezclarlas entre sí.",
     "supersededBy": "Reemplazada por la factura {{ number }}",

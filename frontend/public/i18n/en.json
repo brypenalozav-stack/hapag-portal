@@ -4864,17 +4864,12 @@
     "col": {
       "actions": "Actions",
       "amount": "Amount",
-      "currency": "Currency",
-      "documentType": "Type",
+      "document": "Document",
       "dueDate": "Due date",
-      "issueDate": "Issue date",
-      "legalName": "Legal name",
+      "party": "Legal name and tax ID",
       "reference": "BL or booking",
       "select": "Select",
-      "siiNumber": "SII number",
-      "sourceNumber": "Source system number",
-      "status": "Status",
-      "taxId": "Tax ID"
+      "status": "Status"
     },
     "count": "{count, plural, one {# invoice} other {# invoices}}",
     "coveredBy": "Covered by receipt {{ receipt }} (payment {{ payment }})",
@@ -4907,6 +4902,7 @@
       "to": "Issued until"
     },
     "inCart": "In the cart",
+    "issuedOn": "Issued {{ date }}",
     "lastUpdated": "Last updated: {{ date }}",
     "noFolio": "No folio",
     "organization": "Organization",
@@ -4927,6 +4923,7 @@
     "reinvoiceLabel": "Re-invoice invoice {{ number }} to another legal entity",
     "selectDisabledLabel": "Invoice {{ number }} has no SII folio: it cannot be downloaded",
     "selectLabel": "Select invoice {{ number }} for download",
+    "sourceNumber": "Source",
     "statementLink": "View statement of account",
     "subtitle": "Local invoices of the organizations you have access to, kept separate from each other.",
     "supersededBy": "Superseded by invoice {{ number }}",
