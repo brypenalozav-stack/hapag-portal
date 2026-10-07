@@ -164,8 +164,14 @@ public sealed class ScriptedPaymentProvider(string providerCode) : IPaymentProvi
             $"PRV-{request.ExternalReference}", request.ExternalReference, PaymentStatus.Pending, $"https://pay.test/{request.ExternalReference}")));
     }
 
-    public Task<Result<PaymentVerification>> VerifyNotificationAsync(string notificationToken, string externalReference, CancellationToken cancellationToken = default) =>
+    public Task<Result<PaymentVerification>> GetStatusAsync(PaymentStatusRequest request, CancellationToken cancellationToken = default) =>
         Task.FromResult(Result<PaymentVerification>.Failure(Error.Unauthorized));
+
+    public Task<Result> CancelAsync(PaymentStatusRequest request, CancellationToken cancellationToken = default) =>
+        Task.FromResult(Result.Success());
+
+    public Task<Result<PaymentNotificationInfo>> ReadNotificationAsync(PaymentNotification notification, CancellationToken cancellationToken = default) =>
+        Task.FromResult(Result<PaymentNotificationInfo>.Failure(Error.Unauthorized));
 }
 
 public sealed class FakePaymentProviderResolver : IPaymentProviderResolver

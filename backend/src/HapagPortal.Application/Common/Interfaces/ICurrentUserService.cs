@@ -27,4 +27,10 @@ public interface ICurrentUserService
     /// usuario técnico. Nulo para los usuarios del portal.
     /// </summary>
     Guid? ApiClientId => null;
+
+    /// <summary>IP del navegador del usuario (tras el proxy). La exigen algunas pasarelas de pago al crear el cobro.</summary>
+    string? IpAddress => null;
+
+    /// <summary>User-Agent del navegador del usuario, para las pasarelas de pago que lo exigen.</summary>
+    string? UserAgent => null;
 }

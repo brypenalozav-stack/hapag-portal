@@ -51,6 +51,15 @@ public sealed class Payment : BaseAuditableEntity
     public string? ProviderTransactionId { get; set; }
     public string? RedirectUrl { get; set; }
 
+    /// <summary>
+    /// Formulario firmado que el navegador envía a la pasarela (botones bancarios por POST), serializado en JSON con
+    /// método, destino y campos. Nulo cuando la pasarela entrega una URL (<see cref="RedirectUrl"/>).
+    /// </summary>
+    public string? RedirectForm { get; set; }
+
+    /// <summary>Última consulta del estado a la pasarela (notificación, retorno del pagador o conciliación).</summary>
+    public DateTime? ProviderCheckedAt { get; set; }
+
     /// <summary>RUT del pagador (M7-02), distinto del RUT de facturación de cada ítem (M5-09).</summary>
     public string? PayerTaxId { get; set; }
     public string? PayerName { get; set; }

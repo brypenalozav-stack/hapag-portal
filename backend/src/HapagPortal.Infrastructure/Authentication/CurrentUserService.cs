@@ -62,4 +62,16 @@ public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     // M3-17: la clave del canal Web Service autentica al usuario técnico de su cliente.
     public Guid? ApiClientId =>
         Guid.TryParse(User?.FindFirstValue(ApiClientClaims.ClientId), out var id) ? id : null;
+
+    // UseForwardedHeaders ya resolvió la IP del cliente detrás del proxy.
+    public string? IpAddress => httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+
+    public string? UserAgent
+    {
+        get
+        {
+            var value = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString();
+            return string.IsNullOrWhiteSpace(value) ? null : value;
+        }
+    }
 }

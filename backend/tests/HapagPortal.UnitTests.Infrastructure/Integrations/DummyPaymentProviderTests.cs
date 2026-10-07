@@ -34,11 +34,11 @@ public sealed class DummyPaymentProviderTests
     }
 
     [Fact]
-    public async Task VerifyNotificationAsync_InitiatedPayment_ShouldReturnConfirmedWithAmount()
+    public async Task GetStatusAsync_InitiatedPayment_ShouldReturnConfirmedWithAmount()
     {
         await _provider.InitiateAsync(Request("PAY-2"));
 
-        var result = await _provider.VerifyNotificationAsync("token-ok", "PAY-2");
+        var result = await _provider.GetStatusAsync(new PaymentStatusRequest("token-ok", "PAY-2"));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Status.Should().Be(PaymentStatus.Confirmed);
@@ -48,11 +48,11 @@ public sealed class DummyPaymentProviderTests
     }
 
     [Fact]
-    public async Task VerifyNotificationAsync_RejectToken_ShouldReturnFailed()
+    public async Task GetStatusAsync_RejectReference_ShouldReturnFailed()
     {
         await _provider.InitiateAsync(Request("PAY-3"));
 
-        var result = await _provider.VerifyNotificationAsync("token-REJECT", "PAY-3");
+        var result = await _provider.GetStatusAsync(new PaymentStatusRequest("token-REJECT", "PAY-3"));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Status.Should().Be(PaymentStatus.Failed);
@@ -60,11 +60,20 @@ public sealed class DummyPaymentProviderTests
     }
 
     [Fact]
-    public async Task VerifyNotificationAsync_UnknownReference_ShouldReturnInvalidResponse()
+    public async Task GetStatusAsync_UnknownReference_ShouldReturnInvalidResponse()
     {
-        var result = await _provider.VerifyNotificationAsync("token-ok", "PAY-UNKNOWN");
+        var result = await _provider.GetStatusAsync(new PaymentStatusRequest("token-ok", "PAY-UNKNOWN"));
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Integration.InvalidResponse");
+    }
+
+    [Fact]
+    public async Task ReadNotificationAsync_ShouldRejectBecauseDummyUsesTheSimulatedWebhook()
+    {
+        var result = await _provider.ReadNotificationAsync(new PaymentNotification("{}", new Dictionary<string, string>()));
+
+        result.IsFailure.Should().BeTrue();
+        (await _provider.CancelAsync(new PaymentStatusRequest("x", "PAY-1"))).IsSuccess.Should().BeTrue();
     }
 }

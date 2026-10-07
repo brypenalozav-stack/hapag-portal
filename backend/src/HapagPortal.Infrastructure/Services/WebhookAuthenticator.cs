@@ -27,29 +27,4 @@ public sealed class WebhookAuthenticator(IConfiguration configuration) : IWebhoo
             Encoding.UTF8.GetBytes(providedSecret));
     }
 
-    public bool IsValidSignature(string provider, string rawBody, string? signature)
-    {
-        // Fail-closed: deshabilitado, sin clave de firma o sin firma -> rechazar.
-        if (!WebhooksEnabled)
-            return false;
-
-        var signingKey = configuration[$"Payments:Webhooks:{provider}:SigningKey"];
-
-        if (string.IsNullOrEmpty(signingKey) || string.IsNullOrWhiteSpace(signature))
-            return false;
-
-        byte[] provided;
-        try
-        {
-            provided = Convert.FromHexString(signature.Trim());
-        }
-        catch (FormatException)
-        {
-            return false;
-        }
-
-        var expected = HMACSHA256.HashData(Encoding.UTF8.GetBytes(signingKey), Encoding.UTF8.GetBytes(rawBody));
-
-        return CryptographicOperations.FixedTimeEquals(expected, provided);
-    }
 }

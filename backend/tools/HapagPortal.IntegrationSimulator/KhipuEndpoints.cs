@@ -15,7 +15,6 @@ public sealed record KhipuPaymentCreated(
 public sealed record KhipuPayment(
     string PaymentId,
     string PaymentUrl,
-    string NotificationToken,
     long ReceiverId,
     string Subject,
     decimal Amount,
@@ -25,15 +24,14 @@ public sealed record KhipuPayment(
     string TransactionId);
 
 /// <summary>
-/// CT-KHIPU bajo <c>/khipu</c>, con los nombres de campo snake_case de la API pública v3. Pagos en
-/// memoria. El token de notificación de un pago creado es <c>ntf-&lt;payment_id&gt;</c>; además existe el
-/// pago de ejemplo del contrato (token <see cref="ExampleNotificationToken"/>, transaction_id
-/// <c>PAY-2026-000123</c>, 245.000 CLP, pagado). Como en el Dummy, un <c>transaction_id</c> que contiene
-/// "REJECT" queda rechazado por el pagador.
+/// CT-KHIPU bajo <c>/khipu</c>, con los nombres de campo snake_case de la API pública v3: crear, consultar y anular
+/// (solo pendientes). Pagos en memoria. Existe el pago de ejemplo del contrato (<see cref="ExamplePaymentId"/>,
+/// transaction_id <c>PAY-2026-000123</c>, 245.000 CLP, pagado). Un <c>transaction_id</c> que contiene "REJECT" queda
+/// rechazado por el pagador y uno con "PENDING" queda pendiente (anulable).
 /// </summary>
 public static class KhipuEndpoints
 {
-    public const string ExampleNotificationToken = "j8kPBHaPNy3PkCh2iqTYjXxGZnzW6vBzbZJzqDCe5";
+    public const string ExamplePaymentId = "gqzdy6chjne9";
     public const long ReceiverId = 985101;
 
     private static readonly JsonSerializerOptions SnakeCase = new(JsonSerializerDefaults.Web)
@@ -47,7 +45,7 @@ public static class KhipuEndpoints
     static KhipuEndpoints()
     {
         Store(new KhipuPayment(
-            "gqzdy6chjne9", "https://khipu.com/payment/info/gqzdy6chjne9", ExampleNotificationToken, ReceiverId,
+            ExamplePaymentId, "https://khipu.com/payment/info/gqzdy6chjne9", ReceiverId,
             "Pago PAY-2026-000123 – BL HLCUSCL2609A1234", 245000m, "CLP", "done", "normal", "PAY-2026-000123"));
     }
 
@@ -55,8 +53,8 @@ public static class KhipuEndpoints
     {
         var group = app.MapGroup("/khipu");
         group.MapPost("/v3/payments", (Func<HttpContext, Task<IResult>>)CreatePayment);
-        group.MapGet("/v3/payments", GetByNotificationToken);
         group.MapGet("/v3/payments/{id}", GetById);
+        group.MapDelete("/v3/payments/{id}", DeleteById);
     }
 
     private static async Task<IResult> CreatePayment(HttpContext context)
@@ -75,9 +73,10 @@ public static class KhipuEndpoints
 
         var id = "sim" + Interlocked.Increment(ref _lastId).ToString("x8", CultureInfo.InvariantCulture);
         var reject = transactionId?.Contains("REJECT", StringComparison.OrdinalIgnoreCase) == true;
+        var pending = transactionId?.Contains("PENDING", StringComparison.OrdinalIgnoreCase) == true;
         var payment = Store(new KhipuPayment(
-            id, $"https://khipu.com/payment/info/{id}", $"ntf-{id}", ReceiverId, subject!, amount!.Value, currency!,
-            reject ? "pending" : "done", reject ? "rejected-by-payer" : "normal", transactionId ?? id));
+            id, $"https://khipu.com/payment/info/{id}", ReceiverId, subject!, amount!.Value, currency!,
+            reject || pending ? "pending" : "done", reject ? "rejected-by-payer" : pending ? "pending" : "normal", transactionId ?? id));
 
         return Results.Json(
             new KhipuPaymentCreated(
@@ -90,22 +89,27 @@ public static class KhipuEndpoints
             SnakeCase);
     }
 
-    private static IResult GetByNotificationToken(HttpContext context)
-    {
-        var errors = new RequestErrors();
-        var token = SimRequest.RequiredQuery(context, "notification_token", errors, minLength: 1);
-
-        if (errors.Any)
-            return SimulatorHttp.BadRequest(context, errors);
-
-        var payment = PaymentsById.Values.FirstOrDefault(p => p.NotificationToken == token);
-        return payment is null ? SimulatorHttp.NotFound(context) : Results.Json(payment, SnakeCase);
-    }
-
     private static IResult GetById(HttpContext context, string id) =>
         PaymentsById.TryGetValue(id, out var payment)
             ? Results.Json(payment, SnakeCase)
             : SimulatorHttp.NotFound(context);
+
+    /// <summary>Anula un cobro pendiente; uno pagado no se puede anular (400).</summary>
+    private static IResult DeleteById(HttpContext context, string id)
+    {
+        if (!PaymentsById.TryGetValue(id, out var payment))
+            return SimulatorHttp.NotFound(context);
+
+        if (payment.Status != "pending")
+        {
+            var errors = new RequestErrors();
+            errors.Add("payment_id", "Only pending payments can be deleted.");
+            return SimulatorHttp.BadRequest(context, errors);
+        }
+
+        PaymentsById.TryRemove(id, out _);
+        return Results.Json(new { message = "Payment deleted" });
+    }
 
     private static KhipuPayment Store(KhipuPayment payment) => PaymentsById[payment.PaymentId] = payment;
 }

@@ -53,22 +53,19 @@ public sealed class SecretTypesTests
         SecretTypes.KhipuSecret.Should().Be("KHIPU_SECRET");
     }
 
-    [Fact]
-    public void BancoChileApiKey_ShouldHaveCorrectValue()
+    [Theory]
+    [InlineData(SecretTypes.KhipuWebhookSecret, "KHIPU_WEBHOOK_SECRET")]
+    [InlineData(SecretTypes.GetnetLogin, "GETNET_LOGIN")]
+    [InlineData(SecretTypes.GetnetSecretKey, "GETNET_SECRET_KEY")]
+    [InlineData(SecretTypes.BciPagosAccountId, "BCIPAGOS_ACCOUNT_ID")]
+    [InlineData(SecretTypes.BciPagosTokenSecret, "BCIPAGOS_TOKEN_SECRET")]
+    [InlineData(SecretTypes.BciPagosUsername, "BCIPAGOS_USERNAME")]
+    [InlineData(SecretTypes.BciPagosPassword, "BCIPAGOS_PASSWORD")]
+    [InlineData(SecretTypes.BancoChileMerchantId, "BANCOCHILE_MERCHANT_ID")]
+    [InlineData(SecretTypes.BancoChileSigningKey, "BANCOCHILE_SIGNING_KEY")]
+    public void PaymentGatewaySecrets_ShouldHaveCorrectValues(string actual, string expected)
     {
-        SecretTypes.BancoChileApiKey.Should().Be("BANCOCHILE_API_KEY");
-    }
-
-    [Fact]
-    public void SantanderApiKey_ShouldHaveCorrectValue()
-    {
-        SecretTypes.SantanderApiKey.Should().Be("SANTANDER_API_KEY");
-    }
-
-    [Fact]
-    public void BciApiKey_ShouldHaveCorrectValue()
-    {
-        SecretTypes.BciApiKey.Should().Be("BCI_API_KEY");
+        actual.Should().Be(expected);
     }
 
     [Fact]

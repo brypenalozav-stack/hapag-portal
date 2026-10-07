@@ -16,6 +16,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
 using Polly;
 
@@ -32,9 +33,10 @@ public static partial class DependencyInjectionExtensions
 
     /// <summary>
     /// Registra los adaptadores de integración según <c>Integrations:&lt;Sistema&gt;:Mode</c>
-    /// (<c>Dummy</c> por defecto). Con <c>Mode=Real</c>, Nexus (también su Counter, M8-09), Fis, Khipu, BancoChile, DbNet,
-    /// Tracking, Tatc y Contacts (P0060, M1-06)
-    /// usan su cliente HTTP con logging (NF-27) y resiliencia (Tatc además con caché corta, M2-09); Santander, Bci, Signature y Storage no
+    /// (<c>Dummy</c> por defecto). Con <c>Mode=Real</c>, Nexus (también su Counter, M8-09), Fis, DbNet, Tracking, Tatc,
+    /// Contacts (P0060, M1-06) y las pasarelas de pago Khipu, Getnet (botón Santander) y BciPagos (botón BCI)
+    /// usan su cliente HTTP con logging (NF-27) y resiliencia (Tatc además con caché corta, M2-09); BancoChile Real es un
+    /// formulario firmado sin cliente HTTP. Signature y Storage no
     /// tienen cliente Real y, como un modo desconocido o un <c>BaseUrl</c> inválido, detienen el arranque
     /// con <see cref="InvalidOperationException"/>. Storage admite además <c>Mode=Local</c>: archivos en
     /// <c>Integrations:Storage:LocalPath</c> (por defecto bajo LocalApplicationData) que persisten entre reinicios.
@@ -94,29 +96,7 @@ public static partial class DependencyInjectionExtensions
             services.AddSingleton<IShipmentSource, DummyShipmentSource>();
         }
 
-        foreach (var provider in IntegrationSystems.PaymentProviders)
-        {
-            if (realSystems.Contains(provider))
-                continue;
-
-            services.AddKeyedSingleton<IPaymentProvider>(provider, (sp, key) =>
-                new DummyPaymentProvider((string)key!, sp.GetRequiredService<ILogger<DummyPaymentProvider>>()));
-        }
-
-        // Proveedores de pago Real como servicios con clave, para que [FromKeyedServices] resuelva.
-        if (realSystems.Contains(IntegrationSystems.Khipu))
-        {
-            services.AddRealClient<HttpKhipuPaymentProvider>(configuration, IntegrationSystems.Khipu);
-            services.AddKeyedTransient<IPaymentProvider>(IntegrationSystems.Khipu, (sp, _) =>
-                sp.GetRequiredService<HttpKhipuPaymentProvider>());
-        }
-
-        if (realSystems.Contains(IntegrationSystems.BancoChile))
-        {
-            services.AddRealClient<HttpBancoChilePaymentProvider>(configuration, IntegrationSystems.BancoChile);
-            services.AddKeyedTransient<IPaymentProvider>(IntegrationSystems.BancoChile, (sp, _) =>
-                sp.GetRequiredService<HttpBancoChilePaymentProvider>());
-        }
+        AddPaymentGateways(services, configuration, realSystems);
 
         // M5-03: el medio de pago configurado elige el proveedor por su clave.
         services.AddScoped<IPaymentProviderResolver, PaymentProviderResolver>();
@@ -221,13 +201,71 @@ public static partial class DependencyInjectionExtensions
     }
 
     /// <summary>
+    /// Pasarelas de pago (docs/integraciones/pasarelas-pago.md), registradas con la clave del medio de pago. En Dummy, el
+    /// adaptador simulado. En Real, el cliente de la pasarela: las credenciales se leen del almacén de secretos al usar
+    /// la pasarela, así que sin credenciales el arranque no falla y el cobro falla con <c>Integration.NotConfigured</c>.
+    /// Los clientes de pago no reintentan POST/DELETE (un reintento podría crear un segundo cobro); la conciliación
+    /// periódica cubre las consultas fallidas.
+    /// </summary>
+    private static void AddPaymentGateways(IServiceCollection services, IConfiguration configuration, HashSet<string> realSystems)
+    {
+        services.TryAddSingleton(TimeProvider.System);
+        services.TryAddSingleton(new PaymentPublicUrls(
+            configuration[PaymentPublicUrls.PublicBaseUrlKey], configuration[PaymentPublicUrls.ApiPublicBaseUrlKey]));
+
+        foreach (var (providerKey, system) in IntegrationSystems.PaymentGateways)
+        {
+            if (realSystems.Contains(system))
+                continue;
+
+            services.AddKeyedSingleton<IPaymentProvider>(providerKey, (sp, key) =>
+                new DummyPaymentProvider((string)key!, sp.GetRequiredService<ILogger<DummyPaymentProvider>>()));
+        }
+
+        if (realSystems.Contains(IntegrationSystems.Khipu))
+        {
+            services.AddSingleton(Options<KhipuOptions>(configuration, IntegrationSystems.Khipu));
+            services.AddRealClient<HttpKhipuPaymentProvider>(configuration, IntegrationSystems.Khipu, retryUnsafeMethods: false);
+            services.AddKeyedTransient<IPaymentProvider>(PaymentProviderKeys.Khipu, (sp, _) => sp.GetRequiredService<HttpKhipuPaymentProvider>());
+        }
+
+        if (realSystems.Contains(IntegrationSystems.Getnet))
+        {
+            services.AddSingleton(Options<GetnetOptions>(configuration, IntegrationSystems.Getnet));
+            services.AddRealClient<GetnetPaymentProvider>(configuration, IntegrationSystems.Getnet, retryUnsafeMethods: false);
+            services.AddKeyedTransient<IPaymentProvider>(PaymentProviderKeys.Santander, (sp, _) => sp.GetRequiredService<GetnetPaymentProvider>());
+        }
+
+        if (realSystems.Contains(IntegrationSystems.BciPagos))
+        {
+            services.AddSingleton(Options<BciPagosOptions>(configuration, IntegrationSystems.BciPagos));
+            services.AddSingleton<BciPagosTokenCache>();
+            services.AddRealClient<BciPagosPaymentProvider>(configuration, IntegrationSystems.BciPagos, retryUnsafeMethods: false);
+            services.AddKeyedTransient<IPaymentProvider>(PaymentProviderKeys.Bci, (sp, _) => sp.GetRequiredService<BciPagosPaymentProvider>());
+        }
+
+        if (realSystems.Contains(IntegrationSystems.BancoChile))
+        {
+            services.AddSingleton(Options<BancoChileOptions>(configuration, IntegrationSystems.BancoChile));
+            services.AddTransient<BancoChileFormPaymentProvider>();
+            services.AddKeyedTransient<IPaymentProvider>(PaymentProviderKeys.BancoChile, (sp, _) => sp.GetRequiredService<BancoChileFormPaymentProvider>());
+        }
+    }
+
+    private static TOptions Options<TOptions>(IConfiguration configuration, string system)
+        where TOptions : class, new() =>
+        configuration.GetSection($"Integrations:{system}").Get<TOptions>() ?? new TOptions();
+
+    /// <summary>
     /// Cliente tipado (nombre = <c>typeof(TClient).Name</c>) con logging NF-27 por fuera y la tubería
     /// estándar de resiliencia: timeout total, reintentos exponenciales, circuit breaker y timeout por intento.
+    /// Con <paramref name="retryUnsafeMethods"/> = false no reintenta POST, PUT, PATCH ni DELETE.
     /// </summary>
     private static void AddRealClient<TClient>(
         this IServiceCollection services,
         IConfiguration configuration,
-        string system)
+        string system,
+        bool retryUnsafeMethods = true)
         where TClient : class
     {
         var baseAddress = ReadBaseAddress(configuration, system);
@@ -247,6 +285,8 @@ public static partial class DependencyInjectionExtensions
                 o.Retry.MaxRetryAttempts = 3;
                 o.Retry.BackoffType = DelayBackoffType.Exponential;
                 o.Retry.Delay = TimeSpan.FromMilliseconds(retryBaseDelayMs);
+                if (!retryUnsafeMethods)
+                    o.Retry.DisableForUnsafeHttpMethods();
                 o.CircuitBreaker.MinimumThroughput = 5;
                 o.CircuitBreaker.FailureRatio = 0.5;
                 // El handler estándar exige SamplingDuration >= 2 × AttemptTimeout.
@@ -288,7 +328,8 @@ public static partial class DependencyInjectionExtensions
             if (!IntegrationSystems.WithRealAdapter.Contains(system))
                 throw new InvalidOperationException($"Integrations:{system}:Mode=Real no tiene adaptador disponible");
 
-            ReadBaseAddress(configuration, system);
+            if (!IntegrationSystems.WithoutBaseUrl.Contains(system))
+                ReadBaseAddress(configuration, system);
             return true;
         }
 

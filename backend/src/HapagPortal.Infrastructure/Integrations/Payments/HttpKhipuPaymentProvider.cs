@@ -1,121 +1,269 @@
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
+using Microsoft.Extensions.Logging;
 
 namespace HapagPortal.Infrastructure.Integrations.Payments;
 
-/// <summary>
-/// Cliente Real de Khipu (CT-KHIPU, API pública v3, JSON snake_case, cabecera <c>x-api-key</c> con el
-/// secreto <c>KHIPU_SECRET</c>). Verifica las notificaciones (<see cref="VerifiesNotifications"/> = true):
-/// el webhook toma el estado, la referencia y el monto de esta consulta, no del cuerpo recibido.
-/// </summary>
-public sealed class HttpKhipuPaymentProvider(HttpClient httpClient, ISecretResolver secretResolver) : IPaymentProvider
+/// <summary>Opciones de Khipu (<c>Integrations:Khipu</c>).</summary>
+public sealed class KhipuOptions
 {
-    private const string KhipuStatusDone = "done";
+    /// <summary>Minutos de vigencia del cobro (<c>expires_date</c>); 0 = sin vencimiento propio (el de la cuenta).</summary>
+    public int ExpirationMinutes { get; set; } = 60;
 
-    // status_detail que anulan el pago aunque status no sea "pending" (CT-KHIPU, PaymentResponse).
+    /// <summary>Diferencia máxima entre la hora de la firma (<c>t</c>) y la del servidor (protección contra repetición).</summary>
+    public int WebhookToleranceSeconds { get; set; } = 300;
+
+    /// <summary>Envía el RUT del pagador como <c>fixed_payer_personal_identifier</c> (solo ese RUT podrá pagar).</summary>
+    public bool FixPayerTaxId { get; set; }
+}
+
+/// <summary>
+/// Khipu, API v3 (https://payment-api.khipu.com, cabecera <c>x-api-key</c> con el secreto <c>KHIPU_SECRET</c>):
+/// <list type="bullet">
+/// <item>Crear: <c>POST /v3/payments</c> con <c>transaction_id</c> = referencia del portal y <c>notify_api_version</c> 3.0.</item>
+/// <item>Consultar: <c>GET /v3/payments/{payment_id}</c>; anular un cobro pendiente: <c>DELETE /v3/payments/{payment_id}</c>.</item>
+/// <item>Notificación v3: <c>x-khipu-signature: t=&lt;ms&gt;,s=&lt;base64&gt;</c>, con
+/// <c>s = Base64(HMAC-SHA256(KHIPU_WEBHOOK_SECRET, t + "." + cuerpoCrudo))</c>, comparada en tiempo constante y con
+/// <c>t</c> dentro de la tolerancia. Luego el estado se consulta siempre con el GET.</item>
+/// </list>
+/// </summary>
+public sealed class HttpKhipuPaymentProvider(
+    HttpClient httpClient,
+    ISecretResolver secretResolver,
+    KhipuOptions options,
+    PaymentPublicUrls publicUrls,
+    TimeProvider timeProvider,
+    ILogger<HttpKhipuPaymentProvider> logger) : IPaymentProvider
+{
+    public const string SignatureHeader = "x-khipu-signature";
+    private const string ApiKeyHeader = "x-api-key";
+    private const string System = IntegrationSystems.Khipu;
+
     private static readonly HashSet<string> FailedStatusDetails =
         new(["rejected-by-payer", "marked-as-abuse", "reversed"], StringComparer.OrdinalIgnoreCase);
-
-    private static readonly IntegrationEndpoint Endpoint = new(
-        IntegrationSystems.Khipu, SecretTypes.KhipuSecret, "x-api-key", IntegrationHttp.SnakeCaseJson);
 
     public string ProviderCode => IntegrationSystems.Khipu;
 
     public bool VerifiesNotifications => true;
 
-    public async Task<Result<PaymentInitiation>> InitiateAsync(
-        PaymentInitiationRequest request,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentInitiation>> InitiateAsync(PaymentInitiationRequest request, CancellationToken cancellationToken = default)
     {
-        var body = new CreatePaymentDto(
-            request.Amount,
-            request.Currency,
-            request.Subject,
-            request.ExternalReference,
-            request.ReturnUrl,
-            request.NotifyUrl,
-            NotifyApiVersion: "3.0",
-            FixedPayerPersonalIdentifier: request.PayerTaxId);
+        var apiKey = await ApiKeyAsync(cancellationToken);
+        if (apiKey.IsFailure)
+            return Result<PaymentInitiation>.Failure(apiKey.Error);
 
-        var result = await IntegrationHttp.SendAsync<CreatePaymentResponseDto>(
-            httpClient, secretResolver, Endpoint, "createPayment", HttpMethod.Post, "v3/payments", cancellationToken, body);
+        var returnUrl = publicUrls.Site(request.ReturnUrl);
+        var notifyUrl = publicUrls.Api(request.NotifyUrl);
+        if (returnUrl.IsFailure || notifyUrl.IsFailure)
+            return Result<PaymentInitiation>.Failure(returnUrl.IsFailure ? returnUrl.Error : notifyUrl.Error);
 
-        if (result.IsFailure)
-            return Result<PaymentInitiation>.Failure(result.Error);
+        var body = new Dictionary<string, object?>
+        {
+            ["amount"] = GatewayFormat.Amount(request.Amount, request.Currency),
+            ["currency"] = request.Currency.ToUpperInvariant(),
+            ["subject"] = GatewayFormat.Truncate(request.Subject, 255),
+            ["transaction_id"] = request.ExternalReference,
+            ["return_url"] = returnUrl.Value,
+            ["cancel_url"] = returnUrl.Value,
+            ["notify_url"] = notifyUrl.Value,
+            ["notify_api_version"] = "3.0",
+        };
 
-        return result.Value is { } dto
-            ? Result<PaymentInitiation>.Success(new PaymentInitiation(
-                dto.PaymentId, request.ExternalReference, PaymentStatus.Pending, dto.PaymentUrl))
-            : Result<PaymentInitiation>.Failure(DomainErrors.Integration.InvalidResponse(Endpoint.System));
+        if (options.ExpirationMinutes > 0)
+        {
+            body["expires_date"] = timeProvider.GetUtcNow().AddMinutes(options.ExpirationMinutes)
+                .ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.PayerEmail))
+            body["payer_email"] = request.PayerEmail;
+        if (!string.IsNullOrWhiteSpace(request.PayerName))
+            body["payer_name"] = request.PayerName;
+        if (options.FixPayerTaxId && !string.IsNullOrWhiteSpace(request.PayerTaxId))
+            body["fixed_payer_personal_identifier"] = request.PayerTaxId;
+
+        var response = await GatewayHttp.SendAsync(
+            httpClient, System, "createPayment", HttpMethod.Post, "v3/payments", cancellationToken, body, headers: Auth(apiKey.Value));
+        if (response.IsFailure)
+            return Result<PaymentInitiation>.Failure(response.Error);
+
+        var paymentId = GatewayJson.Text(response.Value, "payment_id");
+        var paymentUrl = GatewayJson.Text(response.Value, "payment_url");
+        if (paymentId is null || paymentUrl is null)
+            return Result<PaymentInitiation>.Failure(DomainErrors.Integration.InvalidResponse(System));
+
+        return Result<PaymentInitiation>.Success(
+            new PaymentInitiation(paymentId, request.ExternalReference, PaymentStatus.Pending, paymentUrl));
+    }
+
+    public async Task<Result<PaymentVerification>> GetStatusAsync(PaymentStatusRequest request, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.ProviderReference))
+            return Result<PaymentVerification>.Failure(DomainErrors.Integration.InvalidResponse(System));
+
+        var apiKey = await ApiKeyAsync(cancellationToken);
+        if (apiKey.IsFailure)
+            return Result<PaymentVerification>.Failure(apiKey.Error);
+
+        var response = await GatewayHttp.SendAsync(
+            httpClient, System, "getPaymentById", HttpMethod.Get, $"v3/payments/{Uri.EscapeDataString(request.ProviderReference)}",
+            cancellationToken, headers: Auth(apiKey.Value));
+        if (response.IsFailure)
+            return Result<PaymentVerification>.Failure(response.Error);
+
+        var payment = response.Value;
+        var reference = GatewayJson.Text(payment, "transaction_id");
+        var amount = GatewayJson.Decimal(payment, "amount");
+        var currency = GatewayJson.Text(payment, "currency");
+        var status = GatewayJson.Text(payment, "status");
+        if (reference is null || amount is null || currency is null || status is null)
+            return Result<PaymentVerification>.Failure(DomainErrors.Integration.InvalidResponse(System));
+
+        return Result<PaymentVerification>.Success(new PaymentVerification(
+            reference, MapStatus(status, GatewayJson.Text(payment, "status_detail")), amount.Value, currency,
+            GatewayJson.Text(payment, "payment_id")));
+    }
+
+    public async Task<Result> CancelAsync(PaymentStatusRequest request, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.ProviderReference))
+            return Result.Success();
+
+        var apiKey = await ApiKeyAsync(cancellationToken);
+        if (apiKey.IsFailure)
+            return Result.Failure(apiKey.Error);
+
+        var response = await GatewayHttp.SendAsync(
+            httpClient, System, "deletePaymentById", HttpMethod.Delete, $"v3/payments/{Uri.EscapeDataString(request.ProviderReference)}",
+            cancellationToken, headers: Auth(apiKey.Value));
+        return response.IsSuccess ? Result.Success() : Result.Failure(response.Error);
+    }
+
+    public async Task<Result<PaymentNotificationInfo>> ReadNotificationAsync(PaymentNotification notification, CancellationToken cancellationToken = default)
+    {
+        var secret = await secretResolver.ResolveAsync(SecretTypes.KhipuWebhookSecret, null, cancellationToken);
+        if (string.IsNullOrWhiteSpace(secret))
+        {
+            logger.LogWarning("Notificación de Khipu rechazada: falta el secreto {SecretType}", SecretTypes.KhipuWebhookSecret);
+            return Result<PaymentNotificationInfo>.Failure(Error.Unauthorized);
+        }
+
+        var header = GatewayFormat.Header(notification.Headers, SignatureHeader);
+        if (!KhipuSignature.Verify(header, notification.RawBody, secret, timeProvider.GetUtcNow(), TimeSpan.FromSeconds(Math.Max(1, options.WebhookToleranceSeconds))))
+            return Result<PaymentNotificationInfo>.Failure(Error.Unauthorized);
+
+        try
+        {
+            using var document = JsonDocument.Parse(notification.RawBody);
+            var root = document.RootElement;
+            var paymentId = GatewayJson.Text(root, "payment_id");
+            var reference = GatewayJson.Text(root, "transaction_id");
+
+            return paymentId is null && reference is null
+                ? Result<PaymentNotificationInfo>.Failure(Error.Unauthorized)
+                : Result<PaymentNotificationInfo>.Success(new PaymentNotificationInfo(paymentId, reference));
+        }
+        catch (JsonException)
+        {
+            return Result<PaymentNotificationInfo>.Failure(Error.Unauthorized);
+        }
     }
 
     /// <summary>
-    /// Consulta el pago por <c>notification_token</c> (<c>GET /v3/payments?notification_token=</c>).
-    /// NOTA: CT-KHIPU (docs/integraciones/contratos/khipu.openapi.yaml, operación
-    /// getPaymentByNotificationToken) deja pendiente que Finanzas – Fer confirme que la v3 mantiene esta
-    /// consulta; si no, la verificación pasa a <c>GET /v3/payments/{id}</c> con el <c>payment_id</c> de la
-    /// notificación. Se implementa el contrato tal como está escrito.
-    /// <para>
-    /// La referencia devuelta es el <c>transaction_id</c> que informa Khipu: la comparación con
-    /// <paramref name="externalReference"/> la hace el webhook. Token desconocido (404) es
-    /// <c>Integration.InvalidResponse</c>.
-    /// </para>
+    /// done es pagado salvo que status_detail lo anule (reversed, rejected-by-payer, marked-as-abuse); verifying es en
+    /// proceso; pending (y cualquier otro) es pendiente.
     /// </summary>
-    public async Task<Result<PaymentVerification>> VerifyNotificationAsync(
-        string notificationToken,
-        string externalReference,
-        CancellationToken cancellationToken = default)
-    {
-        var uri = IntegrationHttp.WithQuery("v3/payments", ("notification_token", notificationToken));
-        var result = await IntegrationHttp.SendAsync<PaymentDto>(
-            httpClient, secretResolver, Endpoint, "getPaymentByNotificationToken", HttpMethod.Get, uri, cancellationToken);
-
-        if (result.IsFailure)
-            return Result<PaymentVerification>.Failure(result.Error);
-
-        if (result.Value is not { } dto)
-            return Result<PaymentVerification>.Failure(DomainErrors.Integration.InvalidResponse(Endpoint.System));
-
-        return Result<PaymentVerification>.Success(new PaymentVerification(
-            dto.TransactionId,
-            MapStatus(dto.Status, dto.StatusDetail),
-            dto.Amount,
-            dto.Currency,
-            dto.PaymentId));
-    }
-
-    private static string MapStatus(string status, string? statusDetail)
+    public static string MapStatus(string status, string? statusDetail)
     {
         if (statusDetail is not null && FailedStatusDetails.Contains(statusDetail))
             return PaymentStatus.Failed;
 
-        return string.Equals(status, KhipuStatusDone, StringComparison.OrdinalIgnoreCase)
-            ? PaymentStatus.Confirmed
-            : PaymentStatus.Processing;
+        return status.ToLowerInvariant() switch
+        {
+            "done" => PaymentStatus.Confirmed,
+            "verifying" => PaymentStatus.Processing,
+            _ => PaymentStatus.Pending,
+        };
     }
 
-    private sealed record CreatePaymentDto(
-        decimal Amount,
-        string Currency,
-        string Subject,
-        string TransactionId,
-        string ReturnUrl,
-        string NotifyUrl,
-        string NotifyApiVersion,
-        string? FixedPayerPersonalIdentifier);
+    private async Task<Result<string>> ApiKeyAsync(CancellationToken cancellationToken)
+    {
+        var apiKey = await secretResolver.ResolveAsync(SecretTypes.KhipuSecret, null, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(apiKey))
+            return Result<string>.Success(apiKey);
 
-    private sealed record CreatePaymentResponseDto(string PaymentId, string PaymentUrl);
+        logger.LogWarning("Khipu sin configurar: falta el secreto {SecretType}", SecretTypes.KhipuSecret);
+        return Result<string>.Failure(DomainErrors.Integration.NotConfigured(System));
+    }
 
-    private sealed record PaymentDto(
-        string PaymentId,
-        string NotificationToken,
-        long ReceiverId,
-        string Subject,
-        decimal Amount,
-        string Currency,
-        string Status,
-        string TransactionId,
-        string? StatusDetail = null);
+    private static KeyValuePair<string, string>[] Auth(string apiKey) => [new(ApiKeyHeader, apiKey)];
+}
+
+/// <summary>Firma de las notificaciones v3 de Khipu (<c>x-khipu-signature: t=...,s=...</c>).</summary>
+public static class KhipuSignature
+{
+    /// <summary><c>Base64(HMAC-SHA256(secret, t + "." + cuerpoCrudo))</c>.</summary>
+    public static string Compute(string timestamp, string rawBody, string secret) =>
+        Convert.ToBase64String(HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes(timestamp + "." + rawBody)));
+
+    /// <summary>Firma válida y hecha dentro de la tolerancia. Fail-closed ante cualquier formato inesperado.</summary>
+    public static bool Verify(string? header, string rawBody, string secret, DateTimeOffset now, TimeSpan tolerance)
+    {
+        if (string.IsNullOrWhiteSpace(header))
+            return false;
+
+        string? timestamp = null;
+        string? signature = null;
+        foreach (var part in header.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+        {
+            var separator = part.IndexOf('=');
+            if (separator <= 0)
+                continue;
+
+            var name = part[..separator].Trim();
+            var value = part[(separator + 1)..].Trim();
+            if (name == "t")
+                timestamp = value;
+            else if (name == "s")
+                signature = value;
+        }
+
+        if (timestamp is null || signature is null ||
+            !long.TryParse(timestamp, NumberStyles.None, CultureInfo.InvariantCulture, out var milliseconds))
+        {
+            return false;
+        }
+
+        DateTimeOffset signedAt;
+        try
+        {
+            signedAt = DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+
+        if ((now - signedAt).Duration() > tolerance)
+            return false;
+
+        byte[] provided;
+        try
+        {
+            provided = Convert.FromBase64String(signature);
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+
+        var expected = HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes(timestamp + "." + rawBody));
+        return CryptographicOperations.FixedTimeEquals(expected, provided);
+    }
 }

@@ -6,6 +6,7 @@ using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Payments.Commands.Cancel;
 using HapagPortal.Application.Payments.Commands.Confirm;
 using HapagPortal.Application.Payments.Commands.Webhooks;
+using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.DepositProofs;
 using HapagPortal.Application.Payments.Lifecycle;
 using HapagPortal.Application.Payments.Read.GetById;
@@ -142,53 +143,61 @@ public sealed class PaymentsController : ApiController
             : HandleFailure(result);
     }
 
-    [HttpPost("webhook/khipu")]
-    [AllowAnonymous]
-    public async Task<IActionResult> KhipuWebhook(
-        [FromBody] KhipuWebhookCommand command,
-        CancellationToken cancellationToken)
+    /// <summary>
+    /// Vuelta del pagador desde la pasarela: consulta a la pasarela el estado del pago en curso y devuelve el estado
+    /// (como <c>GET status</c>). La vuelta no confirma por sí sola: confirma solo lo que informa la pasarela.
+    /// </summary>
+    [HttpPost("{id:guid}/verify")]
+    public async Task<IActionResult> Verify(Guid id, CancellationToken cancellationToken)
     {
-        // El secreto viaja por cabecera, no en el body (evita quedar en logs de request).
-        var secret = Request.Headers["X-Webhook-Secret"].ToString();
-        var result = await Sender.Send(command with { Secret = secret }, cancellationToken);
-
-        return result.IsSuccess
-            ? Ok()
-            : HandleFailure(result);
-    }
-
-    [HttpPost("webhook/banco-chile")]
-    [AllowAnonymous]
-    public async Task<IActionResult> BancoChileWebhook(
-        [FromBody] BancoChileWebhookCommand command,
-        CancellationToken cancellationToken)
-    {
-        var secret = Request.Headers["X-Webhook-Secret"].ToString();
-        var signature = Request.Headers["X-Signature"].ToString();
-        var rawBody = await ReadRawBodyAsync(cancellationToken);
-
-        var result = await Sender.Send(
-            command with { Secret = secret, RawBody = rawBody, Signature = signature },
-            cancellationToken);
-
-        return result.IsSuccess
-            ? Ok()
-            : HandleFailure(result);
+        var result = await Sender.Send(new VerifyPaymentCommand(id), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 
     /// <summary>
-    /// Cuerpo crudo de la notificación, para verificar la firma sobre los bytes recibidos. Program.cs
-    /// habilita el buffering en /api/v1/payments/webhook, así el cuerpo se relee después del binding.
+    /// Notificación de una pasarela: <c>khipu</c>, <c>getnet</c> (botón Santander), <c>bci</c> (Bci Pagos) o
+    /// <c>banco-chile</c>. Se lee el cuerpo crudo sin model binding: la firma se verifica sobre esos bytes. Firma
+    /// inválida → 401 sin cambios; pasarela que no responde → 503 (puede reintentar); el resto, 200 (con el texto que
+    /// exija la pasarela).
+    /// </summary>
+    [HttpPost("webhook/{gateway}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Webhook(string gateway, CancellationToken cancellationToken)
+    {
+        var providerKey = PaymentWebhookRoutes.ProviderFor(gateway);
+        if (providerKey is null)
+            return NotFound();
+
+        var rawBody = await ReadRawBodyAsync(cancellationToken);
+        var headers = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString(), StringComparer.OrdinalIgnoreCase);
+
+        var result = await Sender.Send(
+            new PaymentNotificationCommand(providerKey, rawBody, headers, Request.ContentType), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Code is "Integration.Unavailable" or "Integration.Timeout"
+                ? StatusCode(StatusCodes.Status503ServiceUnavailable)
+                : HandleFailure(result);
+        }
+
+        return result.Value.Body is { } body ? Content(body, "text/plain", Encoding.UTF8) : Ok();
+    }
+
+    /// <summary>
+    /// Cuerpo crudo de la notificación, exactamente como llegó (UTF-8). Program.cs habilita el buffering en
+    /// /api/v1/payments/webhook para poder releerlo.
     /// </summary>
     private async Task<string> ReadRawBodyAsync(CancellationToken cancellationToken)
     {
-        if (!Request.Body.CanSeek)
-            return string.Empty;
+        if (Request.Body.CanSeek)
+            Request.Body.Position = 0;
 
-        Request.Body.Position = 0;
         using var reader = new StreamReader(Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
         var rawBody = await reader.ReadToEndAsync(cancellationToken);
-        Request.Body.Position = 0;
+
+        if (Request.Body.CanSeek)
+            Request.Body.Position = 0;
 
         return rawBody;
     }

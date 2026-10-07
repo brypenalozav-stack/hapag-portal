@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// Clientes Real de FIS, DBNet, tracking, Khipu y Banco de Chile contra el simulador en memoria:
+/// Clientes Real de FIS, DBNet, tracking y Khipu (API v3) contra el simulador en memoria:
 /// rutas relativas bajo el prefijo de <c>BaseUrl</c>, mapeo del contrato y 404 → sin datos.
 /// </summary>
 public sealed class RealClientsTests(WebApplicationFactory<Program> simulator)
@@ -132,12 +132,12 @@ public sealed class RealClientsTests(WebApplicationFactory<Program> simulator)
     }
 
     [Fact]
-    public async Task Khipu_VerifyContractExampleToken_ShouldReturnConfirmedPayment()
+    public async Task Khipu_GetContractExamplePayment_ShouldReturnConfirmedPayment()
     {
         using var provider = Build("Khipu");
         var khipu = provider.GetRequiredKeyedService<IPaymentProvider>("Khipu");
 
-        var result = await khipu.VerifyNotificationAsync(KhipuEndpoints.ExampleNotificationToken, "PAY-2026-000123");
+        var result = await khipu.GetStatusAsync(new PaymentStatusRequest(KhipuEndpoints.ExamplePaymentId, "PAY-2026-000123"));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.ExternalReference.Should().Be("PAY-2026-000123");
@@ -147,34 +147,33 @@ public sealed class RealClientsTests(WebApplicationFactory<Program> simulator)
     }
 
     [Fact]
-    public async Task Khipu_VerifyUnknownToken_ShouldFail()
+    public async Task Khipu_GetUnknownPayment_ShouldFail()
     {
         using var provider = Build("Khipu");
         var khipu = provider.GetRequiredKeyedService<IPaymentProvider>("Khipu");
 
-        var result = await khipu.VerifyNotificationAsync("token-desconocido", "PAY-X");
+        var result = await khipu.GetStatusAsync(new PaymentStatusRequest("desconocido", "PAY-X"));
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Integration.InvalidResponse");
     }
 
     [Fact]
-    public async Task BancoChile_InitiateAndVerify_ShouldReturnConfirmedPayment()
+    public async Task Khipu_CreateRejectedAndPendingPayments_ShouldMapStatusAndCancelOnlyPending()
     {
-        using var provider = Build("BancoChile");
-        var bank = provider.GetRequiredKeyedService<IPaymentProvider>("BancoChile");
+        using var provider = Build("Khipu");
+        var khipu = provider.GetRequiredKeyedService<IPaymentProvider>("Khipu");
 
-        var initiation = await bank.InitiateAsync(new PaymentInitiationRequest(
-            "PAY-IT-BCH-1", 1190m, "CLP", "Pago de prueba", "https://portal.example/retorno",
-            "https://portal.example/api/v1/payments/webhook/banco-chile", "76000001-1"));
-        var verification = await bank.VerifyNotificationAsync(initiation.Value.ProviderReference, "PAY-IT-BCH-1");
+        var rejected = await khipu.InitiateAsync(new PaymentInitiationRequest(
+            "PAY-IT-REJECT", 1190m, "CLP", "Pago", "https://portal.example/r", "https://portal.example/n", null));
+        var pending = await khipu.InitiateAsync(new PaymentInitiationRequest(
+            "PAY-IT-PENDING", 1190m, "CLP", "Pago", "https://portal.example/r", "https://portal.example/n", null));
 
-        initiation.IsSuccess.Should().BeTrue();
-        initiation.Value.ProviderReference.Should().StartWith("BAN-");
-        initiation.Value.Status.Should().Be(PaymentStatus.Pending);
-        verification.IsSuccess.Should().BeTrue();
-        verification.Value.ExternalReference.Should().Be("PAY-IT-BCH-1");
-        verification.Value.Status.Should().Be(PaymentStatus.Confirmed);
-        verification.Value.Amount.Should().Be(1190m);
+        (await khipu.GetStatusAsync(new PaymentStatusRequest(rejected.Value.ProviderReference, "PAY-IT-REJECT")))
+            .Value.Status.Should().Be(PaymentStatus.Failed);
+        (await khipu.GetStatusAsync(new PaymentStatusRequest(pending.Value.ProviderReference, "PAY-IT-PENDING")))
+            .Value.Status.Should().Be(PaymentStatus.Pending);
+        (await khipu.CancelAsync(new PaymentStatusRequest(pending.Value.ProviderReference, "PAY-IT-PENDING"))).IsSuccess.Should().BeTrue();
+        (await khipu.CancelAsync(new PaymentStatusRequest(KhipuEndpoints.ExamplePaymentId, "PAY-2026-000123"))).IsFailure.Should().BeTrue();
     }
 }

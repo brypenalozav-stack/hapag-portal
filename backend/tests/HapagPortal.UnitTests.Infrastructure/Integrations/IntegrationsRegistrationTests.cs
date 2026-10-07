@@ -138,11 +138,13 @@ public sealed class IntegrationsRegistrationTests
     }
 
     [Theory]
-    [InlineData("Khipu", typeof(HttpKhipuPaymentProvider))]
-    [InlineData("BancoChile", typeof(HttpBancoChilePaymentProvider))]
-    public void AddIntegrations_RealMode_ShouldRegisterKeyedRealPaymentProvider(string key, Type expectedType)
+    [InlineData("Khipu", "Khipu", typeof(HttpKhipuPaymentProvider))]
+    [InlineData("Getnet", "Santander", typeof(GetnetPaymentProvider))]
+    [InlineData("BciPagos", "Bci", typeof(BciPagosPaymentProvider))]
+    [InlineData("BancoChile", "BancoChile", typeof(BancoChileFormPaymentProvider))]
+    public void AddIntegrations_RealMode_ShouldRegisterKeyedRealPaymentProvider(string system, string key, Type expectedType)
     {
-        using var provider = BuildProvider(RealMode(key));
+        using var provider = BuildProvider(RealMode(system));
 
         var paymentProvider = provider.GetRequiredKeyedService<IPaymentProvider>(key);
 
@@ -161,9 +163,15 @@ public sealed class IntegrationsRegistrationTests
         provider.GetRequiredKeyedService<IPaymentProvider>("Bci").Should().BeOfType<DummyPaymentProvider>();
     }
 
+    [Fact]
+    public void AddIntegrations_RealBancoChileWithoutBaseUrlOrCredentials_ShouldNotFailAtStartup()
+    {
+        using var provider = BuildProvider(new Dictionary<string, string?> { ["Integrations:BancoChile:Mode"] = "Real" });
+
+        provider.GetRequiredKeyedService<IPaymentProvider>("BancoChile").Should().BeOfType<BancoChileFormPaymentProvider>();
+    }
+
     [Theory]
-    [InlineData("Santander")]
-    [InlineData("Bci")]
     [InlineData("Signature")]
     [InlineData("Storage")]
     public void AddIntegrations_RealModeWithoutAdapter_ShouldThrowFailFast(string system)
@@ -176,7 +184,8 @@ public sealed class IntegrationsRegistrationTests
     [InlineData("Nexus")]
     [InlineData("Fis")]
     [InlineData("Khipu")]
-    [InlineData("BancoChile")]
+    [InlineData("Getnet")]
+    [InlineData("BciPagos")]
     [InlineData("DbNet")]
     [InlineData("Tracking")]
     public void AddIntegrations_RealModeWithoutBaseUrl_ShouldThrow(string system)
