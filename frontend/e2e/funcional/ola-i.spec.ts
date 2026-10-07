@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/app';
 import { simularApi } from '../fixtures/api-mocks';
+import { FASE2 } from '../fixtures/funcionalidades';
 import { OpcionesOlaD } from '../fixtures/ola-d-mocks';
 import {
   BL_COUNTER_FALLIDO,
@@ -34,7 +35,7 @@ import { ORGANIZACION_PRUEBA, sembrarIdioma, sembrarSesion, sembrarSesionAdmin }
 const POLITE = 'div[aria-live="polite"]';
 
 async function abrir(page: Page, ruta: string, opciones: OpcionesOlaD & OpcionesOlaI = {}, sesion: 'cliente' | 'admin' | 'ninguna' = 'cliente'): Promise<void> {
-  await simularApi(page, opciones);
+  await simularApi(page, { ...opciones, features: FASE2 });
   if (sesion === 'admin') await sembrarSesionAdmin(page, 'es');
   else if (sesion === 'cliente') await sembrarSesion(page, { lang: 'es' });
   else await sembrarIdioma(page, 'es');

@@ -40,7 +40,6 @@
       "disabledBlocked": "You cannot pay while payments are suspended.",
       "help": "Choose the items, the currency and the payment method. Before paying you will see a summary to confirm.",
       "method": "Payment method",
-      "methodOption": "{{ name }} ({{ kind }})",
       "mixedCountries": "You selected items from different countries: a payment belongs to a single country. Unselect the items from the other country.",
       "noCurrency": "The selected items have no payment currency in common: pay them separately.",
       "noMethods": "There are no payment methods enabled for this currency.",
@@ -114,7 +113,6 @@
       "help": "For each item choose whether you pay it now or impute it to your credit line. Concepts not enabled by Finance are paid now.",
       "itemLegend": "{{ concept }} {{ number }} · BL {{ bl }} · {{ amount }}",
       "method": "Payment method",
-      "methodOption": "{{ name }} ({{ kind }})",
       "noCurrency": "The items you pay now have no payment currency in common: pay them separately.",
       "noMethods": "There are no payment methods enabled for this currency.",
       "nothing": "Nothing",
@@ -2979,7 +2977,6 @@
       "disabledReadOnly": "Your read-only profile cannot pay.",
       "error": "The payment could not be started. Check the cart and try again.",
       "method": "Payment method",
-      "methodOption": "{{ name }} ({{ kind }})",
       "methodRequired": "Choose a payment method.",
       "noMethods": "There are no payment methods enabled for this currency.",
       "retry": "Retry payment of {{ total }}",
@@ -3008,10 +3005,9 @@
     "goToAccountPayments": "Go to Pay from my account",
     "group": {
       "caption": "Items to pay in {{ currency }}",
-      "clear": "Empty",
       "clearCancel": "No",
       "clearConfirm": "Yes, empty it",
-      "clearLabel": "Empty the {{ currency }} cart section",
+      "clearLabel": "Empty the {{ currency }} cart",
       "clearQuestion": "Remove all items in {{ currency }}?",
       "cleared": "The {{ currency }} cart section was emptied.",
       "count": "{count, plural, one {# item} other {# items}}",
@@ -6553,6 +6549,21 @@
     "sectionNav": {
       "label": "Sections on this page",
       "title": "Go to"
+    },
+    "paymentMethodPicker": {
+      "group": {
+        "online": "Online payment",
+        "deposit": "Deposit or transfer"
+      },
+      "pill": {
+        "online": "Online · instant",
+        "deposit": "Deposit · confirmed by Finance"
+      },
+      "kindShort": {
+        "online": "online",
+        "deposit": "deposit"
+      },
+      "optionLabel": "{{ name }}, {{ kind }}"
     }
   },
   "shipments": {

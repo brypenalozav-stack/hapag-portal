@@ -2,6 +2,7 @@ namespace HapagPortal.UnitTests.Application.ServiceRequests;
 
 using FluentAssertions;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Payments.PostProcessing;
 using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.Application.ServiceRequests.PostPayment;
@@ -462,7 +463,7 @@ public sealed class ServiceRequestWorkflowTests
 
         var seen = await new GetServiceRequestQueryHandler(_f.Db, other.Evaluator(_f.Db))
             .Handle(new GetServiceRequestQuery(submitted.Value.Id), CancellationToken.None);
-        var mine = await new GetMyServiceRequestsQueryHandler(_f.Db, other.Evaluator(_f.Db))
+        var mine = await new GetMyServiceRequestsQueryHandler(_f.Db, other.Evaluator(_f.Db), FeatureSettings.AllEnabled())
             .Handle(new GetMyServiceRequestsQuery(), CancellationToken.None);
         var cancel = await _f.Cancel(other).Handle(new CancelServiceRequestCommand(submitted.Value.Id, null), CancellationToken.None);
 

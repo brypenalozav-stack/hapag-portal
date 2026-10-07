@@ -2,6 +2,7 @@ namespace HapagPortal.UnitTests.Application.Assistant;
 
 using FluentAssertions;
 using HapagPortal.Application.Assistant;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Documents.BlCopy;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.Repository;
@@ -54,7 +55,7 @@ public sealed class AssistantDocumentDeliveryTests
             .Register(_f.Download(actor));
 
         var rules = new RulesAssistantEngine();
-        var responder = new AssistantResponder(_f.Db, rules, rules, new AssistantDataRetriever(sender, _f.Db, evaluator));
+        var responder = new AssistantResponder(_f.Db, rules, rules, new AssistantDataRetriever(sender, _f.Db, evaluator), FeatureSettings.AllEnabled());
         return new Handlers(
             new StartAssistantSessionCommandHandler(_f.Db, evaluator, actor.CurrentUser, rules, _settings),
             new SendAssistantMessageCommandHandler(_f.Db, evaluator, responder, _settings),

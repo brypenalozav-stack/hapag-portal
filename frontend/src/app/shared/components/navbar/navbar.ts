@@ -6,6 +6,7 @@ import { filter, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { FeatureService } from '../../../core/services/feature.service';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { CartService } from '../../../core/services/cart.service';
@@ -26,6 +27,8 @@ import { ToastService } from '../../../core/services/toast.service';
 export class NavbarComponent implements OnInit {
   readonly auth = inject(AuthService);
   readonly notifications = inject(NotificationService);
+  /** Bandeja de notificaciones (M1-25): la campana se oculta con su flag apagado; los correos siguen saliendo. */
+  readonly features = inject(FeatureService);
   readonly locale = inject(LocaleService);
   /** Carro de compra (M5-01) o, para clientes con crédito, pago desde la cuenta (M5-07). */
   readonly cart = inject(CartService);
@@ -51,7 +54,9 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.auth.isAuthenticated()) {
-      this.notifications.refreshUnreadCount();
+      this.features.ready().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+        if (this.features.enabled('NotificationsInbox')) this.notifications.refreshUnreadCount();
+      });
     }
   }
 

@@ -2,6 +2,7 @@ import { Component, DOCUMENT, effect, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from './core/services/auth.service';
+import { FeatureService } from './core/services/feature.service';
 import { LiveAnnouncerService } from './core/services/live-announcer.service';
 import { NavbarComponent } from './shared/components/navbar/navbar';
 import { MainNavComponent } from './shared/components/main-nav/main-nav';
@@ -24,6 +25,8 @@ import { ToastHostComponent } from './shared/components/toast-host/toast-host';
 })
 export class AppComponent {
   readonly auth = inject(AuthService);
+  /** Flags de funcionalidades (cierre de Fase 1): se leen al iniciar la aplicación. */
+  readonly features = inject(FeatureService);
   readonly announcer = inject(LiveAnnouncerService);
   private readonly document = inject(DOCUMENT);
   /** Tema claro u oscuro (M11-07): se aplica desde el arranque, con o sin sesión. */

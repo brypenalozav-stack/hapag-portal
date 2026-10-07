@@ -3,6 +3,7 @@ namespace HapagPortal.UnitTests.Application.Dashboard;
 using FluentAssertions;
 using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Dashboard;
 using HapagPortal.Application.ServiceRequests.Requests;
 using HapagPortal.Domain.Constants;
@@ -56,7 +57,7 @@ public sealed class DashboardServiceRequestsTests
         var foreign = Request(Guid.NewGuid(), "SRV-5", ServiceRequestStatus.InProgress, now);
         _db.ServiceRequestList.AddRange([inProgress, pending, recent, old, foreign]);
 
-        var result = await new GetDashboardQueryHandler(_db, _evaluator, _rules).Handle(new GetDashboardQuery(), CancellationToken.None);
+        var result = await new GetDashboardQueryHandler(_db, _evaluator, _rules, FeatureSettings.AllEnabled()).Handle(new GetDashboardQuery(), CancellationToken.None);
 
         var requests = result.Value.Requests.Items.Where(r => r.Kind == DashboardTargets.ServiceRequest).ToList();
         requests.Select(r => r.Reference).Should().BeEquivalentTo("SRV-1", "SRV-2", "SRV-3");
@@ -66,6 +67,39 @@ public sealed class DashboardServiceRequestsTests
         requests.Single(r => r.Reference == "SRV-3").CompletedAt.Should().Be(recent.CompletedAt);
         requests.Should().OnlyContain(r => r.Target.Kind == DashboardTargets.ServiceRequest && r.Target.Id == r.Id);
         result.Value.Requests.InProgress.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Dashboard_WithDefaultFeatures_ShouldOnlyListReleaseLetters()
+    {
+        var now = DateTime.UtcNow;
+        var onDemand = Request(_org.Id, "SRV-1", ServiceRequestStatus.InProgress, now.AddDays(-1));
+        var letter = Request(_org.Id, "SRV-2", ServiceRequestStatus.PendingApproval, now.AddDays(-1));
+        letter.DefinitionCode = ServiceDefinitionCodes.ReleaseLetter;
+        _db.ServiceRequestList.AddRange([onDemand, letter]);
+
+        var result = await new GetDashboardQueryHandler(_db, _evaluator, _rules, new FeatureSettings())
+            .Handle(new GetDashboardQuery(), CancellationToken.None);
+
+        var requests = result.Value.Requests.Items.Where(r => r.Kind == DashboardTargets.ServiceRequest).ToList();
+        requests.Select(r => r.Reference).Should().Equal("SRV-2");
+        requests.Single().Target.Kind.Should().Be(DashboardTargets.ReleaseLetter);
+        requests.Single().Target.Id.Should().Be(letter.Id);
+    }
+
+    [Fact]
+    public async Task Dashboard_WithOnDemandServicesAndReleaseLetterOff_ShouldListNoServiceRequests()
+    {
+        var now = DateTime.UtcNow;
+        var letter = Request(_org.Id, "SRV-1", ServiceRequestStatus.PendingApproval, now.AddDays(-1));
+        letter.DefinitionCode = ServiceDefinitionCodes.ReleaseLetter;
+        _db.ServiceRequestList.AddRange([Request(_org.Id, "SRV-2", ServiceRequestStatus.InProgress, now), letter]);
+        var features = new FeatureSettings(new Dictionary<string, bool> { [FeatureNames.ReleaseLetter] = false });
+
+        var result = await new GetDashboardQueryHandler(_db, _evaluator, _rules, features)
+            .Handle(new GetDashboardQuery(), CancellationToken.None);
+
+        result.Value.Requests.Items.Should().NotContain(r => r.Kind == DashboardTargets.ServiceRequest);
     }
 
     [Fact]

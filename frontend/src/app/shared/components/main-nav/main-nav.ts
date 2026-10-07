@@ -7,6 +7,7 @@ import { filter, map } from 'rxjs';
 import { PERMISSIONS } from '../../../core/constants/app.constants';
 import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../core/services/cart.service';
+import { FeatureService } from '../../../core/services/feature.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { THEME_PREFERENCES, ThemePreference, ThemeService } from '../../../core/services/theme.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -42,6 +43,7 @@ type RouteLink = Extract<MenuLink, { kind: 'route' }>;
 export class MainNavComponent {
   private readonly auth = inject(AuthService);
   private readonly cart = inject(CartService);
+  private readonly features = inject(FeatureService);
   private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly toast = inject(ToastService);
@@ -81,6 +83,7 @@ export class MainNavComponent {
     accountPaymentsEnabled: this.cart.accountPaymentsEnabled(),
     bolivia: this.auth.getCountry() === 'BO' || this.auth.operatingCountries().includes('BO'),
     can: (...keys) => this.auth.hasPermission(...keys.map((k) => PERMISSIONS[k])),
+    feature: (...names) => this.features.enabled(...names),
   }));
 
   /** Grupos y columnas con al menos un destino visible para el perfil. */

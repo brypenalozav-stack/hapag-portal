@@ -24,7 +24,7 @@
 } @else if (error()) {
   <div class="alert alert-danger" role="alert">{{ error() }}</div>
 } @else if (request(); as r) {
-  @if (r.definitionCode === reinvoicingCode) {
+  @if (r.definitionCode === reinvoicingCode && features.enabled('Reinvoicing')) {
     <!-- Fase 2, Ola H: la refacturación IAO se gestiona en su propia página (M3-11) -->
     <div class="alert alert-info" role="note" data-testid="srv-reinvoicing-link">
       <a [routerLink]="['/reinvoicing', r.id]">{{ 'serviceRequests.detail.reinvoicingLink' | transloco }}</a>

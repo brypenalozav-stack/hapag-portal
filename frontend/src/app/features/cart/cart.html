@@ -35,12 +35,22 @@
 
     <!-- Un sub-carro por país y moneda de pago, cada uno con su subtotal y su cierre (M5-08) -->
     @for (group of groups(); track groupKey(group)) {
+      @let st = state(group);
       <section class="hl-card mb-4" [attr.aria-labelledby]="'cart-group-' + groupKey(group)" [attr.data-testid]="'cart-group-' + groupKey(group)">
         <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <h2 [id]="'cart-group-' + groupKey(group)" class="section-title">
-            {{ 'cart.group.title' | transloco: { currency: group.paymentCurrency, country: countryName(group.country) } }}
-          </h2>
-          <span class="small text-muted">{{ 'cart.group.count' | transloco: { count: group.itemCount } }}</span>
+          <div>
+            <h2 [id]="'cart-group-' + groupKey(group)" class="section-title">
+              {{ 'cart.group.title' | transloco: { currency: group.paymentCurrency, country: countryName(group.country) } }}
+            </h2>
+            <span class="small text-muted">{{ 'cart.group.count' | transloco: { count: group.itemCount } }}</span>
+          </div>
+          @if (payableItems(group).length > 0 && !st.confirming) {
+            <!-- Acción destructiva lejos del pago: enlace discreto en la cabecera, con confirmación -->
+            <button type="button" class="btn btn-link btn-sm hl-cart-clear" [disabled]="st.submitting" (click)="askClear(group)"
+                    [attr.data-testid]="'cart-clear-' + groupKey(group)">
+              {{ 'cart.group.clearLabel' | transloco: { currency: group.paymentCurrency } }}
+            </button>
+          }
         </div>
 
         <div class="p-3 pb-0">
@@ -139,44 +149,48 @@
         </div>
 
         <div class="p-3">
-          <dl class="row g-2 mb-3">
-            <div class="col-sm-6">
-              <dt class="small text-muted">{{ 'cart.group.subtotal' | transloco: { currency: group.paymentCurrency } }}</dt>
-              <dd class="fs-5 fw-bold mb-0" [attr.data-testid]="'cart-subtotal-' + groupKey(group)">{{ group.subtotal | hlCurrency: group.paymentCurrency }}</dd>
-            </div>
-          </dl>
-
-          @let st = state(group);
           @if (group.paymentMethods.length === 0) {
             <p class="small mb-3" role="note">{{ 'cart.checkout.noMethods' | transloco }}</p>
           } @else {
             <!-- Medios de pago habilitados para el país y la moneda (M5-03) -->
-            <fieldset class="mb-3" [id]="'cart-methods-' + groupKey(group)" [disabled]="st.confirming || st.submitting" data-guide-key="cart.payment-method">
-              <legend class="form-label small fw-semibold mb-1">{{ 'cart.checkout.method' | transloco }}</legend>
-              @for (method of group.paymentMethods; track method.code) {
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" [name]="'cart-method-' + groupKey(group)" [id]="'cart-method-' + groupKey(group) + '-' + method.code"
-                         [checked]="st.methodCode === method.code" (change)="selectMethod(group, method.code)"
-                         [attr.aria-describedby]="method.description ? 'cart-method-help-' + groupKey(group) + '-' + method.code : null" />
-                  <label class="form-check-label d-inline-flex align-items-center gap-2" [for]="'cart-method-' + groupKey(group) + '-' + method.code">
-                    <app-payment-logo [method]="method" />
-                    {{ 'cart.checkout.methodOption' | transloco: { name: method.name, kind: (method.kind | codeLabel: kindKeys) } }}
-                  </label>
-                  @if (method.description) {
-                    <div class="small text-muted" [id]="'cart-method-help-' + groupKey(group) + '-' + method.code">{{ method.description }}</div>
-                  }
-                </div>
-              }
-            </fieldset>
+            <app-payment-method-picker class="d-block mb-3" [id]="'cart-methods-' + groupKey(group)" data-guide-key="cart.payment-method"
+                                       [methods]="group.paymentMethods" [selected]="st.methodCode" [disabled]="st.confirming || st.submitting"
+                                       [name]="'cart-method-' + groupKey(group)" [idPrefix]="'cart-method-' + groupKey(group)"
+                                       legendKey="cart.checkout.method" (selectedChange)="selectMethod(group, $event)" />
           }
 
           @if (st.error) {
             <div class="alert alert-danger py-2" role="alert" data-testid="cart-checkout-error">{{ st.error }}</div>
           }
 
+          <div class="hl-cart-footer">
+            <dl class="mb-0">
+              <dt class="small text-muted fw-normal">{{ 'cart.group.subtotal' | transloco: { currency: group.paymentCurrency } }}</dt>
+              <dd class="fs-4 fw-bold mb-0" [attr.data-testid]="'cart-subtotal-' + groupKey(group)">{{ group.subtotal | hlCurrency: group.paymentCurrency }}</dd>
+            </dl>
+            @if (!st.confirming) {
+              <button type="button" class="btn btn-hl-orange btn-lg hl-cart-pay" [disabled]="checkoutDisabled(group)" (click)="review(group)" data-guide-key="cart.checkout"
+                      [attr.aria-describedby]="checkoutDisabled(group) ? 'cart-disabled-' + groupKey(group) : null">
+                {{ 'cart.checkout.review' | transloco: { total: (group.subtotal | hlCurrency: group.paymentCurrency) } }}
+              </button>
+            }
+          </div>
+          @if (checkoutDisabled(group) && !st.confirming) {
+            <p class="small mt-2 mb-0 text-md-end" [id]="'cart-disabled-' + groupKey(group)">
+              @if (group.block.blocked) {
+                {{ 'cart.checkout.disabledBlocked' | transloco }}
+              } @else if (!canOperate()) {
+                {{ 'cart.checkout.disabledReadOnly' | transloco }}
+              } @else if (group.paymentMethods.length === 0) {
+                {{ 'cart.checkout.disabledNoMethods' | transloco }}
+              } @else {
+                {{ 'cart.checkout.disabledNoItems' | transloco }}
+              }
+            </p>
+          }
           @if (st.confirming) {
             <!-- Resumen para confirmar antes de pagar (WCAG 3.3.4) -->
-            <div class="border rounded p-3 mb-3" role="group" [attr.aria-labelledby]="'cart-confirm-' + groupKey(group)">
+            <div class="border rounded p-3 mt-3" role="group" [attr.aria-labelledby]="'cart-confirm-' + groupKey(group)">
               <h3 #confirmHeading [id]="'cart-confirm-' + groupKey(group)" class="h6 fw-bold" tabindex="-1">{{ 'cart.checkout.confirmTitle' | transloco }}</h3>
               <ul class="small mb-3">
                 <li>{{ 'cart.checkout.confirmItems' | transloco: { count: payableItems(group).length } }}</li>
@@ -194,32 +208,6 @@
                 <button type="button" class="btn btn-outline-secondary" [disabled]="st.submitting" (click)="cancelReview(group)">{{ 'cart.checkout.back' | transloco }}</button>
               </div>
             </div>
-          } @else {
-            <div class="d-flex flex-wrap gap-2 align-items-center">
-              <button type="button" class="btn btn-hl-orange" [disabled]="checkoutDisabled(group)" (click)="review(group)" data-guide-key="cart.checkout"
-                      [attr.aria-describedby]="checkoutDisabled(group) ? 'cart-disabled-' + groupKey(group) : null">
-                {{ 'cart.checkout.review' | transloco: { total: (group.subtotal | hlCurrency: group.paymentCurrency) } }}
-              </button>
-              @if (payableItems(group).length > 0) {
-                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="askClear(group)"
-                        [attr.aria-label]="'cart.group.clearLabel' | transloco: { currency: group.paymentCurrency }">
-                  {{ 'cart.group.clear' | transloco }}
-                </button>
-              }
-            </div>
-            @if (checkoutDisabled(group)) {
-              <p class="small mt-2 mb-0" [id]="'cart-disabled-' + groupKey(group)">
-                @if (group.block.blocked) {
-                  {{ 'cart.checkout.disabledBlocked' | transloco }}
-                } @else if (!canOperate()) {
-                  {{ 'cart.checkout.disabledReadOnly' | transloco }}
-                } @else if (group.paymentMethods.length === 0) {
-                  {{ 'cart.checkout.disabledNoMethods' | transloco }}
-                } @else {
-                  {{ 'cart.checkout.disabledNoItems' | transloco }}
-                }
-              </p>
-            }
           }
         </div>
       </section>

@@ -19,6 +19,7 @@ import { saveBlob } from '../../../shared/save-blob';
 import { ServiceRequestOverviewComponent } from '../../service-requests/shared/service-request-overview';
 import { ReleaseLetterTatcComponent } from './release-letter-tatc';
 import { ToastService } from '../../../core/services/toast.service';
+import { FeatureService } from '../../../core/services/feature.service';
 
 /**
  * Seguimiento de una carta de liberación y desconsolidado (M6-08): estado (pendiente de aprobación de Customer Service,
@@ -39,6 +40,7 @@ import { ToastService } from '../../../core/services/toast.service';
 export class ReleaseLetterDetailComponent implements OnInit {
   private readonly service = inject(DocumentService);
   private readonly requests = inject(ServiceRequestService);
+  readonly features = inject(FeatureService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);

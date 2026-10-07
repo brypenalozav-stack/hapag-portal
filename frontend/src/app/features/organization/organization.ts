@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../core/services/auth.service';
+import { FeatureService } from '../../core/services/feature.service';
 import { OrganizationService } from '../../core/services/organization.service';
 import { OrganizationSummary } from '../../core/models/organization.model';
 import { PERMISSIONS } from '../../core/constants/app.constants';
@@ -43,6 +44,8 @@ import { ParentCompanyComponent } from './parent-company/parent-company';
 })
 export class OrganizationComponent implements OnInit {
   private readonly auth = inject(AuthService);
+  /** Secciones de Fase 2 de la organización (cierre de Fase 1). */
+  readonly features = inject(FeatureService);
   private readonly service = inject(OrganizationService);
   private readonly destroyRef = inject(DestroyRef);
 

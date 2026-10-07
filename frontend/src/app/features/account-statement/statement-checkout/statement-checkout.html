@@ -82,26 +82,14 @@
               }
             </div>
           </div>
-          <div class="col-md-8">
-            @if (!methodsLoading() && methods().length === 0) {
-              <p class="small" role="note">{{ 'accountStatement.checkout.noMethods' | transloco }}</p>
-            } @else {
-              <fieldset [disabled]="confirming() || submitting()">
-                <legend class="form-label small fw-semibold mb-1">{{ 'accountStatement.checkout.method' | transloco }}</legend>
-                @for (method of methods(); track method.code) {
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="statement-checkout-method" [id]="'statement-method-' + method.code"
-                           [checked]="methodCode() === method.code" (change)="selectMethod(method.code)" />
-                    <label class="form-check-label d-inline-flex align-items-center gap-2" [for]="'statement-method-' + method.code">
-                      <app-payment-logo [method]="method" />
-                      {{ 'accountStatement.checkout.methodOption' | transloco: { name: method.name, kind: (method.kind | codeLabel: kindKeys) } }}
-                    </label>
-                  </div>
-                }
-              </fieldset>
-            }
-          </div>
         </div>
+        @if (!methodsLoading() && methods().length === 0) {
+          <p class="small" role="note">{{ 'accountStatement.checkout.noMethods' | transloco }}</p>
+        } @else {
+          <app-payment-method-picker class="d-block mb-3" [methods]="methods()" [selected]="methodCode()" [disabled]="confirming() || submitting()"
+                                     name="statement-checkout-method" idPrefix="statement-method" legendKey="accountStatement.checkout.method"
+                                     (selectedChange)="selectMethod($event)" />
+        }
       }
     }
 

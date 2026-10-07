@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.WarehouseChanges.Bulk;
 using HapagPortal.Application.WarehouseChanges.History;
 using HapagPortal.Application.WarehouseChanges.Read.GetById;
@@ -37,6 +38,7 @@ public sealed class WarehouseChangesController : ApiController
     /// por BL o booking para reconstruir la trazabilidad desde el embarque. Incluye los creados por solicitudes masivas.
     /// </summary>
     [HttpGet("history")]
+    [RequiresFeature(FeatureNames.WarehouseHistory)]
     public async Task<IActionResult> GetHistory(
         [FromQuery] string? blNumber,
         [FromQuery] string? status,
@@ -54,6 +56,7 @@ public sealed class WarehouseChangesController : ApiController
 
     /// <summary>Línea de tiempo de una solicitud: creación, derecho gratuito, estados del pago y liberación (M3-06).</summary>
     [HttpGet("history/{id:guid}")]
+    [RequiresFeature(FeatureNames.WarehouseHistory)]
     public async Task<IActionResult> GetTrace(Guid id, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetWarehouseChangeTraceQuery(id), cancellationToken);

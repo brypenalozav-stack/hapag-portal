@@ -23,7 +23,7 @@
 } @else if (error()) {
   <div class="alert alert-danger" role="alert">{{ error() }}</div>
 } @else if (shipment(); as s) {
-  @if (s.originOrganization; as origin) {
+  @if (features.enabled('ParentCompany') && s.originOrganization; as origin) {
     <!-- BL de una filial visto por la empresa matriz (Fase 2, Ola I, M1-21): solo consulta -->
     <div class="alert alert-info" role="note" data-testid="shipment-origin-organization">
       {{ 'shipments.detail.origin' | transloco: { name: origin.name, taxId: origin.taxId ?? '' } }}
@@ -125,7 +125,7 @@
   }
 
   <!-- Counter Bolivia/Ultramar (Fase 2, Ola I, M8-09): solo perfiles internos -->
-  @if (showCounter()) {
+  @if (showCounter() && features.enabled('Counter')) {
     <section class="hl-card p-4 mb-4" aria-labelledby="shipment-counter-title" data-testid="shipment-counter">
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <h2 id="shipment-counter-title" class="section-title">{{ 'shipments.detail.counter.title' | transloco }}</h2>
@@ -372,8 +372,10 @@
     </section>
   }
 
-  <!-- Servicios on demand del embarque (M2-03, M2-04, M3-07 a M3-15) -->
-  <app-available-services [blNumber]="s.blNumber" />
+  <!-- Servicios on demand del embarque (M2-03, M2-04, M3-07 a M3-15); Fase 2, apagados por defecto -->
+  @if (features.enabled('OnDemandServices')) {
+    <app-available-services [blNumber]="s.blNumber" />
+  }
 
   <!-- Repositorio documental del embarque y solicitudes de documentos (M6-01 a M6-09) -->
   <app-shipment-documents [blNumber]="s.blNumber" [canOperate]="s.canOperate" (changed)="onDocumentsChanged()" />

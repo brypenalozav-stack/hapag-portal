@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Organizations.Carriers;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Authentication;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/organizations/me/carriers")]
+[RequiresFeature(FeatureNames.Carriers)]
 public sealed class CarriersController : ApiController
 {
     [HttpGet]

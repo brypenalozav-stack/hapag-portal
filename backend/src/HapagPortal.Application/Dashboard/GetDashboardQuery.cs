@@ -3,9 +3,11 @@ namespace HapagPortal.Application.Dashboard;
 using FluentValidation;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Demurrage.Common;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Invoices;
+using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.Application.Shipments.Common;
 using HapagPortal.Domain.Charges;
 using HapagPortal.Domain.Constants;
@@ -128,6 +130,9 @@ public static class DashboardTargets
 
     /// <summary>Solicitud de servicio on demand (Ola G): <c>Id</c> de la solicitud.</summary>
     public const string ServiceRequest = "ServiceRequest";
+
+    /// <summary>Carta de liberación y desconsolidado (M6-08): <c>Id</c> de la solicitud, que se sigue en su propia página.</summary>
+    public const string ReleaseLetter = "ReleaseLetter";
 }
 
 /// <summary>
@@ -158,7 +163,8 @@ public sealed class GetDashboardQueryValidator : AbstractValidator<GetDashboardQ
 public sealed class GetDashboardQueryHandler(
     IApplicationDbContext dbContext,
     IShipmentAccessEvaluator accessEvaluator,
-    IChargeRulesService chargeRulesService)
+    IChargeRulesService chargeRulesService,
+    FeatureSettings features)
     : IQueryHandler<GetDashboardQuery, DashboardDto>
 {
     /// <summary>Embarques (los más recientes) cuyos permisos se evalúan uno a uno (NF-18).</summary>
@@ -551,15 +557,21 @@ public sealed class GetDashboardQueryHandler(
             DashboardTargets.TatcBatch, b.Id, $"{b.LocationCode} {b.AcceptedItems}/{b.TotalItems}", null, b.Status, false,
             b.CreatedAt, b.CompletedAt, new DashboardTargetDto(DashboardTargets.TatcBatch, null, b.Id))));
 
+        // Cierre de Fase 1: solo las solicitudes cuyo flag está encendido (con los servicios on demand apagados, las cartas
+        // de liberación). La carta se sigue en su propia página.
         var serviceRequests = await dbContext.ServiceRequests.AsNoTracking()
             .Where(r => r.OrganizationId == organizationId
                 && (!ServiceRequestStatus.Terminal.Contains(r.Status) || r.CreatedAt >= since || r.StatusChangedAt >= since))
+            .VisibleFor(features)
             .ToListAsync(cancellationToken);
         items.AddRange(serviceRequests.Select(r => new DashboardRequestDto(
             DashboardTargets.ServiceRequest, r.Id, r.RequestNumber, r.BlNumber, r.Status,
             !ServiceRequestStatus.Terminal.Contains(r.Status), r.CreatedAt,
             r.CompletedAt ?? r.RejectedAt ?? r.CancelledAt,
-            new DashboardTargetDto(DashboardTargets.ServiceRequest, r.BlNumber, r.Id))));
+            new DashboardTargetDto(
+                r.DefinitionCode == ServiceDefinitionCodes.ReleaseLetter ? DashboardTargets.ReleaseLetter : DashboardTargets.ServiceRequest,
+                r.BlNumber,
+                r.Id))));
 
         var ordered = items
             .OrderByDescending(i => i.InProgress)

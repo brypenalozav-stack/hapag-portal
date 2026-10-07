@@ -1,6 +1,7 @@
 namespace HapagPortal.UnitTests.Application.TestHelpers;
 
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.ReleaseLetter;
 using HapagPortal.Application.Payments.Commands.Confirm;
@@ -110,7 +111,7 @@ public sealed class ServiceRequestsFixture
 
     public CompleteServiceRequestCommandHandler Complete() => new(Db, Internal, Workflow());
 
-    public GetServiceRequestQueueQueryHandler Queue() => new(Db);
+    public GetServiceRequestQueueQueryHandler Queue() => new(Db, FeatureSettings.AllEnabled());
 
     /// <summary>Crea y envía la solicitud en un paso (con datos de facturación propios).</summary>
     public Task<Result<ServiceRequestDetailDto>> RequestAsync(

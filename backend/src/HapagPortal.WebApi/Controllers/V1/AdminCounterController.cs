@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Counter;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Authentication;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 [HasPermission(AdministrationPermissions.ManageCounter)]
 [Route("api/v{version:apiVersion}/admin/counter")]
+[RequiresFeature(FeatureNames.Counter)]
 public sealed class AdminCounterController : ApiController
 {
     [HttpGet]

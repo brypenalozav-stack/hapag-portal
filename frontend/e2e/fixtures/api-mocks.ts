@@ -61,6 +61,7 @@ import { SimulacionOlaF } from './ola-f-mocks';
 import { SimulacionOlaG } from './ola-g-mocks';
 import { SimulacionOlaH } from './ola-h-mocks';
 import { OpcionesOlaI, SimulacionOlaI } from './ola-i-mocks';
+import { Funcionalidades, funcionalidades } from './funcionalidades';
 import { SimulacionOlaJ } from './ola-j-mocks';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
@@ -1779,8 +1780,18 @@ const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo
  * matriz los responde ola-i-mocks.ts, que además agrega al listado los BL de la filial y el Counter al detalle interno.
  * Fase 2, Ola J: certificado de flete, carta de liberación y su revisión interna, entrega de documentos por el asistente y
  * clientes del canal Web Service los responde ola-j-mocks.ts, que publica los documentos emitidos en el repositorio de la Ola E.
+ * Cierre de Fase 1: GET /config/features responde los flags por defecto (Fase 2 apagada, salvo la carta de liberación y
+ * Counter); `opciones.features` (o `habilitarFuncionalidades`, funcionalidades.ts) enciende los que la prueba necesita.
  */
-export async function simularApi(page: Page, opciones: OpcionesOlaD & OpcionesOlaI = {}): Promise<void> {
+/** Flags de funcionalidades de la prueba (GET /config/features) sobre los valores por defecto (Fase 2 apagada). */
+export interface OpcionesFuncionalidades {
+  features?: Funcionalidades;
+}
+
+export async function simularApi(
+  page: Page,
+  opciones: OpcionesOlaD & OpcionesOlaI & OpcionesFuncionalidades = {},
+): Promise<void> {
   let consultasLote = 0;
   const olaD = new SimulacionOlaD(opciones);
   const olaE = new SimulacionOlaE(olaD);
@@ -1794,6 +1805,12 @@ export async function simularApi(page: Page, opciones: OpcionesOlaD & OpcionesOl
     const url = new URL(request.url());
     const ruta = url.pathname.replace(/^.*\/api\/v1\//, '').replace(/\/$/, '');
     const metodo = request.method();
+
+    // Cierre de Fase 1: flags de funcionalidades (Fase 2 apagada salvo que la prueba los encienda).
+    if (metodo === 'GET' && ruta === 'config/features') {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(funcionalidades(opciones.features)) });
+      return;
+    }
 
     if (await olaJ.responder(route, ruta, metodo, url)) return;
     if (await olaI.responder(route, ruta, metodo, url)) return;

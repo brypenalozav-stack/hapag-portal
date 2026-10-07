@@ -3,6 +3,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 using Asp.Versioning;
 using HapagPortal.Application.AccountPayments;
 using HapagPortal.Application.AccountStatement;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.WebApi.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/account-statement")]
+[RequiresFeature(FeatureNames.AccountStatement)]
 public sealed class AccountStatementController : ApiController
 {
     [HttpGet]

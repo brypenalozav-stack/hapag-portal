@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/app';
 import { simularApi } from '../fixtures/api-mocks';
+import { FASE2 } from '../fixtures/funcionalidades';
 import { ITEM, OpcionesOlaD } from '../fixtures/ola-d-mocks';
 import { BL_GATE_OUT_POR_PAGAR, ESTADO, NUEVA_RAZON, PAGO_DEPOSITO, RECIBO_ANTICIPO, TOKEN_ACEPTACION } from '../fixtures/ola-h-mocks';
 import { ORGANIZACION_PRUEBA, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
@@ -24,7 +25,7 @@ const POLITE = 'div[aria-live="polite"]';
 const PDF = { name: 'comprobante.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4 comprobante de prueba') };
 
 async function abrir(page: Page, ruta: string, opciones: OpcionesOlaD = {}, sesion: 'cliente' | 'admin' | 'ninguna' = 'cliente'): Promise<void> {
-  await simularApi(page, opciones);
+  await simularApi(page, { ...opciones, features: FASE2 });
   if (sesion === 'admin') await sembrarSesionAdmin(page, 'es');
   else if (sesion === 'cliente') await sembrarSesion(page, { lang: 'es' });
   else await sembrarIdioma(page, 'es');
@@ -128,7 +129,7 @@ test('cliente con crédito: paga un ítem ahora e imputa otro a la línea de cr�
   await expect(checkout).toContainText('Pago inmediato (1 ítem)');
   await expect(checkout).toContainText('A la línea de crédito (1 ítem)');
 
-  await checkout.getByRole('radio', { name: 'Botón Banco de Chile (En línea)' }).check();
+  await checkout.getByRole('radio', { name: 'Botón Banco de Chile, en línea' }).check();
   await checkout.getByRole('button', { name: 'Revisar 2 ítems' }).click();
   const confirmacion = checkout.getByTestId('checkout-confirm');
   await expect(confirmacion.getByRole('heading')).toBeFocused();
@@ -309,7 +310,7 @@ test('facturas: cubierta por el recibo del anticipo y refacturación vinculada (
 });
 
 test('la agencia de aduanas ve cómo funciona el pago anticipado del Gate Out de exportación (M3-19)', async ({ page }) => {
-  await simularApi(page);
+  await simularApi(page, { features: FASE2 });
   await sembrarSesion(page, { lang: 'es', organizacion: { ...ORGANIZACION_PRUEBA, organizationType: 'CustomsAgency' } });
   await ir(page, `/charges/${BL_GATE_OUT_POR_PAGAR}`);
   const aviso = page.getByTestId('charges-gate-out-advance');

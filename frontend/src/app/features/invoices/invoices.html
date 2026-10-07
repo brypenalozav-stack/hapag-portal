@@ -3,7 +3,9 @@
     <h1>{{ 'invoices.title' | transloco }}</h1>
     <p class="text-muted mb-0">{{ 'invoices.subtitle' | transloco }}</p>
   </div>
-  <a routerLink="/account-statement" class="btn btn-outline-secondary btn-sm" data-testid="invoices-statement-link">{{ 'invoices.statementLink' | transloco }}</a>
+  @if (features.enabled('AccountStatement')) {
+    <a routerLink="/account-statement" class="btn btn-outline-secondary btn-sm" data-testid="invoices-statement-link">{{ 'invoices.statementLink' | transloco }}</a>
+  }
 </div>
 
 <!-- Organización: la información no se mezcla entre organizaciones (M7-01) -->
@@ -175,7 +177,7 @@
                       }
                     </span>
                   }
-                  @if (inv.coveredBy; as cov) {
+                  @if (features.enabled('GateOutAdvance') && inv.coveredBy; as cov) {
                     <span class="small d-block mt-1" data-testid="invoice-covered-by">
                       {{ 'invoices.coveredBy' | transloco: { receipt: cov.receiptDocumentNumber ?? cov.receiptNumber ?? cov.paymentNumber, payment: cov.paymentNumber } }}
                     </span>

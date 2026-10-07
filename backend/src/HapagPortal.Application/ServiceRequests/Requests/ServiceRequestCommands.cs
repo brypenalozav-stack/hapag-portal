@@ -4,6 +4,7 @@ using FluentValidation;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Common.Models;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.Domain.Charges;
@@ -663,7 +664,8 @@ public sealed class GetServiceRequestAttachmentQueryHandler(
 
 public sealed class GetMyServiceRequestsQueryHandler(
     IApplicationDbContext dbContext,
-    IShipmentAccessEvaluator accessEvaluator)
+    IShipmentAccessEvaluator accessEvaluator,
+    FeatureSettings features)
     : IQueryHandler<GetMyServiceRequestsQuery, PagedResult<ServiceRequestSummaryDto>>
 {
     public async Task<Result<PagedResult<ServiceRequestSummaryDto>>> Handle(GetMyServiceRequestsQuery request, CancellationToken cancellationToken)
@@ -674,7 +676,8 @@ public sealed class GetMyServiceRequestsQueryHandler(
 
         var organizationId = scope.OrganizationId.Value;
         var query = dbContext.ServiceRequests.AsNoTracking()
-            .Where(r => r.OrganizationId == organizationId || r.OnBehalfOfClientId == organizationId);
+            .Where(r => r.OrganizationId == organizationId || r.OnBehalfOfClientId == organizationId)
+            .VisibleFor(features);
 
         if (!string.IsNullOrWhiteSpace(request.Status))
             query = query.Where(r => r.Status == request.Status);

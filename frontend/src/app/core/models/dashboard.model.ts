@@ -21,7 +21,9 @@ export type DashboardTargetKind =
   | 'BlCopy'
   | 'ResponsibilityLetter'
   // Fase 2, Ola G: solicitud de servicio on demand.
-  | 'ServiceRequest';
+  | 'ServiceRequest'
+  // Carta de liberación (M6-08): destino de la solicitud, que se sigue en su propia página.
+  | 'ReleaseLetter';
 
 export interface DashboardTarget {
   kind: DashboardTargetKind;

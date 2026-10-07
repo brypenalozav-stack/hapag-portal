@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Documents.ReleaseLetter;
 using HapagPortal.Application.ServiceRequests.Queue;
 using HapagPortal.Application.ServiceRequests.Requests;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/admin/service-requests")]
+[RequiresFeature(FeatureNames.OnDemandServices, FeatureNames.ReleaseLetter, FeatureNames.Reinvoicing, FeatureNames.FreightCertificate)]
 public sealed class AdminServiceRequestsController : ApiController
 {
     [HttpGet]

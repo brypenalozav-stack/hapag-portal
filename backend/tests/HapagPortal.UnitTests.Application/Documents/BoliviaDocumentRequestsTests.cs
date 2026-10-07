@@ -2,6 +2,7 @@ namespace HapagPortal.UnitTests.Application.Documents;
 
 using FluentAssertions;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.FreightCertificate;
 using HapagPortal.Application.Documents.ReleaseLetter;
@@ -329,7 +330,7 @@ public sealed class BoliviaDocumentRequestsTests
     [Fact]
     public async Task Repository_ShouldOfferTheBoliviaRequestsOnlyToWhomTheMatrixAllows()
     {
-        var list = await new GetShipmentDocumentsQueryHandler(_f.Db, Owner.Evaluator(_f.Db), _f.Rules.ChargeRules(), new ResponsibilityLetterStatus(_f.Db))
+        var list = await new GetShipmentDocumentsQueryHandler(_f.Db, Owner.Evaluator(_f.Db), _f.Rules.ChargeRules(), new ResponsibilityLetterStatus(_f.Db), FeatureSettings.AllEnabled())
             .Handle(new GetShipmentDocumentsQuery(BlNumber), CancellationToken.None);
 
         list.Value.Actions.CanRequestFreightCertificate.Should().BeTrue();

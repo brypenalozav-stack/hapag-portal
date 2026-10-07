@@ -2,6 +2,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
 using HapagPortal.Application.Admin.Overview;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Authentication;
 using HapagPortal.WebApi.Abstractions;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 [HasPermission(AdministrationPermissions.AccessAdminArea)]
 [Route("api/v{version:apiVersion}/admin/overview")]
+[RequiresFeature(FeatureNames.AdminHome)]
 public sealed class AdminOverviewController : ApiController
 {
     [HttpGet]

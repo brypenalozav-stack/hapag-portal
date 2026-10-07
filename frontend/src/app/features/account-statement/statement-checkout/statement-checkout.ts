@@ -9,14 +9,12 @@ import { LiveAnnouncerService } from '../../../core/services/live-announcer.serv
 import { AccountCheckoutMode, AccountCheckoutResult, StatementLine } from '../../../core/models/account-statement.model';
 import { PaymentBlockStatus, PaymentMethod } from '../../../core/models/cart.model';
 import { apiErrorCode } from '../../../core/http/api-error';
-import { PAYMENT_METHOD_KIND_KEYS } from '../../../core/i18n/labels';
 import { isServiceUnavailable } from '../../../shared/components/state-message/state-message';
-import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { lineConcept, totalsByCurrency } from '../statement-text';
-import { PaymentLogoComponent } from '../../../shared/components/payment-logo/payment-logo';
+import { PaymentMethodPickerComponent } from '../../../shared/components/payment-method-picker/payment-method-picker';
 
 /** Errores tras los cuales el intento terminó con certeza: el próximo usa una clave nueva. */
 const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotency.AlreadyExists']);
@@ -31,7 +29,7 @@ const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotenc
 @Component({
   selector: 'app-statement-checkout',
   standalone: true,
-  imports: [PaymentLogoComponent, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe],
+  imports: [TranslocoPipe, HlCurrencyPipe, PaymentMethodPickerComponent],
   templateUrl: './statement-checkout.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
@@ -51,7 +49,6 @@ export class StatementCheckoutComponent {
   canImpute = input(true);
   completed = output<AccountCheckoutResult>();
 
-  readonly kindKeys = PAYMENT_METHOD_KIND_KEYS;
 
   /** Forma de pago elegida por línea (por omisión, pagar ahora). */
   modes = signal<Record<string, AccountCheckoutMode>>({});

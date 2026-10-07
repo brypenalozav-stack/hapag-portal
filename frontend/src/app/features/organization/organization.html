@@ -82,12 +82,16 @@
   }
 
   @if (showNetwork()) {
-    <!-- Fase 2, Ola I: transportistas pre-creados (M1-09) y empresa matriz (M1-21) -->
-    <app-carriers class="d-block mb-4" [canManage]="canManageAccess()" [country]="org.country" />
-    <app-parent-company class="d-block mb-4" />
+    <!-- Fase 2, Ola I: transportistas pre-creados (M1-09) y empresa matriz (M1-21); apagados por defecto -->
+    @if (features.enabled('Carriers')) {
+      <app-carriers class="d-block mb-4" [canManage]="canManageAccess()" [country]="org.country" />
+    }
+    @if (features.enabled('ParentCompany')) {
+      <app-parent-company class="d-block mb-4" />
+    }
   }
 
-  @if (showContactLists()) {
+  @if (showContactLists() && features.enabled('ContactLists')) {
     <!-- Fase 2, Ola I: listas de distribución de contactos por tipo de reporte (M1-06) -->
     <app-contact-lists class="d-block mb-4" />
   }

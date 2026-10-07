@@ -1,7 +1,12 @@
 <div class="hl-page-header">
   <nav [attr.aria-label]="'documents.releaseLetter.detail.breadcrumbLabel' | transloco">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a routerLink="/service-requests">{{ 'serviceRequests.list.title' | transloco }}</a></li>
+      <!-- Con los servicios on demand apagados (cierre de Fase 1) la carta se sigue desde su propia página -->
+      @if (features.enabled('OnDemandServices')) {
+        <li class="breadcrumb-item"><a routerLink="/service-requests">{{ 'serviceRequests.list.title' | transloco }}</a></li>
+      } @else {
+        <li class="breadcrumb-item"><a routerLink="/release-letter">{{ 'releaseLetterPage.title' | transloco }}</a></li>
+      }
       @if (letter(); as l) {
         <li class="breadcrumb-item"><a [routerLink]="['/shipments', l.request.blNumber, 'release-letter']">{{ l.request.blNumber }}</a></li>
       }

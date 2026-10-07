@@ -14,6 +14,8 @@ import {
   TRANSPORT_DOCUMENT_TYPE_KEYS,
 } from '../../../core/i18n/labels';
 import { AuthService } from '../../../core/services/auth.service';
+import { filter, switchMap } from 'rxjs';
+import { FeatureService } from '../../../core/services/feature.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { CountryBadgeComponent } from '../../../shared/components/country-badge/country-badge';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
@@ -66,6 +68,7 @@ export class ShipmentListComponent {
   private readonly service = inject(ShipmentService);
   private readonly operationService = inject(ShipmentOperationService);
   private readonly network = inject(OrganizationNetworkService);
+  private readonly features = inject(FeatureService);
   private readonly destroyRef = inject(DestroyRef);
   readonly auth = inject(AuthService);
 
@@ -127,7 +130,12 @@ export class ShipmentListComponent {
   private loadSubsidiaries(): void {
     const org = this.auth.organization();
     if (!org || org.status !== 'Approved' || (org.organizationType !== 'Customer' && org.organizationType !== 'FreightForwarder')) return;
-    this.network.getParentCompany().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    // Empresa matriz (M1-21, Fase 2): solo con su flag encendido.
+    this.features.ready().pipe(
+      filter(() => this.features.enabled('ParentCompany')),
+      switchMap(() => this.network.getParentCompany()),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
       next: (view) => this.subsidiaries.set((view.subsidiaries ?? []).filter((s) => s.visibilityEnabled).map((s) => s.organization)),
       error: () => this.subsidiaries.set([]),
     });

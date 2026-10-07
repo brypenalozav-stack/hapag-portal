@@ -7,6 +7,7 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { InvoiceService } from '../../core/services/invoice.service';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
+import { FeatureService } from '../../core/services/feature.service';
 import { LiveAnnouncerService } from '../../core/services/live-announcer.service';
 import {
   INVOICE_DOCUMENT_TYPES,
@@ -69,6 +70,8 @@ export class InvoicesComponent implements OnInit {
   private readonly service = inject(InvoiceService);
   readonly cart = inject(CartService);
   private readonly auth = inject(AuthService);
+  /** Refacturación IAO, estado de cuenta y anticipos de Gate Out (Fase 2, apagados por defecto). */
+  readonly features = inject(FeatureService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
@@ -198,7 +201,7 @@ export class InvoicesComponent implements OnInit {
    */
   canReinvoice(invoice: Invoice): boolean {
     const list = this.list();
-    return !!list?.organization.isOwn && this.auth.canOperate() && !!invoice.siiNumber && !!invoice.blNumber
+    return this.features.enabled('Reinvoicing') && !!list?.organization.isOwn && this.auth.canOperate() && !!invoice.siiNumber && !!invoice.blNumber
       && (invoice.documentType === 'Invoice' || invoice.documentType === 'ExemptInvoice')
       && invoice.status !== 'Cancelled' && invoice.status !== 'Superseded';
   }

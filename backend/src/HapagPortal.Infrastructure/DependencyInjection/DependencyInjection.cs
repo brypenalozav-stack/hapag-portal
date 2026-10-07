@@ -1,5 +1,6 @@
 using HapagPortal.Application.Auth.Common;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Impersonation;
 using HapagPortal.Application.PortalLinks;
@@ -66,6 +67,10 @@ public static partial class DependencyInjectionExtensions
 
         // Ola I: «Vista como cliente» (M8-08), sección "Impersonation" (duración y escrituras permitidas; vacío = solo consulta).
         services.AddSingleton(configuration.GetSection(ImpersonationSettings.SectionName).Get<ImpersonationSettings>() ?? new ImpersonationSettings());
+
+        // Cierre de Fase 1: flags de funcionalidades (sección "Features"); Fase 2 apagada por defecto, salvo la carta de
+        // liberación y Counter. Se reactivan por configuración (Features__X=true).
+        services.AddSingleton(new FeatureSettings(configuration.GetSection(FeatureSettings.SectionName).Get<Dictionary<string, bool>>()));
 
         services.AddIntegrations(configuration);
 

@@ -118,7 +118,7 @@
   </section>
 
   <!-- Fase 2, Ola H: comprobante del depósito y su revisión por Finanzas (M5-06) -->
-  @if (p.slipNumber) {
+  @if (p.slipNumber && features.enabled('DepositProofs')) {
     <app-deposit-proofs [paymentId]="p.id" (changed)="load()" />
   }
 

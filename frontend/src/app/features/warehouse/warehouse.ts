@@ -25,6 +25,7 @@ import { parseBulkLines } from './bulk-lines';
 import { focusAfterRender } from '../../shared/focus-after-render';
 import { AddToCartDialogComponent, AddToCartTarget } from '../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
 import { ToastService } from '../../core/services/toast.service';
+import { FeatureService } from '../../core/services/feature.service';
 
 interface FormError {
   fieldId: string;
@@ -66,6 +67,7 @@ const MAX_FILE_BYTES = 512 * 1024;
 })
 export class WarehouseComponent implements OnInit {
   private readonly service = inject(WarehouseChangeService);
+  readonly features = inject(FeatureService);
   private readonly shipmentService = inject(ShipmentService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);

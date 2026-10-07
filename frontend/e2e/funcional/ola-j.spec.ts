@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/app';
 import { simularApi } from '../fixtures/api-mocks';
+import { FASE2 } from '../fixtures/funcionalidades';
 import {
   BL_FLETE,
   BL_LIBERACION,
@@ -35,7 +36,7 @@ const POLITE = 'div[aria-live="polite"]';
 const ASSERTIVE = 'div[aria-live="assertive"]';
 
 async function abrir(page: Page, ruta: string, sesion: 'cliente' | 'admin' = 'cliente'): Promise<void> {
-  await simularApi(page);
+  await simularApi(page, { features: FASE2 });
   if (sesion === 'admin') await sembrarSesionAdmin(page, 'es');
   else await sembrarSesion(page, { lang: 'es' });
   await page.goto(ruta);

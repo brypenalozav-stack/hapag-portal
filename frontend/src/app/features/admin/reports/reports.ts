@@ -5,6 +5,7 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ReportService } from '../../../core/services/report.service';
 import { ReportResult, ReportType } from '../../../core/models/report.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
+import { FeatureService } from '../../../core/services/feature.service';
 
 /** Reportes operativos con vista tabular y exportación a CSV (descarga directa). */
 @Component({
@@ -18,10 +19,17 @@ export class ReportsComponent implements OnInit {
   private readonly service = inject(ReportService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly reports: { type: ReportType; labelKey: string }[] = [
+  private readonly features = inject(FeatureService);
+
+  private readonly allReports: { type: ReportType; labelKey: string }[] = [
     { type: 'transmissions', labelKey: 'admin.reports.types.transmissions' },
     { type: 'overdue-deadlines', labelKey: 'admin.reports.types.overdueDeadlines' },
   ];
+
+  /** El reporte de plazos vencidos depende de los plazos documentales (M2-10), apagados por defecto. */
+  get reports(): { type: ReportType; labelKey: string }[] {
+    return this.features.enabled('DocumentaryDeadlines') ? this.allReports : this.allReports.filter((r) => r.type !== 'overdue-deadlines');
+  }
 
   selectedType = signal<ReportType>('transmissions');
   result = signal<ReportResult | null>(null);

@@ -40,7 +40,6 @@
       "disabledBlocked": "No se puede pagar mientras los pagos estén suspendidos.",
       "help": "Elija los ítems, la moneda y el medio de pago. Antes de pagar verá un resumen para confirmar.",
       "method": "Medio de pago",
-      "methodOption": "{{ name }} ({{ kind }})",
       "mixedCountries": "Eligió ítems de países distintos: un pago es de un solo país. Desmarque los de otro país.",
       "noCurrency": "Los ítems elegidos no tienen una moneda de pago en común: páguelos por separado.",
       "noMethods": "No hay medios de pago habilitados para esta moneda.",
@@ -114,7 +113,6 @@
       "help": "Para cada ítem elija si lo paga ahora o lo imputa a su línea de crédito. Los conceptos que Finanzas no habilitó se pagan ahora.",
       "itemLegend": "{{ concept }} {{ number }} · BL {{ bl }} · {{ amount }}",
       "method": "Medio de pago",
-      "methodOption": "{{ name }} ({{ kind }})",
       "noCurrency": "Los ítems que paga ahora no tienen una moneda de pago en común: páguelos por separado.",
       "noMethods": "No hay medios de pago habilitados para esta moneda.",
       "nothing": "Nada",
@@ -2979,7 +2977,6 @@
       "disabledReadOnly": "Su perfil de consulta no puede pagar.",
       "error": "No se pudo iniciar el pago. Revise el carro e intente nuevamente.",
       "method": "Medio de pago",
-      "methodOption": "{{ name }} ({{ kind }})",
       "methodRequired": "Elija un medio de pago.",
       "noMethods": "No hay medios de pago habilitados para esta moneda.",
       "retry": "Reintentar pago de {{ total }}",
@@ -3008,7 +3005,6 @@
     "goToAccountPayments": "Ir a Pagar desde mi cuenta",
     "group": {
       "caption": "Ítems a pagar en {{ currency }}",
-      "clear": "Vaciar",
       "clearCancel": "No",
       "clearConfirm": "Sí, vaciar",
       "clearLabel": "Vaciar el carro en {{ currency }}",
@@ -6553,6 +6549,21 @@
     "sectionNav": {
       "label": "Secciones de esta página",
       "title": "Ir a"
+    },
+    "paymentMethodPicker": {
+      "group": {
+        "online": "Pago en línea",
+        "deposit": "Depósito o transferencia"
+      },
+      "pill": {
+        "online": "En línea · inmediato",
+        "deposit": "Depósito · Finanzas confirma"
+      },
+      "kindShort": {
+        "online": "en línea",
+        "deposit": "depósito"
+      },
+      "optionLabel": "{{ name }}, {{ kind }}"
     }
   },
   "shipments": {

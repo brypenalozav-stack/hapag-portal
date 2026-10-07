@@ -11,10 +11,15 @@
 @if (auth.isAuthenticated()) {
 
   <main id="contenido-principal" class="hl-main-content" tabindex="-1">
-    <!-- Vista como cliente (M8-08): banner permanente mientras dura la sesión de impersonación -->
-    <app-impersonation-banner />
+    <!-- Vista como cliente (M8-08): banner permanente mientras dura la sesión de impersonación. Con el flag apagado se
+         muestra igual si hay una sesión en curso, para poder terminarla. -->
+    @if (features.enabled('Impersonation') || auth.isImpersonating()) {
+      <app-impersonation-banner />
+    }
     <!-- Modo guía (M1-27): guías de la pantalla actual -->
-    <app-guide-host />
+    @if (features.enabled('GuideMode')) {
+      <app-guide-host />
+    }
     <router-outlet />
   </main>
 

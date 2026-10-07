@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Payments.DepositProofs;
 using HapagPortal.Application.Payments.Lifecycle;
 using HapagPortal.Application.Payments.Settlements;
@@ -46,6 +47,7 @@ public sealed class AdminPaymentsController : ApiController
 
     /// <summary>Bandeja de comprobantes de depósito (por omisión, por revisar; el más antiguo primero).</summary>
     [HttpGet("deposit-proofs")]
+    [RequiresFeature(FeatureNames.DepositProofs)]
     [HasPermission(PaymentPermissions.Finance)]
     public async Task<IActionResult> GetDepositProofs([FromQuery] string? status, [FromQuery] string? country, CancellationToken cancellationToken)
     {
@@ -54,6 +56,7 @@ public sealed class AdminPaymentsController : ApiController
     }
 
     [HttpPost("deposit-proofs/{proofId:guid}/verify")]
+    [RequiresFeature(FeatureNames.DepositProofs)]
     [HasPermission(PaymentPermissions.Finance)]
     public async Task<IActionResult> VerifyDepositProof(Guid proofId, [FromBody] VerifyDepositProofRequest? request, CancellationToken cancellationToken)
     {
@@ -62,6 +65,7 @@ public sealed class AdminPaymentsController : ApiController
     }
 
     [HttpPost("deposit-proofs/{proofId:guid}/reject")]
+    [RequiresFeature(FeatureNames.DepositProofs)]
     [HasPermission(PaymentPermissions.Finance)]
     public async Task<IActionResult> RejectDepositProof(Guid proofId, [FromBody] RejectDepositProofRequest request, CancellationToken cancellationToken)
     {
@@ -71,6 +75,7 @@ public sealed class AdminPaymentsController : ApiController
 
     /// <summary>Anticipos e imputaciones a crédito con su cruce con las facturas (NF-04).</summary>
     [HttpGet("settlements")]
+    [RequiresFeature(FeatureNames.GateOutAdvance)]
     [HasPermission(PaymentPermissions.Finance)]
     public async Task<IActionResult> GetSettlements(
         [FromQuery] string? status,
@@ -86,6 +91,7 @@ public sealed class AdminPaymentsController : ApiController
     }
 
     [HttpPost("settlements/match")]
+    [RequiresFeature(FeatureNames.GateOutAdvance)]
     [HasPermission(PaymentPermissions.Finance)]
     public async Task<IActionResult> MatchSettlements([FromBody] MatchSettlementsRequest? request, CancellationToken cancellationToken)
     {
@@ -94,6 +100,7 @@ public sealed class AdminPaymentsController : ApiController
     }
 
     [HttpPost("settlements/{id:guid}/match")]
+    [RequiresFeature(FeatureNames.GateOutAdvance)]
     [HasPermission(PaymentPermissions.Finance)]
     public async Task<IActionResult> MatchSettlement(Guid id, [FromBody] MatchSettlementRequest request, CancellationToken cancellationToken)
     {

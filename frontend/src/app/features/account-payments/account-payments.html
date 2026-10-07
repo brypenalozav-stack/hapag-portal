@@ -27,7 +27,7 @@
   @if (!canOperate()) {
     <div class="alert alert-info" role="note">{{ 'accountPayments.readOnly' | transloco }}</div>
   }
-  @if ((d.creditImputable?.length ?? 0) > 0) {
+  @if ((d.creditImputable?.length ?? 0) > 0 && features.enabled('AccountStatement')) {
     <!-- Fase 2, Ola H: la forma de pago por ítem (pagar ahora o imputar a crédito) está en el estado de cuenta (M5-10, M7-03) -->
     <div class="alert alert-info" role="note" data-testid="account-payments-statement-note">
       <p class="mb-2">{{ 'accountPayments.statementNote' | transloco }}</p>
@@ -133,19 +133,9 @@
         } @else if (!methodsLoading() && methods().length === 0) {
           <p class="small" role="note">{{ 'accountPayments.pay.noMethods' | transloco }}</p>
         } @else {
-          <fieldset class="mb-3" [disabled]="confirming() || submitting()">
-            <legend class="form-label small fw-semibold mb-1">{{ 'accountPayments.pay.method' | transloco }}</legend>
-            @for (method of methods(); track method.code) {
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="account-payments-method" [id]="'account-method-' + method.code"
-                       [checked]="methodCode() === method.code" (change)="selectMethod(method.code)" />
-                <label class="form-check-label d-inline-flex align-items-center gap-2" [for]="'account-method-' + method.code">
-                  <app-payment-logo [method]="method" />
-                  {{ 'accountPayments.pay.methodOption' | transloco: { name: method.name, kind: (method.kind | codeLabel: kindKeys) } }}
-                </label>
-              </div>
-            }
-          </fieldset>
+          <app-payment-method-picker class="d-block mb-3" [methods]="methods()" [selected]="methodCode()" [disabled]="confirming() || submitting()"
+                                     name="account-payments-method" idPrefix="account-method" legendKey="accountPayments.pay.method"
+                                     (selectedChange)="selectMethod($event)" />
         }
       }
 

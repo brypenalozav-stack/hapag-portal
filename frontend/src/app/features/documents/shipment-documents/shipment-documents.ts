@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { DocumentService } from '../../../core/services/document.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { FeatureService } from '../../../core/services/feature.service';
 import { CartService } from '../../../core/services/cart.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import {
@@ -65,6 +66,8 @@ type OpenDialog = 'blCopy' | 'letter' | null;
 export class ShipmentDocumentsComponent {
   private readonly service = inject(DocumentService);
   private readonly auth = inject(AuthService);
+  /** Certificado de flete (M6-02) y carta de liberación (M6-08) según sus flags. */
+  readonly features = inject(FeatureService);
   readonly cart = inject(CartService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);

@@ -209,6 +209,8 @@ h1, h2, h3, h4, h5, h6 {
 .hl-main-content {
   margin-top: var(--navbar-height);
   padding: 1.5rem;
+  // Espacio inferior para el botón flotante del asistente: no tapa la última acción de la página.
+  padding-bottom: 5.5rem;
   min-height: calc(100vh - var(--navbar-height));
 }
 

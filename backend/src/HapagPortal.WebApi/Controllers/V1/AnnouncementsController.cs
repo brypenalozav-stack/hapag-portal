@@ -2,6 +2,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
 using HapagPortal.Application.Announcements;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.WebApi.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/announcements")]
+[RequiresFeature(FeatureNames.Announcements)]
 public sealed class AnnouncementsController : ApiController
 {
     [HttpGet]

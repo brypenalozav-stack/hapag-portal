@@ -24,6 +24,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { DepositProofsComponent } from '../deposit-proofs/deposit-proofs';
+import { FeatureService } from '../../../core/services/feature.service';
 
 /** Intervalo entre consultas del estado mientras la plataforma no confirma. */
 export const PAYMENT_POLL_INTERVAL_MS = 3000;
@@ -51,6 +52,8 @@ export const PAYMENT_POLL_MAX = 40;
 })
 export class PaymentResultComponent implements OnInit {
   private readonly service = inject(PaymentService);
+  /** Comprobante del depósito (M5-06, Fase 2): apagado por defecto. */
+  readonly features = inject(FeatureService);
   private readonly cart = inject(CartService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);

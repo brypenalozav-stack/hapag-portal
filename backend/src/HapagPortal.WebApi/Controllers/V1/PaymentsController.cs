@@ -2,6 +2,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using System.Text;
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Payments.Commands.Cancel;
 using HapagPortal.Application.Payments.Commands.Confirm;
 using HapagPortal.Application.Payments.Commands.Webhooks;
@@ -70,6 +71,7 @@ public sealed class PaymentsController : ApiController
 
     /// <summary>Comprobantes de depósito del pago con su revisión (M5-06).</summary>
     [HttpGet("{id:guid}/deposit-proofs")]
+    [RequiresFeature(FeatureNames.DepositProofs)]
     public async Task<IActionResult> GetDepositProofs(Guid id, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetDepositProofsQuery(id), cancellationToken);
@@ -81,6 +83,7 @@ public sealed class PaymentsController : ApiController
     /// <c>depositDate</c>, <c>depositAmount</c>, <c>notes</c>). PDF, PNG o JPEG hasta 10 MB (M5-06).
     /// </summary>
     [HttpPost("{id:guid}/deposit-proofs")]
+    [RequiresFeature(FeatureNames.DepositProofs)]
     [RequestSizeLimit(UploadDepositProofCommandValidator.MaxSizeBytes + 1024 * 1024)]
     public async Task<IActionResult> UploadDepositProof(
         Guid id,
@@ -103,6 +106,7 @@ public sealed class PaymentsController : ApiController
     }
 
     [HttpGet("{id:guid}/deposit-proofs/{proofId:guid}/file")]
+    [RequiresFeature(FeatureNames.DepositProofs)]
     public async Task<IActionResult> DownloadDepositProof(Guid id, Guid proofId, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetDepositProofFileQuery(id, proofId), cancellationToken);

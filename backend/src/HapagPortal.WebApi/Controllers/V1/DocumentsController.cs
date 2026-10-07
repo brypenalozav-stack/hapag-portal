@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Documents.BlCopy;
 using HapagPortal.Application.Documents.FreightCertificate;
 using HapagPortal.Application.Documents.NoDebt;
@@ -107,6 +108,7 @@ public sealed class DocumentsController : ApiController
 
     /// <summary>Gestión del certificado de flete (M6-02, importación de Bolivia): datos para el formulario y solicitudes.</summary>
     [HttpGet("{blNumber}/freight-certificate")]
+    [RequiresFeature(FeatureNames.FreightCertificate)]
     public async Task<IActionResult> GetFreightCertificate(string blNumber, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetFreightCertificateQuery(blNumber), cancellationToken);
@@ -115,6 +117,7 @@ public sealed class DocumentsController : ApiController
 
     /// <summary>Solicita y emite el certificado de flete (sin pago ni carro en esta entrega).</summary>
     [HttpPost("{blNumber}/freight-certificate")]
+    [RequiresFeature(FeatureNames.FreightCertificate)]
     public async Task<IActionResult> RequestFreightCertificate(
         string blNumber,
         [FromBody] FreightCertificateRequestBody request,
@@ -133,6 +136,7 @@ public sealed class DocumentsController : ApiController
 
     /// <summary>Gestión de la carta de liberación y desconsolidado (M6-08, importación de Bolivia), con el TATC de las unidades.</summary>
     [HttpGet("{blNumber}/release-letter")]
+    [RequiresFeature(FeatureNames.ReleaseLetter)]
     public async Task<IActionResult> GetReleaseLetter(string blNumber, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetReleaseLetterQuery(blNumber), cancellationToken);
@@ -141,6 +145,7 @@ public sealed class DocumentsController : ApiController
 
     /// <summary>Solicita la carta: queda pendiente de aprobación de Customer Service, que la emite al aprobar.</summary>
     [HttpPost("{blNumber}/release-letter")]
+    [RequiresFeature(FeatureNames.ReleaseLetter)]
     public async Task<IActionResult> RequestReleaseLetter(
         string blNumber,
         [FromBody] ReleaseLetterRequestBody request,
@@ -167,6 +172,7 @@ public sealed class DocumentsController : ApiController
 
     /// <summary>Carta de la organización con su TATC al enviar y al aprobar y la carta emitida.</summary>
     [HttpGet("release-letter/requests/{id:guid}")]
+    [RequiresFeature(FeatureNames.ReleaseLetter)]
     public async Task<IActionResult> GetReleaseLetterRequest(Guid id, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetReleaseLetterRequestQuery(id), cancellationToken);

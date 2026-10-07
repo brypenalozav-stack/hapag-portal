@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ShipmentService } from '../../../core/services/shipment.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { FeatureService } from '../../../core/services/feature.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { CartService } from '../../../core/services/cart.service';
 import { PERMISSIONS } from '../../../core/constants/app.constants';
@@ -74,6 +75,8 @@ export class ShipmentDetailComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
   readonly cart = inject(CartService);
+  /** Flags de funcionalidades: secciones de Fase 2 del detalle (cierre de Fase 1). */
+  readonly features = inject(FeatureService);
   private readonly destroyRef = inject(DestroyRef);
 
   blNumber = input.required<string>();

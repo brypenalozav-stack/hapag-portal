@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Organizations.ParentCompany;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Authentication;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 [HasPermission(AccessPermissions.ReviewOrganizations)]
 [Route("api/v{version:apiVersion}/admin/organization-links")]
+[RequiresFeature(FeatureNames.ParentCompany)]
 public sealed class AdminOrganizationLinksController : ApiController
 {
     [HttpGet]

@@ -141,9 +141,9 @@ La fuente de verdad es `Portal_2.0_Especificacion_Funcional_validada(1).docx`. S
 
 | Fase | Estado |
 |---|---|
-| 1. Boleta y PDF | En curso |
-| 2. Selector de medios de pago | Pendiente |
-| 3. Flags Fase 2 | Pendiente |
+| 1. Boleta y PDF | Hecho (sin commit): renderizador, boleta y comprobante, `Documents:DepositInstructions` |
+| 2. Selector de medios de pago | Hecho (sin commit): `payment-method-picker` en carro, pagos y estado de cuenta |
+| 3. Flags Fase 2 | Hecho (sin commit): `Features` + `[RequiresFeature]` + `config/features`; `FeatureService`/`featureGuard`; `e2e/ux/solo-fase1.spec.ts`. Pendiente aparte: vínculos matriz–filial ya activos siguen dando visibilidad (lógica de acceso central, no se tocó) |
 | 4. Menú y barra superior | Pendiente |
 | 5. Dashboard | Pendiente |
 | 6. Detalle del BL | Pendiente |

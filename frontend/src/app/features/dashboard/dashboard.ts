@@ -6,6 +6,7 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { FeatureService } from '../../core/services/feature.service';
 import { DocumentService } from '../../core/services/document.service';
 import { LiveAnnouncerService } from '../../core/services/live-announcer.service';
 import { ShipmentOperationService } from '../../core/services/shipment-operation.service';
@@ -102,6 +103,7 @@ const ICON = {
 export class DashboardComponent {
   readonly auth = inject(AuthService);
   readonly cart = inject(CartService);
+  readonly features = inject(FeatureService);
   private readonly service = inject(DashboardService);
   private readonly documents = inject(DocumentService);
   private readonly announcer = inject(LiveAnnouncerService);
@@ -158,14 +160,14 @@ export class DashboardComponent {
       { route: '/shipments', titleKey: 'dashboard.services.shipments.title', descriptionKey: 'dashboard.services.shipments.description', icon: ICON.ship },
     );
     // Fase 2, Ola G: servicios on demand (M2-03, M2-04); los pide la organización cliente, no el administrador interno.
-    if (!this.auth.isInternal()) {
+    if (!this.auth.isInternal() && this.features.enabled('OnDemandServices')) {
       list.push({ route: '/service-requests/new', titleKey: 'dashboard.services.requestService.title', descriptionKey: 'dashboard.services.requestService.description', icon: ICON.request });
     }
     list.push(
       { route: '/invoices', titleKey: 'dashboard.services.invoices.title', descriptionKey: 'dashboard.services.invoices.description', icon: ICON.invoice },
     );
     // Fase 2, Ola H: estado de cuenta de la organización (M7-03).
-    if (!this.auth.isInternal()) {
+    if (!this.auth.isInternal() && this.features.enabled('AccountStatement')) {
       list.push({ route: '/account-statement', titleKey: 'dashboard.services.accountStatement.title', descriptionKey: 'dashboard.services.accountStatement.description', icon: ICON.pay });
     }
     list.push(
@@ -282,6 +284,9 @@ export class DashboardComponent {
         return ['/tatc'];
       case 'ServiceRequest':
         return target.id ? ['/service-requests', target.id] : ['/service-requests'];
+      // Carta de liberación (M6-08): se sigue en su propia página, también con los servicios on demand apagados.
+      case 'ReleaseLetter':
+        return target.id ? ['/release-letters', target.id] : ['/release-letter'];
       default:
         return ['/dashboard'];
     }

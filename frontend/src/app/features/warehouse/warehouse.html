@@ -3,8 +3,10 @@
     <h1>{{ 'warehouse.title' | transloco }}</h1>
     <p class="text-muted mb-0">{{ 'warehouse.subtitle' | transloco }}</p>
   </div>
-  <!-- Historial y trazabilidad de las solicitudes (M3-06) -->
-  <a routerLink="/warehouse/history" class="btn btn-outline-secondary">{{ 'warehouse.history.link' | transloco }}</a>
+  <!-- Historial y trazabilidad de las solicitudes (M3-06, Fase 2): apagado por defecto -->
+  @if (features.enabled('WarehouseHistory')) {
+    <a routerLink="/warehouse/history" class="btn btn-outline-secondary">{{ 'warehouse.history.link' | transloco }}</a>
+  }
 </div>
 
 <!-- Solicitud individual: cambio gratuito o tarifa vigente (M3-04, M8-01) -->

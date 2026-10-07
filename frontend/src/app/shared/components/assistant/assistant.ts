@@ -39,6 +39,7 @@ import { focusAfterRender } from '../../focus-after-render';
 import { saveBlob } from '../../save-blob';
 import { isServiceUnavailable } from '../state-message/state-message';
 import { ToastService } from '../../../core/services/toast.service';
+import { FeatureService } from '../../../core/services/feature.service';
 
 /** Conversación de la pestaña (M10-01): se recupera su historial al recargar mientras dure la sesión. */
 const SESSION_KEY = 'hl_assistant_session';
@@ -72,6 +73,8 @@ const MAILTO = /^mailto:/i;
 })
 export class AssistantComponent {
   private readonly service = inject(AssistantService);
+  /** Entrega de documentos por el asistente (M10-04, Fase 2): apagada por defecto. */
+  private readonly features = inject(FeatureService);
   private readonly auth = inject(AuthService);
   private readonly documents = inject(DocumentService);
   private readonly announcer = inject(LiveAnnouncerService);
@@ -403,7 +406,7 @@ export class AssistantComponent {
 
   /** La respuesta entrega documentos del embarque (M10-04). */
   isDelivery(message: ConversationMessage): boolean {
-    return message.intent === ASSISTANT_DELIVERY_INTENT;
+    return message.intent === ASSISTANT_DELIVERY_INTENT && this.features.enabled('AssistantDelivery');
   }
 
   /** Cantidad de documentos que ofrece una respuesta de entrega. */

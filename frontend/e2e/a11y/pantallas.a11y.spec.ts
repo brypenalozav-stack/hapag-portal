@@ -22,6 +22,7 @@ import {
   TARIFA_TRAMOS,
   simularApi,
 } from '../fixtures/api-mocks';
+import { FASE2 } from '../fixtures/funcionalidades';
 import { OpcionesOlaD, PAGO } from '../fixtures/ola-d-mocks';
 import {
   BL_CARTA,
@@ -1070,7 +1071,7 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opcion
 ];
 
 async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opciones?: OpcionesOlaD & OpcionesOlaI, tema: Tema = 'light'): Promise<void> {
-  await simularApi(page, opciones);
+  await simularApi(page, { ...opciones, features: FASE2 });
   await sembrarTema(page, tema);
   if (sesion === 'cliente') {
     await sembrarSesion(page, { lang });

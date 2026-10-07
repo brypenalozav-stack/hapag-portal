@@ -2,6 +2,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
 using HapagPortal.Application.Announcements;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Authentication;
 using HapagPortal.WebApi.Abstractions;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 [HasPermission(AdministrationPermissions.ManageAnnouncements)]
 [Route("api/v{version:apiVersion}/admin/announcements")]
+[RequiresFeature(FeatureNames.Announcements)]
 public sealed class AdminAnnouncementsController : ApiController
 {
     [HttpGet]

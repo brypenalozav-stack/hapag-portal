@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Config.Read.GetCurrencies;
 using HapagPortal.Application.Config.Read.GetPaymentMethods;
 using HapagPortal.Application.Config.Read.GetTaxRates;
@@ -20,6 +21,18 @@ public sealed class ConfigController : ApiController
         CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetTaxRatesQuery(country), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>
+    /// Flags de funcionalidades (nombre → encendido) para ocultar en el frontend lo que está apagado (cierre de Fase 1).
+    /// Es anónimo porque también lo necesitan las rutas públicas (aceptación de la refacturación) y solo expone booleanos.
+    /// </summary>
+    [HttpGet("features")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetFeatures(CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetFeaturesQuery(), cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
     }
 
