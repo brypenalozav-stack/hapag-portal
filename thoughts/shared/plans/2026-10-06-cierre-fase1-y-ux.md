@@ -145,7 +145,7 @@ La fuente de verdad es `Portal_2.0_Especificacion_Funcional_validada(1).docx`. S
 | 2. Selector de medios de pago | Hecho (sin commit): `payment-method-picker` en carro, pagos y estado de cuenta |
 | 3. Flags Fase 2 | Hecho (sin commit): `Features` + `[RequiresFeature]` + `config/features`; `FeatureService`/`featureGuard`; `e2e/ux/solo-fase1.spec.ts`. Pendiente aparte: vínculos matriz–filial ya activos siguen dando visibilidad (lógica de acceso central, no se tocó) |
 | 4. Menú y barra superior | Pendiente |
-| 5. Dashboard | Pendiente |
-| 6. Detalle del BL | Pendiente |
+| 5. Dashboard | Hecho: «Requiere su acción» agrupado por BL y urgencia, 3 KPI, 4 accesos, indicadores con `@defer`, «Todo al día» |
+| 6. Detalle del BL | Hecho: encabezado fijo con próxima acción (release-status), índice por grupos, `@defer` por grupo, divulgación de partes y emisión |
 | 7. Brechas Fase 1 (código) | Pendiente |
 | 8. Documentación Fase 1 | Hecho: `docs/requerimientos/evaluacion-m3-05-solicitudes-masivas.md`, `m5-03-medios-de-pago-y-dolares-digitales.md`, `plantillas-nf-operacion-fase1.md` (valores *Por definir* según DC6) |
