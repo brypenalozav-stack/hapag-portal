@@ -1,4 +1,4 @@
--- Deja un único usuario administrador: demo@hapaglloyd.cl. Se ejecuta una vez, a mano, en la consola SQL de Railway.
+-- 2) Deja un único usuario administrador: demo@hapaglloyd.cl. Se ejecuta una vez, a mano, en la consola SQL de Railway.
 -- Respalde la base antes. Si algo falla, la transacción no aplica nada.
 
 BEGIN;
