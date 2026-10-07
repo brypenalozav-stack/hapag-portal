@@ -4128,8 +4128,7 @@
       "col": {
         "actions": "Actions",
         "bl": "BL",
-        "document": "Document",
-        "issuedAt": "Issued"
+        "document": "Document"
       },
       "download": "Download",
       "downloadError": "The document could not be downloaded. Try again.",
@@ -4168,18 +4167,6 @@
         "empty": "There are no shipments to show.",
         "title": "Shipments by status"
       },
-      "demurrage": {
-        "caption": "Bills of lading with demurrage at risk",
-        "col": {
-          "amount": "Amount",
-          "bl": "BL",
-          "state": "Status"
-        },
-        "empty": "There is no demurrage at risk.",
-        "lines": "{count, plural, one {# pending line} other {# pending lines}}",
-        "noAmount": "Amount not calculated yet",
-        "title": "Demurrage at risk"
-      },
       "departures": {
         "caption": "Upcoming departures in the next 14 days, by ETD",
         "col": {
@@ -4191,8 +4178,7 @@
       "shipments": {
         "col": {
           "bl": "BL",
-          "port": "Port",
-          "vessel": "Vessel and voyage"
+          "port": "Port"
         }
       },
       "title": "Operational indicators",
@@ -4200,33 +4186,12 @@
     },
     "loadError": "The dashboard could not be loaded.",
     "pending": {
-      "add": "Add to cart",
-      "addLabel": "Add {{ concept }} {{ reference }} to the cart",
-      "bl": "BL {{ bl }}",
-      "caption": "Services pending payment, overdue first",
-      "cartLabel": "{{ concept }} of BL {{ bl }}",
-      "col": {
-        "actions": "Actions",
-        "amount": "Amount",
-        "reference": "Reference",
-        "service": "Service",
-        "status": "Status"
-      },
-      "creditNote": "Your organization has credit terms: these items are paid from “Pay from my account”.",
-      "dueDate": "Due {{ date }}",
-      "empty": "You have no services pending payment.",
-      "go": "View",
-      "goLabel": "View {{ concept }} {{ reference }}",
-      "inCart": "In the cart",
-      "title": "Pending payments",
-      "truncated": "Showing {{ shown }} of {{ total }} pending items.",
-      "pagination": "Pending payments pages"
+      "truncated": "Showing {{ shown }} of {{ total }} pending items."
     },
     "requests": {
       "caption": "Requests in progress and finished in the last 30 days",
       "col": {
         "actions": "Actions",
-        "date": "Date",
         "request": "Request",
         "status": "Status"
       },
@@ -4244,22 +4209,6 @@
         "description": "Balances, due dates, debt aging and paying several invoices at once.",
         "title": "View my statement of account"
       },
-      "dangerousGoods": {
-        "description": "Check the class and UN number of a cargo.",
-        "title": "Search dangerous goods"
-      },
-      "demurrage": {
-        "description": "Review and calculate the charge for extra container days.",
-        "title": "Check demurrage"
-      },
-      "faq": {
-        "description": "Answers to the most common questions.",
-        "title": "Frequently asked questions"
-      },
-      "invoices": {
-        "description": "View, download and pay your invoices.",
-        "title": "View my invoices"
-      },
       "pay": {
         "description": "Pay charges, freight and services added to the cart.",
         "title": "Pay charges and services"
@@ -4268,25 +4217,26 @@
         "description": "Seals, Drop Off, BL corrections, house BL and other services for your shipment.",
         "title": "Request a service"
       },
-      "shipments": {
-        "description": "Status, documents and charges of each BL or booking.",
-        "title": "View my shipments"
-      },
       "tatc": {
         "description": "Request the TATC of several bills of lading of the same location.",
         "title": "Request TATC"
       },
       "title": "What do you need to do?",
-      "warehouse": {
-        "description": "Request the transfer of your cargo to another warehouse.",
-        "title": "Change warehouse"
+      "checkBl": {
+        "title": "Check a BL",
+        "description": "Release status, pending requirements and TATC of a BL."
+      },
+      "findShipment": {
+        "title": "Find a shipment",
+        "description": "Find a BL or booking and review its status."
+      },
+      "releaseLetter": {
+        "title": "Request a release letter",
+        "description": "Bolivian imports: upload the letter and follow its review."
       }
     },
     "summary": {
-      "accountPayments": "Pay from my account",
       "byOperation": "{{ imports }} import and {{ exports }} export",
-      "demurrageAtRisk": "Demurrage at risk",
-      "goToCart": "Go to the cart",
       "noPending": "No pending balances",
       "pendingPayments": "Pending payments",
       "requestsHelp": "Portal requests still being processed.",
@@ -4294,13 +4244,57 @@
       "shipments": "Shipments",
       "title": "Summary",
       "totalsLabel": "Pending balance by currency",
-      "viewDemurrage": "View demurrage",
-      "viewShipments": "View shipments",
-      "withPendingCharges": "{count, plural, =0 {No shipments with pending charges} one {# shipment with pending charges} other {# shipments with pending charges}}"
+      "viewShipments": "View shipments"
     },
     "title": "Dashboard",
     "unavailable": "We could not get the summary right now: the service is temporarily unavailable. Your data has not been lost.",
-    "welcome": "Welcome, {{ name }}"
+    "welcome": "Welcome, {{ name }}",
+    "action": {
+      "heading": "Requires your action",
+      "count": "{count, plural, one {# item} other {# items}}",
+      "creditNote": "Your organization has credit terms: charges are paid from “Pay from my account”.",
+      "reasonsLabel": "Reasons",
+      "statusLabel": "View the release status of BL {{ bl }}",
+      "actionLabel": "{{ action }}: {{ reference }}",
+      "cartLabel": "{{ concept }} of BL {{ bl }}",
+      "dueDate": "Due {{ date }}",
+      "showAll": "View all ({{ count }})",
+      "showLess": "View less",
+      "empty": {
+        "title": "All caught up",
+        "text": "You have no pending payments or procedures. We will let you know here when something requires your action."
+      },
+      "urgency": {
+        "overdue": "Overdue",
+        "urgent": "Urgent",
+        "pending": "Pending"
+      },
+      "reason": {
+        "charges": "{count, plural, one {# charge to pay} other {# charges to pay}}",
+        "invoice": "{count, plural, one {# invoice to pay} other {# invoices to pay}}",
+        "demurrageLines": "{count, plural, one {# demurrage line to pay} other {# demurrage lines to pay}}",
+        "demurrageAtRisk": "Demurrage at risk: {{ state }}",
+        "inCart": "{count, plural, one {# already in the cart} other {# already in the cart}}",
+        "requestDraft": "Request {{ reference }} not submitted",
+        "requestPendingPayment": "Request {{ reference }} pending payment",
+        "releaseLetterRejected": "Release letter {{ reference }} rejected"
+      },
+      "do": {
+        "addToCart": "Add to cart",
+        "goToCart": "Go to cart",
+        "payAccount": "Pay from my account",
+        "viewCharges": "View charges",
+        "reviewDemurrage": "Review demurrage",
+        "continueRequest": "Continue request",
+        "payRequest": "Pay request",
+        "uploadLetter": "Upload a new letter"
+      },
+      "title": {
+        "bl": "BL {{ reference }}",
+        "invoice": "Invoice {{ reference }}",
+        "other": "Procedure {{ reference }}"
+      }
+    }
   },
   "demurrage": {
     "calculator": {

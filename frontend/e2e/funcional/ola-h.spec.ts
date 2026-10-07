@@ -326,7 +326,10 @@ test('la agencia de aduanas ve cómo funciona el pago anticipado del Gate Out de
 
 test('dashboard con la solicitud de servicio y filtro de servicios desde el servidor (Ola G)', async ({ page }) => {
   await abrir(page, '/dashboard');
-  const gestion = page.getByRole('link', { name: 'Ver Solicitud de servicio SRV-20261005-5E1A0002' });
+  // La solicitud pendiente de pago está en "Requiere su acción", en la fila de su BL.
+  const gestion = page.getByTestId('dashboard-action-HLCUSAI260300610')
+    .getByRole('link', { name: 'Pagar solicitud: BL HLCUSAI260300610' });
+  await expect(page.getByTestId('dashboard-action-HLCUSAI260300610')).toContainText('Solicitud SRV-20261005-5E1A0002 pendiente de pago');
   await expect(gestion).toHaveAttribute('href', '/service-requests/s9000000-0000-4000-8000-000000000002');
   await expect(page.getByRole('link', { name: /Ver mi estado de cuenta/ })).toBeVisible();
 

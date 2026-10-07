@@ -39,29 +39,6 @@
   }
 </div>
 
-<!-- Accesos a los servicios por lo que el cliente quiere hacer, sin nombres técnicos (M1-01) -->
-<nav class="mb-4" aria-labelledby="dashboard-services-title">
-  <h2 id="dashboard-services-title" class="section-title mb-3">{{ 'dashboard.services.title' | transloco }}</h2>
-  <ul class="list-unstyled row g-2 mb-0">
-    @for (service of quickServices(); track service.route) {
-      <li class="col-sm-6 col-lg-4 col-xl-3">
-        <a class="hl-service" [routerLink]="service.route">
-          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-            <path [attr.d]="service.icon"/>
-          </svg>
-          <span>
-            <span class="hl-service__title">{{ service.titleKey | transloco }}</span>
-            <span class="hl-service__description">{{ service.descriptionKey | transloco }}</span>
-          </span>
-        </a>
-      </li>
-    }
-    <li class="col-sm-6 col-lg-4 col-xl-3">
-      <app-dispute-link variant="card" />
-    </li>
-  </ul>
-</nav>
-
 @if (loading()) {
   <app-loading-spinner />
 } @else if (loadFailed()) {
@@ -69,11 +46,100 @@
 } @else if (error()) {
   <div class="alert alert-danger" role="alert">{{ error() }}</div>
 } @else if (dashboard(); as d) {
-  <!-- Resumen -->
+  <!-- 1. Requiere su acción: pendientes agrupados por BL, primero lo vencido -->
+  <section class="hl-card mb-4" aria-labelledby="dashboard-actions-title" data-testid="dashboard-actions">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 id="dashboard-actions-title" class="section-title">{{ 'dashboard.action.heading' | transloco }}</h2>
+      @if (actionGroups().length > 0) {
+        <span class="small text-muted" data-testid="dashboard-actions-count">{{ 'dashboard.action.count' | transloco: { count: actionGroups().length } }}</span>
+      }
+    </div>
+    @if (cart.accountPaymentsEnabled() && actionGroups().length > 0) {
+      <p class="small px-3 pt-3 mb-0">{{ 'dashboard.action.creditNote' | transloco }}</p>
+    }
+    @if (actionGroups().length > 0) {
+      <ul id="dashboard-actions-list" class="list-unstyled mb-0">
+        @for (g of visibleActionGroups(); track g.key) {
+          <li class="hl-action" [attr.data-testid]="'dashboard-action-' + g.reference" [attr.data-urgency]="g.urgency">
+            <div class="hl-action__main">
+              <h3 class="hl-action__title">
+                @if (g.blNumber) {
+                  <a [routerLink]="['/bl-status', g.blNumber]"
+                     [attr.aria-label]="'dashboard.action.statusLabel' | transloco: { bl: g.blNumber }">{{ g.titleKey | transloco: { reference: g.reference } }}</a>
+                } @else {
+                  {{ g.titleKey | transloco: { reference: g.reference } }}
+                }
+              </h3>
+              <ul class="hl-action__reasons" [attr.aria-label]="'dashboard.action.reasonsLabel' | transloco">
+                @for (reason of g.reasons; track $index) {
+                  <li>{{ reason.key | transloco: { count: reason.count, reference: reason.reference, state: (reason.state | codeLabel: demurrageStateKeys) } }}</li>
+                }
+              </ul>
+              @if (g.amounts.length > 0) {
+                <p class="hl-action__amounts mb-0">
+                  @for (amount of g.amounts; track amount.currency) {
+                    <span class="hl-num">{{ amount.total | hlCurrency: amount.currency }}</span>
+                  }
+                </p>
+              }
+            </div>
+            <div class="hl-action__status">
+              <span class="hl-badge" [class]="urgencyClass[g.urgency]">{{ urgencyKeys[g.urgency] | transloco }}</span>
+              @if (g.dueDate) {
+                <span class="small text-muted">{{ 'dashboard.action.dueDate' | transloco: { date: (g.dueDate | hlDate: 'localDate') } }}</span>
+              }
+            </div>
+            <div class="hl-action__cta">
+              @if (g.primary.kind === 'addToCart') {
+                <button type="button" class="btn btn-sm btn-hl-orange" (click)="addToCart(g.primary.payables)"
+                        [attr.aria-label]="'dashboard.action.actionLabel' | transloco: { action: (g.primary.labelKey | transloco), reference: (g.titleKey | transloco: { reference: g.reference }) }">
+                  {{ g.primary.labelKey | transloco }}
+                </button>
+              } @else {
+                <a class="btn btn-sm btn-outline-secondary" [routerLink]="g.primary.route" [queryParams]="g.primary.queryParams"
+                   [attr.aria-label]="'dashboard.action.actionLabel' | transloco: { action: (g.primary.labelKey | transloco), reference: (g.titleKey | transloco: { reference: g.reference }) }">
+                  {{ g.primary.labelKey | transloco }}
+                </a>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+      @if (actionGroups().length > actionPreview || d.pendingPayments.truncated) {
+        <div class="p-3 border-top d-flex flex-wrap align-items-center gap-3">
+          @if (actionGroups().length > actionPreview) {
+            <button type="button" class="btn btn-link p-0" data-testid="dashboard-actions-toggle"
+                    aria-controls="dashboard-actions-list" [attr.aria-expanded]="showAllActions()" (click)="showAllActions.set(!showAllActions())">
+              @if (showAllActions()) {
+                {{ 'dashboard.action.showLess' | transloco }}
+              } @else {
+                {{ 'dashboard.action.showAll' | transloco: { count: actionGroups().length } }}
+              }
+            </button>
+          }
+          @if (d.pendingPayments.truncated) {
+            <span class="small text-muted">{{ 'dashboard.pending.truncated' | transloco: { shown: d.pendingPayments.items.length, total: d.pendingPayments.count } }}</span>
+          }
+        </div>
+      }
+    } @else {
+      <div class="hl-action-empty" role="status" data-testid="dashboard-actions-empty">
+        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </svg>
+        <div>
+          <p class="fw-semibold mb-0">{{ 'dashboard.action.empty.title' | transloco }}</p>
+          <p class="small text-muted mb-0">{{ 'dashboard.action.empty.text' | transloco }}</p>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- 2. Resumen: tres indicadores, sin repetir el demurrage (está en la bandeja) -->
   <section class="mb-4" aria-labelledby="dashboard-summary-title">
     <h2 id="dashboard-summary-title" class="visually-hidden">{{ 'dashboard.summary.title' | transloco }}</h2>
-    <div class="row g-3">
-      <div class="col-sm-6 col-xl-3">
+    <ul class="list-unstyled row g-3 mb-0">
+      <li class="col-sm-4">
         <div class="hl-stat-card h-100">
           <p class="stat-label mb-1">{{ 'dashboard.summary.shipments' | transloco }}</p>
           <p class="stat-value mb-1" data-testid="dashboard-total-shipments">{{ d.indicators.totalShipments | hlNumber: '1.0-0' }}</p>
@@ -82,8 +148,8 @@
           </p>
           <a routerLink="/shipments" class="small">{{ 'dashboard.summary.viewShipments' | transloco }}</a>
         </div>
-      </div>
-      <div class="col-sm-6 col-xl-3">
+      </li>
+      <li class="col-sm-4">
         <div class="hl-stat-card h-100">
           <p class="stat-label mb-1">{{ 'dashboard.summary.pendingPayments' | transloco }}</p>
           <p class="stat-value mb-1" data-testid="dashboard-pending-count">{{ d.pendingPayments.count | hlNumber: '1.0-0' }}</p>
@@ -96,118 +162,50 @@
           } @else {
             <p class="small text-muted mb-2">{{ 'dashboard.summary.noPending' | transloco }}</p>
           }
-          @if (cart.accountPaymentsEnabled()) {
-            <a routerLink="/account-payments" class="small">{{ 'dashboard.summary.accountPayments' | transloco }}</a>
-          } @else if (cart.cartEnabled()) {
-            <a routerLink="/cart" class="small">{{ 'dashboard.summary.goToCart' | transloco }}</a>
-          }
         </div>
-      </div>
-      <div class="col-sm-6 col-xl-3">
+      </li>
+      <li class="col-sm-4">
         <div class="hl-stat-card h-100">
           <p class="stat-label mb-1">{{ 'dashboard.summary.requestsInProgress' | transloco }}</p>
-          <p class="stat-value mb-1">{{ d.requests.inProgress | hlNumber: '1.0-0' }}</p>
+          <p class="stat-value mb-1" data-testid="dashboard-requests-count">{{ d.requests.inProgress | hlNumber: '1.0-0' }}</p>
           <p class="small text-muted mb-0">{{ 'dashboard.summary.requestsHelp' | transloco }}</p>
         </div>
-      </div>
-      <div class="col-sm-6 col-xl-3">
-        <div class="hl-stat-card h-100">
-          <p class="stat-label mb-1">{{ 'dashboard.summary.demurrageAtRisk' | transloco }}</p>
-          <p class="stat-value mb-1">{{ d.indicators.demurrageAtRisk.count | hlNumber: '1.0-0' }}</p>
-          <p class="small text-muted mb-2">{{ 'dashboard.summary.withPendingCharges' | transloco: { count: d.indicators.withPendingCharges } }}</p>
-          <a routerLink="/demurrage" class="small">{{ 'dashboard.summary.viewDemurrage' | transloco }}</a>
-        </div>
-      </div>
-    </div>
+      </li>
+    </ul>
   </section>
 
-  <!-- Servicios pendientes de pago, con acceso directo (M1-05, M5-01, M5-07) -->
-  <section class="hl-card mb-4" aria-labelledby="dashboard-pending-title" data-testid="dashboard-pending">
-    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-      <h2 id="dashboard-pending-title" class="section-title">{{ 'dashboard.pending.title' | transloco }}</h2>
-      @if (cart.accountPaymentsEnabled()) {
-        <span class="small">{{ 'dashboard.pending.creditNote' | transloco }}</span>
+  <!-- 3. Atajos a tareas frecuentes (M1-01), como máximo 4: no repiten el menú -->
+  <nav class="mb-4" aria-labelledby="dashboard-services-title" data-testid="dashboard-tasks">
+    <h2 id="dashboard-services-title" class="section-title mb-3">{{ 'dashboard.services.title' | transloco }}</h2>
+    <ul class="list-unstyled row g-2 mb-0">
+      @for (task of quickTasks(); track task.kind + task.route) {
+        <li class="col-sm-6 col-xl-3">
+          @if (task.kind === 'dispute') {
+            <app-dispute-link variant="card" />
+          } @else {
+            <a class="hl-service" [routerLink]="task.route">
+              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path [attr.d]="task.icon"/>
+              </svg>
+              <span>
+                <span class="hl-service__title">{{ task.titleKey | transloco }}</span>
+                <span class="hl-service__description">{{ task.descriptionKey | transloco }}</span>
+              </span>
+            </a>
+          }
+        </li>
       }
-    </div>
-    @if (d.pendingPayments.items.length > 0) {
-      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'dashboard.pending.caption' | transloco">
-        <table class="hl-table">
-          <caption class="visually-hidden">{{ 'dashboard.pending.caption' | transloco }}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{{ 'dashboard.pending.col.service' | transloco }}</th>
-              <th scope="col">{{ 'dashboard.pending.col.reference' | transloco }}</th>
-              <th scope="col" class="text-end">{{ 'dashboard.pending.col.amount' | transloco }}</th>
-              <th scope="col">{{ 'dashboard.pending.col.status' | transloco }}</th>
-              <th scope="col"><span class="visually-hidden">{{ 'dashboard.pending.col.actions' | transloco }}</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of pendingTable.rows(); track item.itemType + item.sourceId) {
-              <tr [attr.data-testid]="'dashboard-pending-' + item.sourceId">
-                <td>
-                  <span class="fw-semibold d-block">{{ conceptLabel(item) }}</span>
-                  <span class="small text-muted">{{ item.itemType | codeLabel: itemTypeKeys }}</span>
-                </td>
-                <td>
-                  @if (item.blNumber) {
-                    <span class="d-block">{{ 'dashboard.pending.bl' | transloco: { bl: item.blNumber } }}</span>
-                  } @else if (item.description) {
-                    <span class="d-block">{{ item.description }}</span>
-                  }
-                  <app-country-badge [country]="item.country === 'BO' ? 'BO' : 'CL'" />
-                </td>
-                <td class="text-end hl-num">{{ item.totalAmount | hlCurrency: item.currency }}</td>
-                <td>
-                  <span class="hl-badge" [class.hl-badge--failed]="item.status === 'Overdue'" [class.hl-badge--pending]="item.status !== 'Overdue'">
-                    {{ item.status | codeLabel: payableStatusKeys }}
-                  </span>
-                  @if (item.dueDate) {
-                    <span class="d-block small text-muted">{{ 'dashboard.pending.dueDate' | transloco: { date: (item.dueDate | hlDate: 'localDate') } }}</span>
-                  }
-                </td>
-                <td>
-                  <div class="d-flex flex-wrap gap-1">
-                    @if (inCart(item)) {
-                      <span class="small fw-semibold align-self-center">{{ 'dashboard.pending.inCart' | transloco }}</span>
-                    } @else if (cart.cartEnabled()) {
-                      <button type="button" class="btn btn-sm btn-hl-orange" (click)="addToCart(item)"
-                              [attr.aria-label]="'dashboard.pending.addLabel' | transloco: { concept: conceptLabel(item), reference: item.blNumber ?? item.description ?? '' }">
-                        {{ 'dashboard.pending.add' | transloco }}
-                      </button>
-                    }
-                    <a class="btn btn-sm btn-outline-secondary" [routerLink]="route(item.target)" [queryParams]="queryParams(item.target)"
-                       [attr.aria-label]="'dashboard.pending.goLabel' | transloco: { concept: conceptLabel(item), reference: item.blNumber ?? item.description ?? '' }">
-                      {{ 'dashboard.pending.go' | transloco }}
-                    </a>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      @if (pendingTable.paged()) {
-        <app-paginator [page]="pendingTable.page()" [pageSize]="pendingTable.pageSize()" [total]="pendingTable.total()" [pageSizeOptions]="[10, 20, 50]"
-                       [label]="'dashboard.pending.pagination' | transloco" idPrefix="dashboard-pending-pager"
-                       (pageChange)="pendingTable.setPage($event)" (pageSizeChange)="pendingTable.setPageSize($event)" />
-      }
-      @if (d.pendingPayments.truncated) {
-        <p class="small text-muted p-3 mb-0">{{ 'dashboard.pending.truncated' | transloco: { shown: d.pendingPayments.items.length, total: d.pendingPayments.count } }}</p>
-      }
-    } @else {
-      <p class="p-3 mb-0 text-muted" role="status">{{ 'dashboard.pending.empty' | transloco }}</p>
-    }
-  </section>
+    </ul>
+  </nav>
 
+  <!-- 4. Gestiones y documentos recientes (M1-05, M6-09) -->
   <div class="row g-4 mb-4">
-    <!-- Gestiones en curso y su estado (M1-05) -->
     <section class="col-xl-6" aria-labelledby="dashboard-requests-title">
       <div class="hl-card h-100">
         <div class="card-header p-3">
           <h2 id="dashboard-requests-title" class="section-title">{{ 'dashboard.requests.title' | transloco }}</h2>
         </div>
-        @if (d.requests.items.length > 0) {
+        @if (recentRequests().length > 0) {
           <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'dashboard.requests.caption' | transloco">
             <table class="hl-table">
               <caption class="visually-hidden">{{ 'dashboard.requests.caption' | transloco }}</caption>
@@ -215,21 +213,19 @@
                 <tr>
                   <th scope="col">{{ 'dashboard.requests.col.request' | transloco }}</th>
                   <th scope="col">{{ 'dashboard.requests.col.status' | transloco }}</th>
-                  <th scope="col">{{ 'dashboard.requests.col.date' | transloco }}</th>
                   <th scope="col"><span class="visually-hidden">{{ 'dashboard.requests.col.actions' | transloco }}</span></th>
                 </tr>
               </thead>
               <tbody>
-                @for (request of d.requests.items; track request.kind + request.id) {
+                @for (request of recentRequests(); track request.kind + request.id) {
                   <tr>
                     <td>
                       <span class="fw-semibold d-block">{{ request.kind | codeLabel: requestKindKeys }}</span>
-                      <span class="small text-muted">{{ request.reference }}</span>
+                      <span class="small text-muted">{{ request.reference }} · {{ request.createdAt | hlDate: 'datetime' }}</span>
                     </td>
                     <td>
                       <span class="hl-badge" [class]="requestStatusClass[request.status] || 'hl-badge--processing'">{{ request.status | codeLabel: requestStatusKeys }}</span>
                     </td>
-                    <td class="small">{{ request.createdAt | hlDate: 'datetime' }}</td>
                     <td>
                       <a class="btn btn-sm btn-outline-secondary" [routerLink]="route(request.target)" [queryParams]="queryParams(request.target)"
                          [attr.aria-label]="'dashboard.requests.viewLabel' | transloco: { request: (request.kind | codeLabel: requestKindKeys), reference: request.reference }">
@@ -247,7 +243,6 @@
       </div>
     </section>
 
-    <!-- Documentos disponibles para descarga (M1-05, M6-09) -->
     <section class="col-xl-6" aria-labelledby="dashboard-documents-title">
       <div class="hl-card h-100">
         <div class="card-header p-3">
@@ -256,7 +251,7 @@
         @if (downloadError()) {
           <div class="alert alert-danger m-3 py-2" role="alert">{{ downloadError() }}</div>
         }
-        @if (d.documents.length > 0) {
+        @if (recentDocuments().length > 0) {
           <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'dashboard.documents.caption' | transloco">
             <table class="hl-table">
               <caption class="visually-hidden">{{ 'dashboard.documents.caption' | transloco }}</caption>
@@ -264,19 +259,17 @@
                 <tr>
                   <th scope="col">{{ 'dashboard.documents.col.document' | transloco }}</th>
                   <th scope="col">{{ 'dashboard.documents.col.bl' | transloco }}</th>
-                  <th scope="col">{{ 'dashboard.documents.col.issuedAt' | transloco }}</th>
                   <th scope="col"><span class="visually-hidden">{{ 'dashboard.documents.col.actions' | transloco }}</span></th>
                 </tr>
               </thead>
               <tbody>
-                @for (doc of d.documents; track doc.id) {
+                @for (doc of recentDocuments(); track doc.id) {
                   <tr>
                     <td>
                       <span class="fw-semibold d-block">{{ doc.documentType | codeLabel: documentTypeKeys }}</span>
-                      <span class="small text-muted">{{ doc.documentNumber }}</span>
+                      <span class="small text-muted">{{ doc.documentNumber }} · {{ doc.issuedAt | hlDate: 'datetime' }}</span>
                     </td>
                     <td><a [routerLink]="['/shipments', doc.blNumber, 'documents']">{{ doc.blNumber }}</a></td>
-                    <td class="small">{{ doc.issuedAt | hlDate: 'datetime' }}</td>
                     <td>
                       <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="downloading() === doc.id" (click)="download(doc)"
                               [attr.aria-label]="'dashboard.documents.downloadLabel' | transloco: { number: doc.documentNumber }">
@@ -295,131 +288,26 @@
     </section>
   </div>
 
-  <!-- Indicadores operativos de los embarques (M1-05) -->
-  <section aria-labelledby="dashboard-indicators-title">
-    <h2 id="dashboard-indicators-title" class="section-title mb-3">{{ 'dashboard.indicators.title' | transloco }}</h2>
-    @if (d.indicators.shipmentsTruncated) {
-      <p class="small text-muted">{{ 'dashboard.indicators.truncated' | transloco: { count: d.indicators.evaluatedShipments } }}</p>
-    }
-    <div class="row g-4">
-      <!-- Embarques por estado: tabla con barras decorativas (el número va en la celda) -->
-      <div class="col-xl-6">
-        <div class="hl-card h-100">
-          <div class="card-header p-3">
-            <h3 id="dashboard-status-title" class="section-title">{{ 'dashboard.indicators.byStatus.title' | transloco }}</h3>
-          </div>
-          @if (statusBars().length > 0) {
-            <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'dashboard.indicators.byStatus.caption' | transloco">
-              <table class="hl-table" data-testid="dashboard-status-chart">
-                <caption class="visually-hidden">{{ 'dashboard.indicators.byStatus.caption' | transloco }}</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">{{ 'dashboard.indicators.byStatus.col.status' | transloco }}</th>
-                    <th scope="col" class="text-end">{{ 'dashboard.indicators.byStatus.col.count' | transloco }}</th>
-                    <th scope="col" class="w-50"><span class="visually-hidden">{{ 'dashboard.indicators.byStatus.col.chart' | transloco }}</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (bar of statusBars(); track bar.key) {
-                    <tr>
-                      <th scope="row" class="fw-semibold px-3 py-2">{{ bar.key | codeLabel: statusKeys }}</th>
-                      <td class="text-end hl-num">{{ bar.count | hlNumber: '1.0-0' }}</td>
-                      <td>
-                        <span class="hl-bar" aria-hidden="true"><span class="hl-bar__fill" [style.width.%]="bar.percent"></span></span>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          } @else {
-            <p class="p-3 mb-0 text-muted" role="status">{{ 'dashboard.indicators.byStatus.empty' | transloco }}</p>
-          }
-        </div>
-      </div>
-
-      <!-- Demurrage en riesgo (M3-18) -->
-      <div class="col-xl-6">
-        <div class="hl-card h-100">
-          <div class="card-header p-3">
-            <h3 class="section-title">{{ 'dashboard.indicators.demurrage.title' | transloco }}</h3>
-          </div>
-          @if (d.indicators.demurrageAtRisk.items.length > 0) {
-            <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'dashboard.indicators.demurrage.caption' | transloco">
-              <table class="hl-table">
-                <caption class="visually-hidden">{{ 'dashboard.indicators.demurrage.caption' | transloco }}</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">{{ 'dashboard.indicators.demurrage.col.bl' | transloco }}</th>
-                    <th scope="col">{{ 'dashboard.indicators.demurrage.col.state' | transloco }}</th>
-                    <th scope="col" class="text-end">{{ 'dashboard.indicators.demurrage.col.amount' | transloco }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (item of d.indicators.demurrageAtRisk.items; track item.blNumber) {
-                    <tr>
-                      <td><a [routerLink]="['/demurrage', item.blNumber]">{{ item.blNumber }}</a></td>
-                      <td>
-                        {{ item.state | codeLabel: demurrageStateKeys }}
-                        @if (item.pendingLines > 0) {
-                          <span class="d-block small text-muted">{{ 'dashboard.indicators.demurrage.lines' | transloco: { count: item.pendingLines } }}</span>
-                        }
-                      </td>
-                      <td class="text-end hl-num">
-                        @for (amount of item.amounts; track amount.currency) {
-                          <span class="d-block">{{ amount.total | hlCurrency: amount.currency }}</span>
-                        } @empty {
-                          <span aria-hidden="true">—</span>
-                          <span class="visually-hidden">{{ 'dashboard.indicators.demurrage.noAmount' | transloco }}</span>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          } @else {
-            <p class="p-3 mb-0 text-muted" role="status">{{ 'dashboard.indicators.demurrage.empty' | transloco }}</p>
-          }
-        </div>
-      </div>
-
-      <!-- Próximos arribos (ETA) y zarpes (ETD) en los próximos 14 días -->
-      @for (block of shipmentBlocks(); track block.id) {
-        <div class="col-xl-6">
-          <div class="hl-card h-100">
-            <div class="card-header p-3">
-              <h3 class="section-title">{{ block.titleKey | transloco }}</h3>
-            </div>
-            @if (block.items.length > 0) {
-              <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="block.captionKey | transloco">
-                <table class="hl-table">
-                  <caption class="visually-hidden">{{ block.captionKey | transloco }}</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">{{ 'dashboard.indicators.shipments.col.bl' | transloco }}</th>
-                      <th scope="col">{{ 'dashboard.indicators.shipments.col.vessel' | transloco }}</th>
-                      <th scope="col">{{ 'dashboard.indicators.shipments.col.port' | transloco }}</th>
-                      <th scope="col">{{ block.dateKey | transloco }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (shipment of block.items; track shipment.blNumber) {
-                      <tr>
-                        <td><a [routerLink]="['/shipments', shipment.blNumber]">{{ shipment.blNumber }}</a></td>
-                        <td>{{ shipment.vessel ?? '—' }} {{ shipment.voyage ?? '' }}</td>
-                        <td>{{ shipment.port ?? '—' }}</td>
-                        <td class="small">{{ shipment.date ? (shipment.date | hlDate: 'datetime') : '—' }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            } @else {
-              <p class="p-3 mb-0 text-muted" role="status">{{ block.emptyKey | transloco }}</p>
-            }
-          </div>
-        </div>
+  <!-- 5. Indicadores operativos (M1-05): a pedido y cargados con @defer -->
+  <section aria-labelledby="dashboard-indicators-title" data-testid="dashboard-indicators">
+    <h2 id="dashboard-indicators-title" class="section-title mb-3">
+      <button type="button" class="hl-disclosure" aria-controls="dashboard-indicators-panel" data-testid="dashboard-indicators-toggle"
+              [attr.aria-expanded]="indicatorsOpen()" (click)="indicatorsOpen.set(!indicatorsOpen())">
+        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+        </svg>
+        {{ 'dashboard.indicators.title' | transloco }}
+      </button>
+    </h2>
+    <div id="dashboard-indicators-panel" [hidden]="!indicatorsOpen()">
+      @if (indicatorsOpen()) {
+        @defer (on viewport; prefetch on idle) {
+          <app-dashboard-indicators [indicators]="d.indicators" />
+        } @placeholder {
+          <div class="hl-defer-placeholder"></div>
+        } @loading {
+          <app-loading-spinner />
+        }
       }
     </div>
   </section>

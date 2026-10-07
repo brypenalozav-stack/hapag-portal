@@ -184,8 +184,9 @@ const PANTALLAS_OLA_F: { id: string; ruta: string; sesion: Sesion; preparar?: (p
     ruta: '/dashboard',
     sesion: 'cliente',
     preparar: async (page) => {
-      await expect(page.getByTestId('dashboard-pending')).toBeVisible();
-      await expect(page.getByTestId('dispute-link-card')).toBeVisible();
+      await expect(page.getByTestId('dashboard-actions')).toBeVisible();
+      // Con las funciones de Fase 2 encendidas, los 4 accesos rápidos son tareas (el enlace de Dispute no cabe).
+      await expect(page.getByTestId('dashboard-tasks').getByRole('listitem')).toHaveCount(4);
     },
   },
   {
