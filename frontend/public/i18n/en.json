@@ -5501,6 +5501,15 @@
     "subtitle": "Payments made in the portal by your organization, as payer or as grantor, with their payment slip or receipt.",
     "title": "Payment history"
   },
+  "paymentRedirect": {
+    "title": "Payment at the bank's site",
+    "heading": "Taking you to the bank",
+    "text": "We are taking you to the bank's secure site to authorize the payment.",
+    "continue": "Continue to the bank",
+    "help": "If nothing happens in a few seconds, press “Continue to the bank”. When you finish, the bank will return you to the portal with the result.",
+    "missing": "This step is no longer available. Check the status of your payment.",
+    "viewStatus": "View the payment status"
+  },
   "paymentResult": {
     "announce": {
       "cancelled": "Payment {{ number }} cancelled. Nothing was charged.",

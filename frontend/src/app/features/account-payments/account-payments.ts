@@ -1,6 +1,6 @@
 import { Component, DestroyRef, ElementRef, Injector, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AccountPaymentService } from '../../core/services/account-payment.service';
 import { PaymentService } from '../../core/services/payment.service';
@@ -21,6 +21,7 @@ import { paymentErrorMessage } from '../../shared/payment-errors';
 import { focusAfterRender } from '../../shared/focus-after-render';
 import { ToastService } from '../../core/services/toast.service';
 import { PaymentMethodPickerComponent } from '../../shared/components/payment-method-picker/payment-method-picker';
+import { PaymentRedirectService } from '../../core/services/payment-redirect.service';
 
 /** Errores tras los cuales el intento terminó con certeza: el próximo usa una clave nueva. */
 const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotency.AlreadyExists']);
@@ -48,7 +49,7 @@ export class AccountPaymentsComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);
-  private readonly router = inject(Router);
+  private readonly paymentRedirect = inject(PaymentRedirectService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -265,13 +266,6 @@ export class AccountPaymentsComponent implements OnInit {
 
   private afterCheckout(result: CheckoutResult): void {
     this.toast.success(translate('accountPayments.checkout.created', { number: result.payment.paymentNumber }));
-    const url = result.nextAction === 'Redirect' ? result.redirectUrl : null;
-    if (url && /^https?:\/\//i.test(url)) {
-      window.location.assign(url);
-    } else if (url) {
-      this.router.navigateByUrl(url);
-    } else {
-      this.router.navigate(['/payments', result.payment.id, 'result']);
-    }
+    this.paymentRedirect.continue(result);
   }
 }

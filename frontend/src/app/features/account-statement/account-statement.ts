@@ -2,7 +2,7 @@ import { Component, DestroyRef, ElementRef, Injector, OnInit, computed, inject, 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AccountStatementService } from '../../core/services/account-statement.service';
 import { InvoiceService } from '../../core/services/invoice.service';
@@ -52,6 +52,7 @@ import { saveBlob } from '../../shared/save-blob';
 import { StatementCheckoutComponent } from './statement-checkout/statement-checkout';
 import { agingBucketLabel, lineConcept, totalsByCurrency } from './statement-text';
 import { ToastService } from '../../core/services/toast.service';
+import { PaymentRedirectService } from '../../core/services/payment-redirect.service';
 
 interface StatementFilterForm {
   blNumber: string;
@@ -115,7 +116,7 @@ export class AccountStatementComponent implements OnInit {
   private readonly locale = inject(LocaleService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);
-  private readonly router = inject(Router);
+  private readonly paymentRedirect = inject(PaymentRedirectService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -366,13 +367,6 @@ export class AccountStatementComponent implements OnInit {
   continuePayment(): void {
     const payment = this.checkoutResult()?.payment;
     if (!payment) return;
-    const url = payment.nextAction === 'Redirect' ? payment.redirectUrl : null;
-    if (url && /^https?:\/\//i.test(url)) {
-      window.location.assign(url);
-    } else if (url) {
-      this.router.navigateByUrl(url);
-    } else {
-      this.router.navigate(['/payments', payment.payment.id, 'result']);
-    }
+    this.paymentRedirect.continue(payment);
   }
 }

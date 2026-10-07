@@ -40,7 +40,12 @@ export interface OpcionesOlaD {
   cierresSinRespuesta?: number;
   /** Nexus no responde: no se pueden validar las condiciones al agregar al carro (NF-11). */
   nexusCaido?: boolean;
+  /** El botón de Banco de Chile responde con un formulario firmado (POST al sitio del banco) en vez de una URL. */
+  formularioBanco?: boolean;
 }
+
+/** Destino del formulario firmado simulado del botón de Banco de Chile. */
+export const URL_BANCO = 'https://banco.example/pago';
 
 export const MENSAJE_BLOQUEO = 'Pagos suspendidos por cierre contable hasta las 23:59.';
 
@@ -698,7 +703,7 @@ export class SimulacionOlaD {
     }
 
     // Ciclo de vida del pago (NF-02, M5-02)
-    m = ruta.match(/^payments\/([^/]+)\/(status|issue-slip|cancel)$/);
+    m = ruta.match(/^payments\/([^/]+)\/(status|verify|issue-slip|cancel)$/);
     if (m && m[1] !== 'webhook') {
       await this.ciclo(route, m[1], m[2]);
       return true;
@@ -807,10 +812,14 @@ export class SimulacionOlaD {
       canIssueSlip: deposito,
       releasePending: false,
     };
+    const formulario = !!this.opciones.formularioBanco && body.paymentMethodCode === 'BANK_BUTTON_BCH';
     const resultado: CheckoutResult = {
       payment,
       nextAction: deposito ? 'IssueSlip' : 'Redirect',
-      redirectUrl: deposito ? null : `/payments/${id}/result?ref=${numero}`,
+      redirectUrl: deposito ? null : formulario ? URL_BANCO : `/payments/${id}/result?ref=${numero}`,
+      redirectForm: formulario
+        ? { method: 'POST', action: URL_BANCO, fields: { convenio: 'CONV-1', orden: numero, monto: String(total), firma: 'f1a2b3' } }
+        : null,
       replayed: false,
     };
     this.porClave.set(clave, resultado);
@@ -824,7 +833,8 @@ export class SimulacionOlaD {
       await problema(route, 404, 'Payment.NotFound', 'Not found.');
       return;
     }
-    if (accion === 'status') {
+    // POST verify (vuelta desde la pasarela) responde como la consulta del estado.
+    if (accion === 'status' || accion === 'verify') {
       const consultas = (this.consultas.get(id) ?? 0) + 1;
       this.consultas.set(id, consultas);
       const creado = id.startsWith('p5000000-0000-4000-8000-0000000000') && !Object.values(PAGO).includes(id as never);

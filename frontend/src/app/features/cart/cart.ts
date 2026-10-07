@@ -1,6 +1,6 @@
 import { Component, DestroyRef, ElementRef, Injector, OnInit, computed, inject, signal, viewChildren } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { CartService, newIdempotencyKey } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -24,6 +24,7 @@ import { focusAfterRender } from '../../shared/focus-after-render';
 import { ModalService } from '../../core/services/modal.service';
 import { ToastService } from '../../core/services/toast.service';
 import { PaymentMethodPickerComponent } from '../../shared/components/payment-method-picker/payment-method-picker';
+import { PaymentRedirectService } from '../../core/services/payment-redirect.service';
 
 /** Estado del cierre de un sub-carro. */
 interface CheckoutState {
@@ -79,7 +80,7 @@ export class CartComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);
-  private readonly router = inject(Router);
+  private readonly paymentRedirect = inject(PaymentRedirectService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -215,15 +216,8 @@ export class CartComponent implements OnInit {
     const payment = result.payment;
     this.toast.success(translate('cart.checkout.created', { number: payment.paymentNumber }));
     this.cartService.refresh();
-    const url = result.nextAction === 'Redirect' ? result.redirectUrl : null;
-    if (url && /^https?:\/\//i.test(url)) {
-      window.location.assign(url);
-    } else if (url) {
-      // Plataforma simulada (Dummy): devuelve directamente a la página de resultado del portal.
-      this.router.navigateByUrl(url);
-    } else {
-      this.router.navigate(['/payments', payment.id, 'result']);
-    }
+    // Pasarela (URL o formulario firmado), adaptador simulado o página de resultado.
+    this.paymentRedirect.continue(result);
   }
 
   changeCurrency(item: CartItem, event: Event): void {
