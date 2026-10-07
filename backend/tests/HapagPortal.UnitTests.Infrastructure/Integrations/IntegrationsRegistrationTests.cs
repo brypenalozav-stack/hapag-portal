@@ -91,6 +91,23 @@ public sealed class IntegrationsRegistrationTests
     }
 
     [Fact]
+    public async Task AddIntegrations_DummyPaymentProviders_ShouldShareTheSimulatorStore()
+    {
+        using var provider = BuildProvider([]);
+        var store = provider.GetRequiredService<IPaymentSimulatorStore>();
+        store.Should().BeSameAs(provider.GetRequiredService<IPaymentSimulatorStore>());
+
+        store.Record("PAY-SHARED", PaymentSimulatorOutcomes.Approved);
+
+        foreach (var key in new[] { "Khipu", "BancoChile", "Santander", "Bci" })
+        {
+            var status = await provider.GetRequiredKeyedService<IPaymentProvider>(key)
+                .GetStatusAsync(new PaymentStatusRequest(null, "PAY-SHARED", 100m, "CLP"));
+            status.Value.Status.Should().Be(HapagPortal.Domain.Constants.PaymentStatus.Confirmed, key);
+        }
+    }
+
+    [Fact]
     public void AddIntegrations_RealMode_ShouldRegisterRealClients()
     {
         using var provider = BuildProvider(RealMode("Nexus", "Fis", "DbNet", "Tracking"));

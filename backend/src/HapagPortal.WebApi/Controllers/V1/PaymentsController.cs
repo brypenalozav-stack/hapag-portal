@@ -11,6 +11,7 @@ using HapagPortal.Application.Payments.DepositProofs;
 using HapagPortal.Application.Payments.Lifecycle;
 using HapagPortal.Application.Payments.Read.GetById;
 using HapagPortal.Application.Payments.Read.GetMyPayments;
+using HapagPortal.Application.Payments.Simulator;
 using HapagPortal.WebApi.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -155,6 +156,21 @@ public sealed class PaymentsController : ApiController
     }
 
     /// <summary>
+    /// Simulador de pago (modo de prueba): el usuario elige en la página del simulador el resultado del pago
+    /// (<c>approved</c>, <c>rejected</c>, <c>pending</c> o <c>cancelled</c>) y se aplica como lo informaría la pasarela.
+    /// Solo existe si la pasarela del pago está en modo Dummy y el pago es de la organización del usuario; si no, 404.
+    /// </summary>
+    [HttpPost("simulator/{externalReference}")]
+    public async Task<IActionResult> Simulate(
+        string externalReference,
+        [FromBody] SimulatePaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new SimulatePaymentCommand(externalReference, request.Outcome ?? string.Empty), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>
     /// Notificación de una pasarela: <c>khipu</c>, <c>getnet</c> (botón Santander), <c>bci</c> (Bci Pagos) o
     /// <c>banco-chile</c>. Se lee el cuerpo crudo sin model binding: la firma se verifica sobre esos bytes. Firma
     /// inválida → 401 sin cambios; pasarela que no responde → 503 (puede reintentar); el resto, 200 (con el texto que
@@ -202,3 +218,6 @@ public sealed class PaymentsController : ApiController
         return rawBody;
     }
 }
+
+/// <summary>Cuerpo de <c>POST payments/simulator/{referencia}</c>.</summary>
+public sealed record SimulatePaymentRequest(string? Outcome);

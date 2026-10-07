@@ -43,8 +43,10 @@ public sealed class VerifyPaymentCommandHandler(
 
         var payment = loaded.Value;
         if (OnlinePaymentChecks.ShouldQuery(payment, DateTime.UtcNow, MinInterval) &&
-            providerResolver.Resolve(payment.ProviderKey!) is { VerifiesNotifications: true } provider)
+            providerResolver.Resolve(payment.ProviderKey!) is { } provider &&
+            (provider.VerifiesNotifications || provider is ISimulatedPaymentProvider))
         {
+            // La pasarela simulada (modo de prueba) informa el resultado elegido en el simulador de pago.
             // Si la pasarela no responde o no coincide, el pago queda como estaba: la conciliación reintenta.
             await PaymentStatusSync.SyncAsync(dbContext, payment, provider, ReturnActor, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);

@@ -210,6 +210,8 @@ public static partial class DependencyInjectionExtensions
     private static void AddPaymentGateways(IServiceCollection services, IConfiguration configuration, HashSet<string> realSystems)
     {
         services.TryAddSingleton(TimeProvider.System);
+        // Simulador de pago (modo de prueba): un único almacén de resultados para todas las pasarelas simuladas.
+        services.TryAddSingleton<IPaymentSimulatorStore, InMemoryPaymentSimulatorStore>();
         services.TryAddSingleton(new PaymentPublicUrls(
             configuration[PaymentPublicUrls.PublicBaseUrlKey], configuration[PaymentPublicUrls.ApiPublicBaseUrlKey]));
 
@@ -219,7 +221,10 @@ public static partial class DependencyInjectionExtensions
                 continue;
 
             services.AddKeyedSingleton<IPaymentProvider>(providerKey, (sp, key) =>
-                new DummyPaymentProvider((string)key!, sp.GetRequiredService<ILogger<DummyPaymentProvider>>()));
+                new DummyPaymentProvider(
+                    (string)key!,
+                    sp.GetRequiredService<ILogger<DummyPaymentProvider>>(),
+                    sp.GetRequiredService<IPaymentSimulatorStore>()));
         }
 
         if (realSystems.Contains(IntegrationSystems.Khipu))

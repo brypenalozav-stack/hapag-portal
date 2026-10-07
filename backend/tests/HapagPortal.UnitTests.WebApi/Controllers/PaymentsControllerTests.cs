@@ -8,6 +8,7 @@ using HapagPortal.Application.Payments.Commands.Confirm;
 using HapagPortal.Application.Payments.Commands.Webhooks;
 using HapagPortal.Application.Payments.Read.GetById;
 using HapagPortal.Application.Payments.Read.GetMyPayments;
+using HapagPortal.Application.Payments.Simulator;
 using HapagPortal.Domain.Results;
 using HapagPortal.UnitTests.WebApi.TestHelpers;
 using HapagPortal.WebApi.Controllers.V1;
@@ -165,5 +166,19 @@ public sealed class PaymentsControllerTests
         var result = await _controller.Webhook("khipu", CancellationToken.None);
 
         result.Should().BeAssignableTo<IStatusCodeActionResult>().Which.StatusCode.Should().Be(expected);
+    }
+
+    [Fact]
+    public async Task Simulate_NotInTestModeOrOtherClient_ShouldReturn404()
+    {
+        _sender.Send(Arg.Any<SimulatePaymentCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Result<HapagPortal.Application.Payments.Common.PaymentStatusDto>.Failure(
+                new Error("Payment.NotFound", "The payment was not found.")));
+
+        var result = await _controller.Simulate("PAY-1", new SimulatePaymentRequest("approved"), CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Subject.StatusCode.Should().Be(404);
+        await _sender.Received(1).Send(
+            Arg.Is<SimulatePaymentCommand>(c => c.ExternalReference == "PAY-1" && c.Outcome == "approved"), Arg.Any<CancellationToken>());
     }
 }
