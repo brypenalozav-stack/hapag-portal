@@ -6,16 +6,23 @@ import { filter, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { FeatureService } from '../../../core/services/feature.service';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { CartService } from '../../../core/services/cart.service';
 import { THEME_PREFERENCES, ThemePreference, ThemeService } from '../../../core/services/theme.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { GlobalSearchComponent } from '../global-search/global-search';
+import { WorkspaceSwitcherComponent } from '../workspace-switcher/workspace-switcher';
 
+/**
+ * Barra superior: logo, selector de espacio (perfiles internos), búsqueda universal, país (solo si opera en ambos), carro,
+ * campana y menú del usuario. Tema e idioma están dentro del menú del usuario; sin sesión quedan en la barra.
+ */
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, TranslocoPipe],
+  imports: [RouterLink, TranslocoPipe, GlobalSearchComponent, WorkspaceSwitcherComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
   host: {
@@ -26,6 +33,8 @@ import { ToastService } from '../../../core/services/toast.service';
 export class NavbarComponent implements OnInit {
   readonly auth = inject(AuthService);
   readonly notifications = inject(NotificationService);
+  /** Bandeja de notificaciones (M1-25): la campana se oculta con su flag apagado; los correos siguen saliendo. */
+  readonly features = inject(FeatureService);
   readonly locale = inject(LocaleService);
   /** Carro de compra (M5-01) o, para clientes con crédito, pago desde la cuenta (M5-07). */
   readonly cart = inject(CartService);
@@ -47,11 +56,24 @@ export class NavbarComponent implements OnInit {
 
   /** Selector de país (M1-04): solo si la organización opera en más de un país. */
   countries = computed(() => this.auth.operatingCountries());
+  readonly countryKeys: Record<string, string> = { CL: 'shared.navbar.country.cl', BO: 'shared.navbar.country.bo' };
+
+  /** Iniciales del usuario para el botón del menú (el nombre completo va en su nombre accesible). */
+  readonly initials = computed(() =>
+    (this.auth.currentUser()?.name ?? '')
+      .split(/\s+/)
+      .filter((w) => /^\p{L}/u.test(w))
+      .slice(0, 2)
+      .map((w) => w[0].toUpperCase())
+      .join(''),
+  );
   changingCountry = signal(false);
 
   ngOnInit(): void {
     if (this.auth.isAuthenticated()) {
-      this.notifications.refreshUnreadCount();
+      this.features.ready().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+        if (this.features.enabled('NotificationsInbox')) this.notifications.refreshUnreadCount();
+      });
     }
   }
 
@@ -117,7 +139,11 @@ export class NavbarComponent implements OnInit {
 
   /** Cambia el tema y lo anuncia; la preferencia se conserva entre sesiones (hl_theme). */
   onTheme(event: Event): void {
-    const preference = (event.target as HTMLSelectElement).value as ThemePreference;
+    this.setTheme((event.target as HTMLSelectElement).value as ThemePreference);
+  }
+
+  setTheme(preference: ThemePreference): void {
+    if (preference === this.themes.preference()) return;
     this.themes.setPreference(preference);
     this.toast.success(translate('shared.navbar.theme.changed', { theme: translate(this.themeKeys[preference]) }));
   }

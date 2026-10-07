@@ -76,6 +76,8 @@ export const API_ENDPOINTS = {
   CONFIG_DISPUTE_LINK: 'config/dispute-link',
   /** Portal de devoluciones y tarifarios oficiales del país (Tarifas locales, Devoluciones). */
   CONFIG_EXTERNAL_LINKS: 'config/external-links',
+  // Cierre de Fase 1: flags de funcionalidades (Fase 2 apagada por defecto).
+  CONFIG_FEATURES: 'config/features',
   ASSISTANT: 'assistant',
   DANGEROUS_GOODS: 'dangerous-goods',
   // Fase 2, Ola G

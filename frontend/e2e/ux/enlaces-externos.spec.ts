@@ -58,7 +58,7 @@ test.describe('Tarifas locales', () => {
   test('el menú lleva a la página y cada tarjeta abre el tarifario oficial en una pestaña nueva', async ({ page }) => {
     const consultas = await abrir(page, '/dashboard');
     const menu = page.getByRole('navigation', { name: 'Menú principal' });
-    await menu.getByRole('button', { name: 'Servicios' }).click();
+    await menu.getByRole('button', { name: 'Documentos y trámites' }).click();
     await menu.getByRole('link', { name: 'Tarifas locales' }).click();
     await expect(page).toHaveURL(/\/local-tariffs$/);
 
@@ -123,7 +123,7 @@ test.describe('Devoluciones', () => {
   test('sin URL configurada muestra "disponible pronto" con los canales de Atención a Clientes', async ({ page }) => {
     await abrir(page, '/dashboard');
     const menu = page.getByRole('navigation', { name: 'Menú principal' });
-    await menu.getByRole('button', { name: 'Pagos y facturación' }).click();
+    await menu.getByRole('button', { name: 'Pagos' }).click();
     await menu.getByRole('link', { name: 'Devoluciones' }).click();
     await expect(page).toHaveURL(/\/refunds$/);
 

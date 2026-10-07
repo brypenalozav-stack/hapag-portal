@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Guides;
 using HapagPortal.WebApi.Abstractions;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/guides")]
+[RequiresFeature(FeatureNames.GuideMode)]
 public sealed class GuidesController : ApiController
 {
     [HttpGet]

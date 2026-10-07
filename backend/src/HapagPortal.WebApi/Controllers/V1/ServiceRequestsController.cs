@@ -2,6 +2,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using System.Text.Json;
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.Application.ServiceRequests.Requests;
 using HapagPortal.WebApi.Abstractions;
@@ -16,9 +17,11 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/service-requests")]
+[RequiresFeature(FeatureNames.OnDemandServices, FeatureNames.ReleaseLetter, FeatureNames.Reinvoicing, FeatureNames.FreightCertificate)]
 public sealed class ServiceRequestsController : ApiController
 {
     [HttpGet("available")]
+    [RequiresFeature(FeatureNames.OnDemandServices)]
     public async Task<IActionResult> GetAvailable(
         [FromQuery] string? blNumber,
         [FromQuery] string? bookingNumber,
@@ -38,6 +41,7 @@ public sealed class ServiceRequestsController : ApiController
     }
 
     [HttpPost("quote")]
+    [RequiresFeature(FeatureNames.OnDemandServices)]
     public async Task<IActionResult> Quote([FromBody] QuoteServiceRequestBody request, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(
@@ -68,6 +72,7 @@ public sealed class ServiceRequestsController : ApiController
 
     /// <summary>Crea el borrador; con <c>submit: true</c> lo envía en el mismo paso.</summary>
     [HttpPost]
+    [RequiresFeature(FeatureNames.OnDemandServices)]
     public async Task<IActionResult> Create([FromBody] CreateServiceRequestBody request, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(
@@ -87,6 +92,7 @@ public sealed class ServiceRequestsController : ApiController
     }
 
     [HttpPut("{id:guid}")]
+    [RequiresFeature(FeatureNames.OnDemandServices)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateServiceRequestBody request, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new UpdateServiceRequestCommand(id, Raw(request.InputValues), request.Billing), cancellationToken);
@@ -94,6 +100,7 @@ public sealed class ServiceRequestsController : ApiController
     }
 
     [HttpPost("{id:guid}/submit")]
+    [RequiresFeature(FeatureNames.OnDemandServices)]
     public async Task<IActionResult> Submit(Guid id, [FromBody] SubmitServiceRequestBody? request, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(
@@ -110,6 +117,7 @@ public sealed class ServiceRequestsController : ApiController
 
     /// <summary>Adjunta el archivo de un campo <c>file</c> del formulario (multipart: fieldKey, file) a un borrador.</summary>
     [HttpPost("{id:guid}/attachments")]
+    [RequiresFeature(FeatureNames.OnDemandServices)]
     [RequestSizeLimit(UploadServiceRequestAttachmentCommandValidator.MaxSizeBytes + 1024 * 1024)]
     public async Task<IActionResult> Upload(
         Guid id,

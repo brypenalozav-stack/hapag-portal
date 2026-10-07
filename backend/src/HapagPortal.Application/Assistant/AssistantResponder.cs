@@ -2,6 +2,7 @@ namespace HapagPortal.Application.Assistant;
 
 using System.Text.RegularExpressions;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +31,8 @@ public sealed partial class AssistantResponder(
     IApplicationDbContext dbContext,
     IAssistantEngine engine,
     RulesAssistantEngine rules,
-    AssistantDataRetriever retriever)
+    AssistantDataRetriever retriever,
+    FeatureSettings features)
 {
     private const int MaxComposedLength = 4000;
 
@@ -67,7 +69,9 @@ public sealed partial class AssistantResponder(
         else if (AssistantIntents.DataIntents.Contains(intent.Intent)
             && (intent.References.Count > 0 || intent.Intent == AssistantIntents.PendingCharges))
         {
-            answer = intent.Intent == AssistantIntents.DocumentDelivery
+            // Sin la entrega de documentos (M10-04, apagada en el cierre de Fase 1) el pedido se responde con el listado de
+            // documentos del embarque, sin enlaces de descarga.
+            answer = intent.Intent == AssistantIntents.DocumentDelivery && features.IsEnabled(FeatureNames.AssistantDelivery)
                 ? await retriever.DeliverDocumentsAsync(
                     new AssistantDeliveryRequest(message, intent.References, topic, session.Id, replyMessageId, session.UserEmail),
                     cancellationToken)

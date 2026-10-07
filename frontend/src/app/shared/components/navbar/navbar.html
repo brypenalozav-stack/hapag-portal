@@ -1,5 +1,5 @@
-<div class="navbar navbar-dark fixed-top hl-navbar px-3 flex-nowrap">
-  <div class="d-flex align-items-center gap-3">
+<div class="navbar navbar-dark fixed-top hl-navbar px-3 flex-nowrap gap-2 gap-sm-3">
+  <div class="d-flex align-items-center gap-3 flex-shrink-0">
     <!-- Mobile hamburger -->
     @if (auth.isAuthenticated()) {
       <button type="button" class="btn btn-link text-white d-lg-none p-0 hl-icon-btn"
@@ -16,63 +16,45 @@
     <a class="navbar-brand mb-0 d-flex align-items-center gap-2" routerLink="/dashboard"
        [attr.aria-label]="'shared.navbar.home' | transloco">
       <!-- En pantallas chicas, solo el símbolo: la barra cabe en una línea -->
-      <svg class="d-sm-none" viewBox="0 0 44 50" xmlns="http://www.w3.org/2000/svg" height="32" aria-hidden="true" focusable="false">
+      <svg class="d-lg-none" viewBox="0 0 44 50" xmlns="http://www.w3.org/2000/svg" height="32" aria-hidden="true" focusable="false">
         <rect x="0" y="3" width="44" height="44" rx="6" class="hl-logo__mark"/>
         <text x="22" y="34" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="22" class="hl-logo__initials">HL</text>
       </svg>
-      <svg class="d-none d-sm-block" viewBox="0 0 280 50" xmlns="http://www.w3.org/2000/svg" height="32" aria-hidden="true" focusable="false">
+      <svg class="d-none d-lg-block" viewBox="0 0 280 50" xmlns="http://www.w3.org/2000/svg" height="32" aria-hidden="true" focusable="false">
         <rect x="0" y="3" width="44" height="44" rx="6" class="hl-logo__mark"/>
         <text x="22" y="34" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="22" class="hl-logo__initials">HL</text>
         <text x="54" y="24" font-family="Montserrat, sans-serif" font-weight="700" font-size="18" class="hl-logo__name">Hapag-Lloyd</text>
         <text x="54" y="40" font-family="Inter, sans-serif" font-weight="300" font-size="9" fill="rgba(255,255,255,0.6)" letter-spacing="2.5">{{ 'shared.navbar.tagline' | transloco }}</text>
       </svg>
     </a>
-  </div>
-
-  <div class="d-flex align-items-center gap-2 gap-sm-3">
-    <!-- Tema e idioma: con sesión, en pantallas angostas pasan a "Preferencias" del panel lateral (app-main-nav) -->
-    <div class="hl-navbar__prefs d-flex align-items-center gap-3" [class.hl-navbar__prefs--collapsible]="auth.isAuthenticated()">
-    <!-- Selector de tema (M11-07): claro, oscuro o el del sistema operativo -->
-    <div class="d-flex align-items-center gap-2">
-      <label for="hl-theme" class="hl-navbar__label d-none d-xl-inline">{{ 'shared.navbar.theme.label' | transloco }}</label>
-      <select id="hl-theme" class="form-select form-select-sm hl-theme-select" data-testid="theme-select"
-              [attr.aria-label]="'shared.navbar.theme.label' | transloco" (change)="onTheme($event)">
-        @for (option of themeOptions; track option) {
-          <option [value]="option" [selected]="themes.preference() === option">{{ themeKeys[option] | transloco }}</option>
-        }
-      </select>
-    </div>
-
-    <!-- Language selector (ES/EN, cambio en caliente) -->
-    <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'shared.navbar.language.label' | transloco">
-      <button type="button" class="btn btn-outline-light hl-lang-btn" lang="es"
-              [class.active]="locale.lang() === 'es'" [attr.aria-pressed]="locale.lang() === 'es'"
-              [attr.aria-label]="'shared.navbar.language.es' | transloco" (click)="locale.setLang('es')">ES</button>
-      <button type="button" class="btn btn-outline-light hl-lang-btn" lang="en"
-              [class.active]="locale.lang() === 'en'" [attr.aria-pressed]="locale.lang() === 'en'"
-              [attr.aria-label]="'shared.navbar.language.en' | transloco" (click)="locale.setLang('en')">EN</button>
-    </div>
-    </div>
 
     @if (auth.isAuthenticated()) {
+      <!-- Perfiles internos: portal de clientes o backoffice (en pantallas angostas, dentro del panel lateral) -->
+      <div class="d-none d-md-flex">
+        <app-workspace-switcher />
+      </div>
+    }
+  </div>
+
+  @if (auth.isAuthenticated()) {
+    <!-- Búsqueda universal por BL, booking o contenedor -->
+    <div class="hl-navbar__search">
+      <app-global-search />
+    </div>
+  }
+
+  <div class="d-flex align-items-center gap-2 gap-sm-3 flex-shrink-0">
+    @if (auth.isAuthenticated()) {
       @if (countries().length > 1) {
-        <!-- Selector de país de operación (M1-04) -->
-        <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'shared.navbar.country.label' | transloco">
+        <!-- Selector de país de operación (M1-04): solo para quien opera en ambos países; en pantallas angostas va al menú del usuario -->
+        <div class="btn-group btn-group-sm d-none d-md-inline-flex" role="group" [attr.aria-label]="'shared.navbar.country.label' | transloco">
           @for (country of countries(); track country) {
             <button type="button" class="btn btn-outline-light hl-lang-btn"
                     [class.active]="auth.getCountry() === country" [attr.aria-pressed]="auth.getCountry() === country"
-                    [attr.aria-label]="(country === 'BO' ? 'shared.navbar.country.bo' : 'shared.navbar.country.cl') | transloco"
+                    [attr.aria-label]="countryKeys[country] | transloco"
                     [disabled]="changingCountry()" (click)="setCountry(country)">{{ country }}</button>
           }
         </div>
-      } @else {
-        <!-- Country indicator -->
-        <span class="badge bg-white bg-opacity-10 text-white d-none d-md-inline-flex align-items-center gap-1 px-2 py-1">
-          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
-          </svg>
-          {{ (auth.getCountry() === 'CL' ? 'common.country.cl' : 'common.country.bo') | transloco }}
-        </span>
       }
 
       @if (cart.cartEnabled()) {
@@ -90,67 +72,117 @@
         </a>
       } @else if (cart.accountPaymentsEnabled()) {
         <!-- Clientes con crédito: pagan desde su cuenta, no desde el carro (M5-07) -->
-        <a routerLink="/account-payments" class="btn btn-outline-light btn-sm" data-testid="navbar-account-payments">
+        <a routerLink="/account-payments" class="btn btn-outline-light btn-sm text-nowrap" data-testid="navbar-account-payments">
           {{ 'shared.navbar.accountPayments' | transloco }}
         </a>
       }
 
-      <!-- Notifications bell -->
-      <a routerLink="/notifications" class="btn btn-link text-white position-relative p-0 hl-icon-btn" data-testid="navbar-notifications"
-         [attr.aria-label]="'shared.navbar.notificationsBell' | transloco: { count: notifications.unreadCount(), actionable: notifications.actionableCount() }">
-        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
-        </svg>
-        @if (notifications.unreadCount() > 0) {
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.75rem;" aria-hidden="true">
-            {{ notifications.unreadCount() }}
-          </span>
-        }
-      </a>
+      @if (features.enabled('NotificationsInbox')) {
+        <!-- Notifications bell -->
+        <a routerLink="/notifications" class="btn btn-link text-white position-relative p-0 hl-icon-btn" data-testid="navbar-notifications"
+           [attr.aria-label]="'shared.navbar.notificationsBell' | transloco: { count: notifications.unreadCount(), actionable: notifications.actionableCount() }">
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
+          </svg>
+          @if (notifications.unreadCount() > 0) {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.75rem;" aria-hidden="true">
+              {{ notifications.unreadCount() }}
+            </span>
+          }
+        </a>
+      }
 
-      <!-- User menu -->
-      <!-- Menú del usuario: botón de divulgación propio (sin Bootstrap JS); Esc y el clic fuera lo cierran -->
+      <!-- Menú del usuario: botón de divulgación propio (sin Bootstrap JS); Esc y el clic fuera lo cierran. Reúne la
+           organización, el perfil y las preferencias (tema, idioma y, en pantallas angostas, el país). -->
       <div class="dropdown hl-user-menu">
         <button #userMenuButton class="btn btn-link text-white text-decoration-none dropdown-toggle d-flex align-items-center gap-2 p-0"
                 type="button" aria-controls="hl-user-menu" [attr.aria-expanded]="userMenuOpen()" (click)="toggleUserMenu()"
                 [attr.aria-label]="'shared.navbar.userMenu' | transloco: { name: auth.currentUser()?.name ?? '' }">
-          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
-          </svg>
-          <span class="d-none d-md-inline" style="font-size: 0.85rem;">{{ auth.currentUser()?.name }}</span>
+          <span class="hl-user-menu__avatar" aria-hidden="true">{{ initials() }}</span>
+          <span class="d-none d-xxl-inline hl-user-menu__name">{{ auth.currentUser()?.name }}</span>
         </button>
-        <ul id="hl-user-menu" class="dropdown-menu dropdown-menu-end" [class.show]="userMenuOpen()">
-          <li><span class="dropdown-item-text small text-muted">{{ auth.currentUser()?.email }}</span></li>
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <a class="dropdown-item" routerLink="/organization">
-              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
-                <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3z"/>
-              </svg>
-              {{ 'shared.navbar.organization' | transloco }}
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" routerLink="/profile">
-              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
-                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-              </svg>
-              {{ 'shared.navbar.profile' | transloco }}
-            </a>
-          </li>
-          <li>
-            <button type="button" class="dropdown-item" (click)="logout()">
-              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
-                <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
-              </svg>
-              {{ 'shared.navbar.logout' | transloco }}
-            </button>
-          </li>
-        </ul>
+        <div id="hl-user-menu" class="dropdown-menu dropdown-menu-end hl-user-menu__panel" [class.show]="userMenuOpen()">
+          <div class="hl-user-menu__head">
+            <strong class="d-block text-truncate">{{ auth.currentUser()?.name }}</strong>
+            <span class="d-block small text-truncate hl-user-menu__muted">{{ auth.currentUser()?.email }}</span>
+          </div>
+          <hr class="dropdown-divider">
+          <a class="dropdown-item" routerLink="/organization" data-testid="user-menu-organization">
+            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+              <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3z"/>
+            </svg>
+            {{ 'shared.navbar.organization' | transloco }}
+          </a>
+          <a class="dropdown-item" routerLink="/profile">
+            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+              <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+              <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+            </svg>
+            {{ 'shared.navbar.profile' | transloco }}
+          </a>
+          <hr class="dropdown-divider">
+          <section class="hl-user-menu__prefs" aria-labelledby="hl-user-prefs-title">
+            <p id="hl-user-prefs-title" class="hl-user-menu__title">{{ 'shared.menu.preferences' | transloco }}</p>
+            <p id="hl-pref-theme" class="hl-user-menu__label">{{ 'shared.navbar.theme.label' | transloco }}</p>
+            <div class="hl-segmented" role="group" aria-labelledby="hl-pref-theme" data-testid="theme-select">
+              @for (option of themeOptions; track option) {
+                <button type="button" class="hl-segmented__btn" [class.is-active]="themes.preference() === option"
+                        [attr.aria-pressed]="themes.preference() === option" (click)="setTheme(option)">{{ themeKeys[option] | transloco }}</button>
+              }
+            </div>
+            <p id="hl-pref-lang" class="hl-user-menu__label">{{ 'shared.navbar.language.label' | transloco }}</p>
+            <div class="hl-segmented" role="group" aria-labelledby="hl-pref-lang">
+              <button type="button" class="hl-segmented__btn" lang="es" [class.is-active]="locale.lang() === 'es'" [attr.aria-pressed]="locale.lang() === 'es'"
+                      [attr.aria-label]="'shared.navbar.language.es' | transloco" (click)="locale.setLang('es')">ES</button>
+              <button type="button" class="hl-segmented__btn" lang="en" [class.is-active]="locale.lang() === 'en'" [attr.aria-pressed]="locale.lang() === 'en'"
+                      [attr.aria-label]="'shared.navbar.language.en' | transloco" (click)="locale.setLang('en')">EN</button>
+            </div>
+            @if (countries().length > 1) {
+              <div class="d-md-none">
+                <p id="hl-pref-country" class="hl-user-menu__label">{{ 'shared.navbar.country.label' | transloco }}</p>
+                <div class="hl-segmented" role="group" aria-labelledby="hl-pref-country">
+                  @for (country of countries(); track country) {
+                    <button type="button" class="hl-segmented__btn" [class.is-active]="auth.getCountry() === country" [attr.aria-pressed]="auth.getCountry() === country"
+                            [attr.aria-label]="countryKeys[country] | transloco" [disabled]="changingCountry()" (click)="setCountry(country)">{{ country }}</button>
+                  }
+                </div>
+              </div>
+            } @else {
+              <p class="hl-user-menu__label">
+                {{ 'shared.navbar.country.label' | transloco }}:
+                <span class="hl-user-menu__value">{{ (auth.getCountry() === 'BO' ? 'common.country.bo' : 'common.country.cl') | transloco }}</span>
+              </p>
+            }
+          </section>
+          <hr class="dropdown-divider">
+          <button type="button" class="dropdown-item" (click)="logout()">
+            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+              <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+            </svg>
+            {{ 'shared.navbar.logout' | transloco }}
+          </button>
+        </div>
       </div>
     } @else {
+      <!-- Sin sesión no hay menú de usuario: tema e idioma quedan en la barra -->
+      <div class="d-flex align-items-center gap-2">
+        <label for="hl-theme" class="hl-navbar__label d-none d-xl-inline">{{ 'shared.navbar.theme.label' | transloco }}</label>
+        <select id="hl-theme" class="form-select form-select-sm hl-theme-select"
+                [attr.aria-label]="'shared.navbar.theme.label' | transloco" (change)="onTheme($event)">
+          @for (option of themeOptions; track option) {
+            <option [value]="option" [selected]="themes.preference() === option">{{ themeKeys[option] | transloco }}</option>
+          }
+        </select>
+      </div>
+      <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'shared.navbar.language.label' | transloco">
+        <button type="button" class="btn btn-outline-light hl-lang-btn" lang="es"
+                [class.active]="locale.lang() === 'es'" [attr.aria-pressed]="locale.lang() === 'es'"
+                [attr.aria-label]="'shared.navbar.language.es' | transloco" (click)="locale.setLang('es')">ES</button>
+        <button type="button" class="btn btn-outline-light hl-lang-btn" lang="en"
+                [class.active]="locale.lang() === 'en'" [attr.aria-pressed]="locale.lang() === 'en'"
+                [attr.aria-label]="'shared.navbar.language.en' | transloco" (click)="locale.setLang('en')">EN</button>
+      </div>
       <a routerLink="/login" class="btn btn-outline-light btn-sm">{{ 'shared.navbar.login' | transloco }}</a>
     }
   </div>

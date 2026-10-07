@@ -86,7 +86,7 @@
               <tr [attr.data-testid]="'ex-summary-' + s.type">
                 <td>{{ s.type | codeLabel: typeKeys }}</td>
                 <td class="text-end">{{ s.count | hlNumber: '1.0-0' }}</td>
-                <td class="text-end">{{ s.currency ? (s.amount | hlCurrency: s.currency) : '—' }}</td>
+                <td class="text-end text-nowrap">{{ s.currency ? (s.amount | hlCurrency: s.currency) : '—' }}</td>
               </tr>
             }
           </tbody>
@@ -119,18 +119,18 @@
           <tbody>
             @for (row of r.items.items; track $index) {
               <tr>
-                <td>{{ row.occurredAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ row.occurredAt | hlDate: 'datetime' }}</td>
                 <td>{{ row.type | codeLabel: typeKeys }}</td>
                 <td>
                   <span class="d-block">{{ row.blNumber ?? '—' }}</span>
-                  @if (row.bookingNumber) { <span class="small text-muted">{{ row.bookingNumber }}</span> }
+                  @if (row.bookingNumber) { <span class="small text-muted text-nowrap">{{ row.bookingNumber }}</span> }
                 </td>
                 <td>
                   <span class="d-block">{{ row.organization?.name ?? row.exemptParty ?? '—' }}</span>
                   @if (row.organization?.taxId ?? row.partyTaxId; as taxId) { <span class="small text-muted">{{ taxId }}</span> }
                 </td>
                 <td>{{ row.conceptCode ? (row.conceptCode | codeLabel: conceptKeys) : '—' }}</td>
-                <td class="text-end">{{ row.currency ? (row.amount | hlCurrency: row.currency) : '—' }}</td>
+                <td class="text-end text-nowrap">{{ row.currency ? (row.amount | hlCurrency: row.currency) : '—' }}</td>
                 <td>
                   <span class="d-block">{{ row.source }}</span>
                   @if (row.reference) { <span class="small text-muted">{{ row.reference }}</span> }

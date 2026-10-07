@@ -29,7 +29,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
         <tbody>
           @for (change of changes(); track change.id) {
             <tr>
-              <td>{{ change.changedAt | hlDate: 'datetime' }}</td>
+              <td class="text-nowrap">{{ change.changedAt | hlDate: 'datetime' }}</td>
               <td>{{ change.changedBy }}</td>
               <td>{{ change.action | codeLabel: actionKeys }}</td>
               <td class="small">

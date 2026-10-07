@@ -1,19 +1,14 @@
-<div class="hl-page-header">
+<div class="hl-page-header mb-3">
   <nav [attr.aria-label]="'shipments.detail.breadcrumbLabel' | transloco">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a routerLink="/shipments">{{ 'shipments.detail.breadcrumbList' | transloco }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ blNumber() }}</li>
     </ol>
   </nav>
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+  @if (!shipment()) {
+    <!-- Mientras carga o si falla, el título va aquí; con el embarque, en el encabezado fijo -->
     <h1>{{ 'shipments.detail.title' | transloco: { bl: blNumber() } }}</h1>
-    @if (shipment()?.operation === 'IMPORT') {
-      <!-- Consulta BL: paso a paso de los requisitos de liberación y TATC (M2-09) -->
-      <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/bl-status', blNumber()]" data-testid="shipment-release-status-link">
-        {{ 'shipments.detail.releaseStatusLink' | transloco }}
-      </a>
-    }
-  </div>
+  }
 </div>
 
 @if (loading()) {
@@ -23,373 +18,425 @@
 } @else if (error()) {
   <div class="alert alert-danger" role="alert">{{ error() }}</div>
 } @else if (shipment(); as s) {
-  @if (s.originOrganization; as origin) {
-    <!-- BL de una filial visto por la empresa matriz (Fase 2, Ola I, M1-21): solo consulta -->
-    <div class="alert alert-info" role="note" data-testid="shipment-origin-organization">
-      {{ 'shipments.detail.origin' | transloco: { name: origin.name, taxId: origin.taxId ?? '' } }}
-    </div>
-  }
+  <!-- Encabezado fijo: BL, estado, nave/viaje, ETA y ruta, próxima acción de liberación e índice "Ir a" por grupos -->
+  <app-shipment-summary [shipment]="s" [sections]="sections()" />
 
-  <!-- "Ir a": la página reúne muchas secciones; la barra fija lleva a cada una -->
-  <app-section-nav />
+  <!-- ===== Resumen ===== -->
+  <section class="hl-bl-group" [attr.aria-labelledby]="groups.summary.id" data-testid="bl-group-summary">
+    <h2 class="hl-bl-group__title" [id]="groups.summary.id">{{ groups.summary.labelKey | transloco }}</h2>
 
-  <!-- Datos generales -->
-  <section class="hl-card p-4 mb-4" aria-labelledby="shipment-general-title">
-    <h2 id="shipment-general-title" class="section-title mb-3">{{ 'shipments.detail.general.title' | transloco }}</h2>
-    <dl class="row g-3 mb-0">
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.blNumber' | transloco }}</dt>
-        <dd class="detail-value">{{ s.blNumber }}</dd>
+    @if (features.enabled('ParentCompany') && s.originOrganization; as origin) {
+      <!-- BL de una filial visto por la empresa matriz (Fase 2, Ola I, M1-21): solo consulta -->
+      <div class="alert alert-info" role="note" data-testid="shipment-origin-organization">
+        {{ 'shipments.detail.origin' | transloco: { name: origin.name, taxId: origin.taxId ?? '' } }}
       </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.bookingNumber' | transloco }}</dt>
-        <dd class="detail-value">{{ s.bookingNumber ?? '—' }}</dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.operation' | transloco }}</dt>
-        <dd class="detail-value">{{ s.operation | codeLabel: operationKeys }}</dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.status' | transloco }}</dt>
-        <dd class="mb-0"><app-status-badge [status]="s.status" /></dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.country' | transloco }}</dt>
-        <dd class="mb-0"><app-country-badge [country]="s.country" /></dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.vessel' | transloco }}</dt>
-        <dd class="detail-value">{{ s.vessel ?? '—' }}</dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.voyage' | transloco }}</dt>
-        <dd class="detail-value">{{ s.voyage ?? '—' }}</dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.portOfLoading' | transloco }}</dt>
-        <dd class="detail-value">{{ s.portOfLoading ?? '—' }}</dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.portOfDischarge' | transloco }}</dt>
-        <dd class="detail-value">{{ s.portOfDischarge ?? '—' }}</dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.placeOfDelivery' | transloco }}</dt>
-        <dd class="detail-value">{{ s.placeOfDelivery ?? '—' }}</dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.etd' | transloco }}</dt>
-        <dd class="detail-value">{{ s.etd ? (s.etd | hlDate) : '—' }}</dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.general.eta' | transloco }}</dt>
-        <dd class="detail-value">{{ s.eta ? (s.eta | hlDate) : '—' }}</dd>
-      </div>
-    </dl>
-  </section>
+    }
+    @if (!s.canOperate) {
+      <div class="alert alert-info" role="note">{{ 'shipments.detail.readOnly' | transloco }}</div>
+    }
+    <!-- Acceso abierto: asociación al BL (M1-18), requisito previo para pagar como agencia o transportista -->
+    @if (s.requiresAssociationForPayment) {
+      <div class="alert alert-warning" role="note">{{ 'shipments.detail.associate.paymentNotice' | transloco }}</div>
+    }
+    @if (s.canSelfAssociate) {
+      <section class="hl-card p-4 mb-4" aria-labelledby="shipment-associate-title">
+        <h3 id="shipment-associate-title" class="section-title mb-2">{{ 'shipments.detail.associate.title' | transloco }}</h3>
+        <p class="small text-muted">{{ 'shipments.detail.associate.help' | transloco }}</p>
+        @if (associateError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ associateError() }}</div>
+        }
+        <button type="button" class="btn btn-hl-orange" [disabled]="associating()" (click)="associate()">
+          {{ 'shipments.detail.associate.button' | transloco }}
+        </button>
+      </section>
+    }
 
-  <!-- Publicación por DIFU de destino final (M2-01): solo el administrador interno -->
-  @if (showPublication() && s.publication; as publication) {
-    <section class="hl-card p-4 mb-4" aria-labelledby="shipment-publication-title" data-testid="shipment-publication">
-      <h2 id="shipment-publication-title" class="section-title mb-3">{{ 'shipments.detail.publication.title' | transloco }}</h2>
-      @if (!publication.published) {
-        <div class="alert alert-warning" role="note">{{ 'shipments.detail.publication.hidden' | transloco }}</div>
-      }
+    <!-- Datos generales -->
+    <section class="hl-card p-4 mb-3" aria-labelledby="shipment-general-title">
+      <h3 id="shipment-general-title" class="section-title mb-3">{{ 'shipments.detail.general.title' | transloco }}</h3>
       <dl class="row g-3 mb-0">
         <div class="col-sm-6 col-lg-3">
-          <dt class="detail-label">{{ 'shipments.detail.publication.published' | transloco }}</dt>
-          <dd class="detail-value">{{ (publication.published ? 'shipments.detail.publication.yes' : 'shipments.detail.publication.no') | transloco }}</dd>
+          <dt class="detail-label">{{ 'shipments.detail.general.blNumber' | transloco }}</dt>
+          <dd class="detail-value">{{ s.blNumber }}</dd>
         </div>
         <div class="col-sm-6 col-lg-3">
-          <dt class="detail-label">{{ 'shipments.detail.publication.reason' | transloco }}</dt>
-          <dd class="detail-value">{{ publication.reasonCode | codeLabel: publicationReasonKeys }}</dd>
+          <dt class="detail-label">{{ 'shipments.detail.general.bookingNumber' | transloco }}</dt>
+          <dd class="detail-value">{{ s.bookingNumber ?? '—' }}</dd>
         </div>
         <div class="col-sm-6 col-lg-3">
-          <dt class="detail-label">{{ 'shipments.detail.publication.destination' | transloco }}</dt>
-          <dd class="detail-value">{{ publication.finalDestinationCode ?? s.finalDestinationCode ?? '—' }}</dd>
+          <dt class="detail-label">{{ 'shipments.detail.general.operation' | transloco }}</dt>
+          <dd class="detail-value">{{ s.operation | codeLabel: operationKeys }}</dd>
         </div>
         <div class="col-sm-6 col-lg-3">
-          <dt class="detail-label">{{ 'shipments.detail.publication.discharge' | transloco }}</dt>
-          <dd class="detail-value">{{ publication.portOfDischargeCode ?? s.portOfDischargeCode ?? '—' }}</dd>
+          <dt class="detail-label">{{ 'shipments.detail.general.country' | transloco }}</dt>
+          <dd class="mb-0"><app-country-badge [country]="s.country" /></dd>
         </div>
         <div class="col-sm-6 col-lg-3">
-          <dt class="detail-label">{{ 'shipments.detail.publication.difu' | transloco }}</dt>
-          <dd class="detail-value">{{ publication.difuCode ?? '—' }}</dd>
+          <dt class="detail-label">{{ 'shipments.detail.general.vessel' | transloco }}</dt>
+          <dd class="detail-value">{{ s.vessel ?? '—' }}</dd>
         </div>
         <div class="col-sm-6 col-lg-3">
-          <dt class="detail-label">{{ 'shipments.detail.publication.difuLocation' | transloco }}</dt>
-          <dd class="detail-value">{{ publication.difuLocationCode ?? '—' }}</dd>
+          <dt class="detail-label">{{ 'shipments.detail.general.voyage' | transloco }}</dt>
+          <dd class="detail-value">{{ s.voyage ?? '—' }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.general.etd' | transloco }}</dt>
+          <dd class="detail-value">{{ s.etd ? (s.etd | hlDate) : '—' }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.general.eta' | transloco }}</dt>
+          <dd class="detail-value">{{ s.eta ? (s.eta | hlDate) : '—' }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.general.portOfLoading' | transloco }}</dt>
+          <dd class="detail-value">{{ s.portOfLoading ?? '—' }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.general.portOfDischarge' | transloco }}</dt>
+          <dd class="detail-value">{{ s.portOfDischarge ?? '—' }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.general.placeOfDelivery' | transloco }}</dt>
+          <dd class="detail-value">{{ s.placeOfDelivery ?? '—' }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'shipments.detail.general.status' | transloco }}</dt>
+          <dd class="mb-0"><app-status-badge [status]="s.status" /></dd>
         </div>
       </dl>
     </section>
-  }
 
-  <!-- Counter Bolivia/Ultramar (Fase 2, Ola I, M8-09): solo perfiles internos -->
-  @if (showCounter()) {
-    <section class="hl-card p-4 mb-4" aria-labelledby="shipment-counter-title" data-testid="shipment-counter">
-      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <h2 id="shipment-counter-title" class="section-title">{{ 'shipments.detail.counter.title' | transloco }}</h2>
-        @if (canManageCounter()) {
-          <a [routerLink]="['/admin/counter']" [queryParams]="{ bl: s.blNumber }" class="small">
-            {{ (s.counter ? 'shipments.detail.counter.edit' : 'shipments.detail.counter.register') | transloco }}
-          </a>
+    <!-- Detalle secundario plegado: partes y roles (M1-11) y estado de emisión del BL (M2-02) -->
+    <button type="button" class="hl-disclosure mb-3" aria-controls="shipment-more" [attr.aria-expanded]="moreOpen()"
+            (click)="moreOpen.set(!moreOpen())" data-testid="shipment-more-toggle">
+      <span class="hl-disclosure__icon" aria-hidden="true"></span>
+      {{ (s.issuance ? 'shipments.detail.more.partiesAndIssuance' : 'shipments.detail.more.parties') | transloco }}
+    </button>
+    <div id="shipment-more" [hidden]="!moreOpen()">
+      @if (moreOpen()) {
+        <section class="hl-card p-4 mb-4" aria-labelledby="shipment-parties-title">
+          <h3 id="shipment-parties-title" class="section-title mb-3">{{ 'shipments.detail.parties.title' | transloco }}</h3>
+          <dl class="row g-3 mb-0">
+            <div class="col-sm-6 col-lg-3">
+              <dt class="detail-label">{{ 'shipments.detail.parties.shipper' | transloco }}</dt>
+              <dd class="detail-value">{{ s.shipper ?? '—' }}</dd>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <dt class="detail-label">{{ 'shipments.detail.parties.consignee' | transloco }}</dt>
+              <dd class="detail-value">{{ s.consignee ?? '—' }}</dd>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <dt class="detail-label">{{ 'shipments.detail.parties.myRoles' | transloco }}</dt>
+              <dd class="detail-value">
+                @for (role of s.roles; track role; let last = $last) {
+                  {{ role | codeLabel: roleKeys }}@if (!last) {<span>, </span>}
+                } @empty {
+                  {{ 'shipments.detail.parties.noRoles' | transloco }}
+                }
+              </dd>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <dt class="detail-label">{{ 'shipments.detail.parties.accessSource' | transloco }}</dt>
+              <dd class="mb-0"><app-access-source-badge [source]="s.accessSource" /></dd>
+            </div>
+          </dl>
+        </section>
+        <!-- Estado de emisión del documento de transporte (M2-02): llega si la matriz habilita bl-issuance.view -->
+        @if (s.issuance; as issuance) {
+          <app-shipment-issuance [issuance]="issuance" [headingLevel]="3" />
         }
-      </div>
-      @if (s.counter; as counter) {
-        <dl class="row g-3 mb-0">
-          <div class="col-sm-6 col-lg-3">
-            <dt class="detail-label">{{ 'shipments.detail.counter.country' | transloco }}</dt>
-            <dd class="detail-value">{{ (counter.country === 'BO' ? 'common.country.bo' : 'common.country.cl') | transloco }}</dd>
-          </div>
-          <div class="col-sm-6 col-lg-3">
-            <dt class="detail-label">{{ 'shipments.detail.counter.exchangeDate' | transloco }}</dt>
-            <dd class="detail-value">{{ counter.exchangeDate ? (counter.exchangeDate | hlDate: 'localDate') : ('shipments.detail.counter.notRecorded' | transloco) }}</dd>
-          </div>
-          <div class="col-sm-6 col-lg-3">
-            <dt class="detail-label">{{ 'shipments.detail.counter.hbl' | transloco }}</dt>
-            <dd class="detail-value">{{ counter.hblReceived ? ('shipments.detail.counter.receivedOn' | transloco: { date: (counter.hblReceivedAt | hlDate: 'localDate') }) : ('shipments.detail.counter.no' | transloco) }}</dd>
-          </div>
-          <div class="col-sm-6 col-lg-3">
-            <dt class="detail-label">{{ 'shipments.detail.counter.deconsolidated' | transloco }}</dt>
-            <dd class="detail-value">{{ counter.deconsolidated ? ('shipments.detail.counter.receivedOn' | transloco: { date: (counter.deconsolidatedAt | hlDate: 'localDate') }) : ('shipments.detail.counter.no' | transloco) }}</dd>
-          </div>
-          <div class="col-sm-6 col-lg-3">
-            <dt class="detail-label">{{ 'shipments.detail.counter.sync' | transloco }}</dt>
-            <dd class="mb-0"><span class="hl-badge" [class]="counterSyncClass[counter.syncStatus] || 'hl-badge--processing'">{{ counter.syncStatus | codeLabel: counterSyncKeys }}</span></dd>
-          </div>
-          <div class="col-sm-6 col-lg-9">
-            <dt class="detail-label">{{ 'shipments.detail.counter.recorded' | transloco }}</dt>
-            <dd class="detail-value">{{ 'shipments.detail.counter.recordedBy' | transloco: { date: ((counter.recordedAt ?? counter.createdAt) | hlDate: 'datetime'), user: counter.recordedBy ?? counter.createdBy ?? '' } }}</dd>
-          </div>
-        </dl>
-      } @else {
-        <p class="mb-0 small" data-testid="shipment-counter-empty">{{ 'shipments.detail.counter.empty' | transloco }}</p>
       }
-    </section>
-  }
-
-  <!-- Estado de emisión del documento de transporte (M2-02): llega si la matriz habilita bl-issuance.view -->
-  @if (s.issuance; as issuance) {
-    <app-shipment-issuance [issuance]="issuance" />
-  }
-
-  <!-- TATC del BL de importación por contenedor (M2-09) -->
-  @if (showTatc()) {
-    <app-shipment-tatc [blNumber]="s.blNumber" />
-  }
-
-  <!-- Partes y roles (M1-11) -->
-  <section class="hl-card p-4 mb-4" aria-labelledby="shipment-parties-title">
-    <h2 id="shipment-parties-title" class="section-title mb-3">{{ 'shipments.detail.parties.title' | transloco }}</h2>
-    <dl class="row g-3 mb-0">
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.parties.shipper' | transloco }}</dt>
-        <dd class="detail-value">{{ s.shipper ?? '—' }}</dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.parties.consignee' | transloco }}</dt>
-        <dd class="detail-value">{{ s.consignee ?? '—' }}</dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.parties.myRoles' | transloco }}</dt>
-        <dd class="detail-value">
-          @for (role of s.roles; track role; let last = $last) {
-            {{ role | codeLabel: roleKeys }}@if (!last) {<span>, </span>}
-          } @empty {
-            {{ 'shipments.detail.parties.noRoles' | transloco }}
-          }
-        </dd>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <dt class="detail-label">{{ 'shipments.detail.parties.accessSource' | transloco }}</dt>
-        <dd class="mb-0"><app-access-source-badge [source]="s.accessSource" /></dd>
-      </div>
-    </dl>
+    </div>
   </section>
 
-  @if (!s.canOperate) {
-    <div class="alert alert-info" role="note">{{ 'shipments.detail.readOnly' | transloco }}</div>
-  }
-
-  <!-- Acceso abierto: asociación al BL (M1-18), requisito previo para pagar como agencia o transportista -->
-  @if (s.requiresAssociationForPayment) {
-    <div class="alert alert-warning" role="note">{{ 'shipments.detail.associate.paymentNotice' | transloco }}</div>
-  }
-  @if (s.canSelfAssociate) {
-    <section class="hl-card p-4 mb-4" aria-labelledby="shipment-associate-title">
-      <h2 id="shipment-associate-title" class="section-title mb-2">{{ 'shipments.detail.associate.title' | transloco }}</h2>
-      <p class="small text-muted">{{ 'shipments.detail.associate.help' | transloco }}</p>
-      @if (associateError()) {
-        <div class="alert alert-danger py-2" role="alert">{{ associateError() }}</div>
-      }
-      <button type="button" class="btn btn-hl-orange" [disabled]="associating()" (click)="associate()">
-        {{ 'shipments.detail.associate.button' | transloco }}
-      </button>
-    </section>
-  }
-
-  <!-- Flete: solo si la matriz lo permite para el rol (bloque null = sin permiso) -->
-  @if (s.freight; as freight) {
-    <section class="hl-card p-4 mb-4" aria-labelledby="shipment-freight-title">
-      <h2 id="shipment-freight-title" class="section-title mb-3">{{ 'shipments.detail.freight.title' | transloco }}</h2>
-      <div class="d-flex flex-wrap align-items-center gap-3">
-        <span class="fs-5 fw-bold">{{ freight.amount | hlCurrency: freight.currency }}</span>
-        <app-status-badge [status]="freight.status" />
-        @if (canPayFreight() && freight.status.toUpperCase() === 'PENDING') {
-          @if (cart.contains('Freight', s.id)) {
-            <span class="small fw-semibold ms-auto">{{ 'shipments.detail.freight.inCart' | transloco }}</span>
-          } @else if (cart.accountPaymentsEnabled()) {
-            <a routerLink="/account-payments" class="btn btn-outline-secondary ms-auto">{{ 'shipments.detail.freight.accountPayments' | transloco }}</a>
-          } @else if (cart.cartEnabled()) {
-            <button type="button" class="btn btn-hl-orange ms-auto" (click)="addFreightToCart()">{{ 'shipments.detail.freight.addToCart' | transloco }}</button>
-          }
+  <!-- ===== Contenedores (y TATC por contenedor del BL de importación, M2-09) ===== -->
+  <section class="hl-bl-group" [attr.aria-labelledby]="groups.containers.id" data-testid="bl-group-containers">
+    <h2 class="hl-bl-group__title" [id]="groups.containers.id">{{ 'shipments.detail.containers.title' | transloco: { count: s.containers.length } }}</h2>
+    @defer (on viewport; prefetch on idle) {
+      <div class="hl-card mb-4">
+        @if (s.containers.length > 0) {
+          <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'shipments.detail.containers.caption' | transloco">
+            <table class="hl-table">
+              <caption class="visually-hidden">{{ 'shipments.detail.containers.caption' | transloco }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'shipments.detail.containers.col.container' | transloco }}</th>
+                  <th scope="col">{{ 'shipments.detail.containers.col.type' | transloco }}</th>
+                  <th scope="col">{{ 'shipments.detail.containers.col.size' | transloco }}</th>
+                  <th scope="col">{{ 'shipments.detail.containers.col.seal' | transloco }}</th>
+                  <th scope="col" class="text-end">{{ 'shipments.detail.containers.col.weight' | transloco }}</th>
+                  <th scope="col" class="text-end">{{ 'shipments.detail.containers.col.packages' | transloco }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (container of s.containers; track container.id) {
+                  <tr>
+                    <td class="fw-semibold text-nowrap">{{ container.containerNumber }}</td>
+                    <td>{{ container.type }}</td>
+                    <td>{{ container.size }}</td>
+                    <td>{{ container.sealNumber }}</td>
+                    <td class="text-end">{{ container.weight | hlNumber: '1.0-0' }}</td>
+                    <td class="text-end">{{ container.packages | hlNumber: '1.0-0' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <app-state-message kind="empty" [messageKey]="'shipments.detail.containers.empty'" />
         }
       </div>
-    </section>
-  }
 
-  <!-- Contenedores -->
-  <section class="hl-card mb-4" aria-labelledby="shipment-containers-title">
-    <div class="card-header p-3">
-      <h2 id="shipment-containers-title" class="section-title">{{ 'shipments.detail.containers.title' | transloco: { count: s.containers.length } }}</h2>
-    </div>
-    @if (s.containers.length > 0) {
-      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'shipments.detail.containers.caption' | transloco">
-        <table class="hl-table">
-          <caption class="visually-hidden">{{ 'shipments.detail.containers.caption' | transloco }}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{{ 'shipments.detail.containers.col.container' | transloco }}</th>
-              <th scope="col">{{ 'shipments.detail.containers.col.type' | transloco }}</th>
-              <th scope="col">{{ 'shipments.detail.containers.col.size' | transloco }}</th>
-              <th scope="col">{{ 'shipments.detail.containers.col.seal' | transloco }}</th>
-              <th scope="col" class="text-end">{{ 'shipments.detail.containers.col.weight' | transloco }}</th>
-              <th scope="col" class="text-end">{{ 'shipments.detail.containers.col.packages' | transloco }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (container of s.containers; track container.id) {
-              <tr>
-                <td class="fw-semibold">{{ container.containerNumber }}</td>
-                <td>{{ container.type }}</td>
-                <td>{{ container.size }}</td>
-                <td>{{ container.sealNumber }}</td>
-                <td class="text-end">{{ container.weight | hlNumber: '1.0-0' }}</td>
-                <td class="text-end">{{ container.packages | hlNumber: '1.0-0' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    } @else {
-      <app-state-message kind="empty" [messageKey]="'shipments.detail.containers.empty'" />
+      @if (showTatc()) {
+        <app-shipment-tatc [blNumber]="s.blNumber" [headingLevel]="3" />
+      }
+    } @placeholder {
+      <div class="hl-card hl-bl-group__placeholder" data-defer-placeholder><app-table-skeleton [rows]="2" [columns]="6" /></div>
     }
   </section>
 
-  <!-- Cargos locales con las reglas de Nexus (Ola C, GET /charges/{bl}): solo si la matriz los habilita -->
-  @if (s.localCharges !== null) {
-    <app-charges-panel [blNumber]="s.blNumber" (letterIssued)="onLetterIssued()" />
-  }
-
-  <!-- Demurrage: solo si la matriz lo habilita para el rol -->
-  @if (s.demurrageCharges; as demurrage) {
-    <section class="hl-card mb-4" aria-labelledby="shipment-demurrage-title">
-      <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <h2 id="shipment-demurrage-title" class="section-title">{{ 'shipments.detail.demurrage.title' | transloco }}</h2>
-        @if (canPayDemurrage() && demurrage.length > 0) {
-          <a [routerLink]="['/demurrage', s.blNumber]" class="btn btn-sm btn-hl-orange">{{ 'shipments.detail.demurrage.pay' | transloco }}</a>
+  <!-- ===== Cargos y pagos: flete, cargos locales, demurrage y órdenes de servicio ===== -->
+  @if (showCharges()) {
+    <section class="hl-bl-group" [attr.aria-labelledby]="groups.charges.id" data-testid="bl-group-charges">
+      <h2 class="hl-bl-group__title" [id]="groups.charges.id">{{ groups.charges.labelKey | transloco }}</h2>
+      @defer (on viewport; prefetch on idle) {
+        <!-- Flete: solo si la matriz lo permite para el rol (bloque null = sin permiso) -->
+        @if (s.freight; as freight) {
+          <section class="hl-card p-4 mb-4" aria-labelledby="shipment-freight-title">
+            <h3 id="shipment-freight-title" class="section-title mb-3">{{ 'shipments.detail.freight.title' | transloco }}</h3>
+            <div class="d-flex flex-wrap align-items-center gap-3">
+              <span class="fs-5 fw-bold">{{ freight.amount | hlCurrency: freight.currency }}</span>
+              <app-status-badge [status]="freight.status" />
+              @if (canPayFreight() && freight.status.toUpperCase() === 'PENDING') {
+                @if (cart.contains('Freight', s.id)) {
+                  <span class="small fw-semibold ms-auto">{{ 'shipments.detail.freight.inCart' | transloco }}</span>
+                } @else if (cart.accountPaymentsEnabled()) {
+                  <a routerLink="/account-payments" class="btn btn-outline-secondary ms-auto">{{ 'shipments.detail.freight.accountPayments' | transloco }}</a>
+                } @else if (cart.cartEnabled()) {
+                  <button type="button" class="btn btn-hl-orange ms-auto" (click)="addFreightToCart()">{{ 'shipments.detail.freight.addToCart' | transloco }}</button>
+                }
+              }
+            </div>
+          </section>
         }
-      </div>
-      @if (demurrage.length > 0) {
-        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'shipments.detail.demurrage.caption' | transloco">
-          <table class="hl-table">
-            <caption class="visually-hidden">{{ 'shipments.detail.demurrage.caption' | transloco }}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{{ 'shipments.detail.demurrage.col.container' | transloco }}</th>
-                <th scope="col" class="text-end">{{ 'shipments.detail.demurrage.col.freeDays' | transloco }}</th>
-                <th scope="col" class="text-end">{{ 'shipments.detail.demurrage.col.demurrageDays' | transloco }}</th>
-                <th scope="col" class="text-end">{{ 'shipments.detail.demurrage.col.dailyRate' | transloco }}</th>
-                <th scope="col" class="text-end">{{ 'shipments.detail.demurrage.col.total' | transloco }}</th>
-                <th scope="col">{{ 'shipments.detail.demurrage.col.status' | transloco }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (charge of demurrage; track charge.id) {
-                <tr>
-                  <td class="fw-semibold">{{ charge.containerNumber }}</td>
-                  <td class="text-end">{{ charge.freeDays }}</td>
-                  <td class="text-end">{{ charge.demurrageDays }}</td>
-                  <td class="text-end">{{ charge.dailyRate | hlCurrency: charge.currency }}</td>
-                  <td class="text-end">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
-                  <td><app-status-badge [status]="charge.isExempt ? 'EXEMPT' : charge.status" /></td>
-                </tr>
+
+        <!-- Cargos locales con las reglas de Nexus (Ola C, GET /charges/{bl}): solo si la matriz los habilita -->
+        @if (s.localCharges !== null) {
+          <app-charges-panel #chargesPanel [blNumber]="s.blNumber" [headingLevel]="3" (letterIssued)="onLetterIssued()" />
+        }
+
+        <!-- Demurrage: solo si la matriz lo habilita para el rol -->
+        @if (s.demurrageCharges; as demurrage) {
+          <section class="hl-card mb-4" aria-labelledby="shipment-demurrage-title">
+            <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <h3 id="shipment-demurrage-title" class="section-title">{{ 'shipments.detail.demurrage.title' | transloco }}</h3>
+              @if (canPayDemurrage() && demurrage.length > 0) {
+                <a [routerLink]="['/demurrage', s.blNumber]" class="btn btn-sm btn-hl-orange">{{ 'shipments.detail.demurrage.pay' | transloco }}</a>
               }
-            </tbody>
-          </table>
-        </div>
-      } @else {
-        <app-state-message kind="empty" [messageKey]="'shipments.detail.demurrage.empty'" />
+            </div>
+            @if (demurrage.length > 0) {
+              <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'shipments.detail.demurrage.caption' | transloco">
+                <table class="hl-table">
+                  <caption class="visually-hidden">{{ 'shipments.detail.demurrage.caption' | transloco }}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">{{ 'shipments.detail.demurrage.col.container' | transloco }}</th>
+                      <th scope="col" class="text-end">{{ 'shipments.detail.demurrage.col.freeDays' | transloco }}</th>
+                      <th scope="col" class="text-end">{{ 'shipments.detail.demurrage.col.demurrageDays' | transloco }}</th>
+                      <th scope="col" class="text-end">{{ 'shipments.detail.demurrage.col.dailyRate' | transloco }}</th>
+                      <th scope="col" class="text-end">{{ 'shipments.detail.demurrage.col.total' | transloco }}</th>
+                      <th scope="col">{{ 'shipments.detail.demurrage.col.status' | transloco }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (charge of demurrage; track charge.id) {
+                      <tr>
+                        <td class="fw-semibold text-nowrap">{{ charge.containerNumber }}</td>
+                        <td class="text-end">{{ charge.freeDays }}</td>
+                        <td class="text-end">{{ charge.demurrageDays }}</td>
+                        <td class="text-end text-nowrap">{{ charge.dailyRate | hlCurrency: charge.currency }}</td>
+                        <td class="text-end text-nowrap">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
+                        <td><app-status-badge [status]="charge.isExempt ? 'EXEMPT' : charge.status" /></td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <app-state-message kind="empty" [messageKey]="'shipments.detail.demurrage.empty'" />
+            }
+          </section>
+        }
+
+        <!-- Órdenes de servicio generadas (CL-EXP-13, BO-EXP-09) -->
+        @if (showServiceOrders()) {
+          <section class="hl-card mb-4" aria-labelledby="shipment-orders-title">
+            <div class="card-header p-3">
+              <h3 id="shipment-orders-title" class="section-title">{{ 'shipments.detail.serviceOrders.title' | transloco }}</h3>
+            </div>
+            @if (s.serviceOrders.length > 0) {
+              <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'shipments.detail.serviceOrders.caption' | transloco">
+                <table class="hl-table">
+                  <caption class="visually-hidden">{{ 'shipments.detail.serviceOrders.caption' | transloco }}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">{{ 'shipments.detail.serviceOrders.col.number' | transloco }}</th>
+                      <th scope="col">{{ 'shipments.detail.serviceOrders.col.type' | transloco }}</th>
+                      <th scope="col">{{ 'shipments.detail.serviceOrders.col.status' | transloco }}</th>
+                      <th scope="col">{{ 'shipments.detail.serviceOrders.col.requestedAt' | transloco }}</th>
+                      <th scope="col">{{ 'shipments.detail.serviceOrders.col.completedAt' | transloco }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (order of s.serviceOrders; track order.id) {
+                      <tr>
+                        <td class="fw-semibold text-nowrap">{{ order.orderNumber }}</td>
+                        <td>{{ order.orderType }}</td>
+                        <td><app-status-badge [status]="order.status" /></td>
+                        <td class="text-nowrap">{{ order.requestedAt | hlDate: 'datetime' }}</td>
+                        <td class="text-nowrap">{{ order.completedAt ? (order.completedAt | hlDate: 'datetime') : '—' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <app-state-message kind="empty" [messageKey]="'shipments.detail.serviceOrders.empty'" />
+            }
+          </section>
+        }
+      } @placeholder {
+        <div class="hl-card hl-bl-group__placeholder" data-defer-placeholder><app-table-skeleton [rows]="3" [columns]="5" /></div>
       }
     </section>
   }
 
-  <!-- Órdenes de servicio generadas (CL-EXP-13, BO-EXP-09) -->
-  @if (showServiceOrders()) {
-    <section class="hl-card mb-4" aria-labelledby="shipment-orders-title">
-      <div class="card-header p-3">
-        <h2 id="shipment-orders-title" class="section-title">{{ 'shipments.detail.serviceOrders.title' | transloco }}</h2>
-      </div>
-      @if (s.serviceOrders.length > 0) {
-        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'shipments.detail.serviceOrders.caption' | transloco">
-          <table class="hl-table">
-            <caption class="visually-hidden">{{ 'shipments.detail.serviceOrders.caption' | transloco }}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{{ 'shipments.detail.serviceOrders.col.number' | transloco }}</th>
-                <th scope="col">{{ 'shipments.detail.serviceOrders.col.type' | transloco }}</th>
-                <th scope="col">{{ 'shipments.detail.serviceOrders.col.status' | transloco }}</th>
-                <th scope="col">{{ 'shipments.detail.serviceOrders.col.requestedAt' | transloco }}</th>
-                <th scope="col">{{ 'shipments.detail.serviceOrders.col.completedAt' | transloco }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (order of s.serviceOrders; track order.id) {
-                <tr>
-                  <td class="fw-semibold">{{ order.orderNumber }}</td>
-                  <td>{{ order.orderType }}</td>
-                  <td><app-status-badge [status]="order.status" /></td>
-                  <td>{{ order.requestedAt | hlDate: 'datetime' }}</td>
-                  <td>{{ order.completedAt ? (order.completedAt | hlDate: 'datetime') : '—' }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      } @else {
-        <app-state-message kind="empty" [messageKey]="'shipments.detail.serviceOrders.empty'" />
+  <!-- ===== Documentos: repositorio del embarque y solicitudes de documentos (M6-01 a M6-09) ===== -->
+  <section class="hl-bl-group" [attr.aria-labelledby]="groups.documents.id" data-testid="bl-group-documents">
+    <h2 class="hl-bl-group__title" [id]="groups.documents.id">{{ groups.documents.labelKey | transloco }}</h2>
+    @defer (on viewport; prefetch on idle) {
+      <app-shipment-documents #documentsSection [blNumber]="s.blNumber" [canOperate]="s.canOperate" [showTitle]="false" (changed)="onDocumentsChanged()" />
+    } @placeholder {
+      <div class="hl-card hl-bl-group__placeholder" data-defer-placeholder><app-table-skeleton [rows]="3" [columns]="4" /></div>
+    }
+  </section>
+
+  <!-- ===== Accesos y servicios ===== -->
+  @if (showAccessGroup()) {
+    <section class="hl-bl-group" [attr.aria-labelledby]="groups.access.id" data-testid="bl-group-access">
+      <h2 class="hl-bl-group__title" [id]="groups.access.id">{{ groups.access.labelKey | transloco }}</h2>
+      @defer (on viewport; prefetch on idle) {
+        <!-- Accesos del BL: quién tiene acceso, otorgar y ampliaciones (M1-12, M1-16) -->
+        @if (showAccessSection()) {
+          <app-shipment-access [shipment]="s" [canManage]="canManageAccess()" [headingLevel]="3" />
+        }
+
+        <!-- Servicios on demand del embarque (M2-03, M2-04, M3-07 a M3-15); Fase 2, apagados por defecto -->
+        @if (features.enabled('OnDemandServices')) {
+          <app-available-services [blNumber]="s.blNumber" [headingLevel]="3" />
+        }
+
+        <!-- Solicitudes de servicio habilitadas por la matriz y el perfil -->
+        @if (canRequestWarehouseChange()) {
+          <section class="hl-card p-4 mb-4" aria-labelledby="shipment-actions-title">
+            <h3 id="shipment-actions-title" class="section-title mb-3">{{ 'shipments.detail.actions.title' | transloco }}</h3>
+            <a [routerLink]="['/warehouse']" [queryParams]="{ bl: s.blNumber }" class="btn btn-outline-secondary">
+              {{ 'shipments.detail.actions.warehouseChange' | transloco }}
+            </a>
+          </section>
+        }
+      } @placeholder {
+        <div class="hl-card hl-bl-group__placeholder" data-defer-placeholder><app-table-skeleton [rows]="2" [columns]="4" /></div>
       }
     </section>
   }
 
-  <!-- Servicios on demand del embarque (M2-03, M2-04, M3-07 a M3-15) -->
-  <app-available-services [blNumber]="s.blNumber" />
+  <!-- ===== Interno: publicación por DIFU (M2-01) y Counter (M8-09), solo perfiles internos ===== -->
+  @if (showInternal()) {
+    <section class="hl-bl-group" [attr.aria-labelledby]="groups.internal.id" data-testid="bl-group-internal">
+      <h2 class="hl-bl-group__title" [id]="groups.internal.id">{{ groups.internal.labelKey | transloco }}</h2>
+      @defer (on viewport; prefetch on idle) {
+        @if (showPublication() && s.publication; as publication) {
+          <section class="hl-card p-4 mb-4" aria-labelledby="shipment-publication-title" data-testid="shipment-publication">
+            <h3 id="shipment-publication-title" class="section-title mb-3">{{ 'shipments.detail.publication.title' | transloco }}</h3>
+            @if (!publication.published) {
+              <div class="alert alert-warning" role="note">{{ 'shipments.detail.publication.hidden' | transloco }}</div>
+            }
+            <dl class="row g-3 mb-0">
+              <div class="col-sm-6 col-lg-3">
+                <dt class="detail-label">{{ 'shipments.detail.publication.published' | transloco }}</dt>
+                <dd class="detail-value">{{ (publication.published ? 'shipments.detail.publication.yes' : 'shipments.detail.publication.no') | transloco }}</dd>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <dt class="detail-label">{{ 'shipments.detail.publication.reason' | transloco }}</dt>
+                <dd class="detail-value">{{ publication.reasonCode | codeLabel: publicationReasonKeys }}</dd>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <dt class="detail-label">{{ 'shipments.detail.publication.destination' | transloco }}</dt>
+                <dd class="detail-value">{{ publication.finalDestinationCode ?? s.finalDestinationCode ?? '—' }}</dd>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <dt class="detail-label">{{ 'shipments.detail.publication.discharge' | transloco }}</dt>
+                <dd class="detail-value">{{ publication.portOfDischargeCode ?? s.portOfDischargeCode ?? '—' }}</dd>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <dt class="detail-label">{{ 'shipments.detail.publication.difu' | transloco }}</dt>
+                <dd class="detail-value">{{ publication.difuCode ?? '—' }}</dd>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <dt class="detail-label">{{ 'shipments.detail.publication.difuLocation' | transloco }}</dt>
+                <dd class="detail-value">{{ publication.difuLocationCode ?? '—' }}</dd>
+              </div>
+            </dl>
+          </section>
+        }
 
-  <!-- Repositorio documental del embarque y solicitudes de documentos (M6-01 a M6-09) -->
-  <app-shipment-documents [blNumber]="s.blNumber" [canOperate]="s.canOperate" (changed)="onDocumentsChanged()" />
-
-  <!-- Accesos del BL: quién tiene acceso, otorgar y ampliaciones (M1-12, M1-16) -->
-  @if (showAccessSection()) {
-    <app-shipment-access [shipment]="s" [canManage]="canManageAccess()" />
-  }
-
-  <!-- Solicitudes de servicio habilitadas por la matriz y el perfil -->
-  @if (canRequestWarehouseChange()) {
-    <section class="hl-card p-4" aria-labelledby="shipment-actions-title">
-      <h2 id="shipment-actions-title" class="section-title mb-3">{{ 'shipments.detail.actions.title' | transloco }}</h2>
-      <a [routerLink]="['/warehouse']" [queryParams]="{ bl: s.blNumber }" class="btn btn-outline-secondary">
-        {{ 'shipments.detail.actions.warehouseChange' | transloco }}
-      </a>
+        <!-- Counter Bolivia/Ultramar (M8-09): solo perfiles internos -->
+        @if (showCounter() && features.enabled('Counter')) {
+          <section class="hl-card p-4 mb-4" aria-labelledby="shipment-counter-title" data-testid="shipment-counter">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+              <h3 id="shipment-counter-title" class="section-title">{{ 'shipments.detail.counter.title' | transloco }}</h3>
+              @if (canManageCounter()) {
+                <a [routerLink]="['/admin/counter']" [queryParams]="{ bl: s.blNumber }" class="small">
+                  {{ (s.counter ? 'shipments.detail.counter.edit' : 'shipments.detail.counter.register') | transloco }}
+                </a>
+              }
+            </div>
+            @if (s.counter; as counter) {
+              <dl class="row g-3 mb-0">
+                <div class="col-sm-6 col-lg-3">
+                  <dt class="detail-label">{{ 'shipments.detail.counter.country' | transloco }}</dt>
+                  <dd class="detail-value">{{ (counter.country === 'BO' ? 'common.country.bo' : 'common.country.cl') | transloco }}</dd>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <dt class="detail-label">{{ 'shipments.detail.counter.exchangeDate' | transloco }}</dt>
+                  <dd class="detail-value">{{ counter.exchangeDate ? (counter.exchangeDate | hlDate: 'localDate') : ('shipments.detail.counter.notRecorded' | transloco) }}</dd>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <dt class="detail-label">{{ 'shipments.detail.counter.hbl' | transloco }}</dt>
+                  <dd class="detail-value">{{ counter.hblReceived ? ('shipments.detail.counter.receivedOn' | transloco: { date: (counter.hblReceivedAt | hlDate: 'localDate') }) : ('shipments.detail.counter.no' | transloco) }}</dd>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <dt class="detail-label">{{ 'shipments.detail.counter.deconsolidated' | transloco }}</dt>
+                  <dd class="detail-value">{{ counter.deconsolidated ? ('shipments.detail.counter.receivedOn' | transloco: { date: (counter.deconsolidatedAt | hlDate: 'localDate') }) : ('shipments.detail.counter.no' | transloco) }}</dd>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <dt class="detail-label">{{ 'shipments.detail.counter.sync' | transloco }}</dt>
+                  <dd class="mb-0"><span class="hl-badge" [class]="counterSyncClass[counter.syncStatus] || 'hl-badge--processing'">{{ counter.syncStatus | codeLabel: counterSyncKeys }}</span></dd>
+                </div>
+                <div class="col-sm-6 col-lg-9">
+                  <dt class="detail-label">{{ 'shipments.detail.counter.recorded' | transloco }}</dt>
+                  <dd class="detail-value">{{ 'shipments.detail.counter.recordedBy' | transloco: { date: ((counter.recordedAt ?? counter.createdAt) | hlDate: 'datetime'), user: counter.recordedBy ?? counter.createdBy ?? '' } }}</dd>
+                </div>
+              </dl>
+            } @else {
+              <p class="mb-0 small" data-testid="shipment-counter-empty">{{ 'shipments.detail.counter.empty' | transloco }}</p>
+            }
+          </section>
+        }
+      } @placeholder {
+        <div class="hl-card hl-bl-group__placeholder" data-defer-placeholder><app-table-skeleton [rows]="2" [columns]="4" /></div>
+      }
     </section>
   }
 }

@@ -4,6 +4,7 @@ using FluentValidation;
 using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Invoices;
 using HapagPortal.Domain.Charges;
@@ -76,7 +77,8 @@ public sealed class GetShipmentDocumentsQueryHandler(
     IApplicationDbContext dbContext,
     IShipmentAccessEvaluator accessEvaluator,
     IChargeRulesService chargeRulesService,
-    IResponsibilityLetterStatus responsibilityLetterStatus)
+    IResponsibilityLetterStatus responsibilityLetterStatus,
+    FeatureSettings features)
     : IQueryHandler<GetShipmentDocumentsQuery, ShipmentDocumentsDto>
 {
     private const string ReceiptKind = "Receipt";
@@ -114,8 +116,11 @@ public sealed class GetShipmentDocumentsQueryHandler(
             CanRequest(ShipmentActionCodes.GenerateResponsibilityLetter),
             NoDebtEvaluator.IsApplicable(bl) && CanRequest(ShipmentActionCodes.DownloadNoDebtCertificate),
             bl.Country == CountryCodes.Chile && CanRequest(ShipmentActionCodes.GenerateTransshipmentCertificate),
-            DocumentServiceRequests.IsBoliviaImport(bl) && CanRequest(ShipmentActionCodes.GenerateFreightCertificate),
-            DocumentServiceRequests.IsBoliviaImport(bl) && CanRequest(ShipmentActionCodes.GenerateReleaseLetter));
+            // Fase 2 (M6-02, M6-08): solo con su flag encendido (cierre de Fase 1).
+            features.IsEnabled(FeatureNames.FreightCertificate)
+                && DocumentServiceRequests.IsBoliviaImport(bl) && CanRequest(ShipmentActionCodes.GenerateFreightCertificate),
+            features.IsEnabled(FeatureNames.ReleaseLetter)
+                && DocumentServiceRequests.IsBoliviaImport(bl) && CanRequest(ShipmentActionCodes.GenerateReleaseLetter));
 
         ResponsibilityLetterStateDto? letter = null;
         var conditions = await chargeRulesService.GetConditionsAsync(payer, cancellationToken);

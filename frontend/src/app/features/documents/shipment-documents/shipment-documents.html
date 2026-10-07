@@ -1,6 +1,8 @@
-<section class="hl-card mb-4" aria-labelledby="shipment-documents-title" data-testid="shipment-documents">
+<section class="hl-card mb-4" [attr.aria-labelledby]="showTitle() ? 'shipment-documents-title' : null" data-testid="shipment-documents">
   <div class="card-header p-3">
-    <h2 id="shipment-documents-title" class="section-title">{{ 'documents.section.title' | transloco }}</h2>
+    @if (showTitle()) {
+      <h2 id="shipment-documents-title" class="section-title">{{ 'documents.section.title' | transloco }}</h2>
+    }
     <p class="small text-muted mb-0">{{ 'documents.section.help' | transloco }}</p>
   </div>
 
@@ -74,12 +76,12 @@
                   }
                 </td>
                 <td>
-                  <span class="fw-semibold d-block">{{ doc.documentNumber }}</span>
+                  <span class="fw-semibold d-block text-nowrap">{{ doc.documentNumber }}</span>
                   <span class="small text-muted d-block">{{ 'documents.section.verificationCode' | transloco: { code: doc.verificationCode } }}</span>
                 </td>
-                <td>{{ doc.issuedAt | hlDate: 'datetime' : d.timeZone }}</td>
+                <td class="text-nowrap">{{ doc.issuedAt | hlDate: 'datetime' : d.timeZone }}</td>
                 <td>
-                  <span class="d-block">{{ doc.blNumber }}</span>
+                  <span class="d-block text-nowrap">{{ doc.blNumber }}</span>
                   @if (doc.bookingNumber) {
                     <span class="small text-muted d-block">{{ 'documents.section.booking' | transloco: { booking: doc.bookingNumber } }}</span>
                   }
@@ -98,7 +100,7 @@
                   }
                 </td>
                 <td>
-                  <div class="d-flex flex-wrap gap-1">
+                  <div class="hl-actions">
                     <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === doc.id" (click)="download(doc)"
                             [attr.aria-label]="'documents.section.downloadLabel' | transloco: { type: (doc.documentType | codeLabel: typeKeys), number: doc.documentNumber }">
                       {{ 'documents.section.download' | transloco }}
@@ -140,8 +142,8 @@
               @for (item of d.related; track item.id) {
                 <tr>
                   <td>{{ item.kind | codeLabel: relatedKeys }}</td>
-                  <td class="fw-semibold">{{ item.number }}</td>
-                  <td>{{ item.issuedAt | hlDate: 'datetime' : d.timeZone }}</td>
+                  <td class="fw-semibold text-nowrap">{{ item.number }}</td>
+                  <td class="text-nowrap">{{ item.issuedAt | hlDate: 'datetime' : d.timeZone }}</td>
                   <td>{{ item.description ?? '—' }}</td>
                   <td>
                     <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === item.id" (click)="downloadRelated(item)"
@@ -158,15 +160,16 @@
     </div>
 
     @if (d.actions.canRequestNoDebtCertificate || d.actions.canRequestTransshipmentCertificate
-         || d.actions.canRequestFreightCertificate || d.actions.canRequestReleaseLetter) {
+         || (d.actions.canRequestFreightCertificate && features.enabled('FreightCertificate'))
+         || (d.actions.canRequestReleaseLetter && features.enabled('ReleaseLetter'))) {
       <div class="p-3 pt-0">
         <!-- Fase 2, Ola J: certificado de flete de Bolivia (M6-02), sin pago ni carro en esta entrega -->
-        @if (d.actions.canRequestFreightCertificate) {
+        @if (d.actions.canRequestFreightCertificate && features.enabled('FreightCertificate')) {
           <app-freight-certificate-panel [blNumber]="d.blNumber" [timeZone]="d.timeZone" [canOperate]="canResend()" (issued)="onFreightIssued($event)" />
         }
 
         <!-- Fase 2, Ola J: carta de liberación y desconsolidado de Bolivia (M6-08), con aprobación de Customer Service -->
-        @if (d.actions.canRequestReleaseLetter) {
+        @if (d.actions.canRequestReleaseLetter && features.enabled('ReleaseLetter')) {
           <div class="border rounded p-3 mb-3" role="group" aria-labelledby="release-letter-title" data-testid="release-letter-panel">
             <h3 id="release-letter-title" class="h6 fw-bold">{{ 'documents.releaseLetter.title' | transloco }}</h3>
             <p class="small mb-2">{{ 'documents.releaseLetter.help' | transloco }}</p>

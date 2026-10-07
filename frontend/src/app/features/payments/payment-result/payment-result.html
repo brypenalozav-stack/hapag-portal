@@ -118,7 +118,7 @@
   </section>
 
   <!-- Fase 2, Ola H: comprobante del depósito y su revisión por Finanzas (M5-06) -->
-  @if (p.slipNumber) {
+  @if (p.slipNumber && features.enabled('DepositProofs')) {
     <app-deposit-proofs [paymentId]="p.id" (changed)="load()" />
   }
 
@@ -165,7 +165,7 @@
               </td>
               <td>{{ item.blNumber ?? item.bookingNumber ?? '—' }}</td>
               <td>{{ item.billingTaxId ?? '—' }}</td>
-              <td class="text-end">{{ item.totalAmount | hlCurrency: item.currency }}</td>
+              <td class="text-end text-nowrap">{{ item.totalAmount | hlCurrency: item.currency }}</td>
             </tr>
           }
         </tbody>
@@ -192,7 +192,7 @@
         <tbody>
           @for (change of d.history; track $index) {
             <tr>
-              <td>{{ change.changedAt | hlDate: 'datetimeSeconds' }}</td>
+              <td class="text-nowrap">{{ change.changedAt | hlDate: 'datetimeSeconds' }}</td>
               <td>{{ change.toStatus | codeLabel: statusKeys }}</td>
               <td>{{ change.changedBy }}</td>
               <td>{{ change.reason ?? '—' }}</td>

@@ -160,8 +160,9 @@ public sealed class PaymentHistoryAndAccountTests
         auth.WebhooksEnabled.Returns(true);
         auth.IsValid("Khipu", "s").Returns(true);
 
-        var result = await new KhipuWebhookCommandHandler(_f.Db, auth, new FakePaymentProvider())
-            .Handle(new KhipuWebhookCommand("tok", payment.ExternalReference!, "done", "s"), CancellationToken.None);
+        var body = $"{{\"externalReference\":\"{payment.ExternalReference}\",\"status\":\"done\"}}";
+        var result = await new PaymentNotificationCommandHandler(_f.Db, auth, _f.Providers)
+            .Handle(new PaymentNotificationCommand("Khipu", body, new Dictionary<string, string> { ["X-Webhook-Secret"] = "s" }), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         payment.Status.Should().Be(PaymentStatus.Confirmed);

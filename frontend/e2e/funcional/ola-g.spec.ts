@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/app';
 import { simularApi } from '../fixtures/api-mocks';
+import { FASE2 } from '../fixtures/funcionalidades';
 import {
   BL_BO_SIN_UNIDADES,
   BL_CAMBIO_PAGADO,
@@ -13,6 +14,7 @@ import {
 } from '../fixtures/ola-g-mocks';
 import type { ServiceDefinitionInput, ServiceRequestDetail } from '../../src/app/core/models/service-request.model';
 import { sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
  * Fase 2, Ola G (pruebas funcionales con el backend simulado):
@@ -28,10 +30,12 @@ import { sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
 const POLITE = 'div[aria-live="polite"]';
 
 async function abrir(page: Page, ruta: string, sesion: 'cliente' | 'admin' = 'cliente'): Promise<void> {
-  await simularApi(page);
+  await simularApi(page, { features: FASE2 });
   if (sesion === 'admin') await sembrarSesionAdmin(page, 'es');
   else await sembrarSesion(page, { lang: 'es' });
   await page.goto(ruta);
+  // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
+  if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
 }
@@ -328,7 +332,7 @@ test('Dashboard y Mis solicitudes: acceso rápido, filtro por estado y envío de
   await expect(servicios.getByRole('link', { name: /Solicitar un servicio/ })).toHaveAttribute('href', '/service-requests/new');
 
   const menu = page.getByRole('navigation', { name: 'Menú principal' });
-  await menu.getByRole('button', { name: 'Servicios' }).click();
+  await menu.getByRole('button', { name: 'Documentos y trámites' }).click();
   await menu.getByRole('link', { name: 'Mis solicitudes' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mis solicitudes');
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);

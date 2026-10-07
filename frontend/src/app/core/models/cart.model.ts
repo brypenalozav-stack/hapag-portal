@@ -16,6 +16,9 @@ export type PaymentStatus = 'Pending' | 'Processing' | 'PendingVerification' | '
 /** Estados en los que el pago ya no cambia sin intervención (el resultado queda definido). */
 export const FINAL_PAYMENT_STATUSES: readonly PaymentStatus[] = ['Confirmed', 'Failed', 'Cancelled'];
 
+/** Resultado que el usuario elige en el simulador de pago (modo de prueba). */
+export type PaymentSimulatorOutcome = 'approved' | 'rejected' | 'pending' | 'cancelled';
+
 /** `CreditLine`: imputación a la línea de crédito (Fase 2, Ola H, M5-10); no figura en el historial de pagos. */
 export type PaymentOrigin = 'Cart' | 'Account' | 'Legacy' | 'CreditLine';
 
@@ -216,11 +219,23 @@ export interface PaymentSummary {
   items: PaymentItem[];
 }
 
+/**
+ * Formulario firmado que el navegador envía a la pasarela (botones bancarios por POST): el portal lo envía solo y,
+ * si el envío automático no ocurre, ofrece el botón "Continuar al banco".
+ */
+export interface PaymentRedirectForm {
+  method: string;
+  action: string;
+  fields: Record<string, string>;
+}
+
 /** POST /cart/checkout y POST /account-payments/checkout. */
 export interface CheckoutResult {
   payment: PaymentSummary;
   nextAction: CheckoutNextAction;
   redirectUrl?: string | null;
+  /** Viene en vez de una URL cuando la pasarela exige un formulario firmado por POST. */
+  redirectForm?: PaymentRedirectForm | null;
   replayed: boolean;
 }
 

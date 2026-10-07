@@ -82,7 +82,7 @@
           <tbody>
             @for (item of r.items; track item.id) {
               <tr [attr.data-testid]="'queue-row-' + item.requestNumber">
-                <td class="fw-semibold">{{ item.requestNumber }}</td>
+                <td class="fw-semibold text-nowrap">{{ item.requestNumber }}</td>
                 <td>{{ name(item) }}</td>
                 <td>
                   <span class="d-block">{{ item.organizationName ?? '—' }}</span>
@@ -91,7 +91,7 @@
                   }
                 </td>
                 <td>
-                  <span class="d-block">{{ item.blNumber }}</span>
+                  <span class="d-block text-nowrap">{{ item.blNumber }}</span>
                   <span class="small text-muted">{{ item.country }}</span>
                 </td>
                 <td><span class="hl-badge" [class]="statusClass(item)">{{ item.status | codeLabel: statusKeys }}</span></td>
@@ -105,7 +105,7 @@
                     {{ 'admin.serviceRequests.queue.noCharge' | transloco }}
                   }
                 </td>
-                <td>{{ item.statusChangedAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ item.statusChangedAt | hlDate: 'datetime' }}</td>
                 <td>
                   <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/admin/service-requests', item.id]"
                      [attr.aria-label]="'admin.serviceRequests.queue.reviewLabel' | transloco: { number: item.requestNumber }">

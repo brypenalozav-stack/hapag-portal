@@ -70,13 +70,13 @@
               <tr>
                 <td>
                   <span class="fw-semibold d-block">{{ document(p) }}</span>
-                  <span class="small text-muted">{{ p.paymentNumber }}</span>
+                  <span class="small text-muted text-nowrap">{{ p.paymentNumber }}</span>
                 </td>
-                <td>{{ p.paymentDate | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ p.paymentDate | hlDate: 'datetime' }}</td>
                 <td><span class="hl-badge" [class]="statusClass(p)">{{ p.status | codeLabel: statusKeys }}</span></td>
                 <td>{{ p.methodName ?? p.method ?? '—' }}</td>
                 <td>{{ p.currency }}</td>
-                <td class="text-end">{{ p.totalAmount | hlCurrency: p.currency }}</td>
+                <td class="text-end text-nowrap">{{ p.totalAmount | hlCurrency: p.currency }}</td>
                 <!-- RUT del pagador diferenciado del RUT de facturación (M7-02) -->
                 <td data-testid="history-payer">
                   <span class="d-block">{{ p.payerTaxId }}</span>
@@ -95,7 +95,7 @@
                   }
                 </td>
                 <td>
-                  <div class="d-flex flex-wrap gap-1">
+                  <div class="hl-actions">
                     <a [routerLink]="['/payment-history', p.id]" class="btn btn-sm btn-outline-secondary"
                        [attr.aria-label]="'paymentHistory.detailLabel' | transloco: { number: document(p) }">{{ 'paymentHistory.detail' | transloco }}</a>
                     @if (p.receiptAvailable) {

@@ -1,15 +1,16 @@
 import { Component, DestroyRef, ElementRef, Injector, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { AccountPaymentService } from '../../core/services/account-payment.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { AuthService } from '../../core/services/auth.service';
 import { newIdempotencyKey } from '../../core/services/cart.service';
 import { LiveAnnouncerService } from '../../core/services/live-announcer.service';
+import { FeatureService } from '../../core/services/feature.service';
 import { AccountPayables, CheckoutResult, PayableItem, PaymentBlockStatus, PaymentMethod } from '../../core/models/cart.model';
 import { apiErrorCode } from '../../core/http/api-error';
-import { CHARGE_CONCEPT_KEYS, PAYABLE_ITEM_TYPE_KEYS, PAYMENT_METHOD_KIND_KEYS } from '../../core/i18n/labels';
+import { CHARGE_CONCEPT_KEYS, PAYABLE_ITEM_TYPE_KEYS } from '../../core/i18n/labels';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../shared/components/state-message/state-message';
 import { PaymentBlockBannerComponent } from '../../shared/components/payment-block-banner/payment-block-banner';
@@ -19,7 +20,8 @@ import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../shared/payment-errors';
 import { focusAfterRender } from '../../shared/focus-after-render';
 import { ToastService } from '../../core/services/toast.service';
-import { PaymentLogoComponent } from '../../shared/components/payment-logo/payment-logo';
+import { PaymentMethodPickerComponent } from '../../shared/components/payment-method-picker/payment-method-picker';
+import { PaymentRedirectService } from '../../core/services/payment-redirect.service';
 
 /** Errores tras los cuales el intento terminó con certeza: el próximo usa una clave nueva. */
 const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotency.AlreadyExists']);
@@ -33,25 +35,25 @@ const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'PaymentIdempotenc
 @Component({
   selector: 'app-account-payments',
   standalone: true,
-  imports: [PaymentLogoComponent, 
+  imports: [
     RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, LoadingSpinnerComponent, StateMessageComponent,
-    PaymentBlockBannerComponent,
+    PaymentBlockBannerComponent, PaymentMethodPickerComponent,
   ],
   templateUrl: './account-payments.html',
   styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
 })
 export class AccountPaymentsComponent implements OnInit {
+  readonly features = inject(FeatureService);
   private readonly service = inject(AccountPaymentService);
   private readonly payments = inject(PaymentService);
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);
-  private readonly router = inject(Router);
+  private readonly paymentRedirect = inject(PaymentRedirectService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
   readonly typeKeys = PAYABLE_ITEM_TYPE_KEYS;
-  readonly kindKeys = PAYMENT_METHOD_KIND_KEYS;
 
   data = signal<AccountPayables | null>(null);
   loading = signal(true);
@@ -264,13 +266,6 @@ export class AccountPaymentsComponent implements OnInit {
 
   private afterCheckout(result: CheckoutResult): void {
     this.toast.success(translate('accountPayments.checkout.created', { number: result.payment.paymentNumber }));
-    const url = result.nextAction === 'Redirect' ? result.redirectUrl : null;
-    if (url && /^https?:\/\//i.test(url)) {
-      window.location.assign(url);
-    } else if (url) {
-      this.router.navigateByUrl(url);
-    } else {
-      this.router.navigate(['/payments', result.payment.id, 'result']);
-    }
+    this.paymentRedirect.continue(result);
   }
 }

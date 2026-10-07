@@ -59,11 +59,11 @@
           <tbody>
             @for (op of operationsTable.rows(); track op.id) {
               <tr>
-                <td class="fw-semibold">{{ op.paymentNumber }}</td>
+                <td class="fw-semibold text-nowrap">{{ op.paymentNumber }}</td>
                 <td>{{ op.jobType | codeLabel: jobKeys }}</td>
                 <td>{{ op.status | codeLabel: operationStatusKeys }}</td>
                 <td>{{ 'admin.finance.operations.attempts' | transloco: { attempts: op.attempts, max: op.maxAttempts } }}</td>
-                <td>{{ op.nextAttemptAt ? (op.nextAttemptAt | hlDate: 'datetime') : '—' }}</td>
+                <td class="text-nowrap">{{ op.nextAttemptAt ? (op.nextAttemptAt | hlDate: 'datetime') : '—' }}</td>
                 <td class="small">{{ op.lastError ?? '—' }}</td>
                 <td>
                   @if (op.status !== 'Succeeded') {
@@ -183,12 +183,12 @@
             @for (row of reconciliationTable.rows(); track row.paymentId) {
               <tr>
                 <td>
-                  <span class="fw-semibold d-block">{{ row.paymentNumber }}</span>
+                  <span class="fw-semibold d-block text-nowrap">{{ row.paymentNumber }}</span>
                   <span class="small text-muted">{{ 'admin.finance.reconciliation.payer' | transloco: { country: row.country, taxId: row.payerTaxId ?? '—' } }}</span>
                 </td>
                 <td>{{ row.status | codeLabel: paymentStatusKeys }}</td>
                 <td>{{ row.method ?? '—' }}</td>
-                <td class="text-end">{{ row.totalAmount | hlCurrency: row.currency }}</td>
+                <td class="text-end text-nowrap">{{ row.totalAmount | hlCurrency: row.currency }}</td>
                 <td class="small">
                   <span class="d-block">{{ 'admin.finance.reconciliation.created' | transloco: { date: (row.createdAt | hlDate: 'datetime') } }}</span>
                   @if (row.confirmedAt) {

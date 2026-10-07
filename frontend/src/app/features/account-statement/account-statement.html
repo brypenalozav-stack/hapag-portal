@@ -167,7 +167,7 @@
                     <span class="hl-bar statement-aging-bar" aria-hidden="true"><span class="hl-bar__fill" [style.width.%]="agingPercent(row, $index)"></span></span>
                   </td>
                 }
-                <td class="text-end fw-bold hl-num">{{ row.total | hlCurrency: row.currency }}</td>
+                <td class="text-end fw-bold hl-num text-nowrap">{{ row.total | hlCurrency: row.currency }}</td>
               </tr>
             }
           </tbody>
@@ -313,7 +313,7 @@
                     }
                   </td>
                   <td>
-                    <span class="fw-semibold d-block">{{ line.number }}</span>
+                    <span class="fw-semibold d-block text-nowrap">{{ line.number }}</span>
                     <span class="small d-block">
                       {{ line.documentType | codeLabel: documentTypeKeys }}
                       @if (line.kind !== 'Invoiced') {
@@ -351,7 +351,7 @@
                     }
                     <span class="d-block">{{ line.taxId ?? '—' }}</span>
                   </td>
-                  <td>{{ (line.issueDate ?? line.referenceDate) | hlDate: 'localDate' }}</td>
+                  <td class="text-nowrap">{{ (line.issueDate ?? line.referenceDate) | hlDate: 'localDate' }}</td>
                   <td>
                     @if (line.dueDate) {
                       <span class="d-block">{{ line.dueDate | hlDate: 'localDate' }}</span>
@@ -363,8 +363,8 @@
                       <span class="visually-hidden">{{ 'accountStatement.lines.noDueDate' | transloco }}</span>
                     }
                   </td>
-                  <td class="text-end hl-num">{{ line.totalAmount | hlCurrency: line.currency }}</td>
-                  <td class="text-end hl-num fw-semibold">{{ line.balance | hlCurrency: line.currency }}</td>
+                  <td class="text-end hl-num text-nowrap">{{ line.totalAmount | hlCurrency: line.currency }}</td>
+                  <td class="text-end hl-num fw-semibold text-nowrap">{{ line.balance | hlCurrency: line.currency }}</td>
                   <td>
                     <span class="hl-badge" [class]="statusClass(line)">{{ line.status | codeLabel: statusKeys }}</span>
                     @if (line.dueSoon) {
@@ -406,7 +406,7 @@
             @for (adv of s.advances; track adv.id) {
               <tr>
                 <td>
-                  <span class="fw-semibold d-block">{{ adv.paymentNumber }}</span>
+                  <span class="fw-semibold d-block text-nowrap">{{ adv.paymentNumber }}</span>
                   @if (adv.receiptNumber) {
                     <span class="small d-block">{{ 'accountStatement.advances.receipt' | transloco: { number: adv.receiptNumber } }}</span>
                   }
@@ -416,8 +416,8 @@
                 </td>
                 <td>{{ adv.conceptCode | codeLabel: conceptKeys }}</td>
                 <td>{{ adv.blNumber ?? adv.bookingNumber ?? '—' }}</td>
-                <td class="text-end hl-num">{{ adv.amount | hlCurrency: adv.currency }}</td>
-                <td>{{ adv.settledAt | hlDate: 'datetime' : s.timeZone }}</td>
+                <td class="text-end hl-num text-nowrap">{{ adv.amount | hlCurrency: adv.currency }}</td>
+                <td class="text-nowrap">{{ adv.settledAt | hlDate: 'datetime' : s.timeZone }}</td>
                 <td>
                   <span class="hl-badge" [class]="settlementStatusClass[adv.status] || 'hl-badge--pending'">{{ adv.status | codeLabel: settlementStatusKeys }}</span>
                   @if (adv.matchedInvoiceNumber) {

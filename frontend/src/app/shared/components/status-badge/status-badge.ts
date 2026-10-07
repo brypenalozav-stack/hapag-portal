@@ -1,5 +1,6 @@
 import { Component, input, computed } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SHIPMENT_STATUS_KEYS } from '../../../core/i18n/labels';
 
 const STATUS_CLASS_MAP: Record<string, string> = {
   pending: 'hl-badge--pending',
@@ -19,7 +20,7 @@ const STATUS_CLASS_MAP: Record<string, string> = {
   activo: 'hl-badge--active',
 };
 
-/** Estados con texto traducido en `status.<code>` (es.json / en.json); el resto se muestra tal cual. */
+/** Estados con texto traducido en `status.<code>` (es.json / en.json). Los estados de embarque usan SHIPMENT_STATUS_KEYS; el resto se muestra tal cual. */
 const STATUS_LABEL_KEYS: Record<string, string> = {
   PENDING: 'status.pending',
   CONFIRMED: 'status.confirmed',
@@ -59,6 +60,6 @@ export class StatusBadgeComponent {
   });
 
   labelKey = computed((): string | null => {
-    return STATUS_LABEL_KEYS[this.status().toUpperCase()] ?? null;
+    return STATUS_LABEL_KEYS[this.status().toUpperCase()] ?? SHIPMENT_STATUS_KEYS[this.status()] ?? null;
   });
 }

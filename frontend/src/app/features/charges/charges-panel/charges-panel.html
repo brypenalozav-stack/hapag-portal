@@ -1,6 +1,6 @@
 <section class="hl-card mb-4" aria-labelledby="charges-panel-title">
   <div class="card-header p-3">
-    <h2 id="charges-panel-title" class="section-title">{{ 'charges.panel.title' | transloco: { bl: blNumber() } }}</h2>
+    <h2 [attr.aria-level]="headingLevel() === 3 ? 3 : null" id="charges-panel-title" class="section-title">{{ 'charges.panel.title' | transloco: { bl: blNumber() } }}</h2>
   </div>
 
   @if (loading()) {
@@ -18,7 +18,7 @@
         <!-- Resultado de aplicar las reglas (M4-02) -->
         @if (applyOutcome(); as outcome) {
           <div class="alert" [class.alert-success]="outcome.completed" [class.alert-info]="!outcome.completed" role="status">
-            <h3 #outcomeHeading class="h6 fw-bold" tabindex="-1">
+            <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" #outcomeHeading class="h6 fw-bold" tabindex="-1">
               {{ (outcome.completed ? 'charges.panel.apply.completedTitle' : 'charges.panel.apply.partialTitle') | transloco }}
             </h3>
             <p class="mb-0">
@@ -44,7 +44,7 @@
         @for (req of blockingRequirements(); track req.code) {
           @if (req.code === 'RESPONSIBILITY_LETTER') {
             <div class="alert alert-warning" role="note" aria-labelledby="charges-letter-title">
-              <h3 id="charges-letter-title" class="h6 fw-bold">{{ 'charges.panel.letter.title' | transloco }}</h3>
+              <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" id="charges-letter-title" class="h6 fw-bold">{{ 'charges.panel.letter.title' | transloco }}</h3>
               <p class="mb-2">{{ 'charges.panel.letter.text' | transloco: { status: (req.status | codeLabel: requirementStatusKeys) } }}</p>
               @if (canIssueLetter()) {
                 <!-- Formulario de la carta (M6-06): sin cobro; emitida, levanta el bloqueo de este BL -->
@@ -62,7 +62,7 @@
         @if (gateOutAdvance()) {
           <!-- Fase 2, Ola H: pago anticipado del Gate Out por la agencia de aduanas (M3-19) -->
           <div class="alert alert-info" role="note" aria-labelledby="charges-gate-out-advance-title" data-testid="charges-gate-out-advance">
-            <h3 id="charges-gate-out-advance-title" class="h6 fw-bold">{{ 'charges.panel.gateOutAdvance.title' | transloco }}</h3>
+            <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" id="charges-gate-out-advance-title" class="h6 fw-bold">{{ 'charges.panel.gateOutAdvance.title' | transloco }}</h3>
             <p class="mb-1">{{ 'charges.panel.gateOutAdvance.text' | transloco }}</p>
             <p class="mb-0">{{ 'charges.panel.gateOutAdvance.invoice' | transloco }}</p>
           </div>
@@ -78,7 +78,7 @@
 
         <!-- Figuras consultadas en Nexus para las exenciones (M4-01) -->
         @if (d.exemptionFigures.length > 0) {
-          <h3 class="h6 fw-bold mt-3">{{ 'charges.panel.figures.title' | transloco }}</h3>
+          <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" class="h6 fw-bold mt-3">{{ 'charges.panel.figures.title' | transloco }}</h3>
           <ul class="small mb-3">
             @for (figure of d.exemptionFigures; track figure.party) {
               <li>
@@ -124,7 +124,7 @@
                       <span class="d-block small text-muted">{{ charge.description }}</span>
                     }
                   </td>
-                  <td class="text-end">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
+                  <td class="text-end text-nowrap">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
                   <td>
                     <span class="hl-badge" [class]="outcomeClass(charge.outcome)">{{ charge.outcome | codeLabel: outcomeKeys }}</span>
                   </td>
@@ -194,7 +194,7 @@
         <div class="p-3">
           <!-- Totales a pagar por moneda -->
           @if (d.payableTotals.length > 0) {
-            <h3 class="h6 fw-bold">{{ 'charges.panel.totals.title' | transloco }}</h3>
+            <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" class="h6 fw-bold">{{ 'charges.panel.totals.title' | transloco }}</h3>
             <dl class="row g-2 mb-3">
               @for (t of d.payableTotals; track t.currency) {
                 <div class="col-sm-6 col-lg-4">

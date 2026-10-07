@@ -143,7 +143,7 @@
               <td class="small">{{ r.notes ?? '—' }}</td>
               <td class="small">{{ 'admin.creditRules.modifiedBy' | transloco: { date: ((r.modifiedAt ?? r.createdAt) | hlDate: 'datetime'), user: r.modifiedBy ?? r.createdBy } }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(r)"
                           [attr.aria-label]="'admin.creditRules.editLabel' | transloco: { concept: conceptName(r), country: r.country }">{{ 'admin.creditRules.edit' | transloco }}</button>
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(r)"

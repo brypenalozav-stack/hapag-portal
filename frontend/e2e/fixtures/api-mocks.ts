@@ -61,6 +61,7 @@ import { SimulacionOlaF } from './ola-f-mocks';
 import { SimulacionOlaG } from './ola-g-mocks';
 import { SimulacionOlaH } from './ola-h-mocks';
 import { OpcionesOlaI, SimulacionOlaI } from './ola-i-mocks';
+import { Funcionalidades, funcionalidades } from './funcionalidades';
 import { SimulacionOlaJ } from './ola-j-mocks';
 
 /** Datos ficticios y deterministas para las pantallas recorridas por las pruebas. */
@@ -1481,6 +1482,32 @@ const HISTORIAL_REGLA: InternalChargeRuleChange[] = [
   },
 ];
 
+/**
+ * Consulta de liberación del BL de prueba (GET shipments/{bl}/release-status, M2-09), que resume el encabezado fijo del
+ * detalle del BL (cierre de Fase 1, UX): el flete y los recargos están pendientes y el demurrage, cumplido.
+ * `liberado: true` entrega el mismo BL con todos los requisitos cumplidos.
+ */
+export function liberacionPrueba(liberado = false) {
+  const paso = (code: string, status: string, action = 'None') => ({
+    code, status, reason: null, action, actionAllowed: action !== 'None', pendingAmounts: [], items: [],
+  });
+  const steps = liberado
+    ? [paso('FREIGHT', 'Done'), paso('LOCAL_CHARGES', 'Done'), paso('RESPONSIBILITY_LETTER', 'NotRequired'), paso('DEMURRAGE', 'Done')]
+    : [paso('FREIGHT', 'Pending', 'PayFreight'), paso('LOCAL_CHARGES', 'Pending', 'PayCharges'), paso('RESPONSIBILITY_LETTER', 'NotRequired'), paso('DEMURRAGE', 'Done')];
+  return {
+    blId: BL_PRUEBA.id, blNumber: BL_PRUEBA.blNumber, bookingNumber: 'BKG26030010', country: 'CL', operation: 'IMPORT', status: 'InTransit',
+    vessel: BL_PRUEBA.vessel, voyage: BL_PRUEBA.voyage, portOfLoading: BL_PRUEBA.portOfLoading, portOfDischarge: BL_PRUEBA.portOfDischarge,
+    portOfDischargeCode: 'CLSAI', finalDestinationCode: null, eta: BL_PRUEBA.eta, consignee: USUARIO_PRUEBA.name, timeZone: 'America/Santiago',
+    applicable: true, steps, completedSteps: steps.filter((s) => s.status === 'Done' || s.status === 'NotRequired').length,
+    totalSteps: steps.length, released: liberado, containers: [],
+    tatc: {
+      unlocked: liberado, available: true, status: 'NotIssued', errorCode: null, sourceUpdatedAt: null, retrievedAt: '2026-10-06T12:00:00Z',
+      windowHours: 72, availableFrom: null, windowOpen: false, canRequest: false, lastRequestedAt: null, lastRequestStatus: null, lastRequestReason: null,
+    },
+    notices: [], evaluatedAt: '2026-10-06T12:00:00Z',
+  };
+}
+
 /** Respuestas GET de la Ola C (se agregan a RESPUESTAS). */
 const RESPUESTAS_OLA_C: Record<string, unknown> = {
   ...Object.fromEntries(Object.entries(CARGOS_OLA_C).map(([bl, c]) => [`charges/${bl}`, c])),
@@ -1642,6 +1669,8 @@ const RESPUESTAS: Record<string, RespuestaGet> = {
   'access/open-access': ACCESO_ABIERTO,
   'access/audit': buscarAuditoria,
   [`shipments/${BL_PRUEBA.blNumber}/visibility-widenings`]: AMPLIACIONES,
+  // Cierre de Fase 1 (UX): resumen de liberación del encabezado del detalle del BL.
+  [`shipments/${BL_PRUEBA.blNumber}/release-status`]: liberacionPrueba(),
   // Ola C
   ...RESPUESTAS_OLA_C,
 };
@@ -1779,8 +1808,18 @@ const ESCRITURAS_DINAMICAS: { metodo: string; patron: RegExp; responder: (cuerpo
  * matriz los responde ola-i-mocks.ts, que además agrega al listado los BL de la filial y el Counter al detalle interno.
  * Fase 2, Ola J: certificado de flete, carta de liberación y su revisión interna, entrega de documentos por el asistente y
  * clientes del canal Web Service los responde ola-j-mocks.ts, que publica los documentos emitidos en el repositorio de la Ola E.
+ * Cierre de Fase 1: GET /config/features responde los flags por defecto (Fase 2 apagada, salvo la carta de liberación y
+ * Counter); `opciones.features` (o `habilitarFuncionalidades`, funcionalidades.ts) enciende los que la prueba necesita.
  */
-export async function simularApi(page: Page, opciones: OpcionesOlaD & OpcionesOlaI = {}): Promise<void> {
+/** Flags de funcionalidades de la prueba (GET /config/features) sobre los valores por defecto (Fase 2 apagada). */
+export interface OpcionesFuncionalidades {
+  features?: Funcionalidades;
+}
+
+export async function simularApi(
+  page: Page,
+  opciones: OpcionesOlaD & OpcionesOlaI & OpcionesFuncionalidades = {},
+): Promise<void> {
   let consultasLote = 0;
   const olaD = new SimulacionOlaD(opciones);
   const olaE = new SimulacionOlaE(olaD);
@@ -1794,6 +1833,12 @@ export async function simularApi(page: Page, opciones: OpcionesOlaD & OpcionesOl
     const url = new URL(request.url());
     const ruta = url.pathname.replace(/^.*\/api\/v1\//, '').replace(/\/$/, '');
     const metodo = request.method();
+
+    // Cierre de Fase 1: flags de funcionalidades (Fase 2 apagada salvo que la prueba los encienda).
+    if (metodo === 'GET' && ruta === 'config/features') {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(funcionalidades(opciones.features)) });
+      return;
+    }
 
     if (await olaJ.responder(route, ruta, metodo, url)) return;
     if (await olaI.responder(route, ruta, metodo, url)) return;

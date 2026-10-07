@@ -40,7 +40,6 @@
       "disabledBlocked": "No se puede pagar mientras los pagos estén suspendidos.",
       "help": "Elija los ítems, la moneda y el medio de pago. Antes de pagar verá un resumen para confirmar.",
       "method": "Medio de pago",
-      "methodOption": "{{ name }} ({{ kind }})",
       "mixedCountries": "Eligió ítems de países distintos: un pago es de un solo país. Desmarque los de otro país.",
       "noCurrency": "Los ítems elegidos no tienen una moneda de pago en común: páguelos por separado.",
       "noMethods": "No hay medios de pago habilitados para esta moneda.",
@@ -114,7 +113,6 @@
       "help": "Para cada ítem elija si lo paga ahora o lo imputa a su línea de crédito. Los conceptos que Finanzas no habilitó se pagan ahora.",
       "itemLegend": "{{ concept }} {{ number }} · BL {{ bl }} · {{ amount }}",
       "method": "Medio de pago",
-      "methodOption": "{{ name }} ({{ kind }})",
       "noCurrency": "Los ítems que paga ahora no tienen una moneda de pago en común: páguelos por separado.",
       "noMethods": "No hay medios de pago habilitados para esta moneda.",
       "nothing": "Nada",
@@ -2979,7 +2977,6 @@
       "disabledReadOnly": "Su perfil de consulta no puede pagar.",
       "error": "No se pudo iniciar el pago. Revise el carro e intente nuevamente.",
       "method": "Medio de pago",
-      "methodOption": "{{ name }} ({{ kind }})",
       "methodRequired": "Elija un medio de pago.",
       "noMethods": "No hay medios de pago habilitados para esta moneda.",
       "retry": "Reintentar pago de {{ total }}",
@@ -3008,7 +3005,6 @@
     "goToAccountPayments": "Ir a Pagar desde mi cuenta",
     "group": {
       "caption": "Ítems a pagar en {{ currency }}",
-      "clear": "Vaciar",
       "clearCancel": "No",
       "clearConfirm": "Sí, vaciar",
       "clearLabel": "Vaciar el carro en {{ currency }}",
@@ -4132,8 +4128,7 @@
       "col": {
         "actions": "Acciones",
         "bl": "BL",
-        "document": "Documento",
-        "issuedAt": "Emitido"
+        "document": "Documento"
       },
       "download": "Descargar",
       "downloadError": "No se pudo descargar el documento. Intente nuevamente.",
@@ -4172,18 +4167,6 @@
         "empty": "No hay embarques para mostrar.",
         "title": "Embarques por estado"
       },
-      "demurrage": {
-        "caption": "BL con demurrage en riesgo",
-        "col": {
-          "amount": "Monto",
-          "bl": "BL",
-          "state": "Estado"
-        },
-        "empty": "No hay demurrage en riesgo.",
-        "lines": "{count, plural, one {# línea pendiente} other {# líneas pendientes}}",
-        "noAmount": "Monto aún no calculado",
-        "title": "Demurrage en riesgo"
-      },
       "departures": {
         "caption": "Próximos zarpes en los próximos 14 días, por ETD",
         "col": {
@@ -4195,8 +4178,7 @@
       "shipments": {
         "col": {
           "bl": "BL",
-          "port": "Puerto",
-          "vessel": "Nave y viaje"
+          "port": "Puerto"
         }
       },
       "title": "Indicadores operativos",
@@ -4204,33 +4186,12 @@
     },
     "loadError": "No se pudo cargar el dashboard.",
     "pending": {
-      "add": "Agregar al carro",
-      "addLabel": "Agregar {{ concept }} {{ reference }} al carro",
-      "bl": "BL {{ bl }}",
-      "caption": "Servicios pendientes de pago, primero los vencidos",
-      "cartLabel": "{{ concept }} del BL {{ bl }}",
-      "col": {
-        "actions": "Acciones",
-        "amount": "Monto",
-        "reference": "Referencia",
-        "service": "Servicio",
-        "status": "Estado"
-      },
-      "creditNote": "Su organización tiene crédito: estos pendientes se pagan desde «Pagar desde mi cuenta».",
-      "dueDate": "Vence el {{ date }}",
-      "empty": "No tiene servicios pendientes de pago.",
-      "go": "Ver",
-      "goLabel": "Ver {{ concept }} {{ reference }}",
-      "inCart": "En el carro",
-      "title": "Pendientes de pago",
-      "truncated": "Se muestran {{ shown }} de {{ total }} pendientes.",
-      "pagination": "Páginas de pendientes de pago"
+      "truncated": "Se muestran {{ shown }} de {{ total }} pendientes."
     },
     "requests": {
       "caption": "Gestiones en curso y terminadas en los últimos 30 días",
       "col": {
         "actions": "Acciones",
-        "date": "Fecha",
         "request": "Gestión",
         "status": "Estado"
       },
@@ -4248,22 +4209,6 @@
         "description": "Saldos, vencimientos, antigüedad de la deuda y pago de varias facturas a la vez.",
         "title": "Ver mi estado de cuenta"
       },
-      "dangerousGoods": {
-        "description": "Consulte la clase y el número ONU de una carga.",
-        "title": "Buscar mercancías peligrosas"
-      },
-      "demurrage": {
-        "description": "Revise y calcule el cobro por días adicionales de contenedor.",
-        "title": "Consultar demurrage"
-      },
-      "faq": {
-        "description": "Respuestas a las dudas más comunes.",
-        "title": "Preguntas frecuentes"
-      },
-      "invoices": {
-        "description": "Consulte, descargue y pague sus facturas.",
-        "title": "Ver mis facturas"
-      },
       "pay": {
         "description": "Pague cargos, flete y servicios agregados al carro.",
         "title": "Pagar cargos y servicios"
@@ -4272,25 +4217,26 @@
         "description": "Sellos, Drop Off, correcciones de BL, BL hijo y otros servicios de su embarque.",
         "title": "Solicitar un servicio"
       },
-      "shipments": {
-        "description": "Estado, documentos y cargos de cada BL o booking.",
-        "title": "Ver mis embarques"
-      },
       "tatc": {
         "description": "Pida el TATC de varios BL de una misma localidad.",
         "title": "Solicitar TATC"
       },
       "title": "¿Qué necesita hacer?",
-      "warehouse": {
-        "description": "Solicite el traslado de su carga a otro almacén.",
-        "title": "Cambiar de almacén"
+      "checkBl": {
+        "title": "Consultar un BL",
+        "description": "Estado de liberación, requisitos pendientes y TATC de un BL."
+      },
+      "findShipment": {
+        "title": "Buscar un embarque",
+        "description": "Encuentre un BL o booking y revise su estado."
+      },
+      "releaseLetter": {
+        "title": "Solicitar carta de liberación",
+        "description": "Importaciones de Bolivia: suba la carta y siga su revisión."
       }
     },
     "summary": {
-      "accountPayments": "Pagar desde mi cuenta",
       "byOperation": "{{ imports }} de importación y {{ exports }} de exportación",
-      "demurrageAtRisk": "Demurrage en riesgo",
-      "goToCart": "Ir al carro de compra",
       "noPending": "Sin saldos pendientes",
       "pendingPayments": "Pendientes de pago",
       "requestsHelp": "Solicitudes del portal aún en proceso.",
@@ -4298,13 +4244,57 @@
       "shipments": "Embarques",
       "title": "Resumen",
       "totalsLabel": "Saldo pendiente por moneda",
-      "viewDemurrage": "Ver demurrage",
-      "viewShipments": "Ver embarques",
-      "withPendingCharges": "{count, plural, =0 {Ningún embarque con cargos pendientes} one {# embarque con cargos pendientes} other {# embarques con cargos pendientes}}"
+      "viewShipments": "Ver embarques"
     },
     "title": "Dashboard",
     "unavailable": "No pudimos obtener el resumen en este momento: el servicio no está disponible temporalmente. Sus datos no se perdieron.",
-    "welcome": "Bienvenido, {{ name }}"
+    "welcome": "Bienvenido, {{ name }}",
+    "action": {
+      "heading": "Requiere su acción",
+      "count": "{count, plural, one {# pendiente} other {# pendientes}}",
+      "creditNote": "Su organización tiene crédito: los cargos se pagan desde «Pagar desde mi cuenta».",
+      "reasonsLabel": "Motivos",
+      "statusLabel": "Ver el estado de liberación del BL {{ bl }}",
+      "actionLabel": "{{ action }}: {{ reference }}",
+      "cartLabel": "{{ concept }} del BL {{ bl }}",
+      "dueDate": "Vence el {{ date }}",
+      "showAll": "Ver todo ({{ count }})",
+      "showLess": "Ver menos",
+      "empty": {
+        "title": "Todo al día",
+        "text": "No tiene pagos ni trámites pendientes. Le avisaremos aquí cuando algo requiera su acción."
+      },
+      "urgency": {
+        "overdue": "Vencido",
+        "urgent": "Urgente",
+        "pending": "Pendiente"
+      },
+      "reason": {
+        "charges": "{count, plural, one {# cargo por pagar} other {# cargos por pagar}}",
+        "invoice": "{count, plural, one {# factura por pagar} other {# facturas por pagar}}",
+        "demurrageLines": "{count, plural, one {# línea de demurrage por pagar} other {# líneas de demurrage por pagar}}",
+        "demurrageAtRisk": "Demurrage en riesgo: {{ state }}",
+        "inCart": "{count, plural, one {# ya está en el carro} other {# ya están en el carro}}",
+        "requestDraft": "Solicitud {{ reference }} sin enviar",
+        "requestPendingPayment": "Solicitud {{ reference }} pendiente de pago",
+        "releaseLetterRejected": "Carta de liberación {{ reference }} rechazada"
+      },
+      "do": {
+        "addToCart": "Agregar al carro",
+        "goToCart": "Ir al carro",
+        "payAccount": "Pagar desde mi cuenta",
+        "viewCharges": "Ver cargos",
+        "reviewDemurrage": "Revisar demurrage",
+        "continueRequest": "Continuar solicitud",
+        "payRequest": "Pagar solicitud",
+        "uploadLetter": "Subir nueva carta"
+      },
+      "title": {
+        "bl": "BL {{ reference }}",
+        "invoice": "Factura {{ reference }}",
+        "other": "Trámite {{ reference }}"
+      }
+    }
   },
   "demurrage": {
     "calculator": {
@@ -4874,17 +4864,12 @@
     "col": {
       "actions": "Acciones",
       "amount": "Monto",
-      "currency": "Moneda",
-      "documentType": "Tipo",
+      "document": "Documento",
       "dueDate": "Vencimiento",
-      "issueDate": "Emisión",
-      "legalName": "Razón social",
+      "party": "Razón social y RUT",
       "reference": "BL o booking",
       "select": "Elegir",
-      "siiNumber": "N.° SII",
-      "sourceNumber": "N.° sistema de origen",
-      "status": "Estado",
-      "taxId": "RUT"
+      "status": "Estado"
     },
     "count": "{count, plural, one {# factura} other {# facturas}}",
     "coveredBy": "Cubierta por el recibo {{ receipt }} (pago {{ payment }})",
@@ -4917,6 +4902,7 @@
       "to": "Emitidas hasta"
     },
     "inCart": "En el carro",
+    "issuedOn": "Emitida el {{ date }}",
     "lastUpdated": "Última actualización: {{ date }}",
     "noFolio": "Sin folio",
     "organization": "Organización",
@@ -4937,6 +4923,7 @@
     "reinvoiceLabel": "Refacturar la factura {{ number }} a otra razón social",
     "selectDisabledLabel": "La factura {{ number }} no tiene folio SII: no se puede descargar",
     "selectLabel": "Elegir la factura {{ number }} para descargar",
+    "sourceNumber": "Origen",
     "statementLink": "Ver estado de cuenta",
     "subtitle": "Facturas locales de las organizaciones a las que tiene acceso, sin mezclarlas entre sí.",
     "supersededBy": "Reemplazada por la factura {{ number }}",
@@ -5511,6 +5498,15 @@
     "subtitle": "Pagos hechos en el portal por su organización, como pagadora o como mandante, con su boleta o comprobante.",
     "title": "Historial de pagos"
   },
+  "paymentRedirect": {
+    "title": "Pago en el sitio del banco",
+    "heading": "Le estamos llevando al banco",
+    "text": "Le estamos llevando al sitio seguro del banco para que autorice el pago.",
+    "continue": "Continuar al banco",
+    "help": "Si no avanza en unos segundos, presione «Continuar al banco». Al terminar, el banco le devolverá al portal con el resultado.",
+    "missing": "Este paso ya no está disponible. Revise el estado de su pago.",
+    "viewStatus": "Ver el estado del pago"
+  },
   "paymentResult": {
     "announce": {
       "cancelled": "Pago {{ number }} anulado. No hubo cobro.",
@@ -5594,6 +5590,39 @@
     },
     "title": "Resultado del pago",
     "viewReceipt": "Ver comprobante y detalle"
+  },
+  "paymentSimulator": {
+    "banner": {
+      "title": "Simulador de pago — modo de prueba.",
+      "text": "No se realiza ningún cargo real."
+    },
+    "gateway": "Pasarela de pago simulada",
+    "providers": {
+      "Khipu": "Khipu",
+      "Santander": "Getnet · Botón Santander",
+      "Bci": "Bci Pagos",
+      "BancoChile": "Banco de Chile"
+    },
+    "title": "Confirme su pago",
+    "merchant": "Comercio",
+    "merchantName": "Hapag-Lloyd",
+    "amount": "Monto a pagar",
+    "reference": "Referencia",
+    "instructions": "Elija el resultado que desea simular. Al terminar volverá al portal, que verificará el pago como con la pasarela real.",
+    "actions": {
+      "approve": "Pagar",
+      "reject": "Rechazar el pago",
+      "pending": "Dejar pendiente",
+      "cancel": "Cancelar y volver al portal"
+    },
+    "help": "«Dejar pendiente» simula un pago que la pasarela aún no confirma: el portal lo mostrará en proceso.",
+    "error": "No se pudo registrar el resultado simulado. Intente nuevamente.",
+    "notAvailable": "El simulador no está disponible para este pago: su medio de pago no está en modo de prueba.",
+    "alreadyFinal": "Este pago ya tiene un resultado final y el simulador no puede cambiarlo. Revise el estado del pago.",
+    "viewResult": "Ver el estado del pago",
+    "invalidTitle": "Simulador de pago",
+    "invalid": "El enlace del simulador de pago no es válido. Revise el estado de su pago en el historial.",
+    "goToHistory": "Ir al historial de pagos"
   },
   "profile": {
     "accountType": "Tipo de Cuenta",
@@ -6374,7 +6403,13 @@
         "label": "Tema",
         "light": "Claro"
       },
-      "userMenu": "Menú de usuario: {{ name }}"
+      "userMenu": "Menú de usuario: {{ name }}",
+      "workspace": {
+        "label": "Espacio de trabajo",
+        "customer": "Portal clientes",
+        "backoffice": "Backoffice",
+        "changed": "Espacio de trabajo: {{ name }}. El menú principal cambió."
+      }
     },
     "paymentBlock": {
       "consultAvailable": "Mientras tanto puede consultar su información y preparar el carro; no se puede pagar.",
@@ -6399,44 +6434,43 @@
         "cart": "Carro de compra",
         "counter": "Counter",
         "creditImputationRules": "Imputación a crédito",
-        "customs": "Transmisión Aduana",
+        "customs": "Transmisión a Aduana",
         "dangerousGoods": "Mercancías peligrosas",
         "dangerousGoodsImport": "Base de mercancías peligrosas",
-        "dashboard": "Dashboard",
-        "deadlines": "Control de Plazos",
+        "deadlines": "Control de plazos",
         "demurrage": "Demurrage",
         "depositProofs": "Comprobantes de depósito",
         "exceptionsReport": "Reporte de excepciones",
-        "faq": "FAQ",
+        "faq": "Preguntas frecuentes",
         "guides": "Guías del portal",
         "impersonation": "Vista como cliente",
         "internalRules": "Reglas de cobro",
         "invoices": "Facturas",
-        "localCharges": "Cargos Locales",
-        "organization": "Mi organización",
+        "localCharges": "Cargos locales",
         "organizationLinks": "Empresas matriz",
         "paymentBlocks": "Bloqueo de pagos",
         "paymentCurrencies": "Monedas de pago",
         "paymentHistory": "Historial de pagos",
         "paymentMethods": "Medios de pago",
-        "paymentsFinance": "Finanzas: pagos",
+        "paymentsFinance": "Pagos y conciliación",
         "publicationRules": "Reglas de publicación",
-        "reports": "Reportes",
+        "reports": "Reportes de gestión",
         "serviceDefinitions": "Servicios on demand",
-        "serviceOrders": "Órdenes de Servicio",
+        "serviceOrders": "Órdenes de servicio",
         "serviceRequestQueue": "Solicitudes de servicio",
         "serviceRequests": "Mis solicitudes",
         "settlements": "Anticipos y cruces",
-        "shipments": "Embarques",
+        "shipments": "Mis embarques",
         "tariffs": "Tarifas",
         "tatc": "Solicitar TATC",
         "transactionsReport": "Reporte de transacciones",
         "users": "Usuarios",
-        "warehouse": "Cambio Almacén",
+        "warehouse": "Cambio de almacén",
         "localTariffs": "Tarifas locales",
         "refunds": "Devoluciones",
         "releaseLetter": "Carta de liberación",
-        "releaseStatus": "Consulta BL"
+        "releaseStatus": "Consulta de BL",
+        "allShipments": "Todos los embarques"
       },
       "section": {
         "adminArea": "Área de administración",
@@ -6527,20 +6561,28 @@
       "group": {
         "home": "Inicio",
         "shipments": "Embarques",
-        "payments": "Pagos y facturación",
-        "services": "Servicios",
-        "organization": "Mi organización",
+        "payments": "Pagos",
+        "documents": "Documentos y trámites",
+        "help": "Ayuda",
         "operations": "Operación",
+        "finance": "Finanzas",
+        "reports": "Reportes y auditoría",
         "administration": "Administración"
       },
       "column": {
+        "tracking": "Seguimiento",
+        "cargo": "Carga y contenedores",
+        "pay": "Pagar",
+        "billing": "Facturas y pagos realizados",
+        "procedures": "Trámites",
+        "references": "Tarifas y enlaces",
         "queues": "Bandejas",
-        "dataLoad": "Carga de datos",
-        "reports": "Reportes y auditoría",
-        "general": "General",
+        "shipmentsData": "Embarques y carga de datos",
+        "payments": "Pagos",
+        "paymentsConfig": "Configuración de pagos",
+        "usersAccess": "Usuarios y accesos",
         "chargesTariffs": "Cobros y tarifas",
-        "paymentsConfig": "Pagos",
-        "assistant": "Asistente"
+        "content": "Contenido y asistente"
       },
       "preferences": "Preferencias"
     },
@@ -6553,6 +6595,31 @@
     "sectionNav": {
       "label": "Secciones de esta página",
       "title": "Ir a"
+    },
+    "paymentMethodPicker": {
+      "group": {
+        "online": "Pago en línea",
+        "deposit": "Depósito o transferencia"
+      },
+      "pill": {
+        "online": "En línea · inmediato",
+        "deposit": "Depósito · Finanzas confirma"
+      },
+      "kindShort": {
+        "online": "en línea",
+        "deposit": "depósito"
+      },
+      "optionLabel": "{{ name }}, {{ kind }}"
+    },
+    "search": {
+      "label": "Buscador de embarques",
+      "placeholder": "BL, booking o contenedor",
+      "submit": "Ir al embarque",
+      "open": "Abrir el buscador de embarques",
+      "hint": "Ingrese un número de BL, booking o contenedor. Atajo de teclado: barra diagonal.",
+      "invalid": "Ingrese al menos 4 caracteres de un número de BL, booking o contenedor.",
+      "notFound": "No encontramos un embarque con ese número. Revise el número o búsquelo en Mis embarques.",
+      "error": "No se pudo realizar la búsqueda. Intente nuevamente."
     }
   },
   "shipments": {
@@ -6764,7 +6831,29 @@
         "unavailable": "El sistema de TATC no respondió: no podemos mostrar el estado vigente. Intente nuevamente en unos minutos."
       },
       "title": "Embarque {{ bl }}",
-      "releaseStatusLink": "Ver estado de liberación y TATC"
+      "releaseStatusLink": "Ver estado de liberación y TATC",
+      "summary": {
+        "nextAction": "Próxima acción",
+        "routeLabel": "Ruta",
+        "route": "{{ pol }} → {{ pod }}",
+        "loading": "Consultando los requisitos de liberación…",
+        "unavailable": "No pudimos consultar los requisitos de liberación en este momento. Revíselos en la consulta de liberación.",
+        "released": "Todos los requisitos de liberación están cumplidos.",
+        "inProgress": "Hay requisitos en curso: no necesita hacer nada por ahora."
+      },
+      "groups": {
+        "summary": "Resumen",
+        "containers": "Contenedores",
+        "charges": "Cargos y pagos",
+        "documents": "Documentos",
+        "access": "Accesos y servicios",
+        "internal": "Interno"
+      },
+      "more": {
+        "parties": "Partes y roles del embarque",
+        "partiesAndIssuance": "Partes, roles y emisión del BL"
+      },
+      "viewFull": "Ver el detalle completo del BL {{ bl }}"
     },
     "list": {
       "caption": "Embarques accesibles",

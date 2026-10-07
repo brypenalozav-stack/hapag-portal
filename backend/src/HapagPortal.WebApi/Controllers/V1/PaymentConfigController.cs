@@ -2,6 +2,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
 using HapagPortal.Application.AccountPayments;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Payments.Maintainers;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Authentication;
@@ -67,6 +68,7 @@ public sealed class PaymentConfigController : ApiController
 
     /// <summary>Conceptos imputables a la línea de crédito (M5-10), con registro de cambios (NF-15).</summary>
     [HttpGet("credit-imputation")]
+    [RequiresFeature(FeatureNames.CreditImputation)]
     [HasPermission(MaintainerPermissions.Manage)]
     public async Task<IActionResult> GetCreditImputationRules(
         [FromQuery] string? country,
@@ -78,6 +80,7 @@ public sealed class PaymentConfigController : ApiController
     }
 
     [HttpPost("credit-imputation")]
+    [RequiresFeature(FeatureNames.CreditImputation)]
     [HasPermission(MaintainerPermissions.Manage)]
     public async Task<IActionResult> CreateCreditImputationRule([FromBody] CreditImputationRuleRequest request, CancellationToken cancellationToken)
     {
@@ -89,6 +92,7 @@ public sealed class PaymentConfigController : ApiController
     }
 
     [HttpPut("credit-imputation/{id:guid}")]
+    [RequiresFeature(FeatureNames.CreditImputation)]
     [HasPermission(MaintainerPermissions.Manage)]
     public async Task<IActionResult> UpdateCreditImputationRule(Guid id, [FromBody] CreditImputationRuleRequest request, CancellationToken cancellationToken)
     {
@@ -98,6 +102,7 @@ public sealed class PaymentConfigController : ApiController
     }
 
     [HttpDelete("credit-imputation/{id:guid}")]
+    [RequiresFeature(FeatureNames.CreditImputation)]
     [HasPermission(MaintainerPermissions.Manage)]
     public async Task<IActionResult> DeleteCreditImputationRule(Guid id, CancellationToken cancellationToken)
     {
@@ -106,6 +111,7 @@ public sealed class PaymentConfigController : ApiController
     }
 
     [HttpGet("credit-imputation/{id:guid}/history")]
+    [RequiresFeature(FeatureNames.CreditImputation)]
     [HasPermission(MaintainerPermissions.Manage)]
     public async Task<IActionResult> GetCreditImputationRuleHistory(Guid id, CancellationToken cancellationToken)
     {

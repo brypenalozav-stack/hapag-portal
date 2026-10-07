@@ -8,7 +8,7 @@
     @if (uploadError()) {
       <div class="alert alert-danger py-2" role="alert">{{ uploadError() }}</div>
     }
-    <div class="row g-3 align-items-start">
+    <div class="row g-3 hl-form-row">
       <div class="col-md-4">
         <label for="document-type" class="form-label small fw-semibold">{{ 'organization.documents.type' | transloco }}</label>
         <select id="document-type" class="form-select" formControlName="documentType" required
@@ -40,8 +40,8 @@
           }
         </div>
       </div>
-      <div class="col-md-3 pt-md-4">
-        <button type="submit" class="btn btn-hl-orange w-100 mt-md-1" [disabled]="uploading()">
+      <div class="col-md-3 hl-form-action">
+        <button type="submit" class="btn btn-hl-orange" [disabled]="uploading()">
           @if (uploading()) {
             <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
           }
@@ -75,7 +75,7 @@
               <td>{{ document.documentType | codeLabel: documentTypeKeys }}</td>
               <td class="text-break">{{ document.fileName }}</td>
               <td class="text-end">{{ 'organization.documents.sizeKb' | transloco: { size: (document.sizeBytes / 1024 | hlNumber: '1.0-0') } }}</td>
-              <td>{{ document.uploadedAt | hlDate: 'datetime' }}</td>
+              <td class="text-nowrap">{{ document.uploadedAt | hlDate: 'datetime' }}</td>
             </tr>
           }
         </tbody>

@@ -80,7 +80,7 @@
               <td data-testid="currencies-enabled">{{ row.enabledCurrencies.join(', ') || '—' }}</td>
               <td>{{ (row.configured ? 'admin.paymentCurrencies.configured' : 'admin.paymentCurrencies.default') | transloco }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="edit(row)"
                           [attr.aria-label]="'admin.paymentCurrencies.editLabel' | transloco: { concept: conceptLabel(row) }">{{ 'admin.paymentCurrencies.edit' | transloco }}</button>
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(row)"

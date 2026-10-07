@@ -141,7 +141,7 @@
         <tbody>
           @for (batch of batches(); track batch.id) {
             <tr>
-              <td>{{ batch.createdAt | hlDate: 'datetime' }}</td>
+              <td class="text-nowrap">{{ batch.createdAt | hlDate: 'datetime' }}</td>
               <td>{{ batch.locationCode }}</td>
               <td><span class="hl-badge" [class]="statusClass[batch.status] || 'hl-badge--processing'">{{ batch.status | codeLabel: statusKeys }}</span></td>
               <td>{{ 'tatcRequests.result.countsValue' | transloco: { accepted: batch.acceptedItems, notAccepted: notAccepted(batch), total: batch.totalItems } }}</td>

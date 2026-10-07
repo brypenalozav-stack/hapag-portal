@@ -73,10 +73,10 @@
           <tbody>
             @for (item of r.items; track item.id) {
               <tr [attr.data-testid]="'wh-history-' + item.blNumber">
-                <td>{{ item.createdAt | hlDate: 'datetime' : item.timeZone }}</td>
+                <td class="text-nowrap">{{ item.createdAt | hlDate: 'datetime' : item.timeZone }}</td>
                 <td><span class="hl-badge" [class]="statusClass(item)">{{ item.status | codeLabel: statusKeys }}</span></td>
                 <td>
-                  <span class="fw-semibold d-block">{{ item.blNumber }}</span>
+                  <span class="fw-semibold d-block text-nowrap">{{ item.blNumber }}</span>
                   @if (item.bookingNumber) {
                     <span class="small text-muted d-block">{{ 'warehouse.history.booking' | transloco: { booking: item.bookingNumber } }}</span>
                   }

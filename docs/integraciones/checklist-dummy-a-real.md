@@ -2,7 +2,9 @@
 
 Pasos para cambiar un sistema de `Integrations:<Sistema>:Mode=Dummy` a `Mode=Real` en un ambiente (staging o producción). Se completa **por sistema y por ambiente**; ninguno pasa a Real con un paso pendiente.
 
-Sistemas con cliente Real (Fase 6c): **Nexus**, **Fis**, **Khipu**, **BancoChile**, **DbNet** y **Tracking**. Santander, Bci, Signature y Storage solo tienen adaptador Dummy: con `Mode=Real` la API no arranca.
+Sistemas con cliente Real: **Nexus**, **Fis**, **DbNet**, **Tracking**, **Tatc**, **Contacts** y las pasarelas de pago **Khipu**, **Getnet** (botón Santander), **BciPagos** (botón BCI) y **BancoChile** (formulario firmado, sin configurar hasta recibir el manual del banco). Signature y Storage solo tienen adaptador Dummy: con `Mode=Real` la API no arranca.
+
+Las pasarelas de pago tienen su guía propia en [`pasarelas-pago.md`](pasarelas-pago.md): secretos, `Payments:PublicBaseUrl`, URL de notificación que se registra, ambiente de pruebas y certificación. En ellas las credenciales faltantes no detienen el arranque: el cobro falla con `Integration.NotConfigured`.
 
 En Railway la configuración se escribe con doble guion bajo, por ejemplo `Integrations__Nexus__Mode=Real`.
 
@@ -24,8 +26,10 @@ En Railway la configuración se escribe con doble guion bajo, por ejemplo `Integ
 |---|---|---|---|---|---|
 | `Nexus` | CT-NEXUS | `NEXUS_API_KEY` | `X-Api-Key` | Nexus/IT – Lucho (apoyo: Jorge) | Un cliente para exenciones, crédito, tipo de cambio y tarifas. |
 | `Fis` | CT-FIS | `FIS_API_KEY` | `X-Api-Key` | Macros/RPX – Diego (apoyo: Jorge) | Mientras no pase a Real, la carga sigue por `POST bills-of-lading/import` (Q6). |
-| `Khipu` | CT-KHIPU | `KHIPU_SECRET` | `x-api-key` | Finanzas – Fer | En Real el webhook verifica token, referencia y monto contra Khipu. Antes de validar: confirmar que la API v3 mantiene la consulta por `notification_token` (nota del contrato). |
-| `BancoChile` | CT-BCH | `BANCOCHILE_API_KEY` | `X-Api-Key` | Finanzas – Ricardo | El webhook exige `X-Signature` (HMAC-SHA256 del cuerpo) con la clave `Payments:Webhooks:BancoChile:SigningKey`; sin clave, toda notificación se rechaza. Coordinar la clave con el banco antes de habilitar. |
+| `Khipu` | CT-KHIPU | `KHIPU_SECRET`, `KHIPU_WEBHOOK_SECRET` | `x-api-key` | Finanzas – Fer | API v3. La notificación se verifica con `x-khipu-signature` (HMAC-SHA256 del cuerpo crudo) y el pago se vuelve a consultar por `payment_id`. Pruebas con una cuenta de cobro en modo desarrollador (DemoBank). |
+| `Getnet` (botón Santander) | CT-SANT | `GETNET_LOGIN`, `GETNET_SECRET_KEY` | — (objeto `auth` en el cuerpo) | Finanzas – Ricardo | `BaseUrl` de pruebas `https://checkout.test.getnet.cl`; producción tras la certificación (4 transacciones de prueba). Registrar `/api/v1/payments/webhook/getnet` en el panel de Getnet. |
+| `BciPagos` (botón BCI) | CT-BCI | `BCIPAGOS_ACCOUNT_ID`, `BCIPAGOS_TOKEN_SECRET`, `BCIPAGOS_USERNAME`, `BCIPAGOS_PASSWORD` | — (`x_signature` en el cuerpo; Bearer JWT para consultar) | Finanzas – Fer | `BaseUrl` de desarrollo `https://apis-dev.pgf.cl`; producción `https://apis.pgf.cl`. Ajustar `PaidStatusValues`/`FailedStatusValues` con la prueba. |
+| `BancoChile` | CT-BCH | `BANCOCHILE_MERCHANT_ID`, `BANCOCHILE_SIGNING_KEY` | — (formulario firmado) | Finanzas – Ricardo | Protocolo no público: completar `Integrations:BancoChile:*` con el manual del banco. No requiere `BaseUrl`. Sin manual, mantener `Mode=Dummy` y el medio deshabilitado en producción. |
 | `DbNet` | CT-DBNET | `DBNET_API_KEY` | `X-Api-Key` | Finanzas – Fer (apoyo: Jorge) | La emisión envía `Idempotency-Key` = referencia del pago. |
 | `Tracking` | CT-TRACK | `TRACKING_API_KEY` | `X-Api-Key` | Customer Service – Cami/Mati | — |
 
@@ -35,4 +39,4 @@ En Railway la configuración se escribe con doble guion bajo, por ejemplo `Integ
 dotnet run --project backend/tools/HapagPortal.IntegrationSimulator --urls http://localhost:5199
 ```
 
-Con la API en `Integrations__<Sistema>__Mode=Real` e `Integrations__<Sistema>__BaseUrl=http://localhost:5199/<prefijo>` (`nexus`, `fis`, `khipu`, `banco-chile`, `dbnet` o `tracking`), los escenarios de falla se piden con la cabecera `X-Sim-Scenario`: `error500`, `timeout` (30 s), `lento` (3 s) y `429` (con `Retry-After`). `/contracts/<nombre>` devuelve el YAML del contrato.
+Con la API en `Integrations__<Sistema>__Mode=Real` e `Integrations__<Sistema>__BaseUrl=http://localhost:5199/<prefijo>` (`nexus`, `fis`, `khipu`, `dbnet` o `tracking`), los escenarios de falla se piden con la cabecera `X-Sim-Scenario`: `error500`, `timeout` (30 s), `lento` (3 s) y `429` (con `Retry-After`). `/contracts/<nombre>` devuelve el YAML del contrato.

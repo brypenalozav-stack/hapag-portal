@@ -2,8 +2,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HapagPortal.IntegrationSimulator;
 
-// Simulador HTTP de los sistemas externos (Fase 6c). Implementa CT-NEXUS, CT-FIS, CT-KHIPU, CT-BCH,
-// CT-DBNET y CT-TRACK bajo /nexus, /fis, /khipu, /banco-chile, /dbnet y /tracking, con los mismos
+// Simulador HTTP de los sistemas externos (Fase 6c). Implementa CT-NEXUS, CT-FIS, CT-KHIPU (API v3),
+// CT-DBNET y CT-TRACK bajo /nexus, /fis, /khipu, /dbnet y /tracking, con los mismos
 // escenarios de datos que los adaptadores Dummy y escenarios de falla por la cabecera X-Sim-Scenario
 // (error500, timeout, lento, 429). /contracts/{nombre} sirve el YAML del contrato.
 //
@@ -35,7 +35,6 @@ app.MapGet("/contracts/{name}", (HttpContext context, string name) =>
 app.MapNexus();
 app.MapFis();
 app.MapKhipu();
-app.MapBancoChile();
 app.MapDbNet();
 app.MapTracking();
 

@@ -124,7 +124,7 @@
             }
           </ul>
         }
-        <div class="row g-2 align-items-end mb-3">
+        <div class="row g-2 hl-form-row mb-3">
           <div class="col-md-8">
             <label for="reinvoicing-approval-file" class="form-label small fw-semibold">{{ 'reinvoicing.detail.approval.file' | transloco }}</label>
             <input id="reinvoicing-approval-file" type="file" class="form-control" [accept]="fileAccept" (change)="onApprovalFile($event)"
@@ -136,8 +136,8 @@
               }
             </span>
           </div>
-          <div class="col-md-4">
-            <button type="button" class="btn btn-outline-secondary w-100" [disabled]="uploading()" (click)="uploadApproval()" data-testid="reinvoicing-approval-upload">
+          <div class="col-md-4 hl-form-action">
+            <button type="button" class="btn btn-outline-secondary" [disabled]="uploading()" (click)="uploadApproval()" data-testid="reinvoicing-approval-upload">
               {{ 'reinvoicing.detail.approval.upload' | transloco }}
             </button>
           </div>

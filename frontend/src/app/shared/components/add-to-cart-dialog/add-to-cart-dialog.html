@@ -46,7 +46,7 @@
                     <span class="small text-muted d-block">{{ 'shared.addToCart.booking' | transloco: { booking: item.bookingNumber } }}</span>
                   }
                 </td>
-                <td class="text-end">{{ item.totalAmount | hlCurrency: item.currency }}</td>
+                <td class="text-end text-nowrap">{{ item.totalAmount | hlCurrency: item.currency }}</td>
               </tr>
             }
           </tbody>

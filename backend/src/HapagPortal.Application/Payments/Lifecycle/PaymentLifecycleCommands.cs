@@ -177,9 +177,14 @@ public sealed class IssueDepositSlipCommandHandler(
     }
 }
 
+/// <summary>
+/// Un pago en línea en curso se anula primero en la pasarela (Khipu, Getnet); si la pasarela no lo permite, se
+/// consulta su estado y un pago que la pasarela ya cobró no se anula: queda confirmado.
+/// </summary>
 public sealed class FinanceCancelPaymentCommandHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService currentUserService)
+    ICurrentUserService currentUserService,
+    IPaymentProviderResolver? providerResolver = null)
     : ICommandHandler<FinanceCancelPaymentCommand, PaymentStatusDto>
 {
     public async Task<Result<PaymentStatusDto>> Handle(FinanceCancelPaymentCommand request, CancellationToken cancellationToken)
@@ -195,6 +200,12 @@ public sealed class FinanceCancelPaymentCommandHandler(
         if (!ReceiptCancellationPolicy.FinanceCanCancel(payment.Status))
             return Result<PaymentStatusDto>.Failure(DomainErrors.Payment.InvalidStatus);
 
+        if (await ChargedByProviderAsync(payment, cancellationToken))
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return Result<PaymentStatusDto>.Failure(DomainErrors.Payment.AlreadyConfirmed);
+        }
+
         var cancelled = await PaymentLifecycle.CancelAsync(
             dbContext, payment, PaymentActor.From(currentUserService), PaymentCancellationRoles.Finance, request.Reason.Trim(),
             DateTime.UtcNow, cancellationToken);
@@ -203,6 +214,25 @@ public sealed class FinanceCancelPaymentCommandHandler(
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return Result<PaymentStatusDto>.Success(await PaymentAccess.StatusAsync(dbContext, payment, cancellationToken));
+    }
+
+    /// <summary>Anula el cobro en la pasarela; si no se pudo, sincroniza y dice si la pasarela ya lo cobró.</summary>
+    private async Task<bool> ChargedByProviderAsync(Payment payment, CancellationToken cancellationToken)
+    {
+        if (payment.Status != PaymentStatus.Processing || string.IsNullOrWhiteSpace(payment.ProviderKey) ||
+            providerResolver?.Resolve(payment.ProviderKey) is not { VerifiesNotifications: true } provider)
+        {
+            return false;
+        }
+
+        var request = new PaymentStatusRequest(payment.ProviderReference, payment.ExternalReference ?? payment.PaymentNumber, payment.TotalAmount, payment.Currency);
+        var cancelled = await provider.CancelAsync(request, cancellationToken);
+        if (cancelled.IsSuccess)
+            return false;
+
+        var synced = await PaymentStatusSync.SyncAsync(
+            dbContext, payment, provider, PaymentActor.From(currentUserService), cancellationToken);
+        return synced.IsSuccess && payment.Status == PaymentStatus.Confirmed;
     }
 }
 

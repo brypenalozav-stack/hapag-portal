@@ -3,6 +3,7 @@ namespace HapagPortal.UnitTests.Application.Dashboard;
 using FluentAssertions;
 using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Dashboard;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
@@ -30,7 +31,7 @@ public sealed class DashboardQueryTests
             .Returns(new CommercialConditionsDto(true, "NEXUS", _org.TaxId, null, false, null, [], null, null, false, false, false, null));
     }
 
-    private GetDashboardQueryHandler Handler(IShipmentAccessEvaluator? evaluator = null) => new(_db, evaluator ?? _evaluator, _rules);
+    private GetDashboardQueryHandler Handler(IShipmentAccessEvaluator? evaluator = null) => new(_db, evaluator ?? _evaluator, _rules, FeatureSettings.AllEnabled());
 
     private BillOfLading Bl(string number, string role, string type = "Import", Guid? owner = null)
     {

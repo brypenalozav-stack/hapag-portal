@@ -39,6 +39,9 @@ builder.Services.AddHostedService<WarehouseChangeBatchWorker>();
 // Pasos posteriores a la confirmación de pagos con reintento (NF-03).
 builder.Services.AddHostedService<PaymentOutboxWorker>();
 
+// Conciliación de pagos en línea en curso con su pasarela (notificaciones perdidas).
+builder.Services.AddHostedService<PaymentReconciliationWorker>();
+
 // Controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -195,7 +198,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors();
 
-// Webhooks de pago: el cuerpo crudo se relee en el controlador para verificar la firma (X-Signature).
+// Webhooks de pago: el controlador lee el cuerpo crudo para verificar la firma de la pasarela sobre esos bytes.
 app.Use(async (context, next) =>
 {
     if (context.Request.Path.StartsWithSegments("/api/v1/payments/webhook"))

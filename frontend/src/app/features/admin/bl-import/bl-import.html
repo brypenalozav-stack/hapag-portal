@@ -54,7 +54,7 @@
         <tbody>
           @for (r of preview(); track $index) {
             <tr>
-              <td class="fw-semibold">{{ r.blNumber }}</td>
+              <td class="fw-semibold text-nowrap">{{ r.blNumber }}</td>
               <td>{{ r.country }}</td>
               <td>{{ r.portOfLoading || '—' }}</td>
               <td>{{ r.portOfDischarge || '—' }}</td>

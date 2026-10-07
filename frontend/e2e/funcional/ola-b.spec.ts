@@ -9,7 +9,9 @@ import {
   BL_SIN_FLETE,
   simularApi,
 } from '../fixtures/api-mocks';
+import { Funcionalidades } from '../fixtures/funcionalidades';
 import { sembrarSesion } from '../fixtures/session';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
  * Fase 1, Ola B (pruebas funcionales con el backend simulado):
@@ -26,10 +28,12 @@ import { sembrarSesion } from '../fixtures/session';
 
 const POLITE = 'div[aria-live="polite"]';
 
-async function abrirConSesion(page: Page, ruta: string, lang: 'es' | 'en' = 'es'): Promise<void> {
-  await simularApi(page);
+async function abrirConSesion(page: Page, ruta: string, lang: 'es' | 'en' = 'es', features: Funcionalidades = {}): Promise<void> {
+  await simularApi(page, { features });
   await sembrarSesion(page, { lang });
   await page.goto(ruta);
+  // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
+  if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
   await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
@@ -243,7 +247,10 @@ test('buscar BL por número y autoasociarse con acceso abierto (M1-17, M1-18)', 
   await page.getByRole('button', { name: 'Abrir BL' }).click();
   await expect(page).toHaveURL(new RegExp(`/shipments/${BL_ACCESO_ABIERTO}$`));
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await cargarSeccionesDiferidas(page);
 
+  // El origen del acceso está entre las partes y roles, plegadas en el resumen.
+  await page.getByRole('button', { name: /^Partes(,| y) roles/ }).click();
   await expect(page.getByText('Acceso abierto', { exact: true })).toBeVisible();
   await expect(page.getByRole('note').filter({ hasText: 'primero debe asociarse' })).toBeVisible();
   // Visto por acceso abierto no se muestra la sección de accesos del BL.
@@ -278,7 +285,8 @@ test('auditoría de accesos filtrada por BL (M1-23)', async ({ page }) => {
 });
 
 test('la bandeja muestra el título traducido de las notificaciones de acceso', async ({ page }) => {
-  await abrirConSesion(page, '/notifications', 'en');
+  // La bandeja (M1-25) es de Fase 2: se enciende su flag.
+  await abrirConSesion(page, '/notifications', 'en', { NotificationsInbox: true });
   // La bandeja de la Ola I también lista el tipo en el filtro: el título es el encabezado de la notificación.
   await expect(page.getByRole('heading', { name: /Access revoked by cascade/ })).toBeVisible();
   await expect(page.getByText('Acceso revocado en cadena')).toHaveCount(0);

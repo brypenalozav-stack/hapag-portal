@@ -6,6 +6,7 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ChargesService } from '../../../core/services/charges.service';
 import { CartService } from '../../../core/services/cart.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { FeatureService } from '../../../core/services/feature.service';
 import { DocumentService } from '../../../core/services/document.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { ProcessRequirement, RuledCharge, ShipmentCharges } from '../../../core/models/charges.model';
@@ -77,12 +78,15 @@ export class ChargesPanelComponent {
   private readonly service = inject(ChargesService);
   readonly cart = inject(CartService);
   private readonly auth = inject(AuthService);
+  private readonly features = inject(FeatureService);
   private readonly documents = inject(DocumentService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
   blNumber = input.required<string>();
+  /** Nivel del título: 3 dentro de un grupo del detalle del BL, cuyo h2 es el título del grupo. */
+  readonly headingLevel = input<2 | 3>(2);
   /** Se emite con la carta de responsabilidad emitida desde el aviso de M4-04 (para actualizar el repositorio). */
   letterIssued = output<ShipmentDocument>();
 
@@ -123,7 +127,8 @@ export class ChargesPanelComponent {
    */
   gateOutAdvance = computed(() => {
     const d = this.data();
-    return !!d && d.shipmentType.toUpperCase() === 'EXPORT' && this.auth.organization()?.organizationType === 'CustomsAgency'
+    return this.features.enabled('GateOutAdvance') && !!d && d.shipmentType.toUpperCase() === 'EXPORT'
+      && this.auth.organization()?.organizationType === 'CustomsAgency'
       && d.charges.some((c) => c.conceptCode === 'GATE_OUT' && c.status === 'Pending' && c.payableTotal > 0);
   });
 

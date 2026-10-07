@@ -2,13 +2,43 @@ namespace HapagPortal.UnitTests.Infrastructure.Integrations;
 
 using FluentAssertions;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Documents.Common;
+using HapagPortal.Domain.Constants;
+using HapagPortal.Domain.Entities;
+using HapagPortal.Infrastructure.Documents;
 using HapagPortal.Infrastructure.Integrations.DbNet;
+using HapagPortal.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using PdfSharp.Pdf.IO;
 
 public sealed class DummyInvoiceProviderTests
 {
-    private readonly DummyInvoiceProvider _provider = new(Substitute.For<ILogger<DummyInvoiceProvider>>());
+    private readonly ServiceProvider _services;
+    private readonly DummyInvoiceProvider _provider;
+
+    public DummyInvoiceProviderTests()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        _services = new ServiceCollection()
+            .AddDbContext<ApplicationDbContext>(o => o.UseInMemoryDatabase(databaseName))
+            .AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>())
+            .BuildServiceProvider();
+        _provider = new DummyInvoiceProvider(
+            Substitute.For<ILogger<DummyInvoiceProvider>>(),
+            _services.GetRequiredService<IServiceScopeFactory>(),
+            new MigraDocPdfRenderer(),
+            new DocumentSettings());
+    }
+
+    private static int PageCount(byte[] content)
+    {
+        using var stream = new MemoryStream(content);
+        using var document = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
+        return document.PageCount;
+    }
 
     private static InvoiceIssueRequest Request(string externalReference) => new(
         33,
@@ -65,6 +95,65 @@ public sealed class DummyInvoiceProviderTests
     public async Task GetAsync_UnknownFolio_ShouldReturnSuccessWithNull()
     {
         var result = await _provider.GetAsync("999999");
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetPdfAsync_PortalInvoice_ShouldRenderReadablePdf()
+    {
+        using (var scope = _services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            db.CustomerInvoices.Add(new CustomerInvoice
+            {
+                OrganizationId = Guid.NewGuid(),
+                SiiNumber = "100260",
+                SourceNumber = "HL-CL-2026-003987",
+                DocumentType = InvoiceDocumentTypes.Invoice,
+                IssueDate = new DateOnly(2026, 9, 15),
+                DueDate = new DateOnly(2026, 9, 30),
+                BlNumber = "HLCUSAI260400910",
+                LegalName = "Importadora Andes SpA",
+                TaxId = "76123456-7",
+                NetAmount = 500000m,
+                TaxAmount = 95000m,
+                TotalAmount = 595000m,
+                Currency = "CLP",
+                Status = InvoiceStatus.Overdue,
+                Country = CountryCodes.Chile,
+                Source = "SYNC"
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var result = await _provider.GetPdfAsync("100260");
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        if (Environment.GetEnvironmentVariable("HL_PDF_PREVIEW_DIR") is { Length: > 0 } folder)
+            File.WriteAllBytes(Path.Combine(folder, "factura-simulada.pdf"), result.Value!);
+        result.Value!.Length.Should().BeGreaterThan(1000, "un marcador de pocos bytes no abre en ningún visor");
+        System.Text.Encoding.ASCII.GetString(result.Value, 0, 5).Should().Be("%PDF-");
+        PageCount(result.Value).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetPdfAsync_FolioIssuedByDummy_ShouldRenderReadablePdf()
+    {
+        var issued = await _provider.IssueAsync(Request("PAY-2026-000130"));
+
+        var result = await _provider.GetPdfAsync(issued.Value.Folio);
+
+        result.IsSuccess.Should().BeTrue();
+        PageCount(result.Value!).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetPdfAsync_UnknownFolio_ShouldReturnNull()
+    {
+        var result = await _provider.GetPdfAsync("999999");
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().BeNull();

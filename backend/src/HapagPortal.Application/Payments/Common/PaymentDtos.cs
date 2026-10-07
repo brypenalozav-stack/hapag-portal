@@ -156,13 +156,21 @@ public sealed record PaymentSummaryDto(
 /// <summary>
 /// Resultado del cierre de un sub-carro o del pago de crédito. <c>NextAction</c>: <c>Redirect</c> (ir a
 /// <c>RedirectUrl</c> de la plataforma), <c>IssueSlip</c> (emitir la boleta de depósito) o <c>None</c>.
-/// <c>Replayed</c> indica que la clave de idempotencia ya se había procesado (NF-01).
+/// <c>Replayed</c> indica que la clave de idempotencia ya se había procesado (NF-01). <c>RedirectForm</c> viene cuando
+/// la pasarela exige un formulario firmado por POST (botón bancario): el navegador lo envía en vez de abrir la URL.
 /// </summary>
 public sealed record CheckoutResultDto(
     PaymentSummaryDto Payment,
     string NextAction,
     string? RedirectUrl,
-    bool Replayed);
+    bool Replayed,
+    RedirectFormDto? RedirectForm = null);
+
+/// <summary>Formulario que el navegador envía a la pasarela: método (POST), destino y campos ocultos.</summary>
+public sealed record RedirectFormDto(
+    string Method,
+    string Action,
+    IReadOnlyDictionary<string, string> Fields);
 
 public sealed record PaymentStatusChangeDto(
     string? FromStatus,

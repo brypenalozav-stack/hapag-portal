@@ -141,7 +141,7 @@
               <td>{{ w.status | codeLabel: statusKeys }}</td>
               <td class="small">{{ 'admin.paymentBlocks.changedBy' | transloco: { user: w.modifiedBy ?? w.createdBy ?? '—', date: ((w.modifiedAt ?? w.createdAt) | hlDate: 'datetime') } }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   @if (w.status === 'Scheduled') {
                     <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(w)"
                             [attr.aria-label]="'admin.paymentBlocks.editLabel' | transloco: { reason: w.reason }">{{ 'admin.paymentBlocks.edit' | transloco }}</button>

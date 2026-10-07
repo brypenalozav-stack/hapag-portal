@@ -228,7 +228,7 @@
             <tbody>
               @for (change of history(); track change.id) {
                 <tr>
-                  <td>{{ change.changedAt | hlDate: 'datetime' }}</td>
+                  <td class="text-nowrap">{{ change.changedAt | hlDate: 'datetime' }}</td>
                   <td>{{ change.changedBy }}</td>
                   <td>{{ change.action | codeLabel: actionKeys }}</td>
                   <td class="small"><app-tariff-snapshot [snapshot]="change.previous" /></td>

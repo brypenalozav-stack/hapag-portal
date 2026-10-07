@@ -4,6 +4,7 @@ import { simularApi } from '../fixtures/api-mocks';
 import { ITEM, RUT_PROPIO } from '../fixtures/ola-d-mocks';
 import { BL_NO_PUBLICADO, BL_TATC, CASILLA_CL, URL_DISPUTE } from '../fixtures/ola-f-mocks';
 import { USUARIO_PRUEBA, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
  * Fase 1, Ola F (pruebas funcionales con el backend simulado):
@@ -25,6 +26,8 @@ async function abrir(page: Page, ruta: string): Promise<void> {
   await simularApi(page);
   await sembrarSesion(page, { lang: 'es' });
   await page.goto(ruta);
+  // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
+  if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
   await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
@@ -49,13 +52,16 @@ test('un pendiente del dashboard se agrega al carro (M1-05, M5-01)', async ({ pa
 
   const carro = page.getByTestId('navbar-cart');
   await expect(carro).toHaveAccessibleName('Carro de compra, 3 ítems');
-  const fila = page.getByTestId(`dashboard-pending-${ITEM.GATE_IN}`);
-  await expect(fila).toContainText('Gate In');
-  await expect(page.getByTestId(`dashboard-pending-${ITEM.THC}`)).toContainText('En el carro');
+  // Los cargos del BL van en una sola fila de "Requiere su acción": Gate In por agregar y THC ya en el carro.
+  const fila = page.getByTestId('dashboard-action-HLCU0000001');
+  await expect(fila).toContainText('2 cargos por pagar');
+  await expect(fila).toContainText('1 ya está en el carro');
   // La factura vencida se muestra con su vencimiento.
-  await expect(page.getByTestId(`dashboard-pending-${ITEM.FACTURA_VENCIDA}`)).toContainText('Vencido');
+  const factura = page.getByTestId('dashboard-action-HL-CL-2026-003987');
+  await expect(factura).toContainText('Vencido');
+  await expect(factura).toContainText('Vence el 30-09-2026');
 
-  await fila.getByRole('button', { name: 'Agregar Gate In HLCU0000001 al carro' }).click();
+  await fila.getByRole('button', { name: 'Agregar al carro: BL HLCU0000001' }).click();
   const dialogo = page.getByRole('dialog', { name: 'Agregar al carro' });
   await expect(dialogo.locator('#add-to-cart-billing')).toBeVisible();
   const envio = page.waitForRequest((r) => r.method() === 'POST' && r.url().endsWith('/api/v1/cart/items'));
@@ -64,18 +70,19 @@ test('un pendiente del dashboard se agrega al carro (M1-05, M5-01)', async ({ pa
 
   await expect(dialogo).toHaveCount(0);
   await expect(carro).toHaveAccessibleName('Carro de compra, 4 ítems');
-  await expect(fila).toContainText('En el carro');
+  await expect(fila).toContainText('2 ya están en el carro');
   await expect(fila.getByRole('button', { name: /Agregar/ })).toHaveCount(0);
-  // "Ver" lleva a los cargos del BL.
-  await expect(fila.getByRole('link', { name: 'Ver Gate In HLCU0000001' })).toHaveAttribute('href', '/charges/HLCU0000001');
+  // Con todo en el carro, la acción lleva al carro.
+  await expect(fila.getByRole('link', { name: 'Ir al carro: BL HLCU0000001' })).toHaveAttribute('href', '/cart');
 });
 
-test('los accesos rápidos nombran los servicios sin términos técnicos (M1-01)', async ({ page }) => {
+test('los accesos rápidos son atajos a tareas sin términos técnicos (M1-01)', async ({ page }) => {
   await abrir(page, '/dashboard');
   const servicios = page.getByRole('navigation', { name: '¿Qué necesita hacer?' });
+  await expect(servicios.getByRole('listitem')).toHaveCount(4);
+  await expect(servicios.getByRole('link', { name: /Consultar un BL/ })).toHaveAttribute('href', '/bl-status');
   await expect(servicios.getByRole('link', { name: /Pagar cargos y servicios/ })).toHaveAttribute('href', '/cart');
-  await expect(servicios.getByRole('link', { name: /Cambiar de almacén/ })).toHaveAttribute('href', '/warehouse');
-  await expect(servicios.getByRole('link', { name: /Buscar mercancías peligrosas/ })).toHaveAttribute('href', '/dangerous-goods');
+  await expect(servicios.getByRole('link', { name: /Solicitar carta de liberación/ })).toHaveAttribute('href', '/release-letter');
 });
 
 test('el asistente responde el estado de un BL con el enlace al detalle (M10-01, M10-03)', async ({ page }) => {
@@ -213,11 +220,13 @@ test('el selector de tema aplica data-bs-theme y la preferencia persiste (M11-07
   await page.emulateMedia({ colorScheme: 'light' });
   await abrir(page, '/dashboard');
   const html = page.locator('html');
-  const selector = page.getByRole('combobox', { name: 'Tema' });
-  await expect(selector).toHaveValue('auto');
+  // El tema está en las preferencias del menú del usuario.
+  const tema = () => page.locator('#hl-user-menu').getByRole('group', { name: 'Tema' });
+  await page.getByRole('button', { name: /Menú de usuario/ }).click();
+  await expect(tema().getByRole('button', { name: 'Según el sistema' })).toHaveAttribute('aria-pressed', 'true');
   await expect(html).toHaveAttribute('data-bs-theme', 'light');
 
-  await selector.selectOption('dark');
+  await tema().getByRole('button', { name: 'Oscuro' }).click();
   await expect(html).toHaveAttribute('data-bs-theme', 'dark');
   await expect(page.locator(POLITE)).toHaveText('Tema cambiado: Oscuro.');
   expect(await page.evaluate(() => localStorage.getItem('hl_theme'))).toBe('dark');
@@ -225,10 +234,11 @@ test('el selector de tema aplica data-bs-theme y la preferencia persiste (M11-07
   await page.reload();
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(html).toHaveAttribute('data-bs-theme', 'dark');
-  await expect(page.getByRole('combobox', { name: 'Tema' })).toHaveValue('dark');
+  await page.getByRole('button', { name: /Menú de usuario/ }).click();
+  await expect(tema().getByRole('button', { name: 'Oscuro' })).toHaveAttribute('aria-pressed', 'true');
 
   // "Según el sistema" sigue la preferencia del sistema operativo.
-  await page.getByRole('combobox', { name: 'Tema' }).selectOption('auto');
+  await tema().getByRole('button', { name: 'Según el sistema' }).click();
   await expect(html).toHaveAttribute('data-bs-theme', 'light');
   await page.emulateMedia({ colorScheme: 'dark' });
   await expect(html).toHaveAttribute('data-bs-theme', 'dark');
@@ -237,7 +247,7 @@ test('el selector de tema aplica data-bs-theme y la preferencia persiste (M11-07
 test('el enlace de Dispute abre el sitio externo en una pestaña nueva (M2-05)', async ({ page }) => {
   await abrir(page, '/dashboard');
   const menu = page.getByRole('navigation', { name: 'Menú principal' });
-  await menu.getByRole('button', { name: 'Servicios' }).click();
+  await menu.getByRole('button', { name: 'Documentos y trámites' }).click();
   const enlace = menu
     .getByRole('link', { name: 'Dispute de productos digitales (se abre en una pestaña nueva)' });
   await expect(enlace).toHaveAttribute('href', URL_DISPUTE);
@@ -249,6 +259,8 @@ test('el enlace de Dispute abre el sitio externo en una pestaña nueva (M2-05)',
 
 test('el detalle muestra la emisión y el TATC, y la solicitud masiva informa cada BL (M2-02, M2-09)', async ({ page }) => {
   await abrir(page, `/shipments/${BL_TATC}`);
+  // La emisión es un detalle secundario del resumen: se despliega a pedido.
+  await page.getByRole('button', { name: 'Partes, roles y emisión del BL' }).click();
   await expect(page.getByTestId('issuance-status')).toHaveText('Liberado por télex');
   await expect(page.getByTestId('shipment-issuance')).toContainText('BL (conocimiento de embarque)');
   await expect(page.getByTestId('tatc-status')).toHaveText('Emitido parcialmente');

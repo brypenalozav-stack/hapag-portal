@@ -139,7 +139,7 @@
               <td class="small">{{ 'admin.publicationRules.list.modifiedValue' | transloco: { user: rule.modifiedBy ?? rule.createdBy, date: ((rule.modifiedAt ?? rule.createdAt) | hlDate: 'datetime') } }}</td>
               <td>{{ (rule.isActive ? 'admin.publicationRules.status.active' : 'admin.publicationRules.status.inactive') | transloco }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(rule)"
                           [attr.aria-label]="'admin.publicationRules.list.editLabel' | transloco: { rule: ruleName(rule) }">
                     {{ 'admin.publicationRules.list.edit' | transloco }}
@@ -199,7 +199,7 @@
           <tbody>
             @for (change of history(); track change.id) {
               <tr>
-                <td>{{ change.changedAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ change.changedAt | hlDate: 'datetime' }}</td>
                 <td>{{ change.changedBy }}</td>
                 <td>{{ change.action | codeLabel: actionKeys }}</td>
                 @for (snapshot of [change.previous, change.current]; track $index) {

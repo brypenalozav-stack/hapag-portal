@@ -1,0 +1,23 @@
+{
+  "_comentario": "Credenciales de AMBIENTES DE PRUEBA de las pasarelas para depurar en local. iniciar-depuracion.bat copia este archivo a credenciales-prueba.json (fuera de git) la primera vez. Una pasarela con todos sus campos llenos se usa en modo Real contra su ambiente de pruebas; con algún campo vacío queda en modo de prueba con el simulador del portal. Nunca ponga aquí credenciales de producción.",
+  "Getnet": {
+    "_comentario": "Santander (Getnet Web Checkout). Credenciales públicas del ambiente de pruebas checkout.test.getnet.cl; Getnet puede cambiarlas.",
+    "BaseUrl": "https://checkout.test.getnet.cl",
+    "GETNET_LOGIN": "7ffbb7bf1f7361b1200b2e8d74e1d76f",
+    "GETNET_SECRET_KEY": "SnZP3D63n3I9dH9O"
+  },
+  "Khipu": {
+    "_comentario": "Cree gratis una 'cuenta de cobro en modo desarrollador' en khipu.com (Opciones de desarrollador) y pegue su API key y su secreto. Solo acepta pagos de bancos de prueba (DemoBank).",
+    "BaseUrl": "https://payment-api.khipu.com",
+    "KHIPU_SECRET": "",
+    "KHIPU_WEBHOOK_SECRET": ""
+  },
+  "BciPagos": {
+    "_comentario": "Bci Pagos (ex Pago Fácil): credenciales del ambiente de desarrollo que entrega Bci Pagos al contratar.",
+    "BaseUrl": "https://apis-dev.pgf.cl",
+    "BCIPAGOS_ACCOUNT_ID": "",
+    "BCIPAGOS_TOKEN_SECRET": "",
+    "BCIPAGOS_USERNAME": "",
+    "BCIPAGOS_PASSWORD": ""
+  }
+}

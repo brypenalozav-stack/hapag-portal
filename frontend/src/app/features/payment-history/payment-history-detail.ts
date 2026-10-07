@@ -22,6 +22,7 @@ import { HlNumberPipe } from '../../shared/pipes/hl-number.pipe';
 import { paymentErrorMessage } from '../../shared/payment-errors';
 import { saveBlob } from '../../shared/save-blob';
 import { DepositProofsComponent } from '../payments/deposit-proofs/deposit-proofs';
+import { FeatureService } from '../../core/services/feature.service';
 
 /**
  * Detalle de un pago del historial (M7-02): comprobante o boleta, pagador (RUT que pagó) separado de cada
@@ -41,6 +42,8 @@ import { DepositProofsComponent } from '../payments/deposit-proofs/deposit-proof
 })
 export class PaymentHistoryDetailComponent implements OnInit {
   private readonly service = inject(PaymentHistoryService);
+  /** Comprobante del depósito (M5-06, Fase 2): apagado por defecto. */
+  readonly features = inject(FeatureService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
 

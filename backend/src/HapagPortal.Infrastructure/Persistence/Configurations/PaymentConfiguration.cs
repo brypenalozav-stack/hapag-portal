@@ -69,6 +69,7 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(e => e.ProviderReference).HasMaxLength(200);
         builder.Property(e => e.ProviderTransactionId).HasMaxLength(200);
         builder.Property(e => e.RedirectUrl).HasMaxLength(1000);
+        builder.Property(e => e.RedirectForm).HasMaxLength(8000);
         builder.Property(e => e.PayerTaxId).HasMaxLength(20);
         builder.Property(e => e.PayerName).HasMaxLength(200);
         builder.Property(e => e.FailureReason).HasMaxLength(50);

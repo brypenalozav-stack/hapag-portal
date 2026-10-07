@@ -5,7 +5,6 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { BlImportService } from '../../../core/services/bl-import.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { ClientOption, ImportBillRow, ImportResult } from '../../../core/models/bl-import.model';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 
 /**
  * Carga masiva de Bill of Lading. El usuario pega filas (una por línea, campos
@@ -16,7 +15,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 @Component({
   selector: 'app-bl-import',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, LoadingSpinnerComponent],
+  imports: [FormsModule, TranslocoPipe],
   templateUrl: './bl-import.html',
   styles: [':host { display: block; }'],
 })

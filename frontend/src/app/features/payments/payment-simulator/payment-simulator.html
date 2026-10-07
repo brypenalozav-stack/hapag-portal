@@ -1,0 +1,81 @@
+<div class="hl-sim">
+  <!-- Aviso permanente: la página imita a la pasarela, pero es una simulación sin cobro -->
+  <div class="alert alert-warning hl-sim-banner" role="note" data-testid="payment-simulator-banner">
+    <strong>{{ 'paymentSimulator.banner.title' | transloco }}</strong>
+    {{ 'paymentSimulator.banner.text' | transloco }}
+  </div>
+
+  @if (valid()) {
+    <section class="hl-sim-card" aria-labelledby="payment-simulator-heading" data-testid="payment-simulator">
+      <div class="hl-sim-header" [class]="headerClass()" data-testid="payment-simulator-provider">
+        <app-payment-logo [method]="{ code: '', providerKey: providerKey() }" />
+        <div>
+          <p class="hl-sim-provider mb-0">{{ providerNameKey() | transloco }}</p>
+          <p class="hl-sim-subtitle mb-0">{{ 'paymentSimulator.gateway' | transloco }}</p>
+        </div>
+      </div>
+
+      <div class="hl-sim-body">
+        <h1 #heading id="payment-simulator-heading" class="h4 fw-bold" tabindex="-1">{{ 'paymentSimulator.title' | transloco }}</h1>
+        <dl class="hl-sim-summary">
+          <div>
+            <dt>{{ 'paymentSimulator.merchant' | transloco }}</dt>
+            <dd data-testid="payment-simulator-merchant">{{ 'paymentSimulator.merchantName' | transloco }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'paymentSimulator.amount' | transloco }}</dt>
+            <dd class="hl-sim-amount" data-testid="payment-simulator-amount">{{ amountValue() | hlCurrency: currency() }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'paymentSimulator.reference' | transloco }}</dt>
+            <dd data-testid="payment-simulator-reference">{{ ref() }}</dd>
+          </div>
+        </dl>
+
+        <p class="mb-3">{{ 'paymentSimulator.instructions' | transloco }}</p>
+
+        @if (error()) {
+          <div class="alert alert-danger py-2" role="alert" data-testid="payment-simulator-error">{{ error() }}</div>
+        }
+
+        @if (finished()) {
+          <!-- El pago ya tiene resultado final (409): solo se puede ver su estado -->
+          <button #statusButton type="button" class="btn btn-hl-orange" (click)="viewResult()" data-testid="payment-simulator-view-result">
+            {{ 'paymentSimulator.viewResult' | transloco }}
+          </button>
+        } @else {
+        <div class="hl-sim-actions">
+          <button type="button" class="btn btn-hl-green" [disabled]="!!busy()" (click)="choose('approved')" data-testid="payment-simulator-approve">
+            @if (busy() === 'approved') {
+              <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+            }
+            {{ 'paymentSimulator.actions.approve' | transloco }}
+          </button>
+          <button type="button" class="btn btn-outline-danger" [disabled]="!!busy()" (click)="choose('rejected')" data-testid="payment-simulator-reject">
+            @if (busy() === 'rejected') {
+              <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+            }
+            {{ 'paymentSimulator.actions.reject' | transloco }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary" [disabled]="!!busy()" (click)="choose('pending')" data-testid="payment-simulator-pending">
+            @if (busy() === 'pending') {
+              <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+            }
+            {{ 'paymentSimulator.actions.pending' | transloco }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary" [disabled]="!!busy()" (click)="choose('cancelled')" data-testid="payment-simulator-cancel">
+            {{ 'paymentSimulator.actions.cancel' | transloco }}
+          </button>
+        </div>
+        <p class="small text-muted mt-3 mb-0">{{ 'paymentSimulator.help' | transloco }}</p>
+        }
+      </div>
+    </section>
+  } @else {
+    <div class="hl-page-header">
+      <h1 #heading tabindex="-1">{{ 'paymentSimulator.invalidTitle' | transloco }}</h1>
+    </div>
+    <div class="alert alert-danger" role="alert" data-testid="payment-simulator-invalid">{{ 'paymentSimulator.invalid' | transloco }}</div>
+    <a routerLink="/payment-history" class="btn btn-outline-secondary">{{ 'paymentSimulator.goToHistory' | transloco }}</a>
+  }
+</div>

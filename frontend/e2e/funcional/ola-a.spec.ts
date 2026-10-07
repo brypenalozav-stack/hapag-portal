@@ -2,6 +2,7 @@ import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/app';
 import { BL_EXPORTACION, BL_PRUEBA, BL_SIN_FLETE, simularApi } from '../fixtures/api-mocks';
 import { sembrarIdioma, sembrarSesion } from '../fixtures/session';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
  * Fase 1, Ola A (pruebas funcionales con el backend simulado):
@@ -17,6 +18,8 @@ async function abrirConSesion(page: Page, ruta: string): Promise<void> {
   await simularApi(page);
   await sembrarSesion(page, { lang: 'es' });
   await page.goto(ruta);
+  // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
+  if (/^\/(shipments|bills-of-lading)\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
   await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
@@ -100,11 +103,11 @@ test('embarques: el filtro importación/exportación filtra y se mantiene al nav
 
   // La selección se mantiene al volver al listado desde el menú (M2-07).
   const menu = page.getByRole('navigation', { name: 'Menú principal' });
-  await menu.getByRole('button', { name: 'Pagos y facturación' }).click();
+  await menu.getByRole('button', { name: 'Pagos' }).click();
   await menu.getByRole('link', { name: 'Historial de pagos' }).click();
   await expect(page).toHaveURL(/\/payment-history$/);
   await menu.getByRole('button', { name: 'Embarques' }).click();
-  await menu.getByRole('link', { name: 'Embarques', exact: true }).click();
+  await menu.getByRole('link', { name: 'Mis embarques' }).click();
   await expect(page).toHaveURL(/\/shipments$/);
   await expect(page.getByRole('button', { name: 'Exportación' })).toHaveAttribute('aria-pressed', 'true');
   await expect(filas).toHaveCount(2);
@@ -141,6 +144,7 @@ test('el detalle oculta el flete cuando el servidor lo envía en null (M1-11, M2
 
   // Con permiso (consignee, puede operar) el flete y su botón de pago (por el carro, Ola D) sí aparecen.
   await page.goto(`/shipments/${BL_PRUEBA.blNumber}`);
+  await cargarSeccionesDiferidas(page);
   await expect(page.getByRole('heading', { name: 'Flete' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Agregar flete al carro' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Demurrage' })).toBeVisible();

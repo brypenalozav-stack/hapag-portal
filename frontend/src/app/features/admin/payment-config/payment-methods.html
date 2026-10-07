@@ -164,7 +164,7 @@
               <td>{{ m.displayOrder }}</td>
               <td>{{ (m.isEnabled ? 'admin.paymentMethods.enabled' : 'admin.paymentMethods.disabledStatus') | transloco }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(m)"
                           [attr.aria-label]="'admin.paymentMethods.editLabel' | transloco: { name: m.name }">{{ 'admin.paymentMethods.edit' | transloco }}</button>
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(m)"

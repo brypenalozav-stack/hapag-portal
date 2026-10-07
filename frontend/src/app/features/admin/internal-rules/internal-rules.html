@@ -175,7 +175,7 @@
               </td>
               <td>{{ (rule.isActive ? 'admin.internalRules.status.active' : 'admin.internalRules.status.inactive') | transloco }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(rule)"
                           [attr.aria-label]="'admin.internalRules.list.editLabel' | transloco: { account: accountOf(rule) }">
                     {{ 'admin.internalRules.list.edit' | transloco }}
@@ -235,7 +235,7 @@
           <tbody>
             @for (change of history(); track change.id) {
               <tr>
-                <td>{{ change.changedAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ change.changedAt | hlDate: 'datetime' }}</td>
                 <td>{{ change.changedBy }}</td>
                 <td>{{ change.action | codeLabel: actionKeys }}</td>
                 <td class="small"><app-rule-snapshot [snapshot]="change.previous" /></td>

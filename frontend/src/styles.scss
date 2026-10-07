@@ -56,6 +56,11 @@
   --hl-surface-muted: #{t.$hl-surface-muted};
   --hl-text-muted: #{t.$hl-text-muted};
   --hl-focus: #{t.$hl-blue};
+  // Encabezado de cada pasarela en el simulador de pago (modo de prueba); iguales en ambos temas (texto blanco).
+  --hl-gw-khipu: #{t.$hl-gw-khipu};
+  --hl-gw-santander: #{t.$hl-gw-santander};
+  --hl-gw-bci: #{t.$hl-gw-bci};
+  --hl-gw-bancochile: #{t.$hl-gw-bancochile};
   // Alias semánticos de los tokens que cambian con el tema (guía §1.1, columna "Variante oscura").
   --hl-surface: #{t.$hl-white};
   --hl-input-bg: #{t.$hl-white};
@@ -209,6 +214,8 @@ h1, h2, h3, h4, h5, h6 {
 .hl-main-content {
   margin-top: var(--navbar-height);
   padding: 1.5rem;
+  // Espacio inferior para el botón flotante del asistente: no tapa la última acción de la página.
+  padding-bottom: 5.5rem;
   min-height: calc(100vh - var(--navbar-height));
 }
 
@@ -297,6 +304,23 @@ h1, h2, h3, h4, h5, h6 {
     vertical-align: middle;
   }
 
+  // Encabezado de fila (th scope="row"): mismo espaciado y borde que las celdas.
+  tbody th {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: start;
+    border-bottom: 1px solid var(--hl-border);
+    vertical-align: middle;
+  }
+
+  // Badges y botones de una celda no se parten: "Agregar al carro" en dos líneas desalineaba las filas. Los
+  // botones con forma de enlace (btn-link) son texto corrido y sí se parten: si no, ensanchaban la columna.
+  .hl-badge,
+  .btn:not(.btn-link) {
+    white-space: nowrap;
+  }
+
   tbody tr {
     background-color: var(--hl-surface);
     transition: background-color 0.15s;
@@ -312,7 +336,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 // Buttons. Texto blanco sobre los tonos -700 (5,23:1 y 5,48:1): $hl-orange y $hl-green no alcanzan 4,5:1.
+// Deshabilitados conservan su color (con la opacidad de Bootstrap): sin las variables --bs-btn-disabled-* quedaban
+// transparentes con texto gris y parecían otro tipo de botón.
+.btn-hl-orange,
+.btn-hl-green,
+.btn-hl-blue {
+  --bs-btn-disabled-color: var(--hl-white);
+}
+
 .btn-hl-orange {
+  --bs-btn-disabled-bg: var(--hl-orange-700);
+  --bs-btn-disabled-border-color: var(--hl-orange-700);
   background-color: var(--hl-orange-700);
   border-color: var(--hl-orange-700);
   color: var(--hl-white);
@@ -330,6 +364,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-hl-green {
+  --bs-btn-disabled-bg: var(--hl-green-700);
+  --bs-btn-disabled-border-color: var(--hl-green-700);
   background-color: var(--hl-green-700);
   border-color: var(--hl-green-700);
   color: var(--hl-white);
@@ -343,6 +379,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-hl-blue {
+  --bs-btn-disabled-bg: var(--hl-blue);
+  --bs-btn-disabled-border-color: var(--hl-blue);
   background-color: var(--hl-blue);
   border-color: var(--hl-blue);
   color: var(--hl-white);
@@ -355,15 +393,24 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Status badges
+// Status badges. Radio de 0,75rem: con una línea se ve como píldora y, si el texto largo se parte (fuera de las tablas),
+// queda como rectángulo redondeado en vez de un óvalo deformado. En las tablas no se parte: la tabla se desplaza.
 .hl-badge {
   font-size: 0.75rem;
   font-weight: 600;
+  line-height: 1.25;
   padding: 0.3em 0.75em;
-  border-radius: 50rem;
+  border-radius: 0.75rem;
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
+  max-width: 100%;
+  text-align: start;
+  vertical-align: middle;
+
+  > svg {
+    flex-shrink: 0;
+  }
 
   &--pending {
     background-color: var(--bs-warning-bg-subtle);
@@ -536,32 +583,343 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Preferencias del panel: solo cuando la barra superior las oculta (< 768 px); global para no exceder el presupuesto de estilos del componente.
-.hl-drawer__prefs {
-  margin-top: 1rem;
-  padding: 0.75rem 1.25rem 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+// ---------- Barra superior: espacio de trabajo, búsqueda universal y menú del usuario ----------
+// Globales por el presupuesto de estilos de los componentes (app-navbar, app-workspace-switcher, app-global-search).
 
-  .hl-drawer__col-title {
-    margin: 0.5rem 0 0.25rem;
-    padding: 0;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  @media (min-width: 768px) {
-    display: none;
+@keyframes hl-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.35rem);
   }
 }
 
-.hl-drawer__label {
-  display: block;
-  margin-bottom: 0.25rem;
+// Selector de espacio (perfiles internos): control segmentado sobre la barra oscura.
+.hl-workspace {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+}
+
+.hl-workspace__btn {
+  min-height: 28px;
+  padding: 0.2rem 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
   color: var(--hl-white);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  &.is-active {
+    background-color: var(--hl-white);
+    color: var(--hl-dark);
+  }
+}
+
+// En el panel lateral móvil ocupa el ancho del panel.
+.hl-workspace--drawer {
+  --hl-focus: var(--hl-white);
+  display: flex;
+  margin: 0.5rem 1.25rem 0.75rem;
+
+  .hl-workspace__btn {
+    flex: 1;
+  }
+}
+
+// Búsqueda universal: campo en la barra (≥ 768 px) o panel bajo la barra que abre el botón de lupa.
+.hl-navbar__search {
+  display: flex;
+  flex: 1 1 auto;
+  justify-content: center;
+  min-width: 0;
+
+  @media (max-width: 767.98px) {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+}
+
+.hl-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 30rem;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover,
+  &:focus-within {
+    border-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.16);
+  }
+
+  &:has(.hl-search__input:focus-visible) {
+    outline: 3px solid var(--hl-focus);
+    outline-offset: 2px;
+  }
+
+  &:focus-within .hl-search__kbd {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    position: fixed;
+    top: calc(var(--topbar-height) + 0.5rem);
+    right: 0.75rem;
+    left: 0.75rem;
+    display: none;
+    width: auto;
+    max-width: none;
+
+    // Panel sobre el contenido: fondo opaco también con foco.
+    &:hover,
+    &:focus-within {
+      background-color: var(--hl-dark);
+    }
+
+    .hl-search__kbd {
+      display: none;
+    }
+    background-color: var(--hl-dark);
+    box-shadow:
+      0 0 0 0.5rem var(--hl-dark),
+      0 12px 24px rgba(0, 0, 0, 0.3);
+
+    &.is-open {
+      display: flex;
+      animation: hl-pop-in 0.18s ease-out;
+    }
+  }
+}
+
+.hl-search__form {
+  display: contents;
+}
+
+.hl-search__toggle {
+  @media (min-width: 768px) {
+    display: none !important;
+  }
+}
+
+.hl-search__icon {
+  position: absolute;
+  left: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+  pointer-events: none;
+}
+
+.hl-search__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 0.5rem 0 2.4rem;
+  border: 0;
+  background: none;
+  color: var(--hl-white);
+  font-size: 0.875rem;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
+
+  &::-webkit-search-cancel-button {
+    filter: invert(1);
+  }
+}
+
+.hl-search__kbd {
+  margin-right: 0.35rem;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 0.25rem;
+  background: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+}
+
+.hl-search__submit {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 3px;
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--hl-orange-700);
+  color: var(--hl-white);
+  transition: transform 0.15s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateX(2px);
+  }
+}
+
+// Aviso de la búsqueda (sin resultados, número no válido): región viva siempre presente, visible solo con texto.
+.hl-search__message {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  left: 0;
+  z-index: 1;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--hl-border);
+  border-radius: 0.5rem;
+  background-color: var(--hl-surface);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  color: var(--bs-body-color);
   font-size: 0.85rem;
+  animation: hl-pop-in 0.15s ease-out;
+
+  &:empty {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+}
+
+// Menú del usuario: iniciales en la barra; perfil, organización y preferencias en el panel.
+.hl-user-menu__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.12);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.hl-user-menu__name {
+  font-size: 0.85rem;
+}
+
+.hl-user-menu__panel {
+  top: calc(100% + 0.6rem);
+  right: 0;
+  left: auto;
+  width: 19.5rem;
+  max-width: calc(100vw - 1.5rem);
+  padding: 0.5rem 0;
+
+  &.show {
+    animation: hl-pop-in 0.15s ease-out;
+  }
+}
+
+.hl-user-menu__head {
+  padding: 0.35rem 1rem 0.25rem;
+}
+
+.hl-user-menu__muted {
+  color: var(--hl-text-muted);
+}
+
+.hl-user-menu__prefs {
+  padding: 0 1rem 0.35rem;
+}
+
+.hl-user-menu__title {
+  margin: 0.25rem 0 0.35rem;
+  color: var(--hl-text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hl-user-menu__label {
+  margin: 0.5rem 0 0.25rem;
+  font-size: 0.8rem;
+}
+
+.hl-user-menu__value {
+  font-weight: 600;
+}
+
+// Control segmentado de las preferencias (tema, idioma, país): botones con aria-pressed.
+.hl-segmented {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--hl-text-muted);
+  border-radius: 0.5rem;
+}
+
+.hl-segmented__btn {
+  flex: 1 1 auto;
+  min-height: 28px;
+  white-space: nowrap;
+  padding: 0.2rem 0.4rem;
+  border: 0;
+  border-radius: 0.375rem;
+  background: none;
+  color: var(--bs-body-color);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--hl-surface-muted);
+  }
+
+  &.is-active {
+    background-color: var(--hl-dark);
+    color: var(--hl-white);
+    font-weight: 600;
+  }
+}
+
+[data-bs-theme='dark'] .hl-segmented__btn {
+  &:hover {
+    background-color: var(--hl-dark-bg);
+  }
+
+  &.is-active {
+    background-color: var(--hl-dark-text);
+    color: var(--hl-dark-bg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-workspace__btn,
+  .hl-search,
+  .hl-search__submit,
+  .hl-segmented__btn {
+    transition: none;
+  }
+
+  .hl-search.is-open,
+  .hl-search__message,
+  .hl-user-menu__panel.show {
+    animation: none;
+  }
 }
 
 // Opción de medio de pago con logo (app-payment-logo): el radio se centra con la pastilla del logo (2 rem).
@@ -829,6 +1187,269 @@ $hl-ship-mask: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vie
 .bg-hl-light { background-color: var(--hl-light-gray) !important; }
 
 // ---------------------------------------------------------------------------
+// Detalle del BL (cierre de Fase 1, UX): encabezado fijo con la próxima acción, grupos del índice y
+// marcadores de las secciones diferidas. Global para no pasar el presupuesto de estilos por componente.
+// ---------------------------------------------------------------------------
+.hl-bl-header {
+  position: sticky;
+  top: var(--navbar-height);
+  z-index: 1010;
+  margin: -0.5rem -1.5rem 1.5rem;
+  padding: 0.85rem 1.5rem 0.5rem;
+  border-bottom: 1px solid var(--hl-border);
+  background-color: var(--hl-surface);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+  &__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+  }
+
+  &__id {
+    flex: 1 1 22rem;
+    min-width: 0;
+  }
+
+  &__eyebrow {
+    margin-bottom: 0.15rem;
+    color: var(--hl-text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--hl-emphasis);
+    font-size: 1.5rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  &__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.75rem;
+    margin: 0.6rem 0 0;
+
+    dt {
+      color: var(--hl-text-muted);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    dd {
+      margin: 0;
+      color: var(--hl-emphasis);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+  }
+
+  // Compacto al desplazar: una barra delgada con el BL, su estado y el siguiente paso.
+  &.is-collapsed {
+    padding-top: 0.45rem;
+
+    .hl-bl-header__eyebrow,
+    .hl-bl-header__facts,
+    .hl-bl-next__title,
+    .hl-bl-next__text,
+    .hl-bl-next__bar,
+    .hl-bl-next__link {
+      display: none;
+    }
+
+    .hl-bl-header__main {
+      align-items: center;
+    }
+
+    .hl-bl-header__title {
+      font-size: 1.05rem;
+    }
+
+    .hl-bl-next {
+      display: flex;
+      flex: 0 1 auto;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 0.75rem;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+
+    .hl-bl-next__actions {
+      margin: 0;
+    }
+  }
+}
+
+.hl-bl-next {
+  flex: 0 1 24rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--hl-border);
+  border-radius: 0.75rem;
+  background-color: var(--hl-surface-muted);
+
+  &__title {
+    margin-bottom: 0.4rem;
+    color: var(--hl-text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__progress {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__count {
+    color: var(--hl-emphasis);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  &__bar {
+    height: 0.35rem;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    border-radius: 50rem;
+    background-color: var(--hl-border);
+
+    span {
+      display: block;
+      height: 100%;
+      background-color: var(--hl-green-700);
+    }
+  }
+
+  &__text {
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+  }
+
+  &__link {
+    color: var(--hl-link);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+}
+
+// Grupos del índice: título h2 visible como separador y anclas bajo el encabezado fijo.
+.hl-bl-group {
+  margin-bottom: 2rem;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    color: var(--hl-emphasis);
+    font-size: 1.2rem;
+    font-weight: 700;
+    scroll-margin-top: calc(var(--navbar-height) + var(--hl-sticky-extra, 7rem) + 0.75rem);
+
+    &::after {
+      flex: 1;
+      height: 1px;
+      background-color: var(--hl-border);
+      content: '';
+    }
+  }
+
+  // Marcador de una sección diferida: reserva su alto mientras carga.
+  &__placeholder {
+    min-height: 12rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+// Disclosure del resumen (partes y emisión): botón con aria-expanded.
+.hl-disclosure {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: var(--hl-link);
+  font-weight: 600;
+
+  // Marca decorativa en un span aria-hidden: no forma parte del nombre accesible del botón.
+  &__icon::before {
+    display: inline-block;
+    content: '▸';
+    transition: transform 0.15s;
+  }
+
+  &[aria-expanded='true'] &__icon::before {
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .hl-bl-header {
+    margin-top: -0.25rem;
+    padding-top: 0.6rem;
+
+    &__title {
+      font-size: 1.2rem;
+    }
+
+    // En pantallas chicas la próxima acción va en una línea: el detalle sigue en la consulta de liberación.
+    .hl-bl-next {
+      flex-basis: 100%;
+      padding: 0.5rem 0.75rem;
+    }
+
+    &.is-collapsed {
+      .hl-bl-header__main {
+        gap: 0.35rem;
+      }
+
+      .hl-bl-header__title {
+        font-size: 0.95rem;
+      }
+
+      .hl-bl-next__overall {
+        display: none;
+      }
+
+      .hl-bl-next {
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        padding: 0;
+      }
+
+      .hl-bl-next__count {
+        font-size: 0.8rem;
+      }
+    }
+
+    .hl-section-nav .hl-section-nav__title {
+      display: none;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Accesibilidad (Fase 5c; guía UI/a11y/i18n §3.5)
 // ---------------------------------------------------------------------------
 
@@ -839,6 +1460,11 @@ html {
   // Con la barra "Ir a" (app-section-nav) también fija, se deja su alto.
   &:has(app-section-nav .hl-section-nav) {
     scroll-padding-top: calc(var(--navbar-height) + 3.75rem);
+  }
+
+  // Encabezado fijo del detalle del BL: su alto real lo publica el componente en --hl-sticky-extra.
+  &:has([data-hl-sticky]) {
+    scroll-padding-top: calc(var(--navbar-height) + var(--hl-sticky-extra, 7rem) + 0.75rem);
   }
 }
 
@@ -949,6 +1575,114 @@ html {
 
   &--error svg {
     color: var(--bs-danger-text-emphasis);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Maquetación compartida de formularios y tablas
+// ---------------------------------------------------------------------------
+
+// Las celdas de encabezado con texto solo para lectores (.visually-hidden, position: absolute) no tienen un ancestro
+// posicionado dentro de la tabla y ensanchaban la página entera: el contenedor con desplazamiento es su referencia.
+.table-responsive {
+  position: relative;
+}
+
+// Acciones de una fila (o de una tarjeta): en línea, en un orden fijo y con el mismo espacio. En las tablas no se
+// parten (la tabla se desplaza en pantallas chicas); fuera de ellas pasan a la línea siguiente si no caben.
+.hl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.hl-table .hl-actions {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+// Celdas de texto: con poco espacio, la tabla se desplaza en vez de partir el texto en una palabra por línea (los
+// nombres, los RUT y las fechas quedaban en columnas de 4 o 5 líneas). Las de casillas y botones conservan su ancho.
+.hl-table tbody td:not(:has(.form-check-input, .btn)) {
+  min-width: 8rem;
+}
+
+// Celda con texto corrido (notas, referencias) en una tabla de muchas columnas: no se estrecha hasta una palabra por línea.
+.hl-table .hl-cell-text {
+  min-width: 14rem;
+}
+
+// Nombre de una organización o persona: se parte en pocas líneas, no una palabra por línea.
+.hl-table .hl-cell-name {
+  min-width: 10rem;
+}
+
+// Hueco del tamaño de una acción que la fila no tiene: las acciones de las filas quedan en la misma columna.
+.hl-actions__slot {
+  visibility: hidden;
+}
+
+// Columna de acciones fija al borde derecho de una tabla que se desplaza: los botones de la fila (PDF, pagar)
+// quedan visibles sin desplazar la tabla. Toma el fondo de la fila (también la cebra y el tema oscuro).
+.hl-table .hl-col-sticky-end {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background-color: inherit;
+  box-shadow: -6px 0 6px -6px rgba(0, 0, 0, 0.25);
+}
+
+.hl-table thead .hl-col-sticky-end {
+  background-color: var(--hl-dark);
+}
+
+// Fila de formulario con texto de ayuda bajo los campos: las etiquetas quedan arriba en una misma línea, los campos
+// alineados y la ayuda debajo sin desplazar nada. El botón de la fila (.hl-form-action) se alinea con los campos
+// gracias a un espaciador del alto de una etiqueta, que solo se muestra cuando las columnas van lado a lado
+// (desde md; --sm y --lg para filas que se apilan en otro punto). Etiquetas .small por defecto; --lg si no lo son.
+.hl-form-row {
+  align-items: flex-start;
+
+  // En bloque (no inline-block): el alto de la etiqueta es exactamente su línea más el margen, como el espaciador.
+  .form-label {
+    display: block;
+  }
+}
+
+.hl-form-action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  &::before {
+    content: '';
+    display: none;
+    flex-basis: 100%;
+    height: calc(0.875rem * 1.5 + 0.5rem);
+    margin-bottom: -0.5rem;
+  }
+
+  &--lg-label::before {
+    height: calc(1rem * 1.5 + 0.5rem);
+  }
+}
+
+@media (min-width: 576px) {
+  .hl-form-action--sm::before {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .hl-form-action:not(.hl-form-action--sm):not(.hl-form-action--lg)::before {
+    display: block;
+  }
+}
+
+@media (min-width: 992px) {
+  .hl-form-action--lg::before {
+    display: block;
   }
 }
 

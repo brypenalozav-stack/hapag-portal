@@ -48,7 +48,7 @@
                 <td>
                   <a [routerLink]="['/service-requests', r.id]" [attr.aria-label]="'documents.freight.requests.viewLabel' | transloco: { number: r.requestNumber }">{{ r.requestNumber }}</a>
                 </td>
-                <td>{{ r.createdAt | hlDate: 'datetime' : timeZone() }}</td>
+                <td class="text-nowrap">{{ r.createdAt | hlDate: 'datetime' : timeZone() }}</td>
                 <td><span class="hl-badge" [class]="statusClass[r.status] || 'hl-badge--processing'">{{ r.status | codeLabel: statusKeys }}</span></td>
               </tr>
             }

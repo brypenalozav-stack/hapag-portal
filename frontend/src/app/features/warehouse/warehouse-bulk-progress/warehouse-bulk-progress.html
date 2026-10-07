@@ -71,8 +71,8 @@
           <tbody>
             @for (item of b.items; track item.lineNumber) {
               <tr>
-                <td class="text-end">{{ item.lineNumber }}</td>
-                <td class="fw-semibold">{{ item.blNumber }}</td>
+                <td class="text-end text-nowrap">{{ item.lineNumber }}</td>
+                <td class="fw-semibold text-nowrap">{{ item.blNumber }}</td>
                 <td>{{ item.containerNumber ?? '—' }}</td>
                 <td>{{ item.toWarehouse }}</td>
                 <td>{{ item.status | codeLabel: itemStatusKeys }}</td>

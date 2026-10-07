@@ -89,10 +89,10 @@
               }
             </td>
             <td>{{ item.durationDays ? ('thirdPartyAccess.defaults.days' | transloco: { count: item.durationDays }) : ('thirdPartyAccess.defaults.noEnd' | transloco) }}</td>
-            <td>{{ (item.modifiedAt ?? item.createdAt) | hlDate }}</td>
+            <td class="text-nowrap">{{ (item.modifiedAt ?? item.createdAt) | hlDate }}</td>
             @if (canManage()) {
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary"
                           [attr.aria-label]="'thirdPartyAccess.defaults.editLabel' | transloco: { name: item.grantee.name }" (click)="openEdit(item)">
                     {{ 'thirdPartyAccess.defaults.edit' | transloco }}

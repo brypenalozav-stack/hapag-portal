@@ -23,6 +23,9 @@ public sealed class IntegrationsRegistrationTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddSingleton(Substitute.For<ISecretResolver>());
+        // Registrados por AddInfrastructure: el Dummy de DBNet genera su PDF con el renderizador del portal.
+        services.AddSingleton(Substitute.For<IPdfDocumentRenderer>());
+        services.AddSingleton(new HapagPortal.Application.Documents.Common.DocumentSettings());
         services.AddIntegrations(configuration);
 
         return services.BuildServiceProvider();
@@ -88,6 +91,23 @@ public sealed class IntegrationsRegistrationTests
     }
 
     [Fact]
+    public async Task AddIntegrations_DummyPaymentProviders_ShouldShareTheSimulatorStore()
+    {
+        using var provider = BuildProvider([]);
+        var store = provider.GetRequiredService<IPaymentSimulatorStore>();
+        store.Should().BeSameAs(provider.GetRequiredService<IPaymentSimulatorStore>());
+
+        store.Record("PAY-SHARED", PaymentSimulatorOutcomes.Approved);
+
+        foreach (var key in new[] { "Khipu", "BancoChile", "Santander", "Bci" })
+        {
+            var status = await provider.GetRequiredKeyedService<IPaymentProvider>(key)
+                .GetStatusAsync(new PaymentStatusRequest(null, "PAY-SHARED", 100m, "CLP"));
+            status.Value.Status.Should().Be(HapagPortal.Domain.Constants.PaymentStatus.Confirmed, key);
+        }
+    }
+
+    [Fact]
     public void AddIntegrations_RealMode_ShouldRegisterRealClients()
     {
         using var provider = BuildProvider(RealMode("Nexus", "Fis", "DbNet", "Tracking"));
@@ -138,11 +158,13 @@ public sealed class IntegrationsRegistrationTests
     }
 
     [Theory]
-    [InlineData("Khipu", typeof(HttpKhipuPaymentProvider))]
-    [InlineData("BancoChile", typeof(HttpBancoChilePaymentProvider))]
-    public void AddIntegrations_RealMode_ShouldRegisterKeyedRealPaymentProvider(string key, Type expectedType)
+    [InlineData("Khipu", "Khipu", typeof(HttpKhipuPaymentProvider))]
+    [InlineData("Getnet", "Santander", typeof(GetnetPaymentProvider))]
+    [InlineData("BciPagos", "Bci", typeof(BciPagosPaymentProvider))]
+    [InlineData("BancoChile", "BancoChile", typeof(BancoChileFormPaymentProvider))]
+    public void AddIntegrations_RealMode_ShouldRegisterKeyedRealPaymentProvider(string system, string key, Type expectedType)
     {
-        using var provider = BuildProvider(RealMode(key));
+        using var provider = BuildProvider(RealMode(system));
 
         var paymentProvider = provider.GetRequiredKeyedService<IPaymentProvider>(key);
 
@@ -161,9 +183,15 @@ public sealed class IntegrationsRegistrationTests
         provider.GetRequiredKeyedService<IPaymentProvider>("Bci").Should().BeOfType<DummyPaymentProvider>();
     }
 
+    [Fact]
+    public void AddIntegrations_RealBancoChileWithoutBaseUrlOrCredentials_ShouldNotFailAtStartup()
+    {
+        using var provider = BuildProvider(new Dictionary<string, string?> { ["Integrations:BancoChile:Mode"] = "Real" });
+
+        provider.GetRequiredKeyedService<IPaymentProvider>("BancoChile").Should().BeOfType<BancoChileFormPaymentProvider>();
+    }
+
     [Theory]
-    [InlineData("Santander")]
-    [InlineData("Bci")]
     [InlineData("Signature")]
     [InlineData("Storage")]
     public void AddIntegrations_RealModeWithoutAdapter_ShouldThrowFailFast(string system)
@@ -176,7 +204,8 @@ public sealed class IntegrationsRegistrationTests
     [InlineData("Nexus")]
     [InlineData("Fis")]
     [InlineData("Khipu")]
-    [InlineData("BancoChile")]
+    [InlineData("Getnet")]
+    [InlineData("BciPagos")]
     [InlineData("DbNet")]
     [InlineData("Tracking")]
     public void AddIntegrations_RealModeWithoutBaseUrl_ShouldThrow(string system)

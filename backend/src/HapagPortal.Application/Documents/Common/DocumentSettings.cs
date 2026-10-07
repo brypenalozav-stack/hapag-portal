@@ -46,4 +46,39 @@ public sealed class DocumentSettings
     public string IssuerBolivia { get; set; } = "Hapag-Lloyd Bolivia S.R.L.";
 
     public string IssuerFor(string country) => country == CountryCodes.Bolivia ? IssuerBolivia : IssuerChile;
+
+    /// <summary>
+    /// Datos bancarios impresos en la boleta de depósito («Cómo pagar»), por país (<c>CL</c>, <c>BO</c>). Solo se imprimen
+    /// los valores configurados; sin datos, la boleta remite al portal.
+    /// </summary>
+    public Dictionary<string, DepositInstructionSettings> DepositInstructions { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public DepositInstructionSettings? DepositInstructionsFor(string country) =>
+        DepositInstructions.FirstOrDefault(i => string.Equals(i.Key, country, StringComparison.OrdinalIgnoreCase)).Value;
+}
+
+/// <summary>
+/// Cuenta para el depósito o la transferencia de una boleta (sección <c>Documents:DepositInstructions:{CL|BO}</c>). Un
+/// valor vacío o «Por definir» se considera no configurado y no se imprime.
+/// </summary>
+public sealed class DepositInstructionSettings
+{
+    public const string Placeholder = "Por definir";
+
+    public string? BankName { get; set; }
+    public string? AccountType { get; set; }
+    public string? AccountNumber { get; set; }
+    public string? AccountHolder { get; set; }
+    public string? TaxId { get; set; }
+
+    /// <summary>Correo al que el cliente puede enviar el comprobante del abono.</summary>
+    public string? Email { get; set; }
+
+    public static string? Configured(string? value) =>
+        string.IsNullOrWhiteSpace(value) || string.Equals(value.Trim(), Placeholder, StringComparison.OrdinalIgnoreCase)
+            ? null
+            : value.Trim();
+
+    /// <summary>Hay datos para depositar: al menos el banco y el número de cuenta.</summary>
+    public bool HasAccount => Configured(BankName) is not null && Configured(AccountNumber) is not null;
 }

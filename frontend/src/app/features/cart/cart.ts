@@ -1,6 +1,6 @@
 import { Component, DestroyRef, ElementRef, Injector, OnInit, computed, inject, signal, viewChildren } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { CartService, newIdempotencyKey } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -11,7 +11,6 @@ import {
   CHARGE_CONCEPT_KEYS,
   DATA_SOURCE_KEYS,
   PAYABLE_ITEM_TYPE_KEYS,
-  PAYMENT_METHOD_KIND_KEYS,
 } from '../../core/i18n/labels';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../shared/components/state-message/state-message';
@@ -24,7 +23,8 @@ import { paymentErrorMessage } from '../../shared/payment-errors';
 import { focusAfterRender } from '../../shared/focus-after-render';
 import { ModalService } from '../../core/services/modal.service';
 import { ToastService } from '../../core/services/toast.service';
-import { PaymentLogoComponent } from '../../shared/components/payment-logo/payment-logo';
+import { PaymentMethodPickerComponent } from '../../shared/components/payment-method-picker/payment-method-picker';
+import { PaymentRedirectService } from '../../core/services/payment-redirect.service';
 
 /** Estado del cierre de un sub-carro. */
 interface CheckoutState {
@@ -53,12 +53,26 @@ const NEW_KEY_AFTER = new Set(['Payment.ProviderUnavailable', 'Cart.Conflict', '
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [PaymentLogoComponent, 
+  imports: [
     RouterLink, TranslocoPipe, CodeLabelPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe,
-    LoadingSpinnerComponent, StateMessageComponent, PaymentBlockBannerComponent,
+    LoadingSpinnerComponent, StateMessageComponent, PaymentBlockBannerComponent, PaymentMethodPickerComponent,
   ],
   templateUrl: './cart.html',
-  styles: [':host { display: block; } .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }'],
+  styles: `
+    :host { display: block; }
+    .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0; }
+    /* Vaciar: acción secundaria y destructiva, lejos del botón de pago. */
+    .hl-cart-clear { color: var(--hl-link); padding-inline: 0.25rem; text-decoration: underline; }
+    .hl-cart-clear:hover { color: var(--hl-emphasis); }
+    /* Cierre: subtotal a la izquierda y el pago destacado a la derecha (ancho completo en móvil). */
+    .hl-cart-footer {
+      display: flex; flex-direction: column; align-items: stretch; gap: 0.75rem;
+      padding-top: 1rem; border-top: 1px solid var(--hl-border);
+    }
+    @media (min-width: 768px) {
+      .hl-cart-footer { flex-direction: row; align-items: center; justify-content: space-between; }
+    }
+  `,
 })
 export class CartComponent implements OnInit {
   readonly cartService = inject(CartService);
@@ -66,13 +80,12 @@ export class CartComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);
-  private readonly router = inject(Router);
+  private readonly paymentRedirect = inject(PaymentRedirectService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
   readonly typeKeys = PAYABLE_ITEM_TYPE_KEYS;
   readonly conceptKeys = CHARGE_CONCEPT_KEYS;
-  readonly kindKeys = PAYMENT_METHOD_KIND_KEYS;
   readonly sourceKeys = DATA_SOURCE_KEYS;
 
   loading = signal(true);
@@ -203,15 +216,8 @@ export class CartComponent implements OnInit {
     const payment = result.payment;
     this.toast.success(translate('cart.checkout.created', { number: payment.paymentNumber }));
     this.cartService.refresh();
-    const url = result.nextAction === 'Redirect' ? result.redirectUrl : null;
-    if (url && /^https?:\/\//i.test(url)) {
-      window.location.assign(url);
-    } else if (url) {
-      // Plataforma simulada (Dummy): devuelve directamente a la página de resultado del portal.
-      this.router.navigateByUrl(url);
-    } else {
-      this.router.navigate(['/payments', payment.id, 'result']);
-    }
+    // Pasarela (URL o formulario firmado), adaptador simulado o página de resultado.
+    this.paymentRedirect.continue(result);
   }
 
   changeCurrency(item: CartItem, event: Event): void {

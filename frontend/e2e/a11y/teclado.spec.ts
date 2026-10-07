@@ -2,6 +2,7 @@ import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/app';
 import { BL_PRUEBA, simularApi } from '../fixtures/api-mocks';
 import { sembrarIdioma, sembrarSesion } from '../fixtures/session';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
  * Fase 5c: navegación con teclado del shell (guía UI/a11y/i18n §3.5) y cabeceras de tabla (§3.1).
@@ -20,6 +21,8 @@ async function abrir(page: Page, ruta: string, autenticada = true): Promise<void
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
+  // Detalle del BL: los grupos diferidos se traen a la vista para revisar todas sus tablas.
+  if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
   await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
 }

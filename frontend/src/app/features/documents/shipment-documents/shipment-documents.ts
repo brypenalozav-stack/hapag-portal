@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { DocumentService } from '../../../core/services/document.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { FeatureService } from '../../../core/services/feature.service';
 import { CartService } from '../../../core/services/cart.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import {
@@ -65,6 +66,8 @@ type OpenDialog = 'blCopy' | 'letter' | null;
 export class ShipmentDocumentsComponent {
   private readonly service = inject(DocumentService);
   private readonly auth = inject(AuthService);
+  /** Certificado de flete (M6-02) y carta de liberación (M6-08) según sus flags. */
+  readonly features = inject(FeatureService);
   readonly cart = inject(CartService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);
@@ -73,6 +76,8 @@ export class ShipmentDocumentsComponent {
   blNumber = input.required<string>();
   /** El usuario opera sobre este embarque (detalle del BL); sin valor, el perfil de la sesión. */
   canOperate = input<boolean | null>(null);
+  /** Sin título propio dentro del grupo "Documentos" del detalle del BL (su h2 ya lo nombra). */
+  readonly showTitle = input(true);
   /** Se emite cuando se emite un documento que puede cambiar los cargos del BL (carta FFWW, M4-04). */
   changed = output<ShipmentDocument>();
 

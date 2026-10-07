@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Organizations.ContactLists;
 using HapagPortal.WebApi.Abstractions;
 using Microsoft.AspNetCore.Authorization;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/organizations/me/contact-lists")]
+[RequiresFeature(FeatureNames.ContactLists)]
 public sealed class ContactListsController : ApiController
 {
     [HttpGet]

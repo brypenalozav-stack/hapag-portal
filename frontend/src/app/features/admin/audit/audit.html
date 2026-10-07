@@ -49,7 +49,7 @@
         <tbody>
           @for (a of items(); track a.id) {
             <tr>
-              <td>{{ a.timestamp | hlDate:'datetimeSeconds' }}</td>
+              <td class="text-nowrap">{{ a.timestamp | hlDate:'datetimeSeconds' }}</td>
               <td class="fw-semibold">{{ a.entityName }}</td>
               <td>{{ a.entityId }}</td>
               <td><span class="badge bg-secondary">{{ a.action }}</span></td>

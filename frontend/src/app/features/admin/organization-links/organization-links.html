@@ -88,7 +88,7 @@
                 @if (l.status === 'Pending') {
                   <label class="form-label small fw-semibold mb-1" [for]="'link-notes-' + l.id">{{ 'admin.organizationLinks.notes' | transloco }}</label>
                   <input type="text" class="form-control form-control-sm mb-1" [id]="'link-notes-' + l.id" [name]="'link-notes-' + l.id" [(ngModel)]="notesFor[l.id]" />
-                  <div class="d-flex flex-wrap gap-1">
+                  <div class="hl-actions">
                     <button type="button" class="btn btn-sm btn-hl-green" [disabled]="busyId() === l.id" (click)="approve(l)"
                             [attr.aria-label]="'admin.organizationLinks.approveLabel' | transloco: { organization: l.organization.name, parent: l.parent.name }">{{ 'admin.organizationLinks.approve' | transloco }}</button>
                     <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === l.id" (click)="startReject(l)"

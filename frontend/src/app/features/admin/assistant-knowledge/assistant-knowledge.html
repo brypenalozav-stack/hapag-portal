@@ -150,7 +150,7 @@
               <td class="text-end">{{ article.sortOrder }}</td>
               <td>{{ (article.isActive ? 'admin.assistantKnowledge.status.active' : 'admin.assistantKnowledge.status.inactive') | transloco }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(article)"
                           [attr.aria-label]="'admin.assistantKnowledge.list.editLabel' | transloco: { title: article.title }">
                     {{ 'admin.assistantKnowledge.list.edit' | transloco }}
@@ -204,7 +204,7 @@
           <tbody>
             @for (change of history(); track change.id) {
               <tr>
-                <td>{{ change.changedAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ change.changedAt | hlDate: 'datetime' }}</td>
                 <td>{{ change.changedBy }}</td>
                 <td>{{ change.action | codeLabel: actionKeys }}</td>
                 @for (snapshot of [change.previous, change.current]; track $index) {

@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/app';
 import { simularApi } from '../fixtures/api-mocks';
+import { FASE2 } from '../fixtures/funcionalidades';
 import { OpcionesOlaD } from '../fixtures/ola-d-mocks';
 import {
   BL_COUNTER_FALLIDO,
@@ -13,6 +14,7 @@ import {
   TRANSPORTISTA,
 } from '../fixtures/ola-i-mocks';
 import { ORGANIZACION_PRUEBA, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
  * Fase 2, Ola I (pruebas funcionales con el backend simulado):
@@ -34,11 +36,13 @@ import { ORGANIZACION_PRUEBA, sembrarIdioma, sembrarSesion, sembrarSesionAdmin }
 const POLITE = 'div[aria-live="polite"]';
 
 async function abrir(page: Page, ruta: string, opciones: OpcionesOlaD & OpcionesOlaI = {}, sesion: 'cliente' | 'admin' | 'ninguna' = 'cliente'): Promise<void> {
-  await simularApi(page, opciones);
+  await simularApi(page, { ...opciones, features: FASE2 });
   if (sesion === 'admin') await sembrarSesionAdmin(page, 'es');
   else if (sesion === 'cliente') await sembrarSesion(page, { lang: 'es' });
   else await sembrarIdioma(page, 'es');
   await page.goto(ruta);
+  // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
+  if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
   await expect(page.getByTestId('table-skeleton')).toHaveCount(0);

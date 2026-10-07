@@ -19,6 +19,7 @@ import { ServiceRequestOverviewComponent } from '../shared/service-request-overv
 import { ServiceRequestPaymentComponent } from '../shared/service-request-payment';
 import { fieldLabel, localized, serviceErrorMessage } from '../shared/service-text';
 import { ToastService } from '../../../core/services/toast.service';
+import { FeatureService } from '../../../core/services/feature.service';
 
 /**
  * Detalle de una solicitud de servicio del cliente: estado, datos, cobro, adjuntos y línea de tiempo (M3-12, M3-13);
@@ -37,6 +38,7 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class ServiceRequestDetailComponent implements OnInit {
   private readonly service = inject(ServiceRequestService);
+  readonly features = inject(FeatureService);
   private readonly locale = inject(LocaleService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly toast = inject(ToastService);

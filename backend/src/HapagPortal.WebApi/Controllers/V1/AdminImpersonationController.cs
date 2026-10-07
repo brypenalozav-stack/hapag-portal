@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Impersonation;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Authentication;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 [HasPermission(AdministrationPermissions.UseImpersonation)]
 [Route("api/v{version:apiVersion}/admin/impersonation")]
+[RequiresFeature(FeatureNames.Impersonation)]
 public sealed class AdminImpersonationController : ApiController
 {
     /// <summary>Usuarios de la organización, indicando cuáles pueden verse como cliente.</summary>

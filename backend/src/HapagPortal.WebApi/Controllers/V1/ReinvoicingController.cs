@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Reinvoicing;
 using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.WebApi.Abstractions;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/reinvoicing")]
+[RequiresFeature(FeatureNames.Reinvoicing)]
 public sealed class ReinvoicingController : ApiController
 {
     [HttpGet("quote")]

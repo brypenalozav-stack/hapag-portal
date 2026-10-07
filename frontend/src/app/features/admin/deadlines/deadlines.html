@@ -76,8 +76,8 @@
                 <td class="fw-semibold">{{ i.ruleName }}</td>
                 <td>{{ i.blNumber || ('admin.deadlines.manifestOnly' | transloco) }}</td>
                 <td>{{ i.severity }}</td>
-                <td>{{ i.baseEventAt | hlDate:'datetime' }}</td>
-                <td>{{ i.dueAt | hlDate:'datetime' }}</td>
+                <td class="text-nowrap">{{ i.baseEventAt | hlDate:'datetime' }}</td>
+                <td class="text-nowrap">{{ i.dueAt | hlDate:'datetime' }}</td>
                 <td><span class="badge" [class]="statusClass(i.status)">
                     @if (statusKey(i.status); as key) { {{ key | transloco }} } @else { {{ i.status }} }
                   </span></td>

@@ -40,7 +40,6 @@
       "disabledBlocked": "You cannot pay while payments are suspended.",
       "help": "Choose the items, the currency and the payment method. Before paying you will see a summary to confirm.",
       "method": "Payment method",
-      "methodOption": "{{ name }} ({{ kind }})",
       "mixedCountries": "You selected items from different countries: a payment belongs to a single country. Unselect the items from the other country.",
       "noCurrency": "The selected items have no payment currency in common: pay them separately.",
       "noMethods": "There are no payment methods enabled for this currency.",
@@ -114,7 +113,6 @@
       "help": "For each item choose whether you pay it now or impute it to your credit line. Concepts not enabled by Finance are paid now.",
       "itemLegend": "{{ concept }} {{ number }} · BL {{ bl }} · {{ amount }}",
       "method": "Payment method",
-      "methodOption": "{{ name }} ({{ kind }})",
       "noCurrency": "The items you pay now have no payment currency in common: pay them separately.",
       "noMethods": "There are no payment methods enabled for this currency.",
       "nothing": "Nothing",
@@ -2979,7 +2977,6 @@
       "disabledReadOnly": "Your read-only profile cannot pay.",
       "error": "The payment could not be started. Check the cart and try again.",
       "method": "Payment method",
-      "methodOption": "{{ name }} ({{ kind }})",
       "methodRequired": "Choose a payment method.",
       "noMethods": "There are no payment methods enabled for this currency.",
       "retry": "Retry payment of {{ total }}",
@@ -3008,10 +3005,9 @@
     "goToAccountPayments": "Go to Pay from my account",
     "group": {
       "caption": "Items to pay in {{ currency }}",
-      "clear": "Empty",
       "clearCancel": "No",
       "clearConfirm": "Yes, empty it",
-      "clearLabel": "Empty the {{ currency }} cart section",
+      "clearLabel": "Empty the {{ currency }} cart",
       "clearQuestion": "Remove all items in {{ currency }}?",
       "cleared": "The {{ currency }} cart section was emptied.",
       "count": "{count, plural, one {# item} other {# items}}",
@@ -4132,8 +4128,7 @@
       "col": {
         "actions": "Actions",
         "bl": "BL",
-        "document": "Document",
-        "issuedAt": "Issued"
+        "document": "Document"
       },
       "download": "Download",
       "downloadError": "The document could not be downloaded. Try again.",
@@ -4172,18 +4167,6 @@
         "empty": "There are no shipments to show.",
         "title": "Shipments by status"
       },
-      "demurrage": {
-        "caption": "Bills of lading with demurrage at risk",
-        "col": {
-          "amount": "Amount",
-          "bl": "BL",
-          "state": "Status"
-        },
-        "empty": "There is no demurrage at risk.",
-        "lines": "{count, plural, one {# pending line} other {# pending lines}}",
-        "noAmount": "Amount not calculated yet",
-        "title": "Demurrage at risk"
-      },
       "departures": {
         "caption": "Upcoming departures in the next 14 days, by ETD",
         "col": {
@@ -4195,8 +4178,7 @@
       "shipments": {
         "col": {
           "bl": "BL",
-          "port": "Port",
-          "vessel": "Vessel and voyage"
+          "port": "Port"
         }
       },
       "title": "Operational indicators",
@@ -4204,33 +4186,12 @@
     },
     "loadError": "The dashboard could not be loaded.",
     "pending": {
-      "add": "Add to cart",
-      "addLabel": "Add {{ concept }} {{ reference }} to the cart",
-      "bl": "BL {{ bl }}",
-      "caption": "Services pending payment, overdue first",
-      "cartLabel": "{{ concept }} of BL {{ bl }}",
-      "col": {
-        "actions": "Actions",
-        "amount": "Amount",
-        "reference": "Reference",
-        "service": "Service",
-        "status": "Status"
-      },
-      "creditNote": "Your organization has credit terms: these items are paid from “Pay from my account”.",
-      "dueDate": "Due {{ date }}",
-      "empty": "You have no services pending payment.",
-      "go": "View",
-      "goLabel": "View {{ concept }} {{ reference }}",
-      "inCart": "In the cart",
-      "title": "Pending payments",
-      "truncated": "Showing {{ shown }} of {{ total }} pending items.",
-      "pagination": "Pending payments pages"
+      "truncated": "Showing {{ shown }} of {{ total }} pending items."
     },
     "requests": {
       "caption": "Requests in progress and finished in the last 30 days",
       "col": {
         "actions": "Actions",
-        "date": "Date",
         "request": "Request",
         "status": "Status"
       },
@@ -4248,22 +4209,6 @@
         "description": "Balances, due dates, debt aging and paying several invoices at once.",
         "title": "View my statement of account"
       },
-      "dangerousGoods": {
-        "description": "Check the class and UN number of a cargo.",
-        "title": "Search dangerous goods"
-      },
-      "demurrage": {
-        "description": "Review and calculate the charge for extra container days.",
-        "title": "Check demurrage"
-      },
-      "faq": {
-        "description": "Answers to the most common questions.",
-        "title": "Frequently asked questions"
-      },
-      "invoices": {
-        "description": "View, download and pay your invoices.",
-        "title": "View my invoices"
-      },
       "pay": {
         "description": "Pay charges, freight and services added to the cart.",
         "title": "Pay charges and services"
@@ -4272,25 +4217,26 @@
         "description": "Seals, Drop Off, BL corrections, house BL and other services for your shipment.",
         "title": "Request a service"
       },
-      "shipments": {
-        "description": "Status, documents and charges of each BL or booking.",
-        "title": "View my shipments"
-      },
       "tatc": {
         "description": "Request the TATC of several bills of lading of the same location.",
         "title": "Request TATC"
       },
       "title": "What do you need to do?",
-      "warehouse": {
-        "description": "Request the transfer of your cargo to another warehouse.",
-        "title": "Change warehouse"
+      "checkBl": {
+        "title": "Check a BL",
+        "description": "Release status, pending requirements and TATC of a BL."
+      },
+      "findShipment": {
+        "title": "Find a shipment",
+        "description": "Find a BL or booking and review its status."
+      },
+      "releaseLetter": {
+        "title": "Request a release letter",
+        "description": "Bolivian imports: upload the letter and follow its review."
       }
     },
     "summary": {
-      "accountPayments": "Pay from my account",
       "byOperation": "{{ imports }} import and {{ exports }} export",
-      "demurrageAtRisk": "Demurrage at risk",
-      "goToCart": "Go to the cart",
       "noPending": "No pending balances",
       "pendingPayments": "Pending payments",
       "requestsHelp": "Portal requests still being processed.",
@@ -4298,13 +4244,57 @@
       "shipments": "Shipments",
       "title": "Summary",
       "totalsLabel": "Pending balance by currency",
-      "viewDemurrage": "View demurrage",
-      "viewShipments": "View shipments",
-      "withPendingCharges": "{count, plural, =0 {No shipments with pending charges} one {# shipment with pending charges} other {# shipments with pending charges}}"
+      "viewShipments": "View shipments"
     },
     "title": "Dashboard",
     "unavailable": "We could not get the summary right now: the service is temporarily unavailable. Your data has not been lost.",
-    "welcome": "Welcome, {{ name }}"
+    "welcome": "Welcome, {{ name }}",
+    "action": {
+      "heading": "Requires your action",
+      "count": "{count, plural, one {# item} other {# items}}",
+      "creditNote": "Your organization has credit terms: charges are paid from “Pay from my account”.",
+      "reasonsLabel": "Reasons",
+      "statusLabel": "View the release status of BL {{ bl }}",
+      "actionLabel": "{{ action }}: {{ reference }}",
+      "cartLabel": "{{ concept }} of BL {{ bl }}",
+      "dueDate": "Due {{ date }}",
+      "showAll": "View all ({{ count }})",
+      "showLess": "View less",
+      "empty": {
+        "title": "All caught up",
+        "text": "You have no pending payments or procedures. We will let you know here when something requires your action."
+      },
+      "urgency": {
+        "overdue": "Overdue",
+        "urgent": "Urgent",
+        "pending": "Pending"
+      },
+      "reason": {
+        "charges": "{count, plural, one {# charge to pay} other {# charges to pay}}",
+        "invoice": "{count, plural, one {# invoice to pay} other {# invoices to pay}}",
+        "demurrageLines": "{count, plural, one {# demurrage line to pay} other {# demurrage lines to pay}}",
+        "demurrageAtRisk": "Demurrage at risk: {{ state }}",
+        "inCart": "{count, plural, one {# already in the cart} other {# already in the cart}}",
+        "requestDraft": "Request {{ reference }} not submitted",
+        "requestPendingPayment": "Request {{ reference }} pending payment",
+        "releaseLetterRejected": "Release letter {{ reference }} rejected"
+      },
+      "do": {
+        "addToCart": "Add to cart",
+        "goToCart": "Go to cart",
+        "payAccount": "Pay from my account",
+        "viewCharges": "View charges",
+        "reviewDemurrage": "Review demurrage",
+        "continueRequest": "Continue request",
+        "payRequest": "Pay request",
+        "uploadLetter": "Upload a new letter"
+      },
+      "title": {
+        "bl": "BL {{ reference }}",
+        "invoice": "Invoice {{ reference }}",
+        "other": "Procedure {{ reference }}"
+      }
+    }
   },
   "demurrage": {
     "calculator": {
@@ -4874,17 +4864,12 @@
     "col": {
       "actions": "Actions",
       "amount": "Amount",
-      "currency": "Currency",
-      "documentType": "Type",
+      "document": "Document",
       "dueDate": "Due date",
-      "issueDate": "Issue date",
-      "legalName": "Legal name",
+      "party": "Legal name and tax ID",
       "reference": "BL or booking",
       "select": "Select",
-      "siiNumber": "SII number",
-      "sourceNumber": "Source system number",
-      "status": "Status",
-      "taxId": "Tax ID"
+      "status": "Status"
     },
     "count": "{count, plural, one {# invoice} other {# invoices}}",
     "coveredBy": "Covered by receipt {{ receipt }} (payment {{ payment }})",
@@ -4917,6 +4902,7 @@
       "to": "Issued until"
     },
     "inCart": "In the cart",
+    "issuedOn": "Issued {{ date }}",
     "lastUpdated": "Last updated: {{ date }}",
     "noFolio": "No folio",
     "organization": "Organization",
@@ -4937,6 +4923,7 @@
     "reinvoiceLabel": "Re-invoice invoice {{ number }} to another legal entity",
     "selectDisabledLabel": "Invoice {{ number }} has no SII folio: it cannot be downloaded",
     "selectLabel": "Select invoice {{ number }} for download",
+    "sourceNumber": "Source",
     "statementLink": "View statement of account",
     "subtitle": "Local invoices of the organizations you have access to, kept separate from each other.",
     "supersededBy": "Superseded by invoice {{ number }}",
@@ -5511,6 +5498,15 @@
     "subtitle": "Payments made in the portal by your organization, as payer or as grantor, with their payment slip or receipt.",
     "title": "Payment history"
   },
+  "paymentRedirect": {
+    "title": "Payment at the bank's site",
+    "heading": "Taking you to the bank",
+    "text": "We are taking you to the bank's secure site to authorize the payment.",
+    "continue": "Continue to the bank",
+    "help": "If nothing happens in a few seconds, press “Continue to the bank”. When you finish, the bank will return you to the portal with the result.",
+    "missing": "This step is no longer available. Check the status of your payment.",
+    "viewStatus": "View the payment status"
+  },
   "paymentResult": {
     "announce": {
       "cancelled": "Payment {{ number }} cancelled. Nothing was charged.",
@@ -5594,6 +5590,39 @@
     },
     "title": "Payment result",
     "viewReceipt": "See receipt and details"
+  },
+  "paymentSimulator": {
+    "banner": {
+      "title": "Payment simulator — test mode.",
+      "text": "No real charge is made."
+    },
+    "gateway": "Simulated payment gateway",
+    "providers": {
+      "Khipu": "Khipu",
+      "Santander": "Getnet · Santander button",
+      "Bci": "Bci Pagos",
+      "BancoChile": "Banco de Chile"
+    },
+    "title": "Confirm your payment",
+    "merchant": "Merchant",
+    "merchantName": "Hapag-Lloyd",
+    "amount": "Amount to pay",
+    "reference": "Reference",
+    "instructions": "Choose the outcome you want to simulate. When you finish you will return to the portal, which will verify the payment as with the real gateway.",
+    "actions": {
+      "approve": "Pay",
+      "reject": "Reject the payment",
+      "pending": "Leave pending",
+      "cancel": "Cancel and return to the portal"
+    },
+    "help": "“Leave pending” simulates a payment the gateway has not confirmed yet: the portal will show it in process.",
+    "error": "The simulated outcome could not be recorded. Please try again.",
+    "notAvailable": "The simulator is not available for this payment: its payment method is not in test mode.",
+    "alreadyFinal": "This payment already has a final result and the simulator cannot change it. Check the payment status.",
+    "viewResult": "View the payment status",
+    "invalidTitle": "Payment simulator",
+    "invalid": "The payment simulator link is not valid. Check the status of your payment in the history.",
+    "goToHistory": "Go to payment history"
   },
   "profile": {
     "accountType": "Account Type",
@@ -6374,7 +6403,13 @@
         "label": "Theme",
         "light": "Light"
       },
-      "userMenu": "User menu: {{ name }}"
+      "userMenu": "User menu: {{ name }}",
+      "workspace": {
+        "label": "Workspace",
+        "customer": "Customer portal",
+        "backoffice": "Backoffice",
+        "changed": "Workspace: {{ name }}. The main menu changed."
+      }
     },
     "paymentBlock": {
       "consultAvailable": "Meanwhile you can look up your information and prepare the cart; payments are not possible.",
@@ -6399,44 +6434,43 @@
         "cart": "Cart",
         "counter": "Counter",
         "creditImputationRules": "Credit imputation",
-        "customs": "Customs Transmission",
+        "customs": "Customs transmission",
         "dangerousGoods": "Dangerous goods",
         "dangerousGoodsImport": "Dangerous goods base",
-        "dashboard": "Dashboard",
-        "deadlines": "Deadline Control",
+        "deadlines": "Deadline control",
         "demurrage": "Demurrage",
         "depositProofs": "Deposit proofs",
         "exceptionsReport": "Exceptions report",
-        "faq": "FAQ",
+        "faq": "Frequently asked questions",
         "guides": "Portal guides",
         "impersonation": "View as customer",
         "internalRules": "Charge rules",
         "invoices": "Invoices",
-        "localCharges": "Local Charges",
-        "organization": "My organization",
+        "localCharges": "Local charges",
         "organizationLinks": "Parent companies",
         "paymentBlocks": "Payment blocks",
         "paymentCurrencies": "Payment currencies",
         "paymentHistory": "Payment history",
         "paymentMethods": "Payment methods",
-        "paymentsFinance": "Finance: payments",
+        "paymentsFinance": "Payments & reconciliation",
         "publicationRules": "Publication rules",
-        "reports": "Reports",
+        "reports": "Management reports",
         "serviceDefinitions": "On-demand services",
-        "serviceOrders": "Service Orders",
+        "serviceOrders": "Service orders",
         "serviceRequestQueue": "Service requests",
         "serviceRequests": "My requests",
         "settlements": "Advances and matching",
-        "shipments": "Shipments",
+        "shipments": "My shipments",
         "tariffs": "Tariffs",
         "tatc": "Request TATC",
         "transactionsReport": "Transactions report",
         "users": "Users",
-        "warehouse": "Warehouse Change",
+        "warehouse": "Warehouse change",
         "localTariffs": "Local tariffs",
         "refunds": "Refunds",
         "releaseLetter": "Release letter",
-        "releaseStatus": "BL status"
+        "releaseStatus": "BL inquiry",
+        "allShipments": "All shipments"
       },
       "section": {
         "adminArea": "Administration area",
@@ -6527,20 +6561,28 @@
       "group": {
         "home": "Home",
         "shipments": "Shipments",
-        "payments": "Payments & billing",
-        "services": "Services",
-        "organization": "My organization",
+        "payments": "Payments",
+        "documents": "Documents & requests",
+        "help": "Help",
         "operations": "Operations",
+        "finance": "Finance",
+        "reports": "Reports & audit",
         "administration": "Administration"
       },
       "column": {
+        "tracking": "Tracking",
+        "cargo": "Cargo & containers",
+        "pay": "Pay",
+        "billing": "Invoices & payments made",
+        "procedures": "Requests",
+        "references": "Tariffs & links",
         "queues": "Queues",
-        "dataLoad": "Data loading",
-        "reports": "Reports & audit",
-        "general": "General",
+        "shipmentsData": "Shipments & data loading",
+        "payments": "Payments",
+        "paymentsConfig": "Payment settings",
+        "usersAccess": "Users & access",
         "chargesTariffs": "Charges & tariffs",
-        "paymentsConfig": "Payments",
-        "assistant": "Assistant"
+        "content": "Content & assistant"
       },
       "preferences": "Preferences"
     },
@@ -6553,6 +6595,31 @@
     "sectionNav": {
       "label": "Sections on this page",
       "title": "Go to"
+    },
+    "paymentMethodPicker": {
+      "group": {
+        "online": "Online payment",
+        "deposit": "Deposit or transfer"
+      },
+      "pill": {
+        "online": "Online · instant",
+        "deposit": "Deposit · confirmed by Finance"
+      },
+      "kindShort": {
+        "online": "online",
+        "deposit": "deposit"
+      },
+      "optionLabel": "{{ name }}, {{ kind }}"
+    },
+    "search": {
+      "label": "Shipment finder",
+      "placeholder": "BL, booking or container",
+      "submit": "Go to shipment",
+      "open": "Open the shipment finder",
+      "hint": "Enter a BL, booking or container number. Keyboard shortcut: slash.",
+      "invalid": "Enter at least 4 characters of a BL, booking or container number.",
+      "notFound": "We could not find a shipment with that number. Check the number or look for it in My shipments.",
+      "error": "The search could not be completed. Please try again."
     }
   },
   "shipments": {
@@ -6764,7 +6831,29 @@
         "unavailable": "The TATC system did not respond: we cannot show the current status. Try again in a few minutes."
       },
       "title": "Shipment {{ bl }}",
-      "releaseStatusLink": "See release status and TATC"
+      "releaseStatusLink": "See release status and TATC",
+      "summary": {
+        "nextAction": "Next action",
+        "routeLabel": "Route",
+        "route": "{{ pol }} → {{ pod }}",
+        "loading": "Checking the release requirements…",
+        "unavailable": "We could not check the release requirements right now. Review them in the release status page.",
+        "released": "All release requirements are met.",
+        "inProgress": "Some requirements are in progress: you do not need to do anything for now."
+      },
+      "groups": {
+        "summary": "Summary",
+        "containers": "Containers",
+        "charges": "Charges and payments",
+        "documents": "Documents",
+        "access": "Access and services",
+        "internal": "Internal"
+      },
+      "more": {
+        "parties": "Shipment parties and roles",
+        "partiesAndIssuance": "Parties, roles and BL issuance"
+      },
+      "viewFull": "See the full detail of BL {{ bl }}"
     },
     "list": {
       "caption": "Accessible shipments",

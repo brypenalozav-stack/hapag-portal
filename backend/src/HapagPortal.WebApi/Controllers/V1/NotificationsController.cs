@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Notifications.GetMy;
 using HapagPortal.Application.Notifications.MarkAllRead;
 using HapagPortal.Application.Notifications.MarkRead;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/notifications")]
+[RequiresFeature(FeatureNames.NotificationsInbox)]
 public sealed class NotificationsController : ApiController
 {
     [HttpGet]

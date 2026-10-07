@@ -24,6 +24,7 @@ import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { DepositProofsComponent } from '../deposit-proofs/deposit-proofs';
+import { FeatureService } from '../../../core/services/feature.service';
 
 /** Intervalo entre consultas del estado mientras la plataforma no confirma. */
 export const PAYMENT_POLL_INTERVAL_MS = 3000;
@@ -32,7 +33,8 @@ export const PAYMENT_POLL_MAX = 40;
 
 /**
  * Resultado de un pago (NF-02, NF-12): a esta página vuelve el usuario desde la plataforma de pago
- * (`/payments/:id/result?ref=`) y aquí llega también el depósito con boleta. Consulta el estado único
+ * (`/payments/:id/result?ref=`) y aquí llega también el depósito con boleta. Si el pago sigue en curso, pide una vez al
+ * portal que consulte a la pasarela (`POST /payments/:id/verify`) y luego consulta el estado único
  * del pago hasta que la plataforma confirme o rechace, y anuncia cada cambio en la región polite sin
  * mover el foco. Cada estado dice con certeza si hubo cobro. El depósito permite emitir la boleta; una
  * vez emitida, el cliente ya no puede anularla (M5-02): solo Finanzas. Ola E: si el pago confirmado emite
@@ -51,6 +53,8 @@ export const PAYMENT_POLL_MAX = 40;
 })
 export class PaymentResultComponent implements OnInit {
   private readonly service = inject(PaymentService);
+  /** Comprobante del depósito (M5-06, Fase 2): apagado por defecto. */
+  readonly features = inject(FeatureService);
   private readonly cart = inject(CartService);
   private readonly announcer = inject(LiveAnnouncerService);
   private readonly destroyRef = inject(DestroyRef);
@@ -77,6 +81,8 @@ export class PaymentResultComponent implements OnInit {
   confirmingCancel = signal(false);
 
   private polls = 0;
+  /** Ya se pidió al portal consultar a la pasarela en esta carga (vuelta del pagador o «Consultar de nuevo»). */
+  private verified = false;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private lastStatus = '';
 
@@ -117,6 +123,7 @@ export class PaymentResultComponent implements OnInit {
     this.error.set('');
     this.pollExhausted.set(false);
     this.polls = 0;
+    this.verified = false;
     this.fetch();
   }
 
@@ -150,7 +157,9 @@ export class PaymentResultComponent implements OnInit {
       // Pago confirmado o fallido: el carro cambió (ítems pagados o devueltos).
       if ((FINAL_PAYMENT_STATUSES as readonly string[]).includes(status)) this.cart.refresh();
     }
-    if (this.waiting() && this.polls < PAYMENT_POLL_MAX) {
+    if (this.waiting() && !this.verified) {
+      this.verify();
+    } else if (this.waiting() && this.polls < PAYMENT_POLL_MAX) {
       this.polls++;
       this.polling.set(true);
       this.timer = setTimeout(() => this.fetch(), PAYMENT_POLL_INTERVAL_MS);
@@ -158,6 +167,21 @@ export class PaymentResultComponent implements OnInit {
       this.polling.set(false);
       this.pollExhausted.set(this.waiting());
     }
+  }
+
+  /**
+   * Pago en curso al volver de la pasarela: el portal consulta a la pasarela su estado (la vuelta no confirma por sí
+   * sola). Si la consulta no está disponible, se sigue con la consulta periódica del estado.
+   */
+  private verify(): void {
+    this.verified = true;
+    this.polling.set(true);
+    this.service.verify(this.id()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (detail) => this.apply(detail),
+      error: () => {
+        this.timer = setTimeout(() => this.fetch(), PAYMENT_POLL_INTERVAL_MS);
+      },
+    });
   }
 
   /** Texto del anuncio: el estado y, en lo posible, si hubo cobro (NF-12). */

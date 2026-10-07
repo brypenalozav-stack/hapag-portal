@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.WebService;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Documents.ResponsibilityLetter;
 using HapagPortal.Application.WarehouseChanges.Bulk;
 using HapagPortal.Application.WarehouseChanges.Requests;
@@ -22,6 +23,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize(AuthenticationSchemes = ApiKeyDefaults.Scheme)]
 [Route("api/ws/v{version:apiVersion}")]
+[RequiresFeature(FeatureNames.ApiClients)]
 public sealed class WebServiceController : ApiController
 {
     /// <summary>Cliente autenticado: organización, alcances, límite y versión vigente de los términos de la carta.</summary>

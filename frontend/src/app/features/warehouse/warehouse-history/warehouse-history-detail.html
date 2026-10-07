@@ -145,7 +145,7 @@
           <tbody>
             @for (e of events(); track $index) {
               <tr>
-                <td>{{ e.occurredAt | hlDate: 'datetime' : c.timeZone }}</td>
+                <td class="text-nowrap">{{ e.occurredAt | hlDate: 'datetime' : c.timeZone }}</td>
                 <td class="fw-semibold">{{ e.event | codeLabel: eventKeys }}</td>
                 <td>{{ eventStatus(e) || '—' }}</td>
                 <td class="text-break">{{ e.actor ?? '—' }}</td>

@@ -17,32 +17,14 @@ import { HlCurrencyPipe } from '../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
 import { focusAfterRender } from '../../shared/focus-after-render';
 import { saveBlob } from '../../shared/save-blob';
+import { RELEASE_ACTION_KEYS, RELEASE_STEP_TITLE, releaseActionRoute } from './release-steps';
 
 const RECENT_KEY = 'hl_recent_bl_status';
 const RECENT_MAX = 5;
 
-/** Título de cada requisito. */
-const STEP_TITLE: Record<string, string> = {
-  FREIGHT: 'releaseStatus.step.FREIGHT.title',
-  LOCAL_CHARGES: 'releaseStatus.step.LOCAL_CHARGES.title',
-  RESPONSIBILITY_LETTER: 'releaseStatus.step.RESPONSIBILITY_LETTER.title',
-  DEMURRAGE: 'releaseStatus.step.DEMURRAGE.title',
-  ADVANCE_DEMURRAGE: 'releaseStatus.step.ADVANCE_DEMURRAGE.title',
-  NO_DEBT_CERTIFICATE: 'releaseStatus.step.NO_DEBT_CERTIFICATE.title',
-  RELEASE_LETTER: 'releaseStatus.step.RELEASE_LETTER.title',
-};
-
-/** Texto del botón de cada acción. */
-const ACTION_KEYS: Record<string, string> = {
-  PayFreight: 'releaseStatus.action.PayFreight',
-  PayCharges: 'releaseStatus.action.PayCharges',
-  IssueResponsibilityLetter: 'releaseStatus.action.IssueResponsibilityLetter',
-  CalculateDemurrage: 'releaseStatus.action.CalculateDemurrage',
-  PayDemurrage: 'releaseStatus.action.PayDemurrage',
-  PayAdvanceDemurrage: 'releaseStatus.action.PayAdvanceDemurrage',
-  RequestNoDebtCertificate: 'releaseStatus.action.RequestNoDebtCertificate',
-  RequestReleaseLetter: 'releaseStatus.action.RequestReleaseLetter',
-};
+/** Título de cada requisito y texto del botón de cada acción (compartidos con el encabezado del detalle del BL). */
+const STEP_TITLE = RELEASE_STEP_TITLE;
+const ACTION_KEYS = RELEASE_ACTION_KEYS;
 
 /** Avisos del TATC. */
 const NOTICE_KEYS: Record<string, string> = {
@@ -102,7 +84,7 @@ export class ReleaseStatusComponent {
   readonly downloading = signal<string | null>(null);
 
   readonly tatcKeys = TATC_STATUS_KEYS;
-  readonly tatcClass = TATC_STATUS_CLASS;
+  readonly tatcClass: Readonly<Partial<Record<string, string>>> = TATC_STATUS_CLASS;
   readonly reasonKeys = TATC_PENDING_REASON_KEYS;
 
   /** Solicitudes automáticas ya hechas en esta sesión (una por BL). */
@@ -254,23 +236,7 @@ export class ReleaseStatusComponent {
 
   /** Ruta de la pantalla que resuelve el paso. */
   actionRoute(step: ReleaseStep, bl: string): string[] | null {
-    switch (step.action) {
-      case 'PayFreight':
-        return ['/shipments', bl];
-      case 'PayCharges':
-        return ['/charges', bl];
-      case 'IssueResponsibilityLetter':
-      case 'RequestNoDebtCertificate':
-        return ['/shipments', bl, 'documents'];
-      case 'CalculateDemurrage':
-      case 'PayDemurrage':
-      case 'PayAdvanceDemurrage':
-        return ['/demurrage', bl];
-      case 'RequestReleaseLetter':
-        return ['/shipments', bl, 'release-letter'];
-      default:
-        return null;
-    }
+    return releaseActionRoute(step, bl);
   }
 
   /** Estado de un elemento en palabras; un código sin traducción se muestra tal cual. */

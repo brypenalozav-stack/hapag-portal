@@ -1,3 +1,6 @@
 # Ensure shell scripts have LF line endings (required for Docker/Linux)
 *.sh text eol=lf
 Dockerfile text eol=lf
+# Los .bat necesitan CRLF: con LF cmd.exe no encuentra las etiquetas
+*.bat text eol=crlf
+*.cmd text eol=crlf

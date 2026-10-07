@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DemurragePanelComponent } from './demurrage-panel/demurrage-panel';
 
@@ -12,7 +12,7 @@ import { DemurragePanelComponent } from './demurrage-panel/demurrage-panel';
 @Component({
   selector: 'app-demurrage',
   standalone: true,
-  imports: [FormsModule, TranslocoPipe, DemurragePanelComponent],
+  imports: [FormsModule, RouterLink, TranslocoPipe, DemurragePanelComponent],
   templateUrl: './demurrage.html',
   styles: [':host { display: block; }'],
 })

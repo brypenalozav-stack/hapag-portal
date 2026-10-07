@@ -3,7 +3,9 @@
     <h1>{{ 'invoices.title' | transloco }}</h1>
     <p class="text-muted mb-0">{{ 'invoices.subtitle' | transloco }}</p>
   </div>
-  <a routerLink="/account-statement" class="btn btn-outline-secondary btn-sm" data-testid="invoices-statement-link">{{ 'invoices.statementLink' | transloco }}</a>
+  @if (features.enabled('AccountStatement')) {
+    <a routerLink="/account-statement" class="btn btn-outline-secondary btn-sm" data-testid="invoices-statement-link">{{ 'invoices.statementLink' | transloco }}</a>
+  }
 </div>
 
 <!-- Organización: la información no se mezcla entre organizaciones (M7-01) -->
@@ -110,18 +112,13 @@
           <thead>
             <tr>
               <th scope="col"><span class="visually-hidden">{{ 'invoices.col.select' | transloco }}</span></th>
-              <th scope="col" appSortHeader="number" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.siiNumber' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.sourceNumber' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.documentType' | transloco }}</th>
-              <th scope="col" appSortHeader="issueDate" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.issueDate' | transloco }}</th>
+              <th scope="col" appSortHeader="number" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.document' | transloco }}</th>
               <th scope="col" appSortHeader="dueDate" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.dueDate' | transloco }}</th>
               <th scope="col" appSortHeader="blNumber" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.reference' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.legalName' | transloco }}</th>
-              <th scope="col">{{ 'invoices.col.taxId' | transloco }}</th>
+              <th scope="col">{{ 'invoices.col.party' | transloco }}</th>
               <th scope="col" class="text-end" appSortHeader="totalAmount" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.amount' | transloco }}</th>
-              <th scope="col" appSortHeader="currency" [sort]="sort()" (sortChange)="onSort($event)">{{ 'invoices.col.currency' | transloco }}</th>
               <th scope="col">{{ 'invoices.col.status' | transloco }}</th>
-              <th scope="col"><span class="visually-hidden">{{ 'invoices.col.actions' | transloco }}</span></th>
+              <th scope="col" class="hl-col-sticky-end"><span class="visually-hidden">{{ 'invoices.col.actions' | transloco }}</span></th>
             </tr>
           </thead>
           <tbody>
@@ -133,34 +130,41 @@
                          [attr.aria-label]="(inv.canDownload ? 'invoices.selectLabel' : 'invoices.selectDisabledLabel') | transloco: { number: label(inv) }" />
                 </td>
                 <!-- Número SII y número del sistema de origen, diferenciados (M7-01) -->
-                <td class="fw-semibold" data-testid="invoice-sii">
-                  @if (inv.siiNumber) {
-                    {{ inv.siiNumber }}
-                  } @else {
-                    <span class="small fw-normal">{{ 'invoices.noFolio' | transloco }}</span>
-                  }
+                <!-- Una columna por documento: número SII destacado y, debajo, tipo y número del sistema de origen (M7-01) -->
+                <td class="text-nowrap">
+                  <span class="fw-semibold d-block" data-testid="invoice-sii">
+                    @if (inv.siiNumber) {
+                      {{ inv.siiNumber }}
+                    } @else {
+                      <span class="small fw-normal">{{ 'invoices.noFolio' | transloco }}</span>
+                    }
+                  </span>
+                  <span class="small text-muted d-block">{{ inv.documentType | codeLabel: docTypeKeys }}</span>
+                  <span class="small text-muted d-block">{{ 'invoices.sourceNumber' | transloco }} <span data-testid="invoice-source">{{ inv.sourceNumber }}</span></span>
                 </td>
-                <td data-testid="invoice-source">{{ inv.sourceNumber }}</td>
-                <td>{{ inv.documentType | codeLabel: docTypeKeys }}</td>
-                <td>{{ inv.issueDate | hlDate: 'localDate' }}</td>
-                <td>{{ inv.dueDate ? (inv.dueDate | hlDate: 'localDate') : '—' }}</td>
+                <!-- Vencimiento destacado (define si se puede pagar a tiempo) y la emisión debajo -->
+                <td class="text-nowrap">
+                  {{ inv.dueDate ? (inv.dueDate | hlDate: 'localDate') : '—' }}
+                  <span class="small text-muted d-block">{{ 'invoices.issuedOn' | transloco: { date: (inv.issueDate | hlDate: 'localDate') } }}</span>
+                </td>
                 <td>
                   {{ inv.blNumber ?? '—' }}
                   @if (inv.bookingNumber) {
                     <span class="small text-muted d-block">{{ 'invoices.booking' | transloco: { booking: inv.bookingNumber } }}</span>
                   }
                 </td>
-                <td>{{ inv.legalName }}</td>
-                <td>{{ inv.taxId }}</td>
-                <td class="text-end">{{ inv.totalAmount | hlCurrency: inv.currency }}</td>
-                <td>{{ inv.currency }}</td>
-                <td>
+                <td class="hl-cell-name">
+                  {{ inv.legalName }}
+                  <span class="small text-muted d-block text-nowrap">{{ inv.taxId }}</span>
+                </td>
+                <td class="text-end text-nowrap">{{ inv.totalAmount | hlCurrency: inv.currency }}</td>
+                <td class="hl-cell-name">
                   <span class="hl-badge" [class]="statusClass(inv)">{{ inv.status | codeLabel: statusKeys }}</span>
                   <!-- Fase 2, Ola H: refacturación IAO (M3-11) y factura cubierta por un pago anticipado (M3-19) -->
                   @if (inv.supersededByInvoiceId) {
                     <span class="small d-block mt-1" data-testid="invoice-superseded-by">
                       @if (related(inv.supersededByInvoiceId); as other) {
-                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="goToRow(other)">{{ 'invoices.supersededBy' | transloco: { number: label(other) } }}</button>
+                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline text-start" (click)="goToRow(other)">{{ 'invoices.supersededBy' | transloco: { number: label(other) } }}</button>
                       } @else {
                         {{ 'invoices.supersededByOther' | transloco }}
                       }
@@ -169,13 +173,13 @@
                   @if (inv.supersedesInvoiceId) {
                     <span class="small d-block mt-1" data-testid="invoice-supersedes">
                       @if (related(inv.supersedesInvoiceId); as other) {
-                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="goToRow(other)">{{ 'invoices.supersedes' | transloco: { number: label(other) } }}</button>
+                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline text-start" (click)="goToRow(other)">{{ 'invoices.supersedes' | transloco: { number: label(other) } }}</button>
                       } @else {
                         {{ 'invoices.supersedesOther' | transloco }}
                       }
                     </span>
                   }
-                  @if (inv.coveredBy; as cov) {
+                  @if (features.enabled('GateOutAdvance') && inv.coveredBy; as cov) {
                     <span class="small d-block mt-1" data-testid="invoice-covered-by">
                       {{ 'invoices.coveredBy' | transloco: { receipt: cov.receiptDocumentNumber ?? cov.receiptNumber ?? cov.paymentNumber, payment: cov.paymentNumber } }}
                     </span>
@@ -184,19 +188,16 @@
                     }
                   }
                 </td>
-                <td>
-                  <div class="d-flex flex-wrap gap-1">
+                <td class="hl-col-sticky-end">
+                  <!-- Orden fijo (PDF, carro, refacturación); sin PDF queda su hueco: las acciones se alinean entre filas -->
+                  <div class="hl-actions">
                     @if (inv.canDownload) {
                       <button type="button" class="btn btn-sm btn-outline-secondary" (click)="downloadPdf(inv)"
                               [attr.aria-label]="'invoices.download.pdfLabel' | transloco: { number: label(inv) }">
                         {{ 'invoices.download.pdf' | transloco }}
                       </button>
-                    }
-                    @if (canReinvoice(inv)) {
-                      <a class="btn btn-sm btn-outline-secondary" routerLink="/reinvoicing/new" [queryParams]="{ invoiceId: inv.id }"
-                         [attr.aria-label]="'invoices.reinvoiceLabel' | transloco: { number: label(inv) }">
-                        {{ 'invoices.reinvoice' | transloco }}
-                      </a>
+                    } @else {
+                      <span class="btn btn-sm btn-outline-secondary hl-actions__slot" aria-hidden="true">{{ 'invoices.download.pdf' | transloco }}</span>
                     }
                     @if (inv.inCart) {
                       <span class="small fw-semibold">{{ 'invoices.inCart' | transloco }}</span>
@@ -205,6 +206,12 @@
                               [attr.aria-label]="'invoices.addToCartLabel' | transloco: { number: label(inv) }">
                         {{ 'invoices.addToCart' | transloco }}
                       </button>
+                    }
+                    @if (canReinvoice(inv)) {
+                      <a class="btn btn-sm btn-outline-secondary" routerLink="/reinvoicing/new" [queryParams]="{ invoiceId: inv.id }"
+                         [attr.aria-label]="'invoices.reinvoiceLabel' | transloco: { number: label(inv) }">
+                        {{ 'invoices.reinvoice' | transloco }}
+                      </a>
                     }
                   </div>
                 </td>

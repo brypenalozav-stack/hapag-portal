@@ -4,6 +4,7 @@ using FluentValidation;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Common.Models;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Documents.ReleaseLetter;
 using HapagPortal.Application.ServiceRequests.Common;
 using HapagPortal.Application.ServiceRequests.Requests;
@@ -142,7 +143,7 @@ internal static class InternalServiceRequests
     }
 }
 
-public sealed class GetServiceRequestQueueQueryHandler(IApplicationDbContext dbContext)
+public sealed class GetServiceRequestQueueQueryHandler(IApplicationDbContext dbContext, FeatureSettings features)
     : IQueryHandler<GetServiceRequestQueueQuery, PagedResult<ServiceRequestSummaryDto>>
 {
     private static readonly string[] Actionable = [ServiceRequestStatus.PendingApproval, ServiceRequestStatus.InProgress];
@@ -150,7 +151,8 @@ public sealed class GetServiceRequestQueueQueryHandler(IApplicationDbContext dbC
     public async Task<Result<PagedResult<ServiceRequestSummaryDto>>> Handle(GetServiceRequestQueueQuery request, CancellationToken cancellationToken)
     {
         var query = dbContext.ServiceRequests.AsNoTracking()
-            .Where(r => r.Status != ServiceRequestStatus.Draft);
+            .Where(r => r.Status != ServiceRequestStatus.Draft)
+            .VisibleFor(features);
 
         if (!string.IsNullOrWhiteSpace(request.Status))
             query = query.Where(r => r.Status == request.Status);

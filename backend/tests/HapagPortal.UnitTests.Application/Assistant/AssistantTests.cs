@@ -4,6 +4,7 @@ using FluentAssertions;
 using HapagPortal.Application.Assistant;
 using HapagPortal.Application.ChargeRules.Common;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Dashboard;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.Repository;
@@ -82,13 +83,13 @@ public sealed class AssistantTests
         var sender = new TestSender()
             .Register(new GetShipmentDetailQueryHandler(_db, evaluator, _rules, TestShipmentSources.IssuanceReader()))
             .Register(new SearchShipmentsQueryHandler(_db, evaluator))
-            .Register(new GetShipmentDocumentsQueryHandler(_db, evaluator, _rules, new ResponsibilityLetterStatus(_db)))
+            .Register(new GetShipmentDocumentsQueryHandler(_db, evaluator, _rules, new ResponsibilityLetterStatus(_db), FeatureSettings.AllEnabled()))
             .Register(new GetShipmentTatcQueryHandler(_db, evaluator, tatc))
-            .Register(new GetDashboardQueryHandler(_db, evaluator, _rules));
+            .Register(new GetDashboardQueryHandler(_db, evaluator, _rules, FeatureSettings.AllEnabled()));
 
         var rules = new RulesAssistantEngine();
         engine ??= rules;
-        var responder = new AssistantResponder(_db, engine, rules, new AssistantDataRetriever(sender, _db, evaluator));
+        var responder = new AssistantResponder(_db, engine, rules, new AssistantDataRetriever(sender, _db, evaluator), FeatureSettings.AllEnabled());
 
         return new Handlers(
             new StartAssistantSessionCommandHandler(_db, evaluator, currentUser, engine, _settings),

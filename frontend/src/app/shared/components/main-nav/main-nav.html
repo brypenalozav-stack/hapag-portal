@@ -62,6 +62,8 @@
 
 <!-- Móvil: panel lateral con acordeón -->
 <aside id="hl-sidebar" class="hl-drawer" [class.show]="mobileOpen()">
+  <!-- Perfiles internos: en pantallas angostas el selector de espacio está aquí y no en la barra superior -->
+  <app-workspace-switcher variant="drawer" />
   <nav [attr.aria-label]="'shared.sidebar.label' | transloco">
     @for (g of groups(); track g.id) {
       @if (g.route) {
@@ -77,6 +79,8 @@
           </svg>
         </button>
         <div class="hl-drawer__section" [id]="'hl-drawer-section-' + g.id" [class.is-open]="expanded().has(g.id)">
+          <!-- Un solo hijo: la fila animada del acordeón (0fr → 1fr) contiene todas las columnas -->
+          <div>
           @for (col of g.columns; track $index) {
             @if (col.titleKey) {
               <p class="hl-drawer__col-title">{{ col.titleKey | transloco }}</p>
@@ -97,27 +101,11 @@
               }
             </ul>
           }
+          </div>
         </div>
       }
     }
   </nav>
-
-  <!-- Preferencias (solo en pantallas angostas, donde no caben en la barra superior) -->
-  <section class="hl-drawer__prefs" [attr.aria-labelledby]="'hl-drawer-prefs-title'">
-    <h2 id="hl-drawer-prefs-title" class="hl-drawer__col-title">{{ 'shared.menu.preferences' | transloco }}</h2>
-    <label for="hl-theme-drawer" class="hl-drawer__label">{{ 'shared.navbar.theme.label' | transloco }}</label>
-    <select id="hl-theme-drawer" class="form-select form-select-sm" (change)="onTheme($event)">
-      @for (option of themeOptions; track option) {
-        <option [value]="option" [selected]="themes.preference() === option">{{ themeKeys[option] | transloco }}</option>
-      }
-    </select>
-    <div class="btn-group btn-group-sm mt-3" role="group" [attr.aria-label]="'shared.navbar.language.label' | transloco">
-      <button type="button" class="btn btn-outline-light" lang="es" [class.active]="locale.lang() === 'es'" [attr.aria-pressed]="locale.lang() === 'es'"
-              [attr.aria-label]="'shared.navbar.language.es' | transloco" (click)="locale.setLang('es')">ES</button>
-      <button type="button" class="btn btn-outline-light" lang="en" [class.active]="locale.lang() === 'en'" [attr.aria-pressed]="locale.lang() === 'en'"
-              [attr.aria-label]="'shared.navbar.language.en' | transloco" (click)="locale.setLang('en')">EN</button>
-    </div>
-  </section>
 </aside>
 @if (mobileOpen()) {
   <!-- Solo para puntero: con teclado el panel se cierra con Esc o con el botón de menú -->

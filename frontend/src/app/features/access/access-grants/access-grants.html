@@ -137,15 +137,15 @@
                 }
               </td>
             }
-            <td>
+            <td class="hl-cell-name">
               <span class="fw-semibold">{{ grant.grantor.name }}</span>
               <span class="d-block small text-muted">{{ grant.direction | codeLabel: directionKeys }}</span>
             </td>
-            <td>
+            <td class="hl-cell-name">
               <span class="fw-semibold">{{ grant.grantee.name }}</span>
               <span class="d-block small text-muted">{{ grant.grantee.organizationType | codeLabel: typeKeys }}</span>
             </td>
-            <td>
+            <td class="text-nowrap">
               @if (grant.blNumber) {
                 <span class="d-block">{{ 'thirdPartyAccess.grants.blLabel' | transloco: { bl: grant.blNumber } }}</span>
               }
@@ -153,8 +153,8 @@
                 <span class="d-block small">{{ 'thirdPartyAccess.grants.bookingLabel' | transloco: { booking: grant.bookingNumber } }}</span>
               }
             </td>
-            <td>{{ grant.validFrom | hlDate }}</td>
-            <td>{{ grant.validTo ? (grant.validTo | hlDate) : ('thirdPartyAccess.grants.noEnd' | transloco) }}</td>
+            <td class="text-nowrap">{{ grant.validFrom | hlDate }}</td>
+            <td class="text-nowrap">{{ grant.validTo ? (grant.validTo | hlDate) : ('thirdPartyAccess.grants.noEnd' | transloco) }}</td>
             <td>
               <details>
                 <summary class="small">
@@ -179,7 +179,7 @@
             @if (canManage()) {
               <td>
                 @if (grant.canEdit) {
-                  <div class="d-flex flex-wrap gap-1">
+                  <div class="hl-actions">
                     <button type="button" class="btn btn-sm btn-outline-secondary"
                             [attr.aria-label]="'thirdPartyAccess.grants.editLabel' | transloco: { name: grant.grantee.name, reference: referenceOf(grant) }"
                             [attr.aria-expanded]="editing()?.id === grant.id" (click)="startEdit(grant)">

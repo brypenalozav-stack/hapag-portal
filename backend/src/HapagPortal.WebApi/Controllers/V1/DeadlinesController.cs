@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Deadlines.Dashboard;
 using HapagPortal.Application.Deadlines.GetRules;
 using HapagPortal.Application.Deadlines.Recalculate;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiVersion("1.0")]
 [Authorize]
 [Route("api/v{version:apiVersion}/deadlines")]
+[RequiresFeature(FeatureNames.DocumentaryDeadlines)]
 public sealed class DeadlinesController : ApiController
 {
     [HttpGet("rules")]

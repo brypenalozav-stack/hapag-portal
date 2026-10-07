@@ -192,7 +192,7 @@ PUERTO = {
     "TC": ("IExchangeRateProvider", "DummyExchangeRateProvider", "HttpNexusClient", "CT-NEXUS"),
     "TAR": ("ITariffProvider", "DummyTariffProvider", "HttpNexusClient", "CT-NEXUS"),
     "SHIP": ("IShipmentSource", "DummyShipmentSource", "HttpShipmentSource", "CT-FIS"),
-    "PAY": ("IPaymentProvider", "DummyPaymentProvider", "HttpKhipuPaymentProvider, HttpBancoChilePaymentProvider",
+    "PAY": ("IPaymentProvider", "DummyPaymentProvider", "HttpKhipuPaymentProvider, GetnetPaymentProvider, BciPagosPaymentProvider, BancoChileFormPaymentProvider",
             "CT-KHIPU, CT-BCH, CT-SANT, CT-BCI"),
     "INV": ("IInvoiceProvider", "DummyInvoiceProvider", "HttpInvoiceProvider", "CT-DBNET"),
     "TRK": ("ITrackingProvider", "DummyTrackingProvider", "HttpTrackingProvider", "CT-TRACK"),

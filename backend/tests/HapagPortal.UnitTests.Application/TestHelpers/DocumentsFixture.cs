@@ -2,6 +2,7 @@ namespace HapagPortal.UnitTests.Application.TestHelpers;
 
 using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Documents.BlCopy;
 using HapagPortal.Application.Documents.Common;
 using HapagPortal.Application.Documents.NoDebt;
@@ -35,7 +36,7 @@ public sealed class DocumentsFixture
         new(Db, actor.Evaluator(Db), actor.CurrentUser, Documents());
 
     public GetShipmentDocumentsQueryHandler List(PaymentsFixture.Actor actor) =>
-        new(Db, actor.Evaluator(Db), Payments.Rules.ChargeRules(), new ResponsibilityLetterStatus(Db));
+        new(Db, actor.Evaluator(Db), Payments.Rules.ChargeRules(), new ResponsibilityLetterStatus(Db), FeatureSettings.AllEnabled());
 
     public DownloadShipmentDocumentCommandHandler Download(PaymentsFixture.Actor actor) =>
         new(Db, actor.Evaluator(Db), actor.CurrentUser, Documents());

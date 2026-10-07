@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Impersonation;
 using HapagPortal.WebApi.Abstractions;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 public sealed class ImpersonationController : ApiController
 {
     [HttpGet("current")]
+    [RequiresFeature(FeatureNames.Impersonation)]
     public async Task<IActionResult> Current(CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new GetCurrentImpersonationQuery(), cancellationToken);

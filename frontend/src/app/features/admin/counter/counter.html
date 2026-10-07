@@ -200,11 +200,11 @@
         <tbody>
           @for (r of records(); track r.id) {
             <tr [attr.data-testid]="'counter-row-' + r.blNumber">
-              <td class="fw-semibold">{{ r.blNumber }}</td>
+              <td class="fw-semibold text-nowrap">{{ r.blNumber }}</td>
               <td>{{ r.country }}</td>
-              <td>{{ r.exchangeDate ? (r.exchangeDate | hlDate: 'localDate') : '—' }}</td>
-              <td>{{ r.hblReceived ? (r.hblReceivedAt ? (r.hblReceivedAt | hlDate: 'localDate') : ('admin.counter.yes' | transloco)) : ('admin.counter.no' | transloco) }}</td>
-              <td>{{ r.deconsolidated ? (r.deconsolidatedAt ? (r.deconsolidatedAt | hlDate: 'localDate') : ('admin.counter.yes' | transloco)) : ('admin.counter.no' | transloco) }}</td>
+              <td class="text-nowrap">{{ r.exchangeDate ? (r.exchangeDate | hlDate: 'localDate') : '—' }}</td>
+              <td class="text-nowrap">{{ r.hblReceived ? (r.hblReceivedAt ? (r.hblReceivedAt | hlDate: 'localDate') : ('admin.counter.yes' | transloco)) : ('admin.counter.no' | transloco) }}</td>
+              <td class="text-nowrap">{{ r.deconsolidated ? (r.deconsolidatedAt ? (r.deconsolidatedAt | hlDate: 'localDate') : ('admin.counter.yes' | transloco)) : ('admin.counter.no' | transloco) }}</td>
               <td>
                 <span class="hl-badge" [class]="syncClass[r.syncStatus] || 'hl-badge--processing'">{{ r.syncStatus | codeLabel: syncKeys }}</span>
                 @if (r.syncStatus === 'Failed' && r.syncError) {
@@ -213,7 +213,7 @@
               </td>
               <td class="small">{{ 'admin.counter.recordedBy' | transloco: { date: ((r.recordedAt ?? r.createdAt) | hlDate: 'datetime'), user: r.recordedBy ?? r.createdBy ?? '' } }}</td>
               <td>
-                <div class="d-flex flex-wrap gap-1">
+                <div class="hl-actions">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openRecord(r.blNumber)"
                           [attr.aria-label]="'admin.counter.editLabel' | transloco: { bl: r.blNumber }">{{ 'admin.counter.edit' | transloco }}</button>
                   @if (r.syncStatus === 'Failed') {

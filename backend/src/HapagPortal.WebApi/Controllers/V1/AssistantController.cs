@@ -2,6 +2,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
 using HapagPortal.Application.Assistant;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Authentication;
 using HapagPortal.WebApi.Abstractions;
@@ -47,6 +48,7 @@ public sealed class AssistantController : ApiController
     /// descarga con el canal <c>Assistant</c> (NF-14).
     /// </summary>
     [HttpGet("sessions/{id:guid}/deliveries/{deliveryId:guid}/download")]
+    [RequiresFeature(FeatureNames.AssistantDelivery)]
     public async Task<IActionResult> DownloadDelivery(Guid id, Guid deliveryId, CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new DownloadAssistantDeliveryCommand(id, deliveryId), cancellationToken);

@@ -138,7 +138,7 @@
           @for (row of table.rows(); track row.id) {
             <tr [attr.data-testid]="'settlement-row-' + row.paymentNumber + '-' + row.conceptCode">
               <td>
-                <span class="fw-semibold d-block">{{ row.paymentNumber }}</span>
+                <span class="fw-semibold d-block text-nowrap">{{ row.paymentNumber }}</span>
                 @if (row.receiptNumber) {
                   <span class="small d-block">{{ 'admin.settlements.receipt' | transloco: { number: row.receiptNumber } }}</span>
                 }
@@ -161,7 +161,7 @@
                   <span class="small text-muted d-block">{{ 'admin.settlements.paid' | transloco: { amount: (row.paidAmount | hlCurrency: row.paidCurrency) } }}</span>
                 }
               </td>
-              <td>{{ row.settledAt | hlDate: 'datetime' }}</td>
+              <td class="text-nowrap">{{ row.settledAt | hlDate: 'datetime' }}</td>
               <td>
                 <span class="hl-badge" [class]="statusClass[row.status] || 'hl-badge--pending'">{{ row.status | codeLabel: statusKeys }}</span>
                 @if (row.matchedInvoiceNumber) {

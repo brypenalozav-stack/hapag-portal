@@ -66,17 +66,17 @@
             @if (q.fee; as fee) {
               <tr>
                 <th scope="row" class="fw-semibold">{{ fee.conceptCode | codeLabel: conceptKeys }}</th>
-                <td class="text-end hl-num">{{ fee.amount | hlCurrency: fee.currency }}</td>
-                <td class="text-end hl-num">{{ fee.taxAmount | hlCurrency: fee.currency }}</td>
-                <td class="text-end hl-num">{{ fee.totalAmount | hlCurrency: fee.currency }}</td>
+                <td class="text-end hl-num text-nowrap">{{ fee.amount | hlCurrency: fee.currency }}</td>
+                <td class="text-end hl-num text-nowrap">{{ fee.taxAmount | hlCurrency: fee.currency }}</td>
+                <td class="text-end hl-num text-nowrap">{{ fee.totalAmount | hlCurrency: fee.currency }}</td>
               </tr>
             }
             @if (q.vatLoss; as loss) {
               <tr>
                 <th scope="row" class="fw-semibold">{{ loss.conceptCode | codeLabel: conceptKeys }}</th>
-                <td class="text-end hl-num">{{ loss.amount | hlCurrency: loss.currency }}</td>
-                <td class="text-end hl-num">{{ loss.taxAmount | hlCurrency: loss.currency }}</td>
-                <td class="text-end hl-num">{{ loss.totalAmount | hlCurrency: loss.currency }}</td>
+                <td class="text-end hl-num text-nowrap">{{ loss.amount | hlCurrency: loss.currency }}</td>
+                <td class="text-end hl-num text-nowrap">{{ loss.taxAmount | hlCurrency: loss.currency }}</td>
+                <td class="text-end hl-num text-nowrap">{{ loss.totalAmount | hlCurrency: loss.currency }}</td>
               </tr>
             }
           </tbody>

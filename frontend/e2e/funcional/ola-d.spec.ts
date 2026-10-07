@@ -137,7 +137,7 @@ test('un reintento del pago reutiliza la clave de idempotencia y el resultado se
   });
 
   const clp = page.getByTestId('cart-group-CL-CLP');
-  await clp.getByRole('radio', { name: 'Khipu (En línea)' }).check();
+  await clp.getByRole('radio', { name: 'Khipu, en línea' }).check();
   await clp.getByRole('button', { name: /^Revisar y pagar/ }).click();
   await expect(clp.getByRole('heading', { name: 'Confirme el pago' })).toBeFocused();
   await expect(clp).toContainText('2 ítems en un solo pago');
@@ -193,7 +193,7 @@ test('un cliente con crédito no ve el carro y paga desde su cuenta (M5-07)', as
   await page.getByLabel('Elegir todos').check();
   await expect(page.getByTestId('account-payments-selection')).toHaveText('3 ítems elegidos.');
   await expect(page.getByLabel('Moneda de pago')).toHaveValue('CLP');
-  await page.getByRole('radio', { name: 'Botón Banco de Chile (En línea)' }).check();
+  await page.getByRole('radio', { name: 'Botón Banco de Chile, en línea' }).check();
   await page.getByRole('button', { name: 'Revisar y pagar 3 ítems' }).click();
   await expect(page.getByRole('heading', { name: 'Confirme el pago' })).toBeFocused();
 
@@ -217,7 +217,7 @@ test('la boleta de depósito no se puede anular después de emitida (M5-02)', as
   await abrir(page, '/cart');
 
   const clp = page.getByTestId('cart-group-CL-CLP');
-  await clp.getByRole('radio', { name: 'Depósito bancario con boleta (Depósito con boleta)' }).check();
+  await clp.getByRole('radio', { name: 'Depósito bancario con boleta, depósito' }).check();
   await clp.getByRole('button', { name: /^Revisar y pagar/ }).click();
   await clp.getByTestId('cart-confirm-pay').click();
 

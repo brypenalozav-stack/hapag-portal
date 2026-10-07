@@ -115,13 +115,13 @@
         <tbody>
           @for (order of table.rows(); track order.id) {
             <tr>
-              <td class="fw-semibold">{{ order.orderNumber ?? order.id.substring(0, 8) }}</td>
+              <td class="fw-semibold">{{ order.orderNumber }}</td>
               <td>{{ order.blNumber }}</td>
               <td>
                 @if (typeKey(order.type); as key) { {{ key | transloco }} } @else { {{ order.type }} }
               </td>
               <td class="text-truncate" style="max-width: 250px;">{{ order.description }}</td>
-              <td>{{ order.createdAt | hlDate }}</td>
+              <td class="text-nowrap">{{ order.createdAt | hlDate }}</td>
               <td><app-status-badge [status]="order.status" /></td>
             </tr>
           } @empty {
