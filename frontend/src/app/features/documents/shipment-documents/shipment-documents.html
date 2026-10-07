@@ -1,6 +1,8 @@
-<section class="hl-card mb-4" aria-labelledby="shipment-documents-title" data-testid="shipment-documents">
+<section class="hl-card mb-4" [attr.aria-labelledby]="showTitle() ? 'shipment-documents-title' : null" data-testid="shipment-documents">
   <div class="card-header p-3">
-    <h2 id="shipment-documents-title" class="section-title">{{ 'documents.section.title' | transloco }}</h2>
+    @if (showTitle()) {
+      <h2 id="shipment-documents-title" class="section-title">{{ 'documents.section.title' | transloco }}</h2>
+    }
     <p class="small text-muted mb-0">{{ 'documents.section.help' | transloco }}</p>
   </div>
 

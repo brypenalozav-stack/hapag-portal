@@ -1,4 +1,8 @@
 import { Component, DestroyRef, OnInit, computed, inject, input, signal, viewChild } from '@angular/core';
+import { SectionNavItem } from '../../../shared/components/section-nav/section-nav';
+import { TableSkeletonComponent } from '../../../shared/components/table-skeleton/table-skeleton';
+import { ShipmentSummaryComponent } from '../shipment-summary/shipment-summary';
+import { DETAIL_GROUPS, DETAIL_GROUP_ORDER, DetailGroup } from './detail-groups';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -35,7 +39,6 @@ import { ShipmentDocumentsComponent } from '../../documents/shipment-documents/s
 import { ShipmentIssuanceComponent } from '../shipment-issuance/shipment-issuance';
 import { ShipmentTatcComponent } from '../shipment-tatc/shipment-tatc';
 import { AvailableServicesComponent } from '../../service-requests/available-services/available-services';
-import { SectionNavComponent } from '../../../shared/components/section-nav/section-nav';
 
 /** Orígenes del acceso con los que se muestra la sección "Accesos" del BL. */
 const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
@@ -57,13 +60,17 @@ const ACCESS_SECTION_SOURCES = ['Own', 'Grant', 'SelfAssociated'];
  * (M2-03, M2-04), la estimación del cobro y el acceso a la solicitud; a pedido, los no disponibles con el motivo.
  * Fase 2, Ola I: bloque Counter (canje, HBL y desconsolidado, M8-09) para perfiles internos y, para la empresa matriz, la
  * organización de origen del BL de una filial, en solo consulta (M1-21).
+ * Cierre de Fase 1 (UX): encabezado fijo con la próxima acción de liberación (app-shipment-summary) y secciones
+ * agrupadas en el índice (Resumen, Contenedores, Cargos y pagos, Documentos, Accesos y servicios e Interno); los grupos
+ * bajo el pliegue se cargan al acercarse a la pantalla (`@defer on viewport`), con su título siempre presente para que
+ * el índice lleve a él.
  */
 @Component({
   selector: 'app-shipment-detail',
   standalone: true,
   imports: [
-    SectionNavComponent, RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe, CodeLabelPipe,
-    StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
+    ShipmentSummaryComponent, TableSkeletonComponent, RouterLink, TranslocoPipe, HlCurrencyPipe, HlDatePipe, HlNumberPipe,
+    CodeLabelPipe, StatusBadgeComponent, CountryBadgeComponent, LoadingSpinnerComponent, StateMessageComponent,
     AccessSourceBadgeComponent, ShipmentAccessComponent, ChargesPanelComponent, AddToCartDialogComponent,
     ShipmentDocumentsComponent, ShipmentIssuanceComponent, ShipmentTatcComponent, AvailableServicesComponent,
   ],
@@ -95,8 +102,13 @@ export class ShipmentDetailComponent implements OnInit {
 
   addTargets = signal<AddToCartTarget[] | null>(null);
 
-  private readonly chargesPanel = viewChild(ChargesPanelComponent);
-  private readonly documentsSection = viewChild(ShipmentDocumentsComponent);
+  // Por referencia de plantilla (no por clase): así los paneles quedan dentro de los bloques diferidos.
+  private readonly chargesPanel = viewChild<{ load(): void }>('chargesPanel');
+  private readonly documentsSection = viewChild<{ load(): void }>('documentsSection');
+
+  readonly groups = DETAIL_GROUPS;
+  /** Partes, roles y emisión del BL: detalle secundario del resumen, plegado por defecto. */
+  readonly moreOpen = signal(false);
   associating = signal(false);
   associateError = signal('');
 
@@ -138,6 +150,34 @@ export class ShipmentDetailComponent implements OnInit {
   showServiceOrders = computed(() => {
     const s = this.shipment();
     return !!s && (s.operation === 'EXPORT' || s.serviceOrders.length > 0);
+  });
+
+  /** Cargos y pagos: flete, cargos locales, demurrage u órdenes de servicio, según la matriz. */
+  showCharges = computed(() => {
+    const s = this.shipment();
+    return !!s && (!!s.freight || s.localCharges !== null || !!s.demurrageCharges || this.showServiceOrders());
+  });
+
+  /** Accesos y servicios: accesos del BL, servicios on demand (Fase 2) o solicitudes habilitadas. */
+  showAccessGroup = computed(
+    () => this.showAccessSection() || this.features.enabled('OnDemandServices') || this.canRequestWarehouseChange(),
+  );
+
+  /** Interno: DIFU y Counter, solo para perfiles internos. */
+  showInternal = computed(() => this.showPublication() || (this.showCounter() && this.features.enabled('Counter')));
+
+  /** Grupos presentes, en el orden del índice "Ir a". */
+  readonly sections = computed<SectionNavItem[]>(() => {
+    if (!this.shipment()) return [];
+    const visible: Record<DetailGroup, boolean> = {
+      summary: true,
+      containers: true,
+      charges: this.showCharges(),
+      documents: true,
+      access: this.showAccessGroup(),
+      internal: this.showInternal(),
+    };
+    return DETAIL_GROUP_ORDER.filter((g) => visible[g]).map((g) => DETAIL_GROUPS[g]);
   });
 
   ngOnInit(): void {

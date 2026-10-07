@@ -85,6 +85,8 @@ export class ChargesPanelComponent {
   private readonly injector = inject(Injector);
 
   blNumber = input.required<string>();
+  /** Nivel del título: 3 dentro de un grupo del detalle del BL, cuyo h2 es el título del grupo. */
+  readonly headingLevel = input<2 | 3>(2);
   /** Se emite con la carta de responsabilidad emitida desde el aviso de M4-04 (para actualizar el repositorio). */
   letterIssued = output<ShipmentDocument>();
 

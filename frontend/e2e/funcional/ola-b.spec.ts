@@ -11,6 +11,7 @@ import {
 } from '../fixtures/api-mocks';
 import { Funcionalidades } from '../fixtures/funcionalidades';
 import { sembrarSesion } from '../fixtures/session';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
  * Fase 1, Ola B (pruebas funcionales con el backend simulado):
@@ -31,6 +32,8 @@ async function abrirConSesion(page: Page, ruta: string, lang: 'es' | 'en' = 'es'
   await simularApi(page, { features });
   await sembrarSesion(page, { lang });
   await page.goto(ruta);
+  // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
+  if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
   await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
@@ -244,7 +247,10 @@ test('buscar BL por número y autoasociarse con acceso abierto (M1-17, M1-18)', 
   await page.getByRole('button', { name: 'Abrir BL' }).click();
   await expect(page).toHaveURL(new RegExp(`/shipments/${BL_ACCESO_ABIERTO}$`));
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  await cargarSeccionesDiferidas(page);
 
+  // El origen del acceso está entre las partes y roles, plegadas en el resumen.
+  await page.getByRole('button', { name: /^Partes(,| y) roles/ }).click();
   await expect(page.getByText('Acceso abierto', { exact: true })).toBeVisible();
   await expect(page.getByRole('note').filter({ hasText: 'primero debe asociarse' })).toBeVisible();
   // Visto por acceso abierto no se muestra la sección de accesos del BL.

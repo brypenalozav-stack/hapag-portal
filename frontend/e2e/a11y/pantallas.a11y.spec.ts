@@ -23,6 +23,7 @@ import {
   simularApi,
 } from '../fixtures/api-mocks';
 import { FASE2 } from '../fixtures/funcionalidades';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 import { OpcionesOlaD, PAGO } from '../fixtures/ola-d-mocks';
 import {
   BL_CARTA,
@@ -193,6 +194,8 @@ const PANTALLAS_OLA_F: { id: string; ruta: string; sesion: Sesion; preparar?: (p
     ruta: `/shipments/${BL_TATC}`,
     sesion: 'cliente',
     preparar: async (page) => {
+      // La emisión va plegada en el resumen del detalle del BL.
+      await page.getByTestId('shipment-more-toggle').click();
       await expect(page.getByTestId('issuance-status')).toBeVisible();
       await expect(page.getByTestId('tatc-status')).toBeVisible();
     },
@@ -202,6 +205,7 @@ const PANTALLAS_OLA_F: { id: string; ruta: string; sesion: Sesion; preparar?: (p
     ruta: `/shipments/${BL_ORIGEN_CAIDO}`,
     sesion: 'cliente',
     preparar: async (page) => {
+      await page.getByTestId('shipment-more-toggle').click();
       await expect(page.getByTestId('issuance-last-known')).toBeVisible();
       await expect(page.getByTestId('tatc-unavailable')).toBeVisible();
     },
@@ -1085,6 +1089,8 @@ async function abrir(page: Page, ruta: string, sesion: Sesion, lang: Idioma, opc
   await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: tema });
   await page.goto(ruta);
   await expect(page.locator('h1').first()).toBeVisible();
+  // Detalle del BL: los grupos diferidos se traen a la vista para revisar la página completa.
+  if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
   await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);

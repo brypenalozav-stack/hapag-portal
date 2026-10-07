@@ -4,6 +4,7 @@ import { simularApi } from '../fixtures/api-mocks';
 import { ITEM, RUT_PROPIO } from '../fixtures/ola-d-mocks';
 import { BL_NO_PUBLICADO, BL_TATC, CASILLA_CL, URL_DISPUTE } from '../fixtures/ola-f-mocks';
 import { USUARIO_PRUEBA, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
  * Fase 1, Ola F (pruebas funcionales con el backend simulado):
@@ -25,6 +26,8 @@ async function abrir(page: Page, ruta: string): Promise<void> {
   await simularApi(page);
   await sembrarSesion(page, { lang: 'es' });
   await page.goto(ruta);
+  // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
+  if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
   await expect(page.getByTestId('table-skeleton')).toHaveCount(0);
@@ -249,6 +252,8 @@ test('el enlace de Dispute abre el sitio externo en una pestaña nueva (M2-05)',
 
 test('el detalle muestra la emisión y el TATC, y la solicitud masiva informa cada BL (M2-02, M2-09)', async ({ page }) => {
   await abrir(page, `/shipments/${BL_TATC}`);
+  // La emisión es un detalle secundario del resumen: se despliega a pedido.
+  await page.getByRole('button', { name: 'Partes, roles y emisión del BL' }).click();
   await expect(page.getByTestId('issuance-status')).toHaveText('Liberado por télex');
   await expect(page.getByTestId('shipment-issuance')).toContainText('BL (conocimiento de embarque)');
   await expect(page.getByTestId('tatc-status')).toHaveText('Emitido parcialmente');

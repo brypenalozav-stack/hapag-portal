@@ -1,6 +1,6 @@
 <section class="hl-card mb-4" aria-labelledby="available-services-title" data-testid="available-services">
   <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-    <h2 id="available-services-title" class="section-title">{{ 'serviceRequests.available.title' | transloco }}</h2>
+    <h2 [attr.aria-level]="headingLevel() === 3 ? 3 : null" id="available-services-title" class="section-title">{{ 'serviceRequests.available.title' | transloco }}</h2>
     <div class="form-check mb-0">
       <input id="available-include-unavailable" type="checkbox" class="form-check-input"
              [checked]="includeUnavailable()" (change)="onIncludeUnavailable($event)" />
@@ -29,7 +29,7 @@
           <li class="border rounded p-3" [attr.data-testid]="'available-service-' + s.code">
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
               <div>
-                <h3 class="service-name mb-1">{{ name(s) }}</h3>
+                <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" class="service-name mb-1">{{ name(s) }}</h3>
                 @if (description(s)) {
                   <p class="small text-muted mb-2">{{ description(s) }}</p>
                 }

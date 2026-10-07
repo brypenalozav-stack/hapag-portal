@@ -1482,6 +1482,32 @@ const HISTORIAL_REGLA: InternalChargeRuleChange[] = [
   },
 ];
 
+/**
+ * Consulta de liberación del BL de prueba (GET shipments/{bl}/release-status, M2-09), que resume el encabezado fijo del
+ * detalle del BL (cierre de Fase 1, UX): el flete y los recargos están pendientes y el demurrage, cumplido.
+ * `liberado: true` entrega el mismo BL con todos los requisitos cumplidos.
+ */
+export function liberacionPrueba(liberado = false) {
+  const paso = (code: string, status: string, action = 'None') => ({
+    code, status, reason: null, action, actionAllowed: action !== 'None', pendingAmounts: [], items: [],
+  });
+  const steps = liberado
+    ? [paso('FREIGHT', 'Done'), paso('LOCAL_CHARGES', 'Done'), paso('RESPONSIBILITY_LETTER', 'NotRequired'), paso('DEMURRAGE', 'Done')]
+    : [paso('FREIGHT', 'Pending', 'PayFreight'), paso('LOCAL_CHARGES', 'Pending', 'PayCharges'), paso('RESPONSIBILITY_LETTER', 'NotRequired'), paso('DEMURRAGE', 'Done')];
+  return {
+    blId: BL_PRUEBA.id, blNumber: BL_PRUEBA.blNumber, bookingNumber: 'BKG26030010', country: 'CL', operation: 'IMPORT', status: 'InTransit',
+    vessel: BL_PRUEBA.vessel, voyage: BL_PRUEBA.voyage, portOfLoading: BL_PRUEBA.portOfLoading, portOfDischarge: BL_PRUEBA.portOfDischarge,
+    portOfDischargeCode: 'CLSAI', finalDestinationCode: null, eta: BL_PRUEBA.eta, consignee: USUARIO_PRUEBA.name, timeZone: 'America/Santiago',
+    applicable: true, steps, completedSteps: steps.filter((s) => s.status === 'Done' || s.status === 'NotRequired').length,
+    totalSteps: steps.length, released: liberado, containers: [],
+    tatc: {
+      unlocked: liberado, available: true, status: 'NotIssued', errorCode: null, sourceUpdatedAt: null, retrievedAt: '2026-10-06T12:00:00Z',
+      windowHours: 72, availableFrom: null, windowOpen: false, canRequest: false, lastRequestedAt: null, lastRequestStatus: null, lastRequestReason: null,
+    },
+    notices: [], evaluatedAt: '2026-10-06T12:00:00Z',
+  };
+}
+
 /** Respuestas GET de la Ola C (se agregan a RESPUESTAS). */
 const RESPUESTAS_OLA_C: Record<string, unknown> = {
   ...Object.fromEntries(Object.entries(CARGOS_OLA_C).map(([bl, c]) => [`charges/${bl}`, c])),
@@ -1643,6 +1669,8 @@ const RESPUESTAS: Record<string, RespuestaGet> = {
   'access/open-access': ACCESO_ABIERTO,
   'access/audit': buscarAuditoria,
   [`shipments/${BL_PRUEBA.blNumber}/visibility-widenings`]: AMPLIACIONES,
+  // Cierre de Fase 1 (UX): resumen de liberación del encabezado del detalle del BL.
+  [`shipments/${BL_PRUEBA.blNumber}/release-status`]: liberacionPrueba(),
   // Ola C
   ...RESPUESTAS_OLA_C,
 };

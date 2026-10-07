@@ -76,6 +76,8 @@ export class ShipmentDocumentsComponent {
   blNumber = input.required<string>();
   /** El usuario opera sobre este embarque (detalle del BL); sin valor, el perfil de la sesión. */
   canOperate = input<boolean | null>(null);
+  /** Sin título propio dentro del grupo "Documentos" del detalle del BL (su h2 ya lo nombra). */
+  readonly showTitle = input(true);
   /** Se emite cuando se emite un documento que puede cambiar los cargos del BL (carta FFWW, M4-04). */
   changed = output<ShipmentDocument>();
 

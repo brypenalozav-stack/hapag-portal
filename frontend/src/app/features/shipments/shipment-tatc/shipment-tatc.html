@@ -1,6 +1,6 @@
 <section class="hl-card mb-4" aria-labelledby="shipment-tatc-title" data-testid="shipment-tatc">
   <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-    <h2 id="shipment-tatc-title" class="section-title">{{ 'shipments.detail.tatc.title' | transloco }}</h2>
+    <h2 [attr.aria-level]="headingLevel() === 3 ? 3 : null" id="shipment-tatc-title" class="section-title">{{ 'shipments.detail.tatc.title' | transloco }}</h2>
     @if (tatc()?.canRequestGeneration) {
       <a routerLink="/tatc" [queryParams]="{ bl: blNumber() }" class="btn btn-sm btn-outline-secondary">{{ 'shipments.detail.tatc.request' | transloco }}</a>
     }

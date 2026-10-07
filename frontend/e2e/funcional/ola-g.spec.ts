@@ -14,6 +14,7 @@ import {
 } from '../fixtures/ola-g-mocks';
 import type { ServiceDefinitionInput, ServiceRequestDetail } from '../../src/app/core/models/service-request.model';
 import { sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
+import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
  * Fase 2, Ola G (pruebas funcionales con el backend simulado):
@@ -33,6 +34,8 @@ async function abrir(page: Page, ruta: string, sesion: 'cliente' | 'admin' = 'cl
   if (sesion === 'admin') await sembrarSesionAdmin(page, 'es');
   else await sembrarSesion(page, { lang: 'es' });
   await page.goto(ruta);
+  // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
+  if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
   await expect(page.locator('h1').first()).toBeVisible();
   await expect(page.locator('app-loading-spinner')).toHaveCount(0);
 }

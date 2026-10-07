@@ -6775,7 +6775,29 @@
         "unavailable": "El sistema de TATC no respondió: no podemos mostrar el estado vigente. Intente nuevamente en unos minutos."
       },
       "title": "Embarque {{ bl }}",
-      "releaseStatusLink": "Ver estado de liberación y TATC"
+      "releaseStatusLink": "Ver estado de liberación y TATC",
+      "summary": {
+        "nextAction": "Próxima acción",
+        "routeLabel": "Ruta",
+        "route": "{{ pol }} → {{ pod }}",
+        "loading": "Consultando los requisitos de liberación…",
+        "unavailable": "No pudimos consultar los requisitos de liberación en este momento. Revíselos en la consulta de liberación.",
+        "released": "Todos los requisitos de liberación están cumplidos.",
+        "inProgress": "Hay requisitos en curso: no necesita hacer nada por ahora."
+      },
+      "groups": {
+        "summary": "Resumen",
+        "containers": "Contenedores",
+        "charges": "Cargos y pagos",
+        "documents": "Documentos",
+        "access": "Accesos y servicios",
+        "internal": "Interno"
+      },
+      "more": {
+        "parties": "Partes y roles del embarque",
+        "partiesAndIssuance": "Partes, roles y emisión del BL"
+      },
+      "viewFull": "Ver el detalle completo del BL {{ bl }}"
     },
     "list": {
       "caption": "Embarques accesibles",

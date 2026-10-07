@@ -1,15 +1,25 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, afterNextRender, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, afterNextRender, computed, effect, inject, input, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { scrollToHeading, stickyOffset } from '../../scroll-to-heading';
 
 interface SectionLink {
   id: string;
-  label: string;
+  /** Texto leído del título (listado automático) o clave de traducción (entradas explícitas). */
+  label?: string;
+  labelKey?: string;
+}
+
+/** Entrada explícita del índice: id del título al que lleva y clave de su texto. */
+export interface SectionNavItem {
+  id: string;
+  labelKey: string;
 }
 
 /**
- * "Ir a" de una página larga: barra fija bajo el encabezado con un enlace por sección (cada `h2[id]` del contenedor,
- * incluidas las que aparecen después, como paneles que cargan solos). Marca la sección visible con aria-current y,
- * al elegir una, desplaza la página y lleva el foco a su título (WCAG 2.4.1, 2.4.3).
+ * "Ir a" de una página larga: barra con un enlace por sección. Sin `items`, lista cada `h2[id]` del contenedor
+ * (incluidas las que aparecen después, como paneles que cargan solos); con `items`, solo esas entradas (p. ej. los
+ * grupos del detalle del BL). Marca la sección visible con aria-current y, al elegir una, desplaza la página bajo las
+ * barras fijas y lleva el foco a su título (WCAG 2.4.1, 2.4.3). `embedded` la deja dentro de otro encabezado fijo.
  */
 @Component({
   selector: 'app-section-nav',
@@ -17,14 +27,14 @@ interface SectionLink {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TranslocoPipe],
   template: `
-    @if (links().length > 2) {
-      <nav class="hl-section-nav" [attr.aria-label]="'shared.sectionNav.label' | transloco" data-testid="section-nav">
+    @if (links().length > minLinks()) {
+      <nav class="hl-section-nav" [class.hl-section-nav--embedded]="embedded()" [attr.aria-label]="'shared.sectionNav.label' | transloco" data-testid="section-nav">
         <span class="hl-section-nav__title" aria-hidden="true">{{ 'shared.sectionNav.title' | transloco }}</span>
         <ul>
           @for (l of links(); track l.id) {
             <li>
               <a [href]="'#' + l.id" [class.is-active]="active() === l.id" [attr.aria-current]="active() === l.id ? 'location' : null"
-                 (click)="go($event, l.id)">{{ l.label }}</a>
+                 (click)="go($event, l.id)">{{ l.labelKey ? (l.labelKey | transloco) : l.label }}</a>
             </li>
           }
         </ul>
@@ -44,6 +54,15 @@ interface SectionLink {
       border-bottom: 1px solid var(--hl-border);
       background-color: var(--bs-body-bg);
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .hl-section-nav--embedded {
+      position: static;
+      margin: 0;
+      padding: 0.4rem 0 0;
+      border-bottom: 0;
+      background-color: transparent;
+      box-shadow: none;
     }
 
     .hl-section-nav__title {
@@ -90,15 +109,64 @@ interface SectionLink {
 export class SectionNavComponent {
   /** Contenedor cuyas secciones se listan (por defecto, el contenido principal). */
   readonly container = input<HTMLElement | null>(null);
+  /** Entradas explícitas (en orden); sin ellas se listan los `h2[id]` del contenedor. */
+  readonly items = input<SectionNavItem[] | null>(null);
+  /** Dentro de un encabezado fijo: la barra no es fija por sí misma. */
+  readonly embedded = input(false);
 
-  readonly links = signal<SectionLink[]>([]);
+  private readonly injector = inject(Injector);
+  private readonly scanned = signal<SectionLink[]>([]);
+  readonly links = computed<SectionLink[]>(() => this.items() ?? this.scanned());
+  /** Con entradas explícitas basta con dos; el listado automático aparece desde tres secciones. */
+  readonly minLinks = computed(() => (this.items() ? 1 : 2));
   readonly active = signal<string | null>(null);
 
-  private observer?: IntersectionObserver;
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** Títulos cuya posición decide la sección actual. */
+  private headings: HTMLElement[] = [];
+  /** Tras elegir una sección, la marca se mantiene mientras la página se acomoda. */
+  private lockedUntil = 0;
+  private frame = 0;
 
   constructor() {
     const destroyRef = inject(DestroyRef);
+    const zone = inject(NgZone);
     afterNextRender(() => {
+      const onScroll = () => {
+        if (this.frame) return;
+        this.frame = requestAnimationFrame(() => {
+          this.frame = 0;
+          const id = this.current();
+          if (id !== this.active()) zone.run(() => this.active.set(id));
+        });
+      };
+      zone.runOutsideAngular(() => window.addEventListener('scroll', onScroll, { passive: true }));
+      destroyRef.onDestroy(() => {
+        window.removeEventListener('scroll', onScroll);
+        cancelAnimationFrame(this.frame);
+      });
+    });
+    // Con entradas explícitas se siguen sus títulos (ya están en la página: lo diferido es el contenido de cada grupo).
+    effect(() => {
+      const items = this.items();
+      if (items) {
+        afterNextRender(() => {
+          this.headings = items.map((i) => document.getElementById(i.id)).filter((h): h is HTMLElement => !!h);
+          this.active.set(this.current());
+        }, { injector: this.injector });
+      }
+    });
+    // El enlace de la sección actual queda a la vista en la barra (se desplaza en horizontal en pantallas chicas).
+    effect(() => {
+      if (!this.active()) return;
+      afterNextRender(() => {
+        const link = this.host.nativeElement.querySelector<HTMLElement>('a.is-active');
+        const list = link?.closest('ul');
+        if (link && list) list.scrollTo({ left: link.offsetLeft - list.offsetLeft - (list.clientWidth - link.offsetWidth) / 2 });
+      }, { injector: this.injector });
+    });
+    afterNextRender(() => {
+      if (this.items()) return;
       const root = this.container() ?? document.getElementById('contenido-principal');
       if (!root) return;
       const scan = () => this.scan(root);
@@ -106,39 +174,36 @@ export class SectionNavComponent {
       // Paneles que cargan después y cambios de idioma (el texto de los títulos cambia).
       const mutations = new MutationObserver(scan);
       mutations.observe(root, { childList: true, subtree: true, characterData: true });
-      destroyRef.onDestroy(() => {
-        mutations.disconnect();
-        this.observer?.disconnect();
-      });
+      destroyRef.onDestroy(() => mutations.disconnect());
     });
   }
 
   go(event: Event, id: string): void {
     event.preventDefault();
-    const heading = document.getElementById(id);
-    if (!heading) return;
-    if (!heading.hasAttribute('tabindex')) heading.setAttribute('tabindex', '-1');
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    heading.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-    heading.focus({ preventScroll: true });
-    this.active.set(id);
+    if (scrollToHeading(id)) {
+      this.lockedUntil = performance.now() + 1700;
+      this.active.set(id);
+    }
+  }
+
+  /** Sección actual: el último título que ya pasó bajo las barras fijas (o el primero, arriba de todo). */
+  private current(): string | null {
+    if (performance.now() < this.lockedUntil) return this.active();
+    const limit = stickyOffset() + 48;
+    let id: string | null = this.headings[0]?.id ?? null;
+    for (const h of this.headings) {
+      if (h.getBoundingClientRect().top <= limit) id = h.id;
+      else break;
+    }
+    return id;
   }
 
   private scan(root: HTMLElement): void {
     const headings = [...root.querySelectorAll<HTMLElement>('h2[id]')].filter((h) => !h.closest('dialog, .hl-assistant'));
     const next = headings.map((h) => ({ id: h.id, label: (h.textContent ?? '').replace(/\s+/g, ' ').trim() })).filter((l) => l.label);
-    const current = this.links();
+    const current = this.scanned();
     if (next.length === current.length && next.every((l, i) => l.id === current[i].id && l.label === current[i].label)) return;
-    this.links.set(next);
-
-    this.observer?.disconnect();
-    this.observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) this.active.set(visible[0].target.id);
-      },
-      { rootMargin: '-120px 0px -60% 0px' },
-    );
-    headings.forEach((h) => this.observer!.observe(h));
+    this.scanned.set(next);
+    this.headings = headings;
   }
 }

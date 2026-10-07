@@ -18,6 +18,8 @@
 </div>
 
 @if (activeBl(); as bl) {
+  <!-- Vista enfocada: el detalle del BL reúne el demurrage con el resto del embarque -->
+  <p class="mb-3"><a [routerLink]="['/shipments', bl]" data-testid="view-full-detail">{{ 'shipments.detail.viewFull' | transloco: { bl } }}</a></p>
   <app-demurrage-panel [blNumber]="bl" />
 } @else {
   <div class="hl-card p-5 text-center" role="status">
