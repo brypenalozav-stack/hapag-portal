@@ -494,59 +494,191 @@ public static class ShipmentDocumentTemplates
             signatureNote: null);
     }
 
-    /// <summary>Comprobante (recibo) de un pago confirmado o boleta de depósito (M7-02).</summary>
+    /// <summary>
+    /// Comprobante (recibo) de un pago confirmado o boleta de depósito (M7-02). Nunca imprime códigos crudos: el estado,
+    /// el medio de pago y los conceptos van con su nombre en español (<see cref="PaymentDisplayNames"/>). La boleta
+    /// vigente agrega «Cómo pagar» (monto, referencia y la cuenta configurada en <c>Documents:DepositInstructions</c>)
+    /// y «Qué pasa después».
+    /// </summary>
+    /// <param name="conceptNames">Nombres del catálogo de conceptos por código; sin él se usan los nombres conocidos.</param>
+    /// <param name="paymentMethodName">Nombre del medio en el mantenedor del país (M5-03).</param>
+    /// <param name="depositInstructions">Cuenta para depositar del país; sin ella, la boleta remite al portal.</param>
     public static PdfDocumentModel PaymentReceipt(
         Payment payment,
         IReadOnlyList<PaymentDetail> details,
         string issuer,
         string number,
         string payerName,
-        string? payerTaxId)
+        string? payerTaxId,
+        IReadOnlyDictionary<string, string>? conceptNames = null,
+        string? paymentMethodName = null,
+        DepositInstructionSettings? depositInstructions = null)
     {
         var isReceipt = payment.ReceiptNumber is not null && number == payment.ReceiptNumber;
         var issuedAt = isReceipt ? payment.ConfirmedAt ?? payment.PaymentDate : payment.SlipIssuedAt ?? payment.PaymentDate;
+        var currency = payment.Currency;
+        var country = payment.Country;
+        var taxIdLabel = country == CountryCodes.Bolivia ? "NIT" : "RUT";
+        var taxLabel = country == CountryCodes.Bolivia ? "Impuesto" : "IVA";
+        var (statusLabel, statusTone) = PaymentDisplayNames.Status(payment.Status);
+        var method = PaymentDisplayNames.Method(payment.PaymentMethodCode ?? payment.PaymentMethod, paymentMethodName);
+        var confirmed = payment.Status == PaymentStatus.Confirmed;
+        var slipOpen = !isReceipt && payment.Status is PaymentStatus.Pending or PaymentStatus.PendingVerification;
+        var total = Amount(payment.TotalAmount, currency);
 
-        var rows = details.Select(d => (IReadOnlyList<string>)
-            [
-                d.BlNumber ?? "-",
-                d.ConceptType,
-                d.Description ?? "-",
-                d.BillingTaxId ?? "-",
-                Money(d.Amount),
-                Money(d.TaxAmount),
-                Money(d.Amount + d.TaxAmount)
-            ])
+        var payerKey = string.IsNullOrWhiteSpace(payerTaxId) ? null : TaxIdNormalizer.Normalize(payerTaxId);
+        var showBilling = details.Any(d =>
+            !string.IsNullOrWhiteSpace(d.BillingTaxId) && TaxIdNormalizer.Normalize(d.BillingTaxId) != payerKey);
+
+        var rows = details.Select(d =>
+            {
+                var concept = PaymentDisplayNames.Concept(d.ConceptType, conceptNames, d.Description);
+                var description = d.Description?.Trim();
+                var conceptCell = string.IsNullOrWhiteSpace(description) || string.Equals(description, concept, StringComparison.OrdinalIgnoreCase)
+                    ? concept
+                    : $"{concept}\n{description}";
+                var row = new List<string> { d.BlNumber ?? "-", conceptCell };
+                if (showBilling)
+                {
+                    var billing = string.IsNullOrWhiteSpace(d.BillingTaxId) ? "-" : TaxIdNormalizer.Normalize(d.BillingTaxId);
+                    row.Add(string.IsNullOrWhiteSpace(d.BillingName) ? billing : $"{billing}\n{d.BillingName}");
+                }
+
+                row.Add(Money(d.Amount, currency));
+                row.Add(Money(d.TaxAmount, currency));
+                row.Add(Money(d.Amount + d.TaxAmount, currency));
+                return (IReadOnlyList<string>)row;
+            })
             .ToList();
+
+        IReadOnlyList<string> headers = showBilling
+            ? ["BL", "Concepto", $"{taxIdLabel} facturación", "Neto", taxLabel, "Total"]
+            : ["BL", "Concepto", "Neto", taxLabel, "Total"];
+        IReadOnlyList<double> widths = showBilling ? [3.3, 5.0, 2.7, 2.0, 1.8, 2.2] : [3.4, 6.8, 2.3, 2.1, 2.4];
+        IReadOnlyList<int> numeric = showBilling ? [3, 4, 5] : [2, 3, 4];
+
+        var references = new List<PdfField> { new("N° de pago", payment.PaymentNumber) };
+        if (isReceipt && payment.SlipNumber is not null)
+            references.Add(new("Boleta de depósito", payment.SlipNumber));
+        if (!isReceipt && payment.ReceiptNumber is not null)
+            references.Add(new("Comprobante de pago", payment.ReceiptNumber));
+        references.Add(new("Medio de pago", method));
+        references.Add(new("Moneda", currency));
+        if (!string.IsNullOrWhiteSpace(payment.ExternalReference)
+            && payment.ExternalReference != payment.PaymentNumber
+            && payment.ExternalReference != number
+            && payment.ExternalReference != payment.SlipNumber
+            && payment.ExternalReference != payment.ReceiptNumber)
+            references.Add(new("Referencia", payment.ExternalReference));
+        if (confirmed && payment.ConfirmedAt is { } confirmedAt)
+            references.Add(new("Fecha de pago", LocalDateTime(country, confirmedAt)));
+        if (payment.ExchangeRate is { } rate && rate != 1m)
+            references.Add(new("Tipo de cambio", rate.ToString("N4", Numbers)));
+
+        var sections = new List<PdfSection>
+        {
+            new("Pagador", [new("Razón social", payerName), new(taxIdLabel, payerKey)]),
+            new("Detalle del pago",
+                Table: new PdfTable(headers, rows, numeric, widths),
+                Totals:
+                [
+                    new("Neto", Amount(payment.Amount, currency)),
+                    new(taxLabel, Amount(payment.TaxAmount, currency)),
+                    new(confirmed ? "Total pagado" : "Total a pagar", total)
+                ])
+        };
+
+        if (slipOpen)
+            sections.AddRange(DepositSections(number, total, taxIdLabel, depositInstructions));
+        else if (!isReceipt && payment.Status is PaymentStatus.Cancelled or PaymentStatus.Failed)
+            sections.Add(new PdfSection("Importante",
+                Note: "Esta boleta fue anulada: no realice el depósito. Si necesita pagar estos cargos, genere un nuevo pago en el portal.",
+                NoteTone: PdfTones.Danger));
+
+        var subtitle = isReceipt
+            ? "Respaldo del pago realizado en el Portal de Clientes"
+            : payment.Status switch
+            {
+                PaymentStatus.Confirmed => "Abono verificado por Finanzas",
+                PaymentStatus.Cancelled or PaymentStatus.Failed => "Boleta anulada",
+                _ => "Deposite el monto indicado; Finanzas verificará el abono"
+            };
+
+        PdfHighlight highlight;
+        if (confirmed)
+            highlight = new PdfHighlight("Total pagado", total,
+                "Pago confirmado y aplicado a los cargos detallados. Conserve este comprobante como respaldo.",
+                PdfTones.Success);
+        else if (slipOpen)
+            highlight = new PdfHighlight("Monto a depositar", total,
+                $"Indique la referencia {number} en el depósito o la transferencia y deposite el monto exacto en una sola operación.",
+                PdfTones.Warning);
+        else
+            highlight = new PdfHighlight("Monto", total, null, statusTone);
 
         return new PdfDocumentModel(
             isReceipt ? "Comprobante de pago" : "Boleta de depósito",
-            isReceipt ? null : "Pago pendiente de verificación por Finanzas",
+            subtitle,
             issuer,
-            IssuerDetail(payment.Country),
+            IssuerDetail(country),
             number,
             issuedAt,
-            BusinessCalendar.TimeZoneId(payment.Country),
-            [
-                new("Pago", payment.PaymentNumber),
-                new("Estado", payment.Status),
-                new("Medio de pago", payment.PaymentMethodCode ?? payment.PaymentMethod),
-                new("Referencia", payment.ExternalReference),
-                new("Moneda", payment.Currency)
-            ],
-            [
-                new PdfSection("Pagador", [new("Razón social", payerName), new("RUT / NIT", payerTaxId)]),
-                new PdfSection("Detalle", Table: new PdfTable(
-                    ["BL", "Concepto", "Descripción", "RUT facturación", "Neto", "Impuesto", "Total"], rows, [4, 5, 6])),
-                new PdfSection("Totales",
-                [
-                    new("Neto", $"{Money(payment.Amount)} {payment.Currency}"),
-                    new("Impuesto", $"{Money(payment.TaxAmount)} {payment.Currency}"),
-                    new("Total", $"{Money(payment.TotalAmount)} {payment.Currency}")
-                ])
-            ],
+            BusinessCalendar.TimeZoneId(country),
+            references,
+            sections,
             VerificationCode(number, payment.PaymentNumber, issuedAt),
             null,
-            Footer());
+            Footer(),
+            StatusLabel: statusLabel,
+            StatusTone: statusTone,
+            Highlight: highlight);
+    }
+
+    /// <summary>«Cómo pagar» y «Qué pasa después» de una boleta vigente.</summary>
+    private static IEnumerable<PdfSection> DepositSections(
+        string number, string total, string taxIdLabel, DepositInstructionSettings? instructions)
+    {
+        var fields = new List<PdfField>
+        {
+            new("Monto a depositar", total),
+            new("Referencia del depósito", $"{number}\nIndíquela en la glosa o el comentario de la transferencia")
+        };
+
+        string? note = null;
+        if (instructions is { HasAccount: true })
+        {
+            void Add(string label, string? value)
+            {
+                if (DepositInstructionSettings.Configured(value) is { } configured)
+                    fields.Add(new(label, configured));
+            }
+
+            Add("Banco", instructions.BankName);
+            Add("Tipo de cuenta", instructions.AccountType);
+            Add("N° de cuenta", instructions.AccountNumber);
+            Add("Titular", instructions.AccountHolder);
+            Add($"{taxIdLabel} del titular", instructions.TaxId);
+            Add("Enviar comprobante a", instructions.Email);
+        }
+        else
+        {
+            note = "Los datos bancarios para el depósito se informan en el portal, en el detalle del pago dentro de Historial de pagos. "
+                + "Ante dudas, contacte a Finanzas de Hapag-Lloyd.";
+        }
+
+        yield return new PdfSection("Cómo pagar", fields, Note: note, NoteTone: PdfTones.Info);
+
+        var email = DepositInstructionSettings.Configured(instructions?.Email);
+        var proof = email is null
+            ? "Adjunte el comprobante del depósito en el portal, desde el detalle del pago en Historial de pagos."
+            : $"Adjunte el comprobante del depósito en el portal, desde el detalle del pago en Historial de pagos, o envíelo a {email}.";
+        yield return new PdfSection("Qué pasa después", Steps:
+        [
+            $"Realice el depósito o la transferencia por {total}, indicando la referencia {number}.",
+            proof,
+            "Finanzas verifica el abono en la cuenta de Hapag-Lloyd.",
+            "Con el abono verificado, el estado del pago cambia a «Pagado» en Historial de pagos y podrá descargar el comprobante de pago."
+        ]);
     }
 
     /// <summary>Orden de servicio solicitada en el portal.</summary>
@@ -638,6 +770,15 @@ public static class ShipmentDocumentTemplates
     }
 
     public static string Money(decimal amount) => amount.ToString("N2", Numbers);
+
+    /// <summary>Monto sin moneda: el peso chileno (sin decimales) se imprime sin decimales cuando el monto es entero.</summary>
+    public static string Money(decimal amount, string currency) =>
+        string.Equals(currency, "CLP", StringComparison.OrdinalIgnoreCase) && amount == decimal.Truncate(amount)
+            ? amount.ToString("N0", Numbers)
+            : Money(amount);
+
+    /// <summary>Monto con su moneda, p. ej. «CLP 53.550» o «USD 1.250,50».</summary>
+    public static string Amount(decimal amount, string currency) => $"{currency} {Money(amount, currency)}";
 
     public static string LocalDateTime(string country, DateTime utc) =>
         $"{BusinessCalendar.ToLocal(country, utc):dd-MM-yyyy HH:mm} ({BusinessCalendar.TimeZoneId(country)})";

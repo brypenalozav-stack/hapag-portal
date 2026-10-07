@@ -25,13 +25,30 @@ public static class PortalPdfs
             .ToListAsync(cancellationToken);
         var payer = await dbContext.Clients.AsNoTracking().FirstOrDefaultAsync(c => c.Id == payment.ClientId, cancellationToken);
 
+        // Los documentos imprimen nombres, no códigos: conceptos del catálogo de cargos y medio del mantenedor (M5-03).
+        var codes = details.Select(d => d.ConceptType).Distinct().ToList();
+        var conceptNames = (await dbContext.ChargeConcepts.AsNoTracking()
+                .Where(c => codes.Contains(c.Code))
+                .Select(c => new { c.Code, c.Name })
+                .ToListAsync(cancellationToken))
+            .GroupBy(c => c.Code, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First().Name, StringComparer.OrdinalIgnoreCase);
+        var methodCode = payment.PaymentMethodCode ?? payment.PaymentMethod;
+        var methodName = await dbContext.PaymentMethodConfigs.AsNoTracking()
+            .Where(m => m.Country == payment.Country && m.Code == methodCode)
+            .Select(m => m.Name)
+            .FirstOrDefaultAsync(cancellationToken);
+
         return renderer.Render(ShipmentDocumentTemplates.PaymentReceipt(
             payment,
             details,
             settings.IssuerFor(payment.Country),
             number,
             payment.PayerName ?? payer?.Name ?? "-",
-            payment.PayerTaxId ?? (payer is null ? null : TaxIdNormalizer.Normalize(payer.TaxId))));
+            payment.PayerTaxId ?? (payer is null ? null : TaxIdNormalizer.Normalize(payer.TaxId)),
+            conceptNames,
+            methodName,
+            settings.DepositInstructionsFor(payment.Country)));
     }
 
     /// <summary>
