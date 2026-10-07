@@ -89,6 +89,7 @@ echo === Listo ===
 echo   Sitio:   %WEB_URL%
 echo   API:     %API_URL%/swagger
 echo   Usuarios de demo: admin@hapag-lloyd.cl o demo@importadorademo.cl / Admin123!
+echo   Pagos en linea en modo de prueba: el portal muestra un simulador de la pasarela ^(sin cargo real^).
 echo   Para depurar el backend en VS Code o Visual Studio: "Asociar al proceso" HapagPortal.WebApi.
 echo   Para detener todo, cierre las ventanas "Portal - ...".
 start "" "%WEB_URL%"

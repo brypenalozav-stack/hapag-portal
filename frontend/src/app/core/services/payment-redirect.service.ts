@@ -6,7 +6,8 @@ import { CheckoutResult, PaymentRedirectForm } from '../models/cart.model';
  * Lleva al pagador a la pasarela después del cierre del pago (M5-03):
  * - URL absoluta (Khipu, Getnet, Bci Pagos): navegación del navegador a la pasarela;
  * - formulario firmado (botón bancario por POST): página del portal que lo envía sola (`/payments/:id/redirect`);
- * - URL relativa (adaptador simulado): página de resultado del portal;
+ * - URL relativa (adaptador simulado, modo de prueba): simulador de pago del portal (`/payments/simulator`), que imita
+ *   a la pasarela y luego vuelve a la página de resultado;
  * - sin redirección (boleta de depósito): página de resultado.
  */
 @Injectable({ providedIn: 'root' })

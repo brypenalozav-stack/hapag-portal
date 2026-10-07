@@ -5591,6 +5591,37 @@
     "title": "Resultado del pago",
     "viewReceipt": "Ver comprobante y detalle"
   },
+  "paymentSimulator": {
+    "banner": {
+      "title": "Simulador de pago — modo de prueba.",
+      "text": "No se realiza ningún cargo real."
+    },
+    "gateway": "Pasarela de pago simulada",
+    "providers": {
+      "Khipu": "Khipu",
+      "Santander": "Getnet · Botón Santander",
+      "Bci": "Bci Pagos",
+      "BancoChile": "Banco de Chile"
+    },
+    "title": "Confirme su pago",
+    "merchant": "Comercio",
+    "merchantName": "Hapag-Lloyd",
+    "amount": "Monto a pagar",
+    "reference": "Referencia",
+    "instructions": "Elija el resultado que desea simular. Al terminar volverá al portal, que verificará el pago como con la pasarela real.",
+    "actions": {
+      "approve": "Pagar",
+      "reject": "Rechazar el pago",
+      "pending": "Dejar pendiente",
+      "cancel": "Cancelar y volver al portal"
+    },
+    "help": "«Dejar pendiente» simula un pago que la pasarela aún no confirma: el portal lo mostrará en proceso.",
+    "error": "No se pudo registrar el resultado simulado. Intente nuevamente.",
+    "notAvailable": "El simulador no está disponible para este pago: su medio de pago no está en modo de prueba.",
+    "invalidTitle": "Simulador de pago",
+    "invalid": "El enlace del simulador de pago no es válido. Revise el estado de su pago en el historial.",
+    "goToHistory": "Ir al historial de pagos"
+  },
   "profile": {
     "accountType": "Tipo de Cuenta",
     "cancel": "Cancelar",

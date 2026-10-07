@@ -16,6 +16,9 @@ export type PaymentStatus = 'Pending' | 'Processing' | 'PendingVerification' | '
 /** Estados en los que el pago ya no cambia sin intervención (el resultado queda definido). */
 export const FINAL_PAYMENT_STATUSES: readonly PaymentStatus[] = ['Confirmed', 'Failed', 'Cancelled'];
 
+/** Resultado que el usuario elige en el simulador de pago (modo de prueba). */
+export type PaymentSimulatorOutcome = 'approved' | 'rejected' | 'pending' | 'cancelled';
+
 /** `CreditLine`: imputación a la línea de crédito (Fase 2, Ola H, M5-10); no figura en el historial de pagos. */
 export type PaymentOrigin = 'Cart' | 'Account' | 'Legacy' | 'CreditLine';
 

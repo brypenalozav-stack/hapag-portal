@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { API_ENDPOINTS } from '../constants/app.constants';
 import { Payment } from '../models/payment.model';
-import { PaymentBlockStatus, PaymentMethod, PaymentStatusDetail } from '../models/cart.model';
+import { PaymentBlockStatus, PaymentMethod, PaymentSimulatorOutcome, PaymentStatusDetail } from '../models/cart.model';
 
 /**
  * Ciclo de vida de un pago del portal (Ola D): estado único con su historial (NF-02, NF-12), emisión de
@@ -30,6 +30,14 @@ export class PaymentService {
    */
   verify(id: string): Observable<PaymentStatusDetail> {
     return this.api.post<PaymentStatusDetail>(`${API_ENDPOINTS.PAYMENTS}/${id}/verify`, {});
+  }
+
+  /**
+   * Simulador de pago (modo de prueba): aplica el resultado elegido en la página del simulador. Solo existe si la
+   * pasarela del pago está en modo Dummy y el pago es de la organización del usuario (si no, 404).
+   */
+  simulate(externalReference: string, outcome: PaymentSimulatorOutcome): Observable<PaymentStatusDetail> {
+    return this.api.post<PaymentStatusDetail>(`${API_ENDPOINTS.PAYMENTS}/simulator/${encodeURIComponent(externalReference)}`, { outcome });
   }
 
   /** Emite la boleta de depósito: desde ese momento el cliente ya no puede anularla (M5-02). */

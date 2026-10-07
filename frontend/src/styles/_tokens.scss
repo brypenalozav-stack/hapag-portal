@@ -22,3 +22,10 @@ $hl-dark-text: #e2e8f0;
 // Tonos semánticos
 $hl-surface-muted: #f8fafc;
 $hl-text-muted: #4a5568; // 7,53:1 sobre blanco; reemplaza a #718096 (4,02:1)
+
+// Encabezado de cada pasarela en el simulador de pago (modo de prueba): colores de marca oscurecidos para que el texto
+// blanco llegue a 4,5:1 en ambos temas.
+$hl-gw-khipu: #5b2a86; // Khipu (morado)
+$hl-gw-santander: #c00000; // Santander / Getnet (rojo)
+$hl-gw-bci: #0b3a66; // Bci Pagos (azul)
+$hl-gw-bancochile: #002464; // Banco de Chile (azul marino)

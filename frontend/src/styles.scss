@@ -56,6 +56,11 @@
   --hl-surface-muted: #{t.$hl-surface-muted};
   --hl-text-muted: #{t.$hl-text-muted};
   --hl-focus: #{t.$hl-blue};
+  // Encabezado de cada pasarela en el simulador de pago (modo de prueba); iguales en ambos temas (texto blanco).
+  --hl-gw-khipu: #{t.$hl-gw-khipu};
+  --hl-gw-santander: #{t.$hl-gw-santander};
+  --hl-gw-bci: #{t.$hl-gw-bci};
+  --hl-gw-bancochile: #{t.$hl-gw-bancochile};
   // Alias semánticos de los tokens que cambian con el tema (guía §1.1, columna "Variante oscura").
   --hl-surface: #{t.$hl-white};
   --hl-input-bg: #{t.$hl-white};

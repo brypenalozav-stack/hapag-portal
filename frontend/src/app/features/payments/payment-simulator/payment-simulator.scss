@@ -1,0 +1,99 @@
+:host {
+  display: block;
+}
+
+.hl-sim {
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.hl-sim-banner {
+  margin-bottom: 1rem;
+}
+
+.hl-sim-card {
+  overflow: hidden;
+  border: 1px solid var(--hl-border);
+  border-radius: 0.75rem;
+  background-color: var(--hl-surface);
+  box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 8%);
+}
+
+// Encabezado con el color de la pasarela simulada (texto blanco, 4,5:1 o más en ambos temas).
+.hl-sim-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  color: var(--hl-white);
+  background-color: var(--hl-dark);
+}
+
+.hl-sim-header--khipu {
+  background-color: var(--hl-gw-khipu);
+}
+
+.hl-sim-header--santander {
+  background-color: var(--hl-gw-santander);
+}
+
+.hl-sim-header--bci {
+  background-color: var(--hl-gw-bci);
+}
+
+.hl-sim-header--bancochile {
+  background-color: var(--hl-gw-bancochile);
+}
+
+.hl-sim-provider {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.hl-sim-subtitle {
+  font-size: 0.875rem;
+}
+
+.hl-sim-body {
+  padding: 1.25rem;
+}
+
+.hl-sim-summary {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--hl-surface-muted);
+
+  > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+  }
+
+  dt {
+    font-weight: 400;
+    color: var(--hl-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+}
+
+.hl-sim-amount {
+  font-size: 1.35rem;
+}
+
+.hl-sim-actions {
+  display: grid;
+  gap: 0.5rem;
+
+  @media (min-width: 576px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -42,7 +42,21 @@ export interface OpcionesOlaD {
   nexusCaido?: boolean;
   /** El botón de Banco de Chile responde con un formulario firmado (POST al sitio del banco) en vez de una URL. */
   formularioBanco?: boolean;
+  /**
+   * Pasarelas en modo de prueba (Dummy): el cierre lleva al simulador de pago del portal (`/payments/simulator`) y
+   * `POST payments/simulator/{referencia}` aplica el resultado elegido. Una referencia desconocida o `false` (pasarela
+   * Real) responden 404, como el backend.
+   */
+  simuladorPago?: boolean;
 }
+
+/** Clave del proveedor de cada medio en línea (IPaymentProvider), para la URL del simulador. */
+const PROVEEDOR_DEL_MEDIO: Record<string, string> = {
+  KHIPU: 'Khipu',
+  BANK_BUTTON_BCH: 'BancoChile',
+  BANK_BUTTON_SANTANDER: 'Santander',
+  BANK_BUTTON_BCI: 'Bci',
+};
 
 /** Destino del formulario firmado simulado del botón de Banco de Chile. */
 export const URL_BANCO = 'https://banco.example/pago';
@@ -513,6 +527,8 @@ export class SimulacionOlaD {
   private readonly porClave = new Map<string, CheckoutResult>();
   private readonly pagos: Record<string, PaymentStatusDetail> = pagosFijos();
   private readonly consultas = new Map<string, number>();
+  /** Pagos con un resultado elegido en el simulador: no se confirman solos al consultarlos. */
+  private readonly simulados = new Set<string>();
   /** Ítems que se pueden validar y agregar; otras olas registran los suyos (Ola E: certificado de transbordo). */
   private readonly pagables: Record<string, PayableItem> = { ...PAGABLES };
   /** Facturas que agregan otras olas (Fase 2, Ola H: cubierta por anticipo y refacturación IAO). */
@@ -702,6 +718,13 @@ export class SimulacionOlaD {
       return true;
     }
 
+    // Simulador de pago en modo de prueba
+    m = ruta.match(/^payments\/simulator\/([^/]+)$/);
+    if (m && metodoHttp === 'POST') {
+      await this.simular(route, decodeURIComponent(m[1]), (cuerpo(request) as { outcome?: string }).outcome ?? '');
+      return true;
+    }
+
     // Ciclo de vida del pago (NF-02, M5-02)
     m = ruta.match(/^payments\/([^/]+)\/(status|verify|issue-slip|cancel)$/);
     if (m && m[1] !== 'webhook') {
@@ -813,10 +836,15 @@ export class SimulacionOlaD {
       releasePending: false,
     };
     const formulario = !!this.opciones.formularioBanco && body.paymentMethodCode === 'BANK_BUTTON_BCH';
+    const retorno = `/payments/${id}/result?ref=${numero}`;
+    const simulador = this.opciones.simuladorPago
+      ? `/payments/simulator?provider=${PROVEEDOR_DEL_MEDIO[body.paymentMethodCode] ?? 'Khipu'}&ref=${numero}&amount=${total}` +
+        `&currency=${body.paymentCurrency}&returnUrl=${encodeURIComponent(retorno)}`
+      : null;
     const resultado: CheckoutResult = {
       payment,
       nextAction: deposito ? 'IssueSlip' : 'Redirect',
-      redirectUrl: deposito ? null : formulario ? URL_BANCO : `/payments/${id}/result?ref=${numero}`,
+      redirectUrl: deposito ? null : formulario ? URL_BANCO : (simulador ?? retorno),
       redirectForm: formulario
         ? { method: 'POST', action: URL_BANCO, fields: { convenio: 'CONV-1', orden: numero, monto: String(total), firma: 'f1a2b3' } }
         : null,
@@ -838,7 +866,7 @@ export class SimulacionOlaD {
       const consultas = (this.consultas.get(id) ?? 0) + 1;
       this.consultas.set(id, consultas);
       const creado = id.startsWith('p5000000-0000-4000-8000-0000000000') && !Object.values(PAGO).includes(id as never);
-      if (creado && pago.payment.status === 'Processing' && consultas >= 2) {
+      if (creado && pago.payment.status === 'Processing' && consultas >= 2 && !this.simulados.has(id)) {
         this.confirmar(id);
       }
       await json(route, 200, this.pagos[id]);
@@ -879,6 +907,31 @@ export class SimulacionOlaD {
     };
     this.items = this.items.map((i) => (i.lockedByPaymentId === id ? { ...i, lockedByPaymentId: null } : i));
     await json(route, 200, {});
+  }
+
+  /** Resultado elegido en el simulador de pago: se aplica como lo informaría la pasarela (POST simulator). */
+  private async simular(route: Route, referencia: string, resultado: string): Promise<void> {
+    const id = Object.keys(this.pagos).find((k) => this.pagos[k].payment.externalReference === referencia);
+    if (!id || this.opciones.simuladorPago === false) {
+      await problema(route, 404, 'Payment.NotFound', 'The payment was not found.');
+      return;
+    }
+    this.simulados.add(id);
+    const pago = this.pagos[id];
+    if (pago.payment.status === 'Processing') {
+      if (resultado === 'approved') {
+        this.confirmar(id);
+      } else if (resultado === 'rejected' || resultado === 'cancelled') {
+        this.pagos[id] = {
+          ...pago,
+          payment: { ...pago.payment, status: 'Failed', failureReason: 'PROVIDER_REJECTED' },
+          history: [...pago.history, { fromStatus: 'Processing', toStatus: 'Failed', changedAt: '2026-10-05T15:03:00Z', changedBy: 'KHIPU_SIMULATOR', reason: null }],
+          cancelDeniedReason: 'FINAL',
+        };
+        this.items = this.items.map((i) => (i.lockedByPaymentId === id ? { ...i, lockedByPaymentId: null } : i));
+      }
+    }
+    await json(route, 200, this.pagos[id]);
   }
 
   private confirmar(id: string): void {

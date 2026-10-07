@@ -21,7 +21,7 @@ La URL completa del webhook es `Payments:ApiPublicBaseUrl` (o `Payments:PublicBa
 - **Sin credenciales no falla el arranque.** Con `Mode=Real` y sin credenciales, el cobro falla con `Integration.NotConfigured` y el pago queda fallido sin cobro (el usuario ve "la plataforma no respondió").
 - **Secretos.** Las credenciales se guardan cifradas en el almacén de secretos (`UpsertSecretCommand`, ámbito Global), nunca en `appsettings` ni en variables de entorno, y nunca se registran en logs.
 - **Los clientes HTTP de pago no reintentan POST ni DELETE** (un reintento podría crear un segundo cobro); la conciliación cubre las consultas fallidas.
-- **Modo por defecto: Dummy.** Local, desarrollo y pruebas e2e usan el adaptador simulado. En Dummy la notificación simulada lleva `X-Webhook-Secret` (`Payments:Webhooks:<Clave>:Secret`) y un JSON `{ externalReference, status, transactionId?, amount? }`.
+- **Modo por defecto: Dummy.** Local, desarrollo y pruebas e2e usan el adaptador simulado, que lleva al pagador al simulador de pago del portal (ver «Simulador en modo de prueba»). En Dummy la notificación simulada lleva `X-Webhook-Secret` (`Payments:Webhooks:<Clave>:Secret`) y un JSON `{ externalReference, status, transactionId?, amount? }`.
 - **Interruptor general.** `Payments:Webhooks:Enabled` debe ser `true` para recibir notificaciones (también las Real).
 
 ## Configuración común
@@ -138,6 +138,16 @@ Mientras falte el manual, con `Mode=Real` el cobro falla con `Integration.NotCon
 
 **Confirmado:** nada del protocolo técnico. **Supuesto:** todo el formato (por eso es configurable).
 
+## Simulador en modo de prueba
+
+Con `Integrations:<Sistema>:Mode=Dummy` (el valor por defecto) no hay sitio de la pasarela ni del banco: el adaptador `DummyPaymentProvider` envía al pagador a la página del portal `/payments/simulator`, que imita a la pasarela del medio elegido (Khipu, Getnet/Botón Santander, Bci Pagos o Banco de Chile: nombre, logo y color) y muestra siempre el aviso «Simulador de pago — modo de prueba. No se realiza ningún cargo real.».
+
+- **Enlace.** `/payments/simulator?provider=<Clave>&ref=<referencia del portal>&amount=<monto>&currency=<moneda>&returnUrl=<retorno>`, en el mismo origen que la URL de retorno (`/payments/{id}/result?ref=…`). La página solo vuelve a una ruta `/payments/…` del propio portal: un retorno de otro sitio (`https://…`, `//…`, `javascript:`) se rechaza y no se ofrecen los botones (sin redirección abierta). Banco de Chile usa el mismo simulador (sin formulario firmado). El depósito con boleta no cambia (no redirige).
+- **Resultados.** «Pagar» (`approved` → Confirmado), «Rechazar el pago» (`rejected` → Fallido), «Dejar pendiente» (`pending` → sigue en proceso) y «Cancelar y volver al portal» (`cancelled` → Fallido, sin cobro). La página envía `POST /api/v1/payments/simulator/{referencia}` con `{ "outcome": "…" }` y vuelve a la página de resultado, que llama a `verify` como con la pasarela real.
+- **Seguridad.** El endpoint existe solo si la pasarela del pago está en Dummy (el adaptador implementa `ISimulatedPaymentProvider`) y si el pago es de la organización del usuario; si no, 404. Con una pasarela Real el simulador no se puede usar.
+- **Cómo se aplica.** El resultado se guarda en `IPaymentSimulatorStore` (singleton en memoria, único para las cuatro claves) y se aplica en el acto por `PaymentStatusSync`, el mismo camino que `verify` y el webhook: la consulta de estado de Dummy informa el resultado con el monto y la moneda del pago del portal, y se compara referencia, monto y moneda. Es idempotente: un pago confirmado no se confirma dos veces. La consulta de Dummy no depende de memoria propia: tras reiniciar la API, un pago sin resultado sigue en proceso (no se confirma solo) y el usuario puede volver a abrir el simulador. Una referencia de la pasarela con `REJECT` sigue dando Fallido.
+- **Código.** Backend: `Application/Payments/Simulator/SimulatePaymentCommand.cs`, `Application/Common/Interfaces/IPaymentSimulator.cs`, `Infrastructure/Integrations/Payments/DummyPaymentProvider.cs` e `InMemoryPaymentSimulatorStore.cs`. Frontend: `features/payments/payment-simulator/`. Pruebas e2e: `e2e/funcional/simulador-pago.spec.ts`.
+
 ## Pasos para encender una pasarela (por ambiente)
 
 1. Cargar los secretos del contrato (tabla de cada pasarela) con `UpsertSecretCommand` en ámbito Global.
@@ -152,8 +162,8 @@ Mientras falte el manual, con `Mode=Real` el cobro falla con `Integration.NotCon
 - Puerto: `backend/src/HapagPortal.Application/Common/Interfaces/IPaymentProvider.cs` (`InitiateAsync`, `GetStatusAsync`, `CancelAsync`, `ReadNotificationAsync`).
 - Sincronización única: `Application/Payments/Common/PaymentStatusSync.cs`; webhook: `Application/Payments/Commands/Webhooks/PaymentNotificationCommand.cs`; retorno y conciliación: `Application/Payments/Lifecycle/PaymentProviderSyncCommands.cs`.
 - Adaptadores: `Infrastructure/Integrations/Payments/` (`HttpKhipuPaymentProvider`, `GetnetPaymentProvider`, `BciPagosPaymentProvider`, `BancoChileFormPaymentProvider`, `DummyPaymentProvider`).
-- Endpoint: `WebApi/Controllers/V1/PaymentsController.cs` (`webhook/{pasarela}`, `{id}/verify`); proceso: `WebApi/BackgroundServices/PaymentReconciliationWorker.cs`.
-- Frontend: `core/services/payment-redirect.service.ts` y `features/payments/payment-redirect/` (formulario que se envía solo).
+- Endpoint: `WebApi/Controllers/V1/PaymentsController.cs` (`webhook/{pasarela}`, `{id}/verify`, `simulator/{referencia}` solo en Dummy); proceso: `WebApi/BackgroundServices/PaymentReconciliationWorker.cs`.
+- Frontend: `core/services/payment-redirect.service.ts` y `features/payments/payment-redirect/` (formulario que se envía solo); simulador en modo de prueba: `features/payments/payment-simulator/`.
 
 ## Fuentes
 

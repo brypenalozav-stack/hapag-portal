@@ -101,6 +101,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    // Simulador de pago (modo de prueba): reemplaza la página de la pasarela cuando su adaptador está en Dummy.
+    path: 'payments/simulator',
+    loadComponent: () =>
+      import('./features/payments/payment-simulator/payment-simulator').then((m) => m.PaymentSimulatorComponent),
+    canActivate: [authGuard],
+  },
+  {
     // Formulario firmado de un botón bancario (M5-03): se envía solo al sitio del banco.
     path: 'payments/:id/redirect',
     loadComponent: () =>

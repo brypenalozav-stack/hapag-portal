@@ -5591,6 +5591,37 @@
     "title": "Payment result",
     "viewReceipt": "See receipt and details"
   },
+  "paymentSimulator": {
+    "banner": {
+      "title": "Payment simulator — test mode.",
+      "text": "No real charge is made."
+    },
+    "gateway": "Simulated payment gateway",
+    "providers": {
+      "Khipu": "Khipu",
+      "Santander": "Getnet · Santander button",
+      "Bci": "Bci Pagos",
+      "BancoChile": "Banco de Chile"
+    },
+    "title": "Confirm your payment",
+    "merchant": "Merchant",
+    "merchantName": "Hapag-Lloyd",
+    "amount": "Amount to pay",
+    "reference": "Reference",
+    "instructions": "Choose the outcome you want to simulate. When you finish you will return to the portal, which will verify the payment as with the real gateway.",
+    "actions": {
+      "approve": "Pay",
+      "reject": "Reject the payment",
+      "pending": "Leave pending",
+      "cancel": "Cancel and return to the portal"
+    },
+    "help": "“Leave pending” simulates a payment the gateway has not confirmed yet: the portal will show it in process.",
+    "error": "The simulated outcome could not be recorded. Please try again.",
+    "notAvailable": "The simulator is not available for this payment: its payment method is not in test mode.",
+    "invalidTitle": "Payment simulator",
+    "invalid": "The payment simulator link is not valid. Check the status of your payment in the history.",
+    "goToHistory": "Go to payment history"
+  },
   "profile": {
     "accountType": "Account Type",
     "cancel": "Cancel",
