@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, afterNextRender, computed, inject, input, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, inject, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
@@ -9,6 +9,7 @@ import { PaymentSimulatorOutcome } from '../../../core/models/cart.model';
 import { PaymentLogoComponent } from '../../../shared/components/payment-logo/payment-logo';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { paymentErrorMessage } from '../../../shared/payment-errors';
+import { focusAfterRender } from '../../../shared/focus-after-render';
 
 /** Pasarelas que se simulan (clave del proveedor de pago): clase del encabezado y nombre que se muestra. */
 export const SIMULATED_PROVIDERS: Record<string, { css: string; nameKey: string }> = {
@@ -64,6 +65,8 @@ export class PaymentSimulatorComponent {
 
   readonly busy = signal<PaymentSimulatorOutcome | null>(null);
   readonly error = signal('');
+  /** El pago ya tiene resultado final (409): no se ofrecen los botones, sí ver el estado del pago. */
+  readonly finished = signal(false);
 
   readonly simulated = computed(() => SIMULATED_PROVIDERS[this.provider() ?? ''] ?? null);
   readonly headerClass = computed(() => `hl-sim-header--${this.simulated()?.css ?? ''}`);
@@ -78,6 +81,14 @@ export class PaymentSimulatorComponent {
   readonly valid = computed(() => !!this.simulated() && !!this.ref() && this.amountValue() !== null && !!this.currency() && !!this.returnPath());
 
   private readonly heading = viewChild<ElementRef<HTMLElement>>('heading');
+  private readonly statusButton = viewChild<ElementRef<HTMLElement>>('statusButton');
+  private readonly injector = inject(Injector);
+
+  /** Página de resultado del portal (ruta ya validada). */
+  viewResult(): void {
+    const path = this.returnPath();
+    if (path) this.router.navigateByUrl(path);
+  }
 
   constructor() {
     afterNextRender(() => this.heading()?.nativeElement.focus());
@@ -97,10 +108,16 @@ export class PaymentSimulatorComponent {
       },
       error: (err) => {
         this.busy.set(null);
-        const message = err instanceof HttpErrorResponse && err.status === 404
+        const status = err instanceof HttpErrorResponse ? err.status : 0;
+        const message = status === 404
           ? translate('paymentSimulator.notAvailable')
-          : paymentErrorMessage(err, 'paymentSimulator.error');
+          : status === 409
+            ? translate('paymentSimulator.alreadyFinal')
+            : paymentErrorMessage(err, 'paymentSimulator.error');
         this.error.set(message);
+        this.finished.set(status === 409);
+        // Los botones desaparecen: el foco pasa al botón que lleva al estado del pago.
+        if (status === 409) focusAfterRender(this.injector, () => this.statusButton()?.nativeElement);
         this.announcer.announce(message, 'assertive');
       },
     });

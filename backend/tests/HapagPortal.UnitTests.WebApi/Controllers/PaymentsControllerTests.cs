@@ -169,6 +169,18 @@ public sealed class PaymentsControllerTests
     }
 
     [Fact]
+    public async Task Simulate_FinalPayment_ShouldReturn409()
+    {
+        _sender.Send(Arg.Any<SimulatePaymentCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Result<HapagPortal.Application.Payments.Common.PaymentStatusDto>.Failure(
+                HapagPortal.Domain.Errors.DomainErrors.Payment.SimulatorFinal));
+
+        var result = await _controller.Simulate("PAY-1", new SimulatePaymentRequest("approved"), CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Subject.StatusCode.Should().Be(409);
+    }
+
+    [Fact]
     public async Task Simulate_NotInTestModeOrOtherClient_ShouldReturn404()
     {
         _sender.Send(Arg.Any<SimulatePaymentCommand>(), Arg.Any<CancellationToken>())

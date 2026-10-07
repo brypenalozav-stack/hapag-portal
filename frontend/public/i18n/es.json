@@ -5618,6 +5618,8 @@
     "help": "«Dejar pendiente» simula un pago que la pasarela aún no confirma: el portal lo mostrará en proceso.",
     "error": "No se pudo registrar el resultado simulado. Intente nuevamente.",
     "notAvailable": "El simulador no está disponible para este pago: su medio de pago no está en modo de prueba.",
+    "alreadyFinal": "Este pago ya tiene un resultado final y el simulador no puede cambiarlo. Revise el estado del pago.",
+    "viewResult": "Ver el estado del pago",
     "invalidTitle": "Simulador de pago",
     "invalid": "El enlace del simulador de pago no es válido. Revise el estado de su pago en el historial.",
     "goToHistory": "Ir al historial de pagos"

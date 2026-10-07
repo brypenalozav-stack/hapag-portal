@@ -916,8 +916,13 @@ export class SimulacionOlaD {
       await problema(route, 404, 'Payment.NotFound', 'The payment was not found.');
       return;
     }
-    this.simulados.add(id);
     const pago = this.pagos[id];
+    // Un pago con resultado final no se vuelve a simular (409), como el backend.
+    if (['Confirmed', 'Failed', 'Cancelled'].includes(pago.payment.status)) {
+      await problema(route, 409, 'PaymentSimulator.Conflict', 'The payment already has a final result; the simulator cannot change it.');
+      return;
+    }
+    this.simulados.add(id);
     if (pago.payment.status === 'Processing') {
       if (resultado === 'approved') {
         this.confirmar(id);

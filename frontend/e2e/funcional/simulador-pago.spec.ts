@@ -77,6 +77,35 @@ test('el botón Banco de Chile en modo de prueba usa el simulador y «Rechazar e
   await expect(page.getByTestId('payment-result-status')).toHaveText('Fallido, sin cobro');
 });
 
+test('un pago con resultado final no se vuelve a simular: se informa y se ofrece ver su estado', async ({ page }) => {
+  await abrir(page, '/cart');
+
+  await pagarCon(page, 'Khipu, en línea');
+  await page.getByRole('button', { name: 'Rechazar el pago' }).click();
+  await expect(page.getByTestId('payment-result-status')).toHaveText('Fallido, sin cobro');
+
+  // El usuario vuelve atrás al simulador e intenta pagar el pago ya rechazado.
+  await page.goBack();
+  await expect(page).toHaveURL(/\/payments\/simulator\?/);
+  await page.getByRole('button', { name: 'Pagar', exact: true }).click();
+
+  await expect(page.getByTestId('payment-simulator-error')).toHaveText(
+    'Este pago ya tiene un resultado final y el simulador no puede cambiarlo. Revise el estado del pago.',
+  );
+  await expect(page.getByRole('button', { name: 'Pagar', exact: true })).toHaveCount(0);
+  const verEstado = page.getByRole('button', { name: 'Ver el estado del pago' });
+  await expect(verEstado).toBeFocused();
+  for (const tema of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme: tema, reducedMotion: 'reduce' });
+    const axe = await new AxeBuilder({ page }).include('main').withTags(TAGS).analyze();
+    expect(axe.violations, `axe simulador con resultado final ${tema}`).toEqual([]);
+  }
+
+  await verEstado.click();
+  await expect(page).toHaveURL(new RegExp(`/payments/[^/]+/result\\?ref=${REFERENCIA}$`));
+  await expect(page.getByTestId('payment-result-status')).toHaveText('Fallido, sin cobro');
+});
+
 test('«Dejar pendiente» vuelve al portal con el pago en proceso', async ({ page }) => {
   await abrir(page, '/cart');
 

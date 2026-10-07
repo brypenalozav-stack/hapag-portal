@@ -38,6 +38,12 @@
           <div class="alert alert-danger py-2" role="alert" data-testid="payment-simulator-error">{{ error() }}</div>
         }
 
+        @if (finished()) {
+          <!-- El pago ya tiene resultado final (409): solo se puede ver su estado -->
+          <button #statusButton type="button" class="btn btn-hl-orange" (click)="viewResult()" data-testid="payment-simulator-view-result">
+            {{ 'paymentSimulator.viewResult' | transloco }}
+          </button>
+        } @else {
         <div class="hl-sim-actions">
           <button type="button" class="btn btn-hl-green" [disabled]="!!busy()" (click)="choose('approved')" data-testid="payment-simulator-approve">
             @if (busy() === 'approved') {
@@ -62,6 +68,7 @@
           </button>
         </div>
         <p class="small text-muted mt-3 mb-0">{{ 'paymentSimulator.help' | transloco }}</p>
+        }
       </div>
     </section>
   } @else {

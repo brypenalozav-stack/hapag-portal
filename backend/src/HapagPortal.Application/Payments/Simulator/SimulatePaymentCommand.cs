@@ -5,6 +5,8 @@ using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
 using HapagPortal.Application.Payments.Common;
 using HapagPortal.Application.Payments.Lifecycle;
+using HapagPortal.Domain.Constants;
+using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,7 +33,8 @@ public sealed class SimulatePaymentCommandValidator : AbstractValidator<Simulate
 /// y el pago es de la organización del usuario; si no, <c>Payment.NotFound</c> (404, sin revelar nada). Guarda el
 /// resultado en <see cref="IPaymentSimulatorStore"/> y lo aplica en el acto por el mismo camino que la verificación al
 /// volver de la pasarela y la notificación (<see cref="PaymentStatusSync"/>): la pasarela simulada informa el estado y
-/// se compara referencia, monto y moneda. Idempotente: un pago confirmado no cambia ni se confirma dos veces.
+/// se compara referencia, monto y moneda. Un pago con resultado final (Confirmed, Failed o Cancelled) no se vuelve a
+/// simular: <c>PaymentSimulator.Conflict</c> (409), sin guardar ni cambiar nada.
 /// </summary>
 public sealed class SimulatePaymentCommandHandler(
     IApplicationDbContext dbContext,
@@ -42,6 +45,8 @@ public sealed class SimulatePaymentCommandHandler(
     : ICommandHandler<SimulatePaymentCommand, PaymentStatusDto>
 {
     private static readonly Error NotFound = new("Payment.NotFound", "The payment was not found.");
+
+    private static readonly string[] FinalStatuses = [PaymentStatus.Confirmed, PaymentStatus.Failed, PaymentStatus.Cancelled];
 
     public async Task<Result<PaymentStatusDto>> Handle(SimulatePaymentCommand request, CancellationToken cancellationToken)
     {
@@ -64,6 +69,10 @@ public sealed class SimulatePaymentCommandHandler(
         {
             return Result<PaymentStatusDto>.Failure(NotFound);
         }
+
+        // Un pago con resultado final (confirmado, fallido o anulado) no se vuelve a simular: no se guarda ni cambia nada.
+        if (FinalStatuses.Contains(payment.Status))
+            return Result<PaymentStatusDto>.Failure(DomainErrors.Payment.SimulatorFinal);
 
         simulatorStore.Record(reference, request.Outcome);
 

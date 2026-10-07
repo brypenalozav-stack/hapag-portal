@@ -68,7 +68,7 @@ public sealed class PaymentSimulatorTests
         var second = await Simulate("approved");
 
         first.Value.Payment.Status.Should().Be(PaymentStatus.Confirmed);
-        second.IsSuccess.Should().BeTrue();
+        second.Error.Code.Should().Be("PaymentSimulator.Conflict");
         payment.Status.Should().Be(PaymentStatus.Confirmed);
         payment.ReceiptNumber.Should().NotBeNull().And.Be(receipt);
         payment.ProviderTransactionId.Should().Be("DUMMY-TXN-EXT-1");
@@ -91,6 +91,41 @@ public sealed class PaymentSimulatorTests
         payment.Status.Should().Be(PaymentStatus.Failed);
         payment.ReceiptNumber.Should().BeNull();
         _store.Outcome("EXT-1").Should().Be(outcome);
+    }
+
+    [Fact]
+    public async Task RejectedThenApproved_ShouldBeConflict_AndStayFailed()
+    {
+        var payment = AddPayment();
+        await Simulate("rejected");
+        var changes = _f.Db.PaymentStatusChangeList.Count;
+
+        var result = await Simulate("approved");
+
+        result.Error.Code.Should().Be("PaymentSimulator.Conflict");
+        payment.Status.Should().Be(PaymentStatus.Failed);
+        payment.ReceiptNumber.Should().BeNull();
+        _store.Outcome("EXT-1").Should().Be("rejected", "un pago con resultado final no guarda un resultado nuevo");
+        _f.Db.PaymentStatusChangeList.Should().HaveCount(changes);
+        _f.Db.PaymentOutboxMessageList.Should().NotContain(m => m.JobType == PaymentOutboxJobTypes.Release);
+    }
+
+    [Theory]
+    [InlineData(PaymentStatus.Confirmed)]
+    [InlineData(PaymentStatus.Failed)]
+    [InlineData(PaymentStatus.Cancelled)]
+    public async Task FinalPayment_ShouldBeConflict_WithoutStoringOrQuerying(string status)
+    {
+        var payment = AddPayment();
+        payment.Status = status;
+
+        var result = await Simulate("approved");
+
+        result.Error.Code.Should().Be("PaymentSimulator.Conflict");
+        payment.Status.Should().Be(status);
+        _store.Outcome("EXT-1").Should().BeNull();
+        _simulated.VerifyCalls.Should().Be(0);
+        _f.Db.PaymentStatusChangeList.Should().BeEmpty();
     }
 
     [Fact]

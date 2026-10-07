@@ -5618,6 +5618,8 @@
     "help": "“Leave pending” simulates a payment the gateway has not confirmed yet: the portal will show it in process.",
     "error": "The simulated outcome could not be recorded. Please try again.",
     "notAvailable": "The simulator is not available for this payment: its payment method is not in test mode.",
+    "alreadyFinal": "This payment already has a final result and the simulator cannot change it. Check the payment status.",
+    "viewResult": "View the payment status",
     "invalidTitle": "Payment simulator",
     "invalid": "The payment simulator link is not valid. Check the status of your payment in the history.",
     "goToHistory": "Go to payment history"
