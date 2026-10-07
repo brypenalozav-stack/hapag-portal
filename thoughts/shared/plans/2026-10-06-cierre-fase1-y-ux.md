@@ -148,4 +148,4 @@ La fuente de verdad es `Portal_2.0_Especificacion_Funcional_validada(1).docx`. S
 | 5. Dashboard | Pendiente |
 | 6. Detalle del BL | Pendiente |
 | 7. Brechas Fase 1 (código) | Pendiente |
-| 8. Documentación Fase 1 | Pendiente |
+| 8. Documentación Fase 1 | Hecho: `docs/requerimientos/evaluacion-m3-05-solicitudes-masivas.md`, `m5-03-medios-de-pago-y-dolares-digitales.md`, `plantillas-nf-operacion-fase1.md` (valores *Por definir* según DC6) |
