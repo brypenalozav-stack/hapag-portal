@@ -1,0 +1,136 @@
+<div class="hl-page-header">
+  <h1>{{ 'reinvoicing.acceptance.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'reinvoicing.acceptance.subtitle' | transloco }}</p>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert" data-testid="acceptance-error">{{ error() }}</div>
+} @else if (view(); as v) {
+  <!-- Lo que se acepta: factura original, nueva razón social y cobro (M3-11) -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="acceptance-summary-title" data-testid="acceptance-summary">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+      <h2 id="acceptance-summary-title" class="section-title">{{ 'reinvoicing.acceptance.summaryTitle' | transloco: { number: v.requestNumber } }}</h2>
+      <span class="hl-badge" [class]="statusClass[v.acceptanceStatus] || 'hl-badge--pending'" data-testid="acceptance-status">{{ v.acceptanceStatus | codeLabel: statusKeys }}</span>
+    </div>
+    <dl class="row g-3 mb-0">
+      <div class="col-sm-6">
+        <dt class="small text-muted">{{ 'reinvoicing.acceptance.original' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">
+          {{ v.originalInvoiceNumber }}
+          <span class="d-block small fw-normal">{{ 'reinvoicing.quote.party' | transloco: { name: v.originalLegalName, taxId: v.originalTaxId } }}</span>
+          <span class="d-block small fw-normal">{{ 'reinvoicing.acceptance.originalTotal' | transloco: { total: (v.originalTotal | hlCurrency: v.originalCurrency) } }}</span>
+        </dd>
+      </div>
+      <div class="col-sm-6">
+        <dt class="small text-muted">{{ 'reinvoicing.acceptance.newEntity' | transloco }}</dt>
+        <dd class="fw-semibold mb-0" data-testid="acceptance-new-entity">{{ 'reinvoicing.quote.party' | transloco: { name: v.newLegalName ?? '—', taxId: v.newTaxId ?? '—' } }}</dd>
+      </div>
+      @if (v.currency) {
+        <div class="col-sm-4">
+          <dt class="small text-muted">{{ 'reinvoicing.acceptance.fee' | transloco }}</dt>
+          <dd class="fw-semibold mb-0">{{ v.feeTotal | hlCurrency: v.currency }}</dd>
+        </div>
+        <div class="col-sm-4">
+          <dt class="small text-muted">{{ 'reinvoicing.acceptance.vatLoss' | transloco }}</dt>
+          <dd class="fw-semibold mb-0">{{ v.vatLossAmount | hlCurrency: v.currency }}</dd>
+        </div>
+        <div class="col-sm-4">
+          <dt class="small text-muted">{{ 'reinvoicing.acceptance.total' | transloco }}</dt>
+          <dd class="fw-bold mb-0" data-testid="acceptance-total">{{ v.totalAmount | hlCurrency: v.currency }}</dd>
+        </div>
+      }
+    </dl>
+  </section>
+
+  @switch (v.acceptanceStatus) {
+    @case ('Pending') {
+      <form class="hl-card p-4 mb-4" novalidate aria-labelledby="acceptance-form-title" (submit)="submit($event)" data-testid="acceptance-form">
+        <h2 id="acceptance-form-title" class="section-title mb-2">{{ 'reinvoicing.acceptance.formTitle' | transloco }}</h2>
+        <p class="small">{{ 'reinvoicing.acceptance.formHelp' | transloco: { name: v.newLegalName ?? '—', taxId: v.newTaxId ?? '—' } }}</p>
+        @if (v.expiresAt) {
+          <p class="small text-muted">{{ 'reinvoicing.acceptance.expires' | transloco: { date: (v.expiresAt | hlDate: 'datetime' : v.timeZone) } }}</p>
+        }
+        @if (errors().length > 0) {
+          <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="acceptance-errors-title" data-testid="acceptance-errors">
+            <h3 id="acceptance-errors-title" class="h6 fw-bold">{{ 'reinvoicing.acceptance.errors.summaryTitle' | transloco }}</h3>
+            <ul class="mb-0">
+              @for (e of errors(); track e.fieldId) {
+                <li><a class="alert-link" [href]="'#' + e.fieldId" (click)="focusField($event, e.fieldId)">{{ e.key | transloco }}</a></li>
+              }
+            </ul>
+          </div>
+        }
+        @if (sendError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ sendError() }}</div>
+        }
+        <fieldset class="mb-3">
+          <legend class="form-label small fw-semibold mb-1">{{ 'reinvoicing.acceptance.answer' | transloco }}</legend>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="answer" id="acceptance-accept" value="accept" aria-describedby="acceptance-answer-error" [(ngModel)]="answer" />
+            <label class="form-check-label" for="acceptance-accept">{{ 'reinvoicing.acceptance.accept' | transloco: { total: (v.totalAmount | hlCurrency: (v.currency ?? 'CLP')) } }}</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="answer" id="acceptance-decline" value="decline" aria-describedby="acceptance-answer-error" [(ngModel)]="answer" />
+            <label class="form-check-label" for="acceptance-decline">{{ 'reinvoicing.acceptance.decline' | transloco }}</label>
+          </div>
+          <span id="acceptance-answer-error" class="hl-field-error">
+            @if (errorKey('acceptance-accept'); as k) {
+              {{ k | transloco }}
+            }
+          </span>
+        </fieldset>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label for="acceptance-name" class="form-label small fw-semibold">{{ 'reinvoicing.acceptance.name' | transloco }}</label>
+            <input id="acceptance-name" type="text" class="form-control" required maxlength="200" autocomplete="name" name="name"
+                   aria-describedby="acceptance-name-error" [attr.aria-invalid]="hasError('acceptance-name')" [(ngModel)]="name" />
+            <span id="acceptance-name-error" class="hl-field-error">
+              @if (errorKey('acceptance-name'); as k) {
+                {{ k | transloco }}
+              }
+            </span>
+          </div>
+          <div class="col-md-6">
+            <label for="acceptance-tax-id" class="form-label small fw-semibold">{{ 'reinvoicing.acceptance.taxId' | transloco }}</label>
+            <input id="acceptance-tax-id" type="text" class="form-control" required maxlength="20" autocomplete="off" name="taxId"
+                   aria-describedby="acceptance-tax-id-help acceptance-tax-id-error" [attr.aria-invalid]="hasError('acceptance-tax-id')" [(ngModel)]="taxId" />
+            <div id="acceptance-tax-id-help" class="form-text">{{ 'reinvoicing.acceptance.taxIdHelp' | transloco }}</div>
+            <span id="acceptance-tax-id-error" class="hl-field-error">
+              @if (errorKey('acceptance-tax-id'); as k) {
+                {{ k | transloco }}
+              }
+            </span>
+          </div>
+          <div class="col-12">
+            <label for="acceptance-reason" class="form-label small fw-semibold">{{ 'reinvoicing.acceptance.reason' | transloco }}</label>
+            <textarea id="acceptance-reason" class="form-control" rows="2" maxlength="1000" name="reason" aria-describedby="acceptance-reason-help" [(ngModel)]="reason"></textarea>
+            <div id="acceptance-reason-help" class="form-text">{{ 'reinvoicing.acceptance.reasonHelp' | transloco }}</div>
+          </div>
+        </div>
+        <p class="small">{{ 'reinvoicing.acceptance.record' | transloco }}</p>
+        <button type="submit" class="btn btn-hl-orange" [disabled]="sending()" data-testid="acceptance-submit">
+          @if (sending()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'reinvoicing.acceptance.submit' | transloco }}
+        </button>
+      </form>
+    }
+    @case ('Accepted') {
+      <section class="alert alert-success" aria-labelledby="acceptance-result-title" data-testid="acceptance-result">
+        <h2 #resultHeading id="acceptance-result-title" class="h6 fw-bold" tabindex="-1">{{ 'reinvoicing.acceptance.acceptedTitle' | transloco }}</h2>
+        <p class="mb-0">{{ 'reinvoicing.acceptance.acceptedText' | transloco: { date: (v.acceptedAt | hlDate: 'datetime' : v.timeZone) } }}</p>
+      </section>
+    }
+    @case ('Declined') {
+      <section class="alert alert-secondary" aria-labelledby="acceptance-result-title" data-testid="acceptance-result">
+        <h2 #resultHeading id="acceptance-result-title" class="h6 fw-bold" tabindex="-1">{{ 'reinvoicing.acceptance.declinedTitle' | transloco }}</h2>
+        <p class="mb-0">{{ 'reinvoicing.acceptance.declinedText' | transloco: { date: (v.declinedAt | hlDate: 'datetime' : v.timeZone) } }}</p>
+      </section>
+    }
+  }
+}

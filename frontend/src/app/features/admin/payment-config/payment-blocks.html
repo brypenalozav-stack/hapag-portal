@@ -1,0 +1,186 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.paymentBlocks.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.paymentBlocks.subtitle' | transloco }}</p>
+  </div>
+  <button type="button" class="btn btn-hl-orange" (click)="openCreate()">{{ 'admin.paymentBlocks.new' | transloco }}</button>
+</div>
+
+@if (formOpen()) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="block-form-title" (submit)="submit($event)">
+    <h2 #formHeading id="block-form-title" class="section-title mb-3" tabindex="-1">
+      {{ (editing() ? 'admin.paymentBlocks.form.editTitle' : 'admin.paymentBlocks.form.createTitle') | transloco }}
+    </h2>
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="block-errors-title">
+        <h3 id="block-errors-title" class="h6 fw-bold">{{ 'admin.paymentBlocks.form.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track error.key) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+    <p class="small text-muted" id="block-time-help">{{ 'admin.paymentBlocks.form.timeHelp' | transloco }}</p>
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label for="block-country" class="form-label small fw-semibold">{{ 'admin.paymentBlocks.form.country' | transloco }}</label>
+        <select id="block-country" class="form-select" [(ngModel)]="form.country" [ngModelOptions]="{ standalone: true }">
+          <option [value]="allCountries">{{ 'admin.paymentBlocks.allCountries' | transloco }}</option>
+          <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+          <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="block-start-date" class="form-label small fw-semibold">{{ 'admin.paymentBlocks.form.startDate' | transloco }}</label>
+        <input id="block-start-date" type="date" class="form-control" required aria-describedby="block-time-help" [attr.aria-invalid]="hasError('block-start-date')"
+               [(ngModel)]="form.startDate" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-2">
+        <label for="block-start-time" class="form-label small fw-semibold">{{ 'admin.paymentBlocks.form.startTime' | transloco }}</label>
+        <input id="block-start-time" type="time" class="form-control" required aria-describedby="block-time-help" [attr.aria-invalid]="hasError('block-start-time')"
+               [(ngModel)]="form.startTime" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-2">
+        <label for="block-end-date" class="form-label small fw-semibold">{{ 'admin.paymentBlocks.form.endDate' | transloco }}</label>
+        <input id="block-end-date" type="date" class="form-control" required aria-describedby="block-time-help" [attr.aria-invalid]="hasError('block-end-date')"
+               [(ngModel)]="form.endDate" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-2">
+        <label for="block-end-time" class="form-label small fw-semibold">{{ 'admin.paymentBlocks.form.endTime' | transloco }}</label>
+        <input id="block-end-time" type="time" class="form-control" required aria-describedby="block-time-help" [attr.aria-invalid]="hasError('block-end-time')"
+               [(ngModel)]="form.endTime" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-6">
+        <label for="block-reason" class="form-label small fw-semibold">{{ 'admin.paymentBlocks.form.reason' | transloco }}</label>
+        <input id="block-reason" type="text" class="form-control" required maxlength="300" aria-describedby="block-reason-help" [attr.aria-invalid]="hasError('block-reason')"
+               [(ngModel)]="form.reason" [ngModelOptions]="{ standalone: true }" />
+        <div id="block-reason-help" class="form-text">{{ 'admin.paymentBlocks.form.reasonHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-6">
+        <label for="block-message" class="form-label small fw-semibold">{{ 'admin.paymentBlocks.form.clientMessage' | transloco }}</label>
+        <textarea id="block-message" class="form-control" rows="2" required maxlength="500" aria-describedby="block-message-help" [attr.aria-invalid]="hasError('block-message')"
+                  [(ngModel)]="form.clientMessage" [ngModelOptions]="{ standalone: true }"></textarea>
+        <div id="block-message-help" class="form-text">{{ 'admin.paymentBlocks.form.clientMessageHelp' | transloco }}</div>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">{{ (editing() ? 'admin.paymentBlocks.form.save' : 'admin.paymentBlocks.form.create') | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'admin.paymentBlocks.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.paymentBlocks.filters.label' | transloco" (ngSubmit)="load()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="blocks-country" class="form-label small fw-semibold">{{ 'admin.paymentBlocks.filters.country' | transloco }}</label>
+      <select id="blocks-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.paymentBlocks.filters.any' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="form-check mb-2">
+        <input id="blocks-cancelled" type="checkbox" class="form-check-input" name="includeCancelled" [(ngModel)]="includeCancelled" />
+        <label for="blocks-cancelled" class="form-check-label small">{{ 'admin.paymentBlocks.filters.includeCancelled' | transloco }}</label>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <button type="submit" class="btn btn-outline-secondary">{{ 'admin.paymentBlocks.filters.search' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (windows().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.paymentBlocks.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <app-table-filter [table]="table" [totalOf]="windows().length" inputId="payment-blocks-table-filter" />
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.paymentBlocks.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.paymentBlocks.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col" appSortHeader="country" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.paymentBlocks.col.country' | transloco }}</th>
+            <th scope="col" appSortHeader="window" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.paymentBlocks.col.window' | transloco }}</th>
+            <th scope="col" appSortHeader="reason" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.paymentBlocks.col.reason' | transloco }}</th>
+            <th scope="col">{{ 'admin.paymentBlocks.col.message' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.paymentBlocks.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="changed" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.paymentBlocks.col.changed' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.paymentBlocks.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (w of table.rows(); track w.id) {
+            <tr>
+              <td>{{ countryLabel(w.country) }}</td>
+              <td>
+                {{ 'admin.paymentBlocks.window' | transloco: {
+                  startDate: (w.startDate | hlDate: 'localDate'), startTime: w.startTime.slice(0, 5),
+                  endDate: (w.endDate | hlDate: 'localDate'), endTime: w.endTime.slice(0, 5)
+                } }}
+                <span class="small text-muted d-block">{{ w.timeZone ?? ('admin.paymentBlocks.localTime' | transloco) }}</span>
+              </td>
+              <td>{{ w.reason }}</td>
+              <td class="small">{{ w.clientMessage }}</td>
+              <td>{{ w.status | codeLabel: statusKeys }}</td>
+              <td class="small">{{ 'admin.paymentBlocks.changedBy' | transloco: { user: w.modifiedBy ?? w.createdBy ?? '—', date: ((w.modifiedAt ?? w.createdAt) | hlDate: 'datetime') } }}</td>
+              <td>
+                <div class="hl-actions">
+                  @if (w.status === 'Scheduled') {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(w)"
+                            [attr.aria-label]="'admin.paymentBlocks.editLabel' | transloco: { reason: w.reason }">{{ 'admin.paymentBlocks.edit' | transloco }}</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelWindow(w)"
+                            [attr.aria-label]="'admin.paymentBlocks.cancelLabel' | transloco: { reason: w.reason }">{{ 'admin.paymentBlocks.cancel' | transloco }}</button>
+                  } @else if (w.status === 'Active') {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelWindow(w)"
+                            [attr.aria-label]="'admin.paymentBlocks.endLabel' | transloco: { reason: w.reason }">{{ 'admin.paymentBlocks.end' | transloco }}</button>
+                  }
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(w)"
+                          [attr.aria-label]="'admin.paymentBlocks.historyLabel' | transloco: { reason: w.reason }">{{ 'admin.paymentBlocks.history' | transloco }}</button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.paymentBlocks.pagination' | transloco"
+                     idPrefix="payment-blocks-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
+  </div>
+}
+
+@if (historyWindow(); as w) {
+  <section class="hl-card mb-4" aria-labelledby="block-history-title">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #historyHeading id="block-history-title" class="section-title" tabindex="-1">{{ 'admin.paymentBlocks.historyTitle' | transloco: { reason: w.reason } }}</h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeHistory()">{{ 'admin.paymentBlocks.historyClose' | transloco }}</button>
+    </div>
+    @if (historyLoading()) {
+      <app-loading-spinner />
+    } @else if (history().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.paymentBlocks.historyEmpty'" />
+    } @else {
+      <app-change-log [changes]="history()" [captionKey]="'admin.paymentBlocks.historyCaption'" [fieldKeys]="snapshotKeys" />
+    }
+  </section>
+}

@@ -1,35 +1,31 @@
 namespace HapagPortal.Application.Config.Read.GetPaymentMethods;
 
 using HapagPortal.Application.Common.Dtos;
+using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
-using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Results;
+using Microsoft.EntityFrameworkCore;
 
-public sealed class GetPaymentMethodsQueryHandler
+/// <summary>
+/// Medios de pago habilitados del país según el mantenedor de M5-03 (antes una lista fija en código).
+/// El detalle con monedas y proveedor está en <c>GET /payment-config/methods/available</c>.
+/// </summary>
+public sealed class GetPaymentMethodsQueryHandler(IApplicationDbContext dbContext)
     : IQueryHandler<GetPaymentMethodsQuery, List<PaymentMethodResponseDto>>
 {
-    public Task<Result<List<PaymentMethodResponseDto>>> Handle(
+    public async Task<Result<List<PaymentMethodResponseDto>>> Handle(
         GetPaymentMethodsQuery request,
         CancellationToken cancellationToken)
     {
-        var methods = request.Country switch
-        {
-            CountryCodes.Chile =>
-            [
-                new PaymentMethodResponseDto(PaymentMethods.CreditCard, "Credit Card", "Pay with credit card", true),
-                new PaymentMethodResponseDto(PaymentMethods.DebitCard, "Debit Card", "Pay with debit card", true),
-                new PaymentMethodResponseDto(PaymentMethods.BankTransfer, "Bank Transfer", "Pay via bank transfer", true),
-                new PaymentMethodResponseDto(PaymentMethods.WebPay, "WebPay", "Pay via WebPay", true),
-            ],
-            CountryCodes.Bolivia =>
-            [
-                new PaymentMethodResponseDto(PaymentMethods.BankTransfer, "Bank Transfer", "Pay via bank transfer", true),
-                new PaymentMethodResponseDto(PaymentMethods.Cash, "Cash", "Pay with cash", true),
-                new PaymentMethodResponseDto(PaymentMethods.Check, "Check", "Pay with check", true),
-            ],
-            _ => new List<PaymentMethodResponseDto>()
-        };
+        var country = (request.Country ?? string.Empty).Trim().ToUpperInvariant();
 
-        return Task.FromResult(Result<List<PaymentMethodResponseDto>>.Success(methods));
+        var methods = await dbContext.PaymentMethodConfigs.AsNoTracking()
+            .Where(m => m.Country == country && m.IsEnabled)
+            .OrderBy(m => m.DisplayOrder)
+            .ThenBy(m => m.Code)
+            .Select(m => new PaymentMethodResponseDto(m.Code, m.Name, m.Description ?? m.Name, m.IsEnabled))
+            .ToListAsync(cancellationToken);
+
+        return Result<List<PaymentMethodResponseDto>>.Success(methods);
     }
 }

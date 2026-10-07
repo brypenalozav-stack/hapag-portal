@@ -1,3 +1,134 @@
 :host {
   display: block;
 }
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.hl-num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// Fila de la bandeja "Requiere su acción": qué (BL y motivos), urgencia y una sola acción. La franja izquierda
+// refuerza la urgencia; el badge la dice en texto.
+.hl-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding: 0.85rem 1rem 0.85rem 0.85rem;
+  border-left: 0.25rem solid transparent;
+
+  & + & {
+    border-top: 1px solid var(--hl-border);
+  }
+
+  &[data-urgency='overdue'] {
+    border-left-color: var(--bs-danger-border-subtle);
+  }
+
+  &[data-urgency='urgent'] {
+    border-left-color: var(--bs-warning-border-subtle);
+  }
+}
+
+.hl-action__title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.hl-action__reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.75rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: 0.875rem;
+
+  // Separador visual entre motivos (cada uno ya es un ítem de la lista para el lector de pantalla).
+  li + li::before {
+    content: '·';
+    margin-right: 0.75rem;
+    color: var(--hl-text-muted);
+  }
+}
+
+.hl-action__amounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.hl-action__status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+// En el teléfono la urgencia y la acción pasan debajo del texto.
+@media (max-width: 575.98px) {
+  .hl-action {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .hl-action__main {
+    grid-column: 1 / -1;
+  }
+
+  .hl-action__status {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+}
+
+// Estado vacío positivo: "Todo al día".
+.hl-action-empty {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1rem;
+
+  svg {
+    flex-shrink: 0;
+    color: var(--bs-success-text-emphasis);
+  }
+}
+
+// Encabezado desplegable de los indicadores (patrón disclosure: el botón vive dentro del h2).
+.hl-disclosure {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+
+  svg {
+    transition: transform 0.2s;
+  }
+
+  &[aria-expanded='true'] svg {
+    transform: rotate(90deg);
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.hl-defer-placeholder {
+  min-height: 12rem;
+}

@@ -2,6 +2,7 @@ namespace HapagPortal.UnitTests.WebApi.Controllers;
 
 using FluentAssertions;
 using HapagPortal.Application.Common.Dtos;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Config.Read.GetCurrencies;
 using HapagPortal.Application.Config.Read.GetPaymentMethods;
 using HapagPortal.Application.Config.Read.GetTaxRates;
@@ -21,6 +22,19 @@ public sealed class ConfigControllerTests
     {
         _controller = new ConfigController();
         ControllerTestHelper.SetupController(_controller, _sender);
+    }
+
+    [Fact]
+    public async Task GetFeatures_ShouldReturnTheFlagMap()
+    {
+        IReadOnlyDictionary<string, bool> flags = new FeatureSettings().Snapshot();
+        _sender.Send(Arg.Any<GetFeaturesQuery>(), Arg.Any<CancellationToken>())
+            .Returns(Result<IReadOnlyDictionary<string, bool>>.Success(flags));
+
+        var result = await _controller.GetFeatures(CancellationToken.None);
+
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.Value.Should().BeSameAs(flags);
     }
 
     [Fact]

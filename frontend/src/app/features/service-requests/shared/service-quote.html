@@ -1,0 +1,156 @@
+@let q = quote();
+<div data-testid="service-quote">
+  @if (q.timing !== 'NotApplicable') {
+    <p class="mb-3">
+      <span class="hl-badge" [class]="timingClass[q.timing] || 'hl-badge--processing'" data-testid="quote-timing">{{ q.timing | codeLabel: timingKeys }}</span>
+    </p>
+  }
+
+  <dl class="row g-3 mb-3">
+    <div class="col-sm-6 col-lg-4">
+      <dt class="quote-label">{{ 'serviceRequests.quote.pricing' | transloco }}</dt>
+      <dd class="quote-value">
+        {{ q.pricingMode | codeLabel: pricingKeys }}
+        @if (q.chargeConceptCode) {
+          <span class="d-block small fw-normal">{{ q.chargeConceptCode | codeLabel: conceptKeys }}</span>
+        }
+      </dd>
+    </div>
+    @if (q.tariffCode || q.tariffSource) {
+      <div class="col-sm-6 col-lg-4">
+        <dt class="quote-label">{{ 'serviceRequests.quote.tariff' | transloco }}</dt>
+        <dd class="quote-value" data-testid="quote-tariff">
+          {{ q.tariffCode ?? '—' }}
+          @if (q.tariffSource) {
+            <span class="d-block small fw-normal">{{ 'serviceRequests.quote.tariffSource' | transloco: { source: (q.tariffSource | codeLabel: sourceKeys) } }}</span>
+          }
+        </dd>
+      </div>
+    }
+    @if (q.milestoneAt) {
+      <div class="col-sm-6 col-lg-4">
+        <dt class="quote-label">{{ 'serviceRequests.quote.milestone' | transloco }}</dt>
+        <dd class="quote-value">
+          {{ q.milestoneAt | hlDate: 'datetime' : q.timeZone }}
+          @if (q.milestoneSource) {
+            <span class="d-block small fw-normal">{{ q.milestoneSource | codeLabel: milestoneKeys }}</span>
+          }
+        </dd>
+      </div>
+    }
+    @if (q.measuredUnits !== null && q.measuredUnits !== undefined && q.tierUnit) {
+      <div class="col-sm-6 col-lg-4">
+        <dt class="quote-label">{{ (q.timing === 'Late' ? 'serviceRequests.quote.elapsedLate' : 'serviceRequests.quote.measure') | transloco }}</dt>
+        <dd class="quote-value" data-testid="quote-measure">
+          {{ 'serviceRequests.quote.units' | transloco: { units: (q.measuredUnits | hlNumber: '1.0-0'), unit: (q.tierUnit | codeLabel: unitKeys) } }}
+        </dd>
+      </div>
+    }
+    @if (tier(); as t) {
+      <div class="col-sm-6 col-lg-4">
+        <dt class="quote-label">{{ 'serviceRequests.quote.tier' | transloco }}</dt>
+        <dd class="quote-value" data-testid="quote-tier">
+          {{ 'serviceRequests.quote.tierRange' | transloco: { from: t.fromUnit, to: t.toUnit, unit: (q.tierUnit | codeLabel: unitKeys) } }}
+          <span class="d-block small fw-normal">{{ 'serviceRequests.quote.tierAmount' | transloco: { amount: (t.unitAmount | hlCurrency: q.currency) } }}</span>
+        </dd>
+      </div>
+    }
+    <div class="col-sm-6 col-lg-4">
+      <dt class="quote-label">{{ 'serviceRequests.quote.quantity' | transloco }}</dt>
+      <dd class="quote-value">{{ q.quantity | hlNumber: '1.0-0' }}</dd>
+    </div>
+  </dl>
+
+  @if (q.isExempt) {
+    <div class="alert alert-success py-2" role="note" data-testid="quote-exempt">
+      {{ 'serviceRequests.quote.exempt' | transloco }}
+      @if (q.exemptionReference) {
+        <span class="d-block small">{{ 'serviceRequests.quote.exemptionReference' | transloco: { reference: q.exemptionReference } }}</span>
+      }
+    </div>
+  }
+  @if (q.excludedContainers.length > 0) {
+    <div class="alert alert-info py-2" role="note" data-testid="quote-excluded">
+      {{ 'serviceRequests.quote.excluded' | transloco: { containers: q.excludedContainers.join(', ') } }}
+    </div>
+  }
+
+  @if (showLines()) {
+    <div class="table-responsive mb-3" tabindex="0" role="region" [attr.aria-label]="'serviceRequests.quote.linesCaption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'serviceRequests.quote.linesCaption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'serviceRequests.quote.col.container' | transloco }}</th>
+            <th scope="col">{{ 'serviceRequests.quote.col.type' | transloco }}</th>
+            <th scope="col">{{ 'serviceRequests.quote.col.tariff' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'serviceRequests.quote.col.amount' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of q.lines; track $index) {
+            <tr>
+              <td class="fw-semibold">{{ line.containerNumber ?? ('serviceRequests.quote.perRequest' | transloco) }}</td>
+              <td>{{ line.containerType ?? '—' }}</td>
+              <td>{{ line.tariffCode ?? q.tariffCode ?? '—' }}</td>
+              <td class="text-end text-nowrap">{{ line.amount | hlCurrency: q.currency }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (q.sourceCharges.length > 0) {
+    <div class="table-responsive mb-3" tabindex="0" role="region" [attr.aria-label]="'serviceRequests.quote.sourceCaption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'serviceRequests.quote.sourceCaption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'serviceRequests.quote.col.concept' | transloco }}</th>
+            <th scope="col">{{ 'serviceRequests.quote.col.outcome' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'serviceRequests.quote.col.total' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'serviceRequests.quote.col.payable' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (charge of q.sourceCharges; track charge.chargeId) {
+            <tr>
+              <td>
+                <span class="fw-semibold d-block">{{ charge.conceptCode | codeLabel: conceptKeys }}</span>
+                @if (charge.description) {
+                  <span class="small text-muted">{{ charge.description }}</span>
+                }
+              </td>
+              <td>{{ charge.outcome | codeLabel: outcomeKeys }}</td>
+              <td class="text-end text-nowrap">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
+              <td class="text-end text-nowrap">{{ charge.payableTotal | hlCurrency: charge.currency }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <dl class="row g-3 mb-0">
+    <div class="col-sm-4">
+      <dt class="quote-label">{{ 'serviceRequests.quote.net' | transloco }}</dt>
+      <dd class="quote-value">{{ q.amount | hlCurrency: q.currency }}</dd>
+    </div>
+    <div class="col-sm-4">
+      <dt class="quote-label">{{ 'serviceRequests.quote.tax' | transloco: { rate: (q.taxRate | hlNumber: '1.0-2') } }}</dt>
+      <dd class="quote-value">{{ q.taxAmount | hlCurrency: q.currency }}</dd>
+    </div>
+    <div class="col-sm-4">
+      <dt class="quote-label">{{ 'serviceRequests.quote.total' | transloco }}</dt>
+      <dd class="quote-value fs-5" data-testid="quote-total">
+        @if (q.requiresPayment) {
+          {{ q.totalAmount | hlCurrency: q.currency }}
+        } @else {
+          {{ 'serviceRequests.quote.noCharge' | transloco }}
+        }
+      </dd>
+    </div>
+  </dl>
+  <p class="small text-muted mt-2 mb-0">{{ 'serviceRequests.quote.quotedAt' | transloco: { date: (q.quotedAt | hlDate: 'datetime' : q.timeZone) } }}</p>
+</div>

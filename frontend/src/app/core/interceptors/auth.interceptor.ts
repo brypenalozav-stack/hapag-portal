@@ -2,17 +2,30 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { ImpersonationService } from '../services/impersonation.service';
+import { apiErrorCode } from '../http/api-error';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const impersonation = inject(ImpersonationService);
 
   const authReq = addToken(req, authService.getToken());
 
   return next(authReq).pipe(
     catchError((error) => {
+      // Vista como cliente (M8-08): el servidor bloquea toda escritura y, al vencer la sesión, responde 401. No hay
+      // refresh token: se vuelve a la sesión del administrador.
+      if (error instanceof HttpErrorResponse && authService.isImpersonating()) {
+        if (error.status === 403 && apiErrorCode(error) === 'Impersonation.ReadOnly') {
+          impersonation.notifyBlocked();
+        } else if (error.status === 401) {
+          impersonation.expired();
+        }
+        return throwError(() => error);
+      }
       if (error instanceof HttpErrorResponse && error.status === 401 && !req.url.includes('auth/')) {
         return handle401Error(req, next, authService);
       }
@@ -49,7 +62,8 @@ function handle401Error(
       }),
       catchError((err) => {
         isRefreshing = false;
-        authService.logout();
+        // La sesión ya no es válida en el servidor: solo se limpia la local.
+        authService.clearSession();
         return throwError(() => err);
       }),
     );

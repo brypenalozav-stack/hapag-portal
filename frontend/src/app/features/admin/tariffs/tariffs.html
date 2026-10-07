@@ -1,0 +1,111 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.tariffs.list.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.tariffs.list.subtitle' | transloco }}</p>
+  </div>
+  <a routerLink="/admin/tariffs/new" class="btn btn-hl-orange">{{ 'admin.tariffs.list.new' | transloco }}</a>
+</div>
+
+<form class="hl-card p-3 mb-4" role="search" [attr.aria-label]="'admin.tariffs.list.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-2">
+      <label for="tariffs-filter-country" class="form-label small fw-semibold">{{ 'admin.tariffs.list.filters.country' | transloco }}</label>
+      <select id="tariffs-filter-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.tariffs.list.filters.allCountries' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="tariffs-filter-concept" class="form-label small fw-semibold">{{ 'admin.tariffs.list.filters.concept' | transloco }}</label>
+      <select id="tariffs-filter-concept" class="form-select" name="concept" [(ngModel)]="concept">
+        <option value="">{{ 'admin.tariffs.list.filters.allConcepts' | transloco }}</option>
+        @for (c of concepts(); track c.code) {
+          <option [value]="c.code">{{ c.code | codeLabel: conceptKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="tariffs-filter-date" class="form-label small fw-semibold">{{ 'admin.tariffs.list.filters.inForceOn' | transloco }}</label>
+      <input id="tariffs-filter-date" type="date" class="form-control" name="inForceOn" [(ngModel)]="inForceOn" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <div class="form-check mb-2">
+        <input id="tariffs-filter-inactive" type="checkbox" class="form-check-input" name="includeInactive" [(ngModel)]="includeInactive" />
+        <label for="tariffs-filter-inactive" class="form-check-label small">{{ 'admin.tariffs.list.filters.includeInactive' | transloco }}</label>
+      </div>
+    </div>
+    <div class="col-lg-3 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'admin.tariffs.list.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'admin.tariffs.list.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (tariffs().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.tariffs.list.empty'" />
+} @else {
+  <div class="hl-card">
+    <app-table-filter [table]="table" [totalOf]="tariffs().length" inputId="tariffs-table-filter" />
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.tariffs.list.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.tariffs.list.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col" appSortHeader="concept" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.concept' | transloco }}</th>
+            <th scope="col" appSortHeader="code" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.code' | transloco }}</th>
+            <th scope="col" appSortHeader="country" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.country' | transloco }}</th>
+            <th scope="col" appSortHeader="containerType" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.containerType' | transloco }}</th>
+            <th scope="col" class="text-end" appSortHeader="value" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.value' | transloco }}</th>
+            <th scope="col" appSortHeader="validity" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.validity' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.tariffs.list.col.status' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.tariffs.list.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of table.rows(); track t.id) {
+            <tr>
+              <td class="fw-semibold">{{ t.conceptCode | codeLabel: conceptKeys }}</td>
+              <td>{{ t.code ?? '—' }}</td>
+              <td>{{ t.country }}</td>
+              <td>{{ t.containerType ?? ('admin.tariffs.list.anyContainer' | transloco) }}</td>
+              <td class="text-end">
+                @if (t.tiers.length > 0) {
+                  {{ 'admin.tariffs.list.tiers' | transloco: { count: t.tiers.length, unit: (t.tierUnit | codeLabel: unitKeys), currency: t.currency } }}
+                } @else {
+                  {{ t.amount | hlCurrency: t.currency }}
+                }
+              </td>
+              <td>
+                @if (t.validTo) {
+                  {{ 'admin.tariffs.validity.range' | transloco: { from: (t.validFrom | hlDate: 'localDate'), to: (t.validTo | hlDate: 'localDate') } }}
+                } @else {
+                  {{ 'admin.tariffs.validity.open' | transloco: { from: (t.validFrom | hlDate: 'localDate') } }}
+                }
+              </td>
+              <td>{{ (t.isActive ? 'admin.tariffs.status.active' : 'admin.tariffs.status.inactive') | transloco }}</td>
+              <td>
+                <a [routerLink]="['/admin/tariffs', t.id]" class="btn btn-sm btn-outline-secondary"
+                   [attr.aria-label]="'admin.tariffs.list.editLabel' | transloco: { concept: (t.conceptCode | codeLabel: conceptKeys), code: t.code ?? '', country: t.country }">
+                  {{ 'admin.tariffs.list.edit' | transloco }}
+                </a>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="8" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.tariffs.list.pagination' | transloco"
+                     idPrefix="tariffs-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
+  </div>
+}

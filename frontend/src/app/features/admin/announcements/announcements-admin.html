@@ -1,0 +1,268 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.announcements.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.announcements.subtitle' | transloco }}</p>
+  </div>
+  <button type="button" class="btn btn-hl-orange" (click)="openCreate()" data-testid="announcement-new">{{ 'admin.announcements.new' | transloco }}</button>
+</div>
+
+@if (formOpen()) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="announcement-form-title" (submit)="submit($event)" data-testid="announcement-form">
+    <h2 #formHeading id="announcement-form-title" class="section-title mb-3" tabindex="-1">
+      {{ (editing() ? 'admin.announcements.form.editTitle' : 'admin.announcements.form.createTitle') | transloco }}
+    </h2>
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="announcement-errors-title">
+        <h3 id="announcement-errors-title" class="h6 fw-bold">{{ 'admin.announcements.form.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track error.key) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label for="announcement-title-es" class="form-label small fw-semibold">{{ 'admin.announcements.form.titleEs' | transloco }}</label>
+        <input id="announcement-title-es" type="text" class="form-control" lang="es" required maxlength="200" [attr.aria-invalid]="hasError('announcement-title-es')"
+               [(ngModel)]="form.titleEs" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-6">
+        <label for="announcement-title-en" class="form-label small fw-semibold">{{ 'admin.announcements.form.titleEn' | transloco }}</label>
+        <input id="announcement-title-en" type="text" class="form-control" lang="en" required maxlength="200" [attr.aria-invalid]="hasError('announcement-title-en')"
+               [(ngModel)]="form.titleEn" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-6">
+        <label for="announcement-body-es" class="form-label small fw-semibold">{{ 'admin.announcements.form.bodyEs' | transloco }}</label>
+        <textarea id="announcement-body-es" class="form-control" rows="4" lang="es" required maxlength="4000" [attr.aria-invalid]="hasError('announcement-body-es')"
+                  [(ngModel)]="form.bodyEs" [ngModelOptions]="{ standalone: true }"></textarea>
+      </div>
+      <div class="col-md-6">
+        <label for="announcement-body-en" class="form-label small fw-semibold">{{ 'admin.announcements.form.bodyEn' | transloco }}</label>
+        <textarea id="announcement-body-en" class="form-control" rows="4" lang="en" required maxlength="4000" [attr.aria-invalid]="hasError('announcement-body-en')"
+                  [(ngModel)]="form.bodyEn" [ngModelOptions]="{ standalone: true }"></textarea>
+      </div>
+      <div class="col-md-4">
+        <fieldset aria-describedby="announcement-countries-help">
+          <legend class="form-label small fw-semibold mb-1">{{ 'admin.announcements.form.countries' | transloco }}</legend>
+          <div class="form-check">
+            <input id="announcement-country-cl" type="checkbox" class="form-check-input" [attr.aria-invalid]="hasError('announcement-country-cl')"
+                   [(ngModel)]="form.countryCl" [ngModelOptions]="{ standalone: true }" />
+            <label for="announcement-country-cl" class="form-check-label">{{ 'common.country.cl' | transloco }}</label>
+          </div>
+          <div class="form-check">
+            <input id="announcement-country-bo" type="checkbox" class="form-check-input" [(ngModel)]="form.countryBo" [ngModelOptions]="{ standalone: true }" />
+            <label for="announcement-country-bo" class="form-check-label">{{ 'common.country.bo' | transloco }}</label>
+          </div>
+          <div id="announcement-countries-help" class="form-text">{{ 'admin.announcements.form.countriesHelp' | transloco }}</div>
+        </fieldset>
+      </div>
+      <div class="col-md-4">
+        <label for="announcement-operation" class="form-label small fw-semibold">{{ 'admin.announcements.form.operation' | transloco }}</label>
+        <select id="announcement-operation" class="form-select" [(ngModel)]="form.operation" [ngModelOptions]="{ standalone: true }">
+          @for (o of operations; track o) {
+            <option [value]="o">{{ o | codeLabel: operationKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="announcement-severity" class="form-label small fw-semibold">{{ 'admin.announcements.form.severity' | transloco }}</label>
+        <select id="announcement-severity" class="form-select" [(ngModel)]="form.severity" [ngModelOptions]="{ standalone: true }">
+          @for (s of severities; track s) {
+            <option [value]="s">{{ s | codeLabel: severityKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="announcement-valid-from" class="form-label small fw-semibold">{{ 'admin.announcements.form.validFrom' | transloco }}</label>
+        <input id="announcement-valid-from" type="datetime-local" class="form-control" aria-describedby="announcement-validity-help"
+               [(ngModel)]="form.validFrom" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-4">
+        <label for="announcement-valid-to" class="form-label small fw-semibold">{{ 'admin.announcements.form.validTo' | transloco }}</label>
+        <input id="announcement-valid-to" type="datetime-local" class="form-control" aria-describedby="announcement-validity-help" [attr.aria-invalid]="hasError('announcement-valid-to')"
+               [(ngModel)]="form.validTo" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-4">
+        <div class="form-check mt-md-4">
+          <input id="announcement-notify" type="checkbox" class="form-check-input" aria-describedby="announcement-notify-help" [(ngModel)]="form.notifyOnPublish" [ngModelOptions]="{ standalone: true }" />
+          <label for="announcement-notify" class="form-check-label">{{ 'admin.announcements.form.notify' | transloco }}</label>
+          <div id="announcement-notify-help" class="form-text">{{ 'admin.announcements.form.notifyHelp' | transloco }}</div>
+        </div>
+        @if (!editing()) {
+          <div class="form-check">
+            <input id="announcement-publish" type="checkbox" class="form-check-input" [(ngModel)]="form.publish" [ngModelOptions]="{ standalone: true }" />
+            <label for="announcement-publish" class="form-check-label">{{ 'admin.announcements.form.publishNow' | transloco }}</label>
+          </div>
+        }
+      </div>
+      <div class="col-12">
+        <div id="announcement-validity-help" class="form-text">{{ 'admin.announcements.form.validityHelp' | transloco }}</div>
+      </div>
+    </div>
+
+    @if (preview()) {
+      <!-- Vista previa: cómo lo verá el cliente en cada idioma -->
+      <section class="border rounded p-3 mb-3" aria-labelledby="announcement-preview-title" data-testid="announcement-preview">
+        <h3 #previewHeading id="announcement-preview-title" class="h6 fw-bold" tabindex="-1">{{ 'admin.announcements.form.previewTitle' | transloco }}</h3>
+        <div class="row g-3">
+          <div class="col-md-6" lang="es">
+            <p class="small text-muted mb-1">{{ 'admin.announcements.form.previewEs' | transloco }}</p>
+            <p class="fw-bold mb-1">{{ form.titleEs || ('admin.announcements.form.previewEmpty' | transloco) }}</p>
+            <p class="hl-preview__body small mb-0">{{ form.bodyEs }}</p>
+          </div>
+          <div class="col-md-6" lang="en">
+            <p class="small text-muted mb-1">{{ 'admin.announcements.form.previewEn' | transloco }}</p>
+            <p class="fw-bold mb-1">{{ form.titleEn || ('admin.announcements.form.previewEmpty' | transloco) }}</p>
+            <p class="hl-preview__body small mb-0">{{ form.bodyEn }}</p>
+          </div>
+        </div>
+        <p class="small mb-0 mt-2">{{ 'announcementsView.segment' | transloco: { countries: previewCountries(), operation: (form.operation | codeLabel: operationKeys) } }}</p>
+      </section>
+    }
+
+    <div class="d-flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">{{ (editing() ? 'admin.announcements.form.save' : 'admin.announcements.form.create') | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" [attr.aria-pressed]="preview()" (click)="togglePreview()" data-testid="announcement-preview-toggle">{{ 'admin.announcements.form.preview' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'admin.announcements.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.announcements.filters.label' | transloco" (ngSubmit)="load()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="announcements-admin-status" class="form-label small fw-semibold">{{ 'admin.announcements.filters.status' | transloco }}</label>
+      <select id="announcements-admin-status" class="form-select" name="status" [(ngModel)]="status">
+        <option value="">{{ 'admin.announcements.filters.all' | transloco }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="announcements-admin-country" class="form-label small fw-semibold">{{ 'admin.announcements.filters.country' | transloco }}</label>
+      <select id="announcements-admin-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.announcements.filters.all' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <button type="submit" class="btn btn-outline-secondary">{{ 'admin.announcements.filters.search' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert" data-testid="announcements-action-error">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (items().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.announcements.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <app-table-filter [table]="table" [totalOf]="items().length" inputId="announcements-table-filter" />
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.announcements.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.announcements.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col" appSortHeader="title" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.announcements.col.title' | transloco }}</th>
+            <th scope="col" appSortHeader="segment" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.announcements.col.segment' | transloco }}</th>
+            <th scope="col" appSortHeader="validity" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.announcements.col.validity' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.announcements.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="published" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.announcements.col.published' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.announcements.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of table.rows(); track a.id) {
+            <tr [attr.data-testid]="'announcement-row-' + a.id">
+              <td>
+                <span class="fw-semibold d-block" lang="es">{{ a.titleEs }}</span>
+                <span class="small text-muted d-block" lang="en">{{ a.titleEn }}</span>
+                @if (a.severity === 'Important') {
+                  <span class="hl-badge hl-badge--pending">{{ a.severity | codeLabel: severityKeys }}</span>
+                }
+              </td>
+              <td>
+                <span class="d-block">{{ a.countries.join(', ') }}</span>
+                <span class="small">{{ a.operation | codeLabel: operationKeys }}</span>
+              </td>
+              <td class="small">
+                {{ 'admin.announcements.validity' | transloco: {
+                  from: a.validFrom ? (a.validFrom | hlDate: 'datetime') : ('admin.announcements.validityOpenStart' | transloco),
+                  to: a.validTo ? (a.validTo | hlDate: 'datetime') : ('admin.announcements.validityOpenEnd' | transloco)
+                } }}
+              </td>
+              <td>
+                <span class="hl-badge" [class]="statusClass[a.status] || 'hl-badge--processing'">{{ a.status | codeLabel: statusKeys }}</span>
+                @if (a.isCurrent) {
+                  <span class="d-block small mt-1">{{ 'admin.announcements.current' | transloco }}</span>
+                }
+                @if (a.notifyOnPublish) {
+                  <span class="d-block small">{{ (a.notifiedAt ? 'admin.announcements.notified' : 'admin.announcements.willNotify') | transloco: { date: (a.notifiedAt | hlDate: 'datetime') } }}</span>
+                }
+              </td>
+              <td class="small">
+                @if (a.publishedAt) {
+                  {{ 'admin.announcements.publishedBy' | transloco: { date: (a.publishedAt | hlDate: 'datetime'), user: a.publishedBy ?? '' } }}
+                } @else {
+                  <span aria-hidden="true">—</span>
+                  <span class="visually-hidden">{{ 'admin.announcements.notPublished' | transloco }}</span>
+                }
+              </td>
+              <td>
+                <div class="hl-actions">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(a)"
+                          [attr.aria-label]="'admin.announcements.editLabel' | transloco: { title: a.titleEs }">{{ 'admin.announcements.edit' | transloco }}</button>
+                  @if (a.status === 'Published') {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === a.id" (click)="unpublish(a)"
+                            [attr.aria-label]="'admin.announcements.unpublishLabel' | transloco: { title: a.titleEs }">{{ 'admin.announcements.unpublish' | transloco }}</button>
+                  } @else {
+                    <button type="button" class="btn btn-sm btn-hl-orange" [disabled]="busyId() === a.id" (click)="publish(a)"
+                            [attr.aria-label]="'admin.announcements.publishLabel' | transloco: { title: a.titleEs }">{{ 'admin.announcements.publish' | transloco }}</button>
+                  }
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(a)"
+                          [attr.aria-label]="'admin.announcements.historyLabel' | transloco: { title: a.titleEs }">{{ 'admin.announcements.history' | transloco }}</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busyId() === a.id" (click)="remove(a)"
+                          [attr.aria-label]="'admin.announcements.removeLabel' | transloco: { title: a.titleEs }">{{ 'admin.announcements.remove' | transloco }}</button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.announcements.pagination' | transloco"
+                     idPrefix="announcements-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
+  </div>
+}
+
+@if (historyItem(); as h) {
+  <section class="hl-card mb-4" aria-labelledby="announcement-history-title" data-testid="announcement-history">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #historyHeading id="announcement-history-title" class="section-title" tabindex="-1">{{ 'admin.announcements.historyTitle' | transloco: { title: h.titleEs } }}</h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeHistory()">{{ 'admin.announcements.historyClose' | transloco }}</button>
+    </div>
+    @if (historyLoading()) {
+      <app-loading-spinner />
+    } @else if (history().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.announcements.historyEmpty'" />
+    } @else {
+      <app-change-log [changes]="history()" [captionKey]="'admin.announcements.historyCaption'" [fieldKeys]="snapshotKeys" />
+    }
+  </section>
+}

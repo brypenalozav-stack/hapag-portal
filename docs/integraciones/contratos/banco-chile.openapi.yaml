@@ -1,0 +1,68 @@
+# CT-BCH – Botón Banco de Chile ("Pagos Electrónicos en Otros Sitios"): formulario firmado configurable
+# Contrato de integración en estado PROPUESTA. Ver docs/integraciones/pasarelas-pago.md.
+openapi: 3.1.0
+info:
+  title: Banco de Chile – botón de pago (formulario firmado)
+  version: 1.0.0
+  description: |
+    PROPUESTA – pendiente de validación con Finanzas – Ricardo
+
+    El protocolo del botón de Banco de Chile NO es público: el banco entrega el manual técnico con el contrato
+    (soporte empresas 600 637 3838). Lo público es el flujo: el pagador es redirigido al ambiente seguro del banco con
+    monto y número de orden precargados, se autentica con Banconexión y confirma; solo CLP.
+
+    El portal implementa un adaptador configurable de "formulario firmado" (`BancoChileFormPaymentProvider`): arma un
+    formulario POST con los campos y la firma que indique el manual (`Integrations:BancoChile:*`: URL, nombres de campo,
+    campos firmados y su orden, algoritmo HMACSHA256/HMACSHA1/SHA256, codificación Hex/HexUpper/Base64) y el navegador lo
+    envía al banco. La notificación del banco llega a `POST /api/v1/payments/webhook/banco-chile`, se verifica con los
+    campos firmados configurados y se responde con el texto que exija el manual. Mientras no exista el manual el
+    adaptador queda sin configurar: con `Mode=Real` el cobro falla con `Integration.NotConfigured`.
+
+    Este documento describe solo la notificación entrante del portal, con los nombres de campo por defecto del patrón
+    típico de los botones bancarios chilenos; se reemplazan por los del manual al validarlo.
+    Fichas: M5-01, M5-03, M7-02, NF-01, NF-04, NF-12. Tareas de Pendientes: 47–49, 52, 55.
+  x-contrato: CT-BCH
+  x-estado: PROPUESTA – pendiente de validación con Finanzas – Ricardo
+  x-responsable: Finanzas – Ricardo
+  x-puerto:
+  - IPaymentProvider("BancoChile") → BancoChileFormPaymentProvider
+  x-tareas-pendientes: 47–49, 52, 55
+paths: {}
+webhooks:
+  notificacion:
+    post:
+      operationId: bancoChileNotification
+      summary: Notificación del banco (supuesta; según manual)
+      description: '`POST /api/v1/payments/webhook/banco-chile` del portal. Firma inválida → 401 sin cambios; firma válida →
+        200 con `Integrations:BancoChile:NotificationAcknowledgement`.'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                convenio:
+                  type: string
+                orden:
+                  type: string
+                  description: Referencia del portal.
+                monto:
+                  type: string
+                fecha:
+                  type: string
+                estado:
+                  type: string
+                idTransaccion:
+                  type: string
+                firma:
+                  type: string
+      responses:
+        '200':
+          description: Texto de confirmación que exija el manual.
+          content:
+            text/plain:
+              schema:
+                type: string
+        '401':
+          description: Firma inválida.

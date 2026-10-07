@@ -41,11 +41,14 @@ public abstract class ApiController : ControllerBase
             _ when result.Error.Code.EndsWith(".NotFound") => StatusCodes.Status404NotFound,
             "Error.Unauthorized" => StatusCodes.Status401Unauthorized,
             "Error.Forbidden" => StatusCodes.Status403Forbidden,
+            _ when result.Error.Code.EndsWith(".RateLimited") => StatusCodes.Status429TooManyRequests,
             _ when result.Error.Code.EndsWith(".HasData") => StatusCodes.Status409Conflict,
             _ when result.Error.Code.EndsWith(".Exists") => StatusCodes.Status409Conflict,
             _ when result.Error.Code.EndsWith(".AlreadyExists") => StatusCodes.Status409Conflict,
             _ when result.Error.Code.EndsWith(".EmailExists") => StatusCodes.Status409Conflict,
+            "Registration.PreCreatedAccountExists" => StatusCodes.Status409Conflict,
             _ when result.Error.Code.EndsWith(".HasPayments") => StatusCodes.Status409Conflict,
+            _ when result.Error.Code.EndsWith(".Conflict") => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status400BadRequest
         };
 

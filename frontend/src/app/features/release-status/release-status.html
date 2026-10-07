@@ -1,0 +1,380 @@
+<div class="hl-page-header">
+  <h1>{{ 'releaseStatus.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'releaseStatus.subtitle' | transloco }}</p>
+</div>
+
+<!-- Búsqueda del BL -->
+<section class="hl-card rs-search" aria-labelledby="release-status-search-title">
+  <h2 id="release-status-search-title" class="visually-hidden">{{ 'releaseStatus.search.title' | transloco }}</h2>
+  <form class="rs-search__form" role="search" novalidate (submit)="search($event)">
+    <div class="rs-search__field">
+      <label for="release-status-bl" class="form-label fw-semibold">{{ 'releaseStatus.search.label' | transloco }}</label>
+      <input id="release-status-bl" class="form-control form-control-lg rs-search__input" type="text" autocomplete="off" spellcheck="false"
+             [formControl]="query" data-testid="release-status-input"
+             [attr.aria-invalid]="submitted() && query.invalid ? true : null"
+             aria-describedby="release-status-bl-help" [placeholder]="'releaseStatus.search.placeholder' | transloco" />
+      <div id="release-status-bl-help" class="form-text">
+        @if (submitted() && query.invalid) {
+          <span class="hl-field-error mt-0">{{ 'releaseStatus.search.required' | transloco }}</span>
+        }
+        {{ 'releaseStatus.search.help' | transloco }}
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg rs-search__submit" [disabled]="loading()" data-testid="release-status-submit">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+      </svg>
+      {{ 'releaseStatus.search.submit' | transloco }}
+    </button>
+  </form>
+  @if (recent().length > 0) {
+    <div class="rs-recent">
+      <span class="rs-recent__label" id="release-status-recent">{{ 'releaseStatus.search.recent' | transloco }}</span>
+      <ul class="rs-recent__list" aria-labelledby="release-status-recent">
+        @for (bl of recent(); track bl) {
+          <li><button type="button" class="rs-chip" (click)="open(bl)">{{ bl }}</button></li>
+        }
+      </ul>
+    </div>
+  }
+</section>
+
+@if (loading()) {
+  <div class="rs-loading" role="status">
+    <app-ship-graphic width="7rem" />
+    <span>{{ 'releaseStatus.loading' | transloco }}</span>
+  </div>
+} @else if (notFound()) {
+  <section class="hl-card rs-empty" data-testid="release-status-not-found">
+    <h2 class="h5 fw-bold">{{ 'releaseStatus.notFound.title' | transloco }}</h2>
+    <p class="mb-0">{{ 'releaseStatus.notFound.text' | transloco }}</p>
+  </section>
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="retry()" />
+} @else if (status(); as s) {
+  <div id="release-status-result" class="rs-result" tabindex="-1" data-testid="release-status-result">
+    <!-- Resumen del BL y avance -->
+    <section class="hl-card rs-summary" aria-labelledby="rs-summary-title">
+      <div class="rs-summary__head">
+        <div>
+          <p class="rs-eyebrow">{{ 'releaseStatus.summary.eyebrow' | transloco }}</p>
+          <h2 id="rs-summary-title" class="rs-summary__bl">{{ s.blNumber }}</h2>
+          <div class="rs-summary__tags">
+            @if (s.country === 'CL' || s.country === 'BO') {
+              <app-country-badge [country]="$any(s.country)" />
+            }
+            <span class="rs-tag">{{ (s.operation === 'IMPORT' ? 'releaseStatus.summary.import' : 'releaseStatus.summary.export') | transloco }}</span>
+          </div>
+        </div>
+        @if (s.applicable) {
+          <div class="rs-overall" [class.is-released]="s.released" data-testid="release-status-overall">
+            <span class="rs-overall__icon" aria-hidden="true">
+              @if (s.released) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16" focusable="false"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16" focusable="false"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg>
+              }
+            </span>
+            <span>{{ (s.released ? 'releaseStatus.summary.released' : 'releaseStatus.summary.pending') | transloco }}</span>
+          </div>
+        }
+      </div>
+
+      <dl class="rs-facts">
+        <div><dt>{{ 'releaseStatus.summary.booking' | transloco }}</dt><dd>{{ s.bookingNumber ?? '—' }}</dd></div>
+        <div><dt>{{ 'releaseStatus.summary.vessel' | transloco }}</dt><dd>{{ s.vessel ?? '—' }}@if (s.voyage) { / {{ s.voyage }} }</dd></div>
+        <div><dt>{{ 'releaseStatus.summary.pol' | transloco }}</dt><dd>{{ s.portOfLoading ?? '—' }}</dd></div>
+        <div><dt>{{ 'releaseStatus.summary.pod' | transloco }}</dt><dd>{{ s.portOfDischarge ?? '—' }}@if (s.portOfDischargeCode) { <span class="text-muted"> ({{ s.portOfDischargeCode }})</span> }</dd></div>
+        <div><dt>{{ 'releaseStatus.summary.eta' | transloco }}</dt><dd>{{ s.eta ? (s.eta | hlDate: 'date') : '—' }}</dd></div>
+        <div><dt>{{ 'releaseStatus.summary.consignee' | transloco }}</dt><dd>{{ s.consignee ?? '—' }}</dd></div>
+      </dl>
+
+      @if (s.applicable) {
+        <div class="rs-progress-block">
+          <div class="rs-progress-block__label">
+            <span id="rs-progress-label" class="fw-semibold">{{ 'releaseStatus.summary.progress' | transloco: { done: s.completedSteps, total: s.totalSteps } }}</span>
+            <span class="text-muted">{{ progress() }}%</span>
+          </div>
+          <div class="rs-progress" role="progressbar" aria-labelledby="rs-progress-label" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="progress()">
+            <span class="rs-progress__bar" [style.width.%]="progress()"></span>
+          </div>
+          @if (nextStep(); as next) {
+            <p class="rs-next" data-testid="release-status-next">
+              <strong>{{ 'releaseStatus.summary.next' | transloco }}</strong>
+              {{ stepTitle(next.code) | transloco }}
+            </p>
+          }
+        </div>
+      }
+
+      <a class="rs-link" [routerLink]="['/shipments', s.blNumber]">{{ 'releaseStatus.summary.viewDetail' | transloco }}</a>
+    </section>
+
+    @if (!s.applicable) {
+      <section class="hl-card rs-empty" data-testid="release-status-not-applicable">
+        <h2 class="h5 fw-bold">{{ 'releaseStatus.notApplicable.title' | transloco }}</h2>
+        <p class="mb-0">{{ 'releaseStatus.notApplicable.text' | transloco }}</p>
+      </section>
+    } @else {
+      <div class="rs-layout">
+        <!-- Camino a la liberación -->
+        <section class="hl-card rs-path" aria-labelledby="rs-path-title">
+          <h2 id="rs-path-title" class="section-title">{{ 'releaseStatus.path.title' | transloco }}</h2>
+          <p class="rs-path__intro">{{ (s.country === 'BO' ? 'releaseStatus.path.introBO' : 'releaseStatus.path.introCL') | transloco }}</p>
+
+          <ol class="rs-steps">
+            @for (step of s.steps; track step.code; let i = $index) {
+              <li [class]="'rs-step ' + statusCss(step.status)" [attr.data-testid]="'release-step-' + step.code">
+                <span class="rs-step__marker" aria-hidden="true">
+                  @switch (step.status) {
+                    @case ('Done') {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" focusable="false"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0"/></svg>
+                    }
+                    @case ('NotRequired') {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" focusable="false"><path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8"/></svg>
+                    }
+                    @case ('InProgress') {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" focusable="false"><path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2z"/></svg>
+                    }
+                    @case ('Unavailable') {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" focusable="false"><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/></svg>
+                    }
+                    @default {
+                      <span class="rs-step__number">{{ i + 1 }}</span>
+                    }
+                  }
+                </span>
+                <div class="rs-step__body">
+                  <div class="rs-step__head">
+                    <h3 class="rs-step__title">{{ stepTitle(step.code) | transloco }}</h3>
+                    <span class="rs-pill" data-testid="release-step-status">{{ statusKey(step.status) | transloco }}</span>
+                  </div>
+                  <p class="rs-step__desc">{{ descriptionKey(step) | transloco }}</p>
+
+                  @if (step.pendingAmounts.length > 0) {
+                    <p class="rs-step__amount">
+                      <span class="text-muted">{{ 'releaseStatus.pendingAmount' | transloco }}</span>
+                      @for (a of step.pendingAmounts; track a.currency; let last = $last) {
+                        <strong>{{ a.total | hlCurrency: a.currency }}</strong>@if (!last) { <span aria-hidden="true"> · </span> }
+                      }
+                    </p>
+                  }
+
+                  @if (step.items.length > 0) {
+                    <details class="rs-details">
+                      <summary>{{ 'releaseStatus.details' | transloco: { count: step.items.length } }}</summary>
+                      <ul class="rs-items">
+                        @for (item of step.items; track $index) {
+                          <li class="rs-item" [class.is-ok]="item.satisfied">
+                            <span class="rs-item__dot" aria-hidden="true"></span>
+                            <span class="rs-item__label">{{ itemLabel(item) }}</span>
+                            @if (item.reference && item.code !== 'DOCUMENT' && item.code !== 'REQUEST') {
+                              <span class="rs-item__ref">{{ item.reference }}</span>
+                            }
+                            <span class="rs-item__status">{{ itemStatus(item.status) }}</span>
+                            @if (item.amount !== null && item.currency) {
+                              <span class="rs-item__amount">{{ item.amount | hlCurrency: item.currency }}</span>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    </details>
+                  }
+
+                  @if (step.status === 'Pending' || (step.status === 'NotRequired' && step.action === 'IssueResponsibilityLetter' && step.actionAllowed)) {
+                    @if (actionRoute(step, s.blNumber); as route) {
+                      @if (step.actionAllowed) {
+                        <a class="btn btn-sm rs-step__action" [class.btn-primary]="step.status === 'Pending'" [class.btn-outline-secondary]="step.status !== 'Pending'"
+                           [routerLink]="route" [attr.data-testid]="'release-step-action-' + step.code">
+                          {{ actionKey(step.action) | transloco }}
+                          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/></svg>
+                        </a>
+                      } @else if (step.status === 'Pending') {
+                        <p class="small text-muted mb-0">{{ 'releaseStatus.action.notAllowed' | transloco }}</p>
+                      }
+                    }
+                  }
+                </div>
+              </li>
+            }
+
+            <!-- Final: TATC -->
+            <li class="rs-step rs-step--final" [class.is-locked]="!s.tatc.unlocked" [class.is-done]="s.tatc.unlocked && issuedContainers().length > 0"
+                data-testid="release-step-TATC">
+              <span class="rs-step__marker" aria-hidden="true">
+                @if (s.tatc.unlocked) {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" focusable="false"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/><path d="M10.854 7.854a.5.5 0 0 0-.708-.708L7.5 9.793 6.354 8.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0z"/></svg>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" focusable="false"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/></svg>
+                }
+              </span>
+              <div class="rs-step__body">
+                <div class="rs-step__head">
+                  <h3 class="rs-step__title">{{ 'releaseStatus.tatc.title' | transloco }}</h3>
+                  <span class="rs-pill" data-testid="release-tatc-status">
+                    @if (!s.tatc.unlocked) {
+                      {{ 'releaseStatus.tatc.locked' | transloco }}
+                    } @else if (s.tatc.status) {
+                      {{ s.tatc.status | codeLabel: tatcKeys }}
+                    } @else {
+                      {{ 'releaseStatus.tatc.noData' | transloco }}
+                    }
+                  </span>
+                </div>
+
+                @if (!s.tatc.unlocked) {
+                  <p class="rs-step__desc">{{ 'releaseStatus.tatc.lockedText' | transloco: { remaining: s.totalSteps - s.completedSteps } }}</p>
+                } @else if (!s.tatc.available) {
+                  <p class="rs-step__desc">{{ 'releaseStatus.tatc.unavailable' | transloco }}</p>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="retry()">{{ 'releaseStatus.retry' | transloco }}</button>
+                } @else if (issuedContainers().length > 0) {
+                  <p class="rs-step__desc">{{ 'releaseStatus.tatc.issuedText' | transloco: { count: issuedContainers().length } }}</p>
+                  <ul class="rs-tatc-list">
+                    @for (c of issuedContainers(); track c.containerNumber) {
+                      <li>
+                        <span class="rs-tatc-list__container text-nowrap">{{ c.containerNumber }}</span>
+                        <span class="rs-tatc-list__number text-nowrap">{{ c.tatcNumber }}</span>
+                      </li>
+                    }
+                  </ul>
+                  <button type="button" class="btn btn-sm btn-primary" [disabled]="downloading() !== null" (click)="downloadVoucher(s.blNumber)" data-testid="release-tatc-voucher-all">
+                    {{ 'releaseStatus.tatc.downloadAll' | transloco }}
+                  </button>
+                } @else if (requesting()) {
+                  <p class="rs-step__desc" role="status">
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>{{ 'releaseStatus.tatc.requesting' | transloco }}
+                  </p>
+                } @else if (!s.tatc.windowOpen && s.tatc.availableFrom) {
+                  <p class="rs-step__desc">{{ 'releaseStatus.tatc.windowClosed' | transloco: { date: (s.tatc.availableFrom | hlDate: 'datetime'), hours: s.tatc.windowHours } }}</p>
+                } @else if (s.tatc.lastRequestStatus === 'Accepted') {
+                  <p class="rs-step__desc" data-testid="release-tatc-requested">
+                    {{ 'releaseStatus.tatc.requestedText' | transloco: { date: (s.tatc.lastRequestedAt | hlDate: 'datetime') } }}
+                  </p>
+                } @else if (s.tatc.canRequest) {
+                  <p class="rs-step__desc">{{ 'releaseStatus.tatc.readyText' | transloco }}</p>
+                  <button type="button" class="btn btn-sm btn-primary" (click)="requestTatc(s.blNumber)" data-testid="release-tatc-request">
+                    {{ 'releaseStatus.tatc.request' | transloco }}
+                  </button>
+                } @else {
+                  <p class="rs-step__desc">{{ (s.tatc.status === 'PreTatc' ? 'releaseStatus.tatc.preTatcText' : 'releaseStatus.tatc.notIssuedText') | transloco }}</p>
+                }
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <!-- Avisos -->
+        <aside class="rs-aside" [attr.aria-label]="'releaseStatus.notices.label' | transloco">
+          @for (notice of s.notices; track notice) {
+            <div class="rs-notice" [class.rs-notice--success]="notice === 'TATC_REQUESTED'" [attr.data-testid]="'release-notice-' + notice">
+              <svg class="rs-notice__icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/></svg>
+              <p class="mb-0">{{ noticeKey(notice) | transloco: { hours: s.tatc.windowHours } }}</p>
+            </div>
+          }
+          <div class="rs-notice rs-notice--muted">
+            <p class="mb-0 small">{{ 'releaseStatus.notices.help' | transloco }}</p>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Detalle por contenedor -->
+      <section class="hl-card rs-containers" aria-labelledby="rs-containers-title">
+        <h2 id="rs-containers-title" class="section-title">{{ 'releaseStatus.containers.title' | transloco: { count: s.containers.length } }}</h2>
+        @if (s.containers.length === 0) {
+          <p class="text-muted mb-0" role="status">{{ 'releaseStatus.containers.empty' | transloco }}</p>
+        } @else {
+          <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'releaseStatus.containers.caption' | transloco">
+            <table class="hl-table">
+              <caption class="visually-hidden">{{ 'releaseStatus.containers.caption' | transloco }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'releaseStatus.containers.col.container' | transloco }}</th>
+                  <th scope="col">{{ 'releaseStatus.containers.col.type' | transloco }}</th>
+                  <th scope="col">{{ 'releaseStatus.containers.col.demurrage' | transloco }}</th>
+                  <th scope="col">{{ 'releaseStatus.containers.col.tatcStatus' | transloco }}</th>
+                  <th scope="col">{{ 'releaseStatus.containers.col.tatcNumber' | transloco }}</th>
+                  <th scope="col"><span class="visually-hidden">{{ 'releaseStatus.containers.col.voucher' | transloco }}</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (c of s.containers; track c.containerNumber) {
+                  <tr [attr.data-testid]="'release-container-' + c.containerNumber">
+                    <td class="fw-semibold">
+                      {{ c.containerNumber }}
+                      @if (c.isShipperOwned) {
+                        <span class="hl-badge hl-badge--processing ms-1">{{ 'releaseStatus.containers.sow' | transloco }}</span>
+                      }
+                    </td>
+                    <td>{{ c.containerType }}</td>
+                    <td>
+                      @if (c.demurrageStatus) {
+                        {{ itemStatus(c.demurrageStatus) }}
+                        @if (c.demurrageAmount !== null && c.demurrageCurrency && c.demurrageStatus !== 'Paid' && c.demurrageStatus !== 'Exempt') {
+                          <span class="d-block small text-muted">{{ c.demurrageAmount | hlCurrency: c.demurrageCurrency }}</span>
+                        }
+                      } @else {
+                        {{ 'releaseStatus.containers.noDemurrage' | transloco }}
+                      }
+                    </td>
+                    <td>
+                      @if (c.isShipperOwned) {
+                        <span class="small">{{ 'releaseStatus.containers.sowNoTatc' | transloco }}</span>
+                      } @else if (c.tatcStatus) {
+                        <span class="hl-badge" [class]="'hl-badge ' + (tatcClass[c.tatcStatus] ?? 'hl-badge--processing')">{{ c.tatcStatus | codeLabel: tatcKeys }}</span>
+                        @for (r of c.tatcPendingReasons; track r) {
+                          <span class="d-block small text-muted">{{ r | codeLabel: reasonKeys }}</span>
+                        }
+                      } @else {
+                        —
+                      }
+                    </td>
+                    <td class="rs-mono">{{ c.tatcNumber ?? '—' }}</td>
+                    <td>
+                      @if (c.tatcStatus === 'Issued' && c.tatcNumber) {
+                        <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="downloading() !== null"
+                                (click)="downloadVoucher(s.blNumber, c.containerNumber)"
+                                [attr.aria-label]="'releaseStatus.containers.voucherLabel' | transloco: { container: c.containerNumber }">
+                          {{ 'releaseStatus.containers.voucher' | transloco }}
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    }
+  </div>
+} @else {
+  <!-- Antes de consultar: qué se revisa en cada país -->
+  <section class="rs-intro" aria-labelledby="rs-intro-title">
+    <h2 id="rs-intro-title" class="section-title">{{ 'releaseStatus.intro.title' | transloco }}</h2>
+    <div class="rs-intro__grid">
+      <article class="hl-card rs-intro__card">
+        <h3 class="h6 fw-bold">{{ 'releaseStatus.intro.cl' | transloco }}</h3>
+        <ol class="rs-intro__list">
+          <li>{{ 'releaseStatus.step.FREIGHT.title' | transloco }}</li>
+          <li>{{ 'releaseStatus.step.LOCAL_CHARGES.title' | transloco }}</li>
+          <li>{{ 'releaseStatus.step.RESPONSIBILITY_LETTER.title' | transloco }}</li>
+          <li>{{ 'releaseStatus.step.DEMURRAGE.title' | transloco }}</li>
+          <li class="rs-intro__final">{{ 'releaseStatus.tatc.title' | transloco }}</li>
+        </ol>
+      </article>
+      <article class="hl-card rs-intro__card">
+        <h3 class="h6 fw-bold">{{ 'releaseStatus.intro.bo' | transloco }}</h3>
+        <ol class="rs-intro__list">
+          <li>{{ 'releaseStatus.step.FREIGHT.title' | transloco }}</li>
+          <li>{{ 'releaseStatus.step.LOCAL_CHARGES.title' | transloco }}</li>
+          <li>{{ 'releaseStatus.step.RESPONSIBILITY_LETTER.title' | transloco }}</li>
+          <li>{{ 'releaseStatus.step.DEMURRAGE.title' | transloco }}</li>
+          <li>{{ 'releaseStatus.step.ADVANCE_DEMURRAGE.title' | transloco }}</li>
+          <li>{{ 'releaseStatus.step.NO_DEBT_CERTIFICATE.title' | transloco }}</li>
+          <li>{{ 'releaseStatus.step.RELEASE_LETTER.title' | transloco }}</li>
+          <li class="rs-intro__final">{{ 'releaseStatus.tatc.title' | transloco }}</li>
+        </ol>
+      </article>
+    </div>
+  </section>
+}

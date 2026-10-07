@@ -24,6 +24,10 @@ public sealed class User : BaseAuditableEntity
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
     public Guid? ClientId { get; set; }
+    // Vinculación a la organización (M1-08). Pending = solicitud por aprobar; no accede a la información.
+    public string MembershipStatus { get; set; } = Constants.MembershipStatus.Active;
+    public DateTime? MembershipDecidedAt { get; set; }
+    public string? MembershipDecidedBy { get; set; }
 
     public Client? Client { get; set; }
     public ICollection<UserRole> Roles { get; set; } = [];

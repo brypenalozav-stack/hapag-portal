@@ -5,6 +5,7 @@ using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Helpers;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Application.Organizations.Carriers;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Entities;
 using HapagPortal.Domain.Errors;
@@ -23,6 +24,11 @@ public sealed class RegisterCommandHandler(
     {
         var taxIdType = CountryCodes.GetTaxIdType(request.Country);
         var email = EmailNormalizer.Normalize(request.Email);
+
+        // M1-09: si un cliente ya pre-creó el perfil (por correo o identificación tributaria), no se duplica: se dirige
+        // al ingreso con la invitación recibida.
+        if (await PreCreatedAccounts.ExistsAsync(dbContext, email, request.TaxId, request.Country, cancellationToken))
+            return Result<ClientResponseDto>.Failure(DomainErrors.Registration.PreCreatedAccount);
 
         var exists = await dbContext.Clients
             .AnyAsync(c => c.TaxId == request.TaxId && c.Country == request.Country, cancellationToken);
@@ -46,6 +52,15 @@ public sealed class RegisterCommandHandler(
             return Result<ClientResponseDto>.Failure(
                 new Error("Client.EmailExists", $"A client with email '{email}' already exists."));
 
+        var organizationType = string.IsNullOrWhiteSpace(request.OrganizationType)
+            ? OrganizationTypes.FromLegacyClientType(request.ClientType)
+            : request.OrganizationType;
+
+        var clientType = string.IsNullOrWhiteSpace(request.ClientType)
+            ? OrganizationTypes.ToLegacyClientType(organizationType)
+            : request.ClientType;
+
+        // M1-07: la organización no opera hasta la validación y aprobación interna (M8-04).
         var client = new Client
         {
             Name = request.Name,
@@ -54,14 +69,17 @@ public sealed class RegisterCommandHandler(
             Country = request.Country,
             Email = email,
             Phone = request.Phone,
-            ClientType = request.ClientType,
+            ClientType = clientType,
             AgentCode = request.AgentCode,
-            IsActive = true
+            IsActive = true,
+            OrganizationType = organizationType,
+            RegistrationStatus = OrganizationStatus.PendingValidation,
+            OperatingCountries = request.Country
         };
 
         dbContext.Clients.Add(client);
 
-        var isAgent = request.ClientType == UserTypes.CustomsAgent;
+        var isAgent = clientType == UserTypes.CustomsAgent;
         var userType = isAgent ? UserTypes.Agent : UserTypes.Client;
 
         var emailConfirmationToken = Guid.NewGuid().ToString();
@@ -75,6 +93,10 @@ public sealed class RegisterCommandHandler(
             UserType = userType,
             Country = request.Country,
             IsActive = true,
+            FirstName = request.ContactFirstName,
+            LastName = request.ContactLastName,
+            Phone = request.Phone,
+            MembershipStatus = MembershipStatus.Active,
             EmailConfirmationToken = emailConfirmationToken,
             EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(48)
         };
@@ -89,12 +111,19 @@ public sealed class RegisterCommandHandler(
 
         dbContext.UserRoles.Add(userRole);
 
+        // El primer usuario administra la organización: usuarios y solicitudes de vinculación (M1-02, M1-08).
+        dbContext.UserRoles.Add(new UserRole
+        {
+            UserId = user.Id,
+            RoleName = RoleCodes.OrgAdmin
+        });
+
         await dbContext.SaveChangesAsync(cancellationToken);
 
         await emailService.SendEmailAsync(
             email,
             "Welcome to Hapag-Lloyd Portal",
-            $"Hello {request.Name}, your account has been created successfully. Please confirm your email to activate your account. Your confirmation token is: {emailConfirmationToken}",
+            $"Hello {request.Name}, your account has been created successfully. Please confirm your email to activate your account. Your confirmation token is: {emailConfirmationToken}. Your organization registration is pending validation by Hapag-Lloyd; you will be notified when it is approved.",
             cancellationToken);
 
         // Mismo contrato que el login: User.Id y role normalizado (BUG-16).

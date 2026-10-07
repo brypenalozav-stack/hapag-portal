@@ -1,0 +1,249 @@
+# CT-SANT – Botón Santander = Getnet Chile Web Checkout (API PlacetoPay)
+# Contrato de integración en estado PROPUESTA. Ver docs/integraciones/pasarelas-pago.md.
+openapi: 3.1.0
+info:
+  title: Santander – Getnet Web Checkout
+  version: 1.0.0
+  description: |
+    PROPUESTA – pendiente de validación con Finanzas – Ricardo
+
+    El botón de pago Santander se implementa con Getnet Chile Web Checkout, la pasarela de Santander para comercios,
+    cuya API es la de PlacetoPay (documentación pública: https://docs.placetopay.dev/checkout/,
+    https://docs.placetopay.dev/checkout/authentication/ y https://docs.placetopay.dev/checkout/notification/).
+    Este documento resume solo las operaciones que usa el portal; la referencia es la documentación oficial.
+
+    Hosts: pruebas `https://checkout.test.getnet.cl`, producción `https://checkout.getnet.cl` (`Integrations:Getnet:BaseUrl`).
+    No hay cabecera de autenticación: cada solicitud lleva el objeto `auth` en el cuerpo, con
+    `tranKey = Base64(SHA-256(nonceCrudo + seed + secretKey))`, `nonce = Base64(nonceCrudo)` (16 bytes aleatorios) y
+    `seed` = fecha y hora actual ISO-8601 con zona (a menos de 5 minutos del servidor). Credenciales del contrato:
+    `GETNET_LOGIN` y `GETNET_SECRET_KEY`.
+
+    Notificación (`webhooks.notificacion`): la URL se registra en el panel de Getnet (no va en la solicitud) y es
+    `POST /api/v1/payments/webhook/getnet` del portal. Se envía una sola vez y lleva
+    `signature = "sha256:" + hex(SHA-256(requestId + status.status + status.date + secretKey))` (o el formato antiguo
+    hex(SHA-1(...))). El portal verifica la firma y siempre vuelve a consultar la sesión; además consulta al volver el
+    pagador y en la conciliación periódica.
+    Fichas: M5-01, M5-03, M7-02, NF-01, NF-04, NF-12. Tareas de Pendientes: 47–49, 52, 55.
+  x-contrato: CT-SANT
+  x-estado: PROPUESTA – pendiente de validación con Finanzas – Ricardo
+  x-responsable: Finanzas – Ricardo
+  x-puerto:
+  - IPaymentProvider("Santander") → GetnetPaymentProvider
+  x-tareas-pendientes: 47–49, 52, 55
+servers:
+- url: https://checkout.test.getnet.cl
+  description: Ambiente de pruebas de Getnet.
+- url: https://checkout.getnet.cl
+  description: Producción (credenciales entregadas tras la certificación).
+tags:
+- name: Sesiones
+paths:
+  /api/session:
+    post:
+      operationId: createRequest
+      summary: Crear la sesión de pago
+      description: Devuelve `requestId` (referencia de la pasarela) y `processUrl` (adonde se redirige al pagador).
+      tags:
+      - Sesiones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [auth, payment, expiration, returnUrl, ipAddress, userAgent]
+              properties:
+                auth:
+                  $ref: '#/components/schemas/Auth'
+                locale:
+                  type: string
+                  example: es_CL
+                payment:
+                  type: object
+                  required: [reference, description, amount]
+                  properties:
+                    reference:
+                      type: string
+                      description: Referencia del portal (número de pago).
+                    description:
+                      type: string
+                    amount:
+                      type: object
+                      required: [currency, total]
+                      properties:
+                        currency:
+                          type: string
+                          example: CLP
+                        total:
+                          type: number
+                          description: Entero en CLP.
+                expiration:
+                  type: string
+                  description: ISO-8601, al menos 5 minutos después de la creación.
+                returnUrl:
+                  type: string
+                cancelUrl:
+                  type: string
+                ipAddress:
+                  type: string
+                userAgent:
+                  type: string
+                buyer:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    name:
+                      type: string
+      responses:
+        '200':
+          description: Sesión creada (`status.status` = OK).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  requestId:
+                    type:
+                    - integer
+                    - string
+                  processUrl:
+                    type: string
+        '401':
+          description: Autenticación fallida (`status.status` = FAILED).
+  /api/session/{requestId}:
+    post:
+      operationId: getRequestInformation
+      summary: Consultar la sesión
+      description: Estado de la sesión y de sus intentos de pago. APPROVED es pagado; REJECTED, rechazado; PENDING,
+        pendiente; APPROVED_PARTIAL y PARTIAL_EXPIRED nunca se aprueban.
+      tags:
+      - Sesiones
+      parameters:
+      - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthOnly'
+      responses:
+        '200':
+          description: Información de la sesión.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type:
+                    - integer
+                    - string
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  request:
+                    type: object
+                  payment:
+                    type:
+                    - array
+                    - 'null'
+                    items:
+                      type: object
+  /api/session/{requestId}/cancel:
+    post:
+      operationId: cancelRequest
+      summary: Anular la sesión
+      tags:
+      - Sesiones
+      parameters:
+      - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthOnly'
+      responses:
+        '200':
+          description: Resultado de la anulación.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/Status'
+webhooks:
+  notificacion:
+    post:
+      operationId: getnetNotification
+      summary: Notificación de cambio de estado
+      description: '`POST /api/v1/payments/webhook/getnet` del portal. Firma inválida → 401 sin cambios.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status, requestId, signature]
+              properties:
+                status:
+                  $ref: '#/components/schemas/Status'
+                requestId:
+                  type:
+                  - integer
+                  - string
+                reference:
+                  type: string
+                signature:
+                  type: string
+                  example: sha256:4b2f0c...
+      responses:
+        '200':
+          description: Notificación recibida.
+        '401':
+          description: Firma inválida.
+components:
+  parameters:
+    RequestId:
+      name: requestId
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    Auth:
+      type: object
+      required: [login, tranKey, nonce, seed]
+      properties:
+        login:
+          type: string
+        tranKey:
+          type: string
+        nonce:
+          type: string
+        seed:
+          type: string
+          example: '2026-10-07T12:00:00-03:00'
+    AuthOnly:
+      type: object
+      required: [auth]
+      properties:
+        auth:
+          $ref: '#/components/schemas/Auth'
+    Status:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [OK, FAILED, APPROVED, REJECTED, PENDING, APPROVED_PARTIAL, PARTIAL_EXPIRED]
+        reason:
+          type:
+          - string
+          - integer
+        message:
+          type: string
+        date:
+          type: string

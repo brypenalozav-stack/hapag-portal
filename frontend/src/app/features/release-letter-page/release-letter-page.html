@@ -1,0 +1,168 @@
+<div class="hl-page-header">
+  <h1>{{ 'releaseLetterPage.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'releaseLetterPage.subtitle' | transloco }}</p>
+</div>
+
+@switch (listState()) {
+  @case ('loading') {
+    <div class="hl-card p-4 mb-4" role="status" data-testid="release-letter-loading">
+      <span class="visually-hidden">{{ 'shared.loadingSpinner.label' | transloco }}</span>
+      <span class="hl-skeleton w-25 mb-3" aria-hidden="true"></span>
+      <span class="hl-skeleton rl-skeleton-field" aria-hidden="true"></span>
+    </div>
+  }
+  @case ('error') {
+    <app-state-message kind="error" messageKey="releaseLetterPage.loadError" (retry)="loadList()" />
+  }
+  @default {
+    @if (items().length === 0 && !selected()) {
+      <!-- Sin BL de importación de Bolivia: se explica y se ofrece ir a los embarques -->
+      <section class="hl-card rl-empty" aria-labelledby="rl-empty-title" data-testid="release-letter-empty">
+        <span class="rl-empty__art" aria-hidden="true">
+          <svg focusable="false" xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
+            @for (d of icons.empty; track $index) { <path [attr.d]="d" /> }
+          </svg>
+        </span>
+        <h2 id="rl-empty-title" class="rl-empty__title">{{ 'releaseLetterPage.empty.title' | transloco }}</h2>
+        <p class="rl-empty__text">{{ 'releaseLetterPage.empty.text' | transloco }}</p>
+        <a class="btn btn-hl-blue" routerLink="/shipments">{{ 'releaseLetterPage.empty.cta' | transloco }}</a>
+      </section>
+    } @else {
+      <!-- 1. Selector de BL (con búsqueda cuando la lista es larga) -->
+      <section class="hl-card rl-picker mb-4" aria-labelledby="rl-picker-title">
+        <h2 id="rl-picker-title" class="section-title mb-3">{{ 'releaseLetterPage.select.title' | transloco }}</h2>
+        <div class="rl-picker__fields">
+          @if (showFilter()) {
+            <div class="rl-picker__filter">
+              <label for="rl-bl-filter" class="form-label small fw-semibold">{{ 'releaseLetterPage.select.filter' | transloco }}</label>
+              <div class="input-group">
+                <span class="input-group-text" aria-hidden="true">
+                  <svg focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                    @for (d of icons.search; track $index) { <path [attr.d]="d" /> }
+                  </svg>
+                </span>
+                <input id="rl-bl-filter" type="search" class="form-control" autocomplete="off" aria-describedby="rl-bl-filter-help rl-bl-count"
+                       data-testid="release-letter-bl-filter" [value]="query()" (input)="onQuery($event)" />
+              </div>
+              <div id="rl-bl-filter-help" class="form-text">{{ 'releaseLetterPage.select.filterHelp' | transloco }}</div>
+            </div>
+          }
+          <div class="rl-picker__select">
+            <label for="rl-bl-select" class="form-label small fw-semibold">{{ 'releaseLetterPage.select.label' | transloco }}</label>
+            <select id="rl-bl-select" class="form-select" data-testid="release-letter-bl-select" aria-describedby="rl-bl-count"
+                    (change)="onSelect($event)">
+              <option value="" [selected]="!selected()" disabled>{{ 'releaseLetterPage.select.placeholder' | transloco }}</option>
+              @for (s of options(); track s.blNumber) {
+                <option [value]="s.blNumber" [selected]="s.blNumber === selected()">{{ optionLabel(s) }}</option>
+              }
+              @if (selected() && !selectedItem()) {
+                <option [value]="selected()" selected>{{ selected() }}</option>
+              }
+            </select>
+            <div id="rl-bl-count" class="form-text" aria-live="polite">
+              @if (query().trim()) {
+                @if (filtered().length === 0) {
+                  {{ 'releaseLetterPage.select.noMatches' | transloco }}
+                } @else {
+                  {{ 'releaseLetterPage.select.matches' | transloco: { count: filtered().length, total: items().length } }}
+                }
+              } @else {
+                {{ 'releaseLetterPage.select.count' | transloco: { count: items().length } }}
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      @if (selected(); as bl) {
+        <!-- 2. Información del BL -->
+        <section class="hl-card rl-info mb-4" aria-labelledby="rl-info-title" data-testid="release-letter-bl-info">
+          <div class="rl-info__header">
+            <h2 id="rl-info-title" class="section-title">{{ 'releaseLetterPage.info.title' | transloco }}</h2>
+            <span class="rl-info__bl">{{ bl }}</span>
+          </div>
+          @if (detailState() === 'loading') {
+            <div class="rl-info__grid" role="status">
+              <span class="visually-hidden">{{ 'shared.loadingSpinner.label' | transloco }}</span>
+              @for (n of [1, 2, 3, 4]; track n) {
+                <div aria-hidden="true"><span class="hl-skeleton w-50 mb-2"></span><span class="hl-skeleton w-75"></span></div>
+              }
+            </div>
+          } @else {
+            @if (detailState() === 'error') {
+              <p class="rl-info__warning" role="note" data-testid="release-letter-bl-info-error">{{ 'releaseLetterPage.info.loadError' | transloco }}</p>
+            }
+            @let d = detail();
+            @let item = selectedItem();
+            @let vessel = d?.vessel ?? item?.vessel;
+            @let voyage = d?.voyage ?? item?.voyage;
+            @let port = d?.portOfDischarge ?? item?.portOfDischarge;
+            @let eta = d?.eta ?? item?.eta;
+            <dl class="rl-info__grid">
+              <div class="rl-info__field">
+                <dt>{{ 'releaseLetterPage.info.bl' | transloco }}</dt>
+                <dd data-testid="release-letter-info-bl">{{ bl }}</dd>
+              </div>
+              <div class="rl-info__field">
+                <dt>{{ 'releaseLetterPage.info.vessel' | transloco }}</dt>
+                <dd data-testid="release-letter-info-vessel">
+                  @if (vessel) { {{ vessel }}@if (voyage) { <span class="text-hl-muted"> / {{ voyage }}</span> } }
+                  @else { <span class="text-hl-muted">{{ 'releaseLetterPage.info.noData' | transloco }}</span> }
+                </dd>
+              </div>
+              <div class="rl-info__field">
+                <dt>{{ 'releaseLetterPage.info.port' | transloco }}</dt>
+                <dd>
+                  @if (port) { {{ port }} } @else { <span class="text-hl-muted">{{ 'releaseLetterPage.info.noData' | transloco }}</span> }
+                </dd>
+              </div>
+              <div class="rl-info__field">
+                <dt>{{ 'releaseLetterPage.info.eta' | transloco }}</dt>
+                <dd>
+                  @if (eta) { {{ eta | hlDate: 'date' : timeZone }} } @else { <span class="text-hl-muted">{{ 'releaseLetterPage.info.noData' | transloco }}</span> }
+                </dd>
+              </div>
+              <div class="rl-info__field rl-info__field--wide">
+                <dt>{{ 'releaseLetterPage.info.consignee' | transloco }}</dt>
+                <dd data-testid="release-letter-info-consignee">
+                  @if (d?.consignee) { {{ d?.consignee }} } @else { <span class="text-hl-muted">{{ 'releaseLetterPage.info.noData' | transloco }}</span> }
+                </dd>
+              </div>
+              <div class="rl-info__field rl-info__field--full">
+                <dt>
+                  {{ 'releaseLetterPage.info.containers' | transloco }}
+                  @if (d && d.containers.length > 0) {
+                    <span class="rl-info__count">{{ 'releaseLetterPage.info.containersCount' | transloco: { count: d.containers.length } }}</span>
+                  }
+                </dt>
+                <dd>
+                  @if (d && d.containers.length > 0) {
+                    <ul class="rl-chips" data-testid="release-letter-info-containers">
+                      @for (c of d.containers; track c.containerNumber) {
+                        <li class="rl-chip"><span class="fw-semibold text-nowrap">{{ c.containerNumber }}</span> <span class="text-hl-muted">{{ c.size }} {{ c.type }}</span></li>
+                      }
+                    </ul>
+                  } @else {
+                    <span class="text-hl-muted">{{ 'releaseLetterPage.info.noData' | transloco }}</span>
+                  }
+                </dd>
+              </div>
+            </dl>
+          }
+        </section>
+
+        <!-- 3. Solicitud de la carta: el formulario del BL, creado de nuevo para cada BL -->
+        @for (current of [bl]; track current) {
+          <app-release-letter-form [blNumber]="current" [embedded]="true" />
+        }
+      } @else {
+        <div class="rl-prompt" role="note" data-testid="release-letter-prompt">
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            @for (d of icons.pointer; track $index) { <path [attr.d]="d" /> }
+          </svg>
+          <span>{{ 'releaseLetterPage.select.prompt' | transloco }}</span>
+        </div>
+      }
+    }
+  }
+}

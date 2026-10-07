@@ -1,0 +1,80 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'notifications.preferences.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/notifications">{{ 'notifications.title' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ 'notifications.preferences.title' | transloco }}</li>
+    </ol>
+  </nav>
+  <h1>{{ 'notifications.preferences.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'notifications.preferences.subtitle' | transloco }}</p>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else {
+  <form novalidate (submit)="save($event)" data-testid="notification-preferences-form">
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+    <p class="small" role="note">{{ 'notifications.preferences.note' | transloco }}</p>
+
+    @for (group of groups(); track group.module) {
+      <section class="hl-card mb-3" [attr.aria-labelledby]="'preferences-' + group.module">
+        <div class="card-header p-3">
+          <h2 class="section-title" [id]="'preferences-' + group.module">{{ group.module | codeLabel: moduleKeys }}</h2>
+        </div>
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'notifications.preferences.caption' | transloco: { module: (group.module | codeLabel: moduleKeys) }">
+          <table class="hl-table">
+            <caption class="visually-hidden">{{ 'notifications.preferences.caption' | transloco: { module: (group.module | codeLabel: moduleKeys) } }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'notifications.preferences.col.type' | transloco }}</th>
+                <th scope="col">{{ 'notifications.preferences.col.inbox' | transloco }}</th>
+                <th scope="col">{{ 'notifications.preferences.col.email' | transloco }}</th>
+                <th scope="col"><span class="visually-hidden">{{ 'notifications.preferences.col.actions' | transloco }}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of group.items; track p.type) {
+                <tr [attr.data-testid]="'preference-' + p.type">
+                  <th scope="row" class="fw-semibold hl-cell-name">{{ typeName(p) }}</th>
+                  <td>{{ 'notifications.preferences.inboxAlways' | transloco }}</td>
+                  <td class="hl-cell-text">
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" role="switch" [id]="'preference-email-' + p.type"
+                             [checked]="checked(p)" [disabled]="locked(p) || saving()" (change)="toggle(p, $event)"
+                             [attr.aria-describedby]="locked(p) ? 'preference-lock-' + p.type : null" />
+                      <label class="form-check-label" [for]="'preference-email-' + p.type">
+                        {{ 'notifications.preferences.emailLabel' | transloco: { type: typeName(p) } }}
+                      </label>
+                    </div>
+                    @if (!p.emailAvailable) {
+                      <div class="small text-muted" [id]="'preference-lock-' + p.type">{{ 'notifications.preferences.inboxOnly' | transloco }}</div>
+                    } @else if (p.emailMandatory) {
+                      <div class="small text-muted" [id]="'preference-lock-' + p.type">{{ 'notifications.preferences.mandatory' | transloco }}</div>
+                    } @else if (p.isCustomized) {
+                      <div class="small text-muted">{{ (p.emailDefault ? 'notifications.preferences.defaultOn' : 'notifications.preferences.defaultOff') | transloco }}</div>
+                    }
+                  </td>
+                  <td>
+                    @if (p.isCustomized && !locked(p)) {
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="reset(p)" [disabled]="saving()"
+                              [attr.aria-label]="'notifications.preferences.resetLabel' | transloco: { type: typeName(p) }">{{ 'notifications.preferences.reset' | transloco }}</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()" data-testid="notification-preferences-save">{{ 'notifications.preferences.save' | transloco }}</button>
+      <span class="small text-muted" aria-live="polite">{{ 'notifications.preferences.changes' | transloco: { count: changeCount() } }}</span>
+    </div>
+  </form>
+}

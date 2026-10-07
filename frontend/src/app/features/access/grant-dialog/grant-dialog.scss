@@ -1,0 +1,5 @@
+// Particularidades del diálogo de otorgamiento (M1-24); la base .hl-dialog vive en styles.scss.
+.grant-shipments {
+  max-height: 16rem;
+  overflow-y: auto;
+}

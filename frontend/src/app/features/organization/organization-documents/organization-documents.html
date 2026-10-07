@@ -1,0 +1,85 @@
+<section class="hl-card" aria-labelledby="organization-documents-title">
+  <div class="card-header p-3">
+    <h2 id="organization-documents-title" class="h5 fw-bold mb-1">{{ 'organization.documents.title' | transloco }}</h2>
+    <p class="small text-muted mb-0">{{ 'organization.documents.help' | transloco }}</p>
+  </div>
+
+  <form class="p-3 border-bottom" (ngSubmit)="upload()" [formGroup]="form" novalidate>
+    @if (uploadError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ uploadError() }}</div>
+    }
+    <div class="row g-3 hl-form-row">
+      <div class="col-md-4">
+        <label for="document-type" class="form-label small fw-semibold">{{ 'organization.documents.type' | transloco }}</label>
+        <select id="document-type" class="form-select" formControlName="documentType" required
+                aria-describedby="document-type-error"
+                [attr.aria-invalid]="form.controls.documentType.touched && form.controls.documentType.invalid"
+                [class.is-invalid]="form.controls.documentType.touched && form.controls.documentType.invalid">
+          <option value="">{{ 'organization.documents.selectType' | transloco }}</option>
+          @for (type of documentTypes; track type) {
+            <option [value]="type">{{ type | codeLabel: documentTypeKeys }}</option>
+          }
+        </select>
+        <div id="document-type-error" class="invalid-feedback">
+          @if (form.controls.documentType.touched && form.controls.documentType.invalid) {
+            {{ 'organization.documents.errors.typeRequired' | transloco }}
+          }
+        </div>
+      </div>
+      <div class="col-md-5">
+        <label for="document-file" class="form-label small fw-semibold">{{ 'organization.documents.file' | transloco }}</label>
+        <input #fileInput id="document-file" type="file" class="form-control" required [accept]="accept"
+               aria-describedby="document-file-help document-file-error"
+               [attr.aria-invalid]="fileTouched() && !!fileError()"
+               [class.is-invalid]="fileTouched() && !!fileError()"
+               (change)="onFileChange($event)" />
+        <div id="document-file-help" class="form-text">{{ 'organization.documents.fileHelp' | transloco }}</div>
+        <div id="document-file-error" class="invalid-feedback">
+          @if (fileTouched() && fileError()) {
+            {{ fileError() }}
+          }
+        </div>
+      </div>
+      <div class="col-md-3 hl-form-action">
+        <button type="submit" class="btn btn-hl-orange" [disabled]="uploading()">
+          @if (uploading()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'organization.documents.upload' | transloco }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (documents().length === 0) {
+    <app-state-message kind="empty" [messageKey]="'organization.documents.empty'" />
+  } @else {
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'organization.documents.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'organization.documents.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'organization.documents.col.type' | transloco }}</th>
+            <th scope="col">{{ 'organization.documents.col.file' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'organization.documents.col.size' | transloco }}</th>
+            <th scope="col">{{ 'organization.documents.col.uploadedAt' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (document of documents(); track document.id) {
+            <tr>
+              <td>{{ document.documentType | codeLabel: documentTypeKeys }}</td>
+              <td class="text-break">{{ document.fileName }}</td>
+              <td class="text-end">{{ 'organization.documents.sizeKb' | transloco: { size: (document.sizeBytes / 1024 | hlNumber: '1.0-0') } }}</td>
+              <td class="text-nowrap">{{ document.uploadedAt | hlDate: 'datetime' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

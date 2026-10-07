@@ -1,0 +1,133 @@
+<section class="hl-card" aria-labelledby="organization-users-title">
+  <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <h2 id="organization-users-title" class="h5 fw-bold mb-1">{{ 'organization.users.title' | transloco }}</h2>
+      <p class="small text-muted mb-0">{{ 'organization.users.help' | transloco }}</p>
+    </div>
+    <button type="button" class="btn btn-sm btn-hl-orange" (click)="openInvite()">{{ 'organization.users.invite' | transloco }}</button>
+  </div>
+
+  @if (formMode()) {
+    <form class="p-3 border-bottom" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <h3 class="h6 fw-bold mb-3">
+        {{ editing() ? ('organization.users.form.editTitle' | transloco: { email: editing()?.email ?? '' }) : ('organization.users.form.inviteTitle' | transloco) }}
+      </h3>
+      @if (formError()) {
+        <div class="alert alert-danger py-2" role="alert">{{ formError() }}</div>
+      }
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="org-user-first-name" class="form-label small fw-semibold">{{ 'organization.users.form.firstName' | transloco }}</label>
+          <input id="org-user-first-name" type="text" class="form-control" formControlName="firstName" required autocomplete="off"
+                 aria-describedby="org-user-first-name-error"
+                 [attr.aria-invalid]="form.controls.firstName.touched && form.controls.firstName.invalid"
+                 [class.is-invalid]="form.controls.firstName.touched && form.controls.firstName.invalid" />
+          <div id="org-user-first-name-error" class="invalid-feedback">{{ 'organization.users.form.firstNameRequired' | transloco }}</div>
+        </div>
+        <div class="col-md-6">
+          <label for="org-user-last-name" class="form-label small fw-semibold">{{ 'organization.users.form.lastName' | transloco }}</label>
+          <input id="org-user-last-name" type="text" class="form-control" formControlName="lastName" required autocomplete="off"
+                 aria-describedby="org-user-last-name-error"
+                 [attr.aria-invalid]="form.controls.lastName.touched && form.controls.lastName.invalid"
+                 [class.is-invalid]="form.controls.lastName.touched && form.controls.lastName.invalid" />
+          <div id="org-user-last-name-error" class="invalid-feedback">{{ 'organization.users.form.lastNameRequired' | transloco }}</div>
+        </div>
+        <div class="col-md-6">
+          <label for="org-user-email" class="form-label small fw-semibold">{{ 'organization.users.form.email' | transloco }}</label>
+          <input id="org-user-email" type="email" class="form-control" formControlName="email" required autocomplete="off"
+                 aria-describedby="org-user-email-error"
+                 [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+                 [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid" />
+          <div id="org-user-email-error" class="invalid-feedback">{{ 'organization.users.form.emailInvalid' | transloco }}</div>
+        </div>
+        <div class="col-md-6">
+          <label for="org-user-phone" class="form-label small fw-semibold">{{ 'organization.users.form.phone' | transloco }}</label>
+          <input id="org-user-phone" type="tel" class="form-control" formControlName="phone" autocomplete="off" />
+        </div>
+        <div class="col-md-6">
+          <label for="org-user-profile" class="form-label small fw-semibold">{{ 'organization.users.form.profile' | transloco }}</label>
+          <select id="org-user-profile" class="form-select" formControlName="profile" required aria-describedby="org-user-profile-help">
+            @for (profile of profiles; track profile) {
+              <option [value]="profile">{{ profile | codeLabel: profileKeys }}</option>
+            }
+          </select>
+          <div id="org-user-profile-help" class="form-text">{{ 'organization.users.form.profileHelp' | transloco }}</div>
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-3">
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">{{ 'organization.users.form.cancel' | transloco }}</button>
+        <button type="submit" class="btn btn-hl-orange" [disabled]="submitting()">
+          {{ (editing() ? 'organization.users.form.save' : 'organization.users.form.sendInvite') | transloco }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (actionError()) {
+    <div class="alert alert-danger py-2 m-3" role="alert">{{ actionError() }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (users().length === 0) {
+    <app-state-message kind="empty" [messageKey]="'organization.users.empty'" />
+  } @else {
+    <app-table-filter [table]="table" [totalOf]="users().length" inputId="organization-users-table-filter" />
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'organization.users.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'organization.users.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col" appSortHeader="name" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'organization.users.col.name' | transloco }}</th>
+            <th scope="col" appSortHeader="email" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'organization.users.col.email' | transloco }}</th>
+            <th scope="col" appSortHeader="profile" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'organization.users.col.profile' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'organization.users.col.status' | transloco }}</th>
+            <th scope="col" appSortHeader="lastLogin" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'organization.users.col.lastLogin' | transloco }}</th>
+            <th scope="col">{{ 'organization.users.col.actions' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of table.rows(); track user.id) {
+            <tr>
+              <td class="fw-semibold">{{ user.fullName }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.profile ? (user.profile | codeLabel: profileKeys) : '—' }}</td>
+              <td>
+                @if (user.membershipStatus !== 'Active') {
+                  {{ user.membershipStatus | codeLabel: membershipKeys }}
+                } @else {
+                  {{ (user.isActive ? 'organization.users.active' : 'organization.users.inactive') | transloco }}
+                }
+              </td>
+              <td class="text-nowrap">{{ user.lastLoginAt ? (user.lastLoginAt | hlDate: 'datetime') : ('organization.users.neverLoggedIn' | transloco) }}</td>
+              <td>
+                <div class="hl-actions">
+                  <button type="button" class="btn btn-sm btn-outline-secondary"
+                          [attr.aria-label]="'organization.users.editLabel' | transloco: { name: user.fullName }"
+                          (click)="openEdit(user)">
+                    {{ 'organization.users.edit' | transloco }}
+                  </button>
+                  @if (!isSelf(user) && user.membershipStatus === 'Active') {
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            [attr.aria-label]="(user.isActive ? 'organization.users.deactivateLabel' : 'organization.users.activateLabel') | transloco: { name: user.fullName }"
+                            (click)="toggleActive(user)">
+                      {{ (user.isActive ? 'organization.users.deactivate' : 'organization.users.activate') | transloco }}
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'organization.users.pagination' | transloco"
+                     idPrefix="organization-users-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
+  }
+</section>

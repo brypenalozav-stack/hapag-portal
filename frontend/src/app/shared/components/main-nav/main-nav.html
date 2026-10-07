@@ -1,0 +1,113 @@
+<ng-template #icon let-link>
+  <svg class="hl-menu-link__icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+    @for (d of link.icon; track $index) {
+      <path [attr.d]="d" [attr.fill-rule]="link.evenOdd ? 'evenodd' : null" />
+    }
+  </svg>
+</ng-template>
+
+<!-- Escritorio: barra con paneles desplegables -->
+<nav class="hl-mainnav" [attr.aria-label]="'shared.sidebar.label' | transloco">
+  <ul class="hl-mainnav__bar">
+    @for (g of groups(); track g.id) {
+      <li class="hl-mainnav__item" (mouseenter)="hoverOpen(g)" (mouseleave)="hoverClose()" (focusout)="onGroupFocusOut($event, g)">
+        @if (g.route) {
+          <a class="hl-mainnav__top" [routerLink]="g.route" [class.is-active]="isGroupActive(g)" [attr.aria-current]="isGroupActive(g) ? 'page' : null">
+            {{ g.labelKey | transloco }}
+          </a>
+        } @else {
+          <button type="button" class="hl-mainnav__top" [id]="'hl-menu-trigger-' + g.id" [class.is-active]="isGroupActive(g)"
+                  [class.is-open]="openGroup() === g.id" [attr.aria-expanded]="openGroup() === g.id" [attr.aria-controls]="'hl-menu-panel-' + g.id"
+                  (click)="toggle(g)" [attr.data-testid]="'menu-group-' + g.id">
+            {{ g.labelKey | transloco }}
+            <svg class="hl-mainnav__chevron" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
+            </svg>
+          </button>
+          <div class="hl-mega" [id]="'hl-menu-panel-' + g.id" [class.is-open]="openGroup() === g.id" (mouseenter)="keepOpen()">
+            <div class="hl-mega__inner">
+              <p class="hl-mega__title">{{ g.labelKey | transloco }}</p>
+              <div class="hl-mega__columns" [class.hl-mega__columns--multi]="g.columns.length > 1">
+                @for (col of g.columns; track $index) {
+                  <div class="hl-mega__col">
+                    @if (col.titleKey) {
+                      <p class="hl-mega__col-title">{{ col.titleKey | transloco }}</p>
+                    }
+                    <ul class="hl-mega__links">
+                      @for (l of col.links; track $index) {
+                        <li>
+                          @if (asRoute(l); as r) {
+                            <a class="hl-menu-link" [routerLink]="r.route" [class.active]="isLinkActive(r)" [attr.aria-current]="isLinkActive(r) ? 'page' : null"
+                               [attr.data-testid]="r.testId ?? null">
+                              <ng-container *ngTemplateOutlet="icon; context: { $implicit: r }" />
+                              {{ r.key | transloco }}
+                            </a>
+                          } @else {
+                            <app-dispute-link />
+                          }
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </li>
+    }
+  </ul>
+</nav>
+<div class="hl-mega-backdrop" [class.is-open]="openGroup() !== null" aria-hidden="true"></div>
+
+<!-- Móvil: panel lateral con acordeón -->
+<aside id="hl-sidebar" class="hl-drawer" [class.show]="mobileOpen()">
+  <!-- Perfiles internos: en pantallas angostas el selector de espacio está aquí y no en la barra superior -->
+  <app-workspace-switcher variant="drawer" />
+  <nav [attr.aria-label]="'shared.sidebar.label' | transloco">
+    @for (g of groups(); track g.id) {
+      @if (g.route) {
+        <a class="hl-drawer__top" [routerLink]="g.route" [class.is-active]="isGroupActive(g)" [attr.aria-current]="isGroupActive(g) ? 'page' : null" (click)="onMobileLink()">
+          {{ g.labelKey | transloco }}
+        </a>
+      } @else {
+        <button type="button" class="hl-drawer__top" [class.is-active]="isGroupActive(g)" [attr.aria-expanded]="expanded().has(g.id)"
+                [attr.aria-controls]="'hl-drawer-section-' + g.id" (click)="toggleSection(g)">
+          {{ g.labelKey | transloco }}
+          <svg class="hl-mainnav__chevron" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
+          </svg>
+        </button>
+        <div class="hl-drawer__section" [id]="'hl-drawer-section-' + g.id" [class.is-open]="expanded().has(g.id)">
+          <!-- Un solo hijo: la fila animada del acordeón (0fr → 1fr) contiene todas las columnas -->
+          <div>
+          @for (col of g.columns; track $index) {
+            @if (col.titleKey) {
+              <p class="hl-drawer__col-title">{{ col.titleKey | transloco }}</p>
+            }
+            <ul class="hl-mega__links">
+              @for (l of col.links; track $index) {
+                <li>
+                  @if (asRoute(l); as r) {
+                    <a class="hl-menu-link" [routerLink]="r.route" [class.active]="isLinkActive(r)" [attr.aria-current]="isLinkActive(r) ? 'page' : null"
+                       (click)="onMobileLink()">
+                      <ng-container *ngTemplateOutlet="icon; context: { $implicit: r }" />
+                      {{ r.key | transloco }}
+                    </a>
+                  } @else {
+                    <app-dispute-link (activated)="onMobileLink()" />
+                  }
+                </li>
+              }
+            </ul>
+          }
+          </div>
+        </div>
+      }
+    }
+  </nav>
+</aside>
+@if (mobileOpen()) {
+  <!-- Solo para puntero: con teclado el panel se cierra con Esc o con el botón de menú -->
+  <button type="button" class="hl-drawer-backdrop" tabindex="-1" aria-hidden="true" (click)="closeMobile()"></button>
+}

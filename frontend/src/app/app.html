@@ -1,17 +1,51 @@
-<app-navbar (toggleSidebar)="toggleSidebar()" />
+<a class="hl-skip-link" href="#contenido-principal" (click)="skipToContent($event)">{{ 'app.skipLink' | transloco }}</a>
+
+<header>
+  <app-navbar [sidebarOpen]="sidebarOpen()" (toggleSidebar)="toggleSidebar()" />
+  @if (auth.isAuthenticated()) {
+    <!-- Menú principal: paneles desplegables en escritorio, panel lateral #hl-sidebar en móvil -->
+    <app-main-nav [mobileOpen]="sidebarOpen()" (closed)="closeSidebar()" />
+  }
+</header>
 
 @if (auth.isAuthenticated()) {
-  <app-sidebar [isOpen]="sidebarOpen()" (closed)="closeSidebar()" />
 
-  <main class="hl-main-content">
+  <main id="contenido-principal" class="hl-main-content" tabindex="-1">
+    <!-- Vista como cliente (M8-08): banner permanente mientras dura la sesión de impersonación. Con el flag apagado se
+         muestra igual si hay una sesión en curso, para poder terminarla. -->
+    @if (features.enabled('Impersonation') || auth.isImpersonating()) {
+      <app-impersonation-banner />
+    }
+    <!-- Modo guía (M1-27): guías de la pantalla actual -->
+    @if (features.enabled('GuideMode')) {
+      <app-guide-host />
+    }
     <router-outlet />
   </main>
 
   <footer class="hl-footer">
-    <span>&copy; 2025 Hapag-Lloyd AG. Todos los derechos reservados.</span>
+    <span>{{ 'app.footer.copyright' | transloco: { year: year } }}</span>
   </footer>
+
+  <!-- Asistente del portal (M10-01): disponible en todas las pantallas autenticadas; se carga sin demorar la portada -->
+  @defer (on idle) {
+    <app-assistant />
+  }
 } @else {
-  <main>
+  <main id="contenido-principal" tabindex="-1">
     <router-outlet />
   </main>
 }
+
+<!-- Pantalla de carga global (cambio de idioma y operaciones que bloquean todo el sitio) -->
+<app-global-loader />
+
+<!-- Modal único de confirmaciones y avisos (ModalService) -->
+<app-modal-host />
+
+<!-- Avisos breves tras una acción (ToastService) -->
+<app-toast-host />
+
+<!-- Regiones de anuncios para lectores de pantalla (LiveAnnouncerService, guía UI §3.3) -->
+<div class="visually-hidden" aria-live="polite" aria-atomic="true">{{ announcer.polite() }}</div>
+<div class="visually-hidden" aria-live="assertive" aria-atomic="true">{{ announcer.assertive() }}</div>

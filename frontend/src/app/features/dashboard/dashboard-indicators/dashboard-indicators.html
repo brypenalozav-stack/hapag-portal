@@ -1,0 +1,76 @@
+@if (indicators().shipmentsTruncated) {
+  <p class="small text-muted">{{ 'dashboard.indicators.truncated' | transloco: { count: indicators().evaluatedShipments } }}</p>
+}
+<div class="row g-4">
+  <!-- Embarques por estado: tabla con barras decorativas (el número va en la celda) -->
+  <div class="col-xl-4">
+    <div class="hl-card h-100">
+      <div class="card-header p-3">
+        <h3 class="section-title">{{ 'dashboard.indicators.byStatus.title' | transloco }}</h3>
+      </div>
+      @if (statusBars().length > 0) {
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'dashboard.indicators.byStatus.caption' | transloco">
+          <table class="hl-table" data-testid="dashboard-status-chart">
+            <caption class="visually-hidden">{{ 'dashboard.indicators.byStatus.caption' | transloco }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'dashboard.indicators.byStatus.col.status' | transloco }}</th>
+                <th scope="col" class="text-end">{{ 'dashboard.indicators.byStatus.col.count' | transloco }}</th>
+                <th scope="col"><span class="visually-hidden">{{ 'dashboard.indicators.byStatus.col.chart' | transloco }}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (bar of statusBars(); track bar.key) {
+                <tr>
+                  <th scope="row" class="fw-semibold px-3 py-2">{{ bar.key | codeLabel: statusKeys }}</th>
+                  <td class="text-end hl-num">{{ bar.count | hlNumber: '1.0-0' }}</td>
+                  <td>
+                    <span class="hl-bar" aria-hidden="true"><span class="hl-bar__fill" [style.width.%]="bar.percent"></span></span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="p-3 mb-0 text-muted" role="status">{{ 'dashboard.indicators.byStatus.empty' | transloco }}</p>
+      }
+    </div>
+  </div>
+
+  <!-- Próximos arribos (ETA) y zarpes (ETD) en los próximos 14 días -->
+  @for (block of shipmentBlocks(); track block.id) {
+    <div class="col-xl-4">
+      <div class="hl-card h-100">
+        <div class="card-header p-3">
+          <h3 class="section-title">{{ block.titleKey | transloco }}</h3>
+        </div>
+        @if (block.items.length > 0) {
+          <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="block.captionKey | transloco">
+            <table class="hl-table">
+              <caption class="visually-hidden">{{ block.captionKey | transloco }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'dashboard.indicators.shipments.col.bl' | transloco }}</th>
+                  <th scope="col">{{ 'dashboard.indicators.shipments.col.port' | transloco }}</th>
+                  <th scope="col">{{ block.dateKey | transloco }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (shipment of block.items; track shipment.blNumber) {
+                  <tr>
+                    <td><a [routerLink]="['/shipments', shipment.blNumber]">{{ shipment.blNumber }}</a></td>
+                    <td>{{ shipment.port ?? '—' }}</td>
+                    <td class="small text-nowrap">{{ shipment.date ? (shipment.date | hlDate: 'datetime') : '—' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="p-3 mb-0 text-muted" role="status">{{ block.emptyKey | transloco }}</p>
+        }
+      </div>
+    </div>
+  }
+</div>

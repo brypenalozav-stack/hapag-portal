@@ -1,0 +1,224 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.finance.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.finance.subtitle' | transloco }}</p>
+</div>
+
+@if (actionMessage()) {
+  <div class="alert alert-success py-2" role="status">{{ actionMessage() }}</div>
+}
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+<!-- Operaciones posteriores a la confirmación detenidas o en reintento (NF-03) -->
+<section class="hl-card mb-4" aria-labelledby="finance-operations-title">
+  <div class="card-header p-3">
+    <h2 id="finance-operations-title" class="section-title">{{ 'admin.finance.operations.title' | transloco }}</h2>
+  </div>
+  <form class="p-3 pb-0" role="search" [attr.aria-label]="'admin.finance.operations.filters' | transloco" (ngSubmit)="loadOperations()">
+    <div class="row g-2 align-items-end">
+      <div class="col-sm-6 col-lg-3">
+        <label for="finance-operation-status" class="form-label small fw-semibold">{{ 'admin.finance.operations.status' | transloco }}</label>
+        <select id="finance-operation-status" class="form-select" name="operationStatus" [(ngModel)]="operationStatus">
+          <option value="">{{ 'admin.finance.operations.defaultStatus' | transloco }}</option>
+          @for (s of operationStatuses; track s) {
+            <option [value]="s">{{ s | codeLabel: operationStatusKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <button type="submit" class="btn btn-outline-secondary">{{ 'admin.finance.operations.search' | transloco }}</button>
+      </div>
+    </div>
+  </form>
+  <div class="p-3">
+    @if (operationsLoading()) {
+      <app-loading-spinner />
+    } @else if (operationsFailed()) {
+      <app-state-message kind="error" (retry)="loadOperations()" />
+    } @else if (operationsError()) {
+      <div class="alert alert-danger" role="alert">{{ operationsError() }}</div>
+    } @else if (operations().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.finance.operations.empty'" />
+    } @else {
+      <app-table-filter [table]="operationsTable" [totalOf]="operations().length" inputId="finance-operations-table-filter" />
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.finance.operations.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.finance.operations.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col" appSortHeader="payment" [sort]="operationsTable.sort()" (sortChange)="operationsTable.setSort($event)">{{ 'admin.finance.operations.col.payment' | transloco }}</th>
+              <th scope="col" appSortHeader="job" [sort]="operationsTable.sort()" (sortChange)="operationsTable.setSort($event)">{{ 'admin.finance.operations.col.job' | transloco }}</th>
+              <th scope="col" appSortHeader="status" [sort]="operationsTable.sort()" (sortChange)="operationsTable.setSort($event)">{{ 'admin.finance.operations.col.status' | transloco }}</th>
+              <th scope="col" appSortHeader="attempts" [sort]="operationsTable.sort()" (sortChange)="operationsTable.setSort($event)">{{ 'admin.finance.operations.col.attempts' | transloco }}</th>
+              <th scope="col" appSortHeader="next" [sort]="operationsTable.sort()" (sortChange)="operationsTable.setSort($event)">{{ 'admin.finance.operations.col.next' | transloco }}</th>
+              <th scope="col">{{ 'admin.finance.operations.col.error' | transloco }}</th>
+              <th scope="col"><span class="visually-hidden">{{ 'admin.finance.operations.col.actions' | transloco }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (op of operationsTable.rows(); track op.id) {
+              <tr>
+                <td class="fw-semibold text-nowrap">{{ op.paymentNumber }}</td>
+                <td>{{ op.jobType | codeLabel: jobKeys }}</td>
+                <td>{{ op.status | codeLabel: operationStatusKeys }}</td>
+                <td>{{ 'admin.finance.operations.attempts' | transloco: { attempts: op.attempts, max: op.maxAttempts } }}</td>
+                <td class="text-nowrap">{{ op.nextAttemptAt ? (op.nextAttemptAt | hlDate: 'datetime') : '—' }}</td>
+                <td class="small">{{ op.lastError ?? '—' }}</td>
+                <td>
+                  @if (op.status !== 'Succeeded') {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="retrying() === op.id" (click)="retry(op)"
+                            [attr.aria-label]="'admin.finance.operations.retryLabel' | transloco: { number: op.paymentNumber, job: (op.jobType | codeLabel: jobKeys) }">
+                      {{ 'admin.finance.operations.retry' | transloco }}
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (operationsTable.paged()) {
+        <app-paginator [page]="operationsTable.page()" [pageSize]="operationsTable.pageSize()" [total]="operationsTable.total()" [label]="'admin.finance.operations.pagination' | transloco"
+                       idPrefix="finance-operations-pager" (pageChange)="operationsTable.setPage($event)" (pageSizeChange)="operationsTable.setPageSize($event)" />
+      }
+    }
+  </div>
+</section>
+
+@if (cancelling(); as row) {
+  <!-- Anulación por Finanzas con motivo obligatorio (M5-02) -->
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="finance-cancel-title" (submit)="confirmCancel($event)">
+    <h2 #cancelHeading id="finance-cancel-title" class="section-title mb-3" tabindex="-1">{{ 'admin.finance.cancel.title' | transloco: { number: row.paymentNumber } }}</h2>
+    @if (cancelError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ cancelError() }}</div>
+    }
+    <div class="mb-3">
+      <label for="finance-cancel-reason" class="form-label small fw-semibold">{{ 'admin.finance.cancel.reason' | transloco }}</label>
+      <textarea id="finance-cancel-reason" class="form-control" rows="2" required maxlength="500" name="cancelReason"
+                aria-describedby="finance-cancel-reason-help" [attr.aria-invalid]="cancelSubmitted() && !cancelReason.trim()"
+                [(ngModel)]="cancelReason"></textarea>
+      <div id="finance-cancel-reason-help" class="form-text">
+        @if (cancelSubmitted() && !cancelReason.trim()) {
+          <span class="text-danger">{{ 'admin.finance.cancel.reasonRequired' | transloco }}</span>
+        } @else {
+          {{ 'admin.finance.cancel.reasonHelp' | transloco }}
+        }
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-outline-danger" [disabled]="cancelBusy()">{{ 'admin.finance.cancel.confirm' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeCancel()">{{ 'admin.finance.cancel.back' | transloco }}</button>
+    </div>
+  </form>
+}
+
+<!-- Conciliación de pagos de un período (NF-04) -->
+<section class="hl-card mb-4" aria-labelledby="finance-reconciliation-title">
+  <div class="card-header p-3">
+    <h2 id="finance-reconciliation-title" class="section-title">{{ 'admin.finance.reconciliation.title' | transloco }}</h2>
+  </div>
+  <form class="p-3 pb-0" role="search" [attr.aria-label]="'admin.finance.reconciliation.filters' | transloco" (ngSubmit)="loadReconciliation()">
+    <div class="row g-2 align-items-end">
+      <div class="col-sm-6 col-lg-2">
+        <label for="finance-from" class="form-label small fw-semibold">{{ 'admin.finance.reconciliation.from' | transloco }}</label>
+        <input id="finance-from" type="date" class="form-control" name="from" [(ngModel)]="filters.from" />
+      </div>
+      <div class="col-sm-6 col-lg-2">
+        <label for="finance-to" class="form-label small fw-semibold">{{ 'admin.finance.reconciliation.to' | transloco }}</label>
+        <input id="finance-to" type="date" class="form-control" name="to" [(ngModel)]="filters.to" />
+      </div>
+      <div class="col-sm-6 col-lg-2">
+        <label for="finance-country" class="form-label small fw-semibold">{{ 'admin.finance.reconciliation.country' | transloco }}</label>
+        <select id="finance-country" class="form-select" name="country" [(ngModel)]="filters.country">
+          <option value="">{{ 'admin.finance.reconciliation.all' | transloco }}</option>
+          <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+          <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label for="finance-status" class="form-label small fw-semibold">{{ 'admin.finance.reconciliation.status' | transloco }}</label>
+        <select id="finance-status" class="form-select" name="status" [(ngModel)]="filters.status">
+          <option value="">{{ 'admin.finance.reconciliation.all' | transloco }}</option>
+          @for (s of paymentStatuses; track s) {
+            <option [value]="s">{{ s | codeLabel: paymentStatusKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <button type="submit" class="btn btn-outline-secondary">{{ 'admin.finance.reconciliation.search' | transloco }}</button>
+      </div>
+    </div>
+  </form>
+  <div class="p-3">
+    @if (reconciliationLoading()) {
+      <app-loading-spinner />
+    } @else if (reconciliationFailed()) {
+      <app-state-message kind="error" (retry)="loadReconciliation()" />
+    } @else if (reconciliationError()) {
+      <div class="alert alert-danger" role="alert">{{ reconciliationError() }}</div>
+    } @else if (reconciliation().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.finance.reconciliation.empty'" />
+    } @else {
+      <app-table-filter [table]="reconciliationTable" [totalOf]="reconciliation().length" inputId="finance-reconciliation-table-filter" />
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.finance.reconciliation.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.finance.reconciliation.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col" appSortHeader="payment" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.payment' | transloco }}</th>
+              <th scope="col" appSortHeader="status" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.status' | transloco }}</th>
+              <th scope="col" appSortHeader="method" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.method' | transloco }}</th>
+              <th scope="col" class="text-end" appSortHeader="total" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.total' | transloco }}</th>
+              <th scope="col" appSortHeader="dates" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.dates' | transloco }}</th>
+              <th scope="col">{{ 'admin.finance.reconciliation.col.references' | transloco }}</th>
+              <th scope="col">{{ 'admin.finance.reconciliation.col.document' | transloco }}</th>
+              <th scope="col" appSortHeader="reconciliation" [sort]="reconciliationTable.sort()" (sortChange)="reconciliationTable.setSort($event)">{{ 'admin.finance.reconciliation.col.reconciliation' | transloco }}</th>
+              <th scope="col"><span class="visually-hidden">{{ 'admin.finance.reconciliation.col.actions' | transloco }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of reconciliationTable.rows(); track row.paymentId) {
+              <tr>
+                <td>
+                  <span class="fw-semibold d-block text-nowrap">{{ row.paymentNumber }}</span>
+                  <span class="small text-muted">{{ 'admin.finance.reconciliation.payer' | transloco: { country: row.country, taxId: row.payerTaxId ?? '—' } }}</span>
+                </td>
+                <td>{{ row.status | codeLabel: paymentStatusKeys }}</td>
+                <td>{{ row.method ?? '—' }}</td>
+                <td class="text-end text-nowrap">{{ row.totalAmount | hlCurrency: row.currency }}</td>
+                <td class="small">
+                  <span class="d-block">{{ 'admin.finance.reconciliation.created' | transloco: { date: (row.createdAt | hlDate: 'datetime') } }}</span>
+                  @if (row.confirmedAt) {
+                    <span class="d-block">{{ 'admin.finance.reconciliation.confirmed' | transloco: { date: (row.confirmedAt | hlDate: 'datetime') } }}</span>
+                  }
+                </td>
+                <td class="small">
+                  <span class="d-block">{{ 'admin.finance.reconciliation.external' | transloco: { value: row.externalReference ?? '—' } }}</span>
+                  <span class="d-block">{{ 'admin.finance.reconciliation.provider' | transloco: { value: row.providerReference ?? '—' } }}</span>
+                  <span class="d-block">{{ 'admin.finance.reconciliation.transaction' | transloco: { value: row.providerTransactionId ?? '—' } }}</span>
+                </td>
+                <td class="small">{{ row.receiptNumber ?? row.slipNumber ?? '—' }}</td>
+                <td>{{ row.reconciliationStatus | codeLabel: reconciliationKeys }}</td>
+                <td>
+                  @if (canCancel(row)) {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="askCancel(row)"
+                            [attr.aria-label]="'admin.finance.cancel.buttonLabel' | transloco: { number: row.paymentNumber }">{{ 'admin.finance.cancel.button' | transloco }}</button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="9" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (reconciliationTable.paged()) {
+        <app-paginator [page]="reconciliationTable.page()" [pageSize]="reconciliationTable.pageSize()" [total]="reconciliationTable.total()" [label]="'admin.finance.reconciliation.pagination' | transloco"
+                       idPrefix="finance-reconciliation-pager" (pageChange)="reconciliationTable.setPage($event)" (pageSizeChange)="reconciliationTable.setPageSize($event)" />
+      }
+    }
+  </div>
+</section>

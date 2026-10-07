@@ -49,7 +49,8 @@ public sealed class GenerateDeadlineAlertsCommandHandler(
                 Title: title,
                 Body: $"{d.Rule.Name} para {target} vence {d.DueAt:u}.",
                 RoleCode: RoleCodes.Supervisor,
-                DedupKey: $"deadline:{d.Id}:{status}"), cancellationToken);
+                DedupKey: $"deadline:{d.Id}:{status}",
+                Link: new NotificationLink(NotificationEntityTypes.Deadline, d.Id.ToString(), d.Rule.Name, d.BillOfLading?.BLNumber)), cancellationToken);
 
             published++;
         }

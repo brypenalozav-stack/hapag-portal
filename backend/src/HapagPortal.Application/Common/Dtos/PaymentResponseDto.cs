@@ -11,7 +11,7 @@ public sealed record PaymentResponseDto(
     string Currency,
     string Status,
     string BlNumber,
-    Guid BlId,
+    Guid? BlId,
     Guid ClientId,
     string? ClientName,
     string Country,

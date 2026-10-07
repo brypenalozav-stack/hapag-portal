@@ -1,0 +1,66 @@
+<fieldset class="mb-3" [attr.aria-describedby]="idPrefix() + '-grantee-help'">
+  <legend class="form-label small fw-semibold mb-1">{{ 'thirdPartyAccess.granteePicker.legend' | transloco }}</legend>
+  <div [id]="idPrefix() + '-grantee-help'" class="form-text mt-0 mb-2">{{ 'thirdPartyAccess.granteePicker.help' | transloco }}</div>
+
+  @if (selected(); as org) {
+    <div class="d-flex flex-wrap align-items-center gap-2 p-2 border rounded" role="status">
+      <span>
+        {{ 'thirdPartyAccess.granteePicker.selected' | transloco: { name: org.name, taxId: org.taxId, type: (org.organizationType | codeLabel: typeKeys) } }}
+      </span>
+      <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" (click)="clear()">
+        {{ 'thirdPartyAccess.granteePicker.change' | transloco }}
+      </button>
+    </div>
+  } @else {
+    <div class="row g-2 align-items-end">
+      <div class="col-md-6">
+        <label [for]="idPrefix() + '-grantee-search'" class="form-label small">{{ 'thirdPartyAccess.granteePicker.search' | transloco }}</label>
+        <input [id]="idPrefix() + '-grantee-search'" type="search" class="form-control" autocomplete="off"
+               [value]="search()" [class.is-invalid]="!!errorKey()" [attr.aria-invalid]="errorKey() ? true : null"
+               [attr.aria-describedby]="errorKey() ? idPrefix() + '-grantee-error' : null"
+               (input)="onSearchInput($event)" (keydown)="onSearchKeydown($event)" />
+      </div>
+      <div class="col-md-4">
+        <label [for]="idPrefix() + '-grantee-type'" class="form-label small">{{ 'thirdPartyAccess.granteePicker.type' | transloco }}</label>
+        <select [id]="idPrefix() + '-grantee-type'" class="form-select" (change)="onTypeChange($event)">
+          <option value="" [selected]="organizationType() === ''">{{ 'thirdPartyAccess.granteePicker.allTypes' | transloco }}</option>
+          @for (type of types; track type) {
+            <option [value]="type" [selected]="organizationType() === type">{{ type | codeLabel: typeKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn btn-outline-secondary w-100" [disabled]="searching()" (click)="runSearch()">
+          {{ 'thirdPartyAccess.granteePicker.searchButton' | transloco }}
+        </button>
+      </div>
+    </div>
+    @if (errorKey(); as error) {
+      <div [id]="idPrefix() + '-grantee-error'" class="invalid-feedback d-block">{{ error | transloco }}</div>
+    }
+    @if (searchError()) {
+      <div class="alert alert-danger py-2 mt-2 mb-0" role="alert">{{ searchError() }}</div>
+    }
+    @if (results(); as list) {
+      @if (list.length === 0) {
+        <p class="small text-muted mt-2 mb-0">{{ 'thirdPartyAccess.granteePicker.noResults' | transloco }}</p>
+      } @else {
+        <ul class="list-unstyled mt-2 mb-0" [attr.aria-label]="'thirdPartyAccess.granteePicker.resultsLabel' | transloco">
+          @for (org of list; track org.id) {
+            <li class="d-flex flex-wrap align-items-center gap-2 py-1 border-bottom">
+              <span class="me-auto">
+                <span class="fw-semibold">{{ org.name }}</span>
+                <span class="small text-muted d-block">{{ 'thirdPartyAccess.granteePicker.resultDetail' | transloco: { taxId: org.taxId, type: (org.organizationType | codeLabel: typeKeys), country: org.country } }}</span>
+              </span>
+              <button type="button" class="btn btn-sm btn-outline-secondary"
+                      [attr.aria-label]="'thirdPartyAccess.granteePicker.chooseLabel' | transloco: { name: org.name }"
+                      (click)="choose(org)">
+                {{ 'thirdPartyAccess.granteePicker.choose' | transloco }}
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+</fieldset>

@@ -1,0 +1,62 @@
+<div class="hl-page-header">
+  <h1>{{ 'announcementsView.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'announcementsView.subtitle' | transloco }}</p>
+</div>
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'announcementsView.filters.label' | transloco" (ngSubmit)="load()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="announcements-country" class="form-label small fw-semibold">{{ 'announcementsView.filters.country' | transloco }}</label>
+      <select id="announcements-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="announcements-operation" class="form-label small fw-semibold">{{ 'announcementsView.filters.operation' | transloco }}</label>
+      <select id="announcements-operation" class="form-select" name="operation" [(ngModel)]="operation">
+        <option value="">{{ 'announcementsView.filters.allOperations' | transloco }}</option>
+        <option value="Import">{{ 'common.announcementOperation.import' | transloco }}</option>
+        <option value="Export">{{ 'common.announcementOperation.export' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <button type="submit" class="btn btn-outline-secondary">{{ 'announcementsView.filters.search' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ 'announcementsView.loadError' | transloco }}</div>
+} @else if (items().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'announcementsView.empty'" />
+} @else {
+  <ul class="list-unstyled d-flex flex-column gap-3 mb-0" data-testid="announcements-list">
+    @for (a of items(); track a.id) {
+      <li>
+        <article class="hl-card p-4" [attr.aria-labelledby]="'announcement-' + a.id" [attr.data-testid]="'announcement-' + a.id">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <h2 class="h5 fw-bold mb-0" [id]="'announcement-' + a.id">{{ title(a) }}</h2>
+            @if (a.severity === 'Important') {
+              <span class="hl-badge hl-badge--pending">{{ 'common.announcementSeverity.important' | transloco }}</span>
+            }
+          </div>
+          <p class="small text-muted mb-2">
+            {{ 'announcementsView.publishedAt' | transloco: { date: (a.publishedAt | hlDate: 'datetime') } }}
+            @if (a.validTo) {
+              <span aria-hidden="true"> · </span>{{ 'announcementsView.validTo' | transloco: { date: (a.validTo | hlDate: 'datetime') } }}
+            }
+          </p>
+          <p class="hl-announcement__body mb-2">{{ body(a) }}</p>
+          <p class="small mb-0">
+            {{ 'announcementsView.segment' | transloco: { countries: a.countries.join(', '), operation: (a.operation | codeLabel: operationKeys) } }}
+          </p>
+        </article>
+      </li>
+    }
+  </ul>
+}

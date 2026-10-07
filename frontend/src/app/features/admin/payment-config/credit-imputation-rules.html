@@ -1,0 +1,183 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.creditRules.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.creditRules.subtitle' | transloco }}</p>
+  </div>
+  <button type="button" class="btn btn-hl-orange" (click)="openCreate()">{{ 'admin.creditRules.new' | transloco }}</button>
+</div>
+
+@if (formOpen()) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="credit-rule-form-title" (submit)="submit($event)" data-testid="credit-rule-form">
+    <h2 #formHeading id="credit-rule-form-title" class="section-title mb-3" tabindex="-1">
+      {{ (editing() ? 'admin.creditRules.form.editTitle' : 'admin.creditRules.form.createTitle') | transloco }}
+    </h2>
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="credit-rule-errors-title">
+        <h3 id="credit-rule-errors-title" class="h6 fw-bold">{{ 'admin.creditRules.form.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track error.key) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label for="credit-rule-country" class="form-label small fw-semibold">{{ 'admin.creditRules.form.country' | transloco }}</label>
+        <select id="credit-rule-country" class="form-select" required [disabled]="!!editing()" [(ngModel)]="form.country" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onFormCountry()">
+          <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+          <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="credit-rule-concept" class="form-label small fw-semibold">{{ 'admin.creditRules.form.concept' | transloco }}</label>
+        @if (editing(); as rule) {
+          <input id="credit-rule-concept" type="text" class="form-control" readonly [value]="conceptName(rule) + ' (' + rule.conceptCode + ')'" />
+        } @else {
+          <select id="credit-rule-concept" class="form-select" required aria-describedby="credit-rule-concept-help" [attr.aria-invalid]="hasError('credit-rule-concept')"
+                  [(ngModel)]="form.conceptCode" [ngModelOptions]="{ standalone: true }">
+            <option value="">{{ 'admin.creditRules.form.conceptPlaceholder' | transloco }}</option>
+            @for (c of concepts(); track c.code) {
+              <option [value]="c.code">{{ c.code | codeLabel: conceptKeys }} ({{ c.code }})</option>
+            }
+          </select>
+          <div id="credit-rule-concept-help" class="form-text">{{ 'admin.creditRules.form.conceptHelp' | transloco }}</div>
+        }
+      </div>
+      <div class="col-md-4">
+        <label for="credit-rule-nexus" class="form-label small fw-semibold">{{ 'admin.creditRules.form.nexusConcept' | transloco }}</label>
+        <select id="credit-rule-nexus" class="form-select" required aria-describedby="credit-rule-nexus-help" [attr.aria-invalid]="hasError('credit-rule-nexus')"
+                [(ngModel)]="form.nexusCreditConcept" [ngModelOptions]="{ standalone: true }">
+          @for (n of nexusConcepts; track n) {
+            <option [value]="n">{{ n | codeLabel: nexusKeys }}</option>
+          }
+        </select>
+        <div id="credit-rule-nexus-help" class="form-text">{{ 'admin.creditRules.form.nexusHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-8">
+        <label for="credit-rule-notes" class="form-label small fw-semibold">{{ 'admin.creditRules.form.notes' | transloco }}</label>
+        <textarea id="credit-rule-notes" class="form-control" rows="2" maxlength="500" aria-describedby="credit-rule-notes-help"
+                  [(ngModel)]="form.notes" [ngModelOptions]="{ standalone: true }"></textarea>
+        <div id="credit-rule-notes-help" class="form-text">{{ 'admin.creditRules.form.notesHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-check mt-4">
+          <input id="credit-rule-enabled" type="checkbox" class="form-check-input" [(ngModel)]="form.isEnabled" [ngModelOptions]="{ standalone: true }" />
+          <label for="credit-rule-enabled" class="form-check-label">{{ 'admin.creditRules.form.enabled' | transloco }}</label>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">{{ (editing() ? 'admin.creditRules.form.save' : 'admin.creditRules.form.create') | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'admin.creditRules.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.creditRules.filters.label' | transloco" (ngSubmit)="load()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="credit-rules-country" class="form-label small fw-semibold">{{ 'admin.creditRules.filters.country' | transloco }}</label>
+      <select id="credit-rules-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.creditRules.filters.all' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="form-check mb-2">
+        <input id="credit-rules-disabled" type="checkbox" class="form-check-input" name="includeDisabled" [(ngModel)]="includeDisabled" />
+        <label for="credit-rules-disabled" class="form-check-label small">{{ 'admin.creditRules.filters.includeDisabled' | transloco }}</label>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <button type="submit" class="btn btn-outline-secondary">{{ 'admin.creditRules.filters.search' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+<p class="small" role="note">{{ 'admin.creditRules.financeNote' | transloco }}</p>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (rules().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.creditRules.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <app-table-filter [table]="table" [totalOf]="rules().length" inputId="credit-rules-table-filter" />
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.creditRules.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.creditRules.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col" appSortHeader="concept" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.creditRules.col.concept' | transloco }}</th>
+            <th scope="col" appSortHeader="country" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.creditRules.col.country' | transloco }}</th>
+            <th scope="col" appSortHeader="nexusConcept" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.creditRules.col.nexusConcept' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.creditRules.col.status' | transloco }}</th>
+            <th scope="col">{{ 'admin.creditRules.col.notes' | transloco }}</th>
+            <th scope="col" appSortHeader="modified" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.creditRules.col.modified' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.creditRules.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of table.rows(); track r.id) {
+            <tr [attr.data-testid]="'credit-rule-' + r.country + '-' + r.conceptCode">
+              <td>
+                <span class="fw-semibold d-block">{{ conceptName(r) }}</span>
+                <span class="small text-muted">{{ r.conceptCode }}</span>
+              </td>
+              <td>{{ r.country }}</td>
+              <td>{{ r.nexusCreditConcept | codeLabel: nexusKeys }}</td>
+              <td>{{ (r.isEnabled ? 'admin.creditRules.enabled' : 'admin.creditRules.disabledStatus') | transloco }}</td>
+              <td class="small">{{ r.notes ?? '—' }}</td>
+              <td class="small">{{ 'admin.creditRules.modifiedBy' | transloco: { date: ((r.modifiedAt ?? r.createdAt) | hlDate: 'datetime'), user: r.modifiedBy ?? r.createdBy } }}</td>
+              <td>
+                <div class="hl-actions">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(r)"
+                          [attr.aria-label]="'admin.creditRules.editLabel' | transloco: { concept: conceptName(r), country: r.country }">{{ 'admin.creditRules.edit' | transloco }}</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(r)"
+                          [attr.aria-label]="'admin.creditRules.historyLabel' | transloco: { concept: conceptName(r), country: r.country }">{{ 'admin.creditRules.history' | transloco }}</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="remove(r)"
+                          [attr.aria-label]="'admin.creditRules.removeLabel' | transloco: { concept: conceptName(r), country: r.country }">{{ 'admin.creditRules.remove' | transloco }}</button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.creditRules.pagination' | transloco"
+                     idPrefix="credit-rules-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
+  </div>
+}
+
+@if (historyRule(); as r) {
+  <section class="hl-card mb-4" aria-labelledby="credit-rule-history-title" data-testid="credit-rule-history">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #historyHeading id="credit-rule-history-title" class="section-title" tabindex="-1">{{ 'admin.creditRules.historyTitle' | transloco: { concept: conceptName(r), country: r.country } }}</h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeHistory()">{{ 'admin.creditRules.historyClose' | transloco }}</button>
+    </div>
+    @if (historyLoading()) {
+      <app-loading-spinner />
+    } @else if (history().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.creditRules.historyEmpty'" />
+    } @else {
+      <app-change-log [changes]="history()" [captionKey]="'admin.creditRules.historyCaption'" [fieldKeys]="snapshotKeys" />
+    }
+  </section>
+}

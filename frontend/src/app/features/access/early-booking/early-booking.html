@@ -1,0 +1,39 @@
+<div class="p-3">
+  <h3 class="h6 fw-bold mb-1">{{ 'thirdPartyAccess.earlyBooking.title' | transloco }}</h3>
+  <p class="small text-muted">{{ 'thirdPartyAccess.earlyBooking.help' | transloco }}</p>
+
+  @if (success()) {
+    <div class="alert alert-success py-2" role="status">{{ success() }}</div>
+  }
+  @if (error()) {
+    <div class="alert alert-danger py-2" role="alert">{{ error() }}</div>
+  }
+
+  <form novalidate (submit)="submit($event)">
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label for="early-booking-number" class="form-label small fw-semibold">{{ 'thirdPartyAccess.earlyBooking.booking' | transloco }}</label>
+        <input id="early-booking-number" type="text" class="form-control" required autocomplete="off" maxlength="50"
+               [value]="bookingNumber()" [class.is-invalid]="bookingInvalid()" [attr.aria-invalid]="bookingInvalid() ? true : null"
+               aria-describedby="early-booking-number-error" (input)="onBookingInput($event)" />
+        <div id="early-booking-number-error" class="invalid-feedback">{{ 'thirdPartyAccess.earlyBooking.bookingRequired' | transloco }}</div>
+      </div>
+      <div class="col-md-6">
+        <label for="early-booking-role" class="form-label small fw-semibold">{{ 'thirdPartyAccess.earlyBooking.role' | transloco }}</label>
+        <select id="early-booking-role" class="form-select" aria-describedby="early-booking-role-help" (change)="onRoleChange($event)">
+          @for (role of roles(); track role) {
+            <option [value]="role" [selected]="intendedRole() === role">{{ role | codeLabel: roleKeys }}</option>
+          }
+        </select>
+        <div id="early-booking-role-help" class="form-text">{{ 'thirdPartyAccess.earlyBooking.roleHelp' | transloco }}</div>
+      </div>
+    </div>
+
+    <app-grantee-picker idPrefix="early-booking" [selected]="grantee()" (selectedChange)="onGranteeChange($event)"
+                        [errorKey]="submitted() && !grantee() ? 'thirdPartyAccess.earlyBooking.granteeRequired' : null" />
+    <app-validity-fields idPrefix="early-booking" [(value)]="validity" [showErrors]="submitted()" />
+    <app-permission-checklist idPrefix="early-booking" [(value)]="permissions" [actions]="actions()" [loading]="actionsLoading()"
+                              [pendingKey]="grantee() ? null : 'thirdPartyAccess.earlyBooking.permissionsPending'" />
+    <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">{{ 'thirdPartyAccess.earlyBooking.submit' | transloco }}</button>
+  </form>
+</div>

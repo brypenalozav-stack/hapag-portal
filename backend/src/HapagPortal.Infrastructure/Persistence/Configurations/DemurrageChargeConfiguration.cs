@@ -32,5 +32,8 @@ internal sealed class DemurrageChargeConfiguration : IEntityTypeConfiguration<De
 
         builder.Property(e => e.ExemptReason)
             .HasMaxLength(500);
+
+        builder.Property(e => e.InvoiceNumber)
+            .HasMaxLength(50);
     }
 }

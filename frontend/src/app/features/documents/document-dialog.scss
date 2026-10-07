@@ -1,0 +1,13 @@
+// Particularidades del diálogo de documentos (Ola E); la base .hl-dialog vive en styles.scss.
+// Error de cada campo: sobre el fondo del diálogo (--bs-body-bg) el rojo por defecto no llega a 4,5:1
+// (WCAG 1.4.3); el tono de énfasis de Bootstrap sí, en ambos temas.
+.invalid-feedback {
+  color: var(--bs-danger-text-emphasis);
+}
+
+// Texto de los términos de la carta: se recorre con teclado dentro de su región.
+.document-terms {
+  max-height: 12rem;
+  overflow-y: auto;
+  white-space: pre-line;
+}

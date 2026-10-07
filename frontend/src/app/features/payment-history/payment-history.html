@@ -1,0 +1,123 @@
+<div class="hl-page-header">
+  <h1>{{ 'paymentHistory.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'paymentHistory.subtitle' | transloco }}</p>
+</div>
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'paymentHistory.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-2">
+      <label for="history-from" class="form-label small fw-semibold">{{ 'paymentHistory.filters.from' | transloco }}</label>
+      <input id="history-from" type="date" class="form-control" name="from" [(ngModel)]="filters.from" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="history-to" class="form-label small fw-semibold">{{ 'paymentHistory.filters.to' | transloco }}</label>
+      <input id="history-to" type="date" class="form-control" name="to" [(ngModel)]="filters.to" />
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="history-status" class="form-label small fw-semibold">{{ 'paymentHistory.filters.status' | transloco }}</label>
+      <select id="history-status" class="form-select" name="status" [(ngModel)]="filters.status">
+        <option value="">{{ 'paymentHistory.filters.all' | transloco }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="history-bl" class="form-label small fw-semibold">{{ 'paymentHistory.filters.bl' | transloco }}</label>
+      <input id="history-bl" type="text" class="form-control" name="blNumber" autocomplete="off" [(ngModel)]="filters.blNumber" />
+    </div>
+    <div class="col-sm-12 col-lg-2 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'paymentHistory.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'paymentHistory.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-table-skeleton [columns]="10" />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search(page())" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (result(); as r) {
+  @if (r.items.length === 0) {
+    <app-state-message kind="empty" [messageKey]="'paymentHistory.empty'" />
+  } @else {
+    <div class="hl-card mb-3">
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'paymentHistory.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'paymentHistory.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col" appSortHeader="paymentNumber" [sort]="sort()" (sortChange)="onSort($event)">{{ 'paymentHistory.col.document' | transloco }}</th>
+              <th scope="col" appSortHeader="paymentDate" [sort]="sort()" (sortChange)="onSort($event)">{{ 'paymentHistory.col.date' | transloco }}</th>
+              <th scope="col" appSortHeader="status" [sort]="sort()" (sortChange)="onSort($event)">{{ 'paymentHistory.col.status' | transloco }}</th>
+              <th scope="col">{{ 'paymentHistory.col.method' | transloco }}</th>
+              <th scope="col" appSortHeader="currency" [sort]="sort()" (sortChange)="onSort($event)">{{ 'paymentHistory.col.currency' | transloco }}</th>
+              <th scope="col" class="text-end" appSortHeader="totalAmount" [sort]="sort()" (sortChange)="onSort($event)">{{ 'paymentHistory.col.total' | transloco }}</th>
+              <th scope="col">{{ 'paymentHistory.col.payer' | transloco }}</th>
+              <th scope="col">{{ 'paymentHistory.col.billing' | transloco }}</th>
+              <th scope="col">{{ 'paymentHistory.col.reference' | transloco }}</th>
+              <th scope="col"><span class="visually-hidden">{{ 'paymentHistory.col.actions' | transloco }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of r.items; track p.id) {
+              <tr>
+                <td>
+                  <span class="fw-semibold d-block">{{ document(p) }}</span>
+                  <span class="small text-muted text-nowrap">{{ p.paymentNumber }}</span>
+                </td>
+                <td class="text-nowrap">{{ p.paymentDate | hlDate: 'datetime' }}</td>
+                <td><span class="hl-badge" [class]="statusClass(p)">{{ p.status | codeLabel: statusKeys }}</span></td>
+                <td>{{ p.methodName ?? p.method ?? '—' }}</td>
+                <td>{{ p.currency }}</td>
+                <td class="text-end text-nowrap">{{ p.totalAmount | hlCurrency: p.currency }}</td>
+                <!-- RUT del pagador diferenciado del RUT de facturación (M7-02) -->
+                <td data-testid="history-payer">
+                  <span class="d-block">{{ p.payerTaxId }}</span>
+                  <span class="small text-muted">{{ p.payerName }}</span>
+                </td>
+                <td data-testid="history-billing">
+                  {{ p.billingTaxIds.join(', ') }}
+                  @if (p.payerDiffersFromBilling) {
+                    <span class="d-block small fw-semibold">{{ 'paymentHistory.payerDiffers' | transloco }}</span>
+                  }
+                </td>
+                <td>
+                  {{ p.blNumbers.join(', ') || '—' }}
+                  @if (p.bookingNumbers.length > 0) {
+                    <span class="small text-muted d-block">{{ 'paymentHistory.bookings' | transloco: { bookings: p.bookingNumbers.join(', ') } }}</span>
+                  }
+                </td>
+                <td>
+                  <div class="hl-actions">
+                    <a [routerLink]="['/payment-history', p.id]" class="btn btn-sm btn-outline-secondary"
+                       [attr.aria-label]="'paymentHistory.detailLabel' | transloco: { number: document(p) }">{{ 'paymentHistory.detail' | transloco }}</a>
+                    @if (p.receiptAvailable) {
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="downloadReceipt(p)"
+                              [attr.aria-label]="'paymentHistory.receipt.label' | transloco: { number: document(p) }">
+                        {{ 'paymentHistory.receipt.button' | transloco }}
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    @if (totalPages() > 1 || pageSize() !== defaultPageSize) {
+      <app-paginator [page]="page()" [pageSize]="pageSize()" [total]="r.total" [label]="'paymentHistory.pagination.label' | transloco"
+                     idPrefix="payment-history-pager" (pageChange)="search($event)" (pageSizeChange)="changePageSize($event)" />
+    } @else {
+      <p class="small text-muted">{{ 'paymentHistory.count' | transloco: { count: r.total } }}</p>
+    }
+  }
+}

@@ -1,0 +1,218 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'reinvoicing.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/invoices">{{ 'reinvoicing.breadcrumbInvoices' | transloco }}</a></li>
+      <li class="breadcrumb-item"><a routerLink="/service-requests">{{ 'reinvoicing.breadcrumbRequests' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ requestNumber() ?? ('reinvoicing.detail.breadcrumb' | transloco) }}</li>
+    </ol>
+  </nav>
+  <h1>
+    @if (detail(); as d) {
+      {{ 'reinvoicing.detail.title' | transloco: { number: d.request.requestNumber } }}
+    } @else {
+      {{ 'reinvoicing.detail.titleLoading' | transloco }}
+    }
+  </h1>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (detail(); as d) {
+  @let r = d.request;
+  @let x = d.reissue;
+  <app-reinvoicing-steps [current]="step()" />
+
+  @if (actionMessage()) {
+    <div class="alert alert-success py-2" role="status" data-testid="reinvoicing-message">{{ actionMessage() }}</div>
+  }
+  @if (actionError()) {
+    <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+  }
+
+  <!-- Estado, factura original y nueva razón social con el cobro -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="reinvoicing-status-title" data-testid="reinvoicing-summary">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+      <h2 #statusHeading id="reinvoicing-status-title" class="section-title" tabindex="-1">{{ 'reinvoicing.detail.summaryTitle' | transloco }}</h2>
+      <span class="hl-badge" [class]="statusClass[r.status] || 'hl-badge--processing'" data-testid="reinvoicing-status">{{ r.status | codeLabel: statusKeys }}</span>
+      @if (x.acceptanceStatus) {
+        <span class="hl-badge" [class]="acceptanceClass[x.acceptanceStatus] || 'hl-badge--pending'" data-testid="reinvoicing-acceptance-status">{{ x.acceptanceStatus | codeLabel: acceptanceKeys }}</span>
+      }
+    </div>
+    <dl class="row g-3 mb-0">
+      <div class="col-sm-6 col-lg-4">
+        <dt class="small text-muted">{{ 'reinvoicing.detail.original' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">
+          {{ originalNumber(d) }}
+          <span class="d-block small fw-normal">{{ 'reinvoicing.quote.party' | transloco: { name: x.originalLegalName, taxId: x.originalTaxId } }}</span>
+        </dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="small text-muted">{{ 'reinvoicing.detail.newEntity' | transloco }}</dt>
+        <dd class="fw-semibold mb-0" data-testid="reinvoicing-new-entity">{{ 'reinvoicing.quote.party' | transloco: { name: x.newLegalName ?? '—', taxId: x.newTaxId ?? '—' } }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="small text-muted">{{ 'reinvoicing.detail.bl' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ r.blNumber }}</dd>
+      </div>
+      @if (x.currency) {
+        <div class="col-sm-6 col-lg-4">
+          <dt class="small text-muted">{{ 'reinvoicing.detail.fee' | transloco }}</dt>
+          <dd class="fw-semibold mb-0">{{ (x.feeAmount + x.feeTaxAmount) | hlCurrency: x.currency }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+          <dt class="small text-muted">{{ 'reinvoicing.detail.vatLoss' | transloco }}</dt>
+          <dd class="fw-semibold mb-0">{{ x.vatLossAmount | hlCurrency: x.currency }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+          <dt class="small text-muted">{{ 'reinvoicing.detail.total' | transloco }}</dt>
+          <dd class="fw-bold mb-0" data-testid="reinvoicing-total">{{ total() | hlCurrency: x.currency }}</dd>
+        </div>
+      }
+      <div class="col-sm-6 col-lg-4">
+        <dt class="small text-muted">{{ 'reinvoicing.detail.acceptor' | transloco }}</dt>
+        <dd class="fw-semibold mb-0 text-break">{{ x.acceptorEmail }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="small text-muted">{{ 'reinvoicing.detail.updated' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ r.statusChangedAt | hlDate: 'datetime' : r.timeZone }}</dd>
+      </div>
+    </dl>
+    @if (x.newInvoiceNumber) {
+      <div class="alert alert-success mt-3 mb-0" data-testid="reinvoicing-issued">
+        <p class="fw-bold mb-1">{{ 'reinvoicing.detail.issued.title' | transloco: { number: x.newInvoiceNumber } }}</p>
+        <p class="mb-2">{{ 'reinvoicing.detail.issued.text' | transloco: { date: (x.issuedAt | hlDate: 'datetime' : r.timeZone), original: originalNumber(d) } }}</p>
+        <a routerLink="/invoices" class="btn btn-sm btn-outline-secondary">{{ 'reinvoicing.detail.issued.link' | transloco }}</a>
+      </div>
+    }
+    @if (r.status === 'Cancelled') {
+      <div class="alert alert-secondary mt-3 mb-0" role="note">{{ 'reinvoicing.detail.cancelled' | transloco }}</div>
+    }
+  </section>
+
+  @if (r.status === 'Draft') {
+    @if (!auth.canOperate()) {
+      <div class="alert alert-info" role="note">{{ 'reinvoicing.readOnly' | transloco }}</div>
+    } @else {
+      <!-- Paso 2: aprobación de la nueva razón social y envío con el cobro aceptado -->
+      <form class="hl-card p-4 mb-4" novalidate aria-labelledby="reinvoicing-submit-title" (submit)="submit($event)" data-testid="reinvoicing-submit-form">
+        <h2 id="reinvoicing-submit-title" class="section-title mb-2">{{ 'reinvoicing.detail.submit.title' | transloco }}</h2>
+        <p class="small text-muted">{{ 'reinvoicing.detail.submit.help' | transloco }}</p>
+        @if (errors().length > 0) {
+          <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="reinvoicing-submit-errors-title" data-testid="reinvoicing-submit-errors">
+            <h3 id="reinvoicing-submit-errors-title" class="h6 fw-bold">{{ 'reinvoicing.detail.submit.errors.summaryTitle' | transloco }}</h3>
+            <ul class="mb-0">
+              @for (e of errors(); track e.fieldId) {
+                <li><a class="alert-link" [href]="'#' + e.fieldId" (click)="focusField($event, e.fieldId)">{{ e.key | transloco }}</a></li>
+              }
+            </ul>
+          </div>
+        }
+
+        <h3 class="h6 fw-bold">{{ 'reinvoicing.detail.approval.title' | transloco }}</h3>
+        @if (approvals().length > 0) {
+          <ul class="small" data-testid="reinvoicing-approvals">
+            @for (a of approvals(); track a.id) {
+              <li>
+                <button type="button" class="btn btn-link btn-sm p-0 align-baseline text-break" [disabled]="downloading() === a.id" (click)="download(a)"
+                        [attr.aria-label]="'reinvoicing.detail.approval.downloadLabel' | transloco: { name: a.fileName }">{{ a.fileName }}</button>
+                {{ 'reinvoicing.detail.approval.uploaded' | transloco: { size: size(a), date: (a.uploadedAt | hlDate: 'datetime' : r.timeZone) } }}
+              </li>
+            }
+          </ul>
+        }
+        <div class="row g-2 hl-form-row mb-3">
+          <div class="col-md-8">
+            <label for="reinvoicing-approval-file" class="form-label small fw-semibold">{{ 'reinvoicing.detail.approval.file' | transloco }}</label>
+            <input id="reinvoicing-approval-file" type="file" class="form-control" [accept]="fileAccept" (change)="onApprovalFile($event)"
+                   [attr.aria-invalid]="hasError('reinvoicing-approval-file')" aria-describedby="reinvoicing-approval-help reinvoicing-approval-error" />
+            <div id="reinvoicing-approval-help" class="form-text">{{ 'reinvoicing.detail.approval.help' | transloco }}</div>
+            <span id="reinvoicing-approval-error" class="hl-field-error">
+              @if (errorKey('reinvoicing-approval-file'); as k) {
+                {{ k | transloco }}
+              }
+            </span>
+          </div>
+          <div class="col-md-4 hl-form-action">
+            <button type="button" class="btn btn-outline-secondary" [disabled]="uploading()" (click)="uploadApproval()" data-testid="reinvoicing-approval-upload">
+              {{ 'reinvoicing.detail.approval.upload' | transloco }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-check mb-1">
+          <input id="reinvoicing-accept" type="checkbox" class="form-check-input" name="acceptTariff" required
+                 [attr.aria-invalid]="hasError('reinvoicing-accept')" aria-describedby="reinvoicing-accept-error" [(ngModel)]="acceptTariff" />
+          <label for="reinvoicing-accept" class="form-check-label">
+            {{ 'reinvoicing.detail.submit.accept' | transloco: { total: (total() | hlCurrency: (x.currency ?? 'CLP')) } }}
+          </label>
+        </div>
+        <span id="reinvoicing-accept-error" class="hl-field-error mb-3">
+          @if (errorKey('reinvoicing-accept'); as k) {
+            {{ k | transloco }}
+          }
+        </span>
+        <button type="submit" class="btn btn-hl-orange" [disabled]="submitting()" data-testid="reinvoicing-submit">
+          @if (submitting()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'reinvoicing.detail.submit.button' | transloco }}
+        </button>
+      </form>
+    }
+  } @else {
+    @if (r.status === 'PendingPayment') {
+      <!-- Paso 3: los dos cargos se pagan juntos (carro o cuenta) -->
+      <section class="hl-card p-4 mb-4" aria-labelledby="reinvoicing-payment-title">
+        <h2 id="reinvoicing-payment-title" class="section-title mb-2">{{ 'reinvoicing.detail.payment.title' | transloco }}</h2>
+        <p class="small text-muted">{{ 'reinvoicing.detail.payment.help' | transloco }}</p>
+        <app-service-request-payment [request]="r" (added)="onPaymentAdded()" />
+      </section>
+    }
+
+    @if (x.acceptanceStatus) {
+      <!-- Aceptación del cobro por la nueva razón social: sin ella la factura no se emite (M3-11) -->
+      <section class="hl-card p-4 mb-4" aria-labelledby="reinvoicing-acceptance-title" data-testid="reinvoicing-acceptance">
+        <h2 id="reinvoicing-acceptance-title" class="section-title mb-3">{{ 'reinvoicing.detail.acceptance.title' | transloco }}</h2>
+        @switch (x.acceptanceStatus) {
+          @case ('Pending') {
+            <p class="mb-2">{{ 'reinvoicing.detail.acceptance.pending' | transloco: { email: x.acceptorEmail, date: (x.acceptanceRequestedAt | hlDate: 'datetime' : r.timeZone) } }}</p>
+            @if (x.acceptanceExpiresAt) {
+              <p class="small mb-2">{{ 'reinvoicing.detail.acceptance.expires' | transloco: { date: (x.acceptanceExpiresAt | hlDate: 'datetime' : r.timeZone) } }}</p>
+            }
+            <p class="small mb-3">{{ 'reinvoicing.detail.acceptance.pendingHelp' | transloco }}</p>
+            @if (x.canResendAcceptance && auth.canOperate()) {
+              <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="resending()" (click)="resend()" data-testid="reinvoicing-resend">
+                {{ 'reinvoicing.detail.acceptance.resend' | transloco }}
+              </button>
+            }
+          }
+          @case ('Accepted') {
+            <p class="mb-0" data-testid="reinvoicing-accepted">{{ 'reinvoicing.detail.acceptance.accepted' | transloco: { name: x.acceptedByName ?? '—', taxId: x.acceptedByTaxId ?? '—', date: (x.acceptedAt | hlDate: 'datetime' : r.timeZone) } }}</p>
+            @if (!x.newInvoiceNumber) {
+              <p class="small mb-0 mt-2">{{ (r.status === 'PendingPayment' ? 'reinvoicing.detail.acceptance.waitingPayment' : 'reinvoicing.detail.acceptance.waitingIssue') | transloco }}</p>
+            }
+          }
+          @case ('Declined') {
+            <div class="alert alert-danger mb-0" data-testid="reinvoicing-declined">
+              <p class="fw-bold mb-1">{{ 'reinvoicing.detail.acceptance.declined' | transloco: { date: (x.declinedAt | hlDate: 'datetime' : r.timeZone) } }}</p>
+              @if (x.declineReason) {
+                <p class="mb-1 reinvoicing-pre-line">{{ 'reinvoicing.detail.acceptance.declineReason' | transloco: { reason: x.declineReason } }}</p>
+              }
+              <p class="mb-0">{{ 'reinvoicing.detail.acceptance.declinedHelp' | transloco }}</p>
+            </div>
+          }
+        }
+      </section>
+    }
+  }
+
+  <!-- Línea de tiempo (hora en el huso del país) -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="reinvoicing-timeline-title">
+    <h2 id="reinvoicing-timeline-title" class="section-title mb-3">{{ 'reinvoicing.detail.timeline' | transloco }}</h2>
+    <app-service-request-timeline [events]="r.timeline" [timeZone]="r.timeZone" />
+  </section>
+}

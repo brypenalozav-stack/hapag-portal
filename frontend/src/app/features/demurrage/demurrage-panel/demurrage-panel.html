@@ -1,0 +1,259 @@
+<section class="hl-card mb-4" aria-labelledby="demurrage-panel-title">
+  <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h2 id="demurrage-panel-title" class="section-title">{{ 'demurrage.panel.title' | transloco: { bl: blNumber() } }}</h2>
+    @if (data(); as d) {
+      <span class="fw-semibold" data-testid="demurrage-state">{{ 'demurrage.panel.state' | transloco: { state: (d.state | codeLabel: stateKeys) } }}</span>
+    }
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (error()) {
+    <div class="alert alert-danger m-3" role="alert">{{ error() }}</div>
+  } @else if (data(); as d) {
+    <div class="p-3">
+      @switch (d.state) {
+        @case ('InvoicedWithDebt') {
+          <!-- 1. Facturado con deuda vigente: monto, factura, moneda y vencimiento; acción Pagar -->
+          <p>{{ 'demurrage.panel.invoiced.help' | transloco }}</p>
+          <div class="table-responsive mb-3" tabindex="0" role="region" [attr.aria-label]="'demurrage.panel.invoiced.caption' | transloco">
+            <table class="hl-table">
+              <caption class="visually-hidden">{{ 'demurrage.panel.invoiced.caption' | transloco }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'demurrage.panel.invoiced.col.invoice' | transloco }}</th>
+                  <th scope="col" class="text-end">{{ 'demurrage.panel.invoiced.col.amount' | transloco }}</th>
+                  <th scope="col">{{ 'demurrage.panel.invoiced.col.currency' | transloco }}</th>
+                  <th scope="col">{{ 'demurrage.panel.invoiced.col.dueDate' | transloco }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (invoice of d.invoices; track invoice.invoiceNumber) {
+                  <tr>
+                    <td class="fw-semibold text-nowrap">{{ invoice.invoiceNumber }}</td>
+                    <td class="text-end text-nowrap">{{ invoice.amount | hlCurrency: invoice.currency }}</td>
+                    <td>{{ invoice.currency }}</td>
+                    <td class="text-nowrap">{{ invoice.dueDate ? (invoice.dueDate | hlDate: 'date' : d.timeZone) : '—' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (!d.actionAllowed) {
+            <p class="small mb-0">{{ d.actionBlockedReason | codeLabel: blockedKeys }}</p>
+          } @else if (cart.accountPaymentsEnabled()) {
+            <a routerLink="/account-payments" class="btn btn-outline-secondary">{{ 'demurrage.panel.cart.accountPayments' | transloco }}</a>
+          } @else if (cart.cartEnabled()) {
+            <div class="d-flex flex-wrap gap-2">
+              @for (invoice of d.invoices; track invoice.invoiceNumber) {
+                <button type="button" class="btn btn-hl-orange" (click)="payInvoice(invoice.invoiceNumber)"
+                        [attr.aria-label]="'demurrage.panel.invoiced.payLabel' | transloco: { invoice: invoice.invoiceNumber }">
+                  {{ 'demurrage.panel.invoiced.pay' | transloco }}
+                </button>
+              }
+            </div>
+          }
+          <p class="small text-muted mt-3 mb-0" role="note" data-testid="demurrage-calculator-blocked">{{ 'demurrage.panel.invoiced.calculatorBlocked' | transloco }}</p>
+        }
+        @case ('CalculatedUnpaid') {
+          <!-- 2. Calculado y no pagado: detalle del cálculo; acción Agregar al carro -->
+          <p>{{ 'demurrage.panel.calculated.help' | transloco }}</p>
+          <div class="table-responsive mb-3" tabindex="0" role="region" [attr.aria-label]="'demurrage.panel.lines.caption' | transloco">
+            <table class="hl-table">
+              <caption class="visually-hidden">{{ 'demurrage.panel.lines.caption' | transloco }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'demurrage.panel.lines.col.container' | transloco }}</th>
+                  <th scope="col">{{ 'demurrage.panel.lines.col.period' | transloco }}</th>
+                  <th scope="col" class="text-end">{{ 'demurrage.panel.lines.col.freeDays' | transloco }}</th>
+                  <th scope="col" class="text-end">{{ 'demurrage.panel.lines.col.demurrageDays' | transloco }}</th>
+                  <th scope="col" class="text-end">{{ 'demurrage.panel.lines.col.dailyRate' | transloco }}</th>
+                  <th scope="col" class="text-end">{{ 'demurrage.panel.lines.col.total' | transloco }}</th>
+                  <th scope="col">{{ 'demurrage.panel.lines.col.status' | transloco }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (line of d.lines; track line.id) {
+                  <tr>
+                    <td class="fw-semibold text-nowrap">{{ line.containerNumber }}</td>
+                    <td>{{ 'demurrage.panel.lines.period' | transloco: { from: (line.startDate | hlDate: 'date' : d.timeZone), to: (line.endDate | hlDate: 'date' : d.timeZone) } }}</td>
+                    <td class="text-end">{{ line.freeDays }}</td>
+                    <td class="text-end">{{ line.demurrageDays }}</td>
+                    <td class="text-end text-nowrap">{{ line.dailyRate | hlCurrency: line.currency }}</td>
+                    <td class="text-end text-nowrap">{{ line.totalAmount | hlCurrency: line.currency }}</td>
+                    <td>{{ lineStatus(line) | codeLabel: statusKeys }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (!d.actionAllowed) {
+            <p class="small mb-0">{{ d.actionBlockedReason | codeLabel: blockedKeys }}</p>
+          } @else if (linesSaved()) {
+            <p class="small fw-semibold mb-0">{{ 'demurrage.panel.cart.linesInCart' | transloco }}</p>
+          } @else if (cart.accountPaymentsEnabled()) {
+            <a routerLink="/account-payments" class="btn btn-outline-secondary">{{ 'demurrage.panel.cart.accountPayments' | transloco }}</a>
+          } @else if (cart.cartEnabled()) {
+            <button type="button" class="btn btn-hl-orange" (click)="addLinesToCart()">{{ 'demurrage.panel.calculated.addToCart' | transloco }}</button>
+          }
+        }
+        @case ('NotCalculated') {
+          <!-- 3. Aún no calculado: datos necesarios para el cálculo; acción Calcular demurrage -->
+          <p>{{ 'demurrage.panel.notCalculated.help' | transloco }}</p>
+          @if (d.calculationInputs; as inputs) {
+            <dl class="row g-3 mb-3">
+              <div class="col-sm-6 col-lg-3">
+                <dt class="small text-muted">{{ 'demurrage.panel.notCalculated.dischargeDate' | transloco }}</dt>
+                <dd class="fw-semibold mb-0">{{ inputs.dischargeDate ? (inputs.dischargeDate | hlDate: 'date' : d.timeZone) : '—' }}</dd>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <dt class="small text-muted">{{ 'demurrage.panel.notCalculated.freeDays' | transloco }}</dt>
+                <dd class="fw-semibold mb-0">
+                  {{ inputs.freeDays ?? '—' }}
+                  <span class="d-block small text-muted fw-normal">{{ 'demurrage.panel.notCalculated.source' | transloco: { source: (inputs.freeDaysSource | codeLabel: sourceKeys) } }}</span>
+                </dd>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <dt class="small text-muted">{{ 'demurrage.panel.notCalculated.containers' | transloco }}</dt>
+                <dd class="fw-semibold mb-0">{{ inputs.containers.length }}</dd>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <dt class="small text-muted">{{ 'demurrage.panel.notCalculated.tariff' | transloco }}</dt>
+                <dd class="fw-semibold mb-0">{{ (inputs.tariffAvailable ? 'demurrage.panel.notCalculated.tariffYes' : 'demurrage.panel.notCalculated.tariffNo') | transloco }}</dd>
+              </div>
+            </dl>
+            @if (!d.actionAllowed) {
+              <p class="small mb-0">{{ d.actionBlockedReason | codeLabel: blockedKeys }}</p>
+            } @else if (d.calculatorEnabled && calculatorOpen()) {
+              <app-demurrage-calculator [blNumber]="d.blNumber" [inputs]="inputs" [timeZone]="d.timeZone" (saved)="onCalculated($event)" />
+            } @else if (d.calculatorEnabled) {
+              <button type="button" class="btn btn-hl-orange" (click)="openCalculator()">{{ 'demurrage.panel.notCalculated.calculate' | transloco }}</button>
+            }
+          }
+        }
+        @case ('NoDemurrage') {
+          <!-- 4. Sin demurrage: informa que no registra deuda; sin acción -->
+          <p class="mb-0" role="status" data-testid="demurrage-no-debt">{{ 'demurrage.panel.noDemurrage.message' | transloco }}</p>
+        }
+      }
+    </div>
+
+    <!-- MHD y otros conceptos de la pestaña de demurrage (M3-02) -->
+    @if (d.otherConcepts.length > 0) {
+      <div class="border-top">
+        <div class="p-3 pb-0">
+          <h3 class="h6 fw-bold">{{ 'demurrage.panel.concepts.title' | transloco }}</h3>
+        </div>
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'demurrage.panel.concepts.caption' | transloco">
+          <table class="hl-table">
+            <caption class="visually-hidden">{{ 'demurrage.panel.concepts.caption' | transloco }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'demurrage.panel.concepts.col.concept' | transloco }}</th>
+                <th scope="col" class="text-end">{{ 'demurrage.panel.concepts.col.amount' | transloco }}</th>
+                <th scope="col" class="text-end">{{ 'demurrage.panel.concepts.col.deduction' | transloco }}</th>
+                <th scope="col" class="text-end">{{ 'demurrage.panel.concepts.col.payable' | transloco }}</th>
+                <th scope="col">{{ 'demurrage.panel.concepts.col.status' | transloco }}</th>
+                <th scope="col">{{ 'demurrage.panel.concepts.col.action' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (concept of d.otherConcepts; track concept.chargeId) {
+                <tr>
+                  <td class="fw-semibold">{{ concept.conceptCode | codeLabel: conceptKeys }}</td>
+                  <td class="text-end text-nowrap">{{ concept.totalAmount | hlCurrency: concept.currency }}</td>
+                  <td class="text-end text-nowrap">{{ concept.deduction | hlCurrency: concept.currency }}</td>
+                  <td class="text-end fw-semibold text-nowrap">{{ concept.payableTotal | hlCurrency: concept.currency }}</td>
+                  <td>{{ concept.status | codeLabel: statusKeys }}</td>
+                  <td>
+                    @if (concept.action !== 'AddToCart') {
+                      <span aria-hidden="true">—</span>
+                      <span class="visually-hidden">{{ 'demurrage.panel.concepts.noAction' | transloco }}</span>
+                    } @else if (concept.actionBlockedReason) {
+                      <span class="small">{{ concept.actionBlockedReason | codeLabel: blockedKeys }}</span>
+                    } @else if (isSaved(concept.chargeId)) {
+                      <span class="small fw-semibold">{{ 'demurrage.panel.cart.inCart' | transloco }}</span>
+                    } @else if (!cart.cartEnabled()) {
+                      <span aria-hidden="true">—</span>
+                      <span class="visually-hidden">{{ 'demurrage.panel.concepts.noAction' | transloco }}</span>
+                    } @else {
+                      <button type="button" class="btn btn-sm btn-hl-orange" (click)="addConceptToCart(concept)"
+                              [attr.aria-label]="'demurrage.panel.concepts.addLabel' | transloco: { concept: (concept.conceptCode | codeLabel: conceptKeys) }">
+                        {{ 'demurrage.panel.concepts.add' | transloco }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (d.mhd; as mhd) {
+          <p class="small p-3 mb-0" data-testid="demurrage-mhd-summary">
+            {{ 'demurrage.panel.mhd.summary' | transloco: {
+              total: (mhd.total | hlCurrency: mhd.currency),
+              deducted: (mhd.advanceDeducted | hlCurrency: mhd.currency),
+              net: (mhd.netPayable | hlCurrency: mhd.currency)
+            } }}
+          </p>
+        }
+      </div>
+    }
+
+    <!-- Demoras anticipadas de Bolivia (M3-16): obligatorias antes de liberar el CLD -->
+    @if (d.advance.required) {
+      <div class="border-top p-3" aria-labelledby="demurrage-advance-title" role="group">
+        <h3 id="demurrage-advance-title" class="h6 fw-bold">{{ 'demurrage.panel.advance.title' | transloco }}</h3>
+        @if (d.advance.cldBlocked) {
+          <div class="alert alert-warning py-2" role="note" data-testid="demurrage-cld-blocked">{{ 'demurrage.panel.advance.cldBlocked' | transloco }}</div>
+        }
+        <dl class="row g-3 mb-3">
+          <div class="col-sm-6 col-lg-3">
+            <dt class="small text-muted">{{ 'demurrage.panel.advance.status' | transloco }}</dt>
+            <dd class="fw-semibold mb-0">{{ d.advance.status | codeLabel: advanceKeys }}</dd>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <dt class="small text-muted">{{ 'demurrage.panel.advance.amount' | transloco }}</dt>
+            <dd class="fw-semibold mb-0">{{ d.advance.amount !== null && d.advance.amount !== undefined ? (d.advance.amount | hlCurrency: d.advance.currency) : '—' }}</dd>
+          </div>
+          @if (d.advance.ruleReason) {
+            <div class="col-lg-6">
+              <dt class="small text-muted">{{ 'demurrage.panel.advance.rule' | transloco }}</dt>
+              <dd class="mb-0">{{ d.advance.ruleReason }}</dd>
+            </div>
+          }
+        </dl>
+        @if (d.advance.currency) {
+          <app-exchange-rate-note class="d-block mb-3" [from]="d.advance.currency" [to]="localCurrency()" />
+        }
+        <p class="small text-muted">{{ 'demurrage.panel.advance.deductionHelp' | transloco }}</p>
+        @if (advanceError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ advanceError() }}</div>
+        }
+        @if (d.advance.actionBlockedReason) {
+          <p class="small mb-0">{{ d.advance.actionBlockedReason | codeLabel: blockedKeys }}</p>
+        } @else if (d.advance.status === 'NotRequested') {
+          <button type="button" class="btn btn-hl-orange" [disabled]="advanceBusy()" (click)="requestAdvance()">
+            {{ 'demurrage.panel.advance.generate' | transloco }}
+          </button>
+        } @else if (d.advance.status === 'Pending' && d.advance.chargeId) {
+          @if (isSaved(d.advance.chargeId)) {
+            <p class="small fw-semibold mb-0">{{ 'demurrage.panel.cart.inCart' | transloco }}</p>
+          } @else if (cart.cartEnabled()) {
+            <button type="button" class="btn btn-hl-orange" (click)="addAdvanceToCart()">{{ 'demurrage.panel.advance.addToCart' | transloco }}</button>
+          }
+        }
+      </div>
+    }
+
+    <p class="small text-muted px-3 pb-3 mb-0">
+      {{ 'demurrage.panel.evaluatedAt' | transloco: { date: (d.evaluatedAt | hlDate: 'datetime' : d.timeZone) } }}
+    </p>
+  }
+</section>
+
+@if (addTargets(); as targets) {
+  <app-add-to-cart-dialog [targets]="targets" (closed)="onAddClosed()" />
+}

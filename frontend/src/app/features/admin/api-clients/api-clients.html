@@ -1,0 +1,531 @@
+<div class="hl-page-header">
+  <h1 id="api-clients-title" tabindex="-1">{{ 'admin.apiClients.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.apiClients.subtitle' | transloco }}</p>
+</div>
+
+<!-- Cómo funciona el canal (M3-17): ruta, autenticación, procesos y contrato OpenAPI -->
+<section class="hl-card p-4 mb-4" aria-labelledby="api-channel-title" data-testid="api-channel-info">
+  <h2 id="api-channel-title" class="section-title mb-2">{{ 'admin.apiClients.channel.title' | transloco }}</h2>
+  <ul class="small mb-2">
+    <li>{{ 'admin.apiClients.channel.base' | transloco: { path: wsBasePath } }}</li>
+    <li>{{ 'admin.apiClients.channel.auth' | transloco }}</li>
+    <li>{{ 'admin.apiClients.channel.rules' | transloco }}</li>
+    <li>{{ 'admin.apiClients.channel.idempotency' | transloco }}</li>
+  </ul>
+  <p class="small mb-0" data-testid="api-channel-doc">
+    {{ 'admin.apiClients.channel.doc' | transloco }} <code>{{ openApiDoc }}</code>
+  </p>
+</section>
+
+<!-- Clave recién emitida: se muestra una sola vez -->
+@if (secret(); as s) {
+  <section class="hl-card p-4 mb-4 border-warning" aria-labelledby="api-secret-title" data-testid="api-client-secret">
+    <h2 #secretHeading id="api-secret-title" class="section-title mb-2" tabindex="-1">{{ 'admin.apiClients.secret.title' | transloco: { name: s.client.name } }}</h2>
+    <p class="alert alert-warning py-2" role="note">{{ 'admin.apiClients.secret.warning' | transloco }}</p>
+    <label for="api-secret-value" class="form-label small fw-semibold">{{ 'admin.apiClients.secret.label' | transloco: { prefix: s.keyPrefix } }}</label>
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      <input id="api-secret-value" type="text" class="form-control hl-api-key flex-grow-1 w-auto" readonly autocomplete="off" spellcheck="false"
+             [value]="s.apiKey" aria-describedby="api-secret-help" (focus)="selectKey($event)" data-testid="api-client-secret-value" />
+      <button type="button" class="btn btn-outline-secondary" (click)="copySecret()" data-testid="api-client-secret-copy">
+        {{ (copied() ? 'admin.apiClients.secret.copiedButton' : 'admin.apiClients.secret.copy') | transloco }}
+      </button>
+    </div>
+    <p id="api-secret-help" class="form-text mt-0">{{ 'admin.apiClients.secret.help' | transloco }}</p>
+    <button type="button" class="btn btn-hl-orange" (click)="dismissSecret()" data-testid="api-client-secret-dismiss">{{ 'admin.apiClients.secret.dismiss' | transloco }}</button>
+  </section>
+}
+
+<!-- Alta de un cliente del canal -->
+@if (creating()) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="api-client-form-title" (submit)="create($event)" data-testid="api-client-form">
+    <h2 id="api-client-form-title" class="section-title mb-3" tabindex="-1">{{ 'admin.apiClients.form.title' | transloco }}</h2>
+    @if (formErrors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="api-client-errors-title">
+        <h3 id="api-client-errors-title" class="h6 fw-bold">{{ 'admin.apiClients.form.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of formErrors(); track error.fieldId) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (createError()) {
+      <div class="alert alert-danger py-2" role="alert" data-testid="api-client-create-error">{{ createError() }}</div>
+    }
+
+    <!-- Organización cliente aprobada -->
+    <div class="mb-3">
+      <label for="api-client-org-search" class="form-label small fw-semibold">{{ 'admin.apiClients.form.organization' | transloco }}</label>
+      <div class="d-flex flex-wrap gap-2">
+        <input id="api-client-org-search" type="search" class="form-control w-auto flex-grow-1" autocomplete="off" aria-describedby="api-client-org-help"
+               [attr.aria-invalid]="hasError('api-client-org-search') ? true : null" [(ngModel)]="orgSearch" [ngModelOptions]="{ standalone: true }"
+               (keydown.enter)="$event.preventDefault(); searchOrganizations()" />
+        <button type="button" class="btn btn-outline-secondary" [disabled]="orgSearching()" (click)="searchOrganizations()" data-testid="api-client-org-search-button">
+          {{ 'admin.apiClients.form.search' | transloco }}
+        </button>
+      </div>
+      <div id="api-client-org-help" class="form-text">
+        @if (errorFor('api-client-org-search'); as error) {
+          <span class="hl-field-error mt-0">{{ error | transloco }}</span>
+        }
+        {{ 'admin.apiClients.form.organizationHelp' | transloco }}
+      </div>
+    </div>
+    @if (orgResults(); as results) {
+      @if (results.length === 0) {
+        <p class="small" role="status">{{ 'admin.apiClients.form.noOrganizations' | transloco }}</p>
+      } @else {
+        <fieldset class="mb-3">
+          <legend class="form-label small fw-semibold mb-1">{{ 'admin.apiClients.form.organizationResults' | transloco }}</legend>
+          @for (o of results; track o.id) {
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="api-client-org" [id]="'api-client-org-' + o.id"
+                     [checked]="selectedOrg()?.id === o.id" (change)="selectOrganization(o)" />
+              <label class="form-check-label" [for]="'api-client-org-' + o.id">
+                {{ 'admin.apiClients.form.organizationOption' | transloco: { name: o.name, taxId: o.taxId, type: (o.organizationType | codeLabel: typeKeys), country: o.country } }}
+              </label>
+            </div>
+          }
+        </fieldset>
+      }
+    }
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-8">
+        <label for="api-client-name" class="form-label small fw-semibold">{{ 'admin.apiClients.form.name' | transloco }}</label>
+        <input id="api-client-name" type="text" class="form-control" required autocomplete="off" [attr.maxlength]="limits.NAME_MAX"
+               aria-describedby="api-client-name-help" [attr.aria-invalid]="hasError('api-client-name') ? true : null"
+               [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" />
+        <div id="api-client-name-help" class="form-text">
+          @if (errorFor('api-client-name'); as error) {
+            <span class="hl-field-error mt-0">{{ error | transloco }}</span>
+          }
+          {{ 'admin.apiClients.form.nameHelp' | transloco }}
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label for="api-client-rate" class="form-label small fw-semibold">{{ 'admin.apiClients.form.rate' | transloco }}</label>
+        <input id="api-client-rate" type="number" class="form-control" required inputmode="numeric" step="1"
+               [attr.min]="limits.RATE_LIMIT_MIN" [attr.max]="limits.RATE_LIMIT_MAX"
+               aria-describedby="api-client-rate-help" [attr.aria-invalid]="hasError('api-client-rate') ? true : null"
+               [(ngModel)]="form.rateLimit" [ngModelOptions]="{ standalone: true }" />
+        <div id="api-client-rate-help" class="form-text">
+          @if (errorFor('api-client-rate'); as error) {
+            <span class="hl-field-error mt-0">{{ error | transloco: { min: limits.RATE_LIMIT_MIN, max: limits.RATE_LIMIT_MAX } }}</span>
+          }
+          {{ 'admin.apiClients.form.rateHelp' | transloco: { min: limits.RATE_LIMIT_MIN, max: limits.RATE_LIMIT_MAX } }}
+        </div>
+      </div>
+    </div>
+
+    <fieldset id="api-client-scopes" class="mb-3" aria-describedby="api-client-scopes-help">
+      <legend class="form-label small fw-semibold mb-1">{{ 'admin.apiClients.form.scopes' | transloco }}</legend>
+      @for (scope of scopes; track scope) {
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" [id]="'api-client-scope-' + scope" [checked]="hasScope(scope)"
+                 [attr.aria-invalid]="hasError('api-client-scopes') ? true : null" (change)="toggleScope(scope, $event)" />
+          <label class="form-check-label" [for]="'api-client-scope-' + scope">{{ scope | codeLabel: scopeKeys }}</label>
+        </div>
+      }
+      <div id="api-client-scopes-help" class="form-text">
+        @if (errorFor('api-client-scopes'); as error) {
+          <span class="hl-field-error mt-0">{{ error | transloco }}</span>
+        }
+        {{ 'admin.apiClients.form.scopesHelp' | transloco }}
+      </div>
+    </fieldset>
+
+    <!-- Firmante de las cartas de responsabilidad emitidas por el canal (M6-06) -->
+    <fieldset class="mb-3" aria-describedby="api-client-signatory-help">
+      <legend class="h6 fw-bold">{{ 'admin.apiClients.form.signatory' | transloco }}</legend>
+      <p id="api-client-signatory-help" class="form-text mt-0">{{ 'admin.apiClients.form.signatoryHelp' | transloco }}</p>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="api-client-signatory-name" class="form-label small fw-semibold">{{ 'admin.apiClients.form.signatoryName' | transloco }}</label>
+          <input id="api-client-signatory-name" type="text" class="form-control" autocomplete="off" maxlength="200"
+                 [(ngModel)]="form.signatoryName" [ngModelOptions]="{ standalone: true }" />
+        </div>
+        <div class="col-md-6">
+          <label for="api-client-signatory-tax-id" class="form-label small fw-semibold">{{ 'admin.apiClients.form.signatoryTaxId' | transloco }}</label>
+          <input id="api-client-signatory-tax-id" type="text" class="form-control" autocomplete="off" maxlength="30"
+                 [(ngModel)]="form.signatoryTaxId" [ngModelOptions]="{ standalone: true }" />
+        </div>
+        <div class="col-md-6">
+          <label for="api-client-signatory-position" class="form-label small fw-semibold">{{ 'admin.apiClients.form.signatoryPosition' | transloco }}</label>
+          <input id="api-client-signatory-position" type="text" class="form-control" autocomplete="off" maxlength="100"
+                 [(ngModel)]="form.signatoryPosition" [ngModelOptions]="{ standalone: true }" />
+        </div>
+        <div class="col-md-6">
+          <label for="api-client-signatory-email" class="form-label small fw-semibold">{{ 'admin.apiClients.form.signatoryEmail' | transloco }}</label>
+          <input id="api-client-signatory-email" type="email" class="form-control" autocomplete="off" maxlength="256"
+                 [attr.aria-invalid]="hasError('api-client-signatory-email') ? true : null"
+                 [attr.aria-describedby]="hasError('api-client-signatory-email') ? 'api-client-signatory-email-error' : null"
+                 [(ngModel)]="form.signatoryEmail" [ngModelOptions]="{ standalone: true }" />
+          @if (errorFor('api-client-signatory-email'); as error) {
+            <div id="api-client-signatory-email-error" class="hl-field-error">{{ error | transloco }}</div>
+          }
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label for="api-client-contact-email" class="form-label small fw-semibold">{{ 'admin.apiClients.form.contactEmail' | transloco }}</label>
+        <input id="api-client-contact-email" type="email" class="form-control" autocomplete="off" maxlength="256"
+               aria-describedby="api-client-contact-email-help" [attr.aria-invalid]="hasError('api-client-contact-email') ? true : null"
+               [(ngModel)]="form.technicalContactEmail" [ngModelOptions]="{ standalone: true }" />
+        <div id="api-client-contact-email-help" class="form-text">
+          @if (errorFor('api-client-contact-email'); as error) {
+            <span class="hl-field-error mt-0">{{ error | transloco }}</span>
+          }
+          {{ 'admin.apiClients.form.contactEmailHelp' | transloco }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label for="api-client-notes" class="form-label small fw-semibold">{{ 'admin.apiClients.form.notes' | transloco }}</label>
+        <textarea id="api-client-notes" class="form-control" rows="2" [attr.maxlength]="limits.NOTES_MAX"
+                  [(ngModel)]="form.notes" [ngModelOptions]="{ standalone: true }"></textarea>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()" data-testid="api-client-submit">{{ 'admin.apiClients.form.submit' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="cancelCreate()">{{ 'admin.apiClients.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+<!-- Clientes del canal por organización -->
+<section class="hl-card mb-4" aria-labelledby="api-clients-list-title">
+  <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h2 id="api-clients-list-title" class="section-title">{{ 'admin.apiClients.list.title' | transloco }}</h2>
+    @if (!creating()) {
+      <button id="api-client-new" type="button" class="btn btn-sm btn-hl-orange" (click)="startCreate()" data-testid="api-client-new">{{ 'admin.apiClients.list.new' | transloco }}</button>
+    }
+  </div>
+  <form class="p-3 border-bottom" role="search" [attr.aria-label]="'admin.apiClients.list.filters' | transloco" (submit)="search($event)">
+    <div class="row g-2 align-items-end">
+      <div class="col-sm-6 col-lg-4">
+        <label for="api-clients-org" class="form-label small fw-semibold">{{ 'admin.apiClients.list.organization' | transloco }}</label>
+        <select id="api-clients-org" class="form-select" name="organization" [(ngModel)]="organizationFilter">
+          <option value="">{{ 'admin.apiClients.list.allOrganizations' | transloco }}</option>
+          @for (o of organizationOptions(); track o.id) {
+            <option [value]="o.id">{{ o.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label for="api-clients-status" class="form-label small fw-semibold">{{ 'admin.apiClients.list.status' | transloco }}</label>
+        <select id="api-clients-status" class="form-select" name="status" [(ngModel)]="statusFilter">
+          <option value="">{{ 'admin.apiClients.list.allStatuses' | transloco }}</option>
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ s | codeLabel: statusKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-lg-5 d-flex gap-2">
+        <button type="submit" class="btn btn-outline-secondary">{{ 'admin.apiClients.list.search' | transloco }}</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">{{ 'admin.apiClients.list.clear' | transloco }}</button>
+      </div>
+    </div>
+  </form>
+
+  @if (listError()) {
+    <div class="alert alert-danger py-2 m-3" role="alert">{{ listError() }}</div>
+  }
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (clients().length === 0) {
+    <app-state-message kind="empty" [messageKey]="'admin.apiClients.list.empty'" />
+  } @else {
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.apiClients.list.caption' | transloco">
+      <table class="hl-table" data-testid="api-clients-table">
+        <caption class="visually-hidden">{{ 'admin.apiClients.list.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.apiClients.list.col.organization' | transloco }}</th>
+            <th scope="col">{{ 'admin.apiClients.list.col.client' | transloco }}</th>
+            <th scope="col">{{ 'admin.apiClients.list.col.scopes' | transloco }}</th>
+            <th scope="col">{{ 'admin.apiClients.list.col.rate' | transloco }}</th>
+            <th scope="col">{{ 'admin.apiClients.list.col.status' | transloco }}</th>
+            <th scope="col">{{ 'admin.apiClients.list.col.lastUsed' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.apiClients.list.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of clients(); track c.id) {
+            <tr [attr.data-testid]="'api-client-row-' + c.id">
+              <td>
+                <span class="d-block">{{ c.organizationName }}</span>
+                <span class="small text-muted">{{ c.organizationTaxId }}</span>
+              </td>
+              <td>
+                <span class="fw-semibold d-block">{{ c.name }}</span>
+                <span class="small text-muted">{{ 'admin.apiClients.list.keys' | transloco: { count: activeKeys(c) } }}</span>
+              </td>
+              <td>
+                @for (scope of c.scopes; track scope) {
+                  <span class="d-block small">{{ scope | codeLabel: scopeKeys }}</span>
+                }
+              </td>
+              <td>{{ 'admin.apiClients.list.rateValue' | transloco: { count: c.rateLimitPerMinute } }}</td>
+              <td><span class="hl-badge" [class]="statusClass[c.status] || 'hl-badge--processing'">{{ c.status | codeLabel: statusKeys }}</span></td>
+              <td class="text-nowrap">{{ c.lastUsedAt ? (c.lastUsedAt | hlDate: 'datetime') : ('admin.apiClients.list.neverUsed' | transloco) }}</td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-secondary" [id]="'api-client-open-' + c.id" (click)="open(c)"
+                        [attr.aria-label]="'admin.apiClients.list.openLabel' | transloco: { name: c.name }">{{ 'admin.apiClients.list.open' | transloco }}</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+<!-- Cliente abierto: datos, claves, rotación, revocación y bitácora -->
+@if (selected(); as c) {
+  <section class="hl-card mb-4" aria-labelledby="api-client-detail-title" data-testid="api-client-detail">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #detailHeading id="api-client-detail-title" class="section-title" tabindex="-1">{{ 'admin.apiClients.detail.title' | transloco: { name: c.name } }}</h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="close()">{{ 'admin.apiClients.detail.close' | transloco }}</button>
+    </div>
+    <div class="p-3">
+      @if (detailError()) {
+        <div class="alert alert-danger py-2" role="alert" data-testid="api-client-detail-error">{{ detailError() }}</div>
+      }
+      <dl class="row g-3 mb-3">
+        <div class="col-sm-6 col-lg-4">
+          <dt class="detail-label">{{ 'admin.apiClients.detail.organization' | transloco }}</dt>
+          <dd class="detail-value">{{ c.organizationName }} ({{ c.organizationTaxId }})</dd>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+          <dt class="detail-label">{{ 'admin.apiClients.detail.status' | transloco }}</dt>
+          <dd class="mb-0"><span class="hl-badge" [class]="statusClass[c.status] || 'hl-badge--processing'" data-testid="api-client-status">{{ c.status | codeLabel: statusKeys }}</span></dd>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+          <dt class="detail-label">{{ 'admin.apiClients.detail.technicalUser' | transloco }}</dt>
+          <dd class="detail-value text-break">{{ c.technicalUserEmail }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+          <dt class="detail-label">{{ 'admin.apiClients.detail.scopes' | transloco }}</dt>
+          <dd class="detail-value">
+            @for (scope of c.scopes; track scope) {
+              <span class="d-block">{{ scope | codeLabel: scopeKeys }}</span>
+            }
+          </dd>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+          <dt class="detail-label">{{ 'admin.apiClients.detail.rate' | transloco }}</dt>
+          <dd class="detail-value">{{ 'admin.apiClients.list.rateValue' | transloco: { count: c.rateLimitPerMinute } }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+          <dt class="detail-label">{{ 'admin.apiClients.detail.signatory' | transloco }}</dt>
+          <dd class="detail-value">
+            @if (c.signatory.name) {
+              {{ 'admin.apiClients.detail.signatoryValue' | transloco: { name: c.signatory.name, position: c.signatory.position ?? '—' } }}
+            } @else {
+              {{ 'admin.apiClients.detail.noSignatory' | transloco }}
+            }
+          </dd>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+          <dt class="detail-label">{{ 'admin.apiClients.detail.created' | transloco }}</dt>
+          <dd class="detail-value">{{ 'admin.apiClients.detail.createdValue' | transloco: { date: (c.createdAt | hlDate: 'datetime'), user: c.createdBy } }}</dd>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+          <dt class="detail-label">{{ 'admin.apiClients.detail.contact' | transloco }}</dt>
+          <dd class="detail-value text-break">{{ c.technicalContactEmail ?? '—' }}</dd>
+        </div>
+        @if (c.revokedAt) {
+          <div class="col-sm-12 col-lg-4">
+            <dt class="detail-label">{{ 'admin.apiClients.detail.revoked' | transloco }}</dt>
+            <dd class="detail-value" data-testid="api-client-revoked">{{ 'admin.apiClients.detail.revokedValue' | transloco: { date: (c.revokedAt | hlDate: 'datetime'), user: c.revokedBy ?? '—', reason: c.revocationReason ?? '—' } }}</dd>
+          </div>
+        }
+      </dl>
+
+      <!-- Claves: solo el prefijo y sus fechas -->
+      <h3 id="api-client-keys-title" class="h6 fw-bold" tabindex="-1">{{ 'admin.apiClients.detail.keys.title' | transloco }}</h3>
+      <div class="table-responsive mb-3" tabindex="0" role="region" [attr.aria-label]="'admin.apiClients.detail.keys.caption' | transloco: { name: c.name }">
+        <table class="hl-table" data-testid="api-client-keys">
+          <caption class="visually-hidden">{{ 'admin.apiClients.detail.keys.caption' | transloco: { name: c.name } }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.apiClients.detail.keys.col.prefix' | transloco }}</th>
+              <th scope="col">{{ 'admin.apiClients.detail.keys.col.created' | transloco }}</th>
+              <th scope="col">{{ 'admin.apiClients.detail.keys.col.expires' | transloco }}</th>
+              <th scope="col">{{ 'admin.apiClients.detail.keys.col.lastUsed' | transloco }}</th>
+              <th scope="col">{{ 'admin.apiClients.detail.keys.col.status' | transloco }}</th>
+              <th scope="col"><span class="visually-hidden">{{ 'admin.apiClients.detail.keys.col.actions' | transloco }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (k of c.keys; track k.id) {
+              <tr [attr.data-testid]="'api-key-' + k.prefix">
+                <td><span class="font-monospace">{{ k.prefix }}</span></td>
+                <td class="text-nowrap">{{ k.createdAt | hlDate: 'datetime' }}</td>
+                <td class="text-nowrap">{{ k.expiresAt ? (k.expiresAt | hlDate: 'datetime') : ('admin.apiClients.detail.keys.noExpiry' | transloco) }}</td>
+                <td class="text-nowrap">{{ k.lastUsedAt ? (k.lastUsedAt | hlDate: 'datetime') : ('admin.apiClients.list.neverUsed' | transloco) }}</td>
+                <td>
+                  @if (k.active) {
+                    <span class="hl-badge hl-badge--confirmed">{{ 'admin.apiClients.detail.keys.active' | transloco }}</span>
+                  } @else {
+                    <span class="hl-badge hl-badge--failed">{{ 'admin.apiClients.detail.keys.inactive' | transloco }}</span>
+                    @if (k.revokedAt) {
+                      <span class="d-block small">{{ 'admin.apiClients.detail.keys.revokedAt' | transloco: { date: (k.revokedAt | hlDate: 'datetime') } }}</span>
+                    }
+                  }
+                </td>
+                <td>
+                  @if (k.active && c.status === 'Active') {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" [id]="'api-key-revoke-' + k.id" (click)="askRevokeKey(k)"
+                            [attr.aria-label]="'admin.apiClients.detail.keys.revokeLabel' | transloco: { prefix: k.prefix }">{{ 'admin.apiClients.detail.keys.revoke' | transloco }}</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Confirmación de una revocación -->
+      @if (confirmation()) {
+        <form class="alert alert-warning" novalidate aria-labelledby="api-client-confirm-title" (submit)="confirmRevokeClient($event)" data-testid="api-client-revoke-confirm">
+          <h3 id="api-client-confirm-title" class="h6 fw-bold" tabindex="-1">{{ 'admin.apiClients.detail.revoke.confirmTitle' | transloco: { name: c.name } }}</h3>
+          <p class="small">{{ 'admin.apiClients.detail.revoke.confirmText' | transloco }}</p>
+          <label for="api-client-revoke-reason" class="form-label small fw-semibold">{{ 'admin.apiClients.detail.revoke.reason' | transloco }}</label>
+          <textarea id="api-client-revoke-reason" class="form-control mb-1" rows="2" required [attr.maxlength]="limits.REVOKE_REASON_MAX"
+                    aria-describedby="api-client-revoke-reason-help" [attr.aria-invalid]="revokeReasonError() ? true : null"
+                    [(ngModel)]="revokeReason" [ngModelOptions]="{ standalone: true }"></textarea>
+          <div id="api-client-revoke-reason-help" class="form-text mt-0 mb-2">
+            @if (revokeReasonError(); as error) {
+              <span class="hl-field-error mt-0">{{ error | transloco }}</span>
+            }
+            {{ 'admin.apiClients.detail.revoke.reasonHelp' | transloco }}
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-danger" [disabled]="acting()" data-testid="api-client-revoke-yes">{{ 'admin.apiClients.detail.revoke.confirm' | transloco }}</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="cancelConfirmation()">{{ 'admin.apiClients.detail.revoke.keep' | transloco }}</button>
+          </div>
+        </form>
+      }
+
+      @if (c.status === 'Active') {
+        <div class="row g-4 mb-3">
+          <!-- Rotación sin despliegue con período de gracia (NF-09) -->
+          <form class="col-lg-7" novalidate aria-labelledby="api-client-rotate-title" (submit)="rotate($event)" data-testid="api-client-rotate">
+            <h3 id="api-client-rotate-title" class="h6 fw-bold">{{ 'admin.apiClients.detail.rotate.title' | transloco }}</h3>
+            <label for="api-client-grace" class="form-label small fw-semibold">{{ 'admin.apiClients.detail.rotate.grace' | transloco }}</label>
+            <div class="d-flex flex-wrap gap-2 align-items-start">
+              <input id="api-client-grace" type="number" class="form-control w-auto" inputmode="numeric" step="1" min="0" [attr.max]="limits.GRACE_MINUTES_MAX"
+                     aria-describedby="api-client-grace-help" [(ngModel)]="graceMinutes" [ngModelOptions]="{ standalone: true }" />
+              <button type="submit" class="btn btn-outline-secondary" [disabled]="rotating()" data-testid="api-client-rotate-submit">{{ 'admin.apiClients.detail.rotate.submit' | transloco }}</button>
+            </div>
+            <div id="api-client-grace-help" class="form-text">{{ 'admin.apiClients.detail.rotate.help' | transloco: { max: limits.GRACE_MINUTES_MAX } }}</div>
+          </form>
+          <div class="col-lg-5">
+            <h3 class="h6 fw-bold">{{ 'admin.apiClients.detail.revoke.title' | transloco }}</h3>
+            <p class="small mb-2">{{ 'admin.apiClients.detail.revoke.help' | transloco }}</p>
+            <button id="api-client-revoke" type="button" class="btn btn-outline-danger" (click)="askRevokeClient()" data-testid="api-client-revoke">
+              {{ 'admin.apiClients.detail.revoke.start' | transloco }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Bitácora del canal: cada solicitud con su resultado -->
+    <div class="border-top">
+      <div class="p-3 pb-0">
+        <h3 id="api-client-log-title" class="h6 fw-bold">{{ 'admin.apiClients.log.title' | transloco }}</h3>
+        <div class="row g-2 align-items-end" role="group" [attr.aria-label]="'admin.apiClients.log.filters' | transloco">
+          <div class="col-sm-6 col-lg-4">
+            <label for="api-log-operation" class="form-label small fw-semibold">{{ 'admin.apiClients.log.operation' | transloco }}</label>
+            <select id="api-log-operation" class="form-select" [value]="operationFilter()" (change)="onOperationFilter($event)">
+              <option value="">{{ 'admin.apiClients.log.allOperations' | transloco }}</option>
+              @for (o of operations; track o) {
+                <option [value]="o">{{ o | codeLabel: operationKeys }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-sm-6 col-lg-4">
+            <label for="api-log-outcome" class="form-label small fw-semibold">{{ 'admin.apiClients.log.outcome' | transloco }}</label>
+            <select id="api-log-outcome" class="form-select" [value]="outcomeFilter()" (change)="onOutcomeFilter($event)">
+              <option value="">{{ 'admin.apiClients.log.allOutcomes' | transloco }}</option>
+              @for (o of outcomes; track o) {
+                <option [value]="o">{{ o | codeLabel: outcomeKeys }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-lg-4">
+            <p class="small text-muted mb-0" role="status" data-testid="api-log-count">
+              {{ 'admin.apiClients.log.count' | transloco: { shown: filteredLog().length, total: log().length } }}
+            </p>
+          </div>
+        </div>
+      </div>
+      @if (logError()) {
+        <div class="alert alert-danger py-2 m-3" role="alert">{{ logError() }}</div>
+      }
+      @if (logLoading()) {
+        <app-loading-spinner />
+      } @else if (filteredLog().length === 0) {
+        <app-state-message kind="empty" [messageKey]="'admin.apiClients.log.empty'" />
+      } @else {
+        <div class="table-responsive mt-3" tabindex="0" role="region" aria-labelledby="api-client-log-title">
+          <table class="hl-table" data-testid="api-client-log">
+            <caption class="visually-hidden">{{ 'admin.apiClients.log.caption' | transloco: { name: c.name } }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'admin.apiClients.log.col.received' | transloco }}</th>
+                <th scope="col">{{ 'admin.apiClients.log.col.operation' | transloco }}</th>
+                <th scope="col">{{ 'admin.apiClients.log.col.request' | transloco }}</th>
+                <th scope="col">{{ 'admin.apiClients.log.col.outcome' | transloco }}</th>
+                <th scope="col">{{ 'admin.apiClients.log.col.target' | transloco }}</th>
+                <th scope="col">{{ 'admin.apiClients.log.col.duration' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of filteredLog(); track r.id) {
+                <tr [attr.data-testid]="'api-log-' + r.id">
+                  <td class="text-nowrap">{{ r.receivedAt | hlDate: 'datetimeSeconds' }}</td>
+                  <td>{{ r.operation | codeLabel: operationKeys }}</td>
+                  <td class="small">
+                    <span class="font-monospace d-block">{{ r.method }} {{ r.path }}</span>
+                    @if (r.idempotencyKey) {
+                      <span class="d-block text-muted">{{ 'admin.apiClients.log.idempotencyKey' | transloco: { key: r.idempotencyKey } }}</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="hl-badge" [class]="outcomeClass[r.outcome] || 'hl-badge--processing'">{{ r.outcome | codeLabel: outcomeKeys }}</span>
+                    <span class="d-block small">{{ 'admin.apiClients.log.status' | transloco: { code: r.statusCode ?? '—' } }}</span>
+                    @if (r.errorCode) {
+                      <span class="d-block small font-monospace">{{ r.errorCode }}</span>
+                    }
+                  </td>
+                  <td class="small">
+                    @if (r.targetReference || r.blNumber) {
+                      <span class="d-block">{{ r.targetReference ?? '—' }}</span>
+                      @if (r.blNumber) {
+                        <span class="d-block text-muted">{{ 'admin.apiClients.log.bl' | transloco: { bl: r.blNumber } }}</span>
+                      }
+                    } @else {
+                      <span aria-hidden="true">—</span>
+                      <span class="visually-hidden">{{ 'admin.apiClients.log.noTarget' | transloco }}</span>
+                    }
+                  </td>
+                  <td>{{ r.durationMs !== null && r.durationMs !== undefined ? ('admin.apiClients.log.ms' | transloco: { ms: r.durationMs }) : '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      <app-paginator [page]="logPage()" [pageSize]="logPageSize()" [total]="logTotal()" [label]="'admin.apiClients.log.pagination' | transloco"
+                     idPrefix="api-log-pager" (pageChange)="changeLogPage($event)" (pageSizeChange)="changeLogPageSize($event)" />
+    </div>
+  </section>
+}

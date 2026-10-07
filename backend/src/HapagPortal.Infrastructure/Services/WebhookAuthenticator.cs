@@ -26,4 +26,5 @@ public sealed class WebhookAuthenticator(IConfiguration configuration) : IWebhoo
             Encoding.UTF8.GetBytes(configured),
             Encoding.UTF8.GetBytes(providedSecret));
     }
+
 }

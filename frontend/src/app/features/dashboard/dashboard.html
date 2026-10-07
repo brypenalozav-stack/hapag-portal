@@ -1,193 +1,318 @@
 <div class="hl-page-header">
-  <h1>Dashboard</h1>
+  <h1>{{ 'dashboard.title' | transloco }}</h1>
   <p class="text-muted mb-0">
-    Bienvenido, <strong>{{ auth.currentUser()?.name ?? 'Usuario' }}</strong>
+    {{ 'dashboard.welcome' | transloco: { name: auth.currentUser()?.name ?? ('dashboard.defaultUser' | transloco) } }}
     <app-country-badge [country]="auth.getCountry()" class="ms-2" />
   </p>
+  @if (dashboard(); as d) {
+    <p class="small text-muted mb-0 mt-1" data-testid="dashboard-generated">{{ 'dashboard.generatedAt' | transloco: { date: (d.generatedAt | hlDate: 'datetime') } }}</p>
+  }
 </div>
 
-<!-- Summary Cards -->
-<div class="row g-3 mb-4">
-  <div class="col-md-4">
-    <div class="hl-stat-card">
-      <div class="d-flex align-items-start justify-content-between">
-        <div>
-          <div class="stat-label">Pagos Pendientes</div>
-          <div class="stat-value">{{ pendingPayments() }}</div>
-        </div>
-        <div class="stat-icon bg-warning bg-opacity-10">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#FF6600" viewBox="0 0 16 16">
-            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16M8 4a.905.905 0 0 1 .9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
-          </svg>
-        </div>
-      </div>
-      <a routerLink="/payments" class="small text-hl-orange text-decoration-none mt-2 d-inline-block">
-        Ver pagos
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-          <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
-        </svg>
-      </a>
-    </div>
-  </div>
+<!-- Comunicados vigentes para el país del usuario (Fase 2, Ola I, M1-26) -->
+@if (features.enabled('Announcements')) {
+  <app-announcements-banner />
+}
 
-  <div class="col-md-4">
-    <div class="hl-stat-card">
-      <div class="d-flex align-items-start justify-content-between">
-        <div>
-          <div class="stat-label">BLs Activos</div>
-          <div class="stat-value">{{ activeBLs() }}</div>
-        </div>
-        <div class="stat-icon bg-success bg-opacity-10">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#009840" viewBox="0 0 16 16">
-            <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
-          </svg>
-        </div>
-      </div>
-      <a routerLink="/bills-of-lading" class="small text-hl-green text-decoration-none mt-2 d-inline-block">
-        Ver BLs
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-          <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
-        </svg>
-      </a>
-    </div>
+<!-- Filtros: operación (M2-07, compartida con el listado de embarques) y país (M1-04) -->
+<div class="d-flex flex-wrap align-items-end gap-3 mb-4">
+  <div class="btn-group" role="group" [attr.aria-label]="'dashboard.filters.operation.label' | transloco">
+    @for (option of operations; track option.value) {
+      <button type="button" class="btn"
+              [class.btn-secondary]="operation() === option.value"
+              [class.btn-outline-secondary]="operation() !== option.value"
+              [attr.aria-pressed]="operation() === option.value"
+              (click)="setOperation(option.value)">
+        {{ option.key | transloco }}
+      </button>
+    }
   </div>
-
-  <div class="col-md-4">
-    <div class="hl-stat-card">
-      <div class="d-flex align-items-start justify-content-between">
-        <div>
-          <div class="stat-label">Actividad Reciente</div>
-          <div class="stat-value">{{ recentActivity() }}</div>
-        </div>
-        <div class="stat-icon bg-info bg-opacity-10">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#004D6C" viewBox="0 0 16 16">
-            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
-            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
-          </svg>
-        </div>
-      </div>
-      <span class="small text-muted mt-2 d-inline-block">Últimos 30 días</span>
+  @if (showCountryFilter()) {
+    <div>
+      <label for="dashboard-country" class="form-label small fw-semibold mb-1">{{ 'dashboard.filters.country' | transloco }}</label>
+      <select id="dashboard-country" class="form-select" [(ngModel)]="country" (ngModelChange)="onCountry()">
+        <option value="">{{ 'dashboard.filters.allCountries' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
     </div>
-  </div>
+  }
 </div>
 
-<!-- Quick Actions -->
-<div class="row g-3 mb-4">
-  <div class="col-12">
-    <div class="hl-card p-4">
-      <h5 class="mb-3">Acciones Rápidas</h5>
-      <div class="d-flex flex-wrap gap-2">
-        <a routerLink="/bills-of-lading" class="btn btn-hl-orange">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
-            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-          </svg>
-          Consultar BL
-        </a>
-        <a routerLink="/payments" class="btn btn-hl-green">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
-            <path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1zm13 4H1v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"/>
-          </svg>
-          Ver Pagos
-        </a>
-        <a routerLink="/faq" class="btn btn-hl-blue">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-            <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-          </svg>
-          Preguntas Frecuentes
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Country Info Panel -->
-<div class="row g-3">
-  <div class="col-lg-8">
-    <div class="hl-card p-4">
-      <h5 class="mb-3">Información del País</h5>
-      @if (auth.getCountry() === 'CL') {
-        <div class="row g-3">
-          <div class="col-sm-6">
-            <div class="p-3 bg-light rounded-3">
-              <div class="small text-muted mb-1">Oficina</div>
-              <div class="fw-semibold">Santiago, Chile</div>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="p-3 bg-light rounded-3">
-              <div class="small text-muted mb-1">Moneda</div>
-              <div class="fw-semibold">USD / CLP</div>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="p-3 bg-light rounded-3">
-              <div class="small text-muted mb-1">Impuesto</div>
-              <div class="fw-semibold">IVA 19%</div>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="p-3 bg-light rounded-3">
-              <div class="small text-muted mb-1">Métodos de Pago</div>
-              <div class="fw-semibold">Transferencia, Tarjeta, Crédito</div>
-            </div>
-          </div>
-        </div>
-      } @else {
-        <div class="row g-3">
-          <div class="col-sm-6">
-            <div class="p-3 bg-light rounded-3">
-              <div class="small text-muted mb-1">Oficina</div>
-              <div class="fw-semibold">Santa Cruz, Bolivia</div>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="p-3 bg-light rounded-3">
-              <div class="small text-muted mb-1">Moneda</div>
-              <div class="fw-semibold">USD / BOB</div>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="p-3 bg-light rounded-3">
-              <div class="small text-muted mb-1">Impuesto</div>
-              <div class="fw-semibold">IVA 13%</div>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="p-3 bg-light rounded-3">
-              <div class="small text-muted mb-1">Métodos de Pago</div>
-              <div class="fw-semibold">Transferencia, QR, Crédito</div>
-            </div>
-          </div>
-        </div>
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" [messageKey]="'dashboard.unavailable'" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (dashboard(); as d) {
+  <!-- 1. Requiere su acción: pendientes agrupados por BL, primero lo vencido -->
+  <section class="hl-card mb-4" aria-labelledby="dashboard-actions-title" data-testid="dashboard-actions">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 id="dashboard-actions-title" class="section-title">{{ 'dashboard.action.heading' | transloco }}</h2>
+      @if (actionGroups().length > 0) {
+        <span class="small text-muted" data-testid="dashboard-actions-count">{{ 'dashboard.action.count' | transloco: { count: actionGroups().length } }}</span>
       }
     </div>
-  </div>
-
-  <div class="col-lg-4">
-    <div class="hl-card p-4">
-      <h5 class="mb-3">Contacto</h5>
-      <div class="d-flex flex-column gap-3">
-        <div class="d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="var(--hl-blue)" viewBox="0 0 16 16">
-            <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm3.436-.586L16 11.801V4.697z"/>
-          </svg>
-          <span class="small">{{ auth.getCountry() === 'CL' ? 'chile@hapag-lloyd.com' : 'bolivia@hapag-lloyd.com' }}</span>
+    @if (cart.accountPaymentsEnabled() && actionGroups().length > 0) {
+      <p class="small px-3 pt-3 mb-0">{{ 'dashboard.action.creditNote' | transloco }}</p>
+    }
+    @if (actionGroups().length > 0) {
+      <ul id="dashboard-actions-list" class="list-unstyled mb-0">
+        @for (g of visibleActionGroups(); track g.key) {
+          <li class="hl-action" [attr.data-testid]="'dashboard-action-' + g.reference" [attr.data-urgency]="g.urgency">
+            <div class="hl-action__main">
+              <h3 class="hl-action__title">
+                @if (g.blNumber) {
+                  <a [routerLink]="['/bl-status', g.blNumber]"
+                     [attr.aria-label]="'dashboard.action.statusLabel' | transloco: { bl: g.blNumber }">{{ g.titleKey | transloco: { reference: g.reference } }}</a>
+                } @else {
+                  {{ g.titleKey | transloco: { reference: g.reference } }}
+                }
+              </h3>
+              <ul class="hl-action__reasons" [attr.aria-label]="'dashboard.action.reasonsLabel' | transloco">
+                @for (reason of g.reasons; track $index) {
+                  <li>{{ reason.key | transloco: { count: reason.count, reference: reason.reference, state: (reason.state | codeLabel: demurrageStateKeys) } }}</li>
+                }
+              </ul>
+              @if (g.amounts.length > 0) {
+                <p class="hl-action__amounts mb-0">
+                  @for (amount of g.amounts; track amount.currency) {
+                    <span class="hl-num">{{ amount.total | hlCurrency: amount.currency }}</span>
+                  }
+                </p>
+              }
+            </div>
+            <div class="hl-action__status">
+              <span class="hl-badge" [class]="urgencyClass[g.urgency]">{{ urgencyKeys[g.urgency] | transloco }}</span>
+              @if (g.dueDate) {
+                <span class="small text-muted">{{ 'dashboard.action.dueDate' | transloco: { date: (g.dueDate | hlDate: 'localDate') } }}</span>
+              }
+            </div>
+            <div class="hl-action__cta">
+              @if (g.primary.kind === 'addToCart') {
+                <button type="button" class="btn btn-sm btn-hl-orange" (click)="addToCart(g.primary.payables)"
+                        [attr.aria-label]="'dashboard.action.actionLabel' | transloco: { action: (g.primary.labelKey | transloco), reference: (g.titleKey | transloco: { reference: g.reference }) }">
+                  {{ g.primary.labelKey | transloco }}
+                </button>
+              } @else {
+                <a class="btn btn-sm btn-outline-secondary" [routerLink]="g.primary.route" [queryParams]="g.primary.queryParams"
+                   [attr.aria-label]="'dashboard.action.actionLabel' | transloco: { action: (g.primary.labelKey | transloco), reference: (g.titleKey | transloco: { reference: g.reference }) }">
+                  {{ g.primary.labelKey | transloco }}
+                </a>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+      @if (actionGroups().length > actionPreview || d.pendingPayments.truncated) {
+        <div class="p-3 border-top d-flex flex-wrap align-items-center gap-3">
+          @if (actionGroups().length > actionPreview) {
+            <button type="button" class="btn btn-link p-0" data-testid="dashboard-actions-toggle"
+                    aria-controls="dashboard-actions-list" [attr.aria-expanded]="showAllActions()" (click)="showAllActions.set(!showAllActions())">
+              @if (showAllActions()) {
+                {{ 'dashboard.action.showLess' | transloco }}
+              } @else {
+                {{ 'dashboard.action.showAll' | transloco: { count: actionGroups().length } }}
+              }
+            </button>
+          }
+          @if (d.pendingPayments.truncated) {
+            <span class="small text-muted">{{ 'dashboard.pending.truncated' | transloco: { shown: d.pendingPayments.items.length, total: d.pendingPayments.count } }}</span>
+          }
         </div>
-        <div class="d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="var(--hl-blue)" viewBox="0 0 16 16">
-            <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58z"/>
-          </svg>
-          <span class="small">{{ auth.getCountry() === 'CL' ? '+56 2 2630 1000' : '+591 3 312 0000' }}</span>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="var(--hl-blue)" viewBox="0 0 16 16">
-            <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
-            <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-          </svg>
-          <span class="small">{{ auth.getCountry() === 'CL' ? 'Av. El Bosque Norte 500, Las Condes' : 'Av. San Martín 1500, Santa Cruz' }}</span>
+      }
+    } @else {
+      <div class="hl-action-empty" role="status" data-testid="dashboard-actions-empty">
+        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </svg>
+        <div>
+          <p class="fw-semibold mb-0">{{ 'dashboard.action.empty.title' | transloco }}</p>
+          <p class="small text-muted mb-0">{{ 'dashboard.action.empty.text' | transloco }}</p>
         </div>
       </div>
-    </div>
+    }
+  </section>
+
+  <!-- 2. Resumen: tres indicadores, sin repetir el demurrage (está en la bandeja) -->
+  <section class="mb-4" aria-labelledby="dashboard-summary-title">
+    <h2 id="dashboard-summary-title" class="visually-hidden">{{ 'dashboard.summary.title' | transloco }}</h2>
+    <ul class="list-unstyled row g-3 mb-0">
+      <li class="col-sm-4">
+        <div class="hl-stat-card h-100">
+          <p class="stat-label mb-1">{{ 'dashboard.summary.shipments' | transloco }}</p>
+          <p class="stat-value mb-1" data-testid="dashboard-total-shipments">{{ d.indicators.totalShipments | hlNumber: '1.0-0' }}</p>
+          <p class="small text-muted mb-2">
+            {{ 'dashboard.summary.byOperation' | transloco: { imports: importCount(), exports: exportCount() } }}
+          </p>
+          <a routerLink="/shipments" class="small">{{ 'dashboard.summary.viewShipments' | transloco }}</a>
+        </div>
+      </li>
+      <li class="col-sm-4">
+        <div class="hl-stat-card h-100">
+          <p class="stat-label mb-1">{{ 'dashboard.summary.pendingPayments' | transloco }}</p>
+          <p class="stat-value mb-1" data-testid="dashboard-pending-count">{{ d.pendingPayments.count | hlNumber: '1.0-0' }}</p>
+          @if (d.pendingPayments.totals.length > 0) {
+            <ul class="list-unstyled small mb-2" [attr.aria-label]="'dashboard.summary.totalsLabel' | transloco">
+              @for (total of d.pendingPayments.totals; track total.currency) {
+                <li class="hl-num">{{ total.total | hlCurrency: total.currency }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="small text-muted mb-2">{{ 'dashboard.summary.noPending' | transloco }}</p>
+          }
+        </div>
+      </li>
+      <li class="col-sm-4">
+        <div class="hl-stat-card h-100">
+          <p class="stat-label mb-1">{{ 'dashboard.summary.requestsInProgress' | transloco }}</p>
+          <p class="stat-value mb-1" data-testid="dashboard-requests-count">{{ d.requests.inProgress | hlNumber: '1.0-0' }}</p>
+          <p class="small text-muted mb-0">{{ 'dashboard.summary.requestsHelp' | transloco }}</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 3. Atajos a tareas frecuentes (M1-01), como máximo 4: no repiten el menú -->
+  <nav class="mb-4" aria-labelledby="dashboard-services-title" data-testid="dashboard-tasks">
+    <h2 id="dashboard-services-title" class="section-title mb-3">{{ 'dashboard.services.title' | transloco }}</h2>
+    <ul class="list-unstyled row g-2 mb-0">
+      @for (task of quickTasks(); track task.kind + task.route) {
+        <li class="col-sm-6 col-xl-3">
+          @if (task.kind === 'dispute') {
+            <app-dispute-link variant="card" />
+          } @else {
+            <a class="hl-service" [routerLink]="task.route">
+              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path [attr.d]="task.icon"/>
+              </svg>
+              <span>
+                <span class="hl-service__title">{{ task.titleKey | transloco }}</span>
+                <span class="hl-service__description">{{ task.descriptionKey | transloco }}</span>
+              </span>
+            </a>
+          }
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <!-- 4. Gestiones y documentos recientes (M1-05, M6-09) -->
+  <div class="row g-4 mb-4">
+    <section class="col-xl-6" aria-labelledby="dashboard-requests-title">
+      <div class="hl-card h-100">
+        <div class="card-header p-3">
+          <h2 id="dashboard-requests-title" class="section-title">{{ 'dashboard.requests.title' | transloco }}</h2>
+        </div>
+        @if (recentRequests().length > 0) {
+          <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'dashboard.requests.caption' | transloco">
+            <table class="hl-table">
+              <caption class="visually-hidden">{{ 'dashboard.requests.caption' | transloco }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'dashboard.requests.col.request' | transloco }}</th>
+                  <th scope="col">{{ 'dashboard.requests.col.status' | transloco }}</th>
+                  <th scope="col"><span class="visually-hidden">{{ 'dashboard.requests.col.actions' | transloco }}</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (request of recentRequests(); track request.kind + request.id) {
+                  <tr>
+                    <td class="hl-cell-text">
+                      <span class="fw-semibold d-block">{{ request.kind | codeLabel: requestKindKeys }}</span>
+                      <span class="small text-muted">{{ request.reference }} · {{ request.createdAt | hlDate: 'datetime' }}</span>
+                    </td>
+                    <td>
+                      <span class="hl-badge" [class]="requestStatusClass[request.status] || 'hl-badge--processing'">{{ request.status | codeLabel: requestStatusKeys }}</span>
+                    </td>
+                    <td>
+                      <a class="btn btn-sm btn-outline-secondary" [routerLink]="route(request.target)" [queryParams]="queryParams(request.target)"
+                         [attr.aria-label]="'dashboard.requests.viewLabel' | transloco: { request: (request.kind | codeLabel: requestKindKeys), reference: request.reference }">
+                        {{ 'dashboard.requests.view' | transloco }}
+                      </a>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="p-3 mb-0 text-muted" role="status">{{ 'dashboard.requests.empty' | transloco }}</p>
+        }
+      </div>
+    </section>
+
+    <section class="col-xl-6" aria-labelledby="dashboard-documents-title">
+      <div class="hl-card h-100">
+        <div class="card-header p-3">
+          <h2 id="dashboard-documents-title" class="section-title">{{ 'dashboard.documents.title' | transloco }}</h2>
+        </div>
+        @if (downloadError()) {
+          <div class="alert alert-danger m-3 py-2" role="alert">{{ downloadError() }}</div>
+        }
+        @if (recentDocuments().length > 0) {
+          <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'dashboard.documents.caption' | transloco">
+            <table class="hl-table">
+              <caption class="visually-hidden">{{ 'dashboard.documents.caption' | transloco }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'dashboard.documents.col.document' | transloco }}</th>
+                  <th scope="col">{{ 'dashboard.documents.col.bl' | transloco }}</th>
+                  <th scope="col"><span class="visually-hidden">{{ 'dashboard.documents.col.actions' | transloco }}</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (doc of recentDocuments(); track doc.id) {
+                  <tr>
+                    <td class="hl-cell-text">
+                      <span class="fw-semibold d-block">{{ doc.documentType | codeLabel: documentTypeKeys }}</span>
+                      <span class="small text-muted">{{ doc.documentNumber }} · {{ doc.issuedAt | hlDate: 'datetime' }}</span>
+                    </td>
+                    <td><a [routerLink]="['/shipments', doc.blNumber, 'documents']">{{ doc.blNumber }}</a></td>
+                    <td>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="downloading() === doc.id" (click)="download(doc)"
+                              [attr.aria-label]="'dashboard.documents.downloadLabel' | transloco: { number: doc.documentNumber }">
+                        {{ 'dashboard.documents.download' | transloco }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="p-3 mb-0 text-muted" role="status">{{ 'dashboard.documents.empty' | transloco }}</p>
+        }
+      </div>
+    </section>
   </div>
-</div>
+
+  <!-- 5. Indicadores operativos (M1-05): a pedido y cargados con @defer -->
+  <section aria-labelledby="dashboard-indicators-title" data-testid="dashboard-indicators">
+    <h2 id="dashboard-indicators-title" class="section-title mb-3">
+      <button type="button" class="hl-disclosure" aria-controls="dashboard-indicators-panel" data-testid="dashboard-indicators-toggle"
+              [attr.aria-expanded]="indicatorsOpen()" (click)="indicatorsOpen.set(!indicatorsOpen())">
+        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+        </svg>
+        {{ 'dashboard.indicators.title' | transloco }}
+      </button>
+    </h2>
+    <div id="dashboard-indicators-panel" [hidden]="!indicatorsOpen()">
+      @if (indicatorsOpen()) {
+        @defer (on viewport; prefetch on idle) {
+          <app-dashboard-indicators [indicators]="d.indicators" />
+        } @placeholder {
+          <div class="hl-defer-placeholder"></div>
+        } @loading {
+          <app-loading-spinner />
+        }
+      }
+    </div>
+  </section>
+}
+
+@if (addTargets(); as targets) {
+  <app-add-to-cart-dialog [targets]="targets" (closed)="onAddClosed($event)" />
+}

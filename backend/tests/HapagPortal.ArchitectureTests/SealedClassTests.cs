@@ -41,6 +41,23 @@ public sealed class SealedClassTests
     }
 
     [Fact]
+    public void IntegrationAdapters_ShouldBeSealed()
+    {
+        var assembly = typeof(Infrastructure.Integrations.IntegrationSystems).Assembly;
+
+        var result = Types.InAssembly(assembly)
+            .That()
+            .ResideInNamespace("HapagPortal.Infrastructure.Integrations")
+            .And()
+            .AreClasses()
+            .Should()
+            .BeSealed()
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue();
+    }
+
+    [Fact]
     public void Controllers_ShouldBeSealed()
     {
         var assembly = typeof(WebApi.Abstractions.ApiController).Assembly;

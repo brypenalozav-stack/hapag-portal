@@ -16,6 +16,8 @@ export class AuditService {
     if (params.to) query['to'] = params.to;
     query['page'] = params.page ?? 1;
     query['pageSize'] = params.pageSize ?? 20;
+    if (params.sort) query['sort'] = params.sort;
+    if (params.direction) query['direction'] = params.direction;
     return this.api.get<AuditPagedResult>('audit', query);
   }
 }

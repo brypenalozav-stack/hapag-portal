@@ -1,0 +1,4 @@
+node_modules/
+.pgdata/
+credenciales-prueba.json
+pasarelas-env.cmd

@@ -48,8 +48,41 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.Property(e => e.AgentCode)
             .HasMaxLength(20);
 
+        builder.Property(e => e.OrganizationType)
+            .HasMaxLength(30)
+            .IsRequired();
+
+        builder.Property(e => e.RegistrationStatus)
+            .HasMaxLength(30)
+            .IsRequired();
+
+        builder.Property(e => e.MatchCode)
+            .HasMaxLength(20);
+
+        builder.Property(e => e.OperatingCountries)
+            .HasMaxLength(20)
+            .IsRequired();
+
+        builder.Property(e => e.ValidatedBy)
+            .HasMaxLength(256);
+
+        builder.Property(e => e.ArCheckedBy)
+            .HasMaxLength(256);
+
+        builder.Property(e => e.ArReference)
+            .HasMaxLength(100);
+
+        builder.Property(e => e.ReviewNotes)
+            .HasMaxLength(1000);
+
         builder.HasIndex(e => new { e.TaxId, e.Country })
             .IsUnique();
+
+        builder.HasIndex(e => e.MatchCode)
+            .IsUnique()
+            .HasFilter("\"MatchCode\" IS NOT NULL");
+
+        builder.HasIndex(e => e.RegistrationStatus);
 
         builder.HasIndex(e => e.Email)
             .IsUnique();
@@ -58,6 +91,11 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
             .WithOne(e => e.Client)
             .HasForeignKey(e => e.ClientId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(e => e.Documents)
+            .WithOne(e => e.Client)
+            .HasForeignKey(e => e.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(e => e.Payments)
             .WithOne(e => e.Client)

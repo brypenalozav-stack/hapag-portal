@@ -1,0 +1,108 @@
+<div class="hl-page-header">
+  <h1>{{ 'refunds.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'refunds.subtitle' | transloco }}</p>
+</div>
+
+@switch (state()) {
+  @case ('error') {
+    <app-state-message kind="error" messageKey="refunds.loadError" (retry)="retry()" />
+  }
+  @case ('ready') {
+    @if (url(); as portalUrl) {
+      <!-- Portal externo incrustado: el cliente no deja el sitio y puede abrirlo aparte -->
+      <section class="hl-card rf-portal" aria-labelledby="rf-portal-title" data-testid="refunds-portal">
+        <div class="rf-toolbar">
+          <div class="rf-toolbar__heading">
+            <h2 id="rf-portal-title" class="section-title">{{ 'refunds.frameTitle' | transloco }}</h2>
+            <span class="hl-badge rf-badge-external" data-testid="refunds-external-badge">
+              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                @for (d of icons.external; track $index) { <path fill-rule="evenodd" [attr.d]="d" /> }
+              </svg>
+              {{ 'refunds.external' | transloco }}
+            </span>
+          </div>
+          <a class="btn btn-outline-secondary rf-open" [href]="portalUrl" target="_blank" rel="noopener noreferrer" data-testid="refunds-open-new">
+            {{ 'refunds.openNew' | transloco }}<span class="visually-hidden">{{ 'refunds.newWindow' | transloco }}</span>
+            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+              @for (d of icons.external; track $index) { <path fill-rule="evenodd" [attr.d]="d" /> }
+            </svg>
+          </a>
+        </div>
+        <p class="rf-note" role="note">
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            @for (d of icons.info; track $index) { <path [attr.d]="d" /> }
+          </svg>
+          <span>{{ 'refunds.note' | transloco }}</span>
+        </p>
+        <div class="rf-frame" [attr.aria-busy]="!frameLoaded()">
+          @if (!frameLoaded()) {
+            <div class="rf-frame__loading" role="status" data-testid="refunds-frame-loading">
+              <span class="spinner-border text-hl-blue" aria-hidden="true"></span>
+              <span>{{ 'refunds.loading' | transloco }}</span>
+            </div>
+          }
+          <iframe class="rf-frame__iframe" data-testid="refunds-frame"
+                  [src]="frameSrc()" [title]="'refunds.frameTitle' | transloco"
+                  loading="lazy" referrerpolicy="no-referrer"
+                  sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
+                  (load)="onFrameLoad()"></iframe>
+        </div>
+        <p class="rf-hint" data-testid="refunds-hint">{{ 'refunds.hint' | transloco }}</p>
+      </section>
+    } @else {
+      <!-- Sin URL configurada: estado tranquilo con los canales de contacto, sin marco ni enlaces -->
+      <section class="hl-card rf-soon" aria-labelledby="rf-soon-title" data-testid="refunds-coming-soon">
+        <div class="rf-soon__art" aria-hidden="true">
+          <svg focusable="false" xmlns="http://www.w3.org/2000/svg" width="44" height="44" fill="currentColor" viewBox="0 0 16 16">
+            @for (d of icons.refund; track $index) { <path fill-rule="evenodd" [attr.d]="d" /> }
+            @for (d of icons.coin; track $index) { <path [attr.d]="d" /> }
+          </svg>
+        </div>
+        <h2 id="rf-soon-title" class="rf-soon__title">{{ 'refunds.soon.title' | transloco }}</h2>
+        <p class="rf-soon__text">{{ 'refunds.soon.text' | transloco }}</p>
+
+        <div class="rf-contact" data-testid="refunds-contact">
+          <h3 class="rf-contact__title">{{ 'refunds.soon.contactTitle' | transloco }}</h3>
+          @if (country() === 'CL') {
+            <p class="rf-contact__org">{{ 'refunds.soon.contact.CL.name' | transloco }}</p>
+            <dl class="rf-contact__list">
+              <div class="rf-contact__item">
+                <dt>
+                  <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    @for (d of icons.mail; track $index) { <path [attr.d]="d" /> }
+                  </svg>
+                  {{ 'refunds.soon.email' | transloco }}
+                </dt>
+                <dd data-testid="refunds-contact-email">{{ 'refunds.soon.contact.CL.email' | transloco }}</dd>
+              </div>
+              <div class="rf-contact__item">
+                <dt>
+                  <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    @for (d of icons.phone; track $index) { <path [attr.d]="d" /> }
+                  </svg>
+                  {{ 'refunds.soon.phone' | transloco }}
+                </dt>
+                <dd data-testid="refunds-contact-phone">{{ 'refunds.soon.contact.CL.phone' | transloco }}</dd>
+              </div>
+            </dl>
+          } @else {
+            <p class="rf-contact__generic mb-0" data-testid="refunds-contact-generic">
+              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                @for (d of icons.person; track $index) { <path [attr.d]="d" /> }
+              </svg>
+              <span>{{ 'refunds.soon.bolivia' | transloco }}</span>
+            </p>
+          }
+        </div>
+      </section>
+    }
+  }
+  @default {
+    <div class="hl-card rf-skeleton" role="status" data-testid="refunds-loading">
+      <span class="visually-hidden">{{ 'refunds.loading' | transloco }}</span>
+      <span class="hl-skeleton w-25 mb-3" aria-hidden="true"></span>
+      <span class="hl-skeleton w-75 mb-2" aria-hidden="true"></span>
+      <span class="hl-skeleton rf-skeleton__block" aria-hidden="true"></span>
+    </div>
+  }
+}

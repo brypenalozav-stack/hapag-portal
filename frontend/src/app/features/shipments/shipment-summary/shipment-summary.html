@@ -1,0 +1,78 @@
+@let s = shipment();
+<header class="hl-bl-header" data-hl-sticky data-testid="bl-summary-header" [class.is-collapsed]="collapsed()">
+  <div class="hl-bl-header__main">
+    <div class="hl-bl-header__id">
+      <p class="hl-bl-header__eyebrow">{{ s.operation | codeLabel: operationKeys }}</p>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <h1 class="hl-bl-header__title">{{ 'shipments.detail.title' | transloco: { bl: s.blNumber } }}</h1>
+        <app-status-badge [status]="s.status" />
+      </div>
+      <dl class="hl-bl-header__facts">
+        <div>
+          <dt>{{ 'releaseStatus.summary.vessel' | transloco }}</dt>
+          <dd>{{ s.vessel ?? '—' }} / {{ s.voyage ?? '—' }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'shipments.detail.general.eta' | transloco }}</dt>
+          <dd>{{ s.eta ? (s.eta | hlDate) : '—' }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'shipments.detail.summary.routeLabel' | transloco }}</dt>
+          <dd>{{ 'shipments.detail.summary.route' | transloco: { pol: s.portOfLoading ?? '—', pod: s.portOfDischarge ?? '—' } }}</dd>
+        </div>
+      </dl>
+    </div>
+
+    @switch (release().kind) {
+      @case ('none') {}
+      @default {
+        <section class="hl-bl-next" aria-labelledby="bl-next-title" data-testid="bl-next-action">
+          <h2 id="bl-next-title" class="hl-bl-next__title">{{ 'shipments.detail.summary.nextAction' | transloco }}</h2>
+          @switch (release().kind) {
+            @case ('loading') {
+              <p class="hl-bl-next__text mb-0" role="status">{{ 'shipments.detail.summary.loading' | transloco }}</p>
+            }
+            @case ('unavailable') {
+              <p class="hl-bl-next__text mb-0">{{ 'shipments.detail.summary.unavailable' | transloco }}</p>
+            }
+          }
+          @let r = release();
+          @if (r.kind === 'released' || r.kind === 'pending') {
+            <div class="hl-bl-next__progress">
+              <span class="hl-badge hl-bl-next__overall" [class.hl-badge--paid]="r.kind === 'released'" [class.hl-badge--pending]="r.kind === 'pending'" data-testid="bl-next-overall">
+                {{ (r.kind === 'released' ? 'releaseStatus.summary.released' : 'releaseStatus.summary.pending') | transloco }}
+              </span>
+              <span class="hl-bl-next__count" data-testid="bl-next-progress">{{ 'releaseStatus.summary.progress' | transloco: { done: r.status.completedSteps, total: r.status.totalSteps } }}</span>
+            </div>
+            <div class="hl-bl-next__bar" aria-hidden="true"><span [style.width.%]="progress()"></span></div>
+          }
+          @if (r.kind === 'released') {
+            <p class="hl-bl-next__text">{{ 'shipments.detail.summary.released' | transloco }}</p>
+          } @else if (r.kind === 'pending') {
+            <p class="hl-bl-next__text" data-testid="bl-next-step">
+              {{ (r.next ? pendingKey(r.next) : 'shipments.detail.summary.inProgress') | transloco }}
+              @if (r.next && !r.next.actionAllowed) {
+                <span class="d-block">{{ 'releaseStatus.action.notAllowed' | transloco }}</span>
+              }
+            </p>
+          }
+          <div class="hl-bl-next__actions">
+            @if (r.kind === 'pending' && r.next && nextAction(); as action) {
+              @if (anchorOf(action); as anchor) {
+                <a class="btn btn-sm btn-hl-orange" [href]="'#' + anchor" (click)="$event.preventDefault(); goTo(anchor)" data-testid="bl-next-action-button">
+                  {{ actionKey(r.next) | transloco }}
+                </a>
+              } @else if (routeOf(action); as route) {
+                <a class="btn btn-sm btn-hl-orange" [routerLink]="route" data-testid="bl-next-action-button">{{ actionKey(r.next) | transloco }}</a>
+              }
+            }
+            <a class="hl-bl-next__link" [routerLink]="['/bl-status', s.blNumber]" data-testid="shipment-release-status-link">
+              {{ 'shipments.detail.releaseStatusLink' | transloco }}
+            </a>
+          </div>
+        </section>
+      }
+    }
+  </div>
+  <app-section-nav [items]="sections()" [embedded]="true" />
+</header>

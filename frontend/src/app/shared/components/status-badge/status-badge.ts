@@ -1,4 +1,6 @@
 import { Component, input, computed } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { SHIPMENT_STATUS_KEYS } from '../../../core/i18n/labels';
 
 const STATUS_CLASS_MAP: Record<string, string> = {
   pending: 'hl-badge--pending',
@@ -18,29 +20,35 @@ const STATUS_CLASS_MAP: Record<string, string> = {
   activo: 'hl-badge--active',
 };
 
-const STATUS_LABEL_MAP: Record<string, string> = {
-  PENDING: 'Pendiente',
-  CONFIRMED: 'Confirmado',
-  PAID: 'Pagado',
-  FAILED: 'Fallido',
-  REJECTED: 'Rechazado',
-  PROCESSING: 'Procesando',
-  ACTIVE: 'Activo',
-  RELEASED: 'Liberado',
-  HOLD: 'Retenido',
-  CLOSED: 'Cerrado',
-  EXEMPT: 'Exento',
+/** Estados con texto traducido en `status.<code>` (es.json / en.json). Los estados de embarque usan SHIPMENT_STATUS_KEYS; el resto se muestra tal cual. */
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  PENDING: 'status.pending',
+  CONFIRMED: 'status.confirmed',
+  PAID: 'status.paid',
+  FAILED: 'status.failed',
+  REJECTED: 'status.rejected',
+  PROCESSING: 'status.processing',
+  ACTIVE: 'status.active',
+  RELEASED: 'status.released',
+  HOLD: 'status.hold',
+  CLOSED: 'status.closed',
+  EXEMPT: 'status.exempt',
 };
 
 @Component({
   selector: 'app-status-badge',
   standalone: true,
+  imports: [TranslocoPipe],
   template: `
     <span class="hl-badge" [class]="badgeClass()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8">
         <circle cx="4" cy="4" r="4" fill="currentColor"/>
       </svg>
-      {{ label() }}
+      @if (labelKey(); as key) {
+        {{ key | transloco }}
+      } @else {
+        {{ status() }}
+      }
     </span>
   `,
 })
@@ -51,7 +59,7 @@ export class StatusBadgeComponent {
     return STATUS_CLASS_MAP[this.status().toLowerCase()] ?? 'hl-badge--pending';
   });
 
-  label = computed((): string => {
-    return STATUS_LABEL_MAP[this.status().toUpperCase()] ?? this.status();
+  labelKey = computed((): string | null => {
+    return STATUS_LABEL_KEYS[this.status().toUpperCase()] ?? SHIPMENT_STATUS_KEYS[this.status()] ?? null;
   });
 }

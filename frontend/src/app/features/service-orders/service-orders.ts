@@ -2,16 +2,21 @@ import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { ServiceOrderService, ServiceOrder } from '../../core/services/service-order.service';
 import { BillOfLadingService } from '../../core/services/bl.service';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
+import { HlDatePipe } from '../../shared/pipes/hl-date.pipe';
+import { ClientTable } from '../../shared/utils/client-table';
+import { TableFilterComponent } from '../../shared/components/table-filter/table-filter';
+import { SortHeaderComponent } from '../../shared/components/sort-header/sort-header';
+import { PaginatorComponent } from '../../shared/components/paginator/paginator';
 
 @Component({
   selector: 'app-service-orders',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe, StatusBadgeComponent, LoadingSpinnerComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, HlDatePipe, StatusBadgeComponent, LoadingSpinnerComponent, TableFilterComponent, SortHeaderComponent, PaginatorComponent],
   templateUrl: './service-orders.html',
   styleUrl: './service-orders.scss',
 })
@@ -22,6 +27,17 @@ export class ServiceOrdersComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   orders = signal<ServiceOrder[]>([]);
+  /** Filtro rápido, orden y paginación en el navegador sobre las órdenes del cliente. */
+  readonly table = new ClientTable(this.orders, {
+    searchText: (o) => [o.orderNumber, o.blNumber, this.typeText(o.type), o.description, o.status].join(' '),
+    sortValues: {
+      number: (o) => o.orderNumber ?? o.id,
+      bl: (o) => o.blNumber,
+      type: (o) => this.typeText(o.type),
+      date: (o) => o.createdAt,
+      status: (o) => o.status,
+    },
+  });
   loading = signal(false);
   error = signal('');
   showForm = signal(false);
@@ -36,13 +52,13 @@ export class ServiceOrdersComponent implements OnInit {
   });
 
   orderTypes = [
-    { value: 'RELEASE', label: 'Liberación de Carga' },
-    { value: 'INSPECTION', label: 'Inspección de Contenedor' },
-    { value: 'WEIGHING', label: 'Pesaje VGM' },
-    { value: 'FUMIGATION', label: 'Fumigación' },
-    { value: 'CONSOLIDATION', label: 'Consolidación' },
-    { value: 'DECONSOLIDATION', label: 'Desconsolidación' },
-    { value: 'OTHER', label: 'Otro' },
+    { value: 'RELEASE', labelKey: 'serviceOrders.types.release' },
+    { value: 'INSPECTION', labelKey: 'serviceOrders.types.inspection' },
+    { value: 'WEIGHING', labelKey: 'serviceOrders.types.weighing' },
+    { value: 'FUMIGATION', labelKey: 'serviceOrders.types.fumigation' },
+    { value: 'CONSOLIDATION', labelKey: 'serviceOrders.types.consolidation' },
+    { value: 'DECONSOLIDATION', labelKey: 'serviceOrders.types.deconsolidation' },
+    { value: 'OTHER', labelKey: 'serviceOrders.types.other' },
   ];
 
   ngOnInit(): void {
@@ -61,7 +77,7 @@ export class ServiceOrdersComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar las órdenes de servicio.');
+        this.error.set(translate('serviceOrders.loadError'));
         this.loading.set(false);
       },
     });
@@ -100,19 +116,26 @@ export class ServiceOrdersComponent implements OnInit {
     ).subscribe({
       next: (order) => {
         this.submitting.set(false);
-        this.formSuccess.set(`Orden ${order.orderNumber ?? order.id} creada exitosamente.`);
+        this.formSuccess.set(translate('serviceOrders.created', { number: order.orderNumber ?? order.id }));
         this.form.reset();
         this.loadOrders();
         setTimeout(() => this.showForm.set(false), 2000);
       },
       error: (err) => {
         this.submitting.set(false);
-        this.formError.set(err.error?.message ?? 'Error al crear la orden de servicio.');
+        this.formError.set(err.error?.message ?? translate('serviceOrders.createError'));
       },
     });
   }
 
-  getTypeLabel(value: string): string {
-    return this.orderTypes.find((t) => t.value === value)?.label ?? value;
+  /** Clave de traducción del tipo de orden; null si el tipo no tiene texto (se muestra tal cual). */
+  /** Texto del tipo de orden para buscar y ordenar. */
+  typeText(value: string): string {
+    const key = this.typeKey(value);
+    return key ? translate(key) : value;
+  }
+
+  typeKey(value: string): string | null {
+    return this.orderTypes.find((t) => t.value === value)?.labelKey ?? null;
   }
 }

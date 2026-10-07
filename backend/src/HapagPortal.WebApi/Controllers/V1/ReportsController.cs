@@ -2,6 +2,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 
 using System.Text;
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.Reports.Common;
 using HapagPortal.Application.Reports.Deadlines;
 using HapagPortal.Application.Reports.Transmissions;
@@ -27,11 +28,13 @@ public sealed class ReportsController : ApiController
         => Render(new GetTransmissionReportQuery(status), true, "transmisiones", ct);
 
     [HttpGet("overdue-deadlines")]
+    [RequiresFeature(FeatureNames.DocumentaryDeadlines)]
     [HasPermission("reports.view")]
     public Task<IActionResult> OverdueDeadlines([FromQuery] bool includeAtRisk, CancellationToken ct)
         => Render(new GetOverdueDeadlinesReportQuery(includeAtRisk), false, "plazos", ct);
 
     [HttpGet("overdue-deadlines/export")]
+    [RequiresFeature(FeatureNames.DocumentaryDeadlines)]
     [HasPermission("reports.view")]
     public Task<IActionResult> OverdueDeadlinesExport([FromQuery] bool includeAtRisk, CancellationToken ct)
         => Render(new GetOverdueDeadlinesReportQuery(includeAtRisk), true, "plazos", ct);

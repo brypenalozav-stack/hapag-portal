@@ -1,0 +1,200 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.paymentMethods.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.paymentMethods.subtitle' | transloco }}</p>
+  </div>
+  <button type="button" class="btn btn-hl-orange" (click)="openCreate()">{{ 'admin.paymentMethods.new' | transloco }}</button>
+</div>
+
+@if (formOpen()) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="method-form-title" (submit)="submit($event)">
+    <h2 #formHeading id="method-form-title" class="section-title mb-3" tabindex="-1">
+      {{ (editing() ? 'admin.paymentMethods.form.editTitle' : 'admin.paymentMethods.form.createTitle') | transloco }}
+    </h2>
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="method-errors-title">
+        <h3 id="method-errors-title" class="h6 fw-bold">{{ 'admin.paymentMethods.form.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track error.key) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label for="method-code" class="form-label small fw-semibold">{{ 'admin.paymentMethods.form.code' | transloco }}</label>
+        <input id="method-code" type="text" class="form-control" required autocomplete="off" aria-describedby="method-code-help"
+               [readonly]="!!editing()" [attr.aria-invalid]="hasError('method-code')" [(ngModel)]="form.code" [ngModelOptions]="{ standalone: true }" />
+        <div id="method-code-help" class="form-text">{{ 'admin.paymentMethods.form.codeHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-4">
+        <label for="method-name" class="form-label small fw-semibold">{{ 'admin.paymentMethods.form.name' | transloco }}</label>
+        <input id="method-name" type="text" class="form-control" required maxlength="100" [attr.aria-invalid]="hasError('method-name')"
+               [(ngModel)]="form.name" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-4">
+        <label for="method-country" class="form-label small fw-semibold">{{ 'admin.paymentMethods.form.country' | transloco }}</label>
+        <select id="method-country" class="form-select" required [disabled]="!!editing()" [(ngModel)]="form.country" [ngModelOptions]="{ standalone: true }">
+          <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+          <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <label for="method-description" class="form-label small fw-semibold">{{ 'admin.paymentMethods.form.description' | transloco }}</label>
+        <input id="method-description" type="text" class="form-control" maxlength="300" [(ngModel)]="form.description" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-4">
+        <label for="method-kind" class="form-label small fw-semibold">{{ 'admin.paymentMethods.form.kind' | transloco }}</label>
+        <select id="method-kind" class="form-select" required [(ngModel)]="form.kind" [ngModelOptions]="{ standalone: true }">
+          <option value="Online">{{ 'common.paymentMethodKind.online' | transloco }}</option>
+          <option value="Deposit">{{ 'common.paymentMethodKind.deposit' | transloco }}</option>
+        </select>
+      </div>
+      @if (form.kind === 'Online') {
+        <div class="col-md-4">
+          <label for="method-provider" class="form-label small fw-semibold">{{ 'admin.paymentMethods.form.provider' | transloco }}</label>
+          <select id="method-provider" class="form-select" required aria-describedby="method-provider-help" [attr.aria-invalid]="hasError('method-provider')"
+                  [(ngModel)]="form.providerKey" [ngModelOptions]="{ standalone: true }">
+            <option value="">{{ 'admin.paymentMethods.form.providerPlaceholder' | transloco }}</option>
+            @for (p of providers; track p) {
+              <option [value]="p">{{ p }}</option>
+            }
+          </select>
+          <div id="method-provider-help" class="form-text">{{ 'admin.paymentMethods.form.providerHelp' | transloco }}</div>
+        </div>
+      }
+      <div class="col-md-4">
+        <label for="method-order" class="form-label small fw-semibold">{{ 'admin.paymentMethods.form.order' | transloco }}</label>
+        <input id="method-order" type="text" inputmode="numeric" class="form-control" [attr.aria-invalid]="hasError('method-order')"
+               [(ngModel)]="form.displayOrder" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-8">
+        <fieldset>
+          <legend class="form-label small fw-semibold mb-1">{{ 'admin.paymentMethods.form.currencies' | transloco }}</legend>
+          @for (currency of currencies; track currency) {
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" [id]="'method-currency-' + currency" [checked]="isCurrency(currency)" (change)="toggleCurrency(currency, $event)" />
+              <label class="form-check-label" [for]="'method-currency-' + currency">{{ currency }}</label>
+            </div>
+          }
+        </fieldset>
+      </div>
+      <div class="col-md-4">
+        <div class="form-check mt-4">
+          <input id="method-enabled" type="checkbox" class="form-check-input" [(ngModel)]="form.isEnabled" [ngModelOptions]="{ standalone: true }" />
+          <label for="method-enabled" class="form-check-label">{{ 'admin.paymentMethods.form.enabled' | transloco }}</label>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">{{ (editing() ? 'admin.paymentMethods.form.save' : 'admin.paymentMethods.form.create') | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'admin.paymentMethods.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.paymentMethods.filters.label' | transloco" (ngSubmit)="load()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="methods-country" class="form-label small fw-semibold">{{ 'admin.paymentMethods.filters.country' | transloco }}</label>
+      <select id="methods-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="form-check mb-2">
+        <input id="methods-disabled" type="checkbox" class="form-check-input" name="includeDisabled" [(ngModel)]="includeDisabled" />
+        <label for="methods-disabled" class="form-check-label small">{{ 'admin.paymentMethods.filters.includeDisabled' | transloco }}</label>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <button type="submit" class="btn btn-outline-secondary">{{ 'admin.paymentMethods.filters.search' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (methods().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.paymentMethods.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.paymentMethods.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.paymentMethods.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.paymentMethods.col.method' | transloco }}</th>
+            <th scope="col">{{ 'admin.paymentMethods.col.kind' | transloco }}</th>
+            <th scope="col">{{ 'admin.paymentMethods.col.provider' | transloco }}</th>
+            <th scope="col">{{ 'admin.paymentMethods.col.currencies' | transloco }}</th>
+            <th scope="col">{{ 'admin.paymentMethods.col.order' | transloco }}</th>
+            <th scope="col">{{ 'admin.paymentMethods.col.status' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.paymentMethods.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of methods(); track m.id) {
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <app-payment-logo [method]="m" />
+                  <div>
+                    <span class="fw-semibold d-block">{{ m.name }}</span>
+                    <span class="small text-muted">{{ m.code }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>{{ m.kind | codeLabel: kindKeys }}</td>
+              <td>{{ m.providerKey ?? '—' }}</td>
+              <td>{{ m.currencies.join(', ') }}</td>
+              <td>{{ m.displayOrder }}</td>
+              <td>{{ (m.isEnabled ? 'admin.paymentMethods.enabled' : 'admin.paymentMethods.disabledStatus') | transloco }}</td>
+              <td>
+                <div class="hl-actions">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(m)"
+                          [attr.aria-label]="'admin.paymentMethods.editLabel' | transloco: { name: m.name }">{{ 'admin.paymentMethods.edit' | transloco }}</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(m)"
+                          [attr.aria-label]="'admin.paymentMethods.historyLabel' | transloco: { name: m.name }">{{ 'admin.paymentMethods.history' | transloco }}</button>
+                  @if (m.isEnabled) {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="disable(m)"
+                            [attr.aria-label]="'admin.paymentMethods.disableLabel' | transloco: { name: m.name }">{{ 'admin.paymentMethods.disable' | transloco }}</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
+
+@if (historyMethod(); as m) {
+  <section class="hl-card mb-4" aria-labelledby="method-history-title">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #historyHeading id="method-history-title" class="section-title" tabindex="-1">{{ 'admin.paymentMethods.historyTitle' | transloco: { name: m.name } }}</h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeHistory()">{{ 'admin.paymentMethods.historyClose' | transloco }}</button>
+    </div>
+    @if (historyLoading()) {
+      <app-loading-spinner />
+    } @else if (history().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.paymentMethods.historyEmpty'" />
+    } @else {
+      <app-change-log [changes]="history()" [captionKey]="'admin.paymentMethods.historyCaption'" [fieldKeys]="snapshotKeys" />
+    }
+  </section>
+}

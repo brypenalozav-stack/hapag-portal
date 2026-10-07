@@ -1,0 +1,241 @@
+<section class="hl-card mb-4" aria-labelledby="charges-panel-title">
+  <div class="card-header p-3">
+    <h2 [attr.aria-level]="headingLevel() === 3 ? 3 : null" id="charges-panel-title" class="section-title">{{ 'charges.panel.title' | transloco: { bl: blNumber() } }}</h2>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (error()) {
+    <div class="alert alert-danger m-3" role="alert">{{ error() }}</div>
+  } @else if (data(); as d) {
+    @if (!d.rulesAvailable) {
+      <!-- NF-11: sin respuesta de Nexus no se presentan los cargos como definitivos -->
+      <app-state-message kind="error" [messageKey]="'charges.panel.rulesUnavailable'" (retry)="load()" />
+    } @else {
+      <div class="p-3">
+        <!-- Resultado de aplicar las reglas (M4-02) -->
+        @if (applyOutcome(); as outcome) {
+          <div class="alert" [class.alert-success]="outcome.completed" [class.alert-info]="!outcome.completed" role="status">
+            <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" #outcomeHeading class="h6 fw-bold" tabindex="-1">
+              {{ (outcome.completed ? 'charges.panel.apply.completedTitle' : 'charges.panel.apply.partialTitle') | transloco }}
+            </h3>
+            <p class="mb-0">
+              @if (outcome.completed) {
+                {{ 'charges.panel.apply.completed' | transloco }}
+              } @else {
+                {{ 'charges.panel.apply.partial' | transloco: { exempted: outcome.exempted, payable: outcome.payable } }}
+              }
+            </p>
+          </div>
+        }
+        @if (applyError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ applyError() }}</div>
+        }
+        @if (letterResult()) {
+          <div class="alert alert-success py-2" data-testid="charges-letter-issued">{{ letterResult() }}</div>
+        }
+        @if (letterError()) {
+          <div class="alert alert-danger py-2" role="alert">{{ letterError() }}</div>
+        }
+
+        <!-- Carta de responsabilidad obligatoria para FFWW (M4-04): bloquea el avance -->
+        @for (req of blockingRequirements(); track req.code) {
+          @if (req.code === 'RESPONSIBILITY_LETTER') {
+            <div class="alert alert-warning" role="note" aria-labelledby="charges-letter-title">
+              <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" id="charges-letter-title" class="h6 fw-bold">{{ 'charges.panel.letter.title' | transloco }}</h3>
+              <p class="mb-2">{{ 'charges.panel.letter.text' | transloco: { status: (req.status | codeLabel: requirementStatusKeys) } }}</p>
+              @if (canIssueLetter()) {
+                <!-- Formulario de la carta (M6-06): sin cobro; emitida, levanta el bloqueo de este BL -->
+                <button type="button" class="btn btn-sm btn-hl-orange" aria-describedby="charges-letter-help" data-testid="charges-letter-generate" (click)="openLetter($event)">
+                  {{ 'charges.panel.letter.generate' | transloco }}
+                </button>
+                <p id="charges-letter-help" class="small mb-0 mt-1">{{ 'charges.panel.letter.help' | transloco }}</p>
+              } @else {
+                <p class="small mb-0">{{ 'charges.panel.letter.cannotIssue' | transloco }}</p>
+              }
+            </div>
+          }
+        }
+
+        @if (gateOutAdvance()) {
+          <!-- Fase 2, Ola H: pago anticipado del Gate Out por la agencia de aduanas (M3-19) -->
+          <div class="alert alert-info" role="note" aria-labelledby="charges-gate-out-advance-title" data-testid="charges-gate-out-advance">
+            <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" id="charges-gate-out-advance-title" class="h6 fw-bold">{{ 'charges.panel.gateOutAdvance.title' | transloco }}</h3>
+            <p class="mb-1">{{ 'charges.panel.gateOutAdvance.text' | transloco }}</p>
+            <p class="mb-0">{{ 'charges.panel.gateOutAdvance.invoice' | transloco }}</p>
+          </div>
+        }
+
+        <!-- Condiciones comerciales leídas de Nexus para el pagador (M8-02, M4-03) -->
+        <p class="small text-muted mb-2">
+          {{ 'charges.panel.payer' | transloco: { name: d.payer.name, taxId: d.payer.taxId } }}
+        </p>
+        @if (d.conditions.ipoExcluded) {
+          <p class="small mb-2" data-testid="charges-ipo-excluded">{{ 'charges.panel.ipoExcluded' | transloco }}</p>
+        }
+
+        <!-- Figuras consultadas en Nexus para las exenciones (M4-01) -->
+        @if (d.exemptionFigures.length > 0) {
+          <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" class="h6 fw-bold mt-3">{{ 'charges.panel.figures.title' | transloco }}</h3>
+          <ul class="small mb-3">
+            @for (figure of d.exemptionFigures; track figure.party) {
+              <li>
+                {{ 'charges.panel.figures.item' | transloco: { party: (figure.party | codeLabel: partyKeys), name: figure.name, taxId: figure.taxId } }}
+                @if (!figure.available) {
+                  {{ 'charges.panel.figures.unavailable' | transloco }}
+                } @else if (figure.exemptions.length === 0) {
+                  {{ 'charges.panel.figures.none' | transloco }}
+                } @else {
+                  {{ 'charges.panel.figures.exemptOf' | transloco }}
+                  @for (ex of figure.exemptions; track ex.concept; let last = $last) {
+                    {{ ex.concept | codeLabel: conceptKeys }}@if (!last) {<span>, </span>}
+                  }
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      @if (d.charges.length === 0) {
+        <app-state-message kind="empty" [messageKey]="'charges.panel.empty'" />
+      } @else {
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'charges.panel.caption' | transloco: { bl: d.blNumber }">
+          <table class="hl-table">
+            <caption class="visually-hidden">{{ 'charges.panel.caption' | transloco: { bl: d.blNumber } }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'charges.panel.col.concept' | transloco }}</th>
+                <th scope="col" class="text-end">{{ 'charges.panel.col.amount' | transloco }}</th>
+                <th scope="col">{{ 'charges.panel.col.outcome' | transloco }}</th>
+                <th scope="col" class="text-end">{{ 'charges.panel.col.payable' | transloco }}</th>
+                <th scope="col">{{ 'charges.panel.col.exemption' | transloco }}</th>
+                <th scope="col">{{ 'charges.panel.col.action' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (charge of d.charges; track charge.chargeId) {
+                <tr>
+                  <td>
+                    <span class="fw-semibold">{{ charge.conceptCode | codeLabel: conceptKeys }}</span>
+                    @if (charge.description) {
+                      <span class="d-block small text-muted">{{ charge.description }}</span>
+                    }
+                  </td>
+                  <td class="text-end text-nowrap">{{ charge.totalAmount | hlCurrency: charge.currency }}</td>
+                  <td>
+                    <span class="hl-badge" [class]="outcomeClass(charge.outcome)">{{ charge.outcome | codeLabel: outcomeKeys }}</span>
+                  </td>
+                  <td class="text-end">
+                    <span class="fw-semibold">{{ charge.payableTotal | hlCurrency: charge.currency }}</span>
+                    @if (charge.localCurrency; as lc) {
+                      <!-- Monto en moneda local con el tipo de cambio de Nexus (M5-05) -->
+                      <span class="d-block small text-muted">
+                        {{ 'charges.panel.localCurrency' | transloco: {
+                          amount: (lc.amount | hlCurrency: lc.currency),
+                          rate: (lc.rate | hlNumber: '1.2-6'),
+                          date: (lc.effectiveDate | hlDate: 'localDate'),
+                          source: (lc.source | codeLabel: sourceKeys)
+                        } }}
+                      </span>
+                    }
+                  </td>
+                  <td class="small">
+                    @if (charge.exemption; as ex) {
+                      <!-- Trazabilidad a la condición informada por Nexus (M4-02) -->
+                      {{ 'charges.panel.exemption.reference' | transloco: {
+                        source: (ex.source | codeLabel: sourceKeys),
+                        party: (ex.party | codeLabel: partyKeys),
+                        taxId: ex.taxId,
+                        from: (ex.validFrom | hlDate: 'localDate')
+                      } }}
+                      @if (ex.appliedAt) {
+                        <span class="d-block">{{ 'charges.panel.exemption.applied' | transloco: { date: (ex.appliedAt | hlDate: 'datetime' : d.timeZone) } }}</span>
+                      }
+                    } @else {
+                      <span aria-hidden="true">—</span>
+                      <span class="visually-hidden">{{ 'charges.panel.exemption.none' | transloco }}</span>
+                    }
+                  </td>
+                  <td>
+                    @if (charge.action === 'None') {
+                      <span aria-hidden="true">—</span>
+                      <span class="visually-hidden">{{ 'charges.panel.action.none' | transloco }}</span>
+                    } @else if (!d.canProceed) {
+                      <span class="small">{{ 'charges.panel.action.blockedByLetter' | transloco }}</span>
+                    } @else if (charge.actionBlockedReason) {
+                      <span class="small">{{ charge.actionBlockedReason | codeLabel: blockedKeys }}</span>
+                    } @else if (charge.action === 'Pay' || charge.action === 'AddToCart') {
+                      @if (isSaved(charge)) {
+                        <span class="small fw-semibold">{{ 'charges.panel.action.inCart' | transloco }}</span>
+                      } @else if (cart.accountPaymentsEnabled()) {
+                        <a routerLink="/account-payments" class="small">{{ 'charges.panel.action.accountPayments' | transloco }}</a>
+                      } @else if (cart.cartEnabled()) {
+                        <button type="button" class="btn btn-sm btn-hl-orange" (click)="addToCart(charge)"
+                                [attr.aria-label]="'charges.panel.action.addToCartLabel' | transloco: { concept: (charge.conceptCode | codeLabel: conceptKeys) }">
+                          {{ 'charges.panel.action.addToCart' | transloco }}
+                        </button>
+                      } @else {
+                        <span aria-hidden="true">—</span>
+                        <span class="visually-hidden">{{ 'charges.panel.action.none' | transloco }}</span>
+                      }
+                    } @else if (charge.action === 'Calculate') {
+                      <a [routerLink]="['/demurrage', d.blNumber]" class="btn btn-sm btn-outline-secondary">{{ 'charges.panel.action.calculate' | transloco }}</a>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-3">
+          <!-- Totales a pagar por moneda -->
+          @if (d.payableTotals.length > 0) {
+            <h3 [attr.aria-level]="headingLevel() === 3 ? 4 : null" class="h6 fw-bold">{{ 'charges.panel.totals.title' | transloco }}</h3>
+            <dl class="row g-2 mb-3">
+              @for (t of d.payableTotals; track t.currency) {
+                <div class="col-sm-6 col-lg-4">
+                  <dt class="small text-muted">{{ 'charges.panel.totals.currency' | transloco: { currency: t.currency } }}</dt>
+                  <dd class="fw-bold mb-0">{{ t.total | hlCurrency: t.currency }}</dd>
+                </div>
+              }
+            </dl>
+          } @else if (d.allApplicableExempt) {
+            <p class="small mb-3" role="note">{{ 'charges.panel.totals.nothingToPay' | transloco }}</p>
+          }
+
+          @if (canApplyRules()) {
+            <div class="border rounded p-3 mb-3">
+              <p id="charges-apply-help" class="small mb-2">
+                {{ (d.allApplicableExempt ? 'charges.panel.apply.helpAllExempt' : 'charges.panel.apply.help') | transloco }}
+              </p>
+              <button type="button" class="btn btn-hl-orange" [disabled]="applying()" aria-describedby="charges-apply-help" (click)="applyRules()">
+                @if (applying()) {
+                  <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                }
+                {{ (d.allApplicableExempt ? 'charges.panel.apply.completeButton' : 'charges.panel.apply.button') | transloco }}
+              </button>
+            </div>
+          }
+
+          @if (cartableCharges().length > 0 && cart.cartEnabled()) {
+            <p class="small mb-0"><a routerLink="/cart">{{ 'charges.panel.cart.viewCart' | transloco: { count: cart.count() } }}</a></p>
+          }
+          <p class="small text-muted mb-0 mt-2">
+            {{ 'charges.panel.evaluatedAt' | transloco: { date: (d.evaluatedAt | hlDate: 'datetime' : d.timeZone) } }}
+          </p>
+        </div>
+      }
+    }
+  }
+</section>
+
+@if (addTargets(); as targets) {
+  <app-add-to-cart-dialog [targets]="targets" (closed)="onAddClosed()" />
+}
+@if (letterOpen()) {
+  <app-responsibility-letter-dialog [blNumber]="blNumber()" (closed)="onLetterClosed($event)" />
+}

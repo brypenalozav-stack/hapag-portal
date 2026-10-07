@@ -1,0 +1,161 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'warehouse.history.detail.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/warehouse">{{ 'warehouse.title' | transloco }}</a></li>
+      <li class="breadcrumb-item"><a routerLink="/warehouse/history">{{ 'warehouse.history.title' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ trace()?.change?.blNumber ?? ('warehouse.history.detail.breadcrumbCurrent' | transloco) }}</li>
+    </ol>
+  </nav>
+  <h1>
+    @if (trace(); as t) {
+      {{ 'warehouse.history.detail.title' | transloco: { bl: t.change.blNumber } }}
+    } @else {
+      {{ 'warehouse.history.detail.titleLoading' | transloco }}
+    }
+  </h1>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (trace(); as t) {
+  @let c = t.change;
+  <section class="hl-card p-4 mb-4" aria-labelledby="wh-trace-summary-title">
+    <h2 id="wh-trace-summary-title" class="section-title mb-3">{{ 'warehouse.history.detail.summary' | transloco }}</h2>
+    <dl class="row g-3 mb-0">
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'warehouse.history.col.date' | transloco }}</dt>
+        <dd class="detail-value">{{ c.createdAt | hlDate: 'datetime' : c.timeZone }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'warehouse.history.col.status' | transloco }}</dt>
+        <dd class="detail-value">{{ c.status | codeLabel: statusKeys }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'warehouse.history.detail.bl' | transloco }}</dt>
+        <dd class="detail-value">{{ c.blNumber }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'warehouse.history.detail.booking' | transloco }}</dt>
+        <dd class="detail-value">{{ c.bookingNumber ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'warehouse.history.col.change' | transloco }}</dt>
+        <dd class="detail-value">{{ 'warehouse.history.fromTo' | transloco: { from: c.fromWarehouse, to: c.toWarehouse } }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'warehouse.history.detail.container' | transloco }}</dt>
+        <dd class="detail-value">{{ c.containerNumber ?? ('warehouse.history.detail.allContainers' | transloco) }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'warehouse.history.col.amount' | transloco }}</dt>
+        <dd class="detail-value">
+          @if (c.isFree) {
+            {{ 'warehouse.history.free' | transloco }}
+            @if (c.entitlementSource) {
+              <span class="d-block small fw-normal">{{ c.entitlementSource | codeLabel: sourceKeys }}</span>
+            }
+          } @else {
+            {{ c.amount | hlCurrency: c.currency }}
+            @if (c.tariffCode) {
+              <span class="d-block small fw-normal">{{ 'warehouse.history.detail.tariff' | transloco: { code: c.tariffCode } }}</span>
+            }
+          }
+        </dd>
+      </div>
+      @if (c.batchId) {
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'warehouse.history.detail.batch' | transloco }}</dt>
+          <dd class="detail-value">
+            <a [routerLink]="['/warehouse/bulk', c.batchId]">{{ 'warehouse.history.batchLine' | transloco: { line: c.batchLineNumber ?? '—' } }}</a>
+          </dd>
+        </div>
+      }
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'warehouse.history.col.requestedBy' | transloco }}</dt>
+        <dd class="detail-value text-break">
+          @if (c.requestedBy; as by) {
+            <span class="d-block">{{ by.name }}</span>
+            <span class="d-block small fw-normal">{{ 'warehouse.history.taxId' | transloco: { taxId: by.taxId } }}</span>
+          }
+          <span class="small fw-normal">{{ c.requestedByEmail ?? '—' }}</span>
+        </dd>
+      </div>
+      <!-- Razón social y RUT de quien pagó (M3-06) -->
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'warehouse.history.col.payer' | transloco }}</dt>
+        <dd class="detail-value" data-testid="wh-trace-payer">
+          @if (c.payer; as payer) {
+            <span class="d-block">{{ payer.name }}</span>
+            <span class="small fw-normal">{{ 'warehouse.history.taxId' | transloco: { taxId: payer.taxId } }}</span>
+          } @else {
+            {{ (c.isFree ? 'warehouse.history.noPaymentFree' : 'warehouse.history.noPayment') | transloco }}
+          }
+        </dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'warehouse.history.col.billing' | transloco }}</dt>
+        <dd class="detail-value">
+          {{ c.billingTaxId ?? '—' }}
+          @if (c.billingName) {
+            <span class="d-block small fw-normal">{{ c.billingName }}</span>
+          }
+        </dd>
+      </div>
+      @if (c.paymentNumber) {
+        <div class="col-sm-6 col-lg-3">
+          <dt class="detail-label">{{ 'warehouse.history.detail.payment' | transloco }}</dt>
+          <dd class="detail-value">
+            {{ c.paymentNumber }}
+            @if (c.paymentStatus) {
+              <span class="d-block small fw-normal">{{ c.paymentStatus | codeLabel: paymentStatusKeys }}</span>
+            }
+            @if (c.receiptNumber) {
+              <span class="d-block small fw-normal">{{ 'warehouse.history.detail.receipt' | transloco: { number: c.receiptNumber } }}</span>
+            }
+          </dd>
+        </div>
+      }
+    </dl>
+  </section>
+
+  <section class="hl-card mb-4" aria-labelledby="wh-trace-timeline-title">
+    <div class="card-header p-3">
+      <h2 id="wh-trace-timeline-title" class="section-title">{{ 'warehouse.history.detail.timeline' | transloco }}</h2>
+    </div>
+    @if (events().length === 0) {
+      <p class="p-3 mb-0 text-muted" role="status">{{ 'warehouse.history.detail.noEvents' | transloco }}</p>
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'warehouse.history.detail.timelineCaption' | transloco">
+        <table class="hl-table" data-testid="wh-trace-timeline">
+          <caption class="visually-hidden">{{ 'warehouse.history.detail.timelineCaption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'warehouse.history.detail.col.date' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.detail.col.event' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.detail.col.status' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.detail.col.actor' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.detail.col.reference' | transloco }}</th>
+              <th scope="col">{{ 'warehouse.history.detail.col.notes' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of events(); track $index) {
+              <tr>
+                <td class="text-nowrap">{{ e.occurredAt | hlDate: 'datetime' : c.timeZone }}</td>
+                <td class="fw-semibold">{{ e.event | codeLabel: eventKeys }}</td>
+                <td>{{ eventStatus(e) || '—' }}</td>
+                <td class="text-break">{{ e.actor ?? '—' }}</td>
+                <td class="text-break">{{ e.reference ?? '—' }}</td>
+                <td>{{ e.notes ?? '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

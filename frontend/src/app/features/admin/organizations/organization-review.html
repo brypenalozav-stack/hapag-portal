@@ -1,0 +1,264 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'admin.organizations.review.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/admin/organizations">{{ 'admin.organizations.review.breadcrumbList' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ organization()?.name ?? ('admin.organizations.review.title' | transloco) }}</li>
+    </ol>
+  </nav>
+  <h1>{{ organization()?.name ?? ('admin.organizations.review.title' | transloco) }}</h1>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (organization(); as org) {
+  @if (actionError()) {
+    <div class="alert alert-danger" role="alert">{{ actionError() }}</div>
+  }
+
+  <!-- Datos del cliente -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="review-data-title">
+    <h2 id="review-data-title" class="h5 fw-bold mb-3">{{ 'admin.organizations.review.data.title' | transloco }}</h2>
+    <dl class="row g-3 mb-0">
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.data.taxId' | transloco: { type: org.taxIdType } }}</dt>
+        <dd class="detail-value">{{ org.taxId }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.data.country' | transloco }}</dt>
+        <dd class="detail-value">{{ (org.country === 'BO' ? 'common.country.bo' : 'common.country.cl') | transloco }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.data.type' | transloco }}</dt>
+        <dd class="detail-value">{{ org.organizationType | codeLabel: typeKeys }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.data.status' | transloco }}</dt>
+        <dd class="detail-value">{{ org.status | codeLabel: statusKeys }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.data.matchCode' | transloco }}</dt>
+        <dd class="detail-value">{{ org.matchCode ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.data.operatingCountries' | transloco }}</dt>
+        <dd class="detail-value">
+          @for (country of org.operatingCountries; track country; let last = $last) {
+            {{ (country === 'BO' ? 'common.country.bo' : 'common.country.cl') | transloco }}@if (!last) {<span>, </span>}
+          } @empty {
+            —
+          }
+        </dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.data.email' | transloco }}</dt>
+        <dd class="detail-value text-break">{{ org.email }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.data.phone' | transloco }}</dt>
+        <dd class="detail-value">{{ org.phone ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.data.createdAt' | transloco }}</dt>
+        <dd class="detail-value">{{ org.createdAt | hlDate: 'datetime' }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- Trazabilidad de la revisión (M8-04) -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="review-trail-title">
+    <h2 id="review-trail-title" class="h5 fw-bold mb-3">{{ 'admin.organizations.review.trail.title' | transloco }}</h2>
+    <dl class="row g-3 mb-0">
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.trail.validated' | transloco }}</dt>
+        <dd class="detail-value">
+          {{ org.validatedAt ? ('admin.organizations.review.trail.by' | transloco: { date: (org.validatedAt | hlDate: 'datetime'), user: org.validatedBy ?? '—' }) : '—' }}
+        </dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.trail.arChecked' | transloco }}</dt>
+        <dd class="detail-value">
+          {{ org.arCheckedAt ? ('admin.organizations.review.trail.by' | transloco: { date: (org.arCheckedAt | hlDate: 'datetime'), user: org.arCheckedBy ?? '—' }) : '—' }}
+        </dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.trail.arReference' | transloco }}</dt>
+        <dd class="detail-value">{{ org.arReference ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.trail.approvedAt' | transloco }}</dt>
+        <dd class="detail-value">{{ org.approvedAt ? (org.approvedAt | hlDate: 'datetime') : '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <dt class="detail-label">{{ 'admin.organizations.review.trail.rejectedAt' | transloco }}</dt>
+        <dd class="detail-value">{{ org.rejectedAt ? (org.rejectedAt | hlDate: 'datetime') : '—' }}</dd>
+      </div>
+      <div class="col-12">
+        <dt class="detail-label">{{ 'admin.organizations.review.trail.notes' | transloco }}</dt>
+        <dd class="detail-value text-break">{{ org.reviewNotes ?? '—' }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- Acciones del flujo: validar → control AR → aprobada, o rechazar -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="review-actions-title">
+    <h2 id="review-actions-title" class="h5 fw-bold mb-3">{{ 'admin.organizations.review.actions.title' | transloco }}</h2>
+
+    @if (org.status === 'PendingValidation') {
+      @if (canReview()) {
+        <form [formGroup]="validateForm" (ngSubmit)="validate()" class="mb-3">
+          <h3 class="h6 fw-bold">{{ 'admin.organizations.review.validate.title' | transloco }}</h3>
+          <p class="small text-muted">{{ 'admin.organizations.review.validate.help' | transloco }}</p>
+          <label for="review-validate-notes" class="form-label small fw-semibold">{{ 'admin.organizations.review.notes' | transloco }}</label>
+          <textarea id="review-validate-notes" class="form-control" rows="2" formControlName="notes"></textarea>
+          <button type="submit" class="btn btn-hl-orange mt-3" [disabled]="submitting()">{{ 'admin.organizations.review.validate.submit' | transloco }}</button>
+        </form>
+      } @else {
+        <p class="mb-3">{{ 'admin.organizations.review.validate.noPermission' | transloco }}</p>
+      }
+    } @else if (org.status === 'PendingArCheck') {
+      @if (canCheckAr()) {
+        <form [formGroup]="arForm" (ngSubmit)="completeArCheck()" class="mb-3" novalidate>
+          <h3 class="h6 fw-bold">{{ 'admin.organizations.review.arCheck.title' | transloco }}</h3>
+          <p class="small text-muted">{{ 'admin.organizations.review.arCheck.help' | transloco }}</p>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="review-match-code" class="form-label small fw-semibold">{{ 'admin.organizations.review.arCheck.matchCode' | transloco }}</label>
+              <input id="review-match-code" type="text" class="form-control" formControlName="matchCode" required autocomplete="off"
+                     aria-describedby="review-match-code-help review-match-code-error"
+                     [attr.aria-invalid]="arForm.controls.matchCode.touched && arForm.controls.matchCode.invalid"
+                     [class.is-invalid]="arForm.controls.matchCode.touched && arForm.controls.matchCode.invalid" />
+              <div id="review-match-code-help" class="form-text">{{ 'admin.organizations.review.arCheck.matchCodeHelp' | transloco }}</div>
+              <div id="review-match-code-error" class="invalid-feedback">{{ 'admin.organizations.review.arCheck.matchCodeInvalid' | transloco }}</div>
+            </div>
+            <div class="col-md-4">
+              <label for="review-ar-reference" class="form-label small fw-semibold">{{ 'admin.organizations.review.arCheck.arReference' | transloco }}</label>
+              <input id="review-ar-reference" type="text" class="form-control" formControlName="arReference" autocomplete="off" />
+            </div>
+            <div class="col-md-4">
+              <fieldset>
+                <legend class="form-label small fw-semibold">{{ 'admin.organizations.review.arCheck.operatingCountries' | transloco }}</legend>
+                <div class="form-check form-check-inline">
+                  <input id="review-operates-cl" type="checkbox" class="form-check-input" formControlName="operatesCl" />
+                  <label for="review-operates-cl" class="form-check-label">{{ 'common.country.cl' | transloco }}</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input id="review-operates-bo" type="checkbox" class="form-check-input" formControlName="operatesBo" />
+                  <label for="review-operates-bo" class="form-check-label">{{ 'common.country.bo' | transloco }}</label>
+                </div>
+              </fieldset>
+            </div>
+            <div class="col-12">
+              <label for="review-ar-notes" class="form-label small fw-semibold">{{ 'admin.organizations.review.notes' | transloco }}</label>
+              <textarea id="review-ar-notes" class="form-control" rows="2" formControlName="notes"></textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-hl-orange mt-3" [disabled]="submitting()">{{ 'admin.organizations.review.arCheck.submit' | transloco }}</button>
+        </form>
+      } @else {
+        <p class="mb-3">{{ 'admin.organizations.review.arCheck.noPermission' | transloco }}</p>
+      }
+    } @else {
+      <p class="mb-0">{{ 'admin.organizations.review.actions.finished' | transloco: { status: (org.status | codeLabel: statusKeys) } }}</p>
+    }
+
+    @if ((org.status === 'PendingValidation' || org.status === 'PendingArCheck') && canReview()) {
+      @if (rejecting()) {
+        <form [formGroup]="rejectForm" (ngSubmit)="reject()" class="border-top pt-3" novalidate>
+          <h3 class="h6 fw-bold">{{ 'admin.organizations.review.reject.title' | transloco }}</h3>
+          <label for="review-reject-reason" class="form-label small fw-semibold">{{ 'admin.organizations.review.reject.reason' | transloco }}</label>
+          <textarea id="review-reject-reason" class="form-control" rows="2" formControlName="reason" required
+                    aria-describedby="review-reject-reason-error"
+                    [attr.aria-invalid]="rejectForm.controls.reason.touched && rejectForm.controls.reason.invalid"
+                    [class.is-invalid]="rejectForm.controls.reason.touched && rejectForm.controls.reason.invalid"></textarea>
+          <div id="review-reject-reason-error" class="invalid-feedback">{{ 'admin.organizations.review.reject.reasonRequired' | transloco }}</div>
+          <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-outline-secondary" (click)="cancelReject()">{{ 'admin.organizations.review.reject.cancel' | transloco }}</button>
+            <button type="submit" class="btn btn-danger" [disabled]="submitting()">{{ 'admin.organizations.review.reject.submit' | transloco }}</button>
+          </div>
+        </form>
+      } @else {
+        <button type="button" class="btn btn-outline-danger" (click)="startReject()">{{ 'admin.organizations.review.reject.open' | transloco }}</button>
+      }
+    }
+  </section>
+
+  <!-- Documentación de respaldo (M1-07) -->
+  <section class="hl-card mb-4" aria-labelledby="review-documents-title">
+    <div class="card-header p-3">
+      <h2 id="review-documents-title" class="h5 fw-bold mb-0">{{ 'admin.organizations.review.documents.title' | transloco }}</h2>
+    </div>
+    @if (org.documents.length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.organizations.review.documents.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.organizations.review.documents.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.organizations.review.documents.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.organizations.review.documents.col.type' | transloco }}</th>
+              <th scope="col">{{ 'admin.organizations.review.documents.col.file' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.organizations.review.documents.col.size' | transloco }}</th>
+              <th scope="col">{{ 'admin.organizations.review.documents.col.uploadedAt' | transloco }}</th>
+              <th scope="col">{{ 'admin.organizations.review.documents.col.actions' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (document of org.documents; track document.id) {
+              <tr>
+                <td>{{ document.documentType | codeLabel: documentTypeKeys }}</td>
+                <td class="text-break">{{ document.fileName }}</td>
+                <td class="text-end">{{ 'admin.organizations.review.documents.sizeKb' | transloco: { size: (document.sizeBytes / 1024 | hlNumber: '1.0-0') } }}</td>
+                <td class="text-nowrap">{{ document.uploadedAt | hlDate: 'datetime' }}</td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-outline-secondary"
+                          [attr.aria-label]="'admin.organizations.review.documents.downloadLabel' | transloco: { name: document.fileName }"
+                          (click)="download(document)">
+                    {{ 'admin.organizations.review.documents.download' | transloco }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- Usuarios vinculados -->
+  <section class="hl-card" aria-labelledby="review-users-title">
+    <div class="card-header p-3">
+      <h2 id="review-users-title" class="h5 fw-bold mb-0">{{ 'admin.organizations.review.users.title' | transloco }}</h2>
+    </div>
+    @if (org.users.length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.organizations.review.users.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.organizations.review.users.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.organizations.review.users.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.organizations.review.users.col.name' | transloco }}</th>
+              <th scope="col">{{ 'admin.organizations.review.users.col.email' | transloco }}</th>
+              <th scope="col">{{ 'admin.organizations.review.users.col.profile' | transloco }}</th>
+              <th scope="col">{{ 'admin.organizations.review.users.col.membership' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of org.users; track user.id) {
+              <tr>
+                <td class="fw-semibold">{{ user.fullName }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.profile ? (user.profile | codeLabel: profileKeys) : '—' }}</td>
+                <td>{{ user.membershipStatus | codeLabel: membershipKeys }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

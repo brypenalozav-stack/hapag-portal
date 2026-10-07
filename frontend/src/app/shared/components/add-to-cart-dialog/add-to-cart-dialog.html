@@ -1,0 +1,119 @@
+<dialog #dialog class="hl-dialog" aria-labelledby="add-to-cart-title" (close)="onClosed()">
+  <div class="hl-dialog__header">
+    <h2 id="add-to-cart-title" class="h5 fw-bold mb-0">{{ 'shared.addToCart.title' | transloco }}</h2>
+    <button type="button" class="btn btn-sm btn-outline-secondary hl-icon-btn" [attr.aria-label]="'shared.addToCart.close' | transloco" (click)="close()">
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="hl-dialog__body">
+    @if (loading()) {
+      <div class="d-flex align-items-center gap-2" role="status">
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>{{ 'shared.addToCart.validating' | transloco }}</span>
+      </div>
+    } @else if (loadError()) {
+      <div class="alert alert-danger mb-0" role="alert" data-testid="add-to-cart-error">{{ loadError() }}</div>
+    } @else {
+      <!-- Detalle del ítem por tipo de servicio (M5-01) -->
+      <div class="table-responsive mb-3" tabindex="0" role="region" [attr.aria-label]="'shared.addToCart.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'shared.addToCart.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'shared.addToCart.col.service' | transloco }}</th>
+              <th scope="col">{{ 'shared.addToCart.col.reference' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'shared.addToCart.col.amount' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of options(); track item.sourceId) {
+              <tr>
+                <td>
+                  <span class="fw-semibold d-block">{{ conceptLabel(item) }}</span>
+                  <span class="small text-muted">{{ item.itemType | codeLabel: typeKeys }}</span>
+                  @if (item.description) {
+                    <span class="small text-muted d-block">{{ item.description }}</span>
+                  }
+                </td>
+                <td>
+                  @if (item.blNumber) {
+                    <span class="d-block">{{ 'shared.addToCart.bl' | transloco: { bl: item.blNumber } }}</span>
+                  }
+                  @if (item.bookingNumber) {
+                    <span class="small text-muted d-block">{{ 'shared.addToCart.booking' | transloco: { booking: item.bookingNumber } }}</span>
+                  }
+                </td>
+                <td class="text-end text-nowrap">{{ item.totalAmount | hlCurrency: item.currency }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <form id="add-to-cart-form" novalidate (submit)="submit($event)">
+        @if (errors().length > 0) {
+          <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="add-to-cart-errors-title">
+            <h3 id="add-to-cart-errors-title" class="h6 fw-bold">{{ 'shared.addToCart.errors.summaryTitle' | transloco }}</h3>
+            <ul class="mb-0">
+              @for (error of errors(); track error.key) {
+                <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+              }
+            </ul>
+          </div>
+        }
+        @if (submitError()) {
+          <div class="alert alert-danger py-2" role="alert" data-testid="add-to-cart-error">{{ submitError() }}</div>
+        }
+
+        <!-- RUT de facturación (M5-09): solo los habilitados para el usuario -->
+        <div class="mb-3">
+          <label for="add-to-cart-billing" class="form-label small fw-semibold">{{ 'shared.addToCart.billing' | transloco }}</label>
+          <select id="add-to-cart-billing" class="form-select" required aria-describedby="add-to-cart-billing-help"
+                  [attr.aria-invalid]="submitted() && !billingTaxId()" (change)="onBilling($event)">
+            @if (billingOptions().length > 1) {
+              <option value="" [selected]="!billingTaxId()">{{ 'shared.addToCart.billingPlaceholder' | transloco }}</option>
+            }
+            @for (option of billingOptions(); track option.taxId) {
+              <option [value]="option.taxId" [selected]="billingTaxId() === option.taxId">
+                {{ 'shared.addToCart.billingOption' | transloco: { name: option.name, taxId: option.taxId, source: (option.source | codeLabel: sourceKeys) } }}
+              </option>
+            }
+          </select>
+          <div id="add-to-cart-billing-help" class="form-text">{{ 'shared.addToCart.billingHelp' | transloco }}</div>
+        </div>
+
+        <!-- Moneda de pago (M5-04, M5-08): solo las habilitadas para el concepto -->
+        <div class="mb-2">
+          <label for="add-to-cart-currency" class="form-label small fw-semibold">{{ 'shared.addToCart.currency' | transloco }}</label>
+          <select id="add-to-cart-currency" class="form-select" required aria-describedby="add-to-cart-currency-help"
+                  [attr.aria-invalid]="submitted() && !paymentCurrency()" (change)="onCurrency($event)">
+            @for (currency of currencies(); track currency) {
+              <option [value]="currency" [selected]="paymentCurrency() === currency">{{ currency }}</option>
+            }
+          </select>
+          <div id="add-to-cart-currency-help" class="form-text">{{ 'shared.addToCart.currencyHelp' | transloco }}</div>
+        </div>
+        @for (t of totals(); track t.currency) {
+          @if (t.currency !== paymentCurrency()) {
+            <app-exchange-rate-note class="d-block" [from]="t.currency" [to]="paymentCurrency()" />
+          }
+        }
+      </form>
+    }
+  </div>
+
+  <div class="hl-dialog__footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="close()">{{ 'shared.addToCart.cancel' | transloco }}</button>
+    @if (!loading() && !loadError()) {
+      <button type="submit" form="add-to-cart-form" class="btn btn-hl-orange" [disabled]="submitting()">
+        @if (submitting()) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        }
+        {{ 'shared.addToCart.submit' | transloco }}
+      </button>
+    }
+  </div>
+</dialog>

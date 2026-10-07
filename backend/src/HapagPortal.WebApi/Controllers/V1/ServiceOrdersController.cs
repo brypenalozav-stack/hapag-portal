@@ -1,6 +1,7 @@
 namespace HapagPortal.WebApi.Controllers.V1;
 
 using Asp.Versioning;
+using HapagPortal.Application.Config.Features;
 using HapagPortal.Application.ServiceOrders.Commands.Create;
 using HapagPortal.Application.ServiceOrders.Read.GetMyOrders;
 using HapagPortal.Application.ServiceOrders.Read.GetPdf;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 public sealed class ServiceOrdersController : ApiController
 {
     [HttpPost]
+    [RequiresFeature(FeatureNames.ServiceOrdersPage)]
     public async Task<IActionResult> Create(
         [FromBody] CreateServiceOrderCommand command,
         CancellationToken cancellationToken)
@@ -26,6 +28,7 @@ public sealed class ServiceOrdersController : ApiController
     }
 
     [HttpGet("my")]
+    [RequiresFeature(FeatureNames.ServiceOrdersPage)]
     public async Task<IActionResult> GetMyServiceOrders(
         CancellationToken cancellationToken)
     {

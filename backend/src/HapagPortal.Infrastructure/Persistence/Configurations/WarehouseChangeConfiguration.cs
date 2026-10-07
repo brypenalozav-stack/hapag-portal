@@ -35,6 +35,24 @@ internal sealed class WarehouseChangeConfiguration : IEntityTypeConfiguration<Wa
             .HasMaxLength(5)
             .IsRequired();
 
+        builder.Property(e => e.ContainerNumber)
+            .HasMaxLength(20);
+
+        builder.Property(e => e.TariffCode)
+            .HasMaxLength(20);
+
+        builder.Property(e => e.TariffSource)
+            .HasMaxLength(20);
+
+        builder.Property(e => e.EntitlementSource)
+            .HasMaxLength(20);
+
+        builder.Property(e => e.EntitlementReference)
+            .HasMaxLength(200);
+
+        builder.HasIndex(e => new { e.BillOfLadingId, e.IsFree });
+        builder.HasIndex(e => e.BatchId);
+
         builder.HasOne(e => e.BillOfLading)
             .WithMany()
             .HasForeignKey(e => e.BillOfLadingId)

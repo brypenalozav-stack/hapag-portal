@@ -1,0 +1,244 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'admin.tariffs.editor.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/admin/tariffs">{{ 'admin.tariffs.list.title' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ (isNew() ? 'admin.tariffs.editor.newTitle' : 'admin.tariffs.editor.editTitle') | transloco }}</li>
+    </ol>
+  </nav>
+  <h1>{{ (isNew() ? 'admin.tariffs.editor.newTitle' : 'admin.tariffs.editor.editTitle') | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.tariffs.editor.subtitle' | transloco }}</p>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (loadError()) {
+  <div class="alert alert-danger" role="alert">{{ loadError() }}</div>
+} @else {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="tariff-form-title" (submit)="submit($event)">
+    <h2 id="tariff-form-title" class="section-title mb-3">{{ 'admin.tariffs.editor.formTitle' | transloco }}</h2>
+
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="tariff-errors-title">
+        <h3 id="tariff-errors-title" class="h6 fw-bold">{{ 'admin.tariffs.editor.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track $index) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco: error.params }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+    @if (saved()) {
+      <div class="alert alert-success py-2" role="status">{{ saved() }}</div>
+    }
+    @if (tariff(); as t) {
+      @if (!t.isActive) {
+        <div class="alert alert-warning py-2" role="note">{{ 'admin.tariffs.editor.inactiveNotice' | transloco }}</div>
+      }
+    }
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label for="tariff-concept" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.concept' | transloco }}</label>
+        <select id="tariff-concept" class="form-select" required [(ngModel)]="form.conceptCode" [ngModelOptions]="{ standalone: true }"
+                [attr.aria-invalid]="hasError('tariff-concept')">
+          <option value="">{{ 'admin.tariffs.editor.conceptPlaceholder' | transloco }}</option>
+          @for (c of concepts(); track c.code) {
+            <option [value]="c.code">{{ c.code | codeLabel: conceptKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="tariff-code" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.code' | transloco }}</label>
+        <input id="tariff-code" type="text" class="form-control" autocomplete="off" maxlength="20" aria-describedby="tariff-code-help"
+               [(ngModel)]="form.code" [ngModelOptions]="{ standalone: true }" />
+        <div id="tariff-code-help" class="form-text">{{ 'admin.tariffs.editor.codeHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-4">
+        <label for="tariff-container-type" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.containerType' | transloco }}</label>
+        <input id="tariff-container-type" type="text" class="form-control" autocomplete="off" maxlength="10" aria-describedby="tariff-container-type-help"
+               [(ngModel)]="form.containerType" [ngModelOptions]="{ standalone: true }" />
+        <div id="tariff-container-type-help" class="form-text">{{ 'admin.tariffs.editor.containerTypeHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-4">
+        <label for="tariff-country" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.country' | transloco }}</label>
+        <select id="tariff-country" class="form-select" required [(ngModel)]="form.country" [ngModelOptions]="{ standalone: true }">
+          <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+          <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="tariff-currency" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.currency' | transloco }}</label>
+        <select id="tariff-currency" class="form-select" required [(ngModel)]="form.currency" [ngModelOptions]="{ standalone: true }">
+          @for (c of currencies; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="tariff-amount" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.amount' | transloco }}</label>
+        <input id="tariff-amount" type="text" inputmode="decimal" class="form-control" required aria-describedby="tariff-amount-help"
+               [attr.aria-invalid]="hasError('tariff-amount')" [(ngModel)]="form.amount" [ngModelOptions]="{ standalone: true }" />
+        <div id="tariff-amount-help" class="form-text">{{ 'admin.tariffs.editor.amountHelp' | transloco }}</div>
+      </div>
+      <div class="col-12">
+        <label for="tariff-description" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.description' | transloco }}</label>
+        <input id="tariff-description" type="text" class="form-control" maxlength="200" [(ngModel)]="form.description" [ngModelOptions]="{ standalone: true }" />
+      </div>
+    </div>
+
+    <!-- Tramos, incluidos tramos de tiempo (M8-01, NF-22) -->
+    <fieldset class="border rounded p-3 mb-3">
+      <legend class="float-none w-auto px-2 h6 fw-bold mb-0">{{ 'admin.tariffs.editor.tiers.legend' | transloco }}</legend>
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label for="tariff-tier-unit" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.tiers.unit' | transloco }}</label>
+          <select id="tariff-tier-unit" class="form-select" aria-describedby="tariff-tier-unit-help"
+                  [ngModel]="form.tierUnit" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onTierUnitChange($event)">
+            @for (u of units; track u) {
+              <option [value]="u">{{ u | codeLabel: unitKeys }}</option>
+            }
+          </select>
+          <div id="tariff-tier-unit-help" class="form-text">{{ 'admin.tariffs.editor.tiers.unitHelp' | transloco }}</div>
+        </div>
+        @if (form.tierUnit !== 'None') {
+          <div class="col-md-6">
+            <label for="tariff-tier-mode" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.tiers.mode' | transloco }}</label>
+            <select id="tariff-tier-mode" class="form-select" aria-describedby="tariff-tier-mode-help" [(ngModel)]="form.tierMode" [ngModelOptions]="{ standalone: true }">
+              @for (m of modes; track m) {
+                <option [value]="m">{{ m | codeLabel: modeKeys }}</option>
+              }
+            </select>
+            <div id="tariff-tier-mode-help" class="form-text">{{ 'admin.tariffs.editor.tiers.modeHelp' | transloco }}</div>
+          </div>
+        }
+      </div>
+
+      @if (form.tierUnit !== 'None') {
+        <p id="tariff-tiers-help" class="small text-muted">{{ 'admin.tariffs.editor.tiers.help' | transloco }}</p>
+        @if (tiers.length > 0) {
+          <div class="table-responsive mb-2" tabindex="0" role="region" [attr.aria-label]="'admin.tariffs.editor.tiers.caption' | transloco">
+            <table class="hl-table">
+              <caption class="visually-hidden">{{ 'admin.tariffs.editor.tiers.caption' | transloco }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'admin.tariffs.editor.tiers.col.number' | transloco }}</th>
+                  <th scope="col">{{ 'admin.tariffs.editor.tiers.col.from' | transloco: { unit: (form.tierUnit | codeLabel: unitKeys) } }}</th>
+                  <th scope="col">{{ 'admin.tariffs.editor.tiers.col.to' | transloco: { unit: (form.tierUnit | codeLabel: unitKeys) } }}</th>
+                  <th scope="col">{{ 'admin.tariffs.editor.tiers.col.amount' | transloco: { currency: form.currency } }}</th>
+                  <th scope="col"><span class="visually-hidden">{{ 'admin.tariffs.editor.tiers.col.actions' | transloco }}</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (tier of tiers; track tier.key; let i = $index) {
+                  <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      <input type="text" inputmode="numeric" class="form-control form-control-sm tier-input" [id]="'tariff-tier-from-' + i"
+                             [attr.aria-label]="'admin.tariffs.editor.tiers.fromLabel' | transloco: { number: i + 1 }"
+                             [attr.aria-invalid]="hasError('tariff-tier-from-' + i)" aria-describedby="tariff-tiers-help"
+                             [(ngModel)]="tier.fromUnit" [ngModelOptions]="{ standalone: true }" />
+                    </td>
+                    <td>
+                      <input type="text" inputmode="numeric" class="form-control form-control-sm tier-input" [id]="'tariff-tier-to-' + i"
+                             [attr.aria-label]="'admin.tariffs.editor.tiers.toLabel' | transloco: { number: i + 1 }"
+                             [attr.aria-invalid]="hasError('tariff-tier-to-' + i)" aria-describedby="tariff-tiers-help"
+                             [(ngModel)]="tier.toUnit" [ngModelOptions]="{ standalone: true }" />
+                    </td>
+                    <td>
+                      <input type="text" inputmode="decimal" class="form-control form-control-sm tier-input" [id]="'tariff-tier-amount-' + i"
+                             [attr.aria-label]="'admin.tariffs.editor.tiers.amountLabel' | transloco: { number: i + 1 }"
+                             [attr.aria-invalid]="hasError('tariff-tier-amount-' + i)"
+                             [(ngModel)]="tier.amount" [ngModelOptions]="{ standalone: true }" />
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="removeTier(i)"
+                              [attr.aria-label]="'admin.tariffs.editor.tiers.removeLabel' | transloco: { number: i + 1 }">
+                        {{ 'admin.tariffs.editor.tiers.remove' | transloco }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+        <button id="tariff-add-tier" type="button" class="btn btn-sm btn-outline-secondary" (click)="addTier()">{{ 'admin.tariffs.editor.tiers.add' | transloco }}</button>
+      }
+    </fieldset>
+
+    <!-- Vigencia (fecha local del país, NF-22) -->
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label for="tariff-valid-from" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.validFrom' | transloco }}</label>
+        <input id="tariff-valid-from" type="date" class="form-control" required [attr.aria-invalid]="hasError('tariff-valid-from')"
+               [(ngModel)]="form.validFrom" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-4">
+        <label for="tariff-valid-to" class="form-label small fw-semibold">{{ 'admin.tariffs.editor.validTo' | transloco }}</label>
+        <input id="tariff-valid-to" type="date" class="form-control" aria-describedby="tariff-valid-to-help" [attr.aria-invalid]="hasError('tariff-valid-to')"
+               [(ngModel)]="form.validTo" [ngModelOptions]="{ standalone: true }" />
+        <div id="tariff-valid-to-help" class="form-text">{{ 'admin.tariffs.editor.validToHelp' | transloco }}</div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        }
+        {{ (isNew() ? 'admin.tariffs.editor.create' : 'admin.tariffs.editor.save') | transloco }}
+      </button>
+      <a routerLink="/admin/tariffs" class="btn btn-outline-secondary">{{ 'admin.tariffs.editor.cancel' | transloco }}</a>
+      @if (tariff()?.isActive) {
+        <button type="button" class="btn btn-outline-secondary ms-auto" [disabled]="deactivating()" (click)="deactivate()">
+          {{ 'admin.tariffs.editor.deactivate' | transloco }}
+        </button>
+      }
+    </div>
+  </form>
+
+  <!-- Registro de cambios: usuario, fecha, valor anterior y nuevo (NF-15) -->
+  @if (!isNew()) {
+    <section class="hl-card mb-4" aria-labelledby="tariff-history-title">
+      <div class="card-header p-3">
+        <h2 id="tariff-history-title" class="section-title">{{ 'admin.tariffs.history.title' | transloco }}</h2>
+      </div>
+      @if (historyLoading()) {
+        <app-loading-spinner />
+      } @else if (history().length === 0) {
+        <app-state-message kind="empty" [messageKey]="'admin.tariffs.history.empty'" />
+      } @else {
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.tariffs.history.caption' | transloco">
+          <table class="hl-table">
+            <caption class="visually-hidden">{{ 'admin.tariffs.history.caption' | transloco }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'admin.tariffs.history.col.date' | transloco }}</th>
+                <th scope="col">{{ 'admin.tariffs.history.col.user' | transloco }}</th>
+                <th scope="col">{{ 'admin.tariffs.history.col.action' | transloco }}</th>
+                <th scope="col">{{ 'admin.tariffs.history.col.previous' | transloco }}</th>
+                <th scope="col">{{ 'admin.tariffs.history.col.current' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (change of history(); track change.id) {
+                <tr>
+                  <td class="text-nowrap">{{ change.changedAt | hlDate: 'datetime' }}</td>
+                  <td>{{ change.changedBy }}</td>
+                  <td>{{ change.action | codeLabel: actionKeys }}</td>
+                  <td class="small"><app-tariff-snapshot [snapshot]="change.previous" /></td>
+                  <td class="small"><app-tariff-snapshot [snapshot]="change.current" /></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+}

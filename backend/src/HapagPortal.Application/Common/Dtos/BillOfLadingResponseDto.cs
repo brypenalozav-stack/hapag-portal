@@ -19,4 +19,5 @@ public sealed record BillOfLadingResponseDto(
     Guid ClientId,
     string? ClientName,
     DateTime CreatedAt,
-    List<BLContainerDto>? Containers);
+    List<BLContainerDto>? Containers,
+    string? BookingNumber = null);

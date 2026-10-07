@@ -1,59 +1,61 @@
 <div class="hl-page-header">
-  <h1>Transmisión a Aduana</h1>
-  <p class="text-muted mb-0">Manifiesto marítimo en dos etapas: encabezado y conocimientos (B/L)</p>
+  <h1>{{ 'admin.customs.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.customs.subtitle' | transloco }}</p>
 </div>
 
-@if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+@if (error()) { <div class="alert alert-danger py-2" role="alert">{{ error() }}</div> }
 
 <div class="row g-4">
   <!-- Manifiestos -->
   <div class="col-lg-5">
     <div class="hl-card mb-4">
-      <div class="p-3 border-bottom fw-semibold">Nuevo manifiesto</div>
+      <div class="p-3 border-bottom fw-semibold">{{ 'admin.customs.newManifest.title' | transloco }}</div>
       <div class="p-3">
         <div class="row g-2">
           <div class="col-6">
-            <label class="form-label small fw-semibold">IMO nave</label>
-            <input class="form-control" [(ngModel)]="newManifest.vesselImo" placeholder="9321483" />
+            <label for="customs-new-manifest-vessel-imo" class="form-label small fw-semibold">{{ 'admin.customs.newManifest.vesselImo' | transloco }}</label>
+            <input id="customs-new-manifest-vessel-imo" class="form-control" [(ngModel)]="newManifest.vesselImo" placeholder="9321483" />
           </div>
           <div class="col-6">
-            <label class="form-label small fw-semibold">Viaje</label>
-            <input class="form-control" [(ngModel)]="newManifest.voyage" placeholder="V123" />
+            <label for="customs-new-manifest-voyage" class="form-label small fw-semibold">{{ 'admin.customs.newManifest.voyage' | transloco }}</label>
+            <input id="customs-new-manifest-voyage" class="form-control" [(ngModel)]="newManifest.voyage" [placeholder]="'admin.customs.newManifest.voyagePlaceholder' | transloco" />
           </div>
           <div class="col-6">
-            <label class="form-label small fw-semibold">Puerto (UN/LOCODE)</label>
-            <input class="form-control" [(ngModel)]="newManifest.port" maxlength="5" placeholder="CLVAP" />
+            <label for="customs-new-manifest-port" class="form-label small fw-semibold">{{ 'admin.customs.newManifest.port' | transloco }}</label>
+            <input id="customs-new-manifest-port" class="form-control" [(ngModel)]="newManifest.port" maxlength="5" [placeholder]="'admin.customs.newManifest.portPlaceholder' | transloco" />
           </div>
           <div class="col-6">
-            <label class="form-label small fw-semibold">Dirección</label>
-            <select class="form-select" [(ngModel)]="newManifest.direction">
-              <option value="Ingreso">Ingreso</option>
-              <option value="Salida">Salida</option>
+            <label for="customs-new-manifest-direction" class="form-label small fw-semibold">{{ 'admin.customs.newManifest.direction' | transloco }}</label>
+            <select id="customs-new-manifest-direction" class="form-select" [(ngModel)]="newManifest.direction">
+              <option value="Ingreso">{{ 'admin.customs.direction.inbound' | transloco }}</option>
+              <option value="Salida">{{ 'admin.customs.direction.outbound' | transloco }}</option>
             </select>
           </div>
         </div>
-        <button class="btn btn-hl-orange mt-3" (click)="createManifest()" [disabled]="busy()">Crear manifiesto</button>
+        <button type="button" class="btn btn-hl-orange mt-3" (click)="createManifest()" [disabled]="busy()">{{ 'admin.customs.newManifest.create' | transloco }}</button>
       </div>
     </div>
 
     <div class="hl-card">
-      <div class="p-3 border-bottom fw-semibold">Manifiestos</div>
+      <div class="p-3 border-bottom fw-semibold">{{ 'admin.customs.list.title' | transloco }}</div>
       @if (loading()) {
         <app-loading-spinner />
       } @else {
         <div class="list-group list-group-flush">
           @for (m of manifests(); track m.id) {
-            <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                    [class.active]="selected()?.id === m.id" (click)="select(m)">
+            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                    [class.active]="selected()?.id === m.id" [attr.aria-pressed]="selected()?.id === m.id" (click)="select(m)">
               <span>
                 <span class="fw-semibold">{{ m.vesselImo }}</span> · {{ m.voyage }} · {{ m.port }}
-                <span class="badge bg-secondary ms-1">{{ m.direction }}</span>
+                <span class="badge bg-secondary ms-1">
+                  @if (directionKey(m.direction); as key) { {{ key | transloco }} } @else { {{ m.direction }} }
+                </span>
               </span>
-              <span class="badge bg-light text-dark">{{ m.transmissionCount }} tx</span>
+              <span class="badge bg-light text-dark">{{ 'admin.customs.list.txCount' | transloco: { count: m.transmissionCount } }}</span>
             </button>
           }
           @if (manifests().length === 0) {
-            <div class="text-center text-muted py-4">Sin manifiestos.</div>
+            <div class="text-center text-muted py-4">{{ 'admin.customs.list.empty' | transloco }}</div>
           }
         </div>
       }
@@ -65,34 +67,42 @@
     @if (selected(); as m) {
       <div class="hl-card mb-4">
         <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-          <span class="fw-semibold">Transmisiones — {{ m.vesselImo }} / {{ m.voyage }}</span>
-          <button class="btn btn-sm btn-outline-secondary" (click)="refresh()">Actualizar</button>
+          <span class="fw-semibold">{{ 'admin.customs.transmissions.title' | transloco }} — {{ m.vesselImo }} / {{ m.voyage }}</span>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="refresh()">{{ 'admin.customs.transmissions.refresh' | transloco }}</button>
         </div>
         <div class="p-3 d-flex flex-wrap gap-2 align-items-end border-bottom">
-          <button class="btn btn-hl-orange btn-sm" (click)="transmitHeader()" [disabled]="busy()">
-            Transmitir encabezado
+          <button type="button" class="btn btn-hl-orange btn-sm" (click)="transmitHeader()" [disabled]="busy()">
+            {{ 'admin.customs.transmissions.transmitHeader' | transloco }}
           </button>
           <div>
-            <label class="form-label small fw-semibold mb-1">ID del B/L</label>
+            <label for="customs-bl-id" class="form-label small fw-semibold mb-1">{{ 'admin.customs.transmissions.blId' | transloco }}</label>
             <div class="input-group input-group-sm">
-              <input class="form-control" [(ngModel)]="blId" placeholder="GUID del B/L" style="min-width: 260px;" />
-              <button class="btn btn-outline-primary" (click)="transmitBL()" [disabled]="busy() || !blId">
-                Transmitir B/L
+              <input id="customs-bl-id" class="form-control" [(ngModel)]="blId" [placeholder]="'admin.customs.transmissions.blIdPlaceholder' | transloco" style="min-width: 260px;" />
+              <button type="button" class="btn btn-outline-primary" (click)="transmitBL()" [disabled]="busy() || !blId">
+                {{ 'admin.customs.transmissions.transmitBl' | transloco }}
               </button>
             </div>
           </div>
         </div>
 
-        <div class="table-responsive">
+        @if (transmissions().length > 0) {
+          <app-table-filter [table]="table" [totalOf]="transmissions().length" inputId="customs-transmissions-table-filter" />
+        }
+        <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.customs.transmissions.caption' | transloco">
           <table class="hl-table">
+            <caption class="visually-hidden">{{ 'admin.customs.transmissions.caption' | transloco }}</caption>
             <thead>
               <tr>
-                <th>Etapa</th><th>Tipo</th><th>B/L</th><th>Estado</th>
-                <th>Intentos</th><th>Acuse</th><th></th>
+                <th scope="col" appSortHeader="stage" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.customs.transmissions.col.stage' | transloco }}</th>
+                <th scope="col" appSortHeader="kind" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.customs.transmissions.col.kind' | transloco }}</th>
+                <th scope="col" appSortHeader="bl" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.customs.transmissions.col.bl' | transloco }}</th>
+                <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.customs.transmissions.col.status' | transloco }}</th>
+                <th scope="col" appSortHeader="attempts" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.customs.transmissions.col.attempts' | transloco }}</th>
+                <th scope="col">{{ 'admin.customs.transmissions.col.ack' | transloco }}</th><th scope="col"><span class="visually-hidden">{{ 'admin.customs.transmissions.col.actions' | transloco }}</span></th>
               </tr>
             </thead>
             <tbody>
-              @for (t of transmissions(); track t.id) {
+              @for (t of table.rows(); track t.id) {
                 <tr>
                   <td>{{ t.stage }}</td>
                   <td>{{ t.kind }}</td>
@@ -102,42 +112,48 @@
                   <td class="small">{{ t.responseCode || '—' }} {{ t.responseMessage || '' }}</td>
                   <td>
                     @if (!isTerminal(t)) {
-                      <button class="btn btn-sm btn-outline-warning" (click)="retry(t)" [disabled]="busy()">
-                        Reintentar
+                      <button type="button" class="btn btn-sm btn-outline-warning" (click)="retry(t)" [disabled]="busy()">
+                        {{ 'admin.customs.transmissions.retry' | transloco }}
                       </button>
                     }
                   </td>
                 </tr>
               }
               @if (transmissions().length === 0) {
-                <tr><td colspan="7" class="text-center text-muted py-4">Aún no hay transmisiones.</td></tr>
+                <tr><td colspan="7" class="text-center text-muted py-4">{{ 'admin.customs.transmissions.empty' | transloco }}</td></tr>
+              } @else if (table.total() === 0) {
+                <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
               }
             </tbody>
           </table>
         </div>
+        @if (table.paged()) {
+          <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.customs.transmissions.pagination' | transloco"
+                         idPrefix="customs-transmissions-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+        }
       </div>
 
       <div class="hl-card">
-        <div class="p-3 border-bottom fw-semibold">Aclaración al Manifiesto (Anexo 4)</div>
+        <div class="p-3 border-bottom fw-semibold">{{ 'admin.customs.amendment.title' | transloco }}</div>
         <div class="p-3">
           <div class="row g-2">
             <div class="col-md-5">
-              <label class="form-label small fw-semibold">ID del B/L (opcional)</label>
-              <input class="form-control" [(ngModel)]="amendBlId" placeholder="Vacío = encabezado" />
+              <label for="customs-amend-bl-id" class="form-label small fw-semibold">{{ 'admin.customs.amendment.blId' | transloco }}</label>
+              <input id="customs-amend-bl-id" class="form-control" [(ngModel)]="amendBlId" [placeholder]="'admin.customs.amendment.blIdPlaceholder' | transloco" />
             </div>
             <div class="col-md-7">
-              <label class="form-label small fw-semibold">Motivo</label>
-              <input class="form-control" [(ngModel)]="amendReason" placeholder="Corrección de peso, etc." />
+              <label for="customs-amend-reason" class="form-label small fw-semibold">{{ 'admin.customs.amendment.reason' | transloco }}</label>
+              <input id="customs-amend-reason" class="form-control" [(ngModel)]="amendReason" [placeholder]="'admin.customs.amendment.reasonPlaceholder' | transloco" />
             </div>
           </div>
-          <button class="btn btn-outline-primary mt-3" (click)="amend()" [disabled]="busy() || !amendReason">
-            Enviar aclaración
+          <button type="button" class="btn btn-outline-primary mt-3" (click)="amend()" [disabled]="busy() || !amendReason">
+            {{ 'admin.customs.amendment.send' | transloco }}
           </button>
         </div>
       </div>
     } @else {
       <div class="hl-card p-5 text-center text-muted">
-        Selecciona un manifiesto para ver y transmitir sus conocimientos.
+        {{ 'admin.customs.selectPrompt' | transloco }}
       </div>
     }
   </div>

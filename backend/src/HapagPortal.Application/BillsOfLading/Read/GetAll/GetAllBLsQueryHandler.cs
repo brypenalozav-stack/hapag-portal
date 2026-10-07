@@ -8,15 +8,16 @@ using Microsoft.EntityFrameworkCore;
 
 public sealed class GetAllBLsQueryHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService currentUserService)
+    IShipmentAccessEvaluator accessEvaluator)
     : IQueryHandler<GetAllBLsQuery, List<BillOfLadingResponseDto>>
 {
     public async Task<Result<List<BillOfLadingResponseDto>>> Handle(
         GetAllBLsQuery request,
         CancellationToken cancellationToken)
     {
-        var query = dbContext.BillsOfLading
-            .AsNoTracking()
+        var scope = await accessEvaluator.GetScopeAsync(cancellationToken);
+
+        var query = accessEvaluator.FilterAccessible(dbContext.BillsOfLading.AsNoTracking(), scope)
             .Include(b => b.Containers)
             .Include(b => b.Client)
             .Include(b => b.Payments)
@@ -25,17 +26,10 @@ public sealed class GetAllBLsQueryHandler(
         if (!string.IsNullOrWhiteSpace(request.Country))
             query = query.Where(b => b.Country == request.Country);
 
-        // Solo Admin puede consultar por un clientId arbitrario; cualquier otro rol
-        // queda acotado a su propio cliente, ignorando el parámetro recibido (BUG-7).
-        if (currentUserService.Roles.Contains("Admin"))
-        {
-            if (request.ClientId.HasValue)
-                query = query.Where(b => b.ClientId == request.ClientId.Value);
-        }
-        else
-        {
-            query = query.Where(b => b.ClientId == currentUserService.ClientId);
-        }
+        // Solo el administrador interno (M8-06) puede consultar por un clientId arbitrario; el resto
+        // queda acotado a sus embarques accesibles, ignorando el parámetro recibido (BUG-7).
+        if (scope.IsAdmin && request.ClientId.HasValue)
+            query = query.Where(b => b.ClientId == request.ClientId.Value);
 
         var entities = await query
             .OrderByDescending(b => b.CreatedAt)
@@ -54,7 +48,7 @@ public sealed class GetAllBLsQueryHandler(
             bl.ETA,
             bl.FreightAmount,
             bl.FreightCurrency,
-            bl.Payments?.Any(p => p.PaymentType == "Freight" && p.Status == "Confirmed") == true ? "PAID" : "PENDING",
+            (bl.FreightPaidAt != null || bl.Payments?.Any(p => p.PaymentType == "Freight" && p.Status == "Confirmed") == true) ? "PAID" : "PENDING",
             bl.Status,
             bl.Country,
             bl.ClientId,
@@ -66,7 +60,8 @@ public sealed class GetAllBLsQueryHandler(
                 c.ContainerType,
                 c.SealNumber,
                 c.Weight,
-                c.Status)).ToList())).ToList();
+                c.Status)).ToList(),
+            bl.BookingNumber)).ToList();
 
         return Result<List<BillOfLadingResponseDto>>.Success(bls);
     }

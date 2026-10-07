@@ -1,0 +1,108 @@
+:host {
+  display: inline-block;
+  line-height: 0;
+}
+
+.hl-ship {
+  height: auto;
+  overflow: hidden;
+}
+
+.hl-ship__vessel {
+  transform-box: view-box;
+  transform-origin: 60px 58px;
+  animation: hl-ship-pitch 2.6s ease-in-out infinite;
+}
+
+.hl-ship__hull {
+  fill: var(--hl-dark);
+}
+
+.hl-ship__stripe,
+.hl-ship__funnel {
+  fill: var(--hl-orange);
+}
+
+.hl-ship__bridge {
+  fill: var(--hl-white);
+  stroke: var(--hl-dark);
+  stroke-width: 1;
+}
+
+.hl-ship__window {
+  fill: var(--hl-blue);
+}
+
+.hl-ship__box {
+  stroke: rgba(0, 0, 0, 0.25);
+  stroke-width: 0.5;
+
+  &--orange {
+    fill: var(--hl-orange-700);
+  }
+
+  &--blue {
+    fill: var(--hl-blue);
+  }
+
+  &--green {
+    fill: var(--hl-green-700);
+  }
+}
+
+.hl-ship__waves {
+  animation: hl-ship-waves 1.8s linear infinite;
+
+  &--back path {
+    fill: var(--hl-blue);
+    opacity: 0.35;
+  }
+
+  &--front {
+    animation-duration: 1.2s;
+
+    path {
+      fill: var(--hl-blue);
+      opacity: 0.85;
+    }
+  }
+}
+
+// Sobre fondo oscuro el casco y las olas necesitan contraste con la superficie.
+:host-context([data-bs-theme='dark']) {
+  .hl-ship__hull {
+    fill: var(--hl-dark-text);
+  }
+
+  .hl-ship__waves path {
+    fill: var(--hl-dark-text);
+  }
+}
+
+@keyframes hl-ship-pitch {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+
+  50% {
+    transform: translateY(-2px) rotate(1.5deg);
+  }
+}
+
+@keyframes hl-ship-waves {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-30px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-ship__vessel,
+  .hl-ship__waves {
+    animation: none;
+  }
+}

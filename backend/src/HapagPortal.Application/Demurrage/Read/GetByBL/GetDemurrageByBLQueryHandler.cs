@@ -3,27 +3,37 @@ namespace HapagPortal.Application.Demurrage.Read.GetByBL;
 using HapagPortal.Application.Common.Dtos;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Messaging;
+using HapagPortal.Domain.Constants;
 using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
 public sealed class GetDemurrageByBLQueryHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService currentUserService)
+    IShipmentAccessEvaluator accessEvaluator)
     : IQueryHandler<GetDemurrageByBLQuery, List<DemurrageChargeDto>>
 {
     public async Task<Result<List<DemurrageChargeDto>>> Handle(
         GetDemurrageByBLQuery request,
         CancellationToken cancellationToken)
     {
-        var bl = await dbContext.BillsOfLading
-            .AsNoTracking()
+        var scope = await accessEvaluator.GetScopeAsync(cancellationToken);
+
+        var bl = await accessEvaluator.FilterAccessible(dbContext.BillsOfLading.AsNoTracking(), scope)
             .Include(b => b.DemurrageCharges)
             .FirstOrDefaultAsync(b => b.BLNumber == request.BLNumber, cancellationToken);
 
-        if (bl is null || bl.ClientId != currentUserService.ClientId)
+        var permissions = bl is null
+            ? ShipmentPermissionSet.None
+            : await accessEvaluator.EvaluateAsync(scope, bl, cancellationToken);
+
+        if (bl is null || !permissions.Can(ShipmentActionCodes.ViewShipment))
             return Result<List<DemurrageChargeDto>>.Failure(
                 DomainErrors.BillOfLading.NotFoundByNumber(request.BLNumber));
+
+        // Demurrage de importación: X para Customer y Shipper en la matriz base (M1-11).
+        if (!permissions.Can(ShipmentActionCodes.PayImportDemurrage))
+            return Result<List<DemurrageChargeDto>>.Failure(Error.Forbidden);
 
         var charges = bl.DemurrageCharges?.Select(dc => new DemurrageChargeDto(
             dc.Id,

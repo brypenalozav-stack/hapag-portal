@@ -1,0 +1,295 @@
+:host {
+  display: block;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+// Contenido y, en pantallas anchas, los accesos rápidos a la derecha.
+.lt-layout {
+  display: grid;
+  gap: 1.5rem;
+
+  @media (min-width: 1200px) {
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    align-items: start;
+  }
+}
+
+// Aviso informativo: tonos "info" de Bootstrap, que cambian con el tema.
+.lt-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--bs-info-border-subtle);
+  border-left-width: 4px;
+  border-radius: 0.75rem;
+  background-color: var(--bs-info-bg-subtle);
+  color: var(--bs-info-text-emphasis);
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+}
+
+// Tarjetas de tarifarios: una columna en móvil, las que quepan en pantallas más anchas.
+.lt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lt-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+
+  &:not(.lt-card--off):hover {
+    border-color: var(--hl-text-muted);
+    transform: translateY(-2px);
+  }
+
+  &:not(.lt-card--off):focus-within {
+    border-color: var(--hl-text-muted);
+  }
+}
+
+// Tarjeta sin enlace configurado: borde punteado y sin elevación; el texto conserva el contraste.
+.lt-card--off {
+  border-style: dashed;
+  box-shadow: none;
+  background-color: transparent;
+
+  &:hover {
+    box-shadow: none;
+  }
+
+  .lt-card__icon {
+    color: var(--hl-text-muted);
+  }
+}
+
+.lt-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.85rem;
+  border-radius: 0.75rem;
+  color: var(--hl-link);
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.lt-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--hl-emphasis);
+  margin-bottom: 0.35rem;
+}
+
+.lt-card__description {
+  font-size: 0.9rem;
+  color: var(--hl-text-muted);
+  margin-bottom: 1rem;
+}
+
+.lt-card__footer {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.lt-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+}
+
+.lt-card__domain {
+  font-size: 0.8rem;
+  color: var(--hl-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.lt-card__unavailable {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--hl-text-muted);
+}
+
+.lt-skeleton--icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.lt-skeleton--button {
+  width: 9rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+}
+
+// Acordeones nativos (<details>/<summary>).
+.lt-help {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lt-disclosure {
+  overflow: hidden;
+
+  &[open] .lt-disclosure__chevron {
+    transform: rotate(180deg);
+  }
+
+  &[open] .lt-disclosure__summary {
+    border-bottom: 1px solid var(--hl-border);
+  }
+}
+
+.lt-disclosure__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.25rem;
+  padding: 0.85rem 1.25rem;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 0.75rem;
+  transition: background-color 0.15s;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:hover {
+    background-color: var(--hl-surface-muted);
+  }
+
+  &:focus-visible {
+    outline-offset: -3px;
+  }
+}
+
+.lt-disclosure__icon {
+  flex-shrink: 0;
+  color: var(--hl-link);
+}
+
+.lt-disclosure__title {
+  flex-grow: 1;
+  font-weight: 600;
+  color: var(--hl-emphasis);
+}
+
+.lt-disclosure__chevron {
+  flex-shrink: 0;
+  color: var(--hl-text-muted);
+  transition: transform 0.2s;
+}
+
+.lt-disclosure__body {
+  padding: 1rem 1.25rem 1.25rem;
+  font-size: 0.925rem;
+}
+
+.lt-guide__item {
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--hl-border);
+
+  &:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  dt {
+    font-weight: 600;
+    color: var(--hl-emphasis);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--hl-text-muted);
+  }
+}
+
+// Lista con viñeta de verificación dibujada con CSS (decorativa).
+.lt-checklist {
+  padding-left: 0;
+  list-style: none;
+
+  li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0.2rem;
+      top: 0.35em;
+      width: 0.45rem;
+      height: 0.75rem;
+      border: solid var(--hl-green-700);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+}
+
+:host-context([data-bs-theme='dark']) .lt-checklist li::before {
+  border-color: var(--hl-dark-text);
+}
+
+.lt-aside__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.lt-quick-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.25rem;
+  border-bottom: 1px solid var(--hl-border);
+  color: var(--hl-link);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+li:last-child > .lt-quick-link {
+  border-bottom: 0;
+}

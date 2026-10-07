@@ -1,0 +1,45 @@
+.hl-paginator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  padding: 0.75rem 1rem;
+}
+
+.hl-paginator__range {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--hl-text-muted);
+}
+
+.hl-paginator__size {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .form-select {
+    width: auto;
+  }
+}
+
+.hl-paginator__pages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0 0 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+// Objetivo táctil mínimo de 24x24 (WCAG 2.5.8) con números de una o más cifras.
+.hl-paginator__btn {
+  min-width: 2rem;
+  min-height: 2rem;
+}
+
+.hl-paginator__gap {
+  padding: 0 0.25rem;
+  color: var(--hl-text-muted);
+}

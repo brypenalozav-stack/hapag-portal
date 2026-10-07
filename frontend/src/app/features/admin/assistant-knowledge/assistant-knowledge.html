@@ -1,0 +1,232 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.assistantKnowledge.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.assistantKnowledge.subtitle' | transloco }}</p>
+  </div>
+  <button type="button" class="btn btn-hl-orange" (click)="openCreate()">{{ 'admin.assistantKnowledge.list.new' | transloco }}</button>
+</div>
+
+<!-- Alta y edición -->
+@if (formOpen()) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="kb-form-title" (submit)="submit($event)">
+    <h2 #formHeading id="kb-form-title" class="section-title mb-3" tabindex="-1">
+      {{ (editing() ? 'admin.assistantKnowledge.form.editTitle' : 'admin.assistantKnowledge.form.createTitle') | transloco }}
+    </h2>
+
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="kb-errors-title">
+        <h3 id="kb-errors-title" class="h6 fw-bold">{{ 'admin.assistantKnowledge.form.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track error.key) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco: error.params }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label for="kb-country" class="form-label small fw-semibold">{{ 'admin.assistantKnowledge.form.country' | transloco }}</label>
+        <select id="kb-country" class="form-select" required [(ngModel)]="form.country" [ngModelOptions]="{ standalone: true }">
+          <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+          <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="kb-topic" class="form-label small fw-semibold">{{ 'admin.assistantKnowledge.form.topic' | transloco }}</label>
+        <select id="kb-topic" class="form-select" required [(ngModel)]="form.topic" [ngModelOptions]="{ standalone: true }">
+          @for (t of topics; track t) {
+            <option [value]="t">{{ t | codeLabel: topicKeys }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="kb-sort" class="form-label small fw-semibold">{{ 'admin.assistantKnowledge.form.sortOrder' | transloco }}</label>
+        <input id="kb-sort" type="text" inputmode="numeric" class="form-control" required aria-describedby="kb-sort-help"
+               [attr.aria-invalid]="hasError('kb-sort')" [(ngModel)]="form.sortOrder" [ngModelOptions]="{ standalone: true }" />
+        <div id="kb-sort-help" class="form-text">{{ 'admin.assistantKnowledge.form.sortOrderHelp' | transloco }}</div>
+      </div>
+      <div class="col-12">
+        <label for="kb-title" class="form-label small fw-semibold">{{ 'admin.assistantKnowledge.form.articleTitle' | transloco }}</label>
+        <input id="kb-title" type="text" class="form-control" required maxlength="200" [attr.aria-invalid]="hasError('kb-title')"
+               [(ngModel)]="form.title" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-12">
+        <label for="kb-content" class="form-label small fw-semibold">{{ 'admin.assistantKnowledge.form.content' | transloco }}</label>
+        <textarea id="kb-content" class="form-control" rows="6" required [attr.maxlength]="contentMax" aria-describedby="kb-content-help"
+                  [attr.aria-invalid]="hasError('kb-content')" [(ngModel)]="form.content" [ngModelOptions]="{ standalone: true }"></textarea>
+        <div id="kb-content-help" class="form-text">{{ 'admin.assistantKnowledge.form.contentHelp' | transloco: { count: form.content.length, max: contentMax } }}</div>
+      </div>
+      <div class="col-12">
+        <label for="kb-keywords" class="form-label small fw-semibold">{{ 'admin.assistantKnowledge.form.keywords' | transloco }}</label>
+        <input id="kb-keywords" type="text" class="form-control" maxlength="500" aria-describedby="kb-keywords-help"
+               [(ngModel)]="form.keywords" [ngModelOptions]="{ standalone: true }" />
+        <div id="kb-keywords-help" class="form-text">{{ 'admin.assistantKnowledge.form.keywordsHelp' | transloco }}</div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">
+        {{ (editing() ? 'admin.assistantKnowledge.form.save' : 'admin.assistantKnowledge.form.create') | transloco }}
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'admin.assistantKnowledge.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+<form class="hl-card p-3 mb-4" role="search" [attr.aria-label]="'admin.assistantKnowledge.list.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="kb-filter-country" class="form-label small fw-semibold">{{ 'admin.assistantKnowledge.list.filters.country' | transloco }}</label>
+      <select id="kb-filter-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.assistantKnowledge.list.filters.allCountries' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="kb-filter-topic" class="form-label small fw-semibold">{{ 'admin.assistantKnowledge.list.filters.topic' | transloco }}</label>
+      <select id="kb-filter-topic" class="form-select" name="topic" [(ngModel)]="topic">
+        <option value="">{{ 'admin.assistantKnowledge.list.filters.allTopics' | transloco }}</option>
+        @for (t of topics; track t) {
+          <option [value]="t">{{ t | codeLabel: topicKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="form-check mb-2">
+        <input id="kb-filter-inactive" type="checkbox" class="form-check-input" name="includeInactive" [(ngModel)]="includeInactive" />
+        <label for="kb-filter-inactive" class="form-check-label small">{{ 'admin.assistantKnowledge.list.filters.includeInactive' | transloco }}</label>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'admin.assistantKnowledge.list.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'admin.assistantKnowledge.list.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (articles().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.assistantKnowledge.list.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.assistantKnowledge.list.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.assistantKnowledge.list.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.assistantKnowledge.list.col.title' | transloco }}</th>
+            <th scope="col">{{ 'admin.assistantKnowledge.list.col.topic' | transloco }}</th>
+            <th scope="col">{{ 'admin.assistantKnowledge.list.col.country' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'admin.assistantKnowledge.list.col.sortOrder' | transloco }}</th>
+            <th scope="col">{{ 'admin.assistantKnowledge.list.col.status' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.assistantKnowledge.list.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (article of articles(); track article.id) {
+            <tr>
+              <td>
+                <span class="fw-semibold d-block">{{ article.title }}</span>
+                @if (article.keywords) {
+                  <span class="small text-muted">{{ 'admin.assistantKnowledge.list.keywords' | transloco: { keywords: article.keywords } }}</span>
+                }
+              </td>
+              <td>{{ article.topic | codeLabel: topicKeys }}</td>
+              <td>{{ article.country }}</td>
+              <td class="text-end">{{ article.sortOrder }}</td>
+              <td>{{ (article.isActive ? 'admin.assistantKnowledge.status.active' : 'admin.assistantKnowledge.status.inactive') | transloco }}</td>
+              <td>
+                <div class="hl-actions">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(article)"
+                          [attr.aria-label]="'admin.assistantKnowledge.list.editLabel' | transloco: { title: article.title }">
+                    {{ 'admin.assistantKnowledge.list.edit' | transloco }}
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(article)"
+                          [attr.aria-label]="'admin.assistantKnowledge.list.historyLabel' | transloco: { title: article.title }">
+                    {{ 'admin.assistantKnowledge.list.history' | transloco }}
+                  </button>
+                  @if (article.isActive) {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="deactivate(article)"
+                            [attr.aria-label]="'admin.assistantKnowledge.list.deactivateLabel' | transloco: { title: article.title }">
+                      {{ 'admin.assistantKnowledge.list.deactivate' | transloco }}
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
+
+<!-- Registro de cambios del artículo elegido (NF-15) -->
+@if (historyArticle(); as article) {
+  <section class="hl-card mb-4" aria-labelledby="kb-history-title">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #historyHeading id="kb-history-title" class="section-title" tabindex="-1">
+        {{ 'admin.assistantKnowledge.history.title' | transloco: { title: article.title } }}
+      </h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeHistory()">{{ 'admin.assistantKnowledge.history.close' | transloco }}</button>
+    </div>
+    @if (historyLoading()) {
+      <app-loading-spinner />
+    } @else if (history().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.assistantKnowledge.history.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.assistantKnowledge.history.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.assistantKnowledge.history.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.assistantKnowledge.history.col.date' | transloco }}</th>
+              <th scope="col">{{ 'admin.assistantKnowledge.history.col.user' | transloco }}</th>
+              <th scope="col">{{ 'admin.assistantKnowledge.history.col.action' | transloco }}</th>
+              <th scope="col">{{ 'admin.assistantKnowledge.history.col.previous' | transloco }}</th>
+              <th scope="col">{{ 'admin.assistantKnowledge.history.col.current' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (change of history(); track change.id) {
+              <tr>
+                <td class="text-nowrap">{{ change.changedAt | hlDate: 'datetime' }}</td>
+                <td>{{ change.changedBy }}</td>
+                <td>{{ change.action | codeLabel: actionKeys }}</td>
+                @for (snapshot of [change.previous, change.current]; track $index) {
+                  <td class="small">
+                    @if (snapshot) {
+                      <span class="d-block fw-semibold">{{ snapshot.title }}</span>
+                      <span class="d-block">{{ 'admin.assistantKnowledge.snapshot.header' | transloco: { country: snapshot.country, topic: (snapshot.topic | codeLabel: topicKeys), order: snapshot.sortOrder } }}</span>
+                      <span class="d-block hl-pre">{{ snapshot.content }}</span>
+                      @if (!snapshot.isActive) {
+                        <span class="d-block">{{ 'admin.assistantKnowledge.status.inactive' | transloco }}</span>
+                      }
+                    } @else {
+                      <span aria-hidden="true">—</span>
+                      <span class="visually-hidden">{{ 'admin.assistantKnowledge.snapshot.none' | transloco }}</span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

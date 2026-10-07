@@ -1,6 +1,7 @@
 namespace HapagPortal.Application.Auth.Register;
 
 using FluentValidation;
+using HapagPortal.Domain.Constants;
 
 public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
@@ -37,7 +38,17 @@ public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand
         RuleFor(x => x.ClientType)
             .NotEmpty().WithMessage("Client type is required.")
             .Must(ct => ValidClientTypes.Contains(ct))
-            .WithMessage("Client type must be 'Client' or 'CustomsAgent'.");
+            .WithMessage("Client type must be 'Client' or 'CustomsAgent'.")
+            .When(x => string.IsNullOrWhiteSpace(x.OrganizationType));
+
+        RuleFor(x => x.OrganizationType)
+            .Must(t => OrganizationTypes.Registrable.Contains(t))
+            .WithMessage("Organization type must be 'Customer', 'FreightForwarder', 'CustomsAgency' or 'Carrier'.")
+            .When(x => !string.IsNullOrWhiteSpace(x.OrganizationType));
+
+        RuleFor(x => x.ContactFirstName).MaximumLength(100);
+        RuleFor(x => x.ContactLastName).MaximumLength(100);
+        RuleFor(x => x.Phone).MaximumLength(30);
 
         RuleFor(x => x.TaxId)
             .Matches(@"^\d{1,2}\.\d{3}\.\d{3}-[\dkK]$")

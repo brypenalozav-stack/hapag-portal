@@ -1,0 +1,321 @@
+# CT-SIGN – Firma electrónica de certificados
+# Contrato de integración en estado PROPUESTA (Fase 6a). Ver docs/integraciones/README.md.
+openapi: 3.1.0
+info:
+  title: Firma electrónica de certificados
+  version: 0.1.0
+  description: |
+    PROPUESTA – pendiente de validación con Área Legal (titular)
+
+    Firma de los certificados que emite el portal (M6-01, M6-02, M6-07). El Área Legal define el nivel de firma
+    exigido conforme a la normativa aplicable y elige el proveedor de firma electrónica; Hapag-Lloyd, a través del
+    equipo de desarrollo del Portal 2.0, publica el mecanismo adoptado. No hay tarea asociada en Pendientes.
+    En el plan solo existe adaptador Dummy.
+  x-contrato: CT-SIGN
+  x-estado: PROPUESTA – pendiente de validación con Área Legal (titular)
+  x-responsable: Área Legal (titular)
+  x-puerto:
+  - IDocumentSigner
+  x-tareas-pendientes: sin tarea en Pendientes
+servers:
+- url: '{baseUrl}'
+  description: URL base configurada en `Integrations:Signature:BaseUrl`. La URL productiva la entrega el responsable al validar
+    el contrato; por defecto apunta al simulador local (Fase 6c).
+  variables:
+    baseUrl:
+      default: http://localhost:5199/firma
+security:
+- ApiKey: []
+tags:
+- name: Firma
+paths:
+  /sign:
+    parameters:
+    - $ref: '#/components/parameters/CorrelationId'
+    post:
+      operationId: signDocument
+      summary: Firmar un documento PDF
+      description: Firma electrónicamente un certificado generado por el portal y devuelve el PDF firmado.
+      tags:
+      - Firma
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignRequest'
+            examples:
+              transbordo:
+                value:
+                  documentType: TRANSSHIPMENT_CERTIFICATE
+                  signerProfile: HL-CL
+                  fileName: certificado-transbordo-HLCUSCL2609A1234.pdf
+                  externalReference: SR-2026-000877
+                  content: JVBERi0xLjcKJcfsj6IK
+      responses:
+        '200':
+          description: Documento firmado.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignResult'
+              examples:
+                firmado:
+                  value:
+                    signatureId: sig-20261020-000045
+                    signedAt: '2026-10-20T15:02:11Z'
+                    signatureLevel: ADVANCED
+                    format: PAdES-B-LT
+                    certificateSubject: CN=Hapag-Lloyd Chile SpA, O=Hapag-Lloyd
+                    certificateSerial: 4F1A9C22
+                    verificationUrl: https://firma.example/verificar/sig-20261020-000045
+                    signedContent: JVBERi0xLjcKJcfsj6IK
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  parameters:
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: Identificador de correlación (NF-27). El portal lo envía en cada llamada; si falta, el servicio genera
+        uno y lo devuelve en la respuesta.
+      schema:
+        type: string
+        maxLength: 64
+      example: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+  headers:
+    CorrelationId:
+      description: Mismo valor recibido en la solicitud, o uno generado por el servicio.
+      schema:
+        type: string
+        maxLength: 64
+    RetryAfter:
+      description: Segundos que el cliente debe esperar antes de reintentar (RFC 9110 §10.2.3).
+      schema:
+        type: integer
+        minimum: 0
+  responses:
+    BadRequest:
+      description: 'Solicitud inválida: parámetro faltante o con formato incorrecto.'
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            parametroInvalido:
+              value:
+                type: about:blank
+                title: Solicitud inválida
+                status: 400
+                detail: Uno o más parámetros no cumplen el formato esperado.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+                errors:
+                - field: taxId
+                  message: Debe tener el formato 12345678-9.
+    NotFound:
+      description: El recurso solicitado no existe.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            noEncontrado:
+              value:
+                type: about:blank
+                title: Recurso no encontrado
+                status: 404
+                detail: No existe un recurso con el identificador indicado.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    TooManyRequests:
+      description: Se superó el límite de solicitudes. El cliente reintenta después de `Retry-After`.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            limite:
+              value:
+                type: about:blank
+                title: Demasiadas solicitudes
+                status: 429
+                detail: Se superó el límite de solicitudes por minuto.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    InternalServerError:
+      description: Error interno del servicio.
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            errorInterno:
+              value:
+                type: about:blank
+                title: Error interno
+                status: 500
+                detail: El servicio no pudo procesar la solicitud.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+    ServiceUnavailable:
+      description: Servicio no disponible temporalmente (mantención o dependencia caída).
+      headers:
+        X-Correlation-Id:
+          $ref: '#/components/headers/CorrelationId'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            noDisponible:
+              value:
+                type: about:blank
+                title: Servicio no disponible
+                status: 503
+                detail: El servicio está en mantención. Reintente más tarde.
+                instance: /ejemplo
+                correlationId: 3f2b8c1e-5d4a-4c7e-9a10-2b6f0e8d7c55
+  schemas:
+    Problem:
+      type: object
+      description: Detalle de error según RFC 9457 (`application/problem+json`). Admite miembros de extensión.
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          default: about:blank
+          description: URI que identifica el tipo de problema.
+        title:
+          type: string
+          description: Resumen legible del tipo de problema.
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+          description: Código HTTP.
+        detail:
+          type: string
+          description: Explicación específica de esta ocurrencia.
+        instance:
+          type: string
+          format: uri-reference
+          description: URI de la ocurrencia concreta.
+        correlationId:
+          type: string
+          description: 'Extensión: valor de `X-Correlation-Id`.'
+        errors:
+          type: array
+          description: 'Extensión: errores de validación por campo.'
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+            required:
+            - field
+            - message
+      required:
+      - title
+      - status
+      additionalProperties: true
+    SignRequest:
+      type: object
+      properties:
+        documentType:
+          type: string
+          enum:
+          - TRANSSHIPMENT_CERTIFICATE
+          - FREIGHT_CERTIFICATE
+          - NO_DEBT_CERTIFICATE
+          description: Certificado de transbordo (M6-01), de flete (M6-02) o de libre deuda (M6-07).
+        signerProfile:
+          type: string
+          description: Perfil de firmante configurado para Hapag-Lloyd Chile o Bolivia.
+        fileName:
+          type: string
+        externalReference:
+          type: string
+          description: Identificador de la solicitud en el portal.
+        content:
+          type: string
+          contentEncoding: base64
+          contentMediaType: application/pdf
+          description: PDF sin firmar, en base64.
+      required:
+      - documentType
+      - signerProfile
+      - fileName
+      - content
+    SignResult:
+      type: object
+      properties:
+        signatureId:
+          type: string
+        signedAt:
+          type: string
+          format: date-time
+        signatureLevel:
+          type: string
+          enum:
+          - SIMPLE
+          - ADVANCED
+          description: Firma electrónica simple o avanzada; el nivel exigido lo define el Área Legal.
+        format:
+          type: string
+          description: Formato de firma, por ejemplo PAdES-B-LT.
+        certificateSubject:
+          type: string
+        certificateSerial:
+          type: string
+        verificationUrl:
+          type:
+          - string
+          - 'null'
+          format: uri
+        signedContent:
+          type: string
+          contentEncoding: base64
+          contentMediaType: application/pdf
+      required:
+      - signatureId
+      - signedAt
+      - signatureLevel
+      - format
+      - signedContent
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: Clave de API. En el portal se guarda cifrada como secreto `SIGNER_CERTIFICATE` (NF-09).

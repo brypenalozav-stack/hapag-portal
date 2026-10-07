@@ -20,14 +20,14 @@
   gap: 1rem;
 
   &:hover {
-    background-color: #f8fafc;
+    background-color: var(--hl-surface-muted);
   }
 }
 
 .faq-chevron {
   transition: transform 0.2s;
   flex-shrink: 0;
-  color: #718096;
+  color: var(--hl-text-muted);
 
   .open & {
     transform: rotate(180deg);
@@ -36,7 +36,7 @@
 
 .faq-answer {
   padding: 0 1.25rem 1.25rem;
-  color: #4a5568;
+  color: var(--hl-text-muted);
   font-size: 0.9rem;
   line-height: 1.7;
   border-top: 1px solid var(--hl-border);

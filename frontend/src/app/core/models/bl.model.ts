@@ -45,12 +45,6 @@ export interface LocalCharge {
   country: 'CL' | 'BO';
 }
 
-export interface BLChargesResponse {
-  blNumber: string;
-  localCharges: LocalCharge[];
-  demurrageCharges: DemurrageCharge[];
-}
-
 export interface DemurrageCharge {
   id: string;
   blId: string;

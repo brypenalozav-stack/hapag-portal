@@ -4,7 +4,10 @@ using Asp.Versioning;
 using HapagPortal.Application;
 using HapagPortal.Infrastructure.DependencyInjection;
 using HapagPortal.Infrastructure.Persistence;
+using HapagPortal.WebApi.BackgroundServices;
 using HapagPortal.WebApi.Middleware;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -26,6 +29,18 @@ if (!string.IsNullOrEmpty(pgHost))
 // Application & Infrastructure
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+// Vencimiento automático de accesos a terceros y mandatos (M1-14, M1-03).
+builder.Services.AddHostedService<AccessGrantExpiryWorker>();
+
+// Solicitudes masivas de cambio de almacén en segundo plano (M3-05, NF-19).
+builder.Services.AddHostedService<WarehouseChangeBatchWorker>();
+
+// Pasos posteriores a la confirmación de pagos con reintento (NF-03).
+builder.Services.AddHostedService<PaymentOutboxWorker>();
+
+// Conciliación de pagos en línea en curso con su pasarela (notificaciones perdidas).
+builder.Services.AddHostedService<PaymentReconciliationWorker>();
 
 // Controllers
 builder.Services.AddControllers()
@@ -71,6 +86,15 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Enter your JWT token"
     });
 
+    // M3-17: canal Web Service de clientes (/api/ws/v1), autenticado por la clave del cliente.
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Name = "X-Api-Key",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Description = "Web Service channel key (only for /api/ws/v1)"
+    });
+
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -114,6 +138,18 @@ builder.Services.AddCors(options =>
 
 // HttpContextAccessor is registered in Infrastructure layer
 
+// HTTPS detrás del proxy de Railway, que termina el TLS y reenvía X-Forwarded-For/Proto.
+// Se limpian las listas de proxies conocidos: se confía en cualquier proxy que envíe X-Forwarded-*,
+// aceptable porque el contenedor solo es accesible a través del proxy de Railway. Revisar si el
+// servicio pasa a estar expuesto directamente.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+builder.Services.Configure<HttpsRedirectionOptions>(options => options.HttpsPort = 443);
+
 var app = builder.Build();
 
 // Auto-apply pending migrations on startup
@@ -146,9 +182,30 @@ catch (Exception ex)
 }
 
 // Middleware pipeline
+app.UseForwardedHeaders();
+
+// HTTPS/HSTS fuera de Development; Security:EnforceHttps=false lo desactiva sin redesplegar.
+// /health queda fuera de la redirección para el chequeo del proxy.
+if (!app.Environment.IsDevelopment() && app.Configuration.GetValue("Security:EnforceHttps", true))
+{
+    app.UseHsts();
+    app.UseWhen(
+        context => !context.Request.Path.StartsWithSegments("/health"),
+        branch => branch.UseHttpsRedirection());
+}
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors();
+
+// Webhooks de pago: el controlador lee el cuerpo crudo para verificar la firma de la pasarela sobre esos bytes.
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api/v1/payments/webhook"))
+        context.Request.EnableBuffering();
+
+    await next(context);
+});
 
 if (app.Environment.IsDevelopment())
 {
@@ -165,6 +222,10 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 app.UseAuthentication();
+
+// «Vista como cliente» (M8-08): sesión activa, solo consulta y auditoría de cada solicitud con el actor interno.
+app.UseMiddleware<ImpersonationMiddleware>();
+
 app.UseAuthorization();
 
 app.MapControllers();

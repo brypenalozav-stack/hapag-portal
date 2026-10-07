@@ -1,0 +1,142 @@
+<section class="hl-card" aria-labelledby="contact-lists-title" data-testid="contact-lists">
+  <div class="card-header p-3">
+    <h2 id="contact-lists-title" class="h5 fw-bold mb-1">{{ 'organization.contactLists.title' | transloco }}</h2>
+    <p class="small text-muted mb-0">{{ 'organization.contactLists.help' | transloco }}</p>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (noticeKey(); as key) {
+    <p class="m-3 small" role="note">{{ key | transloco }}</p>
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="load()" />
+  } @else if (view(); as v) {
+    @if (!v.available) {
+      <!-- El sistema de origen no respondió: las listas no se muestran como vigentes -->
+      <div class="alert alert-warning m-3 d-flex flex-wrap align-items-center gap-2" role="alert" data-testid="contact-lists-unavailable">
+        <span>{{ 'organization.contactLists.unavailable' | transloco }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="load()">{{ 'organization.contactLists.retry' | transloco }}</button>
+      </div>
+    } @else {
+      @if (!v.canEdit) {
+        <p class="small m-3" role="note">{{ 'organization.contactLists.readOnly' | transloco }}</p>
+      }
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'organization.contactLists.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'organization.contactLists.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'organization.contactLists.col.type' | transloco }}</th>
+              <th scope="col">{{ 'organization.contactLists.col.emails' | transloco }}</th>
+              <th scope="col">{{ 'organization.contactLists.col.updated' | transloco }}</th>
+              <th scope="col"><span class="visually-hidden">{{ 'organization.contactLists.col.actions' | transloco }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (type of v.reportTypes; track type) {
+              @let list = listFor(type);
+              <tr [attr.data-testid]="'contact-list-' + type">
+                <th scope="row" class="fw-semibold">{{ type | codeLabel: typeKeys }}</th>
+                <td>
+                  @if (editing() === type) {
+                    <form novalidate (submit)="save($event)" [attr.aria-label]="'organization.contactLists.editLabel' | transloco: { type: (type | codeLabel: typeKeys) }">
+                      <label class="form-label small fw-semibold" [for]="'contact-emails-' + type">{{ 'organization.contactLists.emailsField' | transloco: { type: (type | codeLabel: typeKeys) } }}</label>
+                      <textarea #emailsField class="form-control" rows="4" [id]="'contact-emails-' + type" [name]="'contact-emails-' + type" autocomplete="email"
+                                [attr.aria-invalid]="fieldError() ? true : null"
+                                [attr.aria-describedby]="'contact-emails-help-' + type + (fieldError() ? ' contact-emails-error-' + type : '')"
+                                [(ngModel)]="emailsText"></textarea>
+                      <div class="form-text" [id]="'contact-emails-help-' + type">{{ 'organization.contactLists.emailsHelp' | transloco: { max: maxEmails } }}</div>
+                      @if (fieldError(); as errorKey) {
+                        <div class="hl-field-error" [id]="'contact-emails-error-' + type">{{ errorKey | transloco: { max: maxEmails, emails: invalidEmails() } }}</div>
+                      }
+                      @if (saveError()) {
+                        <div class="alert alert-danger py-2 mt-2 mb-0" role="alert" data-testid="contact-list-save-error">{{ saveError() }}</div>
+                      }
+                      <div class="d-flex gap-2 mt-2">
+                        <button type="submit" class="btn btn-sm btn-hl-orange" [disabled]="saving()">{{ 'organization.contactLists.save' | transloco }}</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelEdit()">{{ 'organization.contactLists.cancel' | transloco }}</button>
+                      </div>
+                    </form>
+                  } @else if (list && list.emails.length > 0) {
+                    <ul class="list-unstyled mb-0 small">
+                      @for (email of list.emails; track email) { <li>{{ email }}</li> }
+                    </ul>
+                  } @else {
+                    <span class="small">{{ 'organization.contactLists.noEmails' | transloco }}</span>
+                  }
+                </td>
+                <td class="small">
+                  @if (list?.updatedAt) {
+                    {{ 'organization.contactLists.updatedBy' | transloco: { date: (list?.updatedAt | hlDate: 'datetime'), user: list?.updatedBy ?? '' } }}
+                  } @else {
+                    <span aria-hidden="true">—</span>
+                  }
+                </td>
+                <td>
+                  @if (v.canEdit && editing() !== type) {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="startEdit(type)"
+                            [attr.aria-label]="'organization.contactLists.editLabel' | transloco: { type: (type | codeLabel: typeKeys) }">{{ 'organization.contactLists.edit' | transloco }}</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Historial de cambios, también los que fallaron al propagarse -->
+    <div class="p-3 border-top">
+      <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-2">
+        <h3 class="h6 fw-bold mb-0" id="contact-history-title">{{ 'organization.contactLists.history.title' | transloco }}</h3>
+        <div class="d-flex align-items-end gap-2">
+          <div>
+            <label for="contact-history-type" class="form-label small fw-semibold mb-1">{{ 'organization.contactLists.history.filter' | transloco }}</label>
+            <select id="contact-history-type" class="form-select form-select-sm" [(ngModel)]="historyType" (ngModelChange)="loadHistory()">
+              <option value="">{{ 'organization.contactLists.history.all' | transloco }}</option>
+              @for (type of v.reportTypes; track type) {
+                <option [value]="type">{{ type | codeLabel: typeKeys }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+      @if (historyLoading()) {
+        <app-loading-spinner />
+      } @else if (history().length === 0) {
+        <p class="small mb-0" role="status">{{ 'organization.contactLists.history.empty' | transloco }}</p>
+      } @else {
+        <div class="table-responsive" tabindex="0" role="region" aria-labelledby="contact-history-title">
+          <table class="hl-table" data-testid="contact-lists-history">
+            <caption class="visually-hidden">{{ 'organization.contactLists.history.title' | transloco }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'organization.contactLists.history.col.date' | transloco }}</th>
+                <th scope="col">{{ 'organization.contactLists.history.col.type' | transloco }}</th>
+                <th scope="col">{{ 'organization.contactLists.history.col.previous' | transloco }}</th>
+                <th scope="col">{{ 'organization.contactLists.history.col.new' | transloco }}</th>
+                <th scope="col">{{ 'organization.contactLists.history.col.status' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (h of history(); track h.id) {
+                <tr>
+                  <td class="small">{{ 'organization.contactLists.updatedBy' | transloco: { date: (h.changedAt | hlDate: 'datetime'), user: h.changedBy ?? '' } }}</td>
+                  <td>{{ h.reportType | codeLabel: typeKeys }}</td>
+                  <td class="small">{{ h.previousEmails.join(', ') || '—' }}</td>
+                  <td class="small">{{ h.newEmails.join(', ') || '—' }}</td>
+                  <td>
+                    <span class="hl-badge" [class.hl-badge--confirmed]="h.status === 'Propagated'" [class.hl-badge--failed]="h.status !== 'Propagated'">{{ h.status | codeLabel: statusKeys }}</span>
+                    @if (h.status !== 'Propagated' && h.errorCode) {
+                      <span class="d-block small">{{ h.errorCode }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</section>

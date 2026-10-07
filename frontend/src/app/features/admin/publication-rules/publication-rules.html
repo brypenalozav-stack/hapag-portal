@@ -1,0 +1,231 @@
+<div class="hl-page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <h1>{{ 'admin.publicationRules.title' | transloco }}</h1>
+    <p class="text-muted mb-0">{{ 'admin.publicationRules.subtitle' | transloco }}</p>
+  </div>
+  <button type="button" class="btn btn-hl-orange" (click)="openCreate()">{{ 'admin.publicationRules.list.new' | transloco }}</button>
+</div>
+
+<!-- Alta y edición -->
+@if (formOpen()) {
+  <form class="hl-card p-4 mb-4" novalidate aria-labelledby="publication-form-title" (submit)="submit($event)">
+    <h2 #formHeading id="publication-form-title" class="section-title mb-3" tabindex="-1">
+      {{ (editing() ? 'admin.publicationRules.form.editTitle' : 'admin.publicationRules.form.createTitle') | transloco }}
+    </h2>
+
+    @if (errors().length > 0) {
+      <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="publication-errors-title">
+        <h3 id="publication-errors-title" class="h6 fw-bold">{{ 'admin.publicationRules.form.errors.summaryTitle' | transloco }}</h3>
+        <ul class="mb-0">
+          @for (error of errors(); track error.key) {
+            <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco }}</a></li>
+          }
+        </ul>
+      </div>
+    }
+    @if (saveError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
+    }
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label for="publication-country" class="form-label small fw-semibold">{{ 'admin.publicationRules.form.country' | transloco }}</label>
+        <select id="publication-country" class="form-select" required [(ngModel)]="form.country" [ngModelOptions]="{ standalone: true }">
+          <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+          <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="publication-destination" class="form-label small fw-semibold">{{ 'admin.publicationRules.form.destination' | transloco }}</label>
+        <input id="publication-destination" type="text" class="form-control text-uppercase" required maxlength="5" autocomplete="off"
+               aria-describedby="publication-locode-help" [attr.aria-invalid]="hasError('publication-destination')"
+               [(ngModel)]="form.finalDestinationCode" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-4">
+        <label for="publication-destination-name" class="form-label small fw-semibold">{{ 'admin.publicationRules.form.destinationName' | transloco }}</label>
+        <input id="publication-destination-name" type="text" class="form-control" maxlength="100" autocomplete="off"
+               [(ngModel)]="form.finalDestinationName" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-md-4">
+        <label for="publication-port" class="form-label small fw-semibold">{{ 'admin.publicationRules.form.port' | transloco }}</label>
+        <input id="publication-port" type="text" class="form-control text-uppercase" maxlength="5" autocomplete="off"
+               aria-describedby="publication-locode-help publication-port-help" [attr.aria-invalid]="hasError('publication-port')"
+               [(ngModel)]="form.dischargePortCode" [ngModelOptions]="{ standalone: true }" />
+        <div id="publication-port-help" class="form-text">{{ 'admin.publicationRules.form.portHelp' | transloco }}</div>
+      </div>
+      <div class="col-md-8">
+        <label for="publication-description" class="form-label small fw-semibold">{{ 'admin.publicationRules.form.description' | transloco }}</label>
+        <input id="publication-description" type="text" class="form-control" maxlength="300"
+               [(ngModel)]="form.description" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-12">
+        <div id="publication-locode-help" class="form-text mt-0">{{ 'admin.publicationRules.form.locodeHelp' | transloco }}</div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-hl-orange" [disabled]="saving()">
+        {{ (editing() ? 'admin.publicationRules.form.save' : 'admin.publicationRules.form.create') | transloco }}
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">{{ 'admin.publicationRules.form.cancel' | transloco }}</button>
+    </div>
+  </form>
+}
+
+<form class="hl-card p-3 mb-4" role="search" [attr.aria-label]="'admin.publicationRules.list.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label for="publication-filter-country" class="form-label small fw-semibold">{{ 'admin.publicationRules.list.filters.country' | transloco }}</label>
+      <select id="publication-filter-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.publicationRules.list.filters.allCountries' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="form-check mb-2">
+        <input id="publication-filter-inactive" type="checkbox" class="form-check-input" name="includeInactive" [(ngModel)]="includeInactive" />
+        <label for="publication-filter-inactive" class="form-check-label small">{{ 'admin.publicationRules.list.filters.includeInactive' | transloco }}</label>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-secondary flex-fill">{{ 'admin.publicationRules.list.filters.search' | transloco }}</button>
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">{{ 'admin.publicationRules.list.filters.clear' | transloco }}</button>
+    </div>
+  </div>
+</form>
+
+@if (actionError()) {
+  <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="search()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (rules().length === 0) {
+  <app-state-message kind="empty" [messageKey]="'admin.publicationRules.list.empty'" />
+} @else {
+  <div class="hl-card mb-4">
+    <app-table-filter [table]="table" [totalOf]="rules().length" inputId="publication-rules-table-filter" />
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.publicationRules.list.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'admin.publicationRules.list.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col" appSortHeader="destination" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.publicationRules.list.col.destination' | transloco }}</th>
+            <th scope="col" appSortHeader="port" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.publicationRules.list.col.port' | transloco }}</th>
+            <th scope="col" appSortHeader="country" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.publicationRules.list.col.country' | transloco }}</th>
+            <th scope="col" appSortHeader="description" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.publicationRules.list.col.description' | transloco }}</th>
+            <th scope="col" appSortHeader="modified" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.publicationRules.list.col.modified' | transloco }}</th>
+            <th scope="col" appSortHeader="status" [sort]="table.sort()" (sortChange)="table.setSort($event)">{{ 'admin.publicationRules.list.col.status' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'admin.publicationRules.list.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rule of table.rows(); track rule.id) {
+            <tr>
+              <td class="fw-semibold">
+                {{ rule.finalDestinationCode }}
+                @if (rule.finalDestinationName) {
+                  <span class="d-block small fw-normal text-muted">{{ rule.finalDestinationName }}</span>
+                }
+              </td>
+              <td>{{ rule.dischargePortCode ?? ('admin.publicationRules.list.anyPort' | transloco) }}</td>
+              <td>{{ rule.country }}</td>
+              <td>{{ rule.description ?? '—' }}</td>
+              <td class="small">{{ 'admin.publicationRules.list.modifiedValue' | transloco: { user: rule.modifiedBy ?? rule.createdBy, date: ((rule.modifiedAt ?? rule.createdAt) | hlDate: 'datetime') } }}</td>
+              <td>{{ (rule.isActive ? 'admin.publicationRules.status.active' : 'admin.publicationRules.status.inactive') | transloco }}</td>
+              <td>
+                <div class="hl-actions">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEdit(rule)"
+                          [attr.aria-label]="'admin.publicationRules.list.editLabel' | transloco: { rule: ruleName(rule) }">
+                    {{ 'admin.publicationRules.list.edit' | transloco }}
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openHistory(rule)"
+                          [attr.aria-label]="'admin.publicationRules.list.historyLabel' | transloco: { rule: ruleName(rule) }">
+                    {{ 'admin.publicationRules.list.history' | transloco }}
+                  </button>
+                  @if (rule.isActive) {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="deactivate(rule)"
+                            [attr.aria-label]="'admin.publicationRules.list.deactivateLabel' | transloco: { rule: ruleName(rule) }">
+                      {{ 'admin.publicationRules.list.deactivate' | transloco }}
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" class="text-center text-muted py-3">{{ 'shared.tableFilter.noMatches' | transloco }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (table.paged()) {
+      <app-paginator [page]="table.page()" [pageSize]="table.pageSize()" [total]="table.total()" [label]="'admin.publicationRules.list.pagination' | transloco"
+                     idPrefix="publication-rules-pager" (pageChange)="table.setPage($event)" (pageSizeChange)="table.setPageSize($event)" />
+    }
+  </div>
+}
+
+<!-- Registro de cambios de la regla elegida (NF-15) -->
+@if (historyRule(); as rule) {
+  <section class="hl-card mb-4" aria-labelledby="publication-history-title">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 #historyHeading id="publication-history-title" class="section-title" tabindex="-1">
+        {{ 'admin.publicationRules.history.title' | transloco: { rule: ruleName(rule) } }}
+      </h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeHistory()">{{ 'admin.publicationRules.history.close' | transloco }}</button>
+    </div>
+    @if (historyLoading()) {
+      <app-loading-spinner />
+    } @else if (history().length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.publicationRules.history.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.publicationRules.history.caption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.publicationRules.history.caption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.publicationRules.history.col.date' | transloco }}</th>
+              <th scope="col">{{ 'admin.publicationRules.history.col.user' | transloco }}</th>
+              <th scope="col">{{ 'admin.publicationRules.history.col.action' | transloco }}</th>
+              <th scope="col">{{ 'admin.publicationRules.history.col.previous' | transloco }}</th>
+              <th scope="col">{{ 'admin.publicationRules.history.col.current' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (change of history(); track change.id) {
+              <tr>
+                <td class="text-nowrap">{{ change.changedAt | hlDate: 'datetime' }}</td>
+                <td>{{ change.changedBy }}</td>
+                <td>{{ change.action | codeLabel: actionKeys }}</td>
+                @for (snapshot of [change.previous, change.current]; track $index) {
+                  <td class="small">
+                    @if (snapshot) {
+                      <span class="d-block">{{ 'admin.publicationRules.snapshot.rule' | transloco: { country: snapshot.country, destination: snapshot.finalDestinationCode, port: snapshot.dischargePortCode ?? ('admin.publicationRules.list.anyPort' | transloco) } }}</span>
+                      @if (snapshot.finalDestinationName) {
+                        <span class="d-block">{{ snapshot.finalDestinationName }}</span>
+                      }
+                      @if (snapshot.description) {
+                        <span class="d-block">{{ snapshot.description }}</span>
+                      }
+                      @if (!snapshot.isActive) {
+                        <span class="d-block">{{ 'admin.publicationRules.status.inactive' | transloco }}</span>
+                      }
+                    } @else {
+                      <span aria-hidden="true">—</span>
+                      <span class="visually-hidden">{{ 'admin.publicationRules.snapshot.none' | transloco }}</span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

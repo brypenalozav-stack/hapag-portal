@@ -1,0 +1,174 @@
+@let r = request();
+<!-- Estado y embarque -->
+<section class="hl-card p-4 mb-4" aria-labelledby="srv-overview-title" data-testid="srv-overview">
+  <h2 id="srv-overview-title" class="section-title mb-3">{{ 'serviceRequests.detail.summary.title' | transloco }}</h2>
+  <dl class="row g-3 mb-0">
+    <div class="col-sm-6 col-lg-3">
+      <dt class="detail-label">{{ 'serviceRequests.detail.summary.status' | transloco }}</dt>
+      <dd class="mb-0">
+        <span class="hl-badge" [class]="statusClass[r.status] || 'hl-badge--processing'" data-testid="srv-status">{{ r.status | codeLabel: statusKeys }}</span>
+      </dd>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <dt class="detail-label">{{ 'serviceRequests.detail.summary.statusChangedAt' | transloco }}</dt>
+      <dd class="detail-value">{{ r.statusChangedAt | hlDate: 'datetime' : r.timeZone }}</dd>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <dt class="detail-label">{{ 'serviceRequests.detail.summary.bl' | transloco }}</dt>
+      <dd class="detail-value">{{ r.blNumber }}</dd>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <dt class="detail-label">{{ 'serviceRequests.detail.summary.booking' | transloco }}</dt>
+      <dd class="detail-value">{{ r.bookingNumber ?? '—' }}</dd>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <dt class="detail-label">{{ 'serviceRequests.detail.summary.operation' | transloco }}</dt>
+      <dd class="detail-value">{{ 'serviceRequests.detail.summary.operationValue' | transloco: { operation: (r.operation | codeLabel: operationKeys), country: r.country } }}</dd>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <dt class="detail-label">{{ 'serviceRequests.detail.summary.team' | transloco }}</dt>
+      <dd class="detail-value">{{ r.assignedTeam ? (r.assignedTeam | codeLabel: teamKeys) : ('serviceRequests.detail.summary.noTeam' | transloco) }}</dd>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <dt class="detail-label">{{ 'serviceRequests.detail.summary.createdAt' | transloco }}</dt>
+      <dd class="detail-value">{{ r.createdAt | hlDate: 'datetime' : r.timeZone }}</dd>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <dt class="detail-label">{{ 'serviceRequests.detail.summary.submittedAt' | transloco }}</dt>
+      <dd class="detail-value">{{ r.submittedAt ? (r.submittedAt | hlDate: 'datetime' : r.timeZone) : '—' }}</dd>
+    </div>
+    @if (internal() || r.organizationName) {
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'serviceRequests.detail.summary.organization' | transloco }}</dt>
+        <dd class="detail-value">{{ r.organizationName ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'serviceRequests.detail.summary.requestedBy' | transloco }}</dt>
+        <dd class="detail-value text-break">{{ r.requestedByEmail ?? '—' }}</dd>
+      </div>
+    }
+    @if (r.paymentNumber) {
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'serviceRequests.detail.summary.payment' | transloco }}</dt>
+        <dd class="detail-value">
+          {{ r.paymentNumber }}
+          @if (r.receiptNumber) {
+            <span class="d-block small fw-normal">{{ 'serviceRequests.detail.summary.receipt' | transloco: { number: r.receiptNumber } }}</span>
+          }
+        </dd>
+      </div>
+    }
+    @if (r.tariffAcceptedAt) {
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'serviceRequests.detail.summary.tariffAccepted' | transloco }}</dt>
+        <dd class="detail-value">{{ r.tariffAcceptedAt | hlDate: 'datetime' : r.timeZone }}</dd>
+      </div>
+    }
+  </dl>
+  @if (r.resolutionNotes) {
+    <div class="alert mt-3 mb-0" [class.alert-danger]="r.status === 'Rejected'" [class.alert-info]="r.status !== 'Rejected'" role="note" data-testid="srv-resolution">
+      <span class="fw-semibold d-block">{{ (r.status === 'Rejected' ? 'serviceRequests.detail.summary.rejectionReason' : 'serviceRequests.detail.summary.teamNotes') | transloco }}</span>
+      <span class="srv-pre-line">{{ r.resolutionNotes }}</span>
+    </div>
+  }
+</section>
+
+<!-- Datos ingresados y facturación -->
+<section class="hl-card p-4 mb-4" aria-labelledby="srv-values-title">
+  <h2 id="srv-values-title" class="section-title mb-3">{{ 'serviceRequests.detail.values.title' | transloco }}</h2>
+  <app-service-input-values [schema]="r.inputSchema" [values]="r.inputValues" [attachments]="clientAttachments()" />
+  @if (r.billingDataRequired || r.billing.taxId) {
+    <h3 class="h6 fw-bold mt-4">{{ 'serviceRequests.detail.billing.title' | transloco }}</h3>
+    <dl class="row g-3 mb-0" data-testid="srv-billing">
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'serviceRequests.detail.billing.taxId' | transloco }}</dt>
+        <dd class="detail-value">{{ r.billing.taxId ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'serviceRequests.detail.billing.name' | transloco }}</dt>
+        <dd class="detail-value">{{ r.billing.name ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'serviceRequests.detail.billing.address' | transloco }}</dt>
+        <dd class="detail-value">{{ r.billing.address ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="detail-label">{{ 'serviceRequests.detail.billing.email' | transloco }}</dt>
+        <dd class="detail-value text-break">{{ r.billing.email ?? '—' }}</dd>
+      </div>
+    </dl>
+  }
+</section>
+
+<!-- Cobro fijado al enviar -->
+@if (r.quote; as q) {
+  <section class="hl-card p-4 mb-4" aria-labelledby="srv-quote-title">
+    <h2 id="srv-quote-title" class="section-title mb-3">{{ 'serviceRequests.detail.quote.title' | transloco }}</h2>
+    <app-service-quote [quote]="q" />
+  </section>
+}
+
+<!-- Adjuntos y documento de salida -->
+<section class="hl-card mb-4" aria-labelledby="srv-attachments-title">
+  <div class="card-header p-3">
+    <h2 id="srv-attachments-title" class="section-title">{{ 'serviceRequests.detail.attachments.title' | transloco }}</h2>
+  </div>
+  @if (downloadError()) {
+    <div class="alert alert-danger m-3 py-2" role="alert">{{ downloadError() }}</div>
+  }
+  @if (r.attachments.length === 0) {
+    <p class="p-3 mb-0 text-muted" role="status">{{ 'serviceRequests.detail.attachments.empty' | transloco }}</p>
+  } @else {
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'serviceRequests.detail.attachments.caption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'serviceRequests.detail.attachments.caption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'serviceRequests.detail.attachments.col.file' | transloco }}</th>
+            <th scope="col">{{ 'serviceRequests.detail.attachments.col.kind' | transloco }}</th>
+            <th scope="col">{{ 'serviceRequests.detail.attachments.col.size' | transloco }}</th>
+            <th scope="col">{{ 'serviceRequests.detail.attachments.col.uploaded' | transloco }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'serviceRequests.detail.attachments.col.actions' | transloco }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of outputs(); track a.id) {
+            <tr data-testid="srv-output">
+              <td class="fw-semibold text-break">{{ a.fileName }}</td>
+              <td>{{ 'serviceRequests.detail.attachments.output' | transloco }}</td>
+              <td>{{ size(a) }}</td>
+              <td>{{ 'serviceRequests.detail.attachments.uploadedBy' | transloco: { date: (a.uploadedAt | hlDate: 'datetime' : r.timeZone), user: a.uploadedBy } }}</td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="downloading() === a.id" (click)="download(a)"
+                        [attr.aria-label]="'serviceRequests.detail.attachments.downloadLabel' | transloco: { name: a.fileName }">
+                  {{ 'serviceRequests.detail.attachments.download' | transloco }}
+                </button>
+              </td>
+            </tr>
+          }
+          @for (a of clientAttachments(); track a.id) {
+            <tr>
+              <td class="fw-semibold text-break">{{ a.fileName }}</td>
+              <td>{{ attachmentField(a) }}</td>
+              <td>{{ size(a) }}</td>
+              <td>{{ 'serviceRequests.detail.attachments.uploadedBy' | transloco: { date: (a.uploadedAt | hlDate: 'datetime' : r.timeZone), user: a.uploadedBy } }}</td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="downloading() === a.id" (click)="download(a)"
+                        [attr.aria-label]="'serviceRequests.detail.attachments.downloadLabel' | transloco: { name: a.fileName }">
+                  {{ 'serviceRequests.detail.attachments.download' | transloco }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  <ng-content select="[srvAttachmentsFooter]" />
+</section>
+
+<!-- Línea de tiempo (hora en el huso del país de la operación) -->
+<section class="hl-card p-4 mb-4" aria-labelledby="srv-timeline-title">
+  <h2 id="srv-timeline-title" class="section-title mb-3">{{ 'serviceRequests.detail.timeline.title' | transloco }}</h2>
+  <app-service-request-timeline [events]="r.timeline" [timeZone]="r.timeZone" />
+</section>

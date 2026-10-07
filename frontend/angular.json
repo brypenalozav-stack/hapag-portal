@@ -3,7 +3,11 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "analytics": "1c298847-c502-4870-b08f-16310a230459"
+    "analytics": "1c298847-c502-4870-b08f-16310a230459",
+    "schematicCollections": ["angular-eslint"],
+    "cache": {
+      "environment": "all"
+    }
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -53,13 +57,23 @@
               }
             ],
             "styles": [
+              "node_modules/@fontsource/inter/latin-300.css",
+              "node_modules/@fontsource/inter/latin-400.css",
+              "node_modules/@fontsource/inter/latin-500.css",
+              "node_modules/@fontsource/inter/latin-600.css",
+              "node_modules/@fontsource/inter/latin-700.css",
+              "node_modules/@fontsource/montserrat/latin-500.css",
+              "node_modules/@fontsource/montserrat/latin-600.css",
+              "node_modules/@fontsource/montserrat/latin-700.css",
+              "node_modules/@fontsource/montserrat/latin-800.css",
               "src/styles.scss"
             ],
-            "scripts": [
-              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
-            ],
+            "scripts": [],
             "polyfills": [
               "zone.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "@messageformat/core"
             ]
           },
           "configurations": {
@@ -115,6 +129,17 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "e2e": {
+              "outputPath": "dist/e2e",
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": { "inline": false }
+              },
+              "outputHashing": "all",
+              "extractLicenses": false,
+              "sourceMap": false
             }
           },
           "defaultConfiguration": "production"
@@ -136,6 +161,12 @@
           "options": {
             "proxyConfig": "proxy.conf.json",
             "open": true
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }

@@ -1,0 +1,213 @@
+:host {
+  display: block;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+// Portal incrustado ---------------------------------------------------------------------------------------------
+
+.rf-portal {
+  overflow: hidden;
+}
+
+.rf-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 0.5rem;
+}
+
+.rf-toolbar__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.rf-badge-external {
+  background-color: var(--bs-info-bg-subtle);
+  color: var(--bs-info-text-emphasis);
+  border: 1px solid var(--bs-info-border-subtle);
+}
+
+.rf-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+}
+
+.rf-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0 1.25rem 1rem;
+  font-size: 0.85rem;
+  color: var(--hl-text-muted);
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+}
+
+// El marco ocupa el alto visible bajo el encabezado fijo; en pantallas bajas conserva un mínimo usable.
+.rf-frame {
+  position: relative;
+  border-top: 1px solid var(--hl-border);
+  border-bottom: 1px solid var(--hl-border);
+  background-color: var(--hl-surface-muted);
+}
+
+.rf-frame__iframe {
+  display: block;
+  width: 100%;
+  height: calc(100dvh - var(--navbar-height) - 3rem);
+  min-height: 30rem;
+  border: 0;
+  background-color: var(--hl-white);
+}
+
+.rf-frame__loading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background-color: var(--hl-surface);
+  color: var(--hl-body-color);
+  font-weight: 600;
+
+  .spinner-border {
+    --bs-spinner-width: 2.5rem;
+    --bs-spinner-height: 2.5rem;
+  }
+}
+
+.rf-hint {
+  margin: 0;
+  padding: 0.75rem 1.25rem 1rem;
+  font-size: 0.85rem;
+  color: var(--hl-text-muted);
+}
+
+// Disponible pronto ---------------------------------------------------------------------------------------------
+
+.rf-soon {
+  max-width: 44rem;
+  margin-inline: auto;
+  padding: 2.5rem 1.25rem;
+  text-align: center;
+
+  @media (min-width: 576px) {
+    padding: 3rem 2.5rem;
+  }
+}
+
+.rf-soon__art {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.5rem;
+  height: 5.5rem;
+  margin-bottom: 1.25rem;
+  border-radius: 50%;
+  color: var(--hl-link);
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+  box-shadow: 0 0 0 0.5rem color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.rf-soon__title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--hl-emphasis);
+  margin-bottom: 0.75rem;
+}
+
+.rf-soon__text {
+  max-width: 34rem;
+  margin: 0 auto 1.75rem;
+  color: var(--hl-text-muted);
+  line-height: 1.6;
+}
+
+.rf-contact {
+  max-width: 30rem;
+  margin-inline: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--hl-border);
+  border-radius: 0.75rem;
+  background-color: var(--hl-surface-muted);
+  text-align: left;
+}
+
+.rf-contact__title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.rf-contact__org {
+  font-size: 0.875rem;
+  color: var(--hl-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.rf-contact__list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.rf-contact__item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+
+  dt {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--hl-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--hl-emphasis);
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+}
+
+.rf-contact__generic {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+    color: var(--hl-text-muted);
+  }
+}
+
+.rf-skeleton {
+  padding: 1.5rem;
+}
+
+.rf-skeleton__block {
+  height: 18rem;
+  border-radius: 0.5rem;
+}

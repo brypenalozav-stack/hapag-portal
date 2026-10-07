@@ -1,0 +1,171 @@
+# CT-BCI – Botón BCI = Bci Pagos (ex Pago Fácil), API REST apis.pgf.cl
+# Contrato de integración en estado PROPUESTA. Ver docs/integraciones/pasarelas-pago.md.
+openapi: 3.1.0
+info:
+  title: BCI – Bci Pagos
+  version: 1.0.0
+  description: |
+    PROPUESTA – pendiente de validación con Finanzas – Fer
+
+    El botón de pago BCI se implementa con Bci Pagos (ex Pago Fácil), cuya API REST pública está en
+    https://apis.pgf.cl (desarrollo https://apis-dev.pgf.cl; `Integrations:BciPagos:BaseUrl`). Referencias:
+    https://apis.pgf.cl/ y el SDK oficial https://github.com/PSTPAGOFACIL/sdk-apis-php-signature (SignatureHelper.php).
+    Este documento resume solo lo que usa el portal.
+
+    Confirmado en las fuentes públicas: la creación `POST /trxs` y la firma `x_signature` = hex minúscula de
+    HMAC-SHA256(mensaje, token_secret), donde el mensaje concatena clave + valor de los campos escalares de primer nivel
+    (sin `x_signature`) ordenados por clave en orden ordinal. Supuesto (por confirmar con Bci Pagos): la forma exacta de
+    cada elemento de `pay_url`, el formato de `status` en `GET /trxs/{id}` y el formato del callback; el portal los lee
+    con tolerancia, los textos de estado son configurables y el callback siempre se confirma volviendo a consultar.
+
+    Credenciales del contrato: `BCIPAGOS_ACCOUNT_ID` (token_service), `BCIPAGOS_TOKEN_SECRET`, `BCIPAGOS_USERNAME` y
+    `BCIPAGOS_PASSWORD` (consulta de estado con JWT). Callback del portal: `POST /api/v1/payments/webhook/bci` (se envía
+    en `x_url_callback`).
+    Fichas: M5-01, M5-03, M7-02. Tareas de Pendientes: 116–118.
+  x-contrato: CT-BCI
+  x-estado: PROPUESTA – pendiente de validación con Finanzas – Fer
+  x-responsable: Finanzas – Fer
+  x-puerto:
+  - IPaymentProvider("Bci") → BciPagosPaymentProvider
+  x-tareas-pendientes: 116–118
+servers:
+- url: https://apis-dev.pgf.cl
+  description: Desarrollo.
+- url: https://apis.pgf.cl
+  description: Producción.
+tags:
+- name: Transacciones
+- name: Usuarios
+paths:
+  /trxs:
+    post:
+      operationId: createTrx
+      summary: Crear la transacción
+      description: Sin cabecera de autorización; la autenticidad la da `x_signature`.
+      tags:
+      - Transacciones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [x_account_id, x_amount, x_currency, x_reference, x_customer_email, x_url_complete, x_url_callback,
+                x_url_cancel, x_shop_country, x_session_id, x_signature]
+              properties:
+                x_account_id:
+                  type: string
+                x_amount:
+                  type: integer
+                  minimum: 500
+                  description: CLP entero; se firma como texto ("53550").
+                x_currency:
+                  type: string
+                  example: CLP
+                x_reference:
+                  type: string
+                  description: Referencia del portal, única por servicio.
+                x_customer_email:
+                  type: string
+                x_url_complete:
+                  type: string
+                x_url_callback:
+                  type: string
+                x_url_cancel:
+                  type: string
+                x_shop_country:
+                  type: string
+                  example: CL
+                x_session_id:
+                  type: string
+                  maxLength: 61
+                x_signature:
+                  type: string
+      responses:
+        '200':
+          description: Transacción creada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                  body:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      data:
+                        type: object
+                        properties:
+                          id_trx:
+                            type:
+                            - string
+                            - integer
+                          pay_url:
+                            description: Opciones de pago (textos u objetos con url/link/href); el portal usa "gateway".
+  /users/login:
+    post:
+      operationId: login
+      summary: Obtener el JWT de consulta
+      tags:
+      - Usuarios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: JWT en `token`, `access_token` o `body.data.token`.
+  /trxs/{id_trx}:
+    get:
+      operationId: getTrx
+      summary: Consultar la transacción
+      tags:
+      - Transacciones
+      security:
+      - Bearer: []
+      parameters:
+      - name: id_trx
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: '`data` con `id_trx`, `order_id_tienda` (= x_reference), `amount`, `status`, `auth_code` y `responce_code`.'
+webhooks:
+  callback:
+    post:
+      operationId: bciPagosCallback
+      summary: Callback de la transacción (formato no publicado)
+      description: '`POST /api/v1/payments/webhook/bci` del portal. Si trae `x_signature` se verifica con el mismo HMAC; el
+        estado siempre se vuelve a consultar con `getTrx`.'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Recibido.
+        '401':
+          description: Firma inválida.
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

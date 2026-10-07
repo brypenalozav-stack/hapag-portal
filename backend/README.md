@@ -147,6 +147,13 @@ Variables de configuracion principales (via `appsettings.json` o user-secrets):
 | `Jwt:Audience`                       | Audiencia del token JWT            |
 | `Jwt:ExpirationInMinutes`            | Tiempo de expiracion del token     |
 | `Cors:AllowedOrigins`                | Origenes permitidos para CORS      |
+| `Integrations:Storage:Mode`          | `Dummy` (memoria, pruebas) o `Local` (disco; Development por `launchSettings.json` y Staging) |
+| `Integrations:Storage:LocalPath`     | Carpeta del almacenamiento `Local`; vacia = `<LocalApplicationData>/HapagPortal/storage` |
+| `Documents:RetentionYears`           | Conservacion de documentos y registros (NF-16, por defecto 10 anos; plazo a validar antes del Go Live). No hay borrado automatico: cada documento guarda `RetainUntil` |
+| `Documents:TransshipmentRecipient`   | Destino del certificado de transbordo (M6-01): `Auto` (importacion a UMAR + cliente, exportacion al cliente), `Client` o `Umar` |
+| `Documents:UmarEmail`                | Correo de UMAR; vacio = solo el cliente |
+| `Documents:ResponsibilityLetterValidityDays` | Vigencia de la carta de responsabilidad (M6-06); 0 = sin vencimiento |
+| `Documents:IssuerChile` / `Documents:IssuerBolivia` | Razon social del emisor impresa en los PDF |
 
 ## Convenciones del Proyecto
 
@@ -307,6 +314,13 @@ Main configuration keys (via `appsettings.json` or user-secrets):
 | `Jwt:Audience`                       | JWT token audience                 |
 | `Jwt:ExpirationInMinutes`            | Token expiration time              |
 | `Cors:AllowedOrigins`                | Allowed origins for CORS           |
+| `Integrations:Storage:Mode`          | `Dummy` (in memory, tests) or `Local` (disk; Development via `launchSettings.json` and Staging) |
+| `Integrations:Storage:LocalPath`     | `Local` storage folder; empty = `<LocalApplicationData>/HapagPortal/storage` |
+| `Documents:RetentionYears`           | Retention of documents and logs (NF-16, default 10 years; to be validated before Go Live). Nothing is deleted automatically: each document stores `RetainUntil` |
+| `Documents:TransshipmentRecipient`   | Transshipment certificate recipient (M6-01): `Auto` (import to UMAR + client, export to client), `Client` or `Umar` |
+| `Documents:UmarEmail`                | UMAR email; empty = client only |
+| `Documents:ResponsibilityLetterValidityDays` | Responsibility letter validity (M6-06); 0 = no expiry |
+| `Documents:IssuerChile` / `Documents:IssuerBolivia` | Issuer legal name printed on the PDFs |
 
 ## Project Conventions
 

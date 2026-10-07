@@ -1,0 +1,147 @@
+<div class="hl-page-header">
+  <h1>{{ 'admin.transactionReports.exceptions.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'admin.transactionReports.exceptions.subtitle' | transloco }}</p>
+  <p class="small mb-0 mt-1"><a routerLink="/admin/reports/transactions">{{ 'admin.transactionReports.exceptions.toTransactions' | transloco }}</a></p>
+</div>
+
+<form class="hl-card p-3 mb-3" role="search" [attr.aria-label]="'admin.transactionReports.filters.label' | transloco" (ngSubmit)="search()">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-2">
+      <label for="ex-from" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.from' | transloco }}</label>
+      <input id="ex-from" type="date" class="form-control" name="from" [(ngModel)]="from" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="ex-to" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.to' | transloco }}</label>
+      <input id="ex-to" type="date" class="form-control" name="to" [(ngModel)]="to" aria-describedby="ex-range-help" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="ex-country" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.country' | transloco }}</label>
+      <select id="ex-country" class="form-select" name="country" [(ngModel)]="country">
+        <option value="">{{ 'admin.transactionReports.filters.allCountries' | transloco }}</option>
+        <option value="CL">{{ 'common.country.cl' | transloco }}</option>
+        <option value="BO">{{ 'common.country.bo' | transloco }}</option>
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label for="ex-type" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.type' | transloco }}</label>
+      <select id="ex-type" class="form-select" name="type" [(ngModel)]="type">
+        <option value="">{{ 'admin.transactionReports.filters.allTypes' | transloco }}</option>
+        @for (t of types; track t) {
+          <option [value]="t">{{ t | codeLabel: typeKeys }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-sm-6 col-lg-2">
+      <label for="ex-bl" class="form-label small fw-semibold">{{ 'admin.transactionReports.filters.blNumber' | transloco }}</label>
+      <input id="ex-bl" type="text" class="form-control" name="blNumber" autocomplete="off" [(ngModel)]="blNumber" />
+    </div>
+    <div class="col-sm-6 col-lg-1">
+      <button type="submit" class="btn btn-hl-orange">{{ 'admin.transactionReports.filters.search' | transloco }}</button>
+    </div>
+  </div>
+  <div id="ex-range-help" class="form-text">{{ 'admin.transactionReports.filters.rangeHelp' | transloco }}</div>
+</form>
+
+@if (error()) {
+  <div class="alert alert-danger py-2" role="alert">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (report(); as r) {
+  @if (!r.ipoExclusionsAvailable) {
+    <div class="alert alert-warning" role="note" data-testid="ex-ipo-unavailable">{{ 'admin.transactionReports.exceptions.ipoUnavailable' | transloco }}</div>
+  }
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <p class="small text-muted mb-0">
+      {{ 'admin.transactionReports.range' | transloco: { from: (r.from | hlDate: 'localDate'), to: (r.to | hlDate: 'localDate'), zone: r.timeZone, date: (r.generatedAt | hlDate: 'datetime') } }}
+    </p>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="!!exporting()" (click)="export('xlsx')" data-testid="ex-export-xlsx">{{ 'admin.transactionReports.exportXlsx' | transloco }}</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="!!exporting()" (click)="export('csv')" data-testid="ex-export-csv">{{ 'admin.transactionReports.exportCsv' | transloco }}</button>
+    </div>
+  </div>
+
+  <section class="hl-card mb-4" aria-labelledby="ex-summary-title">
+    <div class="card-header p-3">
+      <h2 id="ex-summary-title" class="section-title">{{ 'admin.transactionReports.exceptions.summaryTitle' | transloco }}</h2>
+    </div>
+    @if (r.summary.length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.transactionReports.exceptions.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.transactionReports.exceptions.summaryCaption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.transactionReports.exceptions.summaryCaption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.transactionReports.col.exceptionType' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.transactionReports.col.count' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.transactionReports.col.amount' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of r.summary; track s.type + (s.currency ?? '')) {
+              <tr [attr.data-testid]="'ex-summary-' + s.type">
+                <td>{{ s.type | codeLabel: typeKeys }}</td>
+                <td class="text-end">{{ s.count | hlNumber: '1.0-0' }}</td>
+                <td class="text-end text-nowrap">{{ s.currency ? (s.amount | hlCurrency: s.currency) : '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section class="hl-card mb-4" aria-labelledby="ex-detail-title">
+    <div class="card-header p-3">
+      <h2 id="ex-detail-title" class="section-title">{{ 'admin.transactionReports.exceptions.detailTitle' | transloco }}</h2>
+    </div>
+    @if (r.items.items.length === 0) {
+      <app-state-message kind="empty" [messageKey]="'admin.transactionReports.exceptions.empty'" />
+    } @else {
+      <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'admin.transactionReports.exceptions.detailCaption' | transloco">
+        <table class="hl-table">
+          <caption class="visually-hidden">{{ 'admin.transactionReports.exceptions.detailCaption' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'admin.transactionReports.col.occurredAt' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.exceptionType' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.shipment' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.organization' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.concept' | transloco }}</th>
+              <th scope="col" class="text-end">{{ 'admin.transactionReports.col.amount' | transloco }}</th>
+              <th scope="col">{{ 'admin.transactionReports.col.source' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of r.items.items; track $index) {
+              <tr>
+                <td class="text-nowrap">{{ row.occurredAt | hlDate: 'datetime' }}</td>
+                <td>{{ row.type | codeLabel: typeKeys }}</td>
+                <td>
+                  <span class="d-block">{{ row.blNumber ?? '—' }}</span>
+                  @if (row.bookingNumber) { <span class="small text-muted text-nowrap">{{ row.bookingNumber }}</span> }
+                </td>
+                <td>
+                  <span class="d-block">{{ row.organization?.name ?? row.exemptParty ?? '—' }}</span>
+                  @if (row.organization?.taxId ?? row.partyTaxId; as taxId) { <span class="small text-muted">{{ taxId }}</span> }
+                </td>
+                <td>{{ row.conceptCode ? (row.conceptCode | codeLabel: conceptKeys) : '—' }}</td>
+                <td class="text-end text-nowrap">{{ row.currency ? (row.amount | hlCurrency: row.currency) : '—' }}</td>
+                <td>
+                  <span class="d-block">{{ row.source }}</span>
+                  @if (row.reference) { <span class="small text-muted">{{ row.reference }}</span> }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-paginator [page]="page()" [pageSize]="pageSize()" [total]="r.items.total" [label]="'admin.transactionReports.pagination.label' | transloco"
+                     idPrefix="exceptions-pager" (pageChange)="changePage($event)" (pageSizeChange)="changePageSize($event)" />
+    }
+  </section>
+}

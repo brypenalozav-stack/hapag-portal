@@ -1,0 +1,9 @@
+{
+  "name": "hapag-portal-dev",
+  "private": true,
+  "description": "Herramientas de depuración local (PostgreSQL embebido). Ver iniciar-depuracion.bat en la raíz.",
+  "type": "module",
+  "dependencies": {
+    "embedded-postgres": "^18.4.0-beta.17"
+  }
+}

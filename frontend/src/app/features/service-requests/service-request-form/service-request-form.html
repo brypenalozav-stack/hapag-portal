@@ -1,0 +1,388 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'serviceRequests.form.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/service-requests">{{ 'serviceRequests.list.title' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ 'serviceRequests.form.title' | transloco }}</li>
+    </ol>
+  </nav>
+  <h1>{{ 'serviceRequests.form.title' | transloco }}</h1>
+  <p class="text-muted mb-0">{{ 'serviceRequests.form.subtitle' | transloco }}</p>
+</div>
+
+@if (result(); as r) {
+  <!-- Resultado del envío: pendiente de aprobación, de pago o en curso -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="srv-result-title" data-testid="srv-result">
+    <h2 id="srv-result-title" class="section-title mb-3" tabindex="-1">{{ 'serviceRequests.form.result.title' | transloco: { number: r.requestNumber } }}</h2>
+    <p class="mb-3">
+      <span class="hl-badge" [class]="statusClass(r.status)" data-testid="srv-result-status">{{ r.status | codeLabel: statusKeys }}</span>
+    </p>
+    @switch (r.status) {
+      @case ('PendingApproval') {
+        <p>{{ 'serviceRequests.form.result.pendingApproval' | transloco: { team: ((r.assignedTeam ?? r.approvalTeam) | codeLabel: teamKeys) } }}</p>
+      }
+      @case ('PendingPayment') {
+        <p>{{ 'serviceRequests.form.result.pendingPayment' | transloco }}</p>
+        <app-service-request-payment class="mb-3" [request]="r" (added)="onPaymentAdded()" />
+      }
+      @case ('InProgress') {
+        <p>{{ 'serviceRequests.form.result.inProgress' | transloco: { team: ((r.assignedTeam ?? r.fulfillmentTeam) | codeLabel: teamKeys) } }}</p>
+      }
+      @case ('Completed') {
+        <p>{{ 'serviceRequests.form.result.completed' | transloco }}</p>
+      }
+      @default {
+        <p>{{ 'serviceRequests.form.result.submitted' | transloco }}</p>
+      }
+    }
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-secondary" [routerLink]="['/service-requests', r.id]">{{ 'serviceRequests.form.result.view' | transloco }}</a>
+      <a class="btn btn-outline-secondary" routerLink="/service-requests">{{ 'serviceRequests.form.result.list' | transloco }}</a>
+    </div>
+  </section>
+} @else {
+  <!-- Búsqueda del embarque por BL o booking (M2-03, M2-04, M3-15) -->
+  @if (!draft()) {
+    <form class="hl-card p-3 mb-4" role="search" novalidate [attr.aria-label]="'serviceRequests.form.search.label' | transloco" (submit)="search($event)">
+      <div class="row g-2 align-items-end">
+        <fieldset class="col-md-4">
+          <legend class="form-label small fw-semibold mb-1">{{ 'serviceRequests.form.search.type' | transloco }}</legend>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input id="srv-search-bl" type="radio" class="form-check-input" name="srvSearchType" value="bl" [(ngModel)]="searchType" />
+              <label for="srv-search-bl" class="form-check-label">{{ 'serviceRequests.form.search.bl' | transloco }}</label>
+            </div>
+            <div class="form-check">
+              <input id="srv-search-booking" type="radio" class="form-check-input" name="srvSearchType" value="booking" [(ngModel)]="searchType" />
+              <label for="srv-search-booking" class="form-check-label">{{ 'serviceRequests.form.search.booking' | transloco }}</label>
+            </div>
+          </div>
+        </fieldset>
+        <div class="col-md-5">
+          <label for="srv-search-value" class="form-label small fw-semibold">{{ 'serviceRequests.form.search.value' | transloco }}</label>
+          <input id="srv-search-value" type="text" class="form-control" name="srvSearchValue" autocomplete="off"
+                 [attr.aria-invalid]="!!searchError()" [attr.aria-describedby]="searchError() ? 'srv-search-error' : null"
+                 [(ngModel)]="searchValue" />
+          @if (searchError()) {
+            <div id="srv-search-error" class="hl-field-error">{{ searchError() }}</div>
+          }
+        </div>
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-outline-secondary w-100">{{ 'serviceRequests.form.search.submit' | transloco }}</button>
+        </div>
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (loadFailed()) {
+    <app-state-message kind="error" (retry)="retry()" />
+  } @else if (loadError()) {
+    <div class="alert alert-danger" role="alert" data-testid="srv-load-error">{{ loadError() }}</div>
+  } @else if (setup(); as s) {
+    <!-- Servicio elegido y embarque -->
+    <section class="hl-card p-4 mb-4" aria-labelledby="srv-service-title">
+      <h2 id="srv-service-title" class="section-title mb-2">{{ serviceName() }}</h2>
+      @if (serviceDescription()) {
+        <p class="text-muted mb-2">{{ serviceDescription() }}</p>
+      }
+      @if (shipment(); as sh) {
+        <p class="small mb-0" data-testid="srv-shipment">
+          {{ 'serviceRequests.form.shipment' | transloco: { bl: sh.blNumber, booking: sh.bookingNumber ?? '—', operation: (sh.operation | codeLabel: operationKeys), country: sh.country } }}
+        </p>
+      }
+      @if (draftDetail(); as d) {
+        <p class="small mb-0">{{ 'serviceRequests.form.draft.continuing' | transloco: { number: d.requestNumber } }}</p>
+      }
+    </section>
+
+    @if (!canRequest()) {
+      <div class="alert alert-warning" role="alert" data-testid="srv-not-available">
+        <p class="fw-semibold mb-1">{{ 'serviceRequests.form.notAvailable' | transloco }}</p>
+        @if (s.unavailableReasons.length > 0) {
+          <ul class="mb-0 ps-3">
+            @for (reason of s.unavailableReasons; track reason) {
+              <li>{{ reason | codeLabel: reasonKeys }}</li>
+            }
+          </ul>
+        }
+      </div>
+    } @else {
+      <form class="hl-card p-4 mb-4" novalidate aria-labelledby="srv-step-title" (submit)="next($event)" data-testid="srv-form">
+        <!-- Pasos de la solicitud -->
+        <ol class="hl-steps" [attr.aria-label]="'serviceRequests.form.steps.label' | transloco">
+          @for (st of steps(); track st; let i = $index) {
+            <li class="hl-steps__item" [class.hl-steps__item--current]="st === step()" [class.hl-steps__item--done]="i < stepIndex()"
+                [attr.aria-current]="st === step() ? 'step' : null">
+              {{ 'serviceRequests.form.steps.item' | transloco: { number: i + 1, name: (stepKeys[st] | transloco) } }}
+            </li>
+          }
+        </ol>
+
+        <h2 id="srv-step-title" class="section-title mb-3" tabindex="-1">{{ stepKeys[step()] | transloco }}</h2>
+
+        @if (errors().length > 0) {
+          <div #errorSummary class="alert alert-danger" tabindex="-1" role="alert" aria-labelledby="srv-errors-title" data-testid="srv-error-summary">
+            <h3 id="srv-errors-title" class="h6 fw-bold">{{ 'serviceRequests.form.errors.summaryTitle' | transloco }}</h3>
+            <ul class="mb-0">
+              @for (error of errors(); track $index) {
+                <li><a class="alert-link" [href]="'#' + error.fieldId" (click)="focusField($event, error.fieldId)">{{ error.key | transloco: error.params }}</a></li>
+              }
+            </ul>
+          </div>
+        }
+        @if (submitError()) {
+          <div class="alert alert-danger py-2" role="alert" data-testid="srv-submit-error">{{ submitError() }}</div>
+        }
+        @if (draftSaved()) {
+          <div class="alert alert-success py-2" role="status" data-testid="srv-draft-saved">
+            {{ draftSaved() }}
+            @if (draftId(); as id) {
+              <a class="alert-link ms-1" [routerLink]="['/service-requests', id]">{{ 'serviceRequests.form.draft.view' | transloco }}</a>
+            }
+          </div>
+        }
+
+        @switch (step()) {
+          @case ('details') {
+            @if (schema().length === 0) {
+              <p class="text-muted">{{ 'serviceRequests.form.noFields' | transloco }}</p>
+            }
+            @for (field of schema(); track field.key) {
+              @switch (field.type) {
+                @case ('containers') {
+                  <fieldset class="mb-3" [attr.aria-describedby]="describedBy(field)" [attr.data-testid]="'srv-field-' + field.key">
+                    <legend class="form-label small fw-semibold mb-1">
+                      {{ label(field) }}
+                      @if (field.required) {
+                        <span class="fw-normal">{{ 'serviceRequests.form.required' | transloco }}</span>
+                      }
+                    </legend>
+                    @if (help(field)) {
+                      <div [id]="fieldId(field) + '-help'" class="form-text mt-0 mb-2">{{ help(field) }}</div>
+                    }
+                    @if (containers().length === 0) {
+                      <p class="small text-muted mb-0">{{ 'serviceRequests.form.containers.none' | transloco }}</p>
+                    } @else {
+                      <div class="srv-containers">
+                        @for (c of containers(); track c.containerNumber; let i = $index) {
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" [id]="fieldId(field) + '-' + i"
+                                   [checked]="isSelected(field, c.containerNumber)" [attr.aria-invalid]="hasError(targetId(field))"
+                                   (change)="toggleContainer(field, c.containerNumber, $event)" />
+                            <label class="form-check-label" [for]="fieldId(field) + '-' + i">
+                              {{ 'serviceRequests.form.containers.option' | transloco: { number: c.containerNumber, type: c.containerType } }}
+                              @if (c.isShipperOwned) {
+                                <span class="small text-muted">{{ 'serviceRequests.form.containers.soc' | transloco }}</span>
+                              }
+                            </label>
+                          </div>
+                        }
+                      </div>
+                      <div class="d-flex flex-wrap gap-2 mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="selectAll(field, true)">{{ 'serviceRequests.form.containers.all' | transloco }}</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="selectAll(field, false)">{{ 'serviceRequests.form.containers.clear' | transloco }}</button>
+                      </div>
+                    }
+                    @if (fieldError(targetId(field)); as e) {
+                      <div [id]="fieldId(field) + '-error'" class="hl-field-error">{{ e.key | transloco: e.params }}</div>
+                    }
+                  </fieldset>
+                }
+                @default {
+                  <div class="mb-3" [attr.data-testid]="'srv-field-' + field.key">
+                    <label [for]="fieldId(field)" class="form-label small fw-semibold">
+                      {{ label(field) }}
+                      @if (field.required) {
+                        <span class="fw-normal">{{ 'serviceRequests.form.required' | transloco }}</span>
+                      }
+                    </label>
+                    @switch (field.type) {
+                      @case ('textarea') {
+                        <textarea class="form-control" rows="3" [id]="fieldId(field)" [attr.maxlength]="maxLength(field)" [required]="!!field.required"
+                                  [attr.aria-invalid]="hasError(fieldId(field))" [attr.aria-describedby]="describedBy(field)"
+                                  [(ngModel)]="text[field.key]" [ngModelOptions]="{ standalone: true }"></textarea>
+                      }
+                      @case ('select') {
+                        <select class="form-select" [id]="fieldId(field)" [required]="!!field.required"
+                                [attr.aria-invalid]="hasError(fieldId(field))" [attr.aria-describedby]="describedBy(field)"
+                                [(ngModel)]="text[field.key]" [ngModelOptions]="{ standalone: true }">
+                          <option value="">{{ 'serviceRequests.form.selectPlaceholder' | transloco }}</option>
+                          @for (option of field.options ?? []; track option.value) {
+                            <option [value]="option.value">{{ optionLabel(option) }}</option>
+                          }
+                        </select>
+                      }
+                      @case ('date') {
+                        <input type="date" class="form-control" [id]="fieldId(field)" [required]="!!field.required"
+                               [attr.aria-invalid]="hasError(fieldId(field))" [attr.aria-describedby]="describedBy(field)"
+                               [(ngModel)]="text[field.key]" [ngModelOptions]="{ standalone: true }" />
+                      }
+                      @case ('number') {
+                        <input type="text" class="form-control" autocomplete="off" [attr.inputmode]="field.integer ? 'numeric' : 'decimal'"
+                               [id]="fieldId(field)" [required]="!!field.required"
+                               [attr.aria-invalid]="hasError(fieldId(field))" [attr.aria-describedby]="describedBy(field)"
+                               [(ngModel)]="text[field.key]" [ngModelOptions]="{ standalone: true }" />
+                      }
+                      @case ('file') {
+                        <input type="file" class="form-control" [id]="fieldId(field)" [accept]="fileAccept" [required]="!!field.required && existingAttachments(field).length === 0"
+                               [attr.aria-invalid]="hasError(fieldId(field))" [attr.aria-describedby]="describedBy(field)"
+                               (change)="onFile(field, $event)" />
+                        @for (a of existingAttachments(field); track a.id) {
+                          <p class="small mb-0 mt-1">{{ 'serviceRequests.form.attached' | transloco: { name: a.fileName } }}</p>
+                        }
+                      }
+                      @default {
+                        <input type="text" class="form-control" autocomplete="off" [id]="fieldId(field)" [attr.maxlength]="maxLength(field)" [required]="!!field.required"
+                               [attr.aria-invalid]="hasError(fieldId(field))" [attr.aria-describedby]="describedBy(field)"
+                               [(ngModel)]="text[field.key]" [ngModelOptions]="{ standalone: true }" />
+                      }
+                    }
+                    @if (help(field) || hints(field).length > 0) {
+                      <div [id]="fieldId(field) + '-help'" class="form-text">
+                        @if (help(field)) {
+                          <span class="d-block">{{ help(field) }}</span>
+                        }
+                        @for (hint of hints(field); track $index) {
+                          <span class="d-block">{{ hint }}</span>
+                        }
+                      </div>
+                    }
+                    @if (fieldError(fieldId(field)); as e) {
+                      <div [id]="fieldId(field) + '-error'" class="hl-field-error">{{ e.key | transloco: e.params }}</div>
+                    }
+                  </div>
+                }
+              }
+            }
+          }
+
+          @case ('billing') {
+            <!-- Datos de facturación (M3-07 a M3-14): se exigen antes de habilitar el pago -->
+            <p class="small text-muted">{{ 'serviceRequests.form.billing.intro' | transloco }}</p>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="srv-billing-taxId" class="form-label small fw-semibold">
+                  {{ 'serviceRequests.form.billing.taxId' | transloco }}
+                  <span class="fw-normal">{{ 'serviceRequests.form.required' | transloco }}</span>
+                </label>
+                <input id="srv-billing-taxId" type="text" class="form-control" autocomplete="off" required
+                       [attr.aria-invalid]="hasError('srv-billing-taxId')" [attr.aria-describedby]="billingDescribedBy('taxId', true)"
+                       [(ngModel)]="billing.taxId" [ngModelOptions]="{ standalone: true }" />
+                <div id="srv-billing-taxId-help" class="form-text">
+                  {{ (shipment()?.country === 'BO' ? 'serviceRequests.form.billing.taxIdHelpBo' : 'serviceRequests.form.billing.taxIdHelpCl') | transloco }}
+                </div>
+                @if (fieldError('srv-billing-taxId'); as e) {
+                  <div id="srv-billing-taxId-error" class="hl-field-error">{{ e.key | transloco: e.params }}</div>
+                }
+              </div>
+              <div class="col-md-6">
+                <label for="srv-billing-name" class="form-label small fw-semibold">
+                  {{ 'serviceRequests.form.billing.name' | transloco }}
+                  <span class="fw-normal">{{ 'serviceRequests.form.required' | transloco }}</span>
+                </label>
+                <input id="srv-billing-name" type="text" class="form-control" autocomplete="organization" required maxlength="200"
+                       [attr.aria-invalid]="hasError('srv-billing-name')" [attr.aria-describedby]="billingDescribedBy('name')"
+                       [(ngModel)]="billing.name" [ngModelOptions]="{ standalone: true }" />
+                @if (fieldError('srv-billing-name'); as e) {
+                  <div id="srv-billing-name-error" class="hl-field-error">{{ e.key | transloco: e.params }}</div>
+                }
+              </div>
+              <div class="col-md-6">
+                <label for="srv-billing-address" class="form-label small fw-semibold">
+                  {{ 'serviceRequests.form.billing.address' | transloco }}
+                  <span class="fw-normal">{{ 'serviceRequests.form.required' | transloco }}</span>
+                </label>
+                <input id="srv-billing-address" type="text" class="form-control" autocomplete="street-address" required maxlength="300"
+                       [attr.aria-invalid]="hasError('srv-billing-address')" [attr.aria-describedby]="billingDescribedBy('address')"
+                       [(ngModel)]="billing.address" [ngModelOptions]="{ standalone: true }" />
+                @if (fieldError('srv-billing-address'); as e) {
+                  <div id="srv-billing-address-error" class="hl-field-error">{{ e.key | transloco: e.params }}</div>
+                }
+              </div>
+              <div class="col-md-6">
+                <label for="srv-billing-email" class="form-label small fw-semibold">
+                  {{ 'serviceRequests.form.billing.email' | transloco }}
+                  <span class="fw-normal">{{ 'serviceRequests.form.required' | transloco }}</span>
+                </label>
+                <input id="srv-billing-email" type="email" class="form-control" autocomplete="email" required maxlength="200"
+                       [attr.aria-invalid]="hasError('srv-billing-email')" [attr.aria-describedby]="billingDescribedBy('email', true)"
+                       [(ngModel)]="billing.email" [ngModelOptions]="{ standalone: true }" />
+                <div id="srv-billing-email-help" class="form-text">{{ 'serviceRequests.form.billing.emailHelp' | transloco }}</div>
+                @if (fieldError('srv-billing-email'); as e) {
+                  <div id="srv-billing-email-error" class="hl-field-error">{{ e.key | transloco: e.params }}</div>
+                }
+              </div>
+              <div class="col-md-6">
+                <label for="srv-billing-activity" class="form-label small fw-semibold">{{ 'serviceRequests.form.billing.activity' | transloco }}</label>
+                <input id="srv-billing-activity" type="text" class="form-control" autocomplete="off" maxlength="200"
+                       [(ngModel)]="billing.activity" [ngModelOptions]="{ standalone: true }" />
+              </div>
+            </div>
+          }
+
+          @case ('confirm') {
+            <!-- Revisión antes de enviar (WCAG 3.3.4) -->
+            <h3 class="h6 fw-bold">{{ 'serviceRequests.form.review.data' | transloco }}</h3>
+            <app-service-input-values class="mb-3" [schema]="schema()" [values]="preview()" [attachments]="draftDetail()?.attachments ?? []" [pendingFiles]="files" />
+            @if (s.billingDataRequired) {
+              <h3 class="h6 fw-bold">{{ 'serviceRequests.form.review.billing' | transloco }}</h3>
+              <p class="mb-3" data-testid="srv-review-billing">
+                {{ 'serviceRequests.form.review.billingLine' | transloco: { name: billing.name, taxId: billing.taxId, email: billing.email } }}
+              </p>
+            }
+
+            <h3 class="h6 fw-bold">{{ 'serviceRequests.form.review.quote' | transloco }}</h3>
+            @if (tariffChanged()) {
+              <div class="alert alert-warning py-2" role="alert" data-testid="srv-tariff-changed">{{ 'serviceRequests.form.quote.changedNotice' | transloco }}</div>
+            }
+            @if (quoting()) {
+              <div class="d-flex align-items-center gap-2 mb-3" role="status">
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                <span>{{ 'serviceRequests.form.quote.loading' | transloco }}</span>
+              </div>
+            } @else if (quoteError()) {
+              <div class="alert alert-danger py-2" role="alert" data-testid="srv-quote-error">{{ quoteError() }}</div>
+              <button type="button" class="btn btn-sm btn-outline-secondary mb-3" (click)="requestQuote()">{{ 'serviceRequests.form.quote.retry' | transloco }}</button>
+            } @else if (quote(); as q) {
+              <app-service-quote class="mb-3" [quote]="q" />
+              @if (acceptanceRequired()) {
+                <div class="form-check mb-3">
+                  <input id="srv-accept-tariff" type="checkbox" class="form-check-input" required
+                         [checked]="accept()" [attr.aria-invalid]="hasError('srv-accept-tariff')" (change)="onAccept($event)" />
+                  <label for="srv-accept-tariff" class="form-check-label">
+                    {{ 'serviceRequests.form.accept' | transloco: { amount: (q.totalAmount | hlCurrency: q.currency) } }}
+                  </label>
+                </div>
+              }
+            }
+            @if (s.approvalTeam !== 'None') {
+              <p class="small" role="note">{{ 'serviceRequests.form.review.approvalNote' | transloco: { team: (s.approvalTeam | codeLabel: teamKeys) } }}</p>
+            } @else if (s.fulfillmentTeam !== 'None') {
+              <p class="small" role="note">{{ 'serviceRequests.form.review.fulfillmentNote' | transloco: { team: (s.fulfillmentTeam | codeLabel: teamKeys) } }}</p>
+            }
+          }
+        }
+
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          @if (stepIndex() > 0) {
+            <button type="button" class="btn btn-outline-secondary" (click)="back()">{{ 'serviceRequests.form.back' | transloco }}</button>
+          }
+          <button type="submit" class="btn btn-hl-orange" [disabled]="submitting()" data-testid="srv-next">
+            @if (submitting()) {
+              <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            }
+            {{ (step() === 'confirm' ? 'serviceRequests.form.submit' : 'serviceRequests.form.continue') | transloco }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary" [disabled]="savingDraft()" (click)="saveDraft()" data-testid="srv-save-draft">
+            {{ 'serviceRequests.form.draft.save' | transloco }}
+          </button>
+          <a routerLink="/service-requests" class="btn btn-link ms-auto">{{ 'serviceRequests.form.cancel' | transloco }}</a>
+        </div>
+      </form>
+    }
+  } @else if (reference(); as ref) {
+    <!-- Servicios del embarque buscado -->
+    <app-available-services [blNumber]="ref.blNumber ?? null" [bookingNumber]="ref.bookingNumber ?? null" />
+  }
+}

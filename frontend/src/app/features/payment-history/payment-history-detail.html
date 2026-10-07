@@ -1,0 +1,154 @@
+<div class="hl-page-header">
+  <nav [attr.aria-label]="'paymentHistory.detailPage.breadcrumbLabel' | transloco">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/payment-history">{{ 'paymentHistory.detailPage.breadcrumbList' | transloco }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">
+        @if (payment(); as current) {
+          {{ document(current) }}
+        } @else {
+          {{ 'paymentHistory.detailPage.breadcrumbCurrent' | transloco }}
+        }
+      </li>
+    </ol>
+  </nav>
+  <h1>{{ 'paymentHistory.detailPage.title' | transloco }}</h1>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (loadFailed()) {
+  <app-state-message kind="error" (retry)="load()" />
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else if (payment(); as p) {
+  @if (actionError()) {
+    <div class="alert alert-danger py-2" role="alert">{{ actionError() }}</div>
+  }
+
+  <section class="hl-card p-4 mb-4" aria-labelledby="history-detail-title">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+      <h2 id="history-detail-title" class="section-title">{{ 'paymentHistory.detailPage.document' | transloco: { number: document(p) } }}</h2>
+      <span class="hl-badge" [class]="statusClass()">{{ p.status | codeLabel: statusKeys }}</span>
+      @if (p.receiptAvailable) {
+        <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" (click)="downloadReceipt()">{{ 'paymentHistory.receipt.button' | transloco }}</button>
+      }
+    </div>
+    <dl class="row g-3 mb-0">
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentHistory.detailPage.paymentNumber' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.paymentNumber }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentHistory.detailPage.receipt' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.receiptNumber ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentHistory.detailPage.slip' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.slipNumber ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentHistory.detailPage.date' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.paymentDate | hlDate: 'datetime' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentHistory.detailPage.method' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.methodName ?? p.method ?? '—' }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentHistory.detailPage.origin' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.origin | codeLabel: originKeys }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentHistory.detailPage.total' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.totalAmount | hlCurrency: p.currency }}</dd>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <dt class="small text-muted">{{ 'paymentHistory.detailPage.executedBy' | transloco }}</dt>
+        <dd class="fw-semibold mb-0">{{ p.executedBy ?? '—' }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- Pagador y facturación diferenciados (M7-02); mandante si el pago fue bajo mandato (NF-14) -->
+  <section class="hl-card p-4 mb-4" aria-labelledby="history-detail-parties-title">
+    <h2 id="history-detail-parties-title" class="section-title mb-3">{{ 'paymentHistory.detailPage.parties' | transloco }}</h2>
+    <dl class="row g-3 mb-0">
+      <div class="col-md-4">
+        <dt class="small text-muted">{{ 'paymentHistory.detailPage.payer' | transloco }}</dt>
+        <dd class="fw-semibold mb-0" data-testid="history-detail-payer">{{ 'paymentHistory.detailPage.party' | transloco: { name: p.payerName, taxId: p.payerTaxId } }}</dd>
+      </div>
+      <div class="col-md-4">
+        <dt class="small text-muted">{{ 'paymentHistory.detailPage.billing' | transloco }}</dt>
+        <dd class="fw-semibold mb-0" data-testid="history-detail-billing">{{ p.billingTaxIds.join(', ') }}</dd>
+        @if (p.payerDiffersFromBilling) {
+          <dd class="small mb-0">{{ 'paymentHistory.payerDiffers' | transloco }}</dd>
+        }
+      </div>
+      @if (p.onBehalfOf; as m) {
+        <div class="col-md-4">
+          <dt class="small text-muted">{{ 'paymentHistory.detailPage.onBehalfOf' | transloco }}</dt>
+          <dd class="fw-semibold mb-0">{{ 'paymentHistory.detailPage.party' | transloco: { name: m.name, taxId: m.taxId } }}</dd>
+        </div>
+      }
+    </dl>
+  </section>
+
+  <!-- Fase 2, Ola H: comprobante del depósito y su revisión por Finanzas (M5-06) -->
+  @if (p.slipNumber && features.enabled('DepositProofs')) {
+    <app-deposit-proofs [paymentId]="p.id" (changed)="load()" />
+  }
+
+  <section class="hl-card mb-4" aria-labelledby="history-detail-items-title">
+    <div class="card-header p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h2 id="history-detail-items-title" class="section-title">{{ 'paymentHistory.detailPage.items' | transloco }}</h2>
+      <a [routerLink]="['/payments', p.id, 'result']" class="small">{{ 'paymentHistory.detailPage.statusHistory' | transloco }}</a>
+    </div>
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="'paymentHistory.detailPage.itemsCaption' | transloco">
+      <table class="hl-table">
+        <caption class="visually-hidden">{{ 'paymentHistory.detailPage.itemsCaption' | transloco }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'paymentHistory.detailPage.col.service' | transloco }}</th>
+            <th scope="col">{{ 'paymentHistory.detailPage.col.reference' | transloco }}</th>
+            <th scope="col">{{ 'paymentHistory.detailPage.col.billing' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'paymentHistory.detailPage.col.original' | transloco }}</th>
+            <th scope="col" class="text-end">{{ 'paymentHistory.detailPage.col.amount' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of p.items; track item.id) {
+            <tr>
+              <td>
+                <span class="fw-semibold d-block">{{ conceptLabel(item.conceptCode, item.description) }}</span>
+                <span class="small text-muted">{{ item.itemType | codeLabel: typeKeys }}</span>
+              </td>
+              <td>
+                {{ item.blNumber ?? '—' }}
+                @if (item.bookingNumber) {
+                  <span class="small text-muted d-block">{{ 'paymentHistory.detailPage.booking' | transloco: { booking: item.bookingNumber } }}</span>
+                }
+              </td>
+              <td>
+                <span class="d-block">{{ item.billingTaxId ?? '—' }}</span>
+                @if (item.billingName) {
+                  <span class="small text-muted">{{ item.billingName }}</span>
+                }
+              </td>
+              <td class="text-end">
+                @if (item.originalAmount !== null && item.originalAmount !== undefined && item.originalCurrency) {
+                  {{ item.originalAmount | hlCurrency: item.originalCurrency }}
+                  @if (item.exchangeRate) {
+                    <span class="small text-muted d-block">{{ 'paymentHistory.detailPage.rate' | transloco: { rate: (item.exchangeRate | hlNumber: '1.2-6') } }}</span>
+                  }
+                } @else {
+                  <span aria-hidden="true">—</span>
+                }
+              </td>
+              <td class="text-end text-nowrap">{{ item.totalAmount | hlCurrency: item.currency }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

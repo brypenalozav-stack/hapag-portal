@@ -17,6 +17,16 @@ public interface IApplicationDbContext
     DbSet<BLContainer> BLContainers { get; }
     DbSet<BLParty> BLParties { get; }
     DbSet<BLCargoItem> BLCargoItems { get; }
+    DbSet<ShipmentRole> ShipmentRoles { get; }
+    DbSet<ShipmentAction> ShipmentActions { get; }
+    DbSet<ShipmentAccessRule> ShipmentAccessRules { get; }
+    DbSet<OrganizationDocument> OrganizationDocuments { get; }
+    DbSet<AccessGrant> AccessGrants { get; }
+    DbSet<DefaultGrantee> DefaultGrantees { get; }
+    DbSet<OpenAccessSetting> OpenAccessSettings { get; }
+    DbSet<ShipmentAssociation> ShipmentAssociations { get; }
+    DbSet<VisibilityWidening> VisibilityWidenings { get; }
+    DbSet<AccessAuditEntry> AccessAuditEntries { get; }
     DbSet<CustomsManifest> CustomsManifests { get; }
     DbSet<CustomsTransmission> CustomsTransmissions { get; }
     DbSet<CustomsTransmissionEvent> CustomsTransmissionEvents { get; }
@@ -35,6 +45,57 @@ public interface IApplicationDbContext
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<TaxConfiguration> TaxConfigurations { get; }
     DbSet<Currency> Currencies { get; }
+    DbSet<ChargeConcept> ChargeConcepts { get; }
+    DbSet<Tariff> Tariffs { get; }
+    DbSet<TariffTier> TariffTiers { get; }
+    DbSet<MaintainerChangeLog> MaintainerChangeLogs { get; }
+    DbSet<InternalChargeRule> InternalChargeRules { get; }
+    DbSet<AppliedExemption> AppliedExemptions { get; }
+    DbSet<ExchangeRateRecord> ExchangeRateRecords { get; }
+    DbSet<WarehouseChangeBatch> WarehouseChangeBatches { get; }
+    DbSet<WarehouseChangeBatchItem> WarehouseChangeBatchItems { get; }
+    DbSet<BusinessHoliday> BusinessHolidays { get; }
+    DbSet<Cart> Carts { get; }
+    DbSet<CartItem> CartItems { get; }
+    DbSet<PaymentStatusChange> PaymentStatusChanges { get; }
+    DbSet<PaymentOutboxMessage> PaymentOutboxMessages { get; }
+    DbSet<PaymentCurrencyRule> PaymentCurrencyRules { get; }
+    DbSet<PaymentMethodConfig> PaymentMethodConfigs { get; }
+    DbSet<PaymentBlockWindow> PaymentBlockWindows { get; }
+    DbSet<CustomerInvoice> CustomerInvoices { get; }
+    DbSet<ShipmentDocument> ShipmentDocuments { get; }
+    DbSet<ShipmentDocumentEvent> ShipmentDocumentEvents { get; }
+    DbSet<ShipmentPublicationRule> ShipmentPublicationRules { get; }
+    DbSet<KnowledgeArticle> KnowledgeArticles { get; }
+    DbSet<AssistantMailbox> AssistantMailboxes { get; }
+    DbSet<AssistantSession> AssistantSessions { get; }
+    DbSet<AssistantMessage> AssistantMessages { get; }
+    DbSet<DangerousGood> DangerousGoods { get; }
+    DbSet<TatcBatch> TatcBatches { get; }
+    DbSet<TatcBatchItem> TatcBatchItems { get; }
+    DbSet<ServiceDefinition> ServiceDefinitions { get; }
+    DbSet<ServiceRequest> ServiceRequests { get; }
+    DbSet<ServiceRequestEvent> ServiceRequestEvents { get; }
+    DbSet<ServiceRequestAttachment> ServiceRequestAttachments { get; }
+    DbSet<ServiceRequestCharge> ServiceRequestCharges { get; }
+    DbSet<ChargeSettlement> ChargeSettlements { get; }
+    DbSet<DepositProof> DepositProofs { get; }
+    DbSet<CreditImputationRule> CreditImputationRules { get; }
+    DbSet<InvoiceReissue> InvoiceReissues { get; }
+    DbSet<NotificationPreference> NotificationPreferences { get; }
+    DbSet<Announcement> Announcements { get; }
+    DbSet<GuideDefinition> GuideDefinitions { get; }
+    DbSet<UserGuideState> UserGuideStates { get; }
+    DbSet<ImpersonationSession> ImpersonationSessions { get; }
+    DbSet<CounterRecord> CounterRecords { get; }
+    DbSet<ContactListChange> ContactListChanges { get; }
+    DbSet<CarrierPreRegistration> CarrierPreRegistrations { get; }
+    DbSet<OrganizationParentLink> OrganizationParentLinks { get; }
+    DbSet<ReleaseLetterRequest> ReleaseLetterRequests { get; }
+    DbSet<AssistantDocumentDelivery> AssistantDocumentDeliveries { get; }
+    DbSet<ApiClient> ApiClients { get; }
+    DbSet<ApiClientKey> ApiClientKeys { get; }
+    DbSet<ApiClientRequest> ApiClientRequests { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

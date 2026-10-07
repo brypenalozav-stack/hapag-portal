@@ -16,8 +16,16 @@ internal sealed class NotificationConfiguration : IEntityTypeConfiguration<Notif
         builder.Property(e => e.Body).HasMaxLength(2000).IsRequired();
         builder.Property(e => e.RoleCode).HasMaxLength(40);
         builder.Property(e => e.DedupKey).HasMaxLength(200);
+        builder.Property(e => e.Module).HasMaxLength(30);
+        builder.Property(e => e.EntityType).HasMaxLength(40);
+        builder.Property(e => e.EntityId).HasMaxLength(64);
+        builder.Property(e => e.EntityReference).HasMaxLength(200);
+        builder.Property(e => e.BlNumber).HasMaxLength(50);
+        builder.Property(e => e.ActionType).HasMaxLength(40);
+        builder.Property(e => e.ActionTargetId).HasMaxLength(64);
 
         builder.HasIndex(e => e.UserId);
+        builder.HasIndex(e => new { e.ActionType, e.ActionTargetId });
         builder.HasIndex(e => e.RoleCode);
         builder.HasIndex(e => e.DedupKey);
     }

@@ -1,0 +1,127 @@
+<section class="hl-card p-4 mb-4" aria-labelledby="statement-checkout-title" data-testid="statement-checkout">
+  <h2 id="statement-checkout-title" class="section-title mb-2">{{ 'accountStatement.checkout.title' | transloco }}</h2>
+  <p class="small text-muted">{{ 'accountStatement.checkout.help' | transloco }}</p>
+
+  @if (lines().length === 0) {
+    <p class="small mb-0" role="status">{{ 'accountStatement.checkout.empty' | transloco }}</p>
+  } @else {
+    <!-- Forma de pago por ítem (M5-10): pagar ahora o imputar a la línea de crédito -->
+    <ul class="list-unstyled mb-3">
+      @for (line of lines(); track line.key) {
+        <li class="border rounded p-3 mb-2" [attr.data-testid]="'checkout-item-' + line.number">
+          @if (line.canImputeToCredit && canImpute()) {
+            <fieldset [disabled]="confirming() || submitting()">
+              <legend class="form-label small fw-semibold mb-1">
+                {{ 'accountStatement.checkout.itemLegend' | transloco: { concept: concept(line), number: line.number, bl: line.blNumber ?? '—', amount: (line.balance | hlCurrency: line.currency) } }}
+              </legend>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" [name]="'checkout-mode-' + line.key" [id]="'checkout-now-' + line.key"
+                       [checked]="modeOf(line) === 'PayNow'" (change)="setMode(line, 'PayNow')" />
+                <label class="form-check-label" [for]="'checkout-now-' + line.key">{{ 'accountStatement.checkout.payNow' | transloco }}</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" [name]="'checkout-mode-' + line.key" [id]="'checkout-credit-' + line.key"
+                       [checked]="modeOf(line) === 'Credit'" (change)="setMode(line, 'Credit')" />
+                <label class="form-check-label" [for]="'checkout-credit-' + line.key">{{ 'accountStatement.checkout.credit' | transloco }}</label>
+              </div>
+            </fieldset>
+          } @else {
+            <p class="small fw-semibold mb-1">
+              {{ 'accountStatement.checkout.itemLegend' | transloco: { concept: concept(line), number: line.number, bl: line.blNumber ?? '—', amount: (line.balance | hlCurrency: line.currency) } }}
+            </p>
+            <p class="small mb-0">{{ 'accountStatement.checkout.payNowOnly' | transloco }}</p>
+          }
+        </li>
+      }
+    </ul>
+
+    <!-- Total dividido entre el pago inmediato y lo imputado a crédito -->
+    <div class="row g-3 mb-3" aria-live="polite" data-testid="checkout-split">
+      <div class="col-md-6">
+        <h3 class="h6 fw-bold">{{ 'accountStatement.checkout.payNowTotal' | transloco: { count: payNowLines().length } }}</h3>
+        <ul class="small mb-0" data-testid="checkout-pay-now-totals">
+          @for (t of payNowTotals(); track t.currency) {
+            <li>{{ t.total | hlCurrency: t.currency }}</li>
+          } @empty {
+            <li>{{ 'accountStatement.checkout.nothing' | transloco }}</li>
+          }
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h3 class="h6 fw-bold">{{ 'accountStatement.checkout.creditTotal' | transloco: { count: creditLines().length } }}</h3>
+        <ul class="small mb-0" data-testid="checkout-credit-totals">
+          @for (t of creditTotals(); track t.currency) {
+            <li>{{ t.total | hlCurrency: t.currency }}</li>
+          } @empty {
+            <li>{{ 'accountStatement.checkout.nothing' | transloco }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    @if (needsPayment()) {
+      @if (blocked()) {
+        <div class="alert alert-warning py-2" role="note">{{ 'accountStatement.checkout.blocked' | transloco: { message: block()?.message ?? '' } }}</div>
+      }
+      @if (currencies().length === 0) {
+        <div class="alert alert-warning py-2" role="alert">{{ 'accountStatement.checkout.noCurrency' | transloco }}</div>
+      } @else {
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label for="statement-checkout-currency" class="form-label small fw-semibold">{{ 'accountStatement.checkout.currency' | transloco }}</label>
+            <select id="statement-checkout-currency" class="form-select" [disabled]="confirming()" (change)="onCurrency($event)" aria-describedby="statement-checkout-currency-help">
+              @for (c of currencies(); track c) {
+                <option [value]="c" [selected]="c === currency()">{{ c }}</option>
+              }
+            </select>
+            <div id="statement-checkout-currency-help" class="form-text">
+              @if (needsConversion()) {
+                {{ 'accountStatement.checkout.conversion' | transloco: { currency: currency() } }}
+              } @else {
+                {{ 'accountStatement.checkout.currencyHelp' | transloco }}
+              }
+            </div>
+          </div>
+        </div>
+        @if (!methodsLoading() && methods().length === 0) {
+          <p class="small" role="note">{{ 'accountStatement.checkout.noMethods' | transloco }}</p>
+        } @else {
+          <app-payment-method-picker class="d-block mb-3" [methods]="methods()" [selected]="methodCode()" [disabled]="confirming() || submitting()"
+                                     name="statement-checkout-method" idPrefix="statement-method" legendKey="accountStatement.checkout.method"
+                                     (selectedChange)="selectMethod($event)" />
+        }
+      }
+    }
+
+    @if (submitError()) {
+      <div class="alert alert-danger py-2" role="alert">{{ submitError() }}</div>
+    }
+
+    @if (confirming()) {
+      <!-- Resumen para confirmar antes de enviar (WCAG 3.3.4) -->
+      <div class="border rounded p-3" role="group" aria-labelledby="statement-checkout-confirm-title" data-testid="checkout-confirm">
+        <h3 #confirmHeading id="statement-checkout-confirm-title" class="h6 fw-bold" tabindex="-1">{{ 'accountStatement.checkout.confirmTitle' | transloco }}</h3>
+        <ul class="small mb-3">
+          @if (needsPayment()) {
+            <li>{{ 'accountStatement.checkout.confirmPayNow' | transloco: { count: payNowLines().length, currency: currency(), method: selectedMethodName() } }}</li>
+          }
+          @if (creditLines().length > 0) {
+            <li>{{ 'accountStatement.checkout.confirmCredit' | transloco: { count: creditLines().length } }}</li>
+          }
+        </ul>
+        <button type="button" class="btn btn-hl-orange me-2" [disabled]="submitting() || submitDisabled()" (click)="confirm()">
+          @if (submitting()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'accountStatement.checkout.confirm' | transloco }}
+        </button>
+        <button type="button" class="btn btn-outline-secondary" [disabled]="submitting()" (click)="cancelReview()">{{ 'accountStatement.checkout.back' | transloco }}</button>
+      </div>
+    } @else {
+      <button type="button" class="btn btn-hl-orange" [disabled]="submitDisabled()" (click)="review()" aria-describedby="statement-checkout-review-help">
+        {{ 'accountStatement.checkout.review' | transloco: { count: lines().length } }}
+      </button>
+      <p id="statement-checkout-review-help" class="small text-muted mt-2 mb-0">{{ 'accountStatement.checkout.reviewHelp' | transloco }}</p>
+    }
+  }
+</section>
