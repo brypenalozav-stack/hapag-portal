@@ -3,6 +3,7 @@ namespace HapagPortal.WebApi.Controllers.V1;
 using Asp.Versioning;
 using HapagPortal.Application.Shipments.Detail;
 using HapagPortal.Application.Shipments.Issuance;
+using HapagPortal.Application.Shipments.Release;
 using HapagPortal.Application.Shipments.Search;
 using HapagPortal.Application.Shipments.Tatc;
 using HapagPortal.Application.ThirdPartyAccess.OpenAccess;
@@ -54,6 +55,33 @@ public sealed class ShipmentsController : ApiController
     {
         var result = await Sender.Send(new GetShipmentTatcQuery(blNumber), cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>
+    /// Consulta de BL y TATC con el estado de liberación: requisitos de Chile y Bolivia paso a paso y, con todos
+    /// cumplidos, el TATC por contenedor (M2-09, CL-IMP-13, BO-IMP-13).
+    /// </summary>
+    [HttpGet("{blNumber}/release-status")]
+    public async Task<IActionResult> GetReleaseStatus(string blNumber, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetReleaseStatusQuery(blNumber), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Solicita el TATC de un BL con los requisitos de liberación cumplidos (M2-09).</summary>
+    [HttpPost("{blNumber}/release-status/tatc")]
+    public async Task<IActionResult> RequestReleaseTatc(string blNumber, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new RequestReleaseTatcCommand(blNumber), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : HandleFailure(result);
+    }
+
+    /// <summary>Comprobante PDF de los TATC emitidos del BL, o de un contenedor (M2-09).</summary>
+    [HttpGet("{blNumber}/tatc/voucher")]
+    public async Task<IActionResult> GetTatcVoucher(string blNumber, [FromQuery] string? container, CancellationToken cancellationToken)
+    {
+        var result = await Sender.Send(new GetTatcVoucherQuery(blNumber, container), cancellationToken);
+        return result.IsSuccess ? File(result.Value.Content, result.Value.ContentType, result.Value.FileName) : HandleFailure(result);
     }
 
     /// <summary>Generación masiva de TATC para BL de una misma localidad (M2-09).</summary>

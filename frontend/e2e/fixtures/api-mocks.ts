@@ -1571,6 +1571,32 @@ const ESCRITURAS_OLA_C: { metodo: string; patron: RegExp; responder: (cuerpo: un
   { metodo: 'DELETE', patron: /^internal-charge-rules\/([^/]+)$/, responder: () => ({ status: 204 }) },
 ];
 
+/** Tarifarios oficiales que enlaza Tarifas locales (los mismos de appsettings del backend). */
+export const URL_TARIFAS = {
+  INLAND_CL: 'https://www.hapag-lloyd.com/en/services-information/offices-localinfo/latin-america/chile.html',
+  DEMURRAGE_DETENTION: 'https://www.hapag-lloyd.com/es/online-business/quotation/detention-demurrage/latin-america.html',
+  LOCAL_CHARGES: 'https://www.hapag-lloyd.com/es/online-business/quotation/tariffs/local-charges-service-fees.html',
+} as const;
+
+/**
+ * GET /config/external-links: portal de devoluciones (por defecto sin URL, como hoy) y tarifarios oficiales. `refunds`
+ * configura la URL del portal; `sinTarifa` deja un tarifario sin configurar.
+ */
+export function enlacesExternos(pais: string, opciones: { refunds?: string | null; sinTarifa?: string[] } = {}): unknown {
+  const sinTarifa = new Set(opciones.sinTarifa ?? []);
+  return {
+    country: pais,
+    refunds: opciones.refunds
+      ? { code: 'REFUNDS', url: opciones.refunds, configured: true, source: 'Setting' }
+      : { code: 'REFUNDS', url: null, configured: false, source: 'None' },
+    localTariffs: Object.entries(URL_TARIFAS).map(([code, url]) =>
+      sinTarifa.has(code)
+        ? { code, url: null, configured: false, source: 'None' }
+        : { code, url, configured: true, source: 'AppSettings' },
+    ),
+  };
+}
+
 type RespuestaGet = unknown | ((url: URL) => unknown);
 
 /** Respuestas por ruta relativa a /api/v1/ (método GET); una función recibe la URL con sus query params. */
@@ -1587,6 +1613,7 @@ const RESPUESTAS: Record<string, RespuestaGet> = {
   'organizations/me/join-requests': SOLICITUDES,
   'organizations/me/documents': DOCUMENTOS,
   'organizations/me/operating-country': { country: 'CL', availableCountries: ['CL', 'BO'], canChange: true },
+  'config/external-links': (url: URL) => enlacesExternos(url.searchParams.get('country') ?? 'CL'),
   'admin/organizations': (url: URL) => {
     const estado = url.searchParams.get('status');
     return paginar(

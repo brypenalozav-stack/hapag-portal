@@ -686,10 +686,19 @@ public static class DomainErrors
     }
 
     /// <summary>Consulta y solicitud masiva de TATC (M2-09).</summary>
+    public static class Release
+    {
+        public static readonly Error TatcNotRequestable =
+            new("Release.TatcNotRequestable", "The TATC cannot be requested yet: release requirements are pending, the TATC window is not open or it was already issued.");
+    }
+
     public static class Tatc
     {
         public static readonly Error NotApplicable =
             new("Tatc.NotApplicable", "The TATC applies only to import shipments.");
+
+        public static readonly Error VoucherNotFound =
+            new("TatcVoucher.NotFound", "There is no issued TATC to include in the voucher.");
 
         public static readonly Error NoValidItems =
             new("Tatc.NoValidItems", "None of the bills of lading can be included in the TATC request.");

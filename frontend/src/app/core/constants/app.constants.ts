@@ -74,6 +74,8 @@ export const API_ENDPOINTS = {
   DASHBOARD: 'dashboard',
   SHIPMENT_PUBLICATION_RULES: 'shipment-publication-rules',
   CONFIG_DISPUTE_LINK: 'config/dispute-link',
+  /** Portal de devoluciones y tarifarios oficiales del país (Tarifas locales, Devoluciones). */
+  CONFIG_EXTERNAL_LINKS: 'config/external-links',
   ASSISTANT: 'assistant',
   DANGEROUS_GOODS: 'dangerous-goods',
   // Fase 2, Ola G

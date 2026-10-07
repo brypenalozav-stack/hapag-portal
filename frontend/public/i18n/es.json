@@ -6432,7 +6432,11 @@
         "tatc": "Solicitar TATC",
         "transactionsReport": "Reporte de transacciones",
         "users": "Usuarios",
-        "warehouse": "Cambio Almacén"
+        "warehouse": "Cambio Almacén",
+        "localTariffs": "Tarifas locales",
+        "refunds": "Devoluciones",
+        "releaseLetter": "Carta de liberación",
+        "releaseStatus": "Consulta BL"
       },
       "section": {
         "adminArea": "Área de administración",
@@ -6759,7 +6763,8 @@
         "title": "TATC",
         "unavailable": "El sistema de TATC no respondió: no podemos mostrar el estado vigente. Intente nuevamente en unos minutos."
       },
-      "title": "Embarque {{ bl }}"
+      "title": "Embarque {{ bl }}",
+      "releaseStatusLink": "Ver estado de liberación y TATC"
     },
     "list": {
       "caption": "Embarques accesibles",
@@ -7439,5 +7444,319 @@
     },
     "subtitle": "Solicite el cambio de almacén de un BL o de varios a la vez.",
     "title": "Cambio de almacén"
+  },
+  "localTariffs": {
+    "title": "Tarifas locales",
+    "subtitle": "Acceda a los tarifarios oficiales de Hapag-Lloyd para Chile y Latinoamérica.",
+    "notice": {
+      "title": "Importante",
+      "text": "Este portal no aloja las tarifas. Al abrir un tarifario irá al sitio oficial de Hapag-Lloyd, donde se publica la información vigente."
+    },
+    "cardsTitle": "Tarifarios oficiales",
+    "open": "Abrir tarifario",
+    "site": "Sitio: {{ domain }}",
+    "unavailable": "Enlace no disponible por ahora",
+    "loading": "Cargando los tarifarios…",
+    "loadError": "No pudimos cargar los enlaces a los tarifarios. Intente nuevamente en unos minutos.",
+    "tariff": {
+      "INLAND_CL": {
+        "title": "Tarifario Inland (Chile)",
+        "description": "Transporte terrestre e información local de Chile."
+      },
+      "DEMURRAGE_DETENTION": {
+        "title": "Demurrage / Detention (Latinoamérica)",
+        "description": "Cargos por detención y demurrage de contenedores en América Latina."
+      },
+      "LOCAL_CHARGES": {
+        "title": "Recargos locales / Service fees",
+        "description": "Recargos locales y tarifas de servicio aplicables."
+      }
+    },
+    "guide": {
+      "title": "¿Cómo elegir el tarifario correcto?",
+      "intro": "Cada tarifario responde a una necesidad distinta:",
+      "INLAND_CL": "transporte terrestre e información local de Chile.",
+      "DEMURRAGE_DETENTION": "cargos por retención de contenedores en puertos de Latinoamérica.",
+      "LOCAL_CHARGES": "recargos y tarifas de servicio locales."
+    },
+    "considerations": {
+      "title": "Consideraciones importantes",
+      "validity": "La vigencia de las tarifas la rige exclusivamente el sitio oficial de Hapag-Lloyd.",
+      "access": "Este portal solo facilita el acceso a los tarifarios; no publica ni modifica sus valores.",
+      "newTab": "Los enlaces se abren en una pestaña nueva, así no pierde su lugar en el portal."
+    },
+    "quick": {
+      "title": "Accesos rápidos",
+      "charges": "Cargos locales de mis embarques",
+      "demurrage": "Demurrage de mis embarques",
+      "faq": "Preguntas frecuentes"
+    },
+    "openLabel": "Abrir tarifario: {{ title }} (se abre en una pestaña nueva)"
+  },
+  "refunds": {
+    "title": "Devoluciones",
+    "subtitle": "Solicite y siga la devolución de dinero de sus pagos a Hapag-Lloyd.",
+    "external": "Externo",
+    "note": "Este módulo lo provee un sistema externo; su disponibilidad depende del horario de operación del proveedor.",
+    "openNew": "Abrir en ventana nueva",
+    "newWindow": " (se abre en una ventana nueva)",
+    "frameTitle": "Portal de devoluciones de Hapag-Lloyd",
+    "loading": "Cargando el portal de devoluciones…",
+    "hint": "¿No ve el contenido? Algunos sitios no permiten mostrarse dentro de otro; ábralo en una ventana nueva.",
+    "loadError": "No pudimos consultar el acceso al portal de devoluciones. Intente nuevamente en unos minutos.",
+    "soon": {
+      "title": "Devoluciones estará disponible pronto",
+      "text": "Estamos habilitando el acceso al portal de devoluciones. Mientras tanto, si necesita solicitar una devolución de dinero, contacte a Atención a Clientes.",
+      "contactTitle": "Atención a Clientes",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "bolivia": "Contacte a su ejecutivo de Hapag-Lloyd; le indicará cómo solicitar la devolución.",
+      "contact": {
+        "CL": {
+          "name": "Hapag-Lloyd Chile",
+          "email": "Chile@service.hlag.com",
+          "phone": "+56 2 2618 8214"
+        }
+      }
+    }
+  },
+  "releaseLetterPage": {
+    "title": "Carta de liberación y desconsolidado",
+    "subtitle": "Solicite la carta de liberación de sus importaciones en Bolivia y revise el estado de sus solicitudes.",
+    "select": {
+      "title": "Elija el BL",
+      "label": "BL de importación (Bolivia)",
+      "placeholder": "Seleccione un BL",
+      "filter": "Buscar BL",
+      "filterHelp": "Filtre por número de BL, nave o viaje.",
+      "count": "BL disponibles: {{ count }}",
+      "matches": "BL que coinciden: {{ count }} de {{ total }}",
+      "noMatches": "Ningún BL coincide con la búsqueda.",
+      "option": "{{ bl }} · {{ vessel }}",
+      "prompt": "Seleccione un BL para ver su información y solicitar la carta.",
+      "announce": "Mostrando el BL {{ bl }}."
+    },
+    "info": {
+      "title": "Información del BL",
+      "bl": "BL",
+      "vessel": "Nave de arribo",
+      "port": "Puerto de descarga",
+      "eta": "Arribo estimado",
+      "consignee": "Consignatario",
+      "containers": "Contenedores",
+      "containersCount": "{{ count }} en total",
+      "noData": "Sin dato",
+      "loadError": "No pudimos cargar la información del BL. La solicitud sigue disponible más abajo."
+    },
+    "empty": {
+      "title": "No tiene BL de importación en Bolivia",
+      "text": "Cuando su organización tenga embarques de importación con destino Bolivia, podrá solicitar aquí su carta de liberación.",
+      "cta": "Ver mis embarques"
+    },
+    "loadError": "No pudimos cargar sus BL de importación en Bolivia."
+  },
+  "releaseStatus": {
+    "title": "Consulta BL",
+    "subtitle": "Revise paso a paso qué falta para liberar su carga y obtenga el TATC de sus contenedores.",
+    "loading": "Consultando el estado de liberación…",
+    "loadError": "No pudimos consultar el estado del BL. Intente nuevamente.",
+    "retry": "Reintentar",
+    "search": {
+      "title": "Buscar un BL",
+      "label": "Número de BL",
+      "placeholder": "Ej. HLCUVAL250100123",
+      "help": "Ingrese el número exacto del BL de importación.",
+      "required": "Ingrese un número de BL.",
+      "submit": "Consultar",
+      "recent": "Consultados recientemente:"
+    },
+    "notFound": {
+      "title": "No encontramos ese BL",
+      "text": "Revise el número o confirme que su organización tiene acceso a él. Si el BL es de un tercero, pídale que le otorgue acceso."
+    },
+    "notApplicable": {
+      "title": "La consulta de liberación aplica a BL de importación",
+      "text": "Este BL es de exportación: no tiene requisitos de liberación ni TATC. Puede revisar sus cargos y documentos en el detalle del embarque."
+    },
+    "announce": {
+      "released": "BL {{ bl }}: todos los requisitos de liberación están cumplidos.",
+      "pending": "BL {{ bl }}: {{ done }} de {{ total }} requisitos cumplidos."
+    },
+    "summary": {
+      "eyebrow": "BL consultado",
+      "import": "Importación",
+      "export": "Exportación",
+      "released": "Lista para liberar",
+      "pending": "Liberación pendiente",
+      "booking": "Booking",
+      "vessel": "Nave / viaje",
+      "pol": "Puerto de embarque",
+      "pod": "Puerto de descarga",
+      "eta": "Arribo estimado (ETA)",
+      "consignee": "Consignatario",
+      "progress": "{{ done }} de {{ total }} requisitos cumplidos",
+      "next": "Siguiente paso:",
+      "viewDetail": "Ver el detalle completo del embarque"
+    },
+    "path": {
+      "title": "Camino a la liberación",
+      "introCL": "Para Chile se revisan el flete, los recargos del BL (Gate In y EDS), la carta de responsabilidad y el demurrage. Con todo cumplido se habilita el TATC.",
+      "introBO": "Para Bolivia, además del flete, los recargos, la carta de responsabilidad y el demurrage, se revisan las demoras anticipadas, el certificado de libre deuda y la carta de liberación. Con todo cumplido se habilita el TATC."
+    },
+    "status": {
+      "done": "Cumplido",
+      "pending": "Pendiente",
+      "inProgress": "En curso",
+      "notRequired": "No aplica",
+      "unavailable": "Sin información"
+    },
+    "step": {
+      "FREIGHT": {
+        "title": "Flete pagado",
+        "done": "El flete del BL está pagado.",
+        "pending": "Falta pagar el flete del BL."
+      },
+      "LOCAL_CHARGES": {
+        "title": "Gate In, EDS y recargos del BL",
+        "done": "Los recargos del BL están pagados, exentos o imputados a su crédito.",
+        "pending": "Hay recargos del BL por pagar."
+      },
+      "RESPONSIBILITY_LETTER": {
+        "title": "Carta de responsabilidad",
+        "done": "La carta de responsabilidad está emitida y vigente.",
+        "pending": "Su organización debe emitir la carta de responsabilidad para continuar."
+      },
+      "DEMURRAGE": {
+        "title": "Demurrage y MHD",
+        "done": "El BL no registra demurrage pendiente.",
+        "pending": "Hay demurrage o MHD por resolver."
+      },
+      "ADVANCE_DEMURRAGE": {
+        "title": "Demoras anticipadas",
+        "done": "Las demoras anticipadas están pagadas.",
+        "pending": "Su cuenta debe pagar las demoras anticipadas antes del certificado de libre deuda."
+      },
+      "NO_DEBT_CERTIFICATE": {
+        "title": "Certificado de libre deuda",
+        "done": "El certificado de libre deuda está emitido.",
+        "pending": "El BL cumple las condiciones: solicite el certificado de libre deuda."
+      },
+      "RELEASE_LETTER": {
+        "title": "Carta de liberación y desconsolidado",
+        "done": "La carta de liberación está emitida.",
+        "pending": "Solicite la carta de liberación y desconsolidado de sus contenedores."
+      }
+    },
+    "reason": {
+      "NO_PERMISSION": "Su perfil no puede ver este requisito para este BL. Consulte con quien le otorgó el acceso.",
+      "SOURCE_UNAVAILABLE": "El sistema de origen no respondió. Intente nuevamente en unos minutos.",
+      "PREPAID": "El flete es prepagado: se pagó en origen y no es requisito en destino.",
+      "NOT_FFWW": "Su organización no la requiere para liberar (solo es obligatoria para agentes de carga FFWW). Puede emitirla si la necesita.",
+      "NO_DEMURRAGE": "El BL no registra demurrage.",
+      "NOT_CALCULATED": "El demurrage aún no está calculado: calcúlelo para conocer el monto.",
+      "CALCULATED_UNPAID": "El demurrage está calculado y pendiente de pago.",
+      "INVOICED_WITH_DEBT": "El demurrage está facturado y la factura tiene deuda vigente.",
+      "RULE_NOT_APPLICABLE": "Su cuenta no está sujeta a esta exigencia.",
+      "BLOCKED": "Aún no se puede emitir: el BL tiene pendientes que bloquean el certificado (ver detalle).",
+      "AWAITING_APPROVAL": "La solicitud está enviada y en revisión por Customer Service.",
+      "AWAITING_TATC": "La solicitud está enviada; su aprobación requiere el TATC emitido de los contenedores.",
+      "REJECTED": "La última solicitud fue rechazada. Revise el motivo y envíe una nueva."
+    },
+    "pendingAmount": "Monto pendiente:",
+    "details": "Ver detalle ({{ count }})",
+    "item": {
+      "container": "Contenedor {{ number }}",
+      "document": "Documento {{ number }}",
+      "request": "Solicitud {{ number }}",
+      "freight": "Flete"
+    },
+    "itemStatus": {
+      "PAID": "Pagado",
+      "PENDING": "Pendiente",
+      "Paid": "Pagado",
+      "Pending": "Pendiente",
+      "Exempt": "Exento",
+      "PartiallyExempt": "Parcialmente exento",
+      "CreditImputed": "Imputado a crédito",
+      "Payable": "Por pagar",
+      "Invoiced": "Facturado",
+      "Issued": "Emitido",
+      "Blocked": "Bloquea",
+      "Draft": "Borrador",
+      "Submitted": "Enviada",
+      "PendingApproval": "En revisión",
+      "Approved": "Aprobada",
+      "Rejected": "Rechazada",
+      "PendingPayment": "Pendiente de pago",
+      "InProgress": "En curso",
+      "Completed": "Completada",
+      "Cancelled": "Anulada",
+      "NotRequested": "No solicitado",
+      "NotRequired": "No requerido"
+    },
+    "action": {
+      "PayFreight": "Pagar el flete",
+      "PayCharges": "Pagar los recargos",
+      "IssueResponsibilityLetter": "Emitir la carta",
+      "CalculateDemurrage": "Calcular el demurrage",
+      "PayDemurrage": "Pagar el demurrage",
+      "PayAdvanceDemurrage": "Pagar las demoras anticipadas",
+      "RequestNoDebtCertificate": "Solicitar el certificado",
+      "RequestReleaseLetter": "Solicitar la carta de liberación",
+      "notAllowed": "Su perfil no puede realizar esta gestión; quien opera el BL puede hacerlo."
+    },
+    "tatc": {
+      "title": "TATC de los contenedores",
+      "locked": "Bloqueado",
+      "noData": "Sin registro",
+      "lockedText": "Se habilita cuando todos los requisitos estén cumplidos. Faltan {{ remaining }}.",
+      "unavailable": "El sistema de TATC no respondió. Lo mostrado podría no estar vigente: intente nuevamente.",
+      "issuedText": "{{ count }} contenedor(es) con TATC emitido. Descargue el comprobante para el retiro.",
+      "downloadAll": "Descargar comprobante",
+      "requesting": "Solicitando su TATC…",
+      "windowClosed": "Los requisitos están cumplidos. El TATC estará disponible desde el {{ date }} ({{ hours }} h antes del arribo).",
+      "requestedText": "Solicitamos su TATC el {{ date }}. El sistema de TATC lo emitirá; vuelva a consultar en unos minutos.",
+      "readyText": "Los requisitos están cumplidos. Puede solicitar el TATC ahora.",
+      "request": "Solicitar TATC",
+      "preTatcText": "Hay un pre-TATC generado; el TATC definitivo se emitirá en el sistema de TATC.",
+      "notIssuedText": "El TATC aún no está emitido en el sistema de origen.",
+      "autoRequested": "Requisitos cumplidos: solicitamos el TATC del BL {{ bl }}.",
+      "requested": "TATC solicitado para el BL {{ bl }}.",
+      "requestRejected": "El sistema de TATC no aceptó la solicitud. Revise el detalle de contenedores.",
+      "requestFailed": "No pudimos solicitar el TATC. Intente nuevamente.",
+      "voucherDownloaded": "Comprobante de TATC descargado.",
+      "voucherFailed": "No pudimos descargar el comprobante. Intente nuevamente."
+    },
+    "notices": {
+      "label": "Avisos sobre el TATC",
+      "TATC_WINDOW_72H": "El TATC está disponible desde {{ hours }} horas antes del arribo de la nave a destino.",
+      "TATC_WINDOW_48H": "Carga embarcada en Callao con destino a Iquique, Angamos o Antofagasta: el TATC estará disponible al menos {{ hours }} horas antes del arribo.",
+      "SOW_NO_TATC": "Para contenedores propiedad del embarcador (SOW), Hapag-Lloyd no emite TATC.",
+      "TATC_REQUESTED": "El TATC ya fue solicitado al sistema de origen.",
+      "help": "¿Necesita ayuda? Contacte a Atención a Clientes de Hapag-Lloyd o use el asistente del portal."
+    },
+    "containers": {
+      "title": "Detalle de contenedores ({{ count }})",
+      "caption": "Contenedores del BL con su demurrage y su TATC",
+      "empty": "El BL no tiene contenedores registrados.",
+      "col": {
+        "container": "Contenedor",
+        "type": "Tipo",
+        "demurrage": "Demurrage",
+        "tatcStatus": "Estado TATC",
+        "tatcNumber": "N° TATC",
+        "voucher": "Comprobante"
+      },
+      "sow": "SOW",
+      "sowNoTatc": "Sin TATC (SOW)",
+      "noDemurrage": "Sin demurrage",
+      "voucher": "Comprobante",
+      "voucherLabel": "Descargar el comprobante de TATC del contenedor {{ container }}"
+    },
+    "intro": {
+      "title": "¿Qué revisamos para liberar su carga?",
+      "cl": "Importación Chile",
+      "bo": "Importación Bolivia"
+    }
   }
 }

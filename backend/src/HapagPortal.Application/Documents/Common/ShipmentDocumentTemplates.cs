@@ -580,6 +580,63 @@ public static class ShipmentDocumentTemplates
             Footer());
     }
 
+    /// <summary>Contenedor de un comprobante de TATC: número, tipo, almacén o depósito y número de TATC.</summary>
+    public sealed record TatcVoucherLine(string ContainerNumber, string ContainerType, string? Warehouse, string TatcNumber);
+
+    /// <summary>
+    /// Comprobante de emisión de TATC (M2-09): fecha, puerto, nave/viaje, BL, cliente y almacén, con la tabla de
+    /// contenedores y un código QR con el número de TATC y el BL. Es informativo: lo vigente es el sistema de TATC.
+    /// </summary>
+    public static PdfDocumentModel TatcVoucher(
+        string issuer,
+        string country,
+        string number,
+        DateTime issuedAt,
+        string blNumber,
+        string? port,
+        string? vessel,
+        string? voyage,
+        string? client,
+        IReadOnlyList<TatcVoucherLine> lines)
+    {
+        var warehouses = lines.Select(l => l.Warehouse).Where(w => !string.IsNullOrWhiteSpace(w)).Distinct().ToList();
+        var vesselVoyage = string.Join(" / ", new[] { vessel, voyage }.Where(v => !string.IsNullOrWhiteSpace(v)));
+        return new PdfDocumentModel(
+            "Comprobante de emisión de TATC",
+            lines.Count == 1 ? $"Contenedor {lines[0].ContainerNumber}" : $"{lines.Count} contenedores",
+            issuer,
+            IssuerDetail(country),
+            number,
+            issuedAt,
+            BusinessCalendar.TimeZoneId(country),
+            [
+                new("Fecha", LocalDateTime(country, issuedAt)),
+                new("Puerto", port),
+                new("Nave / Viaje", vesselVoyage),
+                new("BL", blNumber),
+                new("Cliente", client),
+                new("Almacén", warehouses.Count == 0 ? null : string.Join(", ", warehouses))
+            ],
+            [
+                new PdfSection(
+                    "Contenedores",
+                    Table: new PdfTable(
+                        ["Contenedor", "Tipo", "Almacén / depósito", "TATC"],
+                        lines.Select(l => (IReadOnlyList<string>)[l.ContainerNumber, l.ContainerType, l.Warehouse ?? "-", l.TatcNumber]).ToList())),
+                new PdfSection(
+                    "Información",
+                    Paragraphs:
+                    [
+                        "Esta información es solo referencial; cualquier discrepancia debe consultarse con Hapag-Lloyd por los canales de atención a clientes.",
+                        "El estado vigente del TATC es el registrado en el sistema de origen y puede consultarse en el portal, en la consulta de BL."
+                    ])
+            ],
+            VerificationCode(number, blNumber, issuedAt),
+            null,
+            Footer(),
+            QrPayload: $"TATC {string.Join(",", lines.Select(l => l.TatcNumber))} | BL {blNumber}");
+    }
+
     public static string Money(decimal amount) => amount.ToString("N2", Numbers);
 
     public static string LocalDateTime(string country, DateTime utc) =>
