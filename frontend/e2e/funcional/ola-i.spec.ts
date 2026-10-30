@@ -13,7 +13,7 @@ import {
   SOLICITANTE,
   TRANSPORTISTA,
 } from '../fixtures/ola-i-mocks';
-import { ORGANIZACION_PRUEBA, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
+import { Idioma, ORGANIZACION_PRUEBA, sembrarIdioma, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
 import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
@@ -22,6 +22,8 @@ import { cargarSeccionesDiferidas } from '../fixtures/detalle';
  *   una preferencia de correo; los tipos obligatorios se muestran bloqueados.
  * - M1-26: el cliente ve los comunicados de su país y operación, con la fecha de publicación; el administrador publica
  *   un borrador.
+ * - M1-26 / M1-27 en portugués: comunicados y guía en PT, con respaldo al español si falta el texto; el mantenedor de
+ *   guías exige el título en portugués de cada paso y el resumen lleva a ese campo.
  * - M1-27: la guía del carro recorre sus pasos y queda completada; Escape la cierra como descartada.
  * - M8-08: vista como cliente: inicio, banner permanente, escritura bloqueada y término que restaura la sesión del
  *   administrador.
@@ -35,11 +37,17 @@ import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 const POLITE = 'div[aria-live="polite"]';
 
-async function abrir(page: Page, ruta: string, opciones: OpcionesOlaD & OpcionesOlaI = {}, sesion: 'cliente' | 'admin' | 'ninguna' = 'cliente'): Promise<void> {
+async function abrir(
+  page: Page,
+  ruta: string,
+  opciones: OpcionesOlaD & OpcionesOlaI = {},
+  sesion: 'cliente' | 'admin' | 'ninguna' = 'cliente',
+  lang: Idioma = 'es',
+): Promise<void> {
   await simularApi(page, { ...opciones, features: FASE2 });
-  if (sesion === 'admin') await sembrarSesionAdmin(page, 'es');
-  else if (sesion === 'cliente') await sembrarSesion(page, { lang: 'es' });
-  else await sembrarIdioma(page, 'es');
+  if (sesion === 'admin') await sembrarSesionAdmin(page, lang);
+  else if (sesion === 'cliente') await sembrarSesion(page, { lang });
+  else await sembrarIdioma(page, lang);
   await page.goto(ruta);
   // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
   if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
@@ -118,6 +126,25 @@ test('comunicados: el cliente ve los de su país y operación con la fecha de pu
   await expect(page.getByTestId('announcements-list')).toContainText('Canje de BL de exportación boliviana en Arica');
 });
 
+test('comunicados en portugués: el que tiene texto en PT se muestra en PT y el que no, en español (M1-26)', async ({ page }) => {
+  await abrir(page, '/dashboard', {}, 'cliente', 'pt');
+  const banner = page.getByTestId('dashboard-announcements');
+  await expect(banner).toContainText('Novo horário do depósito de vazios em San Antonio');
+  await expect(banner).not.toContainText('Nuevo horario del depósito');
+
+  await banner.getByRole('link').click();
+  await expect(page).toHaveURL(/\/announcements$/);
+  const lista = page.getByTestId('announcements-list');
+  await expect(lista).toContainText('A partir de segunda-feira, 12 de outubro, o depósito funciona das 08:00 às 20:00.');
+
+  // Bolivia exportación: el comunicado no tiene portugués y usa el español (pt → es → en).
+  await page.locator('#announcements-operation').selectOption('Export');
+  await page.locator('#announcements-country').selectOption('BO');
+  await page.getByRole('button', { name: 'Ver comunicados' }).click();
+  await expect(page.getByTestId('announcements-list')).toContainText('Canje de BL de exportación boliviana en Arica');
+  await expect(page.getByTestId('announcements-list')).not.toContainText('Bolivian export BL exchange');
+});
+
 test('comunicados: el administrador publica el borrador y queda vigente (M1-26)', async ({ page }) => {
   await abrir(page, '/admin/announcements', {}, 'admin');
   const fila = page.locator('tr').filter({ hasText: 'Mantención programada del portal' });
@@ -163,6 +190,50 @@ test('modo guía: recorre los pasos del carro y queda completada; Escape la cier
   await page.keyboard.press('Escape');
   expect((await descarte).postDataJSON()).toEqual({ status: 'Dismissed', lastStep: 1 });
   await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+
+test('modo guía en portugués: el nombre y los pasos se muestran en PT (M1-27)', async ({ page }) => {
+  await abrir(page, '/cart', { guiaNueva: true }, 'cliente', 'pt');
+  await page.getByTestId(`guide-launch-${GUIA_CARRO}`).click();
+  await expect(page.getByRole('dialog', { name: 'Revise as cobranças' })).toBeVisible();
+  await expect(page.getByTestId('guide-step')).toContainText('O carrinho separa os itens por país e moeda de pagamento.');
+  await expect(page.getByTestId('guide-progress')).toContainText('Como pagar pelo carrinho');
+});
+
+test('guías: el mantenedor exige el título en portugués de cada paso y el resumen lleva a ese campo (M1-27)', async ({ page }) => {
+  await abrir(page, '/admin/guides', {}, 'admin');
+  const fila = page.getByTestId(`guide-row-${GUIA_CARRO}`);
+  await expect(fila).toContainText('Como pagar pelo carrinho');
+  await fila.getByRole('button', { name: 'Editar Pagar desde el carro' }).click();
+  const titulo = page.locator('#guide-step-title-pt-0');
+  await expect(titulo).toHaveValue('Revise as cobranças');
+  await expect(titulo).toHaveAttribute('lang', 'pt-BR');
+
+  let enviado = false;
+  page.on('request', (r) => {
+    if (r.method() === 'PUT' && r.url().includes('/admin/guides/')) enviado = true;
+  });
+  await titulo.fill('');
+  await page.getByTestId('guide-form').getByRole('button', { name: 'Guardar cambios' }).click();
+  const resumen = page.getByTestId('guide-form').locator('.alert-danger').first();
+  await expect(resumen).toBeFocused();
+  // Error propio del portugués: no se mezcla con el título en español e inglés del paso.
+  await expect(resumen.getByRole('listitem')).toHaveCount(1);
+  const enlace = resumen.getByRole('link', { name: 'Paso 1: ingrese el título en portugués.' });
+  await expect(enlace).toHaveAttribute('href', '#guide-step-title-pt-0');
+  await enlace.click();
+  await expect(titulo).toBeFocused();
+  await expect(titulo).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#guide-step-title-es-0')).not.toHaveAttribute('aria-invalid', 'true');
+  expect(enviado).toBe(false);
+
+  // Con el título en portugués, la guía se guarda con los textos PT de los pasos.
+  await titulo.fill('Revise as cobranças do carrinho');
+  const guardado = page.waitForRequest((r) => r.method() === 'PUT' && r.url().includes('/admin/guides/'));
+  await page.getByTestId('guide-form').getByRole('button', { name: 'Guardar cambios' }).click();
+  const body = (await guardado).postDataJSON() as { namePt: string; steps: { titlePt: string; textPt: string }[] };
+  expect(body.namePt).toBe('Como pagar pelo carrinho');
+  expect(body.steps[0]).toMatchObject({ titlePt: 'Revise as cobranças do carrinho', textPt: 'O carrinho separa os itens por país e moeda de pagamento.' });
 });
 
 test('vista como cliente: inicio, banner, escritura bloqueada y término que restaura la sesión del administrador (M8-08)', async ({ page }) => {
@@ -238,6 +309,26 @@ test('reportería: exportar transacciones con los filtros y el idioma (M9-01)', 
   await page.getByRole('link', { name: 'Ver las excepciones aplicadas' }).click();
   await expect(page.getByTestId('ex-ipo-unavailable')).toContainText('Nexus no respondió');
   await expect(page.getByTestId('ex-summary-CreditImputation')).toContainText('Imputación a crédito');
+});
+
+test('reportería en portugués: transacciones y excepciones se piden en pt con los prefijos pt (M9-01)', async ({ page }) => {
+  await abrir(page, '/admin/reports/transactions', {}, 'admin', 'pt');
+  const transacciones = page.waitForRequest((r) => r.url().includes('/api/v1/admin/reports/transactions/export'));
+  const archivoTransacciones = page.waitForEvent('download');
+  await page.getByTestId('tx-export-xlsx').click();
+  expect(new URL((await transacciones).url()).searchParams.get('language')).toBe('pt');
+  expect((await archivoTransacciones).suggestedFilename()).toBe('transacoes-20261001-20261006.xlsx');
+  await expect(page.locator(POLITE)).toContainText('O arquivo transacoes-20261001-20261006.xlsx foi baixado.');
+
+  await page.getByRole('link', { name: 'Ver as exceções aplicadas' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Exceções aplicadas');
+  await expect(page.locator('app-loading-spinner')).toHaveCount(0);
+  const excepciones = page.waitForRequest((r) => r.url().includes('/api/v1/admin/reports/exceptions/export'));
+  const archivoExcepciones = page.waitForEvent('download');
+  await page.getByTestId('ex-export-xlsx').click();
+  expect(new URL((await excepciones).url()).searchParams.get('language')).toBe('pt');
+  expect((await archivoExcepciones).suggestedFilename()).toBe('excecoes-20261001-20261006.xlsx');
+  await expect(page.locator(POLITE)).toContainText('O arquivo excecoes-20261001-20261006.xlsx foi baixado.');
 });
 
 test('Counter: reintentar el envío a Nexus de un registro fallido (M8-09)', async ({ page }) => {

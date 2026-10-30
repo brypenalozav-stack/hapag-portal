@@ -79,8 +79,8 @@ function definicionId(code: string): string {
 // Definiciones de servicio (las sembradas en el backend y una de prueba con todos los tipos de campo)
 // ---------------------------------------------------------------------------
 
-const CONTENEDORES: ServiceInputField = { key: 'containers', labelEs: 'Contenedores', labelEn: 'Containers', type: 'containers', required: true };
-const OBSERVACIONES: ServiceInputField = { key: 'observations', labelEs: 'Observaciones', labelEn: 'Remarks', type: 'textarea', maxLength: 1000 };
+const CONTENEDORES: ServiceInputField = { key: 'containers', labelEs: 'Contenedores', labelEn: 'Containers', labelPt: 'Contêineres', type: 'containers', required: true };
+const OBSERVACIONES: ServiceInputField = { key: 'observations', labelEs: 'Observaciones', labelEn: 'Remarks', labelPt: 'Observações', type: 'textarea', maxLength: 1000 };
 
 function definicion(datos: Partial<ServiceDefinitionInput> & Pick<ServiceDefinitionInput, 'code' | 'nameEs' | 'nameEn'>): ServiceDefinitionInput {
   return {
@@ -143,20 +143,21 @@ const DEFINICIONES_BASE: ServiceDefinitionInput[] = [
     inputSchema: [CONTENEDORES, { key: 'days', labelEs: 'Días de anticipación', labelEn: 'Days early', type: 'number', required: true, min: 1, max: 30, integer: true }, OBSERVACIONES],
   }),
   definicion({
-    code: 'DROP_OFF_SCL', nameEs: 'Drop Off SCL', nameEn: 'Drop Off SCL', displayOrder: 40,
+    code: 'DROP_OFF_SCL', nameEs: 'Drop Off SCL', nameEn: 'Drop Off SCL', namePt: 'Drop Off SCL', displayOrder: 40,
     descriptionEs: 'Devolución de contenedores en Santiago: el cliente elige las unidades, acepta la tarifa y el equipo ED aprueba o rechaza.',
     descriptionEn: 'Container return in Santiago: the customer selects the units, accepts the tariff and the ED team approves or rejects.',
+    descriptionPt: 'Devolução de contêineres em Santiago: o cliente escolhe as unidades, aceita a tarifa e a equipe ED aprova ou rejeita.',
     operations: ['IMPORT'], availabilityWindow: 'AfterArrival', requiresContainers: true, tariffAcceptanceRequired: true,
     chargeConceptCode: 'DROP_OFF', quantityMode: 'PerContainer', approvalTeam: 'ED', actionCode: 'drop-off.request',
     inputSchema: [
       CONTENEDORES,
-      { key: 'returnDate', labelEs: 'Fecha de devolución', labelEn: 'Return date', type: 'date', required: true },
+      { key: 'returnDate', labelEs: 'Fecha de devolución', labelEn: 'Return date', labelPt: 'Data de devolução', type: 'date', required: true },
       {
-        key: 'depot', labelEs: 'Depósito de devolución', labelEn: 'Return depot', type: 'select', required: true,
+        key: 'depot', labelEs: 'Depósito de devolución', labelEn: 'Return depot', labelPt: 'Depósito de devolução', type: 'select', required: true,
         options: [
-          { value: 'SCL_PUDAHUEL', labelEs: 'Depósito Pudahuel', labelEn: 'Pudahuel depot' },
-          { value: 'SCL_QUILICURA', labelEs: 'Depósito Quilicura', labelEn: 'Quilicura depot' },
-          { value: 'SCL_SAN_BERNARDO', labelEs: 'Depósito San Bernardo', labelEn: 'San Bernardo depot' },
+          { value: 'SCL_PUDAHUEL', labelEs: 'Depósito Pudahuel', labelEn: 'Pudahuel depot', labelPt: 'Depósito Pudahuel' },
+          { value: 'SCL_QUILICURA', labelEs: 'Depósito Quilicura', labelEn: 'Quilicura depot', labelPt: 'Depósito Quilicura' },
+          { value: 'SCL_SAN_BERNARDO', labelEs: 'Depósito San Bernardo', labelEn: 'San Bernardo depot', labelPt: 'Depósito San Bernardo' },
         ],
       },
       OBSERVACIONES,
@@ -454,8 +455,8 @@ function cotizar(e: Embarque, code: string, valores: ServiceInputValues): Cotiza
 function disponible(e: Embarque, o: Oferta, def: ServiceDefinitionInput): AvailableService {
   const cotizado = o.available && !o.quoteErrorCode ? cotizar(e, o.code, {}) : null;
   return {
-    definitionId: definicionId(o.code), code: o.code, nameEs: def.nameEs, nameEn: def.nameEn,
-    descriptionEs: def.descriptionEs, descriptionEn: def.descriptionEn, referenceType: def.referenceType, available: o.available,
+    definitionId: definicionId(o.code), code: o.code, nameEs: def.nameEs, nameEn: def.nameEn, namePt: def.namePt,
+    descriptionEs: def.descriptionEs, descriptionEn: def.descriptionEn, descriptionPt: def.descriptionPt, referenceType: def.referenceType, available: o.available,
     canRequest: o.canRequest ?? o.available, unavailableReasons: o.reasons ?? [], inputSchema: def.inputSchema,
     billingDataRequired: def.billingDataRequired, tariffAcceptanceRequired: def.tariffAcceptanceRequired,
     approvalTeam: def.approvalTeam, fulfillmentTeam: def.fulfillmentTeam,
@@ -480,7 +481,7 @@ function solicitud(definitionCode: string, datos: Partial<ServiceRequestDetail> 
   const def = DEFINICIONES_BASE.find((d) => d.code === definitionCode) as ServiceDefinitionInput;
   const e = EMBARQUES.find((x) => x.blNumber === datos.blNumber) ?? EMBARQUES[0];
   return {
-    definitionId: definicionId(definitionCode), definitionCode, nameEs: def.nameEs, nameEn: def.nameEn,
+    definitionId: definicionId(definitionCode), definitionCode, nameEs: def.nameEs, nameEn: def.nameEn, namePt: def.namePt,
     organizationId: ORGANIZACION_PRUEBA.id, organizationName: ORGANIZACION_PRUEBA.name, requestedByEmail: USUARIO_PRUEBA.email,
     billOfLadingId: `3f0c2a1e-0000-4000-8000-${e.blNumber.slice(-12).padStart(12, '0')}`, blNumber: e.blNumber, bookingNumber: e.bookingNumber,
     country: e.country, operation: e.operation, timeZone: zona(e.country), containerNumbers: [], inputSchema: def.inputSchema,
@@ -587,7 +588,7 @@ function sembradas(): ServiceRequestDetail[] {
 function resumen(r: ServiceRequestDetail): ServiceRequestSummary {
   const total = r.charges.reduce((s, c) => s + c.totalAmount, 0) || (r.quote?.totalAmount ?? 0);
   return {
-    id: r.id, requestNumber: r.requestNumber, definitionCode: r.definitionCode, nameEs: r.nameEs, nameEn: r.nameEn, blNumber: r.blNumber,
+    id: r.id, requestNumber: r.requestNumber, definitionCode: r.definitionCode, nameEs: r.nameEs, nameEn: r.nameEn, namePt: r.namePt, blNumber: r.blNumber,
     bookingNumber: r.bookingNumber, country: r.country, operation: r.operation, status: r.status, assignedTeam: r.assignedTeam ?? null,
     totalAmount: total, currency: r.quote?.currency ?? null, isExempt: !!r.quote?.isExempt, organizationName: r.organizationName,
     requestedByEmail: r.requestedByEmail, createdAt: r.createdAt, statusChangedAt: r.statusChangedAt,
@@ -801,7 +802,7 @@ export class SimulacionOlaG {
     });
     // El formulario y las reglas son los de la definición vigente (incluye los cambios del mantenedor).
     Object.assign(r, {
-      definitionId: def.id, nameEs: def.nameEs, nameEn: def.nameEn, inputSchema: def.inputSchema,
+      definitionId: def.id, nameEs: def.nameEs, nameEn: def.nameEn, namePt: def.namePt, inputSchema: def.inputSchema,
       billingDataRequired: def.billingDataRequired, tariffAcceptanceRequired: def.tariffAcceptanceRequired,
       approvalTeam: def.approvalTeam, fulfillmentTeam: def.fulfillmentTeam, requiresOutputDocument: def.requiresOutputDocument,
     });

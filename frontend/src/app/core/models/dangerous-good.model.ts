@@ -12,9 +12,11 @@ export interface DangerousGood {
   unNumber?: string | null;
   properShippingNameEs: string;
   properShippingNameEn: string;
+  properShippingNamePt?: string | null;
   hazardClass?: string | null;
   hazardClassNameEs?: string | null;
   hazardClassNameEn?: string | null;
+  hazardClassNamePt?: string | null;
   subsidiaryRisk?: string | null;
   packingGroup?: string | null;
   notes?: string | null;

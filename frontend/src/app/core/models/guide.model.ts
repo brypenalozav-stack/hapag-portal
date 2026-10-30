@@ -17,6 +17,8 @@ export interface GuideStep {
   titleEn: string;
   textEs: string;
   textEn: string;
+  titlePt?: string | null;
+  textPt?: string | null;
 }
 
 /** Guía activa para el usuario; `status` null = se ofrece (nueva o con pasos cambiados desde la última vez). */
@@ -26,6 +28,8 @@ export interface Guide {
   nameEn: string;
   descriptionEs?: string | null;
   descriptionEn?: string | null;
+  namePt?: string | null;
+  descriptionPt?: string | null;
   route: string;
   version: number;
   steps: GuideStep[];
@@ -52,6 +56,8 @@ export interface GuideRequest {
   nameEn: string;
   descriptionEs?: string | null;
   descriptionEn?: string | null;
+  namePt?: string | null;
+  descriptionPt?: string | null;
   route: string;
   audience: GuideAudience;
   isActive: boolean;
@@ -63,6 +69,7 @@ export interface GuideSnapshot {
   code?: string;
   nameEs?: string;
   nameEn?: string;
+  namePt?: string | null;
   route?: string;
   audience?: string;
   isActive?: boolean;

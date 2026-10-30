@@ -51,23 +51,34 @@
                  [attr.aria-invalid]="hasError('def-code')" [(ngModel)]="form.code" [ngModelOptions]="{ standalone: true }" />
           <div id="def-code-help" class="form-text">{{ 'admin.serviceDefinitions.editor.general.codeHelp' | transloco }}</div>
         </div>
-        <div class="col-md-4">
+        <!-- Textos en ES, EN y PT: tres columnas en pantallas grandes, apilados en las angostas -->
+        <div class="w-100 mt-0"></div>
+        <div class="col-12 col-lg-4">
           <label for="def-name-es" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.nameEs' | transloco }}</label>
           <input id="def-name-es" type="text" class="form-control" maxlength="200" required lang="es"
                  [attr.aria-invalid]="hasError('def-name-es')" [(ngModel)]="form.nameEs" [ngModelOptions]="{ standalone: true }" />
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-lg-4">
           <label for="def-name-en" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.nameEn' | transloco }}</label>
           <input id="def-name-en" type="text" class="form-control" maxlength="200" required lang="en"
                  [attr.aria-invalid]="hasError('def-name-en')" [(ngModel)]="form.nameEn" [ngModelOptions]="{ standalone: true }" />
         </div>
-        <div class="col-md-6">
+        <div class="col-12 col-lg-4">
+          <label for="def-name-pt" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.namePt' | transloco }}</label>
+          <input id="def-name-pt" type="text" class="form-control" maxlength="200" required lang="pt-BR"
+                 [attr.aria-invalid]="hasError('def-name-pt')" [(ngModel)]="form.namePt" [ngModelOptions]="{ standalone: true }" />
+        </div>
+        <div class="col-12 col-lg-4">
           <label for="def-description-es" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.descriptionEs' | transloco }}</label>
           <textarea id="def-description-es" class="form-control" rows="2" maxlength="1000" lang="es" [(ngModel)]="form.descriptionEs" [ngModelOptions]="{ standalone: true }"></textarea>
         </div>
-        <div class="col-md-6">
+        <div class="col-12 col-lg-4">
           <label for="def-description-en" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.descriptionEn' | transloco }}</label>
           <textarea id="def-description-en" class="form-control" rows="2" maxlength="1000" lang="en" [(ngModel)]="form.descriptionEn" [ngModelOptions]="{ standalone: true }"></textarea>
+        </div>
+        <div class="col-12 col-lg-4">
+          <label for="def-description-pt" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.descriptionPt' | transloco }}</label>
+          <textarea id="def-description-pt" class="form-control" rows="2" maxlength="1000" lang="pt-BR" [(ngModel)]="form.descriptionPt" [ngModelOptions]="{ standalone: true }"></textarea>
         </div>
         <div class="col-md-6">
           <label for="def-action" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.general.action' | transloco }}</label>
@@ -183,20 +194,27 @@
               </select>
             </div>
             <div class="col-md-3">
-              <label [for]="'def-field-' + i + '-label-es'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.labelEs' | transloco }}</label>
-              <input type="text" class="form-control form-control-sm" maxlength="200" required lang="es" [id]="'def-field-' + i + '-label-es'"
-                     [attr.aria-invalid]="hasError('def-field-' + i + '-label-es')" [(ngModel)]="field.labelEs" [ngModelOptions]="{ standalone: true }" />
-            </div>
-            <div class="col-md-3">
-              <label [for]="'def-field-' + i + '-label-en'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.labelEn' | transloco }}</label>
-              <input type="text" class="form-control form-control-sm" maxlength="200" required lang="en" [id]="'def-field-' + i + '-label-en'"
-                     [attr.aria-invalid]="hasError('def-field-' + i + '-label-en')" [(ngModel)]="field.labelEn" [ngModelOptions]="{ standalone: true }" />
-            </div>
-            <div class="col-md-3">
               <div class="form-check mt-md-4">
                 <input type="checkbox" class="form-check-input" [id]="'def-field-' + i + '-required'" [(ngModel)]="field.required" [ngModelOptions]="{ standalone: true }" />
                 <label [for]="'def-field-' + i + '-required'" class="form-check-label small">{{ 'admin.serviceDefinitions.editor.fields.required' | transloco }}</label>
               </div>
+            </div>
+            <!-- Etiquetas en ES, EN y PT -->
+            <div class="w-100 mt-0"></div>
+            <div class="col-12 col-lg-4">
+              <label [for]="'def-field-' + i + '-label-es'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.labelEs' | transloco }}</label>
+              <input type="text" class="form-control form-control-sm" maxlength="200" required lang="es" [id]="'def-field-' + i + '-label-es'"
+                     [attr.aria-invalid]="hasError('def-field-' + i + '-label-es')" [(ngModel)]="field.labelEs" [ngModelOptions]="{ standalone: true }" />
+            </div>
+            <div class="col-12 col-lg-4">
+              <label [for]="'def-field-' + i + '-label-en'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.labelEn' | transloco }}</label>
+              <input type="text" class="form-control form-control-sm" maxlength="200" required lang="en" [id]="'def-field-' + i + '-label-en'"
+                     [attr.aria-invalid]="hasError('def-field-' + i + '-label-en')" [(ngModel)]="field.labelEn" [ngModelOptions]="{ standalone: true }" />
+            </div>
+            <div class="col-12 col-lg-4">
+              <label [for]="'def-field-' + i + '-label-pt'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.labelPt' | transloco }}</label>
+              <input type="text" class="form-control form-control-sm" maxlength="200" required lang="pt-BR" [id]="'def-field-' + i + '-label-pt'"
+                     [attr.aria-invalid]="hasError('def-field-' + i + '-label-pt')" [(ngModel)]="field.labelPt" [ngModelOptions]="{ standalone: true }" />
             </div>
             @if (field.type === 'text' || field.type === 'textarea') {
               <div class="col-md-3">
@@ -223,15 +241,22 @@
                 </div>
               </div>
             }
-            <div class="col-md-6">
+            <!-- Ayudas en ES, EN y PT -->
+            <div class="w-100 mt-0"></div>
+            <div class="col-12 col-lg-4">
               <label [for]="'def-field-' + i + '-help-es'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.helpEs' | transloco }}</label>
               <input type="text" class="form-control form-control-sm" maxlength="500" lang="es" [id]="'def-field-' + i + '-help-es'"
                      [(ngModel)]="field.helpEs" [ngModelOptions]="{ standalone: true }" />
             </div>
-            <div class="col-md-6">
+            <div class="col-12 col-lg-4">
               <label [for]="'def-field-' + i + '-help-en'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.helpEn' | transloco }}</label>
               <input type="text" class="form-control form-control-sm" maxlength="500" lang="en" [id]="'def-field-' + i + '-help-en'"
                      [(ngModel)]="field.helpEn" [ngModelOptions]="{ standalone: true }" />
+            </div>
+            <div class="col-12 col-lg-4">
+              <label [for]="'def-field-' + i + '-help-pt'" class="form-label small fw-semibold">{{ 'admin.serviceDefinitions.editor.fields.helpPt' | transloco }}</label>
+              <input type="text" class="form-control form-control-sm" maxlength="500" lang="pt-BR" [id]="'def-field-' + i + '-help-pt'"
+                     [(ngModel)]="field.helpPt" [ngModelOptions]="{ standalone: true }" />
             </div>
           </div>
 
@@ -249,6 +274,7 @@
                         <th scope="col">{{ 'admin.serviceDefinitions.editor.options.col.value' | transloco }}</th>
                         <th scope="col">{{ 'admin.serviceDefinitions.editor.options.col.labelEs' | transloco }}</th>
                         <th scope="col">{{ 'admin.serviceDefinitions.editor.options.col.labelEn' | transloco }}</th>
+                        <th scope="col">{{ 'admin.serviceDefinitions.editor.options.col.labelPt' | transloco }}</th>
                         <th scope="col"><span class="visually-hidden">{{ 'admin.serviceDefinitions.editor.options.col.actions' | transloco }}</span></th>
                       </tr>
                     </thead>
@@ -271,6 +297,12 @@
                             <input type="text" class="form-control form-control-sm" maxlength="200" lang="en" [id]="'def-field-' + i + '-option-' + j + '-label-en'"
                                    [attr.aria-label]="'admin.serviceDefinitions.editor.options.labelEnLabel' | transloco: { number: j + 1 }"
                                    [(ngModel)]="option.labelEn" [ngModelOptions]="{ standalone: true }" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control form-control-sm" maxlength="200" lang="pt-BR" [id]="'def-field-' + i + '-option-' + j + '-label-pt'"
+                                   [attr.aria-label]="'admin.serviceDefinitions.editor.options.labelPtLabel' | transloco: { number: j + 1 }"
+                                   [attr.aria-invalid]="hasError('def-field-' + i + '-option-' + j + '-label-pt')"
+                                   [(ngModel)]="option.labelPt" [ngModelOptions]="{ standalone: true }" />
                           </td>
                           <td>
                             <button type="button" class="btn btn-sm btn-outline-secondary" (click)="removeOption(field, i, j)"

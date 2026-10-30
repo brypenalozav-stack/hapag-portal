@@ -5,6 +5,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { AnnouncementService } from '../../../core/services/announcement.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { Announcement } from '../../../core/models/announcement.model';
+import { pickText } from '../../../core/i18n/localized-text';
 import { HlDatePipe } from '../../pipes/hl-date.pipe';
 
 /** Comunicados que se muestran en el dashboard; el resto queda en /announcements. */
@@ -60,6 +61,6 @@ export class AnnouncementsBannerComponent implements OnInit {
   }
 
   title(a: Announcement): string {
-    return this.locale.lang() === 'en' ? a.titleEn : a.titleEs;
+    return pickText(this.locale.lang(), { es: a.titleEs, en: a.titleEn, pt: a.titlePt });
   }
 }

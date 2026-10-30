@@ -23,6 +23,8 @@ interface GuideForm {
   nameEn: string;
   descriptionEs: string;
   descriptionEn: string;
+  namePt: string;
+  descriptionPt: string;
   route: string;
   audience: GuideAudience;
   isActive: boolean;
@@ -42,6 +44,7 @@ const SNAPSHOT_KEYS: Record<string, string> = {
   code: 'admin.guides.form.code',
   nameEs: 'admin.guides.form.nameEs',
   nameEn: 'admin.guides.form.nameEn',
+  namePt: 'admin.guides.form.namePt',
   route: 'admin.guides.form.route',
   audience: 'admin.guides.form.audience',
   isActive: 'admin.guides.form.active',
@@ -50,19 +53,19 @@ const SNAPSHOT_KEYS: Record<string, string> = {
 };
 
 function emptyStep(route: string, order: number): GuideStep {
-  return { order, route, elementKey: '', titleEs: '', titleEn: '', textEs: '', textEn: '' };
+  return { order, route, elementKey: '', titleEs: '', titleEn: '', textEs: '', textEn: '', titlePt: '', textPt: '' };
 }
 
 function emptyForm(): GuideForm {
   return {
-    code: '', nameEs: '', nameEn: '', descriptionEs: '', descriptionEn: '', route: '/', audience: 'Client', isActive: true,
+    code: '', nameEs: '', nameEn: '', descriptionEs: '', descriptionEn: '', namePt: '', descriptionPt: '', route: '/', audience: 'Client', isActive: true,
     displayOrder: 1, steps: [emptyStep('/', 1)],
   };
 }
 
 /**
  * Mantenedor de guías del portal (Fase 2, Ola I, M1-27; permiso `maintainers.manage`): pantalla, público y orden de
- * cada guía y sus pasos (ruta, elemento señalado con `data-guide-key` y textos en español e inglés). Cambiar los pasos
+ * cada guía y sus pasos (ruta, elemento señalado con `data-guide-key` y textos en español, inglés y portugués). Cambiar los pasos
  * sube la versión y la guía se vuelve a ofrecer a los usuarios. Registro de cambios según NF-15.
  */
 @Component({
@@ -135,8 +138,9 @@ export class GuidesAdminComponent implements OnInit {
     this.editing.set(g);
     this.form = {
       code: g.code, nameEs: g.nameEs, nameEn: g.nameEn, descriptionEs: g.descriptionEs ?? '', descriptionEn: g.descriptionEn ?? '',
+      namePt: g.namePt ?? '', descriptionPt: g.descriptionPt ?? '',
       route: g.route, audience: g.audience, isActive: g.isActive, displayOrder: g.displayOrder,
-      steps: [...g.steps].sort((a, b) => a.order - b.order).map((s) => ({ ...s })),
+      steps: [...g.steps].sort((a, b) => a.order - b.order).map((s) => ({ ...s, titlePt: s.titlePt ?? '', textPt: s.textPt ?? '' })),
     };
     this.openForm();
   }
@@ -186,6 +190,7 @@ export class GuidesAdminComponent implements OnInit {
     if (!this.editing() && !CODE.test(f.code.trim())) list.push({ fieldId: 'guide-code', key: 'admin.guides.form.errors.code' });
     if (!f.nameEs.trim()) list.push({ fieldId: 'guide-name-es', key: 'admin.guides.form.errors.nameEs' });
     if (!f.nameEn.trim()) list.push({ fieldId: 'guide-name-en', key: 'admin.guides.form.errors.nameEn' });
+    if (!f.namePt.trim()) list.push({ fieldId: 'guide-name-pt', key: 'admin.guides.form.errors.namePt' });
     if (!f.route.trim().startsWith('/')) list.push({ fieldId: 'guide-route', key: 'admin.guides.form.errors.route' });
     if (f.steps.length === 0) list.push({ fieldId: 'guide-add-step', key: 'admin.guides.form.errors.steps' });
     f.steps.forEach((s, i) => {
@@ -193,7 +198,9 @@ export class GuidesAdminComponent implements OnInit {
       if (!s.route.trim().startsWith('/')) list.push({ fieldId: `guide-step-route-${i}`, key: 'admin.guides.form.errors.stepRoute', params: n });
       if (!s.elementKey.trim()) list.push({ fieldId: `guide-step-key-${i}`, key: 'admin.guides.form.errors.stepKey', params: n });
       if (!s.titleEs.trim() || !s.titleEn.trim()) list.push({ fieldId: `guide-step-title-es-${i}`, key: 'admin.guides.form.errors.stepTitle', params: n });
+      if (!s.titlePt?.trim()) list.push({ fieldId: `guide-step-title-pt-${i}`, key: 'admin.guides.form.errors.stepTitlePt', params: n });
       if (!s.textEs.trim() || !s.textEn.trim()) list.push({ fieldId: `guide-step-text-es-${i}`, key: 'admin.guides.form.errors.stepText', params: n });
+      if (!s.textPt?.trim()) list.push({ fieldId: `guide-step-text-pt-${i}`, key: 'admin.guides.form.errors.stepTextPt', params: n });
     });
     return list;
   }
@@ -216,6 +223,8 @@ export class GuidesAdminComponent implements OnInit {
       nameEn: f.nameEn.trim(),
       descriptionEs: f.descriptionEs.trim() || null,
       descriptionEn: f.descriptionEn.trim() || null,
+      namePt: f.namePt.trim(),
+      descriptionPt: f.descriptionPt.trim() || null,
       route: f.route.trim(),
       audience: f.audience,
       isActive: f.isActive,
@@ -223,6 +232,7 @@ export class GuidesAdminComponent implements OnInit {
       steps: f.steps.map((s, i) => ({
         order: i + 1, route: s.route.trim(), elementKey: s.elementKey.trim(),
         titleEs: s.titleEs.trim(), titleEn: s.titleEn.trim(), textEs: s.textEs.trim(), textEn: s.textEn.trim(),
+        titlePt: (s.titlePt ?? '').trim(), textPt: (s.textPt ?? '').trim(),
       })),
     };
     this.saving.set(true);

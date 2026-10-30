@@ -2,6 +2,7 @@ import { Component, DestroyRef, computed, effect, inject, input, signal, untrack
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { pickText } from '../../../core/i18n/localized-text';
 import { ServiceRequestService } from '../../../core/services/service-request.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { AvailableService, AvailableServices } from '../../../core/models/service-request.model';
@@ -17,7 +18,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
-import { localized, serviceErrorMessage } from '../shared/service-text';
+import { serviceErrorMessage } from '../shared/service-text';
 
 /**
  * Servicios on demand de un BL o booking (M2-03, M2-04): los que el usuario puede ver según su rol en el embarque
@@ -94,11 +95,11 @@ export class AvailableServicesComponent {
   }
 
   name(s: AvailableService): string {
-    return localized(this.locale.lang(), s.nameEs, s.nameEn);
+    return pickText(this.locale.lang(), { es: s.nameEs, en: s.nameEn, pt: s.namePt });
   }
 
   description(s: AvailableService): string {
-    return localized(this.locale.lang(), s.descriptionEs, s.descriptionEn);
+    return pickText(this.locale.lang(), { es: s.descriptionEs, en: s.descriptionEn, pt: s.descriptionPt });
   }
 
   /** Parámetros de la solicitud: el servicio se pide con el booking si la definición lo indica (M3-07, M3-15). */

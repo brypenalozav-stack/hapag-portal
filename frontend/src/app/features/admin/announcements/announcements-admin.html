@@ -25,25 +25,36 @@
       <div class="alert alert-danger py-2" role="alert">{{ saveError() }}</div>
     }
     <div class="row g-3 mb-3">
-      <div class="col-md-6">
+      <!-- Textos en ES, EN y PT: tres columnas en pantallas grandes, apilados en las angostas -->
+      <div class="col-12 col-lg-4">
         <label for="announcement-title-es" class="form-label small fw-semibold">{{ 'admin.announcements.form.titleEs' | transloco }}</label>
         <input id="announcement-title-es" type="text" class="form-control" lang="es" required maxlength="200" [attr.aria-invalid]="hasError('announcement-title-es')"
                [(ngModel)]="form.titleEs" [ngModelOptions]="{ standalone: true }" />
       </div>
-      <div class="col-md-6">
+      <div class="col-12 col-lg-4">
         <label for="announcement-title-en" class="form-label small fw-semibold">{{ 'admin.announcements.form.titleEn' | transloco }}</label>
         <input id="announcement-title-en" type="text" class="form-control" lang="en" required maxlength="200" [attr.aria-invalid]="hasError('announcement-title-en')"
                [(ngModel)]="form.titleEn" [ngModelOptions]="{ standalone: true }" />
       </div>
-      <div class="col-md-6">
+      <div class="col-12 col-lg-4">
+        <label for="announcement-title-pt" class="form-label small fw-semibold">{{ 'admin.announcements.form.titlePt' | transloco }}</label>
+        <input id="announcement-title-pt" type="text" class="form-control" lang="pt-BR" required maxlength="200" [attr.aria-invalid]="hasError('announcement-title-pt')"
+               [(ngModel)]="form.titlePt" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-12 col-lg-4">
         <label for="announcement-body-es" class="form-label small fw-semibold">{{ 'admin.announcements.form.bodyEs' | transloco }}</label>
         <textarea id="announcement-body-es" class="form-control" rows="4" lang="es" required maxlength="4000" [attr.aria-invalid]="hasError('announcement-body-es')"
                   [(ngModel)]="form.bodyEs" [ngModelOptions]="{ standalone: true }"></textarea>
       </div>
-      <div class="col-md-6">
+      <div class="col-12 col-lg-4">
         <label for="announcement-body-en" class="form-label small fw-semibold">{{ 'admin.announcements.form.bodyEn' | transloco }}</label>
         <textarea id="announcement-body-en" class="form-control" rows="4" lang="en" required maxlength="4000" [attr.aria-invalid]="hasError('announcement-body-en')"
                   [(ngModel)]="form.bodyEn" [ngModelOptions]="{ standalone: true }"></textarea>
+      </div>
+      <div class="col-12 col-lg-4">
+        <label for="announcement-body-pt" class="form-label small fw-semibold">{{ 'admin.announcements.form.bodyPt' | transloco }}</label>
+        <textarea id="announcement-body-pt" class="form-control" rows="4" lang="pt-BR" required maxlength="4000" [attr.aria-invalid]="hasError('announcement-body-pt')"
+                  [(ngModel)]="form.bodyPt" [ngModelOptions]="{ standalone: true }"></textarea>
       </div>
       <div class="col-md-4">
         <fieldset aria-describedby="announcement-countries-help">
@@ -109,15 +120,20 @@
       <section class="border rounded p-3 mb-3" aria-labelledby="announcement-preview-title" data-testid="announcement-preview">
         <h3 #previewHeading id="announcement-preview-title" class="h6 fw-bold" tabindex="-1">{{ 'admin.announcements.form.previewTitle' | transloco }}</h3>
         <div class="row g-3">
-          <div class="col-md-6" lang="es">
+          <div class="col-12 col-lg-4" lang="es">
             <p class="small text-muted mb-1">{{ 'admin.announcements.form.previewEs' | transloco }}</p>
             <p class="fw-bold mb-1">{{ form.titleEs || ('admin.announcements.form.previewEmpty' | transloco) }}</p>
             <p class="hl-preview__body small mb-0">{{ form.bodyEs }}</p>
           </div>
-          <div class="col-md-6" lang="en">
+          <div class="col-12 col-lg-4" lang="en">
             <p class="small text-muted mb-1">{{ 'admin.announcements.form.previewEn' | transloco }}</p>
             <p class="fw-bold mb-1">{{ form.titleEn || ('admin.announcements.form.previewEmpty' | transloco) }}</p>
             <p class="hl-preview__body small mb-0">{{ form.bodyEn }}</p>
+          </div>
+          <div class="col-12 col-lg-4" lang="pt-BR">
+            <p class="small text-muted mb-1">{{ 'admin.announcements.form.previewPt' | transloco }}</p>
+            <p class="fw-bold mb-1">{{ form.titlePt || ('admin.announcements.form.previewEmpty' | transloco) }}</p>
+            <p class="hl-preview__body small mb-0">{{ form.bodyPt }}</p>
           </div>
         </div>
         <p class="small mb-0 mt-2">{{ 'announcementsView.segment' | transloco: { countries: previewCountries(), operation: (form.operation | codeLabel: operationKeys) } }}</p>
@@ -189,6 +205,9 @@
               <td>
                 <span class="fw-semibold d-block" lang="es">{{ a.titleEs }}</span>
                 <span class="small text-muted d-block" lang="en">{{ a.titleEn }}</span>
+                @if (a.titlePt) {
+                  <span class="small text-muted d-block" lang="pt-BR">{{ a.titlePt }}</span>
+                }
                 @if (a.severity === 'Important') {
                   <span class="hl-badge hl-badge--pending">{{ a.severity | codeLabel: severityKeys }}</span>
                 }

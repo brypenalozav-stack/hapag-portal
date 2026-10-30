@@ -55,21 +55,30 @@
           <label for="guide-active" class="form-check-label">{{ 'admin.guides.form.active' | transloco }}</label>
         </div>
       </div>
-      <div class="col-md-6">
+      <!-- Textos en ES, EN y PT: tres columnas en pantallas grandes, apilados en las angostas -->
+      <div class="col-12 col-lg-4">
         <label for="guide-name-es" class="form-label small fw-semibold">{{ 'admin.guides.form.nameEs' | transloco }}</label>
         <input id="guide-name-es" type="text" class="form-control" lang="es" required [attr.aria-invalid]="hasError('guide-name-es')" [(ngModel)]="form.nameEs" [ngModelOptions]="{ standalone: true }" />
       </div>
-      <div class="col-md-6">
+      <div class="col-12 col-lg-4">
         <label for="guide-name-en" class="form-label small fw-semibold">{{ 'admin.guides.form.nameEn' | transloco }}</label>
         <input id="guide-name-en" type="text" class="form-control" lang="en" required [attr.aria-invalid]="hasError('guide-name-en')" [(ngModel)]="form.nameEn" [ngModelOptions]="{ standalone: true }" />
       </div>
-      <div class="col-md-6">
+      <div class="col-12 col-lg-4">
+        <label for="guide-name-pt" class="form-label small fw-semibold">{{ 'admin.guides.form.namePt' | transloco }}</label>
+        <input id="guide-name-pt" type="text" class="form-control" lang="pt-BR" required [attr.aria-invalid]="hasError('guide-name-pt')" [(ngModel)]="form.namePt" [ngModelOptions]="{ standalone: true }" />
+      </div>
+      <div class="col-12 col-lg-4">
         <label for="guide-description-es" class="form-label small fw-semibold">{{ 'admin.guides.form.descriptionEs' | transloco }}</label>
         <textarea id="guide-description-es" class="form-control" rows="2" lang="es" [(ngModel)]="form.descriptionEs" [ngModelOptions]="{ standalone: true }"></textarea>
       </div>
-      <div class="col-md-6">
+      <div class="col-12 col-lg-4">
         <label for="guide-description-en" class="form-label small fw-semibold">{{ 'admin.guides.form.descriptionEn' | transloco }}</label>
         <textarea id="guide-description-en" class="form-control" rows="2" lang="en" [(ngModel)]="form.descriptionEn" [ngModelOptions]="{ standalone: true }"></textarea>
+      </div>
+      <div class="col-12 col-lg-4">
+        <label for="guide-description-pt" class="form-label small fw-semibold">{{ 'admin.guides.form.descriptionPt' | transloco }}</label>
+        <textarea id="guide-description-pt" class="form-control" rows="2" lang="pt-BR" [(ngModel)]="form.descriptionPt" [ngModelOptions]="{ standalone: true }"></textarea>
       </div>
     </div>
 
@@ -100,23 +109,33 @@
                 <button type="button" class="btn btn-sm btn-outline-secondary" (click)="removeStep(i)"
                         [attr.aria-label]="'admin.guides.form.removeStepLabel' | transloco: { number: i + 1 }">{{ 'admin.guides.form.removeStep' | transloco }}</button>
               </div>
-              <div class="col-md-6">
+              <div class="col-12 col-lg-4">
                 <label class="form-label small fw-semibold" [for]="'guide-step-title-es-' + i">{{ 'admin.guides.form.stepTitleEs' | transloco }}</label>
                 <input type="text" class="form-control form-control-sm" lang="es" [id]="'guide-step-title-es-' + i" [attr.aria-invalid]="hasError('guide-step-title-es-' + i)"
                        [(ngModel)]="step.titleEs" [ngModelOptions]="{ standalone: true }" />
               </div>
-              <div class="col-md-6">
+              <div class="col-12 col-lg-4">
                 <label class="form-label small fw-semibold" [for]="'guide-step-title-en-' + i">{{ 'admin.guides.form.stepTitleEn' | transloco }}</label>
                 <input type="text" class="form-control form-control-sm" lang="en" [id]="'guide-step-title-en-' + i" [(ngModel)]="step.titleEn" [ngModelOptions]="{ standalone: true }" />
               </div>
-              <div class="col-md-6">
+              <div class="col-12 col-lg-4">
+                <label class="form-label small fw-semibold" [for]="'guide-step-title-pt-' + i">{{ 'admin.guides.form.stepTitlePt' | transloco }}</label>
+                <input type="text" class="form-control form-control-sm" lang="pt-BR" [id]="'guide-step-title-pt-' + i" [attr.aria-invalid]="hasError('guide-step-title-pt-' + i)"
+                       [(ngModel)]="step.titlePt" [ngModelOptions]="{ standalone: true }" />
+              </div>
+              <div class="col-12 col-lg-4">
                 <label class="form-label small fw-semibold" [for]="'guide-step-text-es-' + i">{{ 'admin.guides.form.stepTextEs' | transloco }}</label>
                 <textarea class="form-control form-control-sm" rows="2" lang="es" [id]="'guide-step-text-es-' + i" [attr.aria-invalid]="hasError('guide-step-text-es-' + i)"
                           [(ngModel)]="step.textEs" [ngModelOptions]="{ standalone: true }"></textarea>
               </div>
-              <div class="col-md-6">
+              <div class="col-12 col-lg-4">
                 <label class="form-label small fw-semibold" [for]="'guide-step-text-en-' + i">{{ 'admin.guides.form.stepTextEn' | transloco }}</label>
                 <textarea class="form-control form-control-sm" rows="2" lang="en" [id]="'guide-step-text-en-' + i" [(ngModel)]="step.textEn" [ngModelOptions]="{ standalone: true }"></textarea>
+              </div>
+              <div class="col-12 col-lg-4">
+                <label class="form-label small fw-semibold" [for]="'guide-step-text-pt-' + i">{{ 'admin.guides.form.stepTextPt' | transloco }}</label>
+                <textarea class="form-control form-control-sm" rows="2" lang="pt-BR" [id]="'guide-step-text-pt-' + i" [attr.aria-invalid]="hasError('guide-step-text-pt-' + i)"
+                          [(ngModel)]="step.textPt" [ngModelOptions]="{ standalone: true }"></textarea>
               </div>
             </div>
           </fieldset>
@@ -163,6 +182,9 @@
               <td>
                 <span class="fw-semibold d-block" lang="es">{{ g.nameEs }}</span>
                 <span class="small text-muted d-block" lang="en">{{ g.nameEn }}</span>
+                @if (g.namePt) {
+                  <span class="small text-muted d-block" lang="pt-BR">{{ g.namePt }}</span>
+                }
                 <span class="small">{{ g.code }}</span>
               </td>
               <td><span class="font-monospace">{{ g.route }}</span></td>
