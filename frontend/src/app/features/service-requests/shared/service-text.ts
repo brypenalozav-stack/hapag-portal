@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { translate } from '@jsverse/transloco';
 import { apiErrorKey } from '../../../core/http/api-error';
 import { SERVICE_REQUEST_ERRORS } from '../../../core/i18n/labels';
+import { pickText } from '../../../core/i18n/localized-text';
 import {
   OUTPUT_FIELD_KEY,
   SERVICE_FORM_LIMITS,
@@ -11,20 +12,12 @@ import {
 } from '../../../core/models/service-request.model';
 import { isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 
-/** Idioma de la interfaz: los textos configurados en el mantenedor llegan en español e inglés. */
-export type ServiceLang = 'es' | 'en';
-
-/** Texto en el idioma activo; si falta en inglés, se usa el español. */
-export function localized(lang: string, es: string | null | undefined, en: string | null | undefined): string {
-  return (lang === 'en' ? en || es : es || en) ?? '';
-}
-
 export function fieldLabel(field: ServiceInputField, lang: string): string {
-  return localized(lang, field.labelEs, field.labelEn);
+  return pickText(lang, { es: field.labelEs, en: field.labelEn, pt: field.labelPt });
 }
 
 export function fieldHelp(field: ServiceInputField, lang: string): string {
-  return localized(lang, field.helpEs, field.helpEn);
+  return pickText(lang, { es: field.helpEs, en: field.helpEn, pt: field.helpPt });
 }
 
 /** Largo máximo de un texto: el del campo o el que aplica el servidor por defecto. */
@@ -38,7 +31,7 @@ export function displayValue(field: ServiceInputField, value: ServiceInputValue 
   if (Array.isArray(value)) return value.join(', ');
   if (field.type === 'select') {
     const option = (field.options ?? []).find((o) => o.value === value);
-    return option ? localized(lang, option.labelEs, option.labelEn) : String(value);
+    return option ? pickText(lang, { es: option.labelEs, en: option.labelEn, pt: option.labelPt }) : String(value);
   }
   return String(value);
 }

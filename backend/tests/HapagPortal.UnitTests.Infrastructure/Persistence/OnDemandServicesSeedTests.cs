@@ -97,6 +97,26 @@ public sealed class OnDemandServicesSeedTests : IDisposable
     }
 
     [Fact]
+    public async Task Definitions_ShouldHavePortugueseNamesAndFieldLabels()
+    {
+        var definitions = await _context.ServiceDefinitions.AsNoTracking().ToListAsync();
+
+        definitions.Should().HaveCount(14);
+        foreach (var definition in definitions)
+        {
+            definition.NamePt.Should().NotBeNullOrWhiteSpace(definition.Code);
+            definition.DescriptionPt.Should().NotBeNullOrWhiteSpace(definition.Code);
+            foreach (var field in ServiceInputSchema.Parse(definition.InputSchemaJson)!)
+            {
+                field.LabelPt.Should().NotBeNullOrWhiteSpace($"{definition.Code}.{field.Key}");
+                (field.Options ?? []).Should().NotContain(o => string.IsNullOrWhiteSpace(o.LabelPt), $"{definition.Code}.{field.Key}");
+            }
+        }
+
+        definitions.Single(d => d.Code == ServiceDefinitionCodes.ReleaseLetter).NamePt.Should().Be("Carta de liberação e desova");
+    }
+
+    [Fact]
     public async Task DemoRequests_ShouldCoverEveryStateWithAConsistentTimeline()
     {
         var requests = await _context.ServiceRequests.AsNoTracking().ToListAsync();

@@ -1,0 +1,12 @@
+{
+  "terminosSinChequeo": {
+    "Cobro / Cargo": "Ambiguo en español: \"a cargo de\" y \"cargo\" como puesto no son cobros.",
+    "Iniciar sesión / Cerrar sesión": "pt usa \"Entrar\" y \"Sair\" en varias construcciones.",
+    "Liberado": "Adjetivo genérico.",
+    "Persona natural / Empresa": "\"empresa\" aparece en 40 claves con el sentido común (correos de ejemplo, \"empresa matriz\"), no como tipo de persona.",
+    "Aduana": "El pt correcto cambia según el contexto (alfândega, despacho aduaneiro, Receita Federal).",
+    "Bandeja de notificaciones": "La frase no aparece en es.json; \"bandeja\" sola es una cola de trabajo, no la bandeja de notificaciones.",
+    "Cierre de recepción": "Término de referencia sin uso actual en la interfaz."
+  },
+  "claves": {}
+}

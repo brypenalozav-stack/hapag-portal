@@ -55,7 +55,9 @@
       </div>
       <script>
         try {
-          if (window.localStorage.getItem('hl_lang') === 'en') document.getElementById('hl-boot-text').textContent = 'Loading portal...';
+          var lang = window.localStorage.getItem('hl_lang');
+          var text = lang === 'en' ? 'Loading portal...' : lang === 'pt' ? 'Carregando portal...' : null;
+          if (text) document.getElementById('hl-boot-text').textContent = text;
         } catch (e) {
           // Sin almacenamiento disponible: queda el texto en español.
         }

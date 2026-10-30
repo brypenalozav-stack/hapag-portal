@@ -1,7 +1,7 @@
 // Verifica los textos de public/i18n (guía UI/a11y/i18n §5.6):
-//  - mismas claves en es.json y en.json;
+//  - mismas claves en es.json, en.json y pt.json;
 //  - ningún valor vacío ni que no sea texto;
-//  - mismos parámetros ({{ x }} y argumentos ICU) en ambos idiomas;
+//  - mismos parámetros ({{ x }} y argumentos ICU) en los tres idiomas;
 //  - mensajes ICU válidos (se compilan con @messageformat/core, como en tiempo de ejecución);
 //  - ninguna clave usada en src/app (plantillas y TypeScript) que no exista.
 // Las claves sin uso se informan como aviso. Termina con código 1 si hay errores.
@@ -13,7 +13,7 @@ import MessageFormat from '@messageformat/core';
 const RAIZ = fileURLToPath(new URL('..', import.meta.url));
 const I18N = join(RAIZ, 'public', 'i18n');
 const APP = join(RAIZ, 'src', 'app');
-const IDIOMAS = ['es', 'en'];
+const IDIOMAS = ['es', 'en', 'pt'];
 const REFERENCIA = 'es';
 
 const errores = [];

@@ -215,8 +215,8 @@ internal static class ReportRules
     {
         validator.RuleFor(x => format(x)).Must(f => f is null || ReportExportFormats.All.Contains(f))
             .WithName("Format").WithMessage("Format must be xlsx or csv.");
-        validator.RuleFor(x => language(x)).Must(l => l is null || l is "es" or "en")
-            .WithName("Language").WithMessage("Language must be es or en.");
+        validator.RuleFor(x => language(x)).Must(ExportLanguages.IsValid)
+            .WithName("Language").WithMessage(ExportLanguages.ValidationMessage);
     }
 
     /// <summary>Rango de fechas locales (por defecto, del primer día del mes a hoy) y su equivalente en UTC.</summary>
@@ -600,17 +600,10 @@ public sealed class ExportTransactionReportQueryHandler(TransactionReportBuilder
             new TransactionReportFilter(request.From, request.To, request.Country, request.Category, request.Service, request.Currency,
                 request.OrganizationId, request.BlNumber),
             cancellationToken);
-        var english = request.Language == "en";
-        var name = $"{(english ? "transactions" : "transacciones")}-{window.From:yyyyMMdd}-{window.To:yyyyMMdd}";
+        var texts = TransactionReportTexts.For(request.Language);
+        var name = $"{texts.FilePrefix}-{window.From:yyyyMMdd}-{window.To:yyyyMMdd}";
 
-        var lines = new List<IReadOnlyList<object?>>
-        {
-            english
-                ? ["Confirmed at", "Payment", "Receipt", "Country", "Origin", "Method", "Customer", "Tax ID", "On behalf of", "BL", "Booking",
-                    "Category", "Service", "Service name", "Concept", "Description", "Billing tax ID", "Service request", "Currency", "Net", "Tax", "Total"]
-                : ["Confirmado", "Pago", "Comprobante", "País", "Origen", "Medio", "Cliente", "RUT/NIT", "Por cuenta de", "BL", "Booking",
-                    "Categoría", "Servicio", "Nombre del servicio", "Concepto", "Descripción", "RUT de facturación", "Solicitud", "Moneda", "Neto", "Impuesto", "Total"]
-        };
+        var lines = new List<IReadOnlyList<object?>> { texts.Headers };
         lines.AddRange(rows.Select(r => (IReadOnlyList<object?>)
         [
             r.ConfirmedAt, r.PaymentNumber, r.ReceiptNumber, r.Country, r.Origin, r.PaymentMethodCode, r.Organization?.Name, r.Organization?.TaxId,
@@ -621,19 +614,14 @@ public sealed class ExportTransactionReportQueryHandler(TransactionReportBuilder
         if (request.Format == ReportExportFormats.Csv)
             return Result<ReportFileDto>.Success(new ReportFileDto(SpreadsheetWriter.ToCsv(lines), SpreadsheetWriter.CsvContentType, $"{name}.csv"));
 
-        var summary = new List<IReadOnlyList<object?>>
-        {
-            english
-                ? ["Category", "Service", "Service name", "Currency", "Transactions", "Items", "Net", "Tax", "Total"]
-                : ["Categoría", "Servicio", "Nombre del servicio", "Moneda", "Transacciones", "Ítems", "Neto", "Impuesto", "Total"]
-        };
+        var summary = new List<IReadOnlyList<object?>> { texts.SummaryHeaders };
         summary.AddRange(TransactionReportBuilder.Summarize(rows).Select(s => (IReadOnlyList<object?>)
             [s.Category, s.Service, s.ServiceName, s.Currency, s.Transactions, s.Items, s.Amount, s.TaxAmount, s.Total]));
 
         var sheets = new List<SpreadsheetSheet>
         {
-            new(english ? "Transactions" : "Transacciones", lines),
-            new(english ? "By service" : "Por servicio", summary)
+            new(texts.Sheet, lines),
+            new(texts.SummarySheet, summary)
         };
         return Result<ReportFileDto>.Success(new ReportFileDto(SpreadsheetWriter.ToXlsx(sheets), SpreadsheetWriter.XlsxContentType, $"{name}.xlsx"));
     }
@@ -647,17 +635,10 @@ public sealed class ExportExceptionReportQueryHandler(TransactionReportBuilder b
         var (rows, _, window) = await builder.ExceptionsAsync(
             new ExceptionReportFilter(request.From, request.To, request.Country, request.Type, request.OrganizationId, request.BlNumber),
             cancellationToken);
-        var english = request.Language == "en";
-        var name = $"{(english ? "exceptions" : "excepciones")}-{window.From:yyyyMMdd}-{window.To:yyyyMMdd}";
+        var texts = ExceptionReportTexts.For(request.Language);
+        var name = $"{texts.FilePrefix}-{window.From:yyyyMMdd}-{window.To:yyyyMMdd}";
 
-        var lines = new List<IReadOnlyList<object?>>
-        {
-            english
-                ? ["Type", "Date", "Country", "BL", "Booking", "Customer", "Customer tax ID", "Party tax ID", "Exempt party", "Concept", "Currency",
-                    "Amount", "Source", "Reference", "Detail"]
-                : ["Tipo", "Fecha", "País", "BL", "Booking", "Cliente", "RUT/NIT cliente", "RUT/NIT de la figura", "Figura exenta", "Concepto", "Moneda",
-                    "Monto", "Origen", "Referencia", "Detalle"]
-        };
+        var lines = new List<IReadOnlyList<object?>> { texts.Headers };
         lines.AddRange(rows.Select(r => (IReadOnlyList<object?>)
         [
             r.Type, r.OccurredAt, r.Country, r.BlNumber, r.BookingNumber, r.Organization?.Name, r.Organization?.TaxId, r.PartyTaxId, r.ExemptParty,
@@ -667,17 +648,85 @@ public sealed class ExportExceptionReportQueryHandler(TransactionReportBuilder b
         if (request.Format == ReportExportFormats.Csv)
             return Result<ReportFileDto>.Success(new ReportFileDto(SpreadsheetWriter.ToCsv(lines), SpreadsheetWriter.CsvContentType, $"{name}.csv"));
 
-        var summary = new List<IReadOnlyList<object?>>
-        {
-            english ? ["Type", "Currency", "Count", "Amount"] : ["Tipo", "Moneda", "Cantidad", "Monto"]
-        };
+        var summary = new List<IReadOnlyList<object?>> { texts.SummaryHeaders };
         summary.AddRange(TransactionReportBuilder.Summarize(rows).Select(s => (IReadOnlyList<object?>)[s.Type, s.Currency, s.Count, s.Amount]));
 
         var sheets = new List<SpreadsheetSheet>
         {
-            new(english ? "Exceptions" : "Excepciones", lines),
-            new(english ? "Summary" : "Resumen", summary)
+            new(texts.Sheet, lines),
+            new(texts.SummarySheet, summary)
         };
         return Result<ReportFileDto>.Success(new ReportFileDto(SpreadsheetWriter.ToXlsx(sheets), SpreadsheetWriter.XlsxContentType, $"{name}.xlsx"));
     }
+}
+
+/// <summary>Textos de la planilla de transacciones por servicio (M9-01) por idioma: prefijo del archivo, hojas y encabezados.</summary>
+public sealed record TransactionReportTexts(
+    string FilePrefix,
+    string Sheet,
+    string SummarySheet,
+    IReadOnlyList<string> Headers,
+    IReadOnlyList<string> SummaryHeaders)
+{
+    public static readonly TransactionReportTexts Spanish = new(
+        "transacciones", "Transacciones", "Por servicio",
+        ["Confirmado", "Pago", "Comprobante", "País", "Origen", "Medio", "Cliente", "RUT/NIT", "Por cuenta de", "BL", "Booking",
+            "Categoría", "Servicio", "Nombre del servicio", "Concepto", "Descripción", "RUT de facturación", "Solicitud", "Moneda", "Neto", "Impuesto", "Total"],
+        ["Categoría", "Servicio", "Nombre del servicio", "Moneda", "Transacciones", "Ítems", "Neto", "Impuesto", "Total"]);
+
+    public static readonly TransactionReportTexts English = new(
+        "transactions", "Transactions", "By service",
+        ["Confirmed at", "Payment", "Receipt", "Country", "Origin", "Method", "Customer", "Tax ID", "On behalf of", "BL", "Booking",
+            "Category", "Service", "Service name", "Concept", "Description", "Billing tax ID", "Service request", "Currency", "Net", "Tax", "Total"],
+        ["Category", "Service", "Service name", "Currency", "Transactions", "Items", "Net", "Tax", "Total"]);
+
+    public static readonly TransactionReportTexts Portuguese = new(
+        "transacoes", "Transações", "Por serviço",
+        ["Confirmado em", "Pagamento", "Comprovante", "País", "Origem", "Forma de pagamento", "Cliente", "ID fiscal (RUT/NIT)", "Por conta de", "BL",
+            "Booking", "Categoria", "Serviço", "Nome do serviço", "Conceito", "Descrição", "ID fiscal de faturamento", "Solicitação", "Moeda",
+            "Valor líquido", "Imposto", "Total"],
+        ["Categoria", "Serviço", "Nome do serviço", "Moeda", "Transações", "Itens", "Valor líquido", "Imposto", "Total"]);
+
+    /// <summary>Textos del idioma pedido; sin idioma, español.</summary>
+    public static TransactionReportTexts For(string? language) => ExportLanguages.Of(language) switch
+    {
+        ExportLanguages.En => English,
+        ExportLanguages.Pt => Portuguese,
+        _ => Spanish
+    };
+}
+
+/// <summary>Textos de la planilla de excepciones aplicadas (M9-01) por idioma: prefijo del archivo, hojas y encabezados.</summary>
+public sealed record ExceptionReportTexts(
+    string FilePrefix,
+    string Sheet,
+    string SummarySheet,
+    IReadOnlyList<string> Headers,
+    IReadOnlyList<string> SummaryHeaders)
+{
+    public static readonly ExceptionReportTexts Spanish = new(
+        "excepciones", "Excepciones", "Resumen",
+        ["Tipo", "Fecha", "País", "BL", "Booking", "Cliente", "RUT/NIT cliente", "RUT/NIT de la figura", "Figura exenta", "Concepto", "Moneda",
+            "Monto", "Origen", "Referencia", "Detalle"],
+        ["Tipo", "Moneda", "Cantidad", "Monto"]);
+
+    public static readonly ExceptionReportTexts English = new(
+        "exceptions", "Exceptions", "Summary",
+        ["Type", "Date", "Country", "BL", "Booking", "Customer", "Customer tax ID", "Party tax ID", "Exempt party", "Concept", "Currency",
+            "Amount", "Source", "Reference", "Detail"],
+        ["Type", "Currency", "Count", "Amount"]);
+
+    public static readonly ExceptionReportTexts Portuguese = new(
+        "excecoes", "Exceções", "Resumo",
+        ["Tipo", "Data", "País", "BL", "Booking", "Cliente", "ID fiscal do cliente", "ID fiscal da parte", "Parte isenta", "Conceito", "Moeda",
+            "Valor", "Origem", "Referência", "Detalhe"],
+        ["Tipo", "Moeda", "Quantidade", "Valor"]);
+
+    /// <summary>Textos del idioma pedido; sin idioma, español.</summary>
+    public static ExceptionReportTexts For(string? language) => ExportLanguages.Of(language) switch
+    {
+        ExportLanguages.En => English,
+        ExportLanguages.Pt => Portuguese,
+        _ => Spanish
+    };
 }

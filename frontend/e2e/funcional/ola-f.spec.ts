@@ -3,7 +3,7 @@ import { test, expect } from '../fixtures/app';
 import { simularApi } from '../fixtures/api-mocks';
 import { ITEM, RUT_PROPIO } from '../fixtures/ola-d-mocks';
 import { BL_NO_PUBLICADO, BL_TATC, CASILLA_CL, URL_DISPUTE } from '../fixtures/ola-f-mocks';
-import { USUARIO_PRUEBA, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
+import { Idioma, USUARIO_PRUEBA, sembrarSesion, sembrarSesionAdmin } from '../fixtures/session';
 import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 /**
@@ -13,7 +13,8 @@ import { cargarSeccionesDiferidas } from '../fixtures/detalle';
  *   con el historial al navegar y Escape lo cierra devolviendo el foco al botón.
  * - M10-02: una consulta fuera de alcance se rechaza y deriva a la casilla de correo.
  * - M10-05: al terminar se pide el respaldo por correo a otra dirección, validada.
- * - M10-06: el buscador DG dice de forma explícita que la carga no está clasificada.
+ * - M10-06: el buscador DG dice de forma explícita que la carga no está clasificada; en portugués muestra el nombre
+ *   en portugués o, si falta, el oficial en inglés.
  * - M11-07: el selector de tema aplica data-bs-theme y la preferencia persiste al recargar.
  * - M2-05: el enlace de Dispute abre el sitio externo con rel="noopener noreferrer".
  * - M2-09 / M2-02: detalle con emisión y TATC, y solicitud masiva con el resultado por BL.
@@ -22,9 +23,9 @@ import { cargarSeccionesDiferidas } from '../fixtures/detalle';
 
 const POLITE = 'div[aria-live="polite"]';
 
-async function abrir(page: Page, ruta: string): Promise<void> {
+async function abrir(page: Page, ruta: string, lang: Idioma = 'es'): Promise<void> {
   await simularApi(page);
-  await sembrarSesion(page, { lang: 'es' });
+  await sembrarSesion(page, { lang });
   await page.goto(ruta);
   // Detalle del BL: los grupos bajo el pliegue se cargan al entrar en pantalla (@defer on viewport).
   if (/^\/shipments\/[^/?]+$/.test(ruta)) await cargarSeccionesDiferidas(page);
@@ -214,6 +215,25 @@ test('el buscador DG dice de forma explícita que la carga no está clasificada 
   await page.getByLabel('Nombre, descripción o número ONU de la carga').fill('xyzabc');
   await page.getByRole('button', { name: 'Buscar' }).click();
   await expect(page.getByTestId('dg-result-code')).toContainText('Sin coincidencias');
+});
+
+test('en portugués, el buscador DG muestra el nombre en portugués o, si falta, el oficial en inglés (M10-06)', async ({ page }) => {
+  await abrir(page, '/dangerous-goods', 'pt');
+  const consulta = page.getByLabel('Nome, descrição ou número ONU da carga');
+
+  await consulta.fill('gasolina');
+  await page.getByRole('button', { name: 'Pesquisar' }).click();
+  const fila = page.getByTestId('dg-item-UN1203');
+  await expect(fila).toContainText('Gasolina automotiva');
+  await expect(fila).toContainText('Classe 3: Líquidos inflamáveis');
+
+  // Entrada sin nombre en portugués: respaldo al inglés (nombre oficial ONU), no al español.
+  await consulta.fill('agua');
+  await page.getByRole('button', { name: 'Pesquisar' }).click();
+  const resultado = page.getByTestId('dg-result');
+  await expect(resultado.getByRole('heading', { name: 'Resultado para “agua”' })).toBeFocused();
+  await expect(resultado.getByRole('row').nth(1)).toContainText('Bottled mineral water');
+  await expect(resultado.getByRole('row').nth(1)).not.toContainText('Agua mineral embotellada');
 });
 
 test('el selector de tema aplica data-bs-theme y la preferencia persiste (M11-07)', async ({ page }) => {

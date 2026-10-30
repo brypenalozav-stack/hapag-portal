@@ -12,12 +12,13 @@ public sealed class ServiceInputSchemaTests
 {
     private static readonly IReadOnlyList<ServiceInputField> Fields =
     [
-        new("containers", "Contenedores", "Containers", ServiceInputFieldTypes.Containers, true),
-        new("returnDate", "Fecha", "Date", ServiceInputFieldTypes.Date, true),
-        new("hours", "Horas", "Hours", ServiceInputFieldTypes.Number, true, Min: 1, Max: 240, Integer: true),
-        new("depot", "Depósito", "Depot", ServiceInputFieldTypes.Select, true, [new("SCL_PUDAHUEL", "Pudahuel", "Pudahuel")]),
-        new("notes", "Notas", "Notes", ServiceInputFieldTypes.Text, MaxLength: 10),
-        new("support", "Respaldo", "Support", ServiceInputFieldTypes.File, true),
+        new("containers", "Contenedores", "Containers", ServiceInputFieldTypes.Containers, true, LabelPt: "Contêineres"),
+        new("returnDate", "Fecha", "Date", ServiceInputFieldTypes.Date, true, LabelPt: "Data"),
+        new("hours", "Horas", "Hours", ServiceInputFieldTypes.Number, true, Min: 1, Max: 240, Integer: true, LabelPt: "Horas"),
+        // La opción no trae texto en portugués: el esquema no lo exige en las opciones, igual que con el inglés.
+        new("depot", "Depósito", "Depot", ServiceInputFieldTypes.Select, true, [new("SCL_PUDAHUEL", "Pudahuel", "Pudahuel")], LabelPt: "Depósito"),
+        new("notes", "Notas", "Notes", ServiceInputFieldTypes.Text, MaxLength: 10, LabelPt: "Observações"),
+        new("support", "Respaldo", "Support", ServiceInputFieldTypes.File, true, LabelPt: "Comprovante"),
     ];
 
     private static readonly string[] BlContainers = ["HLXU1234567", "HLXU7654321"];
@@ -114,12 +115,66 @@ public sealed class ServiceInputSchemaTests
     }
 
     [Fact]
+    public void Schema_ShouldRequireThePortugueseLabelOfEachField()
+    {
+        IReadOnlyList<ServiceInputField> fields =
+        [
+            new("notes", "Notas", "Notes", ServiceInputFieldTypes.Text),
+            new("remarks", "Observaciones", "Remarks", ServiceInputFieldTypes.Text, LabelPt: "  "),
+            new("ok", "Válido", "Valid", ServiceInputFieldTypes.Text, LabelPt: "Válido"),
+        ];
+
+        var errors = ServiceInputSchema.ValidateSchema(fields);
+
+        errors.Should().BeEquivalentTo(
+        [
+            "Field 'notes' requires the Spanish, English and Portuguese labels.",
+            "Field 'remarks' requires the Spanish, English and Portuguese labels.",
+        ]);
+    }
+
+    [Fact]
     public void Schema_ShouldRoundTripThroughJson()
     {
         var json = ServiceInputSchema.Serialize(Fields);
 
         ServiceInputSchema.Parse(json).Should().BeEquivalentTo(Fields);
         ServiceInputSchema.Parse("not json").Should().BeNull();
+
+        IReadOnlyList<ServiceInputField> withPortuguese =
+        [
+            new("depot", "Depósito", "Depot", ServiceInputFieldTypes.Select, true,
+                [new("SCL_PUDAHUEL", "Pudahuel", "Pudahuel", "Depósito Pudahuel")], LabelPt: "Depósito de devolução", HelpPt: "Escolha o depósito."),
+        ];
+        var parsed = ServiceInputSchema.Parse(ServiceInputSchema.Serialize(withPortuguese));
+
+        parsed.Should().BeEquivalentTo(withPortuguese);
+        parsed![0].LabelPt.Should().Be("Depósito de devolução");
+        parsed[0].HelpPt.Should().Be("Escolha o depósito.");
+        parsed[0].Options![0].LabelPt.Should().Be("Depósito Pudahuel");
+    }
+
+    [Fact]
+    public void Serialize_WithoutPortuguese_ShouldKeepTheCurrentJson()
+    {
+        IReadOnlyList<ServiceInputField> fields =
+        [
+            new("depot", "Deposito", "Depot", ServiceInputFieldTypes.Select, true, [new("SCL_PUDAHUEL", "Pudahuel", "Pudahuel")]),
+        ];
+
+        ServiceInputSchema.Serialize(fields).Should().Be(
+            """[{"key":"depot","labelEs":"Deposito","labelEn":"Depot","type":"select","required":true,"options":[{"value":"SCL_PUDAHUEL","labelEs":"Pudahuel","labelEn":"Pudahuel"}],"min":null,"max":null,"integer":false,"maxLength":null,"helpEs":null,"helpEn":null}]""");
+    }
+
+    [Fact]
+    public void Parse_LegacyJson_ShouldReadPortugueseAsNull()
+    {
+        var parsed = ServiceInputSchema.Parse(
+            """[{"key":"depot","labelEs":"Deposito","labelEn":"Depot","type":"select","required":true,"options":[{"value":"SCL_PUDAHUEL","labelEs":"Pudahuel","labelEn":"Pudahuel"}],"min":null,"max":null,"integer":false,"maxLength":null,"helpEs":null,"helpEn":null}]""");
+
+        parsed![0].LabelPt.Should().BeNull();
+        parsed[0].HelpPt.Should().BeNull();
+        parsed[0].Options![0].LabelPt.Should().BeNull();
     }
 
     [Fact]

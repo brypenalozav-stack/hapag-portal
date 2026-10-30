@@ -12,6 +12,7 @@ import {
 } from '../../core/models/dangerous-good.model';
 import { apiErrorKey } from '../../core/http/api-error';
 import { DANGEROUS_GOOD_RESULT_KEYS, PORTAL_ERRORS } from '../../core/i18n/labels';
+import { DG_FALLBACK, pickText } from '../../core/i18n/localized-text';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../shared/components/state-message/state-message';
 import { focusAfterRender } from '../../shared/focus-after-render';
@@ -99,12 +100,14 @@ export class DangerousGoodsComponent {
     });
   }
 
-  /** Nombre en el idioma de la interfaz (la base trae español e inglés). */
+  /** Nombre en el idioma de la interfaz; en portugués, si falta, el nombre oficial en inglés (pt → en → es). */
   name(item: DangerousGood): string {
-    return this.locale.lang() === 'en' ? item.properShippingNameEn : item.properShippingNameEs;
+    const { properShippingNameEs: es, properShippingNameEn: en, properShippingNamePt: pt } = item;
+    return pickText(this.locale.lang(), { es, en, pt }, DG_FALLBACK);
   }
 
   className(item: DangerousGood): string | null {
-    return (this.locale.lang() === 'en' ? item.hazardClassNameEn : item.hazardClassNameEs) ?? null;
+    const { hazardClassNameEs: es, hazardClassNameEn: en, hazardClassNamePt: pt } = item;
+    return pickText(this.locale.lang(), { es, en, pt }, DG_FALLBACK) || null;
   }
 }

@@ -24,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     provideTransloco({
       config: {
-        availableLangs: ['es', 'en'],
+        availableLangs: ['es', 'en', 'pt'],
         defaultLang: 'es',
         fallbackLang: 'es',
         reRenderOnLangChange: true,
@@ -33,7 +33,7 @@ export const appConfig: ApplicationConfig = {
       loader: TranslocoHttpLoader,
     }),
     // Plurales ICU (guía UI/a11y/i18n §5.5).
-    provideTranslocoMessageformat({ locales: ['es', 'en'] }),
+    provideTranslocoMessageformat({ locales: ['es', 'en', 'pt'] }),
     { provide: LOCALE_ID, useValue: 'es-CL' },
     // Idioma guardado (hl_lang) y sus textos listos antes del primer render.
     provideAppInitializer(() => inject(LocaleService).init()),

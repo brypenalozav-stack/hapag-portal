@@ -41,7 +41,7 @@ SECCIONES = [
     "3. Componentes y patrones",
     "4. Checklist WCAG 2.2 AA",
     "5. Estrategia i18n con Transloco",
-    "6. Glosario ES/EN",
+    "6. Glosario ES/EN/PT",
 ]
 METODOS = ("eslint", "axe", "teclado", "NVDA", "Lighthouse", "revisión visual")
 
@@ -643,17 +643,18 @@ def seccion_i18n(d):
     d.h(1, SECCIONES[4])
     d.p("Alcance decidido en Q8: en Fase 1, la interfaz en español e inglés con cambio de idioma en caliente; en "
         "Fase 2, correos, PDF y asistente M10. El inglés es internacional con ortografía estadounidense. La "
-        "implementación es la Fase 5b del plan.")
+        "implementación es la Fase 5b del plan. La interfaz incluye además portugués de Brasil (pt-BR), con el mismo "
+        "alcance que el inglés: textos de pantalla, contenido administrable bilingüe y planillas exportables.")
 
     d.h(2, "5.1 Configuración")
     d.lista([
-        "Librería `@jsverse/transloco` (MIT) con `provideTransloco`: `availableLangs: ['es','en']`, "
+        "Librería `@jsverse/transloco` (MIT) con `provideTransloco`: `availableLangs: ['es','en','pt']`, "
         "`defaultLang: 'es'`, `fallbackLang: 'es'` y `reRenderOnLangChange: true`.",
-        "Archivos de traducción en `frontend/public/i18n/es.json` y `frontend/public/i18n/en.json`, servidos como "
-        "`/i18n/{lang}.json` por `TranslocoHttpLoader`.",
-        "`LocaleService` guarda el idioma en `hl_lang`, calcula el locale (`es-CL`, `es-BO` o `en`) y el huso del "
-        "país, y actualiza `document.documentElement.lang` sin recargar la página.",
-        "El selector ES/EN está en la barra de navegación.",
+        "Archivos de traducción en `frontend/public/i18n/es.json`, `frontend/public/i18n/en.json` y "
+        "`frontend/public/i18n/pt.json`, servidos como `/i18n/{lang}.json` por `TranslocoHttpLoader`.",
+        "`LocaleService` guarda el idioma en `hl_lang`, calcula el locale (`es-CL`, `es-BO`, `en` o `pt-BR`) y el "
+        "huso del país, y actualiza `document.documentElement.lang` sin recargar la página.",
+        "El selector ES · EN · PT está en la barra de navegación.",
     ])
 
     d.h(2, "5.2 Claves")
@@ -676,6 +677,8 @@ def seccion_i18n(d):
          "BOB 1.234,56; USD 1.234,56"],
         ["Inglés", "`en`", "dd MMM yyyy (05 Oct 2026)", "24 h (14:30)", "El del país del usuario",
          "1,234,567.89", "CLP 1,234,567; BOB 1,234.56; EUR 1,234.56"],
+        ["Portugués (Brasil)", "`pt-BR`", "dd/MM/yyyy (05/10/2026)", "24 h (14:30)", "El del país del usuario",
+         "1.234.567,89", "CLP 1.234.567; USD 1.234,56"],
     ], [2.6, 1.6, 3.2, 1.8, 2.6, 2.2, 4.0])
     d.lista([
         "Los pipes `hlDate`, `hlNumber` y `hlCurrency` (Fase 5b) usan `Intl.*`, que admite husos IANA, y guardan en "
@@ -706,13 +709,40 @@ def seccion_i18n(d):
 
     d.h(2, "5.6 Paridad de claves en CI")
     d.lista([
-        "`npm run check:i18n` (`frontend/scripts/check-i18n.mjs`): mismas claves en `es.json` y `en.json`, sin "
-        "valores vacíos y sin claves usadas que no existan.",
+        "`npm run check:i18n` (`frontend/scripts/check-i18n.mjs`): mismas claves en `es.json`, `en.json` y "
+        "`pt.json`, sin valores vacíos y sin claves usadas que no existan.",
+        "`npm run check:i18n-pt` (`frontend/scripts/check-i18n-pt.mjs`): calidad del portugués en `pt.json`: "
+        "términos del glosario de la sección 6, variantes de pt-PT, restos de español, tuteo, `=0` en los plurales, "
+        "orden de claves igual a `es.json` y registro de autorrevisión (`docs/requerimientos/revision-pt-br.md`).",
         "`npm run check:i18n-text` (`frontend/scripts/check-hardcoded-text.mjs`): ningún texto ni atributo accesible "
         "literal en las plantillas; las excepciones se declaran en el mismo script.",
         "`npx transloco-keys-manager extract` agrega las claves nuevas al extraer textos.",
-        "Ambos chequeos corren en el job `frontend` de `.github/workflows/pr-tests.yml`.",
+        "Los tres chequeos corren en el job `frontend` de `.github/workflows/pr-tests.yml`.",
         "Fuera de alcance por ahora: la traducción de ProblemDetails, correos y PDF del backend (tarea de Fase 2).",
+    ])
+
+    d.h(2, "5.7 Redacción en portugués de Brasil (pt-BR)")
+    d.p("El portugués se redacta como texto nativo y no como traducción literal del español: igual que `en.json`, "
+        "adapta la voz, el sujeto y la tipografía al idioma. Los términos salen del glosario de la sección 6.")
+    d.lista([
+        "Tratamiento con \"você\", nunca \"tu\", \"teu\" ni \"tua\". El imperativo va en la forma de \"você\": "
+        "\"Informe\", \"Selecione\", \"Verifique\".",
+        "\"Por favor\" solo en pedidos de reintento (\"Por favor, tente novamente.\"), como mucho uno por mensaje. "
+        "Nunca en botones ni etiquetas.",
+        "Botones en infinitivo (\"Salvar\", \"Pagar\", \"Entrar\", \"Baixar\", \"Excluir\"), con mayúscula solo en "
+        "la primera palabra.",
+        "Errores con \"Não foi possível …\" o \"Não conseguimos …\" (\"Não foi possível iniciar o pagamento.\"). "
+        "Para la acción se prefiere \"efetuar\" o el verbo específico antes que el calco \"realizar\".",
+        "Ortografía del Acuerdo Ortográfico de 1990.",
+        "Sin términos de pt-PT: ecrã, telemóvel, registo, registar, utilizador, ficheiro, palavra-passe, contentor, "
+        "equipa, facto. En pt-BR: tela, celular, registro, registrar, usuário, arquivo, senha, contêiner, equipe, fato.",
+        "Siglas sin traducir: BL, TATC, DIFU, Gate In/Out, ETA/ETD, RUT/NIT, IVA, POD/POL, THC, EDS, ISPS, Nexus.",
+        "Comillas “ ”, `%` pegado al número (\"15%\") y ordinal con \"º\" (\"1º\").",
+        "Correos de ejemplo con `nome@empresa.com.br`.",
+        "Plurales ICU siempre con `=0`: en portugués la categoría `one` cubre 0 y 1, y sin `=0` se leería \"0 item\".",
+        "Falsos amigos: oficina → escritório; contestar → responder (en pt-BR \"contestar\" es impugnar); propina "
+        "(en pt-BR es soborno; la del garzón es \"gorjeta\"); exquisito (en pt-BR es \"extraño\"); embarazada (en "
+        "pt-BR se dice \"grávida\"; \"embaraçada\" significa avergonzada).",
     ])
 
 
@@ -733,16 +763,16 @@ def leer_glosario():
 def seccion_glosario(d):
     d.h(1, SECCIONES[5])
     reglas, cab, filas = leer_glosario()
-    d.p("Fuente única: `docs/requerimientos/glosario-es-en.md` (Q8). Las claves Transloco y los textos en inglés "
-        f"usan estos términos. {len(filas)} términos.")
+    d.p("Fuente única: `docs/requerimientos/glosario-es-en.md` (Q8). Las claves Transloco y los textos en inglés y "
+        f"portugués usan estos términos. {len(filas)} términos.")
     d.lista(reglas)
-    d.tabla(cab, filas, [5.0, 5.0, 7.0])
+    d.tabla(cab, filas, [3.6, 3.6, 3.6, 5.2])
 
 
 # ================================================================ principal
 
 def construir():
-    d = Documento(TITULO, "Tokens, tipografía, componentes accesibles, checklist WCAG 2.2 AA e idiomas ES/EN")
+    d = Documento(TITULO, "Tokens, tipografía, componentes accesibles, checklist WCAG 2.2 AA e idiomas ES/EN/PT")
     d.p(f"Versión 4.0 · {datetime.date.today().strftime('%d-%m-%Y')} · Preparado para: Hapag-Lloyd Chile y Bolivia · "
         f"Elaborado por: {config.EJECUTA}. Fuente: Fase 3 del plan de actualización de requerimientos Portal 2.0; "
         "decisiones Q8, Q9, DC2, DC3 y DC4 del registro de decisiones v4. Generado por "

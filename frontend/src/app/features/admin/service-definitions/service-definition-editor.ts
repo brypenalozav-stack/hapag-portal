@@ -61,6 +61,7 @@ interface OptionRow {
   value: string;
   labelEs: string;
   labelEn: string;
+  labelPt: string;
 }
 
 /** Campo del formulario en edición: los números llegan como texto desde los campos. */
@@ -69,6 +70,7 @@ interface FieldRow {
   key: string;
   labelEs: string;
   labelEn: string;
+  labelPt: string;
   type: ServiceFieldType;
   required: boolean;
   maxLength: string;
@@ -77,6 +79,7 @@ interface FieldRow {
   integer: boolean;
   helpEs: string;
   helpEn: string;
+  helpPt: string;
   options: OptionRow[];
 }
 
@@ -86,6 +89,8 @@ interface DefinitionForm {
   nameEn: string;
   descriptionEs: string;
   descriptionEn: string;
+  namePt: string;
+  descriptionPt: string;
   operations: Record<ServiceOperation, boolean>;
   countries: Record<string, boolean>;
   referenceType: ServiceReferenceType;
@@ -129,6 +134,8 @@ function emptyForm(): DefinitionForm {
     nameEn: '',
     descriptionEs: '',
     descriptionEn: '',
+    namePt: '',
+    descriptionPt: '',
     operations: { IMPORT: false, EXPORT: false },
     countries: { CL: false, BO: false },
     referenceType: 'BL',
@@ -304,6 +311,8 @@ export class ServiceDefinitionEditorComponent implements OnInit {
       nameEn: d.nameEn,
       descriptionEs: d.descriptionEs ?? '',
       descriptionEn: d.descriptionEn ?? '',
+      namePt: d.namePt ?? '',
+      descriptionPt: d.descriptionPt ?? '',
       operations: { IMPORT: d.operations.includes('IMPORT'), EXPORT: d.operations.includes('EXPORT') },
       countries: { CL: d.countries.includes('CL'), BO: d.countries.includes('BO') },
       referenceType: d.referenceType,
@@ -343,6 +352,7 @@ export class ServiceDefinitionEditorComponent implements OnInit {
       key: f.key,
       labelEs: f.labelEs,
       labelEn: f.labelEn,
+      labelPt: f.labelPt ?? '',
       type: f.type,
       required: !!f.required,
       maxLength: text(f.maxLength),
@@ -351,7 +361,8 @@ export class ServiceDefinitionEditorComponent implements OnInit {
       integer: !!f.integer,
       helpEs: f.helpEs ?? '',
       helpEn: f.helpEn ?? '',
-      options: (f.options ?? []).map((o) => ({ uid: this.nextUid++, value: o.value, labelEs: o.labelEs, labelEn: o.labelEn })),
+      helpPt: f.helpPt ?? '',
+      options: (f.options ?? []).map((o) => ({ uid: this.nextUid++, value: o.value, labelEs: o.labelEs, labelEn: o.labelEn, labelPt: o.labelPt ?? '' })),
     };
   }
 
@@ -374,8 +385,8 @@ export class ServiceDefinitionEditorComponent implements OnInit {
       return;
     }
     this.fields = [...this.fields, {
-      uid: this.nextUid++, key: '', labelEs: '', labelEn: '', type: 'text', required: false, maxLength: '', min: '', max: '',
-      integer: false, helpEs: '', helpEn: '', options: [],
+      uid: this.nextUid++, key: '', labelEs: '', labelEn: '', labelPt: '', type: 'text', required: false, maxLength: '', min: '', max: '',
+      integer: false, helpEs: '', helpEn: '', helpPt: '', options: [],
     }];
     const index = this.fields.length - 1;
     this.toast.success(translate('admin.serviceDefinitions.editor.fields.added', { number: index + 1 }));
@@ -420,7 +431,7 @@ export class ServiceDefinitionEditorComponent implements OnInit {
   }
 
   addOption(field: FieldRow, fieldIndex: number, focus = true): void {
-    field.options = [...field.options, { uid: this.nextUid++, value: '', labelEs: '', labelEn: '' }];
+    field.options = [...field.options, { uid: this.nextUid++, value: '', labelEs: '', labelEn: '', labelPt: '' }];
     const optionIndex = field.options.length - 1;
     if (focus) {
       this.toast.success(translate('admin.serviceDefinitions.editor.options.added', { number: optionIndex + 1 }));
@@ -444,6 +455,7 @@ export class ServiceDefinitionEditorComponent implements OnInit {
     if (!CODE.test(f.code.trim())) list.push({ fieldId: 'def-code', key: 'admin.serviceDefinitions.editor.errors.code' });
     if (!f.nameEs.trim()) list.push({ fieldId: 'def-name-es', key: 'admin.serviceDefinitions.editor.errors.nameEs' });
     if (!f.nameEn.trim()) list.push({ fieldId: 'def-name-en', key: 'admin.serviceDefinitions.editor.errors.nameEn' });
+    if (!f.namePt.trim()) list.push({ fieldId: 'def-name-pt', key: 'admin.serviceDefinitions.editor.errors.namePt' });
     if (!f.actionCode) list.push({ fieldId: 'def-action', key: 'admin.serviceDefinitions.editor.errors.action' });
     if (!INTEGER.test(f.displayOrder.trim())) list.push({ fieldId: 'def-order', key: 'admin.serviceDefinitions.editor.errors.order' });
     if (!f.operations.IMPORT && !f.operations.EXPORT) list.push({ fieldId: 'def-operation-IMPORT', key: 'admin.serviceDefinitions.editor.errors.operations' });
@@ -463,6 +475,7 @@ export class ServiceDefinitionEditorComponent implements OnInit {
       keys.add(key);
       if (!field.labelEs.trim()) list.push({ fieldId: `def-field-${i}-label-es`, key: 'admin.serviceDefinitions.editor.errors.fieldLabelEs', params: { number } });
       if (!field.labelEn.trim()) list.push({ fieldId: `def-field-${i}-label-en`, key: 'admin.serviceDefinitions.editor.errors.fieldLabelEn', params: { number } });
+      if (!field.labelPt.trim()) list.push({ fieldId: `def-field-${i}-label-pt`, key: 'admin.serviceDefinitions.editor.errors.fieldLabelPt', params: { number } });
       if (field.maxLength.trim() && (!POSITIVE_INTEGER.test(field.maxLength.trim()) || Number(field.maxLength) <= 0)) {
         list.push({ fieldId: `def-field-${i}-max-length`, key: 'admin.serviceDefinitions.editor.errors.maxLength', params: { number } });
       }
@@ -486,6 +499,9 @@ export class ServiceDefinitionEditorComponent implements OnInit {
           values.add(value);
           if (!o.labelEs.trim() || !o.labelEn.trim()) {
             list.push({ fieldId: `def-field-${i}-option-${j}-label-es`, key: 'admin.serviceDefinitions.editor.errors.optionLabels', params: { number, option } });
+          }
+          if (!o.labelPt.trim()) {
+            list.push({ fieldId: `def-field-${i}-option-${j}-label-pt`, key: 'admin.serviceDefinitions.editor.errors.optionLabelPt', params: { number, option } });
           }
         });
       }
@@ -531,6 +547,8 @@ export class ServiceDefinitionEditorComponent implements OnInit {
       nameEn: f.nameEn.trim(),
       descriptionEs: optional(f.descriptionEs),
       descriptionEn: optional(f.descriptionEn),
+      namePt: f.namePt.trim(),
+      descriptionPt: optional(f.descriptionPt),
       operations: (['IMPORT', 'EXPORT'] as ServiceOperation[]).filter((o) => f.operations[o]),
       countries: ['CL', 'BO'].filter((c) => f.countries[c]),
       referenceType: f.referenceType,
@@ -542,15 +560,17 @@ export class ServiceDefinitionEditorComponent implements OnInit {
         key: field.key.trim(),
         labelEs: field.labelEs.trim(),
         labelEn: field.labelEn.trim(),
+        labelPt: field.labelPt.trim(),
         type: field.type,
         required: field.required,
         ...(field.type === 'select'
-          ? { options: field.options.map((o) => ({ value: o.value.trim(), labelEs: o.labelEs.trim(), labelEn: o.labelEn.trim() })) }
+          ? { options: field.options.map((o) => ({ value: o.value.trim(), labelEs: o.labelEs.trim(), labelEn: o.labelEn.trim(), labelPt: o.labelPt.trim() })) }
           : {}),
         ...(field.type === 'number' ? { min: number(field.min), max: number(field.max), integer: field.integer } : {}),
         ...((field.type === 'text' || field.type === 'textarea') && field.maxLength.trim() ? { maxLength: Number(field.maxLength) } : {}),
         helpEs: optional(field.helpEs),
         helpEn: optional(field.helpEn),
+        helpPt: optional(field.helpPt),
       })),
       billingDataRequired: f.billingDataRequired,
       tariffAcceptanceRequired: f.tariffAcceptanceRequired,

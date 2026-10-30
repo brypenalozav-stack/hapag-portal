@@ -388,9 +388,11 @@ function responder(texto: string, n: number): { reply: AssistantMessage; mailbox
 
 const GASOLINA: DangerousGood = {
   id: 'g7000000-0000-4000-8000-000000000001', unNumber: 'UN1203', properShippingNameEs: 'Gasolina', properShippingNameEn: 'Gasoline (motor spirit)',
-  hazardClass: '3', hazardClassNameEs: 'Líquidos inflamables', hazardClassNameEn: 'Flammable liquids', packingGroup: 'II', classified: true, source: 'SAMPLE',
+  properShippingNamePt: 'Gasolina automotiva', hazardClass: '3', hazardClassNameEs: 'Líquidos inflamables', hazardClassNameEn: 'Flammable liquids',
+  hazardClassNamePt: 'Líquidos inflamáveis', packingGroup: 'II', classified: true, source: 'SAMPLE',
 };
 
+/** Entrada importada sin nombre en portugués: en PT se muestra el nombre en inglés (respaldo pt → en → es). */
 const AGUA: DangerousGood = {
   id: 'g7000000-0000-4000-8000-000000000002', properShippingNameEs: 'Agua mineral embotellada', properShippingNameEn: 'Bottled mineral water',
   notes: 'Carga general, no clasificada como mercancía peligrosa.', classified: false, source: 'SAMPLE',

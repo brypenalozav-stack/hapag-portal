@@ -4,11 +4,19 @@ import { firstValueFrom, take } from 'rxjs';
 import { AuthService } from './auth.service';
 import { LoadingOverlayService } from './loading-overlay.service';
 
-export type AppLang = 'es' | 'en';
-export type AppLocale = 'es-CL' | 'es-BO' | 'en';
+export type AppLang = 'es' | 'en' | 'pt';
+export type AppLocale = 'es-CL' | 'es-BO' | 'en' | 'pt-BR';
 
-export const AVAILABLE_LANGS: readonly AppLang[] = ['es', 'en'];
+export const AVAILABLE_LANGS: readonly AppLang[] = ['es', 'en', 'pt'];
 export const DEFAULT_LANG: AppLang = 'es';
+/** Atributo lang del documento: pt-BR para que los lectores de pantalla usen la voz de Brasil. */
+export const HTML_LANG: Record<AppLang, string> = { es: 'es', en: 'en', pt: 'pt-BR' };
+/** Opciones del selector: código visible y clave del nombre accesible. */
+export const LANGUAGE_OPTIONS: readonly { lang: AppLang; code: string; nameKey: string }[] = [
+  { lang: 'es', code: 'ES', nameKey: 'shared.navbar.language.es' },
+  { lang: 'en', code: 'EN', nameKey: 'shared.navbar.language.en' },
+  { lang: 'pt', code: 'PT', nameKey: 'shared.navbar.language.pt' },
+];
 
 const LANG_KEY = 'hl_lang';
 
@@ -19,9 +27,9 @@ const TIME_ZONES: Record<'CL' | 'BO', string> = {
 };
 
 /**
- * Idioma activo de la interfaz (ES/EN) y locale de formato por país (Q8).
+ * Idioma activo de la interfaz (ES/EN/PT) y locale de formato por país (Q8).
  * - `lang` se guarda en localStorage (`hl_lang`) y cambia en caliente, sin recargar.
- * - `locale` combina idioma y país: es-CL, es-BO o en.
+ * - `locale` combina idioma y país: es-CL, es-BO, en o pt-BR (en y pt-BR no dependen del país).
  * - `timeZone` es el huso del país del usuario (America/Santiago o America/La_Paz).
  */
 @Injectable({ providedIn: 'root' })
@@ -35,6 +43,7 @@ export class LocaleService {
 
   readonly locale = computed((): AppLocale => {
     if (this.lang() === 'en') return 'en';
+    if (this.lang() === 'pt') return 'pt-BR';
     return this.auth.getCountry() === 'BO' ? 'es-BO' : 'es-CL';
   });
 
@@ -78,7 +87,7 @@ export class LocaleService {
 
   private apply(lang: AppLang): void {
     this.transloco.setActiveLang(lang);
-    this.document.documentElement.lang = lang;
+    this.document.documentElement.lang = HTML_LANG[lang];
   }
 
   private loadLang(): AppLang {

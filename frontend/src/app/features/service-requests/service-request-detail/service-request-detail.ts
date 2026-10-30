@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
+import { pickText } from '../../../core/i18n/localized-text';
 import { ServiceRequestService } from '../../../core/services/service-request.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
@@ -17,7 +18,7 @@ import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ServiceRequestOverviewComponent } from '../shared/service-request-overview';
 import { ServiceRequestPaymentComponent } from '../shared/service-request-payment';
-import { fieldLabel, localized, serviceErrorMessage } from '../shared/service-text';
+import { fieldLabel, serviceErrorMessage } from '../shared/service-text';
 import { ToastService } from '../../../core/services/toast.service';
 import { FeatureService } from '../../../core/services/feature.service';
 
@@ -98,7 +99,7 @@ export class ServiceRequestDetailComponent implements OnInit {
   }
 
   name(r: ServiceRequestDetail): string {
-    return localized(this.locale.lang(), r.nameEs, r.nameEn);
+    return pickText(this.locale.lang(), { es: r.nameEs, en: r.nameEn, pt: r.namePt });
   }
 
   fileFieldLabel(key: string): string {

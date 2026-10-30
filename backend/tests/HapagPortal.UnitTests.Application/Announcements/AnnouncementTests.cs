@@ -33,7 +33,8 @@ public sealed class AnnouncementTests
         bool publish = true,
         DateTime? validFrom = null,
         DateTime? validTo = null) =>
-        new("Título", "Title", "Cuerpo", "Body", countries, operation, AnnouncementSeverities.Info, validFrom, validTo, notify, publish);
+        new("Título", "Title", "Cuerpo", "Body", countries, operation, AnnouncementSeverities.Info, validFrom, validTo, notify, publish,
+            "Título pt", "Corpo");
 
     private static ICurrentUserService Client(string country)
     {
@@ -154,7 +155,7 @@ public sealed class AnnouncementTests
     }
 
     [Fact]
-    public void Validator_ShouldRequireSegmentAndBothLanguages()
+    public void Validator_ShouldRequireSegmentAndAllThreeLanguages()
     {
         var validator = new CreateAnnouncementCommandValidator();
 
@@ -162,6 +163,10 @@ public sealed class AnnouncementTests
         validator.Validate(Command(["AR"], AnnouncementOperations.Import)).IsValid.Should().BeFalse();
         validator.Validate(Command([CountryCodes.Chile], "Transit")).IsValid.Should().BeFalse();
         validator.Validate(Command([CountryCodes.Chile], AnnouncementOperations.Import) with { TitleEn = "" }).IsValid.Should().BeFalse();
+        validator.Validate(Command([CountryCodes.Chile], AnnouncementOperations.Import) with { TitlePt = null }).IsValid.Should().BeFalse();
+        validator.Validate(Command([CountryCodes.Chile], AnnouncementOperations.Import) with { TitlePt = " " }).IsValid.Should().BeFalse();
+        validator.Validate(Command([CountryCodes.Chile], AnnouncementOperations.Import) with { BodyPt = null }).IsValid.Should().BeFalse();
+        validator.Validate(Command([CountryCodes.Chile], AnnouncementOperations.Import) with { BodyPt = new string('a', 4001) }).IsValid.Should().BeFalse();
         validator.Validate(Command([CountryCodes.Chile], AnnouncementOperations.Import)).IsValid.Should().BeTrue();
     }
 }

@@ -3,7 +3,7 @@ import { simularApi } from '../fixtures/api-mocks';
 import { sembrarSesion } from '../fixtures/session';
 
 /**
- * Fase 5b: el selector ES/EN (preferencias del menú del usuario) cambia el idioma en caliente, sin recargar
+ * Fase 5b: el selector ES/EN/PT (preferencias del menú del usuario) cambia el idioma en caliente, sin recargar
  * la página, y los formatos siguen Q8 (CLP sin decimales, USD con 2; fechas por idioma y país).
  */
 
@@ -62,6 +62,47 @@ test('cambia de español a inglés sin recargar y reformatea montos y fechas', a
   expect(await page.evaluate(() => localStorage.getItem('hl_lang'))).toBe('en');
 });
 
+test('cambia de español a portugués sin recargar y reformatea montos y fechas en pt-BR', async ({ page }) => {
+  await simularApi(page);
+  await sembrarSesion(page, { lang: 'es' });
+  await page.goto('/payment-history');
+
+  const titulo = page.locator('h1').first();
+  const filaClp = page.locator('tr', { hasText: 'PAY-CL-2026-000125' });
+  const filaUsd = page.locator('tr', { hasText: 'PAY-CL-2026-000123' });
+  const montoClp = filaClp.locator('td').nth(5);
+  const montoUsd = filaUsd.locator('td').nth(5);
+  const fechaUsd = filaUsd.locator('td').nth(1);
+
+  await expect(titulo).toHaveText('Historial de pagos');
+  await expect(fechaUsd).toContainText(/^25-09-2026 10:10 \S+/);
+
+  await page.evaluate(() => {
+    window.__noReload = true;
+  });
+
+  await page.getByRole('button', { name: /Menú de usuario/ }).click();
+  const botonPt = page.getByRole('button', { name: 'Português' });
+  await expect(botonPt).toHaveAttribute('aria-pressed', 'false');
+  await expect(botonPt).toHaveAttribute('lang', 'pt-BR');
+  await botonPt.click();
+
+  await expect(titulo).toHaveText('Histórico de pagamentos');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
+  await expect(botonPt).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Español' })).toHaveAttribute('aria-pressed', 'false');
+  expect(await page.evaluate(() => window.__noReload)).toBe(true);
+
+  // Portugués (pt-BR): mismos separadores que es (CLP sin decimales, USD con 2); fecha dd/MM/yyyy en el huso de Chile.
+  await expect(montoClp).toContainText('CLP');
+  await expect(montoClp).toContainText(/1\.234\.567(?![,\d])/);
+  await expect(montoUsd).toContainText('USD');
+  await expect(montoUsd).toContainText(/2\.450,00(?!\d)/);
+  await expect(fechaUsd).toContainText(/^25\/09\/2026 10:10 \S+/);
+
+  expect(await page.evaluate(() => localStorage.getItem('hl_lang'))).toBe('pt');
+});
+
 test('el cambio de idioma muestra la pantalla de carga global hasta que el sitio queda traducido', async ({ page }) => {
   await simularApi(page);
   await sembrarSesion(page, { lang: 'es' });
@@ -76,4 +117,21 @@ test('el cambio de idioma muestra la pantalla de carga global hasta que el sitio
   await expect(cargando).toBeHidden();
   await expect(page.locator('h1').first()).toHaveText('Payment history');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+});
+
+test('el cambio de español a portugués muestra la pantalla de carga global hasta que el sitio queda en portugués', async ({ page }) => {
+  await simularApi(page);
+  await sembrarSesion(page, { lang: 'es' });
+  await page.goto('/payment-history');
+  await expect(page.locator('h1').first()).toHaveText('Historial de pagos');
+
+  const cargando = page.getByTestId('global-loader');
+  await page.getByRole('button', { name: /Menú de usuario/ }).click();
+  await page.getByRole('button', { name: 'Português' }).click();
+  await expect(cargando).toBeVisible();
+  // El aviso se lee en español y pasa a portugués al activarse el idioma nuevo, antes de cerrarse.
+  await expect(cargando.getByRole('status')).toContainText(/Cambiando idioma|Alterando idioma/);
+  await expect(cargando).toBeHidden();
+  await expect(page.locator('h1').first()).toHaveText('Histórico de pagamentos');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
 });

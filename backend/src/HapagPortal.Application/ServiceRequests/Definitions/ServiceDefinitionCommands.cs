@@ -47,7 +47,9 @@ public sealed record ServiceDefinitionInput(
     bool RequiresOutputDocument,
     string ActionCode,
     int DisplayOrder,
-    bool IsActive = true);
+    bool IsActive = true,
+    string? NamePt = null,
+    string? DescriptionPt = null);
 
 public sealed record CreateServiceDefinitionCommand(ServiceDefinitionInput Input) : ICommand<ServiceDefinitionDto>;
 
@@ -72,7 +74,7 @@ public static class ServiceDefinitionMapper
         d.PricingMode, d.ChargeConceptCode, d.TariffCode, d.LateTariffCode, d.QuantityMode, d.MeasureFieldKey, d.Milestone,
         d.MilestoneOffsetHours, d.DeadlineRuleCode, d.TimingRule, d.Taxable, d.ExemptionConcept, d.ExcludeShipperOwnedContainers,
         d.ApprovalTeam, d.FulfillmentTeam, d.RequiresOutputDocument, d.ActionCode, d.DisplayOrder, d.IsActive,
-        d.CreatedAt, d.CreatedBy, d.ModifiedAt, d.ModifiedBy);
+        d.CreatedAt, d.CreatedBy, d.ModifiedAt, d.ModifiedBy, d.NamePt, d.DescriptionPt);
 
     public static ServiceDefinitionSnapshot Snapshot(ServiceDefinition d) => new(
         d.Code, d.NameEs, d.NameEn, d.DescriptionEs, d.DescriptionEn, d.Operations, d.Countries, d.ReferenceType,
@@ -80,7 +82,7 @@ public static class ServiceDefinitionMapper
         d.BillingDataRequired, d.TariffAcceptanceRequired, d.PricingMode, d.ChargeConceptCode, d.TariffCode, d.LateTariffCode,
         d.QuantityMode, d.MeasureFieldKey, d.Milestone, d.MilestoneOffsetHours, d.DeadlineRuleCode, d.TimingRule, d.Taxable,
         d.ExemptionConcept, d.ExcludeShipperOwnedContainers, d.ApprovalTeam, d.FulfillmentTeam, d.RequiresOutputDocument,
-        d.ActionCode, d.DisplayOrder, d.IsActive);
+        d.ActionCode, d.DisplayOrder, d.IsActive, d.NamePt, d.DescriptionPt);
 
     /// <summary>Copia los campos normalizados (códigos en mayúsculas, listas separadas por coma).</summary>
     public static void Write(ServiceDefinition d, ServiceDefinitionInput input)
@@ -90,6 +92,8 @@ public static class ServiceDefinitionMapper
         d.NameEn = input.NameEn.Trim();
         d.DescriptionEs = Optional(input.DescriptionEs);
         d.DescriptionEn = Optional(input.DescriptionEn);
+        d.NamePt = Optional(input.NamePt);
+        d.DescriptionPt = Optional(input.DescriptionPt);
         d.Operations = Join(input.Operations);
         d.Countries = Join(input.Countries);
         d.ReferenceType = input.ReferenceType;
@@ -139,6 +143,8 @@ internal static class ServiceDefinitionRules
         validator.RuleFor(x => input(x).NameEn).NotEmpty().MaximumLength(150).WithName("NameEn");
         validator.RuleFor(x => input(x).DescriptionEs).MaximumLength(1000).WithName("DescriptionEs");
         validator.RuleFor(x => input(x).DescriptionEn).MaximumLength(1000).WithName("DescriptionEn");
+        validator.RuleFor(x => input(x).NamePt).NotEmpty().MaximumLength(150).WithName("NamePt");
+        validator.RuleFor(x => input(x).DescriptionPt).MaximumLength(1000).WithName("DescriptionPt");
         validator.RuleFor(x => input(x).Operations)
             .Must(o => o is { Count: > 0 } && o.All(v => ServiceOperations.All.Contains(v.Trim().ToUpperInvariant())))
             .WithName("Operations").WithMessage("Operations must be IMPORT and/or EXPORT.");

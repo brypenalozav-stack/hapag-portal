@@ -35,7 +35,9 @@ public sealed record AnnouncementDto(
     DateTime CreatedAt,
     string CreatedBy,
     DateTime? ModifiedAt,
-    string? ModifiedBy);
+    string? ModifiedBy,
+    string? TitlePt,
+    string? BodyPt);
 
 /// <summary>Comunicado vigente para el cliente, con su fecha de publicación (M1-26).</summary>
 public sealed record PublishedAnnouncementDto(
@@ -49,7 +51,9 @@ public sealed record PublishedAnnouncementDto(
     string Severity,
     DateTime PublishedAt,
     DateTime ValidFrom,
-    DateTime? ValidTo);
+    DateTime? ValidTo,
+    string? TitlePt,
+    string? BodyPt);
 
 /// <summary>Instantánea de un comunicado para el registro de cambios (NF-15).</summary>
 public sealed record AnnouncementSnapshot(
@@ -63,10 +67,13 @@ public sealed record AnnouncementSnapshot(
     DateTime ValidFrom,
     DateTime? ValidTo,
     string Status,
-    bool NotifyOnPublish)
+    bool NotifyOnPublish,
+    string? TitlePt,
+    string? BodyPt)
 {
     public static AnnouncementSnapshot From(Announcement a) =>
-        new(a.TitleEs, a.TitleEn, a.BodyEs, a.BodyEn, a.Countries, a.Operation, a.Severity, a.ValidFrom, a.ValidTo, a.Status, a.NotifyOnPublish);
+        new(a.TitleEs, a.TitleEn, a.BodyEs, a.BodyEn, a.Countries, a.Operation, a.Severity, a.ValidFrom, a.ValidTo, a.Status, a.NotifyOnPublish,
+            a.TitlePt, a.BodyPt);
 }
 
 /// <summary>Comunicados vigentes para el usuario: país (por defecto el del usuario) y operación opcional (M1-26, M1-04, M2-07).</summary>
@@ -89,7 +96,9 @@ public sealed record CreateAnnouncementCommand(
     DateTime? ValidFrom,
     DateTime? ValidTo,
     bool NotifyOnPublish = false,
-    bool Publish = false) : ICommand<AnnouncementDto>;
+    bool Publish = false,
+    string? TitlePt = null,
+    string? BodyPt = null) : ICommand<AnnouncementDto>;
 
 public sealed record UpdateAnnouncementCommand(
     Guid Id,
@@ -102,7 +111,9 @@ public sealed record UpdateAnnouncementCommand(
     string? Severity,
     DateTime? ValidFrom,
     DateTime? ValidTo,
-    bool NotifyOnPublish = false) : ICommand<AnnouncementDto>;
+    bool NotifyOnPublish = false,
+    string? TitlePt = null,
+    string? BodyPt = null) : ICommand<AnnouncementDto>;
 
 /// <summary>Publica el comunicado (borrador o despublicado) y, si corresponde, avisa al segmento en la bandeja.</summary>
 public sealed record PublishAnnouncementCommand(Guid Id) : ICommand<AnnouncementDto>;
@@ -128,12 +139,16 @@ internal static class AnnouncementRules
         Func<T, string> operation,
         Func<T, string?> severity,
         Func<T, DateTime?> validFrom,
-        Func<T, DateTime?> validTo)
+        Func<T, DateTime?> validTo,
+        Func<T, string?> titlePt,
+        Func<T, string?> bodyPt)
     {
         validator.RuleFor(x => titleEs(x)).NotEmpty().MaximumLength(200).WithName("TitleEs");
         validator.RuleFor(x => titleEn(x)).NotEmpty().MaximumLength(200).WithName("TitleEn");
         validator.RuleFor(x => bodyEs(x)).NotEmpty().MaximumLength(4000).WithName("BodyEs");
         validator.RuleFor(x => bodyEn(x)).NotEmpty().MaximumLength(4000).WithName("BodyEn");
+        validator.RuleFor(x => titlePt(x)).NotEmpty().MaximumLength(200).WithName("TitlePt");
+        validator.RuleFor(x => bodyPt(x)).NotEmpty().MaximumLength(4000).WithName("BodyPt");
         validator.RuleFor(x => countries(x))
             .Must(c => c is { Count: > 0 } && c.All(v => CountryCodes.ValidCountries.Contains(v?.Trim().ToUpperInvariant())))
             .WithName("Countries")
@@ -164,7 +179,7 @@ internal static class AnnouncementRules
     public static AnnouncementDto ToDto(Announcement a, DateTime now) => new(
         a.Id, a.TitleEs, a.TitleEn, a.BodyEs, a.BodyEn, ParseCountries(a.Countries), a.Operation, a.Severity, a.ValidFrom, a.ValidTo,
         a.Status, IsCurrent(a, now), a.PublishedAt, a.PublishedBy, a.UnpublishedAt, a.UnpublishedBy, a.NotifyOnPublish, a.NotifiedAt,
-        a.CreatedAt, a.CreatedBy, a.ModifiedAt, a.ModifiedBy);
+        a.CreatedAt, a.CreatedBy, a.ModifiedAt, a.ModifiedBy, a.TitlePt, a.BodyPt);
 
     public static DateTime Utc(DateTime value) =>
         value.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(value, DateTimeKind.Utc) : value.ToUniversalTime();
@@ -174,7 +189,7 @@ public sealed class CreateAnnouncementCommandValidator : AbstractValidator<Creat
 {
     public CreateAnnouncementCommandValidator() =>
         AnnouncementRules.Content(this, x => x.TitleEs, x => x.TitleEn, x => x.BodyEs, x => x.BodyEn, x => x.Countries, x => x.Operation,
-            x => x.Severity, x => x.ValidFrom, x => x.ValidTo);
+            x => x.Severity, x => x.ValidFrom, x => x.ValidTo, x => x.TitlePt, x => x.BodyPt);
 }
 
 public sealed class UpdateAnnouncementCommandValidator : AbstractValidator<UpdateAnnouncementCommand>
@@ -183,7 +198,7 @@ public sealed class UpdateAnnouncementCommandValidator : AbstractValidator<Updat
     {
         RuleFor(x => x.Id).NotEmpty();
         AnnouncementRules.Content(this, x => x.TitleEs, x => x.TitleEn, x => x.BodyEs, x => x.BodyEn, x => x.Countries, x => x.Operation,
-            x => x.Severity, x => x.ValidFrom, x => x.ValidTo);
+            x => x.Severity, x => x.ValidFrom, x => x.ValidTo, x => x.TitlePt, x => x.BodyPt);
     }
 }
 
@@ -226,7 +241,7 @@ public sealed class GetCurrentAnnouncementsQueryHandler(
             .Where(a => request.Operation is null or "" || a.Operation == AnnouncementOperations.Both || a.Operation == request.Operation)
             .Select(a => new PublishedAnnouncementDto(
                 a.Id, a.TitleEs, a.TitleEn, a.BodyEs, a.BodyEn, AnnouncementRules.ParseCountries(a.Countries), a.Operation, a.Severity,
-                a.PublishedAt ?? a.ValidFrom, a.ValidFrom, a.ValidTo))
+                a.PublishedAt ?? a.ValidFrom, a.ValidFrom, a.ValidTo, a.TitlePt, a.BodyPt))
             .ToList();
 
         return Result<IReadOnlyList<PublishedAnnouncementDto>>.Success(items);
@@ -281,6 +296,8 @@ public sealed class CreateAnnouncementCommandHandler(
             TitleEn = request.TitleEn.Trim(),
             BodyEs = request.BodyEs.Trim(),
             BodyEn = request.BodyEn.Trim(),
+            TitlePt = string.IsNullOrWhiteSpace(request.TitlePt) ? null : request.TitlePt.Trim(),
+            BodyPt = string.IsNullOrWhiteSpace(request.BodyPt) ? null : request.BodyPt.Trim(),
             Countries = AnnouncementRules.Countries(request.Countries),
             Operation = request.Operation,
             Severity = request.Severity ?? AnnouncementSeverities.Info,
@@ -326,6 +343,8 @@ public sealed class UpdateAnnouncementCommandHandler(
         announcement.TitleEn = request.TitleEn.Trim();
         announcement.BodyEs = request.BodyEs.Trim();
         announcement.BodyEn = request.BodyEn.Trim();
+        announcement.TitlePt = string.IsNullOrWhiteSpace(request.TitlePt) ? null : request.TitlePt.Trim();
+        announcement.BodyPt = string.IsNullOrWhiteSpace(request.BodyPt) ? null : request.BodyPt.Trim();
         announcement.Countries = AnnouncementRules.Countries(request.Countries);
         announcement.Operation = request.Operation;
         announcement.Severity = request.Severity ?? announcement.Severity;

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { Observable, concatMap, from, last, map, of, switchMap, toArray } from 'rxjs';
+import { pickText } from '../../../core/i18n/localized-text';
 import { ServiceRequestService } from '../../../core/services/service-request.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
@@ -43,7 +44,6 @@ import {
   fieldHelp,
   fieldLabel,
   inputErrorKeys,
-  localized,
   maxLengthOf,
   serviceErrorMessage,
 } from '../shared/service-text';
@@ -356,12 +356,12 @@ export class ServiceRequestFormComponent {
 
   serviceName(): string {
     const s = this.setup();
-    return s ? localized(this.locale.lang(), s.nameEs, s.nameEn) : '';
+    return s ? pickText(this.locale.lang(), { es: s.nameEs, en: s.nameEn, pt: s.namePt }) : '';
   }
 
   serviceDescription(): string {
     const s = this.setup();
-    return s ? localized(this.locale.lang(), s.descriptionEs, s.descriptionEn) : '';
+    return s ? pickText(this.locale.lang(), { es: s.descriptionEs, en: s.descriptionEn, pt: s.descriptionPt }) : '';
   }
 
   label(field: ServiceInputField): string {
@@ -372,8 +372,8 @@ export class ServiceRequestFormComponent {
     return fieldHelp(field, this.locale.lang());
   }
 
-  optionLabel(option: { labelEs: string; labelEn: string }): string {
-    return localized(this.locale.lang(), option.labelEs, option.labelEn);
+  optionLabel(option: { labelEs: string; labelEn: string; labelPt?: string | null }): string {
+    return pickText(this.locale.lang(), { es: option.labelEs, en: option.labelEn, pt: option.labelPt });
   }
 
   maxLength(field: ServiceInputField): number {

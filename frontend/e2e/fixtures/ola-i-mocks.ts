@@ -205,8 +205,11 @@ function comunicadosIniciales(): AnnouncementAdmin[] {
       id: COMUNICADO.CL_IMPORT, status: 'Published', countries: ['CL'], operation: 'Import', severity: 'Important',
       titleEs: 'Nuevo horario del depósito de vacíos en San Antonio', titleEn: 'New hours at the San Antonio empty container depot',
       bodyEs: 'Desde el lunes 12 de octubre el depósito atiende de 08:00 a 20:00.', bodyEn: 'From Monday, October 12, the depot opens from 08:00 to 20:00.',
+      titlePt: 'Novo horário do depósito de vazios em San Antonio',
+      bodyPt: 'A partir de segunda-feira, 12 de outubro, o depósito funciona das 08:00 às 20:00.',
       validTo: '2026-12-31T23:59:00Z', notifyOnPublish: true, notifiedAt: '2026-10-03T12:00:00Z',
     }),
+    // Sin texto en portugués (creado antes de la Fase 5): en PT se muestra en español (respaldo pt → es → en).
     comunicado({
       id: COMUNICADO.BO_EXPORT, status: 'Published', countries: ['BO'], operation: 'Export',
       titleEs: 'Canje de BL de exportación boliviana en Arica', titleEn: 'Bolivian export BL exchange in Arica',
@@ -216,13 +219,14 @@ function comunicadosIniciales(): AnnouncementAdmin[] {
       id: COMUNICADO.BORRADOR, status: 'Draft', countries: ['CL', 'BO'], operation: 'Both', notifyOnPublish: true,
       titleEs: 'Mantención programada del portal', titleEn: 'Scheduled portal maintenance',
       bodyEs: 'El portal no estará disponible el domingo de 02:00 a 04:00.', bodyEn: 'The portal will be unavailable on Sunday from 02:00 to 04:00.',
+      titlePt: 'Manutenção programada do portal', bodyPt: 'O portal ficará indisponível no domingo, das 02:00 às 04:00.',
     }),
   ];
 }
 
 function instantaneaComunicado(a: AnnouncementAdmin): AnnouncementSnapshot {
   return {
-    titleEs: a.titleEs, titleEn: a.titleEn, countries: a.countries, operation: a.operation, severity: a.severity,
+    titleEs: a.titleEs, titleEn: a.titleEn, titlePt: a.titlePt ?? null, countries: a.countries, operation: a.operation, severity: a.severity,
     validFrom: a.validFrom ?? null, validTo: a.validTo ?? null, status: a.status, notifyOnPublish: a.notifyOnPublish,
   };
 }
@@ -232,21 +236,28 @@ function instantaneaComunicado(a: AnnouncementAdmin): AnnouncementSnapshot {
 // ---------------------------------------------------------------------------
 
 function guiaCarro(nueva: boolean): GuideDefinition {
-  const paso = (order: number, elementKey: string, titleEs: string, titleEn: string, textEs: string, textEn: string) =>
-    ({ order, route: '/cart', elementKey, titleEs, titleEn, textEs, textEn });
+  const paso = (order: number, elementKey: string, titleEs: string, titleEn: string, textEs: string, textEn: string, titlePt: string, textPt: string) =>
+    ({ order, route: '/cart', elementKey, titleEs, titleEn, textEs, textEn, titlePt, textPt });
   return {
     id: 'g1000000-0000-4000-8000-000000000001', code: GUIA_CARRO, nameEs: 'Pagar desde el carro', nameEn: 'Paying from the cart',
+    namePt: 'Como pagar pelo carrinho',
     descriptionEs: 'Cómo revisar los ítems, elegir el RUT, la moneda y el medio de pago.',
     descriptionEn: 'How to review the items and choose the tax ID, currency and payment method.',
+    descriptionPt: 'Como revisar os itens e escolher o RUT, a moeda e a forma de pagamento.',
     route: '/cart', version: 2, audience: 'Client', isActive: true, displayOrder: 1,
     status: nueva ? null : 'Completed', lastStep: nueva ? null : 5, statusAt: nueva ? null : '2026-10-01T12:00:00Z',
     createdAt: '2026-09-30T12:00:00Z', createdBy: USUARIO_ADMIN.email,
     steps: [
-      paso(1, 'cart.items', 'Sus ítems por moneda', 'Your items by currency', 'El carro separa los ítems por país y moneda de pago.', 'The cart groups items by country and payment currency.'),
-      paso(2, 'cart.billing-tax-id', 'RUT de facturación', 'Billing tax ID', 'Cada ítem muestra el RUT al que se factura.', 'Each item shows the tax ID it is billed to.'),
-      paso(3, 'cart.currency', 'Moneda de pago', 'Payment currency', 'Si el cargo lo permite, elija la moneda de pago.', 'If the charge allows it, choose the payment currency.'),
-      paso(4, 'cart.payment-method', 'Medio de pago', 'Payment method', 'Elija el medio de pago habilitado para la moneda.', 'Choose a payment method enabled for the currency.'),
-      paso(5, 'cart.checkout', 'Revisar y pagar', 'Review and pay', 'Revise el resumen y confirme el pago.', 'Review the summary and confirm the payment.'),
+      paso(1, 'cart.items', 'Sus ítems por moneda', 'Your items by currency', 'El carro separa los ítems por país y moneda de pago.', 'The cart groups items by country and payment currency.',
+        'Revise as cobranças', 'O carrinho separa os itens por país e moeda de pagamento.'),
+      paso(2, 'cart.billing-tax-id', 'RUT de facturación', 'Billing tax ID', 'Cada ítem muestra el RUT al que se factura.', 'Each item shows the tax ID it is billed to.',
+        'RUT de faturamento', 'Cada item mostra o RUT para o qual a fatura será emitida.'),
+      paso(3, 'cart.currency', 'Moneda de pago', 'Payment currency', 'Si el cargo lo permite, elija la moneda de pago.', 'If the charge allows it, choose the payment currency.',
+        'Moeda de pagamento', 'Se a cobrança permitir, escolha a moeda de pagamento.'),
+      paso(4, 'cart.payment-method', 'Medio de pago', 'Payment method', 'Elija el medio de pago habilitado para la moneda.', 'Choose a payment method enabled for the currency.',
+        'Forma de pagamento', 'Escolha uma forma de pagamento habilitada para a moeda.'),
+      paso(5, 'cart.checkout', 'Revisar y pagar', 'Review and pay', 'Revise el resumen y confirme el pago.', 'Review the summary and confirm the payment.',
+        'Revise e pague', 'Revise o resumo e confirme o pagamento.'),
     ],
   };
 }
@@ -512,7 +523,8 @@ export class SimulacionOlaI {
   /** Guía para el usuario (sin los campos del mantenedor). */
   private guiaUsuario(g: GuideDefinition): Guide {
     return {
-      code: g.code, nameEs: g.nameEs, nameEn: g.nameEn, descriptionEs: g.descriptionEs, descriptionEn: g.descriptionEn, route: g.route,
+      code: g.code, nameEs: g.nameEs, nameEn: g.nameEn, namePt: g.namePt, descriptionEs: g.descriptionEs, descriptionEn: g.descriptionEn,
+      descriptionPt: g.descriptionPt, route: g.route,
       version: g.version, steps: g.steps, status: g.status, lastStep: g.lastStep, statusAt: g.statusAt,
     };
   }
@@ -725,7 +737,10 @@ export class SimulacionOlaI {
     if (adminGuia) {
       const g = this.guias.find((x) => x.id === adminGuia[1]);
       if (adminGuia[2]) {
-        const snapshot = (x: GuideDefinition): GuideSnapshot => ({ code: x.code, nameEs: x.nameEs, nameEn: x.nameEn, route: x.route, audience: x.audience, isActive: x.isActive, displayOrder: x.displayOrder, version: x.version });
+        const snapshot = (x: GuideDefinition): GuideSnapshot => ({
+          code: x.code, nameEs: x.nameEs, nameEn: x.nameEn, namePt: x.namePt ?? null, route: x.route, audience: x.audience, isActive: x.isActive,
+          displayOrder: x.displayOrder, version: x.version,
+        });
         await json(route, 200, g ? [{ id: 'hg1', entityId: g.id, action: 'Created', changedAt: g.createdAt, changedBy: USUARIO_ADMIN.email, previous: null, current: snapshot(g) }] : []);
         return true;
       }

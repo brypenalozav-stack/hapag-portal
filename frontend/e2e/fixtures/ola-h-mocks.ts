@@ -385,7 +385,7 @@ interface Refacturacion {
 function solicitudIao(id: string, numero: string, status: ServiceRequestStatus, billing: ServiceBillingData): ServiceRequestDetail {
   return {
     id, requestNumber: numero, definitionId: 'd9000000-0000-4000-8000-000000000099', definitionCode: 'IAO_REINVOICING',
-    nameEs: 'Refacturación IAO', nameEn: 'IAO re-invoicing', organizationId: ORGANIZACION_PRUEBA.id, organizationName: ORGANIZACION_PRUEBA.name,
+    nameEs: 'Refacturación IAO', nameEn: 'IAO re-invoicing', namePt: 'Refaturamento IAO', organizationId: ORGANIZACION_PRUEBA.id, organizationName: ORGANIZACION_PRUEBA.name,
     requestedByEmail: USUARIO_PRUEBA.email, billOfLadingId: '3f0c2a1e-0000-4000-8000-000000000001', blNumber: 'HLCU0000001',
     bookingNumber: 'BKG26030010', country: 'CL', operation: 'IMPORT', timeZone: ZONA, containerNumbers: [], inputSchema: [], inputValues: {},
     billing, billingDataRequired: true, tariffAcceptanceRequired: true, status, statusChangedAt: AHORA, approvalTeam: 'None',
@@ -459,18 +459,18 @@ function borradorSembrado(): Refacturacion {
 
 /** Definiciones activas para los filtros (GET /service-requests/definitions). */
 const DEFINICIONES: ServiceDefinitionOption[] = [
-  ['SEAL_MANAGEMENT', 'Gestión de sellos', 'Seal management'],
-  ['LATE_ARRIVAL', 'Late Arrival', 'Late Arrival'],
-  ['EARLY_ARRIVAL', 'Early', 'Early arrival'],
-  ['DROP_OFF_SCL', 'Drop Off SCL', 'Drop Off SCL'],
-  ['XOM', 'Administración de contenedor (XOM)', 'Container administration (XOM)'],
-  ['BL_CORRECTION', 'Corrección o aclaración de BL', 'BL correction or clarification'],
-  ['BL_HOUSE_TRANSMISSION', 'Transmisión de BL hijo', 'House BL transmission'],
-  ['MATRIX_LATE', 'Matriz fuera de plazo', 'Late matrix submission'],
-  ['GATE_IN_RETURN', 'Gate In por devolución de unidades', 'Gate In for unit return'],
-  ['IAO_REINVOICING', 'Refacturación IAO', 'IAO re-invoicing'],
-].map(([code, nameEs, nameEn]): ServiceDefinitionOption => ({
-  code, nameEs, nameEn, operations: ['IMPORT', 'EXPORT'], countries: ['CL'], referenceType: 'BL', dedicatedFlow: code === 'IAO_REINVOICING',
+  ['SEAL_MANAGEMENT', 'Gestión de sellos', 'Seal management', 'Gestão de lacres'],
+  ['LATE_ARRIVAL', 'Late Arrival', 'Late Arrival', 'Late Arrival'],
+  ['EARLY_ARRIVAL', 'Early', 'Early arrival', 'Entrega antecipada (Early)'],
+  ['DROP_OFF_SCL', 'Drop Off SCL', 'Drop Off SCL', 'Drop Off SCL'],
+  ['XOM', 'Administración de contenedor (XOM)', 'Container administration (XOM)', 'Administração de contêiner (XOM)'],
+  ['BL_CORRECTION', 'Corrección o aclaración de BL', 'BL correction or clarification', 'Correção ou esclarecimento de BL'],
+  ['BL_HOUSE_TRANSMISSION', 'Transmisión de BL hijo', 'House BL transmission', 'Transmissão de BL filhote'],
+  ['MATRIX_LATE', 'Matriz fuera de plazo', 'Late matrix submission', 'Matriz fora do prazo'],
+  ['GATE_IN_RETURN', 'Gate In por devolución de unidades', 'Gate In for unit return', 'Gate In por devolução de unidades'],
+  ['IAO_REINVOICING', 'Refacturación IAO', 'IAO re-invoicing', 'Refaturamento IAO'],
+].map(([code, nameEs, nameEn, namePt]): ServiceDefinitionOption => ({
+  code, nameEs, nameEn, namePt, operations: ['IMPORT', 'EXPORT'], countries: ['CL'], referenceType: 'BL', dedicatedFlow: code === 'IAO_REINVOICING',
 }));
 
 /** Cargos del BL de exportación con el Gate Out por pagar (M3-19). */

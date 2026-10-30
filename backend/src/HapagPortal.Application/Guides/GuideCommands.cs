@@ -1,6 +1,7 @@
 namespace HapagPortal.Application.Guides;
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.Common.Maintainers;
@@ -14,7 +15,8 @@ using Microsoft.EntityFrameworkCore;
 
 /// <summary>
 /// Paso de una guía (M1-27): pantalla (<see cref="Route"/>), elemento que se resalta (<see cref="ElementKey"/>, el
-/// atributo <c>data-guide</c> de la interfaz) y la acción esperada en ES y EN.
+/// atributo <c>data-guide</c> de la interfaz) y la acción esperada en ES, EN y PT. <c>TitlePt</c> y <c>TextPt</c> se
+/// omiten del JSON cuando son nulos, para que los pasos sin portugués se sigan guardando igual (y no suba la versión).
 /// </summary>
 public sealed record GuideStepDto(
     int Order,
@@ -23,7 +25,9 @@ public sealed record GuideStepDto(
     string TitleEs,
     string TitleEn,
     string TextEs,
-    string TextEn);
+    string TextEn,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TitlePt = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TextPt = null);
 
 /// <summary>Guía activa para el usuario, con su estado (M1-27). <c>Status</c> nulo = no la ha completado ni descartado.</summary>
 public sealed record GuideDto(
@@ -37,7 +41,9 @@ public sealed record GuideDto(
     IReadOnlyList<GuideStepDto> Steps,
     string? Status,
     int? LastStep,
-    DateTime? StatusAt);
+    DateTime? StatusAt,
+    string? NamePt,
+    string? DescriptionPt);
 
 /// <summary>Guía en el mantenedor interno.</summary>
 public sealed record GuideDefinitionDto(
@@ -56,7 +62,9 @@ public sealed record GuideDefinitionDto(
     DateTime CreatedAt,
     string CreatedBy,
     DateTime? ModifiedAt,
-    string? ModifiedBy);
+    string? ModifiedBy,
+    string? NamePt,
+    string? DescriptionPt);
 
 /// <summary>Instantánea de una guía para el registro de cambios (NF-15).</summary>
 public sealed record GuideSnapshot(
@@ -68,10 +76,11 @@ public sealed record GuideSnapshot(
     bool IsActive,
     int DisplayOrder,
     int Version,
-    IReadOnlyList<GuideStepDto> Steps)
+    IReadOnlyList<GuideStepDto> Steps,
+    string? NamePt)
 {
     public static GuideSnapshot From(GuideDefinition g) =>
-        new(g.Code, g.NameEs, g.NameEn, g.Route, g.Audience, g.IsActive, g.DisplayOrder, g.Version, GuideSteps.Parse(g.StepsJson));
+        new(g.Code, g.NameEs, g.NameEn, g.Route, g.Audience, g.IsActive, g.DisplayOrder, g.Version, GuideSteps.Parse(g.StepsJson), g.NamePt);
 }
 
 /// <summary>Guías activas para el usuario actual (clientes o internos), opcionalmente las de una ruta (M1-27).</summary>
@@ -94,7 +103,9 @@ public sealed record CreateGuideCommand(
     string Audience,
     bool IsActive,
     int DisplayOrder,
-    IReadOnlyList<GuideStepDto> Steps) : ICommand<GuideDefinitionDto>;
+    IReadOnlyList<GuideStepDto> Steps,
+    string? NamePt = null,
+    string? DescriptionPt = null) : ICommand<GuideDefinitionDto>;
 
 public sealed record UpdateGuideCommand(
     Guid Id,
@@ -106,7 +117,9 @@ public sealed record UpdateGuideCommand(
     string Audience,
     bool IsActive,
     int DisplayOrder,
-    IReadOnlyList<GuideStepDto> Steps) : ICommand<GuideDefinitionDto>;
+    IReadOnlyList<GuideStepDto> Steps,
+    string? NamePt = null,
+    string? DescriptionPt = null) : ICommand<GuideDefinitionDto>;
 
 public sealed record DeleteGuideCommand(Guid Id) : ICommand;
 
@@ -132,7 +145,9 @@ public static class GuideSteps
                 TitleEs = s.TitleEs.Trim(),
                 TitleEn = s.TitleEn.Trim(),
                 TextEs = s.TextEs.Trim(),
-                TextEn = s.TextEn.Trim()
+                TextEn = s.TextEn.Trim(),
+                TitlePt = string.IsNullOrWhiteSpace(s.TitlePt) ? null : s.TitlePt.Trim(),
+                TextPt = string.IsNullOrWhiteSpace(s.TextPt) ? null : s.TextPt.Trim()
             }).ToList(),
             JsonOptions);
 
@@ -149,6 +164,8 @@ public static class GuideSteps
             step.RuleFor(s => s.TitleEn).NotEmpty().MaximumLength(150);
             step.RuleFor(s => s.TextEs).NotEmpty().MaximumLength(1000);
             step.RuleFor(s => s.TextEn).NotEmpty().MaximumLength(1000);
+            step.RuleFor(s => s.TitlePt).NotEmpty().MaximumLength(150);
+            step.RuleFor(s => s.TextPt).NotEmpty().MaximumLength(1000);
         }).WithName("Steps");
     }
 
@@ -157,10 +174,12 @@ public static class GuideSteps
         Func<T, string> nameEs,
         Func<T, string> nameEn,
         Func<T, string> route,
-        Func<T, string> audience)
+        Func<T, string> audience,
+        Func<T, string?> namePt)
     {
         validator.RuleFor(x => nameEs(x)).NotEmpty().MaximumLength(150).WithName("NameEs");
         validator.RuleFor(x => nameEn(x)).NotEmpty().MaximumLength(150).WithName("NameEn");
+        validator.RuleFor(x => namePt(x)).NotEmpty().MaximumLength(150).WithName("NamePt");
         validator.RuleFor(x => route(x)).NotEmpty().MaximumLength(200).Must(r => r.StartsWith('/'))
             .WithName("Route").WithMessage("Route must start with '/'.");
         validator.RuleFor(x => audience(x)).Must(a => GuideAudiences.Values.Contains(a))
@@ -169,7 +188,7 @@ public static class GuideSteps
 
     public static GuideDefinitionDto ToDefinitionDto(GuideDefinition g) => new(
         g.Id, g.Code, g.NameEs, g.NameEn, g.DescriptionEs, g.DescriptionEn, g.Route, g.Audience, g.IsActive, g.DisplayOrder, g.Version,
-        Parse(g.StepsJson), g.CreatedAt, g.CreatedBy, g.ModifiedAt, g.ModifiedBy);
+        Parse(g.StepsJson), g.CreatedAt, g.CreatedBy, g.ModifiedAt, g.ModifiedBy, g.NamePt, g.DescriptionPt);
 
     /// <summary>Un estado de una versión anterior de la guía no cuenta: la guía cambió y se vuelve a ofrecer.</summary>
     public static GuideDto ToDto(GuideDefinition g, UserGuideState? state)
@@ -177,7 +196,7 @@ public static class GuideSteps
         var current = state is not null && state.GuideVersion == g.Version ? state : null;
         return new GuideDto(
             g.Code, g.NameEs, g.NameEn, g.DescriptionEs, g.DescriptionEn, g.Route, g.Version, Parse(g.StepsJson),
-            current?.Status, current?.LastStep, current?.UpdatedAt);
+            current?.Status, current?.LastStep, current?.UpdatedAt, g.NamePt, g.DescriptionPt);
     }
 
     /// <summary>Audiencia del usuario: interno (organización Hapag-Lloyd o sin organización) o cliente.</summary>
@@ -210,9 +229,10 @@ public sealed class CreateGuideCommandValidator : AbstractValidator<CreateGuideC
     {
         RuleFor(x => x.Code).NotEmpty().MaximumLength(60).Matches("^[a-z0-9][a-z0-9\\-]*$")
             .WithMessage("Code must use lowercase letters, digits or '-'.");
-        GuideSteps.Header(this, x => x.NameEs, x => x.NameEn, x => x.Route, x => x.Audience);
+        GuideSteps.Header(this, x => x.NameEs, x => x.NameEn, x => x.Route, x => x.Audience, x => x.NamePt);
         RuleFor(x => x.DescriptionEs).MaximumLength(500);
         RuleFor(x => x.DescriptionEn).MaximumLength(500);
+        RuleFor(x => x.DescriptionPt).MaximumLength(500);
         GuideSteps.Rules(this, x => x.Steps);
     }
 }
@@ -222,9 +242,10 @@ public sealed class UpdateGuideCommandValidator : AbstractValidator<UpdateGuideC
     public UpdateGuideCommandValidator()
     {
         RuleFor(x => x.Id).NotEmpty();
-        GuideSteps.Header(this, x => x.NameEs, x => x.NameEn, x => x.Route, x => x.Audience);
+        GuideSteps.Header(this, x => x.NameEs, x => x.NameEn, x => x.Route, x => x.Audience, x => x.NamePt);
         RuleFor(x => x.DescriptionEs).MaximumLength(500);
         RuleFor(x => x.DescriptionEn).MaximumLength(500);
+        RuleFor(x => x.DescriptionPt).MaximumLength(500);
         GuideSteps.Rules(this, x => x.Steps);
     }
 }
@@ -371,6 +392,8 @@ public sealed class CreateGuideCommandHandler(
             NameEn = request.NameEn.Trim(),
             DescriptionEs = string.IsNullOrWhiteSpace(request.DescriptionEs) ? null : request.DescriptionEs.Trim(),
             DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim(),
+            NamePt = string.IsNullOrWhiteSpace(request.NamePt) ? null : request.NamePt.Trim(),
+            DescriptionPt = string.IsNullOrWhiteSpace(request.DescriptionPt) ? null : request.DescriptionPt.Trim(),
             Route = request.Route.Trim(),
             Audience = request.Audience,
             IsActive = request.IsActive,
@@ -413,6 +436,8 @@ public sealed class UpdateGuideCommandHandler(
         guide.NameEn = request.NameEn.Trim();
         guide.DescriptionEs = string.IsNullOrWhiteSpace(request.DescriptionEs) ? null : request.DescriptionEs.Trim();
         guide.DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim();
+        guide.NamePt = string.IsNullOrWhiteSpace(request.NamePt) ? null : request.NamePt.Trim();
+        guide.DescriptionPt = string.IsNullOrWhiteSpace(request.DescriptionPt) ? null : request.DescriptionPt.Trim();
         guide.Route = request.Route.Trim();
         guide.Audience = request.Audience;
         guide.IsActive = request.IsActive;

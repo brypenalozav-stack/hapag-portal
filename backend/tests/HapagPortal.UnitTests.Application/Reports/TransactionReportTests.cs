@@ -279,4 +279,39 @@ public sealed class TransactionReportTests
         validator.Validate(new GetTransactionReportQuery(new DateOnly(2026, 2, 1), new DateOnly(2026, 1, 1))).IsValid.Should().BeFalse();
         validator.Validate(new GetTransactionReportQuery(Country: "AR")).IsValid.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task Export_InPortuguese_ShouldUsePortugueseHeadersAndFileNames()
+    {
+        SeedTransactions();
+        var from = DateOnly.FromDateTime(_now.AddDays(-30));
+        var to = DateOnly.FromDateTime(_now.AddDays(1));
+
+        var xlsx = await new ExportTransactionReportQueryHandler(Builder()).Handle(new ExportTransactionReportQuery(from, to, Language: "pt"), CancellationToken.None);
+        var csv = await new ExportTransactionReportQueryHandler(Builder()).Handle(
+            new ExportTransactionReportQuery(from, to, Format: ReportExportFormats.Csv, Language: "pt"), CancellationToken.None);
+        var exceptions = await new ExportExceptionReportQueryHandler(Builder()).Handle(
+            new ExportExceptionReportQuery(from, to, Format: ReportExportFormats.Csv, Language: "pt"), CancellationToken.None);
+
+        xlsx.Value.FileName.Should().StartWith("transacoes-").And.EndWith(".xlsx");
+        csv.Value.FileName.Should().StartWith("transacoes-").And.EndWith(".csv");
+        Encoding.UTF8.GetString(csv.Value.Content).Should().Contain("Forma de pagamento").And.Contain("Nome do serviço");
+        exceptions.Value.FileName.Should().StartWith("excecoes-").And.EndWith(".csv");
+        Encoding.UTF8.GetString(exceptions.Value.Content).Should().Contain("Parte isenta");
+    }
+
+    [Fact]
+    public void ExportValidators_ShouldAcceptEsEnPt_AndRejectOthers()
+    {
+        var transactions = new ExportTransactionReportQueryValidator();
+        var exceptions = new ExportExceptionReportQueryValidator();
+
+        foreach (var language in new[] { null, "es", "en", "pt" })
+        {
+            transactions.Validate(new ExportTransactionReportQuery(Language: language)).IsValid.Should().BeTrue(language);
+            exceptions.Validate(new ExportExceptionReportQuery(Language: language)).IsValid.Should().BeTrue(language);
+        }
+        transactions.Validate(new ExportTransactionReportQuery(Language: "fr")).Errors.Single().ErrorMessage.Should().Be("Language must be es, en or pt.");
+        exceptions.Validate(new ExportExceptionReportQuery(Language: "fr")).Errors.Single().ErrorMessage.Should().Be("Language must be es, en or pt.");
+    }
 }
