@@ -23,7 +23,7 @@ public sealed record GetAccountStatementQuery(
     string? Sort = null,
     string? Direction = null) : IQuery<AccountStatementDto>;
 
-/// <summary>Exporta el estado de cuenta (mismos filtros) a planilla: <c>xlsx</c> (predeterminado) o <c>csv</c>; encabezados en ES o EN.</summary>
+/// <summary>Exporta el estado de cuenta (mismos filtros) a planilla: <c>xlsx</c> (predeterminado) o <c>csv</c>; encabezados en ES, EN o PT.</summary>
 public sealed record ExportAccountStatementQuery(
     Guid? OrganizationId = null,
     string? BlNumber = null,
@@ -100,8 +100,8 @@ public sealed class ExportAccountStatementQueryValidator : AbstractValidator<Exp
             .Must(f => f is null || StatementExportFormats.All.Contains(f))
             .WithMessage("Format must be xlsx or csv.");
         RuleFor(x => x.Language)
-            .Must(l => l is null || l is "es" or "en")
-            .WithMessage("Language must be es or en.");
+            .Must(ExportLanguages.IsValid)
+            .WithMessage(ExportLanguages.ValidationMessage);
     }
 }
 
@@ -128,44 +128,101 @@ public sealed class ExportAccountStatementQueryHandler(AccountStatementBuilder b
             return Result<StatementFileDto>.Failure(built.Error);
 
         var statement = built.Value;
-        var english = request.Language == "en";
+        var texts = StatementTexts.For(request.Language);
         var format = request.Format ?? StatementExportFormats.Xlsx;
-        var name = $"{(english ? "account-statement" : "estado-de-cuenta")}-{statement.Organization.TaxId}-{statement.AsOf:yyyyMMdd}";
+        var name = $"{texts.FilePrefix}-{statement.Organization.TaxId}-{statement.AsOf:yyyyMMdd}";
 
-        var lines = StatementExport.Lines(statement, english);
+        var lines = StatementExport.Lines(statement, texts);
         if (format == StatementExportFormats.Csv)
             return Result<StatementFileDto>.Success(new StatementFileDto(SpreadsheetWriter.ToCsv(lines), SpreadsheetWriter.CsvContentType, $"{name}.csv"));
 
         var sheets = new List<SpreadsheetSheet>
         {
-            new(english ? "Statement" : "Estado de cuenta", lines),
-            new(english ? "Summary" : "Resumen", StatementExport.Summary(statement, english)),
-            new(english ? "Advances" : "Anticipos", StatementExport.Advances(statement, english))
+            new(texts.StatementSheet, lines),
+            new(texts.SummarySheet, StatementExport.Summary(statement, texts)),
+            new(texts.AdvancesSheet, StatementExport.Advances(statement, texts))
         };
         return Result<StatementFileDto>.Success(new StatementFileDto(SpreadsheetWriter.ToXlsx(sheets), SpreadsheetWriter.XlsxContentType, $"{name}.xlsx"));
     }
 }
 
+/// <summary>Textos de la planilla del estado de cuenta (M7-03) por idioma: prefijo del archivo, hojas, encabezados y etiquetas.</summary>
+public sealed record StatementTexts(
+    string FilePrefix,
+    string StatementSheet,
+    string SummarySheet,
+    string AdvancesSheet,
+    IReadOnlyList<string> LineHeaders,
+    string Yes,
+    IReadOnlyList<string> SummaryHeaders,
+    string Organization,
+    string AsOf,
+    string LastUpdated,
+    string TimeZone,
+    string CreditDays,
+    string CreditLimit,
+    string AvailableCredit,
+    IReadOnlyList<string> BalanceHeaders,
+    string Currency,
+    IReadOnlyList<string> AdvanceHeaders)
+{
+    public static readonly StatementTexts Spanish = new(
+        "estado-de-cuenta", "Estado de cuenta", "Resumen", "Anticipos",
+        ["Tipo", "Tipo de documento", "Número", "Folio SII", "N° origen", "Concepto", "Descripción", "BL", "Booking", "Razón social",
+            "RUT", "Fecha", "Emisión", "Vencimiento", "Estado", "Por vencer", "Días vencidos", "Tramo", "Moneda", "Neto", "Impuesto",
+            "Total", "Saldo", "Cubierta por pago", "Comprobante", "Solicitud", "Imputación a crédito"],
+        "Sí",
+        ["Dato", "Valor"],
+        "Organización", "Al", "Última actualización (UTC)", "Huso horario", "Días de crédito", "Cupo de crédito", "Crédito disponible",
+        ["Moneda", "Saldo total", "Facturado", "Vencido", "Por vencer", "No vencido", "No facturado", "Imputado a crédito", "Anticipos sin factura"],
+        "Moneda",
+        ["Pago", "Comprobante", "Estado", "BL", "Booking", "Concepto", "Monto", "Moneda", "Pagado", "Moneda de pago", "Pagado (UTC)", "Factura", "Cruce (UTC)", "Recibo del anticipo"]);
+
+    public static readonly StatementTexts English = new(
+        "account-statement", "Statement", "Summary", "Advances",
+        ["Kind", "Document type", "Number", "SII folio", "Source number", "Concept", "Description", "BL", "Booking", "Legal name",
+            "Tax ID", "Date", "Issue date", "Due date", "Status", "Due soon", "Days overdue", "Aging bucket", "Currency", "Net", "Tax",
+            "Total", "Balance", "Covered by payment", "Receipt", "Service request", "Credit imputation"],
+        "Yes",
+        ["Item", "Value"],
+        "Organization", "As of", "Last updated (UTC)", "Time zone", "Credit days", "Credit limit", "Available credit",
+        ["Currency", "Total balance", "Invoiced", "Overdue", "Due soon", "Not yet due", "Uninvoiced", "Credit imputed", "Unapplied advances"],
+        "Currency",
+        ["Payment", "Receipt", "Status", "BL", "Booking", "Concept", "Amount", "Currency", "Paid", "Paid currency", "Paid at (UTC)", "Invoice", "Matched at (UTC)", "Advance receipt"]);
+
+    public static readonly StatementTexts Portuguese = new(
+        "extrato-de-conta", "Extrato de conta", "Resumo", "Adiantamentos",
+        ["Tipo", "Tipo de documento", "Número", "Folio SII", "Nº de origem", "Conceito", "Descrição", "BL", "Booking", "Razão social",
+            "ID fiscal", "Data", "Emissão", "Vencimento", "Status", "A vencer", "Dias em atraso", "Faixa de vencimento", "Moeda", "Valor líquido",
+            "Imposto", "Total", "Saldo", "Coberta por pagamento", "Comprovante", "Solicitação", "Imputação a crédito"],
+        "Sim",
+        ["Dado", "Valor"],
+        "Organização", "Posição em", "Última atualização (UTC)", "Fuso horário", "Dias de crédito", "Limite de crédito", "Crédito disponível",
+        ["Moeda", "Saldo total", "Faturado", "Vencido", "A vencer", "Não vencido", "Não faturado", "Imputado a crédito", "Adiantamentos sem fatura"],
+        "Moeda",
+        ["Pagamento", "Comprovante", "Status", "BL", "Booking", "Conceito", "Valor", "Moeda", "Pago", "Moeda do pagamento", "Pago em (UTC)", "Fatura",
+            "Conciliado em (UTC)", "Recibo do adiantamento"]);
+
+    /// <summary>Textos del idioma pedido; sin idioma, español.</summary>
+    public static StatementTexts For(string? language) => ExportLanguages.Of(language) switch
+    {
+        ExportLanguages.En => English,
+        ExportLanguages.Pt => Portuguese,
+        _ => Spanish
+    };
+}
+
 /// <summary>Filas de la planilla del estado de cuenta (M7-03).</summary>
 public static class StatementExport
 {
-    public static IReadOnlyList<IReadOnlyList<object?>> Lines(AccountStatementDto statement, bool english)
+    public static IReadOnlyList<IReadOnlyList<object?>> Lines(AccountStatementDto statement, StatementTexts texts)
     {
-        var rows = new List<IReadOnlyList<object?>>
-        {
-            english
-                ? ["Kind", "Document type", "Number", "SII folio", "Source number", "Concept", "Description", "BL", "Booking", "Legal name",
-                    "Tax ID", "Date", "Issue date", "Due date", "Status", "Due soon", "Days overdue", "Aging bucket", "Currency", "Net", "Tax",
-                    "Total", "Balance", "Covered by payment", "Receipt", "Service request", "Credit imputation"]
-                : ["Tipo", "Tipo de documento", "Número", "Folio SII", "N° origen", "Concepto", "Descripción", "BL", "Booking", "Razón social",
-                    "RUT", "Fecha", "Emisión", "Vencimiento", "Estado", "Por vencer", "Días vencidos", "Tramo", "Moneda", "Neto", "Impuesto",
-                    "Total", "Saldo", "Cubierta por pago", "Comprobante", "Solicitud", "Imputación a crédito"]
-        };
+        var rows = new List<IReadOnlyList<object?>> { texts.LineHeaders };
 
         rows.AddRange(statement.Lines.Select(l => (IReadOnlyList<object?>)
         [
             l.Kind, l.DocumentType, l.Number, l.SiiNumber, l.SourceNumber, l.ConceptCode, l.Description, l.BlNumber, l.BookingNumber,
-            l.LegalName, l.TaxId, l.ReferenceDate, l.IssueDate, l.DueDate, l.Status, l.DueSoon ? (english ? "Yes" : "Sí") : null,
+            l.LegalName, l.TaxId, l.ReferenceDate, l.IssueDate, l.DueDate, l.Status, l.DueSoon ? texts.Yes : null,
             l.DaysOverdue, l.AgingBucket, l.Currency, l.Amount, l.TaxAmount, l.TotalAmount, l.Balance, l.CoveredBy?.PaymentNumber,
             l.CoveredBy?.ReceiptNumber, l.ServiceRequestNumber, l.CreditImputationNumber
         ]));
@@ -173,43 +230,36 @@ public static class StatementExport
         return rows;
     }
 
-    public static IReadOnlyList<IReadOnlyList<object?>> Summary(AccountStatementDto statement, bool english)
+    public static IReadOnlyList<IReadOnlyList<object?>> Summary(AccountStatementDto statement, StatementTexts texts)
     {
         var rows = new List<IReadOnlyList<object?>>();
-        rows.Add(english ? ["Item", "Value"] : ["Dato", "Valor"]);
-        rows.Add([english ? "Organization" : "Organización", $"{statement.Organization.Name} ({statement.Organization.TaxId})"]);
-        rows.Add([english ? "As of" : "Al", statement.AsOf]);
-        rows.Add([english ? "Last updated (UTC)" : "Última actualización (UTC)", statement.LastUpdatedAt]);
-        rows.Add([english ? "Time zone" : "Huso horario", statement.TimeZone]);
+        rows.Add(texts.SummaryHeaders);
+        rows.Add([texts.Organization, $"{statement.Organization.Name} ({statement.Organization.TaxId})"]);
+        rows.Add([texts.AsOf, statement.AsOf]);
+        rows.Add([texts.LastUpdated, statement.LastUpdatedAt]);
+        rows.Add([texts.TimeZone, statement.TimeZone]);
 
         if (statement.Credit is { } credit)
         {
-            rows.Add([english ? "Credit days" : "Días de crédito", credit.CreditDays]);
-            rows.Add([english ? "Credit limit" : "Cupo de crédito", credit.Limit is null ? null : $"{credit.Limit} {credit.LimitCurrency}"]);
-            rows.Add([english ? "Available credit" : "Crédito disponible", credit.Available is null ? credit.UnavailableReason : $"{credit.Available} {credit.LimitCurrency}"]);
+            rows.Add([texts.CreditDays, credit.CreditDays]);
+            rows.Add([texts.CreditLimit, credit.Limit is null ? null : $"{credit.Limit} {credit.LimitCurrency}"]);
+            rows.Add([texts.AvailableCredit, credit.Available is null ? credit.UnavailableReason : $"{credit.Available} {credit.LimitCurrency}"]);
         }
 
         rows.Add([]);
-        rows.Add(english
-            ? ["Currency", "Total balance", "Invoiced", "Overdue", "Due soon", "Not yet due", "Uninvoiced", "Credit imputed", "Unapplied advances"]
-            : ["Moneda", "Saldo total", "Facturado", "Vencido", "Por vencer", "No vencido", "No facturado", "Imputado a crédito", "Anticipos sin factura"]);
+        rows.Add(texts.BalanceHeaders);
         rows.AddRange(statement.Summary.Select(s => (IReadOnlyList<object?>)
             [s.Currency, s.TotalBalance, s.InvoicedBalance, s.Overdue, s.DueSoon, s.NotYetDue, s.Uninvoiced, s.CreditImputed, s.AdvancesUnapplied]));
 
         rows.Add([]);
-        rows.Add([english ? "Currency" : "Moneda", .. statement.Aging.Buckets.Select(b => (object?)b.Code), "Total"]);
+        rows.Add([texts.Currency, .. statement.Aging.Buckets.Select(b => (object?)b.Code), "Total"]);
         rows.AddRange(statement.Aging.Rows.Select(r => (IReadOnlyList<object?>)[r.Currency, .. r.Amounts.Select(a => (object?)a), r.Total]));
         return rows;
     }
 
-    public static IReadOnlyList<IReadOnlyList<object?>> Advances(AccountStatementDto statement, bool english)
+    public static IReadOnlyList<IReadOnlyList<object?>> Advances(AccountStatementDto statement, StatementTexts texts)
     {
-        var rows = new List<IReadOnlyList<object?>>
-        {
-            english
-                ? ["Payment", "Receipt", "Status", "BL", "Booking", "Concept", "Amount", "Currency", "Paid", "Paid currency", "Paid at (UTC)", "Invoice", "Matched at (UTC)", "Advance receipt"]
-                : ["Pago", "Comprobante", "Estado", "BL", "Booking", "Concepto", "Monto", "Moneda", "Pagado", "Moneda de pago", "Pagado (UTC)", "Factura", "Cruce (UTC)", "Recibo del anticipo"]
-        };
+        var rows = new List<IReadOnlyList<object?>> { texts.AdvanceHeaders };
 
         rows.AddRange(statement.Advances.Select(a => (IReadOnlyList<object?>)
         [

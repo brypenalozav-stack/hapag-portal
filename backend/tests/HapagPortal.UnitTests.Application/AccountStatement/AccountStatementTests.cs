@@ -244,4 +244,37 @@ public sealed class AccountStatementTests
         text.Split("\r\n")[0].Should().StartWith("Kind,Document type,Number");
         text.Should().Contain("1003");
     }
+
+    [Fact]
+    public async Task Export_InPortuguese_ShouldUsePortugueseHeadersAndFileName()
+    {
+        SeedAccount();
+
+        var xlsx = await _f.Export().Handle(new ExportAccountStatementQuery(Language: "pt"), CancellationToken.None);
+        var csv = await _f.Export().Handle(new ExportAccountStatementQuery(Format: StatementExportFormats.Csv, Language: "pt"), CancellationToken.None);
+
+        xlsx.Value.FileName.Should().StartWith("extrato-de-conta-").And.EndWith(".xlsx");
+        using (var zip = new ZipArchive(new MemoryStream(xlsx.Value.Content)))
+        {
+            using var reader = new StreamReader(zip.GetEntry("xl/workbook.xml")!.Open());
+            var workbook = reader.ReadToEnd();
+            workbook.Should().Contain("Extrato de conta").And.Contain("Resumo").And.Contain("Adiantamentos");
+        }
+
+        csv.Value.FileName.Should().StartWith("extrato-de-conta-").And.EndWith(".csv");
+        var header = Encoding.UTF8.GetString(csv.Value.Content[3..]).Split("\r\n")[0];
+        header.Should().Contain("Nº de origem").And.Contain("Faixa de vencimento").And.NotContain("Tramo");
+    }
+
+    [Fact]
+    public void ExportValidator_ShouldAcceptEsEnPt_AndRejectOthers()
+    {
+        var validator = new ExportAccountStatementQueryValidator();
+
+        foreach (var language in new[] { null, "es", "en", "pt" })
+            validator.Validate(new ExportAccountStatementQuery(Language: language)).IsValid.Should().BeTrue(language);
+        var invalid = validator.Validate(new ExportAccountStatementQuery(Language: "fr"));
+        invalid.IsValid.Should().BeFalse();
+        invalid.Errors.Single().ErrorMessage.Should().Be(ExportLanguages.ValidationMessage);
+    }
 }

@@ -10,6 +10,7 @@ import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { EXPORT_PREFIXES, exportLanguage } from '../../core/i18n/export-language';
 import { LiveAnnouncerService } from '../../core/services/live-announcer.service';
 import {
   AccountCheckoutResult,
@@ -303,10 +304,10 @@ export class AccountStatementComponent implements OnInit {
     this.actionError.set('');
     this.exporting.set(format);
     const lang = this.locale.lang();
-    this.service.export({ organizationId: s.organization.id, ...this.applied }, format, lang).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.export({ organizationId: s.organization.id, ...this.applied }, format, exportLanguage(lang)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (blob) => {
         this.exporting.set(null);
-        const prefix = lang === 'en' ? 'account-statement' : 'estado-de-cuenta';
+        const prefix = EXPORT_PREFIXES[lang].accountStatement;
         const fileName = `${prefix}-${s.organization.taxId}-${s.asOf.replace(/-/g, '')}.${format}`;
         saveBlob(blob, fileName);
         this.announcer.announce(translate('accountStatement.export.done', { name: fileName }));

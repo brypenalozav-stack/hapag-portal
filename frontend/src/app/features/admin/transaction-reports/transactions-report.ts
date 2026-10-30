@@ -8,6 +8,7 @@ import { LocaleService } from '../../../core/services/locale.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { TRANSACTION_CATEGORIES, TransactionReport, TransactionRow } from '../../../core/models/transaction-report.model';
 import { CHARGE_CONCEPT_KEYS, TRANSACTION_CATEGORY_KEYS } from '../../../core/i18n/labels';
+import { EXPORT_PREFIXES, exportLanguage } from '../../../core/i18n/export-language';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
@@ -21,7 +22,7 @@ import { PaginatorComponent } from '../../../shared/components/paginator/paginat
 
 const PAGE_SIZE = 50;
 
-/** Nombre del archivo exportado, como lo arma el servidor (`transacciones-yyyyMMdd-yyyyMMdd.xlsx`). */
+/** Nombre del archivo exportado, como lo arma el servidor (`transacciones-yyyyMMdd-yyyyMMdd.xlsx`, con el prefijo del idioma). */
 function exportName(prefix: string, from: string, to: string, format: string): string {
   return `${prefix}-${from.replace(/-/g, '')}-${to.replace(/-/g, '')}.${format}`;
 }
@@ -130,10 +131,11 @@ export class TransactionsReportComponent implements OnInit {
     const report = this.report();
     if (!report || this.exporting()) return;
     this.exporting.set(format);
-    this.reports.export('transactions', this.filters(), format, this.locale.lang()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    const lang = this.locale.lang();
+    this.reports.export('transactions', this.filters(), format, exportLanguage(lang)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (blob) => {
         this.exporting.set(null);
-        const name = exportName('transacciones', report.from, report.to, format);
+        const name = exportName(EXPORT_PREFIXES[lang].transactions, report.from, report.to, format);
         saveBlob(blob, name);
         this.toast.success(translate('admin.transactionReports.exported', { name }));
       },
