@@ -132,10 +132,11 @@
             </div>
             <p id="hl-pref-lang" class="hl-user-menu__label">{{ 'shared.navbar.language.label' | transloco }}</p>
             <div class="hl-segmented" role="group" aria-labelledby="hl-pref-lang">
-              <button type="button" class="hl-segmented__btn" lang="es" [class.is-active]="locale.lang() === 'es'" [attr.aria-pressed]="locale.lang() === 'es'"
-                      [attr.aria-label]="'shared.navbar.language.es' | transloco" (click)="locale.setLang('es')">ES</button>
-              <button type="button" class="hl-segmented__btn" lang="en" [class.is-active]="locale.lang() === 'en'" [attr.aria-pressed]="locale.lang() === 'en'"
-                      [attr.aria-label]="'shared.navbar.language.en' | transloco" (click)="locale.setLang('en')">EN</button>
+              @for (option of languages; track option.lang) {
+                <button type="button" class="hl-segmented__btn" [attr.lang]="htmlLang[option.lang]"
+                        [class.is-active]="locale.lang() === option.lang" [attr.aria-pressed]="locale.lang() === option.lang"
+                        [attr.aria-label]="option.nameKey | transloco" (click)="locale.setLang(option.lang)">{{ option.code }}</button>
+              }
             </div>
             @if (countries().length > 1) {
               <div class="d-md-none">
@@ -176,12 +177,11 @@
         </select>
       </div>
       <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'shared.navbar.language.label' | transloco">
-        <button type="button" class="btn btn-outline-light hl-lang-btn" lang="es"
-                [class.active]="locale.lang() === 'es'" [attr.aria-pressed]="locale.lang() === 'es'"
-                [attr.aria-label]="'shared.navbar.language.es' | transloco" (click)="locale.setLang('es')">ES</button>
-        <button type="button" class="btn btn-outline-light hl-lang-btn" lang="en"
-                [class.active]="locale.lang() === 'en'" [attr.aria-pressed]="locale.lang() === 'en'"
-                [attr.aria-label]="'shared.navbar.language.en' | transloco" (click)="locale.setLang('en')">EN</button>
+        @for (option of languages; track option.lang) {
+          <button type="button" class="btn btn-outline-light hl-lang-btn" [attr.lang]="htmlLang[option.lang]"
+                  [class.active]="locale.lang() === option.lang" [attr.aria-pressed]="locale.lang() === option.lang"
+                  [attr.aria-label]="option.nameKey | transloco" (click)="locale.setLang(option.lang)">{{ option.code }}</button>
+        }
       </div>
       <a routerLink="/login" class="btn btn-outline-light btn-sm">{{ 'shared.navbar.login' | transloco }}</a>
     }

@@ -87,6 +87,7 @@ export interface ServiceInputOption {
   value: string;
   labelEs: string;
   labelEn: string;
+  labelPt?: string | null;
 }
 
 /** Campo tipado del formulario: `min`/`max`/`integer` para números, `maxLength` para textos, `options` para selecciones. */
@@ -94,6 +95,7 @@ export interface ServiceInputField {
   key: string;
   labelEs: string;
   labelEn: string;
+  labelPt?: string | null;
   type: ServiceFieldType;
   required?: boolean;
   options?: ServiceInputOption[] | null;
@@ -103,6 +105,7 @@ export interface ServiceInputField {
   maxLength?: number | null;
   helpEs?: string | null;
   helpEn?: string | null;
+  helpPt?: string | null;
 }
 
 /** Respuesta de un campo: texto, fecha (yyyy-MM-dd), número, opción o lista de contenedores. */
@@ -163,8 +166,10 @@ export interface AvailableService {
   code: string;
   nameEs: string;
   nameEn: string;
+  namePt?: string | null;
   descriptionEs?: string | null;
   descriptionEn?: string | null;
+  descriptionPt?: string | null;
   referenceType: ServiceReferenceType;
   available: boolean;
   canRequest: boolean;
@@ -188,6 +193,7 @@ export interface ServiceDefinitionOption {
   code: string;
   nameEs: string;
   nameEn: string;
+  namePt?: string | null;
   operations: ServiceOperation[];
   countries: string[];
   referenceType: ServiceReferenceType;
@@ -265,6 +271,7 @@ export interface ServiceRequestSummary {
   definitionCode: string;
   nameEs: string;
   nameEn: string;
+  namePt?: string | null;
   blNumber: string;
   bookingNumber?: string | null;
   country: 'CL' | 'BO';
@@ -287,6 +294,7 @@ export interface ServiceRequestDetail {
   definitionCode: string;
   nameEs: string;
   nameEn: string;
+  namePt?: string | null;
   organizationId: string;
   organizationName?: string | null;
   requestedByEmail?: string | null;
@@ -389,8 +397,10 @@ export interface ServiceDefinitionInput {
   code: string;
   nameEs: string;
   nameEn: string;
+  namePt?: string | null;
   descriptionEs: string | null;
   descriptionEn: string | null;
+  descriptionPt?: string | null;
   operations: ServiceOperation[];
   countries: string[];
   referenceType: ServiceReferenceType;
@@ -435,8 +445,10 @@ export interface ServiceDefinitionSnapshot {
   code: string;
   nameEs: string;
   nameEn: string;
+  namePt?: string | null;
   descriptionEs?: string | null;
   descriptionEn?: string | null;
+  descriptionPt?: string | null;
   operations: string;
   countries: string;
   referenceType: string;

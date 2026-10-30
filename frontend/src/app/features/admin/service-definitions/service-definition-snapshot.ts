@@ -1,5 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { pickText } from '../../../core/i18n/localized-text';
 import { LocaleService } from '../../../core/services/locale.service';
 import { ServiceDefinitionSnapshot, ServiceInputField } from '../../../core/models/service-request.model';
 import {
@@ -11,7 +12,6 @@ import {
   SERVICE_TIMING_RULE_KEYS,
 } from '../../../core/i18n/labels';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
-import { localized } from '../../service-requests/shared/service-text';
 
 /**
  * Valor de una definición de servicio en el registro de cambios (NF-15): nombre, alcance, campos del formulario,
@@ -84,6 +84,6 @@ export class ServiceDefinitionSnapshotComponent {
 
   name(): string {
     const s = this.snapshot();
-    return s ? localized(this.locale.lang(), s.nameEs, s.nameEn) : '';
+    return s ? pickText(this.locale.lang(), { es: s.nameEs, en: s.nameEn, pt: s.namePt }) : '';
   }
 }

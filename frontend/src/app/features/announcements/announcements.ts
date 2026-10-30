@@ -7,6 +7,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { Announcement } from '../../core/models/announcement.model';
 import { ANNOUNCEMENT_OPERATION_KEYS } from '../../core/i18n/labels';
+import { pickText } from '../../core/i18n/localized-text';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../shared/pipes/code-label.pipe';
@@ -61,10 +62,10 @@ export class AnnouncementsComponent implements OnInit {
   }
 
   title(a: Announcement): string {
-    return this.locale.lang() === 'en' ? a.titleEn : a.titleEs;
+    return pickText(this.locale.lang(), { es: a.titleEs, en: a.titleEn, pt: a.titlePt });
   }
 
   body(a: Announcement): string {
-    return this.locale.lang() === 'en' ? a.bodyEn : a.bodyEs;
+    return pickText(this.locale.lang(), { es: a.bodyEs, en: a.bodyEn, pt: a.bodyPt });
   }
 }

@@ -37,7 +37,7 @@ La fuente de verdad de los requerimientos es la *Especificación Funcional Porta
 - **Dashboard** orientado a la acción: lo primero es "Requiere su acción", agrupado por BL y ordenado por urgencia.
 - **Búsqueda universal** de BL, booking o contenedor desde la barra superior.
 - **Asistente** de ayuda flotante.
-- **Idiomas y accesibilidad:** español e inglés, tema claro y oscuro, WCAG 2.2 AA.
+- **Idiomas y accesibilidad:** español, inglés y portugués de Brasil, tema claro y oscuro, WCAG 2.2 AA.
 
 **Backoffice (equipos internos)**
 
@@ -50,7 +50,7 @@ La fuente de verdad de los requerimientos es la *Especificación Funcional Porta
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | Angular 21 (componentes *standalone* y *signals*), Bootstrap 5.3, Transloco (ES/EN), TypeScript 5.9 |
+| Frontend | Angular 21 (componentes *standalone* y *signals*), Bootstrap 5.3, Transloco (ES/EN/PT), TypeScript 5.9 |
 | Backend | .NET 9, Clean Architecture con CQRS (MediatR 12.4.1), FluentValidation, Entity Framework Core 9 |
 | Base de datos | PostgreSQL (Npgsql) |
 | Documentos | PDFsharp-MigraDoc (PDF) y QRCoder (códigos QR) |
@@ -75,7 +75,7 @@ frontend/
   src/app/core/                      Servicios, modelos, guards e interceptores
   src/app/shared/                    Componentes compartidos (menú, tablas, modales, avisos...)
   src/app/features/                  Pantallas por funcionalidad
-  public/i18n/                       Textos en es.json y en.json
+  public/i18n/                       Textos en es.json, en.json y pt.json (portugués de Brasil)
   e2e/                               Pruebas Playwright (funcionales, UX y accesibilidad)
   scripts/                           Controles (textos, colores, i18n, tablas)
 docs/
@@ -180,7 +180,7 @@ Las pruebas de Playwright no necesitan backend: la API se simula con los *fixtur
 
 **Convenciones de la interfaz**
 
-- Todo texto pasa por Transloco, con claves en `es.json` y `en.json`.
+- Todo texto pasa por Transloco, con claves en `es.json`, `en.json` y `pt.json` (portugués de Brasil).
 - El español se escribe en trato formal ("usted").
 - Los colores se usan solo como tokens.
 - Cada pantalla debe pasar axe en tema claro y oscuro.

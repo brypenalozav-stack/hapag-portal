@@ -145,6 +145,7 @@ internal sealed class DangerousGoodConfiguration : IEntityTypeConfiguration<Dang
         builder.Property(e => e.UnNumber).HasMaxLength(4);
         builder.Property(e => e.ProperShippingNameEs).HasMaxLength(300).IsRequired();
         builder.Property(e => e.ProperShippingNameEn).HasMaxLength(300).IsRequired();
+        builder.Property(e => e.ProperShippingNamePt).HasMaxLength(300);
         builder.Property(e => e.HazardClass).HasMaxLength(5);
         builder.Property(e => e.SubsidiaryRisk).HasMaxLength(20);
         builder.Property(e => e.PackingGroup).HasMaxLength(3);

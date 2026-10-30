@@ -8,11 +8,12 @@ import { getDateTimeFormat } from './intl-cache';
  */
 export type HlDateFormat = 'date' | 'datetime' | 'datetimeSeconds' | 'localDate';
 
-/** Separador de la fecha por locale (Q8): es-CL dd-MM-yyyy, es-BO dd/MM/yyyy, en dd MMM yyyy. */
+/** Separador de la fecha por locale (Q8): es-CL dd-MM-yyyy, es-BO y pt-BR dd/MM/yyyy, en dd MMM yyyy. */
 const SEPARATOR: Record<AppLocale, string> = {
   'es-CL': '-',
   'es-BO': '/',
   en: ' ',
+  'pt-BR': '/',
 };
 
 /**

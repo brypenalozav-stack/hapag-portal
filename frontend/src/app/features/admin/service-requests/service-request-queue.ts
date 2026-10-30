@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { pickText } from '../../../core/i18n/localized-text';
 import { AdminServiceRequestService, ServiceRequestService } from '../../../core/services/service-request.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { PagedResult } from '../../../core/models/admin-user.model';
@@ -17,7 +18,7 @@ import { StateMessageComponent, isServiceUnavailable } from '../../../shared/com
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
 import { HlDatePipe } from '../../../shared/pipes/hl-date.pipe';
-import { localized, serviceErrorMessage } from '../../service-requests/shared/service-text';
+import { serviceErrorMessage } from '../../service-requests/shared/service-text';
 import { PaginatorComponent } from '../../../shared/components/paginator/paginator';
 
 const PAGE_SIZE = 20;
@@ -116,11 +117,11 @@ export class ServiceRequestQueueComponent implements OnInit {
   }
 
   definitionName(definition: ServiceDefinitionOption): string {
-    return localized(this.locale.lang(), definition.nameEs, definition.nameEn);
+    return pickText(this.locale.lang(), { es: definition.nameEs, en: definition.nameEn, pt: definition.namePt });
   }
 
   name(item: ServiceRequestSummary): string {
-    return localized(this.locale.lang(), item.nameEs, item.nameEn);
+    return pickText(this.locale.lang(), { es: item.nameEs, en: item.nameEn, pt: item.namePt });
   }
 
   statusClass(item: ServiceRequestSummary): string {

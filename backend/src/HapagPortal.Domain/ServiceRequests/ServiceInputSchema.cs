@@ -1,18 +1,28 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using HapagPortal.Domain.Constants;
 
 namespace HapagPortal.Domain.ServiceRequests;
 
-/// <summary>Opción de un campo de selección.</summary>
-public sealed record ServiceInputOption(string Value, string LabelEs, string LabelEn);
+/// <summary>
+/// Opción de un campo de selección. <c>LabelPt</c> se omite del JSON cuando es nulo, para que los esquemas sin
+/// portugués se sigan guardando igual.
+/// </summary>
+public sealed record ServiceInputOption(
+    string Value,
+    string LabelEs,
+    string LabelEn,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? LabelPt = null);
 
 /// <summary>
 /// Campo tipado del formulario de un servicio (<see cref="ServiceInputFieldTypes"/>). <c>Min</c>/<c>Max</c> y
 /// <c>Integer</c> aplican a números; <c>MaxLength</c> a textos; <c>Options</c> a selecciones. Los campos
 /// <c>file</c> se responden con adjuntos de la solicitud y <c>containers</c> con contenedores del BL.
+/// <c>LabelPt</c> y <c>HelpPt</c> se omiten del JSON cuando son nulos, para que los esquemas sin portugués se
+/// sigan guardando igual.
 /// </summary>
 public sealed record ServiceInputField(
     string Key,
@@ -26,7 +36,9 @@ public sealed record ServiceInputField(
     bool Integer = false,
     int? MaxLength = null,
     string? HelpEs = null,
-    string? HelpEn = null);
+    string? HelpEn = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? LabelPt = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? HelpPt = null);
 
 /// <summary>Error de un campo (<c>Field</c> = clave del formulario) o del formulario completo.</summary>
 public sealed record ServiceInputError(string Field, string Message);
@@ -92,8 +104,8 @@ public static partial class ServiceInputSchema
             else if (!keys.Add(key))
                 errors.Add($"Field key '{key}' is duplicated.");
 
-            if (string.IsNullOrWhiteSpace(field.LabelEs) || string.IsNullOrWhiteSpace(field.LabelEn))
-                errors.Add($"Field '{key}' requires the Spanish and English labels.");
+            if (string.IsNullOrWhiteSpace(field.LabelEs) || string.IsNullOrWhiteSpace(field.LabelEn) || string.IsNullOrWhiteSpace(field.LabelPt))
+                errors.Add($"Field '{key}' requires the Spanish, English and Portuguese labels.");
 
             if (!ServiceInputFieldTypes.All.Contains(field.Type))
             {

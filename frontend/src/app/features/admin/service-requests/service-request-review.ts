@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { Observable } from 'rxjs';
+import { pickText } from '../../../core/i18n/localized-text';
 import { AdminServiceRequestService } from '../../../core/services/service-request.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
@@ -16,7 +17,7 @@ import { StateMessageComponent, isServiceUnavailable } from '../../../shared/com
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { focusAfterRender } from '../../../shared/focus-after-render';
 import { ServiceRequestOverviewComponent } from '../../service-requests/shared/service-request-overview';
-import { isOutput, localized, serviceErrorMessage } from '../../service-requests/shared/service-text';
+import { isOutput, serviceErrorMessage } from '../../service-requests/shared/service-text';
 import { ReleaseLetterReviewPanelComponent } from './release-letter-review-panel';
 
 /** Acción del equipo interno sobre la solicitud. */
@@ -104,7 +105,7 @@ export class ServiceRequestReviewComponent implements OnInit {
   }
 
   name(r: ServiceRequestDetail): string {
-    return localized(this.locale.lang(), r.nameEs, r.nameEn);
+    return pickText(this.locale.lang(), { es: r.nameEs, en: r.nameEn, pt: r.namePt });
   }
 
   isInvalid(fieldId: string): boolean {

@@ -5,6 +5,7 @@ using HapagPortal.Application.Common.Access;
 using HapagPortal.Application.Common.Interfaces;
 using HapagPortal.Application.DangerousGoods;
 using HapagPortal.Application.Shipments.Common;
+using HapagPortal.Domain.Common;
 using HapagPortal.Domain.Constants;
 using HapagPortal.Infrastructure.Integrations.Fis;
 using HapagPortal.Infrastructure.Persistence;
@@ -101,6 +102,23 @@ public sealed class PortalAssistantSeedTests : IDisposable
         gasoline.Value.Items.Should().ContainSingle(i => i.UnNumber == "UN1203");
         lithium.Value.Items.Should().ContainSingle(i => i.HazardClass == "9");
         furniture.Value.ResultCode.Should().Be(DangerousGoodResultCodes.NotClassified);
+    }
+
+    [Fact]
+    public async Task DangerousGoodsSample_ShouldHavePortugueseNames_InTheSearchText()
+    {
+        var entries = await _context.DangerousGoods.AsNoTracking().ToListAsync();
+
+        entries.Should().HaveCount(32);
+        foreach (var entry in entries)
+        {
+            entry.ProperShippingNamePt.Should().NotBeNullOrWhiteSpace(entry.ProperShippingNameEn);
+            entry.SearchText.Should().Contain(SearchText.Normalize(entry.ProperShippingNamePt!), entry.ProperShippingNameEn);
+            entry.SearchText.Length.Should().BeLessThanOrEqualTo(1500);
+        }
+
+        var diesel = await new SearchDangerousGoodsQueryHandler(_context).Handle(new SearchDangerousGoodsQuery("óleo diesel"), CancellationToken.None);
+        diesel.Value.Items.Should().ContainSingle(i => i.UnNumber == "UN1202" && i.HazardClassNamePt == "Líquidos inflamáveis");
     }
 
     public void Dispose() => _context.Dispose();

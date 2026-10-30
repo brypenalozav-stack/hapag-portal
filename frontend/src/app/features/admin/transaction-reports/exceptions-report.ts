@@ -8,6 +8,7 @@ import { LocaleService } from '../../../core/services/locale.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { EXCEPTION_TYPES, ExceptionReport } from '../../../core/models/transaction-report.model';
 import { CHARGE_CONCEPT_KEYS, EXCEPTION_TYPE_KEYS } from '../../../core/i18n/labels';
+import { EXPORT_PREFIXES, exportLanguage } from '../../../core/i18n/export-language';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
@@ -110,10 +111,11 @@ export class ExceptionsReportComponent implements OnInit {
     const report = this.report();
     if (!report || this.exporting()) return;
     this.exporting.set(format);
-    this.service.export('exceptions', this.filters(), format, this.locale.lang()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    const lang = this.locale.lang();
+    this.service.export('exceptions', this.filters(), format, exportLanguage(lang)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (blob) => {
         this.exporting.set(null);
-        const name = `excepciones-${report.from.replace(/-/g, '')}-${report.to.replace(/-/g, '')}.${format}`;
+        const name = `${EXPORT_PREFIXES[lang].exceptions}-${report.from.replace(/-/g, '')}-${report.to.replace(/-/g, '')}.${format}`;
         saveBlob(blob, name);
         this.toast.success(translate('admin.transactionReports.exported', { name }));
       },

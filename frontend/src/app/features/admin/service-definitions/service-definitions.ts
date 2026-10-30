@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { pickText } from '../../../core/i18n/localized-text';
 import { ServiceDefinitionService } from '../../../core/services/service-definition.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { ServiceDefinition } from '../../../core/models/service-request.model';
@@ -15,7 +16,7 @@ import {
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner';
 import { StateMessageComponent, isServiceUnavailable } from '../../../shared/components/state-message/state-message';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
-import { localized, serviceErrorMessage } from '../../service-requests/shared/service-text';
+import { serviceErrorMessage } from '../../service-requests/shared/service-text';
 import { ClientTable, codeText } from '../../../shared/utils/client-table';
 import { TableFilterComponent } from '../../../shared/components/table-filter/table-filter';
 import { SortHeaderComponent } from '../../../shared/components/sort-header/sort-header';
@@ -103,6 +104,6 @@ export class ServiceDefinitionsComponent implements OnInit {
   }
 
   name(d: ServiceDefinition): string {
-    return localized(this.locale.lang(), d.nameEs, d.nameEn);
+    return pickText(this.locale.lang(), { es: d.nameEs, en: d.nameEn, pt: d.namePt });
   }
 }

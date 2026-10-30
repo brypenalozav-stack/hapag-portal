@@ -97,7 +97,8 @@ public static class ServiceRequestViews
             CanSubmit: clientView && request.Status == ServiceRequestStatus.Draft,
             CanCancel: clientView && ServiceRequestStatus.Cancellable.Contains(request.Status),
             attachments.Select(ToDto).ToList(),
-            events.Select(e => new ServiceRequestEventDto(e.Id, e.FromStatus, e.ToStatus, e.OccurredAt, e.ActorName, e.ActorKind, e.Notes)).ToList());
+            events.Select(e => new ServiceRequestEventDto(e.Id, e.FromStatus, e.ToStatus, e.OccurredAt, e.ActorName, e.ActorKind, e.Notes)).ToList(),
+            definition.NamePt);
     }
 
     public static async Task<IReadOnlyList<ServiceRequestSummaryDto>> SummariesAsync(
@@ -120,7 +121,7 @@ public static class ServiceRequestViews
             return new ServiceRequestSummaryDto(
                 r.Id, r.RequestNumber, r.DefinitionCode, definition?.NameEs ?? r.DefinitionCode, definition?.NameEn ?? r.DefinitionCode,
                 r.BlNumber, r.BookingNumber, r.Country, r.Operation, r.Status, r.AssignedTeam, r.TotalAmount, r.Currency, r.IsExempt,
-                organizations.GetValueOrDefault(r.OrganizationId), r.RequestedByEmail, r.CreatedAt, r.StatusChangedAt);
+                organizations.GetValueOrDefault(r.OrganizationId), r.RequestedByEmail, r.CreatedAt, r.StatusChangedAt, definition?.NamePt);
         }).ToList();
     }
 

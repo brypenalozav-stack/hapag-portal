@@ -17,9 +17,9 @@ const ALCANCE = ['src/app/app.html', 'src/app/features', 'src/app/shared/compone
 /**
  * Excepciones: textos que se muestran igual en todos los idiomas y no se traducen.
  * - Marca: "Hapag-Lloyd" y las iniciales "HL" del logo.
- * - Códigos ISO del selector de idioma (ES, EN), de país (CL, BO) y de moneda (USD, CLP, BOB, EUR).
+ * - Códigos ISO del selector de idioma (ES, EN, PT), de país (CL, BO) y de moneda (USD, CLP, BOB, EUR).
  */
-const EXCEPCIONES = ['Hapag-Lloyd', 'HL', 'ES', 'EN', 'CL', 'BO', 'USD', 'CLP', 'BOB', 'EUR'];
+const EXCEPCIONES = ['Hapag-Lloyd', 'HL', 'ES', 'EN', 'PT', 'CL', 'BO', 'USD', 'CLP', 'BOB', 'EUR'];
 
 const ATRIBUTOS_ACCESIBLES = new Set([
   'placeholder',

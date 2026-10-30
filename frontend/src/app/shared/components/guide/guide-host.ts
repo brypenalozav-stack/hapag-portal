@@ -18,6 +18,7 @@ import { GuideService } from '../../../core/services/guide.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { Guide, GuideStep } from '../../../core/models/guide.model';
+import { pickText } from '../../../core/i18n/localized-text';
 import { ToastService } from '../../../core/services/toast.service';
 
 /** Atributo que marca en la interfaz el elemento que señala un paso (`elementKey` del paso). */
@@ -104,19 +105,19 @@ export class GuideHostComponent implements OnInit {
   }
 
   name(g: Guide): string {
-    return this.locale.lang() === 'en' ? g.nameEn : g.nameEs;
+    return pickText(this.locale.lang(), { es: g.nameEs, en: g.nameEn, pt: g.namePt });
   }
 
   description(g: Guide): string {
-    return (this.locale.lang() === 'en' ? g.descriptionEn : g.descriptionEs) ?? '';
+    return pickText(this.locale.lang(), { es: g.descriptionEs, en: g.descriptionEn, pt: g.descriptionPt });
   }
 
   stepTitleText(s: GuideStep): string {
-    return this.locale.lang() === 'en' ? s.titleEn : s.titleEs;
+    return pickText(this.locale.lang(), { es: s.titleEs, en: s.titleEn, pt: s.titlePt });
   }
 
   stepText(s: GuideStep): string {
-    return this.locale.lang() === 'en' ? s.textEn : s.textEs;
+    return pickText(this.locale.lang(), { es: s.textEs, en: s.textEn, pt: s.textPt });
   }
 
   start(guide: Guide): void {

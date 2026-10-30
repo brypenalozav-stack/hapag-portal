@@ -14,6 +14,8 @@ public sealed class GuideDefinition : BaseAuditableEntity
     public required string NameEn { get; set; }
     public string? DescriptionEs { get; set; }
     public string? DescriptionEn { get; set; }
+    public string? NamePt { get; set; }
+    public string? DescriptionPt { get; set; }
 
     /// <summary>Ruta de la pantalla donde se ofrece la guía (p. ej. <c>/cart</c>).</summary>
     public required string Route { get; set; }

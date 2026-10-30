@@ -83,6 +83,21 @@ test('estado de cuenta: resumen, antigüedad, filtros y exportación con los fil
   await expect(page.locator(POLITE)).toContainText('Se descargó estado-de-cuenta-76123456-7-20261006.xlsx.');
 });
 
+test('estado de cuenta en portugués: la planilla se pide en pt y el archivo lleva el prefijo pt (M7-03)', async ({ page }) => {
+  await simularApi(page, { features: FASE2 });
+  await sembrarSesion(page, { lang: 'pt' });
+  await ir(page, '/account-statement');
+
+  const exportacion = page.waitForRequest((r) => r.url().includes('/api/v1/account-statement/export'));
+  const archivo = page.waitForEvent('download');
+  await page.getByTestId('statement-export-xlsx').click();
+  const pedido = new URL((await exportacion).url());
+  expect(pedido.searchParams.get('format')).toBe('xlsx');
+  expect(pedido.searchParams.get('language')).toBe('pt');
+  expect((await archivo).suggestedFilename()).toBe('extrato-de-conta-76123456-7-20261006.xlsx');
+  await expect(page.locator(POLITE)).toContainText('O arquivo extrato-de-conta-76123456-7-20261006.xlsx foi baixado.');
+});
+
 test('dos facturas elegidas en el estado de cuenta van al carro en una sola transacción (M7-03, M5-01)', async ({ page }) => {
   await abrir(page, '/account-statement');
   const carro = page.getByTestId('navbar-cart');

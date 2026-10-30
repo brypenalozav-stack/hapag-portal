@@ -41,6 +41,8 @@ interface AnnouncementForm {
   titleEn: string;
   bodyEs: string;
   bodyEn: string;
+  titlePt: string;
+  bodyPt: string;
   countryCl: boolean;
   countryBo: boolean;
   operation: AnnouncementOperation;
@@ -59,6 +61,7 @@ interface FormError {
 const SNAPSHOT_KEYS: Record<string, string> = {
   titleEs: 'admin.announcements.form.titleEs',
   titleEn: 'admin.announcements.form.titleEn',
+  titlePt: 'admin.announcements.form.titlePt',
   countries: 'admin.announcements.form.countries',
   operation: 'admin.announcements.form.operation',
   severity: 'admin.announcements.form.severity',
@@ -70,13 +73,13 @@ const SNAPSHOT_KEYS: Record<string, string> = {
 
 function emptyForm(): AnnouncementForm {
   return {
-    titleEs: '', titleEn: '', bodyEs: '', bodyEn: '', countryCl: true, countryBo: false,
+    titleEs: '', titleEn: '', bodyEs: '', bodyEn: '', titlePt: '', bodyPt: '', countryCl: true, countryBo: false,
     operation: 'Both', severity: 'Info', validFrom: '', validTo: '', notifyOnPublish: false, publish: false,
   };
 }
 
 /**
- * Mantenedor de comunicados masivos (Fase 2, Ola I, M1-26; permiso `announcements.manage`): textos en español e inglés,
+ * Mantenedor de comunicados masivos (Fase 2, Ola I, M1-26; permiso `announcements.manage`): textos en español, inglés y portugués,
  * segmentación por país y tipo de operación, vigencia, vista previa, publicación y retiro, y su registro de cambios
  * (NF-15). Al publicar con aviso, el servidor notifica una sola vez a los clientes de los países del comunicado.
  */
@@ -112,6 +115,7 @@ export class AnnouncementsAdminComponent implements OnInit {
       [
         a.titleEs,
         a.titleEn,
+        a.titlePt,
         a.countries.join(' '),
         codeText(a.operation, this.operationKeys),
         codeText(a.severity, this.severityKeys),
@@ -178,7 +182,7 @@ export class AnnouncementsAdminComponent implements OnInit {
   openEdit(a: AnnouncementAdmin): void {
     this.editing.set(a);
     this.form = {
-      titleEs: a.titleEs, titleEn: a.titleEn, bodyEs: a.bodyEs, bodyEn: a.bodyEn,
+      titleEs: a.titleEs, titleEn: a.titleEn, bodyEs: a.bodyEs, bodyEn: a.bodyEn, titlePt: a.titlePt ?? '', bodyPt: a.bodyPt ?? '',
       countryCl: a.countries.includes('CL'), countryBo: a.countries.includes('BO'),
       operation: a.operation, severity: a.severity,
       validFrom: toDateTimeInput(a.validFrom), validTo: toDateTimeInput(a.validTo),
@@ -219,8 +223,10 @@ export class AnnouncementsAdminComponent implements OnInit {
     const list: FormError[] = [];
     if (!f.titleEs.trim()) list.push({ fieldId: 'announcement-title-es', key: 'admin.announcements.form.errors.titleEs' });
     if (!f.titleEn.trim()) list.push({ fieldId: 'announcement-title-en', key: 'admin.announcements.form.errors.titleEn' });
+    if (!f.titlePt.trim()) list.push({ fieldId: 'announcement-title-pt', key: 'admin.announcements.form.errors.titlePt' });
     if (!f.bodyEs.trim()) list.push({ fieldId: 'announcement-body-es', key: 'admin.announcements.form.errors.bodyEs' });
     if (!f.bodyEn.trim()) list.push({ fieldId: 'announcement-body-en', key: 'admin.announcements.form.errors.bodyEn' });
+    if (!f.bodyPt.trim()) list.push({ fieldId: 'announcement-body-pt', key: 'admin.announcements.form.errors.bodyPt' });
     if (!f.countryCl && !f.countryBo) list.push({ fieldId: 'announcement-country-cl', key: 'admin.announcements.form.errors.countries' });
     if (f.validFrom && f.validTo && new Date(f.validTo) <= new Date(f.validFrom)) {
       list.push({ fieldId: 'announcement-valid-to', key: 'admin.announcements.form.errors.validity' });
@@ -245,6 +251,8 @@ export class AnnouncementsAdminComponent implements OnInit {
       titleEn: f.titleEn.trim(),
       bodyEs: f.bodyEs.trim(),
       bodyEn: f.bodyEn.trim(),
+      titlePt: f.titlePt.trim(),
+      bodyPt: f.bodyPt.trim(),
       countries: [...(f.countryCl ? ['CL' as const] : []), ...(f.countryBo ? ['BO' as const] : [])],
       operation: f.operation,
       severity: f.severity,

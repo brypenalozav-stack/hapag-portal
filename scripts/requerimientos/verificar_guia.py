@@ -32,7 +32,7 @@ SECCIONES = [
     "3. Componentes y patrones",
     "4. Checklist WCAG 2.2 AA",
     "5. Estrategia i18n con Transloco",
-    "6. Glosario ES/EN",
+    "6. Glosario ES/EN/PT",
 ]
 METODOS = {"eslint", "axe", "teclado", "NVDA", "Lighthouse", "revisión visual"}
 

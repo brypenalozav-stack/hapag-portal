@@ -104,37 +104,42 @@ function evento(n: number, from: ServiceRequestStatus | null, to: ServiceRequest
 }
 
 const ESQUEMA_FLETE: ServiceInputField[] = [
-  { key: 'consigneeName', labelEs: 'Consignatario', labelEn: 'Consignee', type: 'text', required: true, maxLength: 200 },
-  { key: 'consigneeTaxId', labelEs: 'NIT o documento', labelEn: 'Tax ID or ID document', type: 'text', required: true, maxLength: 30 },
+  { key: 'consigneeName', labelEs: 'Consignatario', labelEn: 'Consignee', labelPt: 'Consignatário', type: 'text', required: true, maxLength: 200 },
+  { key: 'consigneeTaxId', labelEs: 'NIT o documento', labelEn: 'Tax ID or ID document', labelPt: 'NIT do consignatário', type: 'text', required: true, maxLength: 30 },
   {
-    key: 'purpose', labelEs: 'Finalidad', labelEn: 'Purpose', type: 'select', required: true,
+    key: 'purpose', labelEs: 'Finalidad', labelEn: 'Purpose', labelPt: 'Finalidade', type: 'select', required: true,
     options: [
-      { value: 'CUSTOMS', labelEs: 'Aduana', labelEn: 'Customs' }, { value: 'INSURANCE', labelEs: 'Seguro', labelEn: 'Insurance' },
-      { value: 'BANK', labelEs: 'Banco', labelEn: 'Bank' }, { value: 'OTHER', labelEs: 'Otra', labelEn: 'Other' },
+      { value: 'CUSTOMS', labelEs: 'Aduana', labelEn: 'Customs', labelPt: 'Desembaraço aduaneiro' },
+      { value: 'INSURANCE', labelEs: 'Seguro', labelEn: 'Insurance', labelPt: 'Seguro da carga' },
+      { value: 'BANK', labelEs: 'Banco', labelEn: 'Bank', labelPt: 'Trâmite bancário' },
+      { value: 'OTHER', labelEs: 'Otra', labelEn: 'Other', labelPt: 'Outra' },
     ],
   },
-  { key: 'recipient', labelEs: 'Dirigido a', labelEn: 'Addressed to', type: 'text', maxLength: 200 },
-  { key: 'notes', labelEs: 'Observaciones', labelEn: 'Remarks', type: 'textarea', maxLength: 1000 },
+  { key: 'recipient', labelEs: 'Dirigido a', labelEn: 'Addressed to', labelPt: 'Endereçado a', type: 'text', maxLength: 200 },
+  { key: 'notes', labelEs: 'Observaciones', labelEn: 'Remarks', labelPt: 'Observações', type: 'textarea', maxLength: 1000 },
 ];
 
 /** Formulario de la carta (el mismo del seed del backend, M6-08). */
 const ESQUEMA_CARTA: ServiceInputField[] = [
-  { key: 'containers', labelEs: 'Contenedores', labelEn: 'Containers', type: 'containers', required: true },
+  { key: 'containers', labelEs: 'Contenedores', labelEn: 'Containers', labelPt: 'Contêineres', type: 'containers', required: true },
   {
-    key: 'legalEntityType', labelEs: 'Tipo de sociedad', labelEn: 'Legal entity type', type: 'select', required: true,
-    options: [{ value: 'COMPANY', labelEs: 'Empresa', labelEn: 'Company' }, { value: 'NATURAL_PERSON', labelEs: 'Persona natural', labelEn: 'Natural person' }],
+    key: 'legalEntityType', labelEs: 'Tipo de sociedad', labelEn: 'Legal entity type', labelPt: 'Tipo de pessoa', type: 'select', required: true,
+    options: [
+      { value: 'COMPANY', labelEs: 'Empresa', labelEn: 'Company', labelPt: 'Pessoa jurídica' },
+      { value: 'NATURAL_PERSON', labelEs: 'Persona natural', labelEn: 'Natural person', labelPt: 'Pessoa física' },
+    ],
   },
-  { key: 'consigneeName', labelEs: 'Consignatario (razón social o nombre)', labelEn: 'Consignee (legal name or name)', type: 'text', required: true, maxLength: 200 },
-  { key: 'consigneeTaxId', labelEs: 'NIT o documento de identidad', labelEn: 'Tax ID or ID document', type: 'text', required: true, maxLength: 30 },
-  { key: 'consigneeAddress', labelEs: 'Domicilio', labelEn: 'Address', type: 'text', maxLength: 300 },
-  { key: 'legalRepresentativeName', labelEs: 'Representante legal', labelEn: 'Legal representative', type: 'text', maxLength: 200 },
-  { key: 'legalRepresentativeId', labelEs: 'Documento del representante', labelEn: "Representative's ID", type: 'text', maxLength: 30 },
-  { key: 'carrierName', labelEs: 'Transportista', labelEn: 'Carrier', type: 'text', required: true, maxLength: 200 },
-  { key: 'carrierTaxId', labelEs: 'NIT / RUT del transportista', labelEn: 'Carrier tax ID', type: 'text', required: true, maxLength: 30 },
-  { key: 'driverName', labelEs: 'Conductor', labelEn: 'Driver', type: 'text', maxLength: 200 },
-  { key: 'driverId', labelEs: 'Documento del conductor', labelEn: "Driver's ID", type: 'text', maxLength: 30 },
-  { key: 'truckPlate', labelEs: 'Patente', labelEn: 'Truck plate', type: 'text', maxLength: 20 },
-  { key: 'observations', labelEs: 'Observaciones', labelEn: 'Remarks', type: 'textarea', maxLength: 1000 },
+  { key: 'consigneeName', labelEs: 'Consignatario (razón social o nombre)', labelEn: 'Consignee (legal name or name)', labelPt: 'Consignatário (razão social ou nome)', type: 'text', required: true, maxLength: 200 },
+  { key: 'consigneeTaxId', labelEs: 'NIT o documento de identidad', labelEn: 'Tax ID or ID document', labelPt: 'NIT ou documento de identidade', type: 'text', required: true, maxLength: 30 },
+  { key: 'consigneeAddress', labelEs: 'Domicilio', labelEn: 'Address', labelPt: 'Endereço', type: 'text', maxLength: 300 },
+  { key: 'legalRepresentativeName', labelEs: 'Representante legal', labelEn: 'Legal representative', labelPt: 'Representante legal', type: 'text', maxLength: 200 },
+  { key: 'legalRepresentativeId', labelEs: 'Documento del representante', labelEn: "Representative's ID", labelPt: 'Documento do representante', type: 'text', maxLength: 30 },
+  { key: 'carrierName', labelEs: 'Transportista', labelEn: 'Carrier', labelPt: 'Transportadora', type: 'text', required: true, maxLength: 200 },
+  { key: 'carrierTaxId', labelEs: 'NIT / RUT del transportista', labelEn: 'Carrier tax ID', labelPt: 'NIT / RUT da transportadora', type: 'text', required: true, maxLength: 30 },
+  { key: 'driverName', labelEs: 'Conductor', labelEn: 'Driver', labelPt: 'Motorista', type: 'text', maxLength: 200 },
+  { key: 'driverId', labelEs: 'Documento del conductor', labelEn: "Driver's ID", labelPt: 'Documento do motorista', type: 'text', maxLength: 30 },
+  { key: 'truckPlate', labelEs: 'Patente', labelEn: 'Truck plate', labelPt: 'Placa do caminhão', type: 'text', maxLength: 20 },
+  { key: 'observations', labelEs: 'Observaciones', labelEn: 'Remarks', labelPt: 'Observações', type: 'textarea', maxLength: 1000 },
 ];
 
 function solicitud(code: 'FREIGHT_CERTIFICATE' | 'RELEASE_LETTER', bl: string, datos: Partial<ServiceRequestDetail> & Pick<ServiceRequestDetail, 'id' | 'requestNumber' | 'status'>): ServiceRequestDetail {
@@ -143,6 +148,7 @@ function solicitud(code: 'FREIGHT_CERTIFICATE' | 'RELEASE_LETTER', bl: string, d
     definitionId: carta ? 'f0000000-0000-4000-8000-000000000141' : 'f0000000-0000-4000-8000-000000000140', definitionCode: code,
     nameEs: carta ? 'Carta de liberación y desconsolidado' : 'Certificado de flete',
     nameEn: carta ? 'Release and deconsolidation letter' : 'Freight certificate',
+    namePt: carta ? 'Carta de liberação e desova' : 'Certificado de frete',
     organizationId: ORGANIZACION_PRUEBA.id, organizationName: ORGANIZACION_PRUEBA.name, requestedByEmail: USUARIO_PRUEBA.email,
     billOfLadingId: blId(bl), blNumber: bl, bookingNumber: carta ? 'HLCUBKG2601045' : 'HLCUBKG2602078', country: 'BO', operation: 'IMPORT',
     timeZone: ZONA_BO, containerNumbers: [], inputSchema: carta ? ESQUEMA_CARTA : ESQUEMA_FLETE, inputValues: {}, billing: {},
@@ -154,7 +160,7 @@ function solicitud(code: 'FREIGHT_CERTIFICATE' | 'RELEASE_LETTER', bl: string, d
 
 function resumen(r: ServiceRequestDetail): ServiceRequestSummary {
   return {
-    id: r.id, requestNumber: r.requestNumber, definitionCode: r.definitionCode, nameEs: r.nameEs, nameEn: r.nameEn, blNumber: r.blNumber,
+    id: r.id, requestNumber: r.requestNumber, definitionCode: r.definitionCode, nameEs: r.nameEs, nameEn: r.nameEn, namePt: r.namePt, blNumber: r.blNumber,
     bookingNumber: r.bookingNumber, country: r.country, operation: r.operation, status: r.status, assignedTeam: r.assignedTeam ?? null,
     totalAmount: 0, currency: null, isExempt: false, organizationName: r.organizationName, requestedByEmail: r.requestedByEmail,
     createdAt: r.createdAt, statusChangedAt: r.statusChangedAt,

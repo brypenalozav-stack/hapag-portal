@@ -140,7 +140,7 @@ public sealed class ReleaseStatusTests
 
     private static ServiceRequestSummaryDto Request(string status) =>
         new(Guid.NewGuid(), "SRV-1", "RELEASE_LETTER", "Carta", "Letter", Bl, null, CountryCodes.Bolivia, ShipmentOperations.Import, status,
-            null, 0m, null, false, null, null, Now, Now);
+            null, 0m, null, false, null, null, Now, Now, null);
 
     private static ReleaseLetterContextDto ReleaseLetter(IReadOnlyList<ServiceRequestSummaryDto> requests, IReadOnlyList<ShipmentDocumentDto> documents) =>
         new(BlId, Bl, null, CountryCodes.Bolivia, true, CanRequest: true, RequiresIssuedTatc: false, [], new ReleaseLetterConsigneeDto(null, null), [],

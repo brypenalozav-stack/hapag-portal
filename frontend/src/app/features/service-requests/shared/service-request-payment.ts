@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
+import { pickText } from '../../../core/i18n/localized-text';
 import { CartService } from '../../../core/services/cart.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { ServiceRequestDetail } from '../../../core/models/service-request.model';
@@ -8,7 +9,6 @@ import { CHARGE_CONCEPT_KEYS, CHARGE_STATUS_KEYS } from '../../../core/i18n/labe
 import { AddToCartDialogComponent, AddToCartTarget } from '../../../shared/components/add-to-cart-dialog/add-to-cart-dialog';
 import { CodeLabelPipe } from '../../../shared/pipes/code-label.pipe';
 import { HlCurrencyPipe } from '../../../shared/pipes/hl-currency.pipe';
-import { localized } from './service-text';
 
 /**
  * Pago del cargo que generó la solicitud (cargo local del BL, categoría Service): se agrega al carro con el flujo de
@@ -84,7 +84,7 @@ export class ServiceRequestPaymentComponent {
 
   addToCart(): void {
     const r = this.request();
-    const service = localized(this.locale.lang(), r.nameEs, r.nameEn);
+    const service = pickText(this.locale.lang(), { es: r.nameEs, en: r.nameEn, pt: r.namePt });
     const label = translate('serviceRequests.payment.cartLabel', { service, number: r.requestNumber });
     this.targets.set(this.notInCart().map((c) => ({ itemType: c.itemType, sourceId: c.chargeId, label })));
   }

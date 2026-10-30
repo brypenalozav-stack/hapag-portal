@@ -29,6 +29,8 @@ internal sealed class AnnouncementConfiguration : IEntityTypeConfiguration<Annou
         builder.Property(e => e.TitleEn).HasMaxLength(200).IsRequired();
         builder.Property(e => e.BodyEs).HasMaxLength(4000).IsRequired();
         builder.Property(e => e.BodyEn).HasMaxLength(4000).IsRequired();
+        builder.Property(e => e.TitlePt).HasMaxLength(200);
+        builder.Property(e => e.BodyPt).HasMaxLength(4000);
         builder.Property(e => e.Countries).HasMaxLength(20).IsRequired();
         builder.Property(e => e.Operation).HasMaxLength(10).IsRequired();
         builder.Property(e => e.Severity).HasMaxLength(20).IsRequired();
@@ -52,6 +54,8 @@ internal sealed class GuideDefinitionConfiguration : IEntityTypeConfiguration<Gu
         builder.Property(e => e.NameEn).HasMaxLength(150).IsRequired();
         builder.Property(e => e.DescriptionEs).HasMaxLength(500);
         builder.Property(e => e.DescriptionEn).HasMaxLength(500);
+        builder.Property(e => e.NamePt).HasMaxLength(150);
+        builder.Property(e => e.DescriptionPt).HasMaxLength(500);
         builder.Property(e => e.Route).HasMaxLength(200).IsRequired();
         builder.Property(e => e.Audience).HasMaxLength(20).IsRequired();
         builder.Property(e => e.StepsJson).HasColumnType("text").IsRequired();

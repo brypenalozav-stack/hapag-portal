@@ -16,6 +16,8 @@ internal sealed class ServiceDefinitionConfiguration : IEntityTypeConfiguration<
         builder.Property(e => e.NameEn).HasMaxLength(150).IsRequired();
         builder.Property(e => e.DescriptionEs).HasMaxLength(1000);
         builder.Property(e => e.DescriptionEn).HasMaxLength(1000);
+        builder.Property(e => e.NamePt).HasMaxLength(150);
+        builder.Property(e => e.DescriptionPt).HasMaxLength(1000);
         builder.Property(e => e.Operations).HasMaxLength(20).IsRequired();
         builder.Property(e => e.Countries).HasMaxLength(20).IsRequired();
         builder.Property(e => e.ReferenceType).HasMaxLength(20).IsRequired();

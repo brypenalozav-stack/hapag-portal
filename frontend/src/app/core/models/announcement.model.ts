@@ -15,6 +15,8 @@ export interface Announcement {
   titleEn: string;
   bodyEs: string;
   bodyEn: string;
+  titlePt?: string | null;
+  bodyPt?: string | null;
   countries: ('CL' | 'BO')[];
   operation: AnnouncementOperation;
   severity: AnnouncementSeverity;
@@ -44,6 +46,8 @@ export interface AnnouncementRequest {
   titleEn: string;
   bodyEs: string;
   bodyEn: string;
+  titlePt?: string | null;
+  bodyPt?: string | null;
   countries: ('CL' | 'BO')[];
   operation: AnnouncementOperation;
   severity?: AnnouncementSeverity;
@@ -58,6 +62,8 @@ export interface AnnouncementRequest {
 export interface AnnouncementSnapshot {
   titleEs?: string;
   titleEn?: string;
+  titlePt?: string | null;
+  bodyPt?: string | null;
   countries?: string[];
   operation?: string;
   severity?: string;

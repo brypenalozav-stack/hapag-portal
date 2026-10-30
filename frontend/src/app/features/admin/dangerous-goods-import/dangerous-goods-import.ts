@@ -30,7 +30,7 @@ export class DangerousGoodsImportComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
-  readonly header = 'unNumber;nameEs;nameEn;class;subsidiaryRisk;packingGroup;notes;keywords;classified';
+  readonly header = 'unNumber;nameEs;nameEn;class;namePt;subsidiaryRisk;packingGroup;notes;keywords;classified';
 
   file = signal<File | null>(null);
   fileError = signal('');

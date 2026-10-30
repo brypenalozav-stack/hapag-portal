@@ -43,7 +43,9 @@ public sealed record ServiceDefinitionDto(
     DateTime CreatedAt,
     string CreatedBy,
     DateTime? ModifiedAt,
-    string? ModifiedBy);
+    string? ModifiedBy,
+    string? NamePt,
+    string? DescriptionPt);
 
 /// <summary>Instantánea de la definición para el registro de cambios (NF-15).</summary>
 public sealed record ServiceDefinitionSnapshot(
@@ -80,7 +82,9 @@ public sealed record ServiceDefinitionSnapshot(
     bool RequiresOutputDocument,
     string ActionCode,
     int DisplayOrder,
-    bool IsActive);
+    bool IsActive,
+    string? NamePt,
+    string? DescriptionPt);
 
 public sealed record ServiceDefinitionChangeDto(
     Guid Id,
@@ -168,7 +172,9 @@ public sealed record AvailableServiceDto(
     string ApprovalTeam,
     string FulfillmentTeam,
     ServiceQuoteDto? Quote,
-    string? QuoteErrorCode);
+    string? QuoteErrorCode,
+    string? NamePt,
+    string? DescriptionPt);
 
 public sealed record ShipmentContainerOptionDto(string ContainerNumber, string ContainerType, string Status, bool IsShipperOwned);
 
@@ -235,7 +241,8 @@ public sealed record ServiceRequestSummaryDto(
     string? OrganizationName,
     string? RequestedByEmail,
     DateTime CreatedAt,
-    DateTime StatusChangedAt);
+    DateTime StatusChangedAt,
+    string? NamePt);
 
 public sealed record ServiceRequestDetailDto(
     Guid Id,
@@ -284,4 +291,5 @@ public sealed record ServiceRequestDetailDto(
     bool CanSubmit,
     bool CanCancel,
     IReadOnlyList<ServiceRequestAttachmentDto> Attachments,
-    IReadOnlyList<ServiceRequestEventDto> Timeline);
+    IReadOnlyList<ServiceRequestEventDto> Timeline,
+    string? NamePt);

@@ -13,6 +13,8 @@ public sealed class Announcement : BaseAuditableEntity
     public required string TitleEn { get; set; }
     public required string BodyEs { get; set; }
     public required string BodyEn { get; set; }
+    public string? TitlePt { get; set; }
+    public string? BodyPt { get; set; }
 
     /// <summary>Países de operación a los que va dirigido, separados por coma (CL, BO).</summary>
     public required string Countries { get; set; }

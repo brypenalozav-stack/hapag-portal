@@ -23,6 +23,8 @@ public sealed class ServiceDefinition : BaseAuditableEntity
     public required string NameEn { get; set; }
     public string? DescriptionEs { get; set; }
     public string? DescriptionEn { get; set; }
+    public string? NamePt { get; set; }
+    public string? DescriptionPt { get; set; }
 
     /// <summary>Operaciones (IMPORT, EXPORT) y países (CL, BO) separados por coma.</summary>
     public required string Operations { get; set; }

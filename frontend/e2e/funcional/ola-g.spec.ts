@@ -286,15 +286,18 @@ test('El mantenedor agrega un campo de selección al formulario del servicio y l
   await page.locator('#def-field-4-type').selectOption('select');
   await page.locator('#def-field-4-label-es').fill('Urgencia');
   await page.locator('#def-field-4-label-en').fill('Urgency');
+  await page.locator('#def-field-4-label-pt').fill('Urgência');
   await page.locator('#def-field-4-required').check();
   await page.locator('#def-field-4-option-0-value').fill('HIGH');
   await page.locator('#def-field-4-option-0-label-es').fill('Alta');
   await page.locator('#def-field-4-option-0-label-en').fill('High');
+  await page.locator('#def-field-4-option-0-label-pt').fill('Alta');
   await page.getByRole('button', { name: 'Agregar una opción al campo urgency' }).click();
   await expect(page.locator('#def-field-4-option-1-value')).toBeFocused();
   await page.locator('#def-field-4-option-1-value').fill('NORMAL');
   await page.locator('#def-field-4-option-1-label-es').fill('Normal');
   await page.locator('#def-field-4-option-1-label-en').fill('Normal');
+  await page.locator('#def-field-4-option-1-label-pt').fill('Normal');
 
   // Reordenar: el campo nuevo sube un lugar.
   await page.getByRole('button', { name: 'Subir el campo urgency' }).click();
@@ -312,11 +315,13 @@ test('El mantenedor agrega un campo de selección al formulario del servicio y l
     required: true,
     labelEs: 'Urgencia',
     labelEn: 'Urgency',
+    labelPt: 'Urgência',
     options: [
-      { value: 'HIGH', labelEs: 'Alta', labelEn: 'High' },
-      { value: 'NORMAL', labelEs: 'Normal', labelEn: 'Normal' },
+      { value: 'HIGH', labelEs: 'Alta', labelEn: 'High', labelPt: 'Alta' },
+      { value: 'NORMAL', labelEs: 'Normal', labelEn: 'Normal', labelPt: 'Normal' },
     ],
   });
+  expect(body).toMatchObject({ nameEs: 'Drop Off SCL', namePt: 'Drop Off SCL' });
   expect(body).toMatchObject({ approvalTeam: 'ED', tariffAcceptanceRequired: true, quantityMode: 'PerContainer' });
 
   await expect(page.getByTestId('definition-saved')).toHaveText('Cambios guardados.');
@@ -324,6 +329,35 @@ test('El mantenedor agrega un campo de selección al formulario del servicio y l
   await expect(historial).toHaveCount(2);
   await expect(historial.first()).toContainText('Modificación');
   await expect(historial.first()).toContainText('urgency (Selección)');
+});
+
+test('El mantenedor exige la etiqueta en portugués del campo y el resumen lleva a ese campo (M2-03)', async ({ page }) => {
+  await abrir(page, `/admin/service-definitions/${idDefinicion('DROP_OFF_SCL')}`, 'admin');
+  await expect(page.locator('#def-code')).toHaveValue('DROP_OFF_SCL');
+
+  await page.getByRole('button', { name: 'Agregar campo' }).click();
+  await page.locator('#def-field-4-key').fill('urgency');
+  await page.locator('#def-field-4-label-es').fill('Urgencia');
+  await page.locator('#def-field-4-label-en').fill('Urgency');
+
+  let enviado = false;
+  page.on('request', (r) => {
+    if (r.method() === 'PUT' && r.url().includes('/api/v1/service-definitions/')) enviado = true;
+  });
+  await page.getByRole('button', { name: 'Guardar cambios' }).click();
+  const resumen = page.locator('form .alert-danger').first();
+  await expect(resumen).toBeFocused();
+  // Solo falta el portugués: el error es propio y no se mezcla con las etiquetas en español e inglés.
+  await expect(resumen.getByRole('listitem')).toHaveCount(1);
+  const enlace = resumen.getByRole('link', { name: 'Campo 5: ingrese la etiqueta en portugués.' });
+  await expect(enlace).toHaveAttribute('href', '#def-field-4-label-pt');
+  await enlace.click();
+  const etiquetaPt = page.locator('#def-field-4-label-pt');
+  await expect(etiquetaPt).toBeFocused();
+  await expect(etiquetaPt).toHaveAttribute('aria-invalid', 'true');
+  await expect(etiquetaPt).toHaveAttribute('lang', 'pt-BR');
+  await expect(page.locator('#def-field-4-label-en')).not.toHaveAttribute('aria-invalid', 'true');
+  expect(enviado).toBe(false);
 });
 
 test('Dashboard y Mis solicitudes: acceso rápido, filtro por estado y envío de un borrador (M1-01, M3-14)', async ({ page }) => {
