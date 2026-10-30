@@ -1,6 +1,6 @@
 // Ensambla public/i18n/pt.json desde los fragmentos de traducción de un directorio (plan pt-BR, Fase 2):
 //  - cada *.json del directorio es un JSON plano {"clave.completa": "valor pt"} (lo valida check-i18n-pt.mjs --fragmento);
-//  - pt.json queda con exactamente la estructura y el orden de es.json, en UTF-8 sin BOM, con CRLF y sangría de 2 espacios.
+//  - pt.json queda con exactamente la estructura y el orden de es.json, en UTF-8 sin BOM, con el fin de línea de es.json y sangría de 2 espacios.
 // Falla, sin escribir nada, si faltan claves de es.json, sobran claves, hay claves repetidas o valores que no son texto.
 // Uso: node scripts/build-pt.mjs <directorio-de-fragmentos>. Ayuda local de los lotes: CI no la usa.
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
@@ -109,7 +109,8 @@ function construir(obj, prefijo = '') {
 }
 
 const destino = join(I18N, 'pt.json');
-writeFileSync(destino, `${JSON.stringify(construir(es), null, 2).replace(/\n/g, '\r\n')}\r\n`, 'utf-8');
+const eol = readFileSync(join(I18N, 'es.json'), 'utf-8').includes('\r\n') ? '\r\n' : '\n';
+writeFileSync(destino, `${JSON.stringify(construir(es), null, 2).replace(/\n/g, eol)}${eol}`, 'utf-8');
 console.log(
   `build-pt: ${relative(RAIZ, destino)} escrito con ${valores.size} claves de ${fragmentos.length} fragmento(s), en el orden de es.json.`,
 );

@@ -6,7 +6,7 @@
 //  (e) sin tuteo (tu/teu/tua/ti/contigo), salvo la lista blanca tuteo;
 //  (f) registro de autorrevisión docs/requerimientos/revision-pt-br.md con L1 a L8 y common/auth/errores/acciones al 100 %.
 // Además: mismas claves y orden que es.json, parámetros iguales, ICU válido con =0 en todo plural, % pegado al número,
-// UTF-8 sin BOM con CRLF y sangría de 2 espacios.
+// UTF-8 sin BOM, con el mismo fin de línea que es.json y sangría de 2 espacios.
 // Modos:
 //  --secciones a,b            limita las comprobaciones a esas secciones (admite admin.{a,b}); ayuda local, CI no la usa.
 //  --solo-glosario            solo la regla (c).
@@ -674,13 +674,18 @@ const pt = aplanar(objetoPt);
 
 if (opciones.informe) informe(pt);
 
-// Formato del archivo: el mismo que es.json (UTF-8 sin BOM, CRLF, sangría de 2 y salto final).
+// Formato del archivo: el mismo que es.json (UTF-8 sin BOM, sangría de 2 y salto final), con el mismo fin de línea
+// que es.json en esta copia de trabajo: Git guarda los JSON con LF y Windows los saca con CRLF (core.autocrlf).
 // TextDecoder descarta el BOM, por eso se miran los bytes.
 if (crudo[0] === 0xef && crudo[1] === 0xbb && crudo[2] === 0xbf)
   errores.push('pt.json: tiene BOM; debe ser UTF-8 sin BOM.');
-if (/(^|[^\r])\n/.test(textoPt)) errores.push('pt.json: tiene saltos de línea LF; deben ser CRLF.');
-if (textoPt.replace(/^﻿/, '') !== `${JSON.stringify(objetoPt, null, 2).replace(/\n/g, '\r\n')}\r\n`) {
-  errores.push('pt.json: el formato no es el de es.json (sangría de 2 espacios, CRLF y salto final).');
+const eol = leerTexto(join(I18N, 'es.json')).includes('\r\n') ? '\r\n' : '\n';
+const nombreEol = eol === '\r\n' ? 'CRLF' : 'LF';
+const textoSinBom = textoPt.replace(/^﻿/, '');
+if ((eol === '\r\n' && /(^|[^\r])\n/.test(textoSinBom)) || (eol === '\n' && textoSinBom.includes('\r\n')))
+  errores.push(`pt.json: los saltos de línea no son ${nombreEol}, como los de es.json.`);
+if (textoSinBom !== `${JSON.stringify(objetoPt, null, 2).replace(/\n/g, eol)}${eol}`) {
+  errores.push(`pt.json: el formato no es el de es.json (sangría de 2 espacios, ${nombreEol} y salto final).`);
 }
 
 const clavesEs = [...es.keys()].filter(enSecciones);
