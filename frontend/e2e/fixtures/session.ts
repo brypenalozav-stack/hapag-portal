@@ -87,10 +87,13 @@ export const PERMISOS_ADMIN = [
   'api-clients.manage',
 ];
 
-export type Idioma = 'es' | 'en';
+export type Idioma = 'es' | 'en' | 'pt';
 
 /** Idiomas de la interfaz (Q8): las pruebas de pantallas se repiten en cada uno. */
-export const IDIOMAS: readonly Idioma[] = ['es', 'en'];
+export const IDIOMAS: readonly Idioma[] = ['es', 'en', 'pt'];
+
+/** Atributo lang que la interfaz fija en <html> para cada idioma (pt-BR para la voz de Brasil). */
+export const LANG_HTML: Record<Idioma, string> = { es: 'es', en: 'en', pt: 'pt-BR' };
 
 export interface OpcionesSesion {
   /** Idioma sembrado en `hl_lang` (lo lee LocaleService al arrancar). */

@@ -4,7 +4,7 @@ import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { filter, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
-import { LocaleService } from '../../../core/services/locale.service';
+import { HTML_LANG, LANGUAGE_OPTIONS, LocaleService } from '../../../core/services/locale.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { FeatureService } from '../../../core/services/feature.service';
 import { OrganizationService } from '../../../core/services/organization.service';
@@ -36,6 +36,9 @@ export class NavbarComponent implements OnInit {
   /** Bandeja de notificaciones (M1-25): la campana se oculta con su flag apagado; los correos siguen saliendo. */
   readonly features = inject(FeatureService);
   readonly locale = inject(LocaleService);
+  /** Selector de idioma ES · EN · PT; cada botón lleva el lang de su idioma para la voz del lector de pantalla. */
+  readonly languages = LANGUAGE_OPTIONS;
+  readonly htmlLang = HTML_LANG;
   /** Carro de compra (M5-01) o, para clientes con crédito, pago desde la cuenta (M5-07). */
   readonly cart = inject(CartService);
   /** Tema claro, oscuro o del sistema (M11-07). */

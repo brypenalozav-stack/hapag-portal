@@ -49,13 +49,13 @@ import { ITEM } from '../fixtures/ola-d-mocks';
 import { PAGO_DEPOSITO, REFACTURACION, REFACTURACION_BORRADOR, TOKEN_ACEPTACION } from '../fixtures/ola-h-mocks';
 import { BL_COUNTER_FALLIDO, GUIA_CARRO, OpcionesOlaI, SESION_TERMINADA, TRANSPORTISTA, sembrarImpersonacion } from '../fixtures/ola-i-mocks';
 import { BL_FLETE, BL_LIBERACION, CLIENTE_WS, SOLICITUD_CARTA, UNIDADES } from '../fixtures/ola-j-mocks';
-import { IDIOMAS, Idioma, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin, sembrarTema } from '../fixtures/session';
+import { IDIOMAS, Idioma, LANG_HTML, Tema, sembrarIdioma, sembrarSesion, sembrarSesionAdmin, sembrarTema } from '../fixtures/session';
 
 /**
  * Fase 5a: axe (WCAG 2.0/2.1/2.2 A y AA) sobre las pantallas principales.
- * Fase 5b: cada pantalla se recorre en español y en inglés (hl_lang) y se comprueba html[lang].
+ * Fase 5b: cada pantalla se recorre en español, inglés y portugués de Brasil (hl_lang) y se comprueba html[lang].
  * axe-baseline.json lista, por pantalla, las reglas que fallan hoy: la prueba falla solo si
- * aparece una regla nueva, en cualquiera de los dos idiomas. La Fase 5c corrige las pantallas
+ * aparece una regla nueva, en cualquiera de los idiomas. La Fase 5c corrige las pantallas
  * y deja la línea base en {}.
  * Fase 1, Ola A: registro y solicitud de vinculación, embarques (M2-06, M2-07), Mi organización
  * (M1-02, M1-07, M1-08) y, con sesión de administrador interno, organizaciones (M8-04) y matriz de
@@ -886,7 +886,7 @@ const PANTALLAS: { id: string; ruta: string; sesion: Sesion; tema?: Tema; opcion
     ruta: '/organization',
     sesion: 'cliente',
     preparar: async (page) => {
-      await page.locator('app-access-grants').getByRole('button', { name: /^(Otorgar acceso|Grant access)$/ }).click();
+      await page.locator('app-access-grants').getByRole('button', { name: /^(Otorgar acceso|Grant access|Conceder acesso)$/ }).click();
       await expect(page.getByRole('dialog')).toBeVisible();
       await expect(page.locator('app-loading-spinner')).toHaveCount(0);
     },
@@ -1103,7 +1103,7 @@ for (const lang of IDIOMAS) {
       await abrir(page, p.ruta, p.sesion, lang, p.opciones, p.tema);
       await p.preparar?.(page);
       await expect(page).toHaveURL(new RegExp(`${p.ruta.replace(/[?]/g, '\\?')}$`));
-      await expect(page.locator('html')).toHaveAttribute('lang', lang);
+      await expect(page.locator('html')).toHaveAttribute('lang', LANG_HTML[lang]);
       await expect(page.locator('html')).toHaveAttribute('data-bs-theme', p.tema ?? 'light');
 
       const resultado = await new AxeBuilder({ page }).withTags(TAGS).analyze();
