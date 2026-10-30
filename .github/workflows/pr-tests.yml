@@ -122,8 +122,11 @@ jobs:
       - name: Check hex colors (tokens)
         run: npm run check:hex
 
-      - name: Check i18n keys (es/en parity, ICU, used keys)
+      - name: Check i18n keys (es/en/pt parity, ICU, used keys)
         run: npm run check:i18n
+
+      - name: Check pt-BR quality (glossary, pt-PT, Spanish leftovers, tuteo, self-review log)
+        run: npm run check:i18n-pt
 
       - name: Check hardcoded template texts
         run: npm run check:i18n-text
