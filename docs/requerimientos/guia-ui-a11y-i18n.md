@@ -1,8 +1,8 @@
 # Guía de UI, accesibilidad e idiomas — Portal 2.0 v4
 
-Tokens, tipografía, componentes accesibles, checklist WCAG 2.2 AA e idiomas ES/EN
+Tokens, tipografía, componentes accesibles, checklist WCAG 2.2 AA e idiomas ES/EN/PT
 
-Versión 4.0 · 05-10-2026 · Preparado para: Hapag-Lloyd Chile y Bolivia · Elaborado por: Equipo de desarrollo Portal 2.0. Fuente: Fase 3 del plan de actualización de requerimientos Portal 2.0; decisiones Q8, Q9, DC2, DC3 y DC4 del registro de decisiones v4. Generado por `scripts/requerimientos/generar_guia.py`; no editar a mano.
+Versión 4.0 · 29-10-2026 · Preparado para: Hapag-Lloyd Chile y Bolivia · Elaborado por: Equipo de desarrollo Portal 2.0. Fuente: Fase 3 del plan de actualización de requerimientos Portal 2.0; decisiones Q8, Q9, DC2, DC3 y DC4 del registro de decisiones v4. Generado por `scripts/requerimientos/generar_guia.py`; no editar a mano.
 
 ## 1. Tokens de diseño
 
@@ -232,14 +232,14 @@ Evidencia exigida por Q9: `ng lint` sin errores en CI; axe con 0 violaciones en 
 
 ## 5. Estrategia i18n con Transloco
 
-Alcance decidido en Q8: en Fase 1, la interfaz en español e inglés con cambio de idioma en caliente; en Fase 2, correos, PDF y asistente M10. El inglés es internacional con ortografía estadounidense. La implementación es la Fase 5b del plan.
+Alcance decidido en Q8: en Fase 1, la interfaz en español e inglés con cambio de idioma en caliente; en Fase 2, correos, PDF y asistente M10. El inglés es internacional con ortografía estadounidense. La implementación es la Fase 5b del plan. La interfaz incluye además portugués de Brasil (pt-BR), con el mismo alcance que el inglés: textos de pantalla, contenido administrable bilingüe y planillas exportables.
 
 ### 5.1 Configuración
 
-- Librería `@jsverse/transloco` (MIT) con `provideTransloco`: `availableLangs: ['es','en']`, `defaultLang: 'es'`, `fallbackLang: 'es'` y `reRenderOnLangChange: true`.
-- Archivos de traducción en `frontend/public/i18n/es.json` y `frontend/public/i18n/en.json`, servidos como `/i18n/{lang}.json` por `TranslocoHttpLoader`.
-- `LocaleService` guarda el idioma en `hl_lang`, calcula el locale (`es-CL`, `es-BO` o `en`) y el huso del país, y actualiza `document.documentElement.lang` sin recargar la página.
-- El selector ES/EN está en la barra de navegación.
+- Librería `@jsverse/transloco` (MIT) con `provideTransloco`: `availableLangs: ['es','en','pt']`, `defaultLang: 'es'`, `fallbackLang: 'es'` y `reRenderOnLangChange: true`.
+- Archivos de traducción en `frontend/public/i18n/es.json`, `frontend/public/i18n/en.json` y `frontend/public/i18n/pt.json`, servidos como `/i18n/{lang}.json` por `TranslocoHttpLoader`.
+- `LocaleService` guarda el idioma en `hl_lang`, calcula el locale (`es-CL`, `es-BO`, `en` o `pt-BR`) y el huso del país, y actualiza `document.documentElement.lang` sin recargar la página.
+- El selector ES · EN · PT está en la barra de navegación.
 
 ### 5.2 Claves
 
@@ -256,6 +256,7 @@ Alcance decidido en Q8: en Fase 1, la interfaz en español e inglés con cambio 
 | Español, Chile | `es-CL` | dd-MM-yyyy (05-10-2026) | 24 h (14:30) | America/Santiago | 1.234.567,89 | CLP 1.234.567 (0 decimales); USD 1.234,56 |
 | Español, Bolivia | `es-BO` | dd/MM/yyyy (05/10/2026) | 24 h (14:30) | America/La_Paz | 1.234.567,89 | BOB 1.234,56; USD 1.234,56 |
 | Inglés | `en` | dd MMM yyyy (05 Oct 2026) | 24 h (14:30) | El del país del usuario | 1,234,567.89 | CLP 1,234,567; BOB 1,234.56; EUR 1,234.56 |
+| Portugués (Brasil) | `pt-BR` | dd/MM/yyyy (05/10/2026) | 24 h (14:30) | El del país del usuario | 1.234.567,89 | CLP 1.234.567; USD 1.234,56 |
 
 - Los pipes `hlDate`, `hlNumber` y `hlCurrency` (Fase 5b) usan `Intl.*`, que admite husos IANA, y guardan en caché los formateadores por locale y opciones.
 - Las fechas muestran el huso (`timeZoneName: 'short'`). Los plazos se calculan en UTC con calendario de negocio y se presentan en el huso del país (DC3).
@@ -286,75 +287,115 @@ Los plurales usan la sintaxis ICU MessageFormat. Transloco la interpreta con el 
 
 ### 5.6 Paridad de claves en CI
 
-- `npm run check:i18n` (`frontend/scripts/check-i18n.mjs`): mismas claves en `es.json` y `en.json`, sin valores vacíos y sin claves usadas que no existan.
+- `npm run check:i18n` (`frontend/scripts/check-i18n.mjs`): mismas claves en `es.json`, `en.json` y `pt.json`, sin valores vacíos y sin claves usadas que no existan.
+- `npm run check:i18n-pt` (`frontend/scripts/check-i18n-pt.mjs`): calidad del portugués en `pt.json`: términos del glosario de la sección 6, variantes de pt-PT, restos de español, tuteo, `=0` en los plurales, orden de claves igual a `es.json` y registro de autorrevisión (`docs/requerimientos/revision-pt-br.md`).
 - `npm run check:i18n-text` (`frontend/scripts/check-hardcoded-text.mjs`): ningún texto ni atributo accesible literal en las plantillas; las excepciones se declaran en el mismo script.
 - `npx transloco-keys-manager extract` agrega las claves nuevas al extraer textos.
-- Ambos chequeos corren en el job `frontend` de `.github/workflows/pr-tests.yml`.
+- Los tres chequeos corren en el job `frontend` de `.github/workflows/pr-tests.yml`.
 - Fuera de alcance por ahora: la traducción de ProblemDetails, correos y PDF del backend (tarea de Fase 2).
 
-## 6. Glosario ES/EN
+### 5.7 Redacción en portugués de Brasil (pt-BR)
 
-Fuente única: `docs/requerimientos/glosario-es-en.md` (Q8). Las claves Transloco y los textos en inglés usan estos términos. 56 términos.
+El portugués se redacta como texto nativo y no como traducción literal del español: igual que `en.json`, adapta la voz, el sujeto y la tipografía al idioma. Los términos salen del glosario de la sección 6.
+
+- Tratamiento con "você", nunca "tu", "teu" ni "tua". El imperativo va en la forma de "você": "Informe", "Selecione", "Verifique".
+- "Por favor" solo en pedidos de reintento ("Por favor, tente novamente."), como mucho uno por mensaje. Nunca en botones ni etiquetas.
+- Botones en infinitivo ("Salvar", "Pagar", "Entrar", "Baixar", "Excluir"), con mayúscula solo en la primera palabra.
+- Errores con "Não foi possível …" o "Não conseguimos …" ("Não foi possível iniciar o pagamento."). Para la acción se prefiere "efetuar" o el verbo específico antes que el calco "realizar".
+- Ortografía del Acuerdo Ortográfico de 1990.
+- Sin términos de pt-PT: ecrã, telemóvel, registo, registar, utilizador, ficheiro, palavra-passe, contentor, equipa, facto. En pt-BR: tela, celular, registro, registrar, usuário, arquivo, senha, contêiner, equipe, fato.
+- Siglas sin traducir: BL, TATC, DIFU, Gate In/Out, ETA/ETD, RUT/NIT, IVA, POD/POL, THC, EDS, ISPS, Nexus.
+- Comillas “ ”, `%` pegado al número ("15%") y ordinal con "º" ("1º").
+- Correos de ejemplo con `nome@empresa.com.br`.
+- Plurales ICU siempre con `=0`: en portugués la categoría `one` cubre 0 y 1, y sin `=0` se leería "0 item".
+- Falsos amigos: oficina → escritório; contestar → responder (en pt-BR "contestar" es impugnar); propina (en pt-BR es soborno; la del garzón es "gorjeta"); exquisito (en pt-BR es "extraño"); embarazada (en pt-BR se dice "grávida"; "embaraçada" significa avergonzada).
+
+## 6. Glosario ES/EN/PT
+
+Fuente única: `docs/requerimientos/glosario-es-en.md` (Q8). Las claves Transloco y los textos en inglés y portugués usan estos términos. 76 términos.
 
 - Las siglas de la industria no se traducen (BL, SWB, EBL, TATC, CLD, EDS, MHD, IPO, XOM, DG, UN).
 - Inglés internacional con ortografía estadounidense.
 - La primera aparición de una sigla en pantalla lleva su expansión en el idioma activo.
+- Portugués de Brasil (pt-BR): tratamiento con 'você', registro corporativo; Acuerdo Ortográfico de 1990.
+- Las siglas tampoco se traducen al portugués.
+- Formato para el chequeo automático (check:i18n-pt): en las columnas Español y Português, ' / ' separa alternativas y el texto entre paréntesis no cuenta; la columna Português incluye los plurales irregulares como alternativas.
 
-| Español | English | Nota de uso |
-|---|---|---|
-| BL (conocimiento de embarque) | BL (bill of lading) | Documento de transporte; no traducir la sigla. |
-| SWB / EBL | SWB (sea waybill) / EBL (electronic bill of lading) | EBL incluye, por ejemplo, Wave BL. |
-| Booking / reserva | Booking | En pantalla se usa "booking" en ambos idiomas. |
-| Embarque | Shipment | Conjunto BL o booking con sus contenedores. |
-| Nave / viaje | Vessel / voyage |  |
-| Puerto de descarga (POD) | Port of discharge (POD) |  |
-| Demurrage / sobreestadía | Demurrage | Cobro por uso del contenedor sobre los días libres en terminal. |
-| Detention | Detention | Cobro por uso del contenedor fuera del terminal. |
-| Días libres | Free time |  |
-| Calculadora de demurrage | Demurrage calculator |  |
-| Gate In / Gate Out | Gate In / Gate Out | No traducir. |
-| EDS | EDS (equipment depot service) | Asociado al Gate In. |
-| MHD | MHD | Concepto de cobro asociado a demurrage. |
-| Cargos locales | Local charges |  |
-| Recargo | Surcharge |  |
-| Recargo on demand | On-demand charge |  |
-| Flete prepaid / collect | Prepaid / collect freight |  |
-| Cambio de almacén | Warehouse change |  |
-| TATC | TATC | Documento de traspaso; no traducir. |
-| CLD (certificado de libre deuda) | CLD (debt clearance certificate) | Bolivia. |
-| Certificado de transbordo | Transshipment certificate |  |
-| Certificado de flete | Freight certificate |  |
-| Carta de responsabilidad | Letter of indemnity |  |
-| Carta de liberación y desconsolidado | Release and devanning letter | Bolivia. |
-| Canje | BL exchange | Canje del BL por la liberación de la carga. |
-| Desconsolidado | Devanning |  |
-| Cupón de retiro | Pick-up voucher | Gate Out. |
-| Comprobante Collect | Collect receipt | Para agencias de aduanas. |
-| DIFU | DIFU | Estructura de distribución por destino final; no traducir. |
-| Depósito | Depot |  |
-| Consignatario (CN) | Consignee (CN) |  |
-| Embarcador (SH) | Shipper (SH) |  |
-| Cliente titular (CU) | Customer (CU) |  |
-| Tercero | Third party |  |
-| Agencia de aduanas (AGA) | Customs broker |  |
-| Freight forwarder (FFWW) | Freight forwarder (FFWW) |  |
-| Transportista | Carrier (haulier) | En pantalla: "Haulier". |
-| Match Code (MC) | Match Code (MC) | Identificador del cliente en Hapag-Lloyd. |
-| RUT / NIT | Tax ID (RUT / NIT) | RUT en Chile, NIT en Bolivia. |
-| Razón social | Legal name |  |
-| Mandato | Mandate |  |
-| Acceso otorgado | Granted access |  |
-| Acceso abierto por número de BL | Open access by BL number |  |
-| Carro de compra | Cart |  |
-| Medio de pago | Payment method |  |
-| Boleta | Payment slip | Comprobante de pago del portal, no la boleta tributaria. |
-| Comprobante de pago | Receipt |  |
-| Factura | Invoice |  |
-| Estado de cuenta | Statement of account |  |
-| Tipo de cambio (TC) | Exchange rate |  |
-| Condición de crédito | Credit terms |  |
-| Exención | Exemption |  |
-| Mercancía peligrosa (DG) | Dangerous goods (DG) |  |
-| Orden de servicio (ODS) | Service order |  |
-| Comunicado | Announcement |  |
-| Bandeja de notificaciones | Notification inbox |  |
+| Español | English | Português | Nota de uso |
+|---|---|---|---|
+| BL (conocimiento de embarque) | BL (bill of lading) | BL (conhecimento de embarque) | Documento de transporte; no traducir la sigla. |
+| SWB / EBL | SWB (sea waybill) / EBL (electronic bill of lading) | SWB (sea waybill) / EBL (conhecimento de embarque eletrônico) | EBL incluye, por ejemplo, Wave BL. |
+| Booking / reserva | Booking | Booking / reserva | En pantalla se usa "booking" en los tres idiomas. |
+| Embarque | Shipment | Embarque / embarques | Conjunto BL o booking con sus contenedores. |
+| Nave / viaje | Vessel / voyage | Navio / navios / viagem | En pt, nunca "nave". |
+| Puerto de descarga (POD) | Port of discharge (POD) | Porto de descarga (POD) |  |
+| Demurrage / sobreestadía | Demurrage | Demurrage / sobre-estadia | Cobro por uso del contenedor sobre los días libres en terminal. |
+| Detention | Detention | Detention | Cobro por uso del contenedor fuera del terminal. |
+| Días libres | Free time | Dias livres (free time) |  |
+| Calculadora de demurrage | Demurrage calculator | Calculadora de demurrage |  |
+| Gate In / Gate Out | Gate In / Gate Out | Gate In / Gate Out | No traducir. |
+| EDS | EDS (equipment depot service) | EDS | Asociado al Gate In. |
+| MHD | MHD | MHD | Concepto de cobro asociado a demurrage. |
+| Cargos locales | Local charges | Taxas locais |  |
+| Recargo | Surcharge | Sobretaxa |  |
+| Recargos locales on demand (antes "Recargo on demand") | On-demand charge | Taxas locais sob demanda / taxa local sob demanda |  |
+| Flete prepaid / collect | Prepaid / collect freight | Frete prepaid / collect |  |
+| Cambio de almacén | Warehouse change | Troca de armazém |  |
+| TATC | TATC | TATC | Documento de traspaso; no traducir. |
+| CLD (certificado de libre deuda) | CLD (debt clearance certificate) | CLD (certificado de quitação de débitos) | Bolivia. |
+| Certificado de transbordo | Transshipment certificate | Certificado de transbordo |  |
+| Certificado de flete | Freight certificate | Certificado de frete |  |
+| Carta de responsabilidad | Letter of indemnity | Carta de indenização | Carta de indenização es el nombre que el mercado brasileño da a la LOI; "carta de responsabilidade" suena genérica. |
+| Carta de liberación y desconsolidado | Release and devanning letter | Carta de liberação e desova | Bolivia. |
+| Canje | BL exchange | Troca do BL / troca | Canje del BL por la liberación de la carga. |
+| Desconsolidado | Devanning | Desova* (desova, desovado, desovar) / desconsolida* | Desova es el término nativo para devanning; "desconsolidação" solo para carga consolidada. |
+| Cupón de retiro | Pick-up voucher | Voucher de retirada | Gate Out. |
+| Comprobante Collect | Collect receipt | Comprovante collect | Para agencias de aduanas. |
+| DIFU | DIFU | DIFU | Estructura de distribución por destino final; no traducir. |
+| Depósito | Depot / deposit | Depósito | También depósito bancario ("comprobante de depósito"); en pt, depósito sirve en ambos sentidos. |
+| Consignatario (CN) | Consignee (CN) | Consignatário (CN) |  |
+| Embarcador (SH) | Shipper (SH) | Embarcador (SH) |  |
+| Cliente titular (CU) | Customer (CU) | Cliente titular (CU) |  |
+| Tercero | Third party | Terceiro |  |
+| Agencia de aduanas (AGA) | Customs broker | Despachante aduaneir* (AGA) / despachantes aduaneiros | Despachante aduaneiro es la figura brasileña equivalente a la agencia de aduanas. |
+| Freight forwarder (FFWW) | Freight forwarder (FFWW) | Agente de carga (FFWW) |  |
+| Transportista | Carrier (haulier) | Transportadora | En pantalla: "Haulier". |
+| Match Code (MC) | Match Code (MC) | Match Code (MC) | Identificador del cliente en Hapag-Lloyd. |
+| RUT / NIT | Tax ID (RUT / NIT) | ID fiscal / RUT / NIT | RUT en Chile, NIT en Bolivia. En pt, "ID fiscal" en encabezados; nunca CPF ni CNPJ. |
+| Razón social | Legal name / legal entity | Razão social | En refacturación el inglés usa "legal entity"; en pt, razão social en ambos casos. |
+| Mandato | Mandate | Mandato |  |
+| Acceso otorgado | Granted access | Acesso concedido |  |
+| Acceso abierto por número de BL | Open access by BL number | Acesso aberto pelo número do BL |  |
+| Carro de compra / carro | Cart | Carrinho | En pt, carrinho; nunca "carro". |
+| Medio de pago | Payment method | Forma de pagamento / formas de pagamento |  |
+| Boleta | Payment slip | Recibo de pagamento | Comprobante de pago del portal, no la boleta tributaria. En pt, recibo de pagamento: nunca "boleto" (el boleto bancário es otro medio de pago) ni "nota fiscal"; "comprovante de pagamento" queda para Receipt. |
+| Comprobante de pago | Receipt | Comprovante de pagamento |  |
+| Factura | Invoice | Fatura / faturas | En pt se mantiene fatura; "nota fiscal" no corresponde. |
+| Estado de cuenta | Statement of account | Extrato de conta |  |
+| Tipo de cambio (TC) | Exchange rate | Taxa de câmbio |  |
+| Condición de crédito | Credit terms | Condições de crédito |  |
+| Exención | Exemption | Isenção / isenções |  |
+| Mercancía peligrosa (DG) | Dangerous goods (DG) | Mercadorias perigosas / mercadoria perigosa (DG) |  |
+| Orden de servicio (ODS) | Service order | Ordem de serviço (ODS) / ordens de serviço |  |
+| Comunicado | Announcement | Comunicado |  |
+| Bandeja de notificaciones | Notification inbox | Caixa de notificações | Referencia de redacción, sin chequeo automático: la frase no aparece en la interfaz y "bandeja" sola es una cola de trabajo. |
+| Contenedor | Container | Contêiner / contêineres | En pt, nunca "contentor" (pt-PT). |
+| Puerto | Port | Porto |  |
+| Terminal / Almacén | Terminal / Warehouse | Terminal / armazém / armazéns |  |
+| Flete | Freight | Frete |  |
+| Cobro / Cargo | Charge | Cobrança | Referencia de redacción, sin chequeo automático: en español es ambiguo ("a cargo de", "cargo" como puesto). |
+| Sello | Seal | Lacre | En pt, lacre; nunca "selo". |
+| BL hijo | House BL | BL filhote | Nombre que el mercado brasileño da al house BL. |
+| Cierre de recepción | Cut-off | Deadline | En Brasil el mercado usa "deadline" para el cierre de recepción de carga. Referencia sin chequeo automático: hoy no se usa en la interfaz. |
+| Zarpe | Vessel departure (ETD) | Saída do navio (ETD) |  |
+| Manifiesto | Manifest | Manifesto |  |
+| Aduana | Customs | Alfândega | Referencia de redacción, sin chequeo automático: en pt cambia según el contexto (alfândega, despacho aduaneiro, Receita Federal). |
+| Línea de crédito | Credit line | Linha de crédito |  |
+| Anticipo | Advance | Adiantamento |  |
+| Refacturación | Re-invoicing | Refaturamento |  |
+| Nota de crédito | Credit note | Nota de crédito |  |
+| Liberado | Released | Liberado | Referencia de redacción, sin chequeo automático: adjetivo genérico. |
+| Solicitud | Request | Solicitação / solicitações |  |
+| Persona natural / Empresa | Natural person / Company | Pessoa física / Pessoa jurídica | Referencia de redacción, sin chequeo automático: "empresa" también se usa con su sentido común. |
+| Correo electrónico / correo | Email / e-mail (mailbox) | E-mail | En pt, con guion; "caixa de e-mail" para mailbox. |
+| Iniciar sesión / Cerrar sesión | Log in / Log out | Entrar / Sair | Referencia de redacción, sin chequeo automático: pt usa "Entrar" y "Sair" en varias construcciones. |
