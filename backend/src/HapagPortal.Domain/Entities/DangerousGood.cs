@@ -14,6 +14,9 @@ public sealed class DangerousGood : BaseAuditableEntity
     public string? UnNumber { get; set; }
     public required string ProperShippingNameEs { get; set; }
     public required string ProperShippingNameEn { get; set; }
+
+    /// <summary>Nombre en portugués de Brasil (Resolução ANTT nº 5.998/2022); opcional en las filas importadas.</summary>
+    public string? ProperShippingNamePt { get; set; }
     public string? HazardClass { get; set; }
     public string? SubsidiaryRisk { get; set; }
     public string? PackingGroup { get; set; }

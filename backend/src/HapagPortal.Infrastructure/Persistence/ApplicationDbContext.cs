@@ -193,23 +193,29 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             NameEn = "Freight certificate",
             DescriptionEs = "Certificado del flete del BL para importación de Bolivia (M6-02, BO-IMP-08): el cliente ingresa los datos del consignatario y la finalidad; el portal emite el PDF firmado y lo envía a su correo. Primera entrega de Fase 2 sin pago ni carro. Se solicita desde los documentos del embarque.",
             DescriptionEn = "Freight certificate of the BL for Bolivia imports (M6-02): the customer enters the consignee data and the purpose; the portal issues the signed PDF and e-mails it. First Phase 2 delivery without payment or cart. Requested from the shipment documents.",
+            NamePt = "Certificado de frete",
+            DescriptionPt = "Certificado do frete do BL para importação da Bolívia (M6-02, BO-IMP-08): o cliente informa os dados do consignatário e a finalidade; o portal emite o PDF assinado e o envia para o seu e-mail. Primeira entrega da Fase 2, sem pagamento nem carrinho. É solicitado a partir dos documentos do embarque.",
             Operations = ServiceOperations.Import,
             Countries = CountryCodes.Bolivia,
             ActionCode = ShipmentActionCodes.GenerateFreightCertificate,
             DisplayOrder = 130,
             InputSchemaJson = ServiceInputSchema.Serialize(
             [
-                new ServiceInputField(FreightCertificateFields.ConsigneeName, "Consignatario", "Consignee", ServiceInputFieldTypes.Text, true, MaxLength: 200),
-                new ServiceInputField(FreightCertificateFields.ConsigneeTaxId, "NIT del consignatario", "Consignee tax ID", ServiceInputFieldTypes.Text, true, MaxLength: 30),
+                new ServiceInputField(FreightCertificateFields.ConsigneeName, "Consignatario", "Consignee", ServiceInputFieldTypes.Text, true, MaxLength: 200,
+                    LabelPt: "Consignatário"),
+                new ServiceInputField(FreightCertificateFields.ConsigneeTaxId, "NIT del consignatario", "Consignee tax ID", ServiceInputFieldTypes.Text, true, MaxLength: 30,
+                    LabelPt: "NIT do consignatário"),
                 new ServiceInputField(FreightCertificateFields.Purpose, "Finalidad", "Purpose", ServiceInputFieldTypes.Select, true,
                 [
-                    new ServiceInputOption(FreightCertificatePurposes.Customs, "Trámite aduanero", "Customs clearance"),
-                    new ServiceInputOption(FreightCertificatePurposes.Insurance, "Seguro de la carga", "Cargo insurance"),
-                    new ServiceInputOption(FreightCertificatePurposes.Bank, "Trámite bancario", "Banking"),
-                    new ServiceInputOption(FreightCertificatePurposes.Other, "Otra", "Other")
-                ]),
-                new ServiceInputField(FreightCertificateFields.Recipient, "Dirigido a", "Addressed to", ServiceInputFieldTypes.Text, MaxLength: 200),
-                new ServiceInputField(FreightCertificateFields.Notes, "Observaciones", "Remarks", ServiceInputFieldTypes.TextArea, MaxLength: 1000)
+                    new ServiceInputOption(FreightCertificatePurposes.Customs, "Trámite aduanero", "Customs clearance", "Desembaraço aduaneiro"),
+                    new ServiceInputOption(FreightCertificatePurposes.Insurance, "Seguro de la carga", "Cargo insurance", "Seguro da carga"),
+                    new ServiceInputOption(FreightCertificatePurposes.Bank, "Trámite bancario", "Banking", "Trâmite bancário"),
+                    new ServiceInputOption(FreightCertificatePurposes.Other, "Otra", "Other", "Outra")
+                ], LabelPt: "Finalidade"),
+                new ServiceInputField(FreightCertificateFields.Recipient, "Dirigido a", "Addressed to", ServiceInputFieldTypes.Text, MaxLength: 200,
+                    LabelPt: "Endereçado a"),
+                new ServiceInputField(FreightCertificateFields.Notes, "Observaciones", "Remarks", ServiceInputFieldTypes.TextArea, MaxLength: 1000,
+                    LabelPt: "Observações")
             ]),
             PricingMode = ServicePricingModes.None,
             ChargeConceptCode = ChargeConceptCodes.FreightCertificate,
@@ -226,6 +232,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             NameEn = "Release and deconsolidation letter",
             DescriptionEs = "Carta de liberación y desconsolidado de las unidades seleccionadas, importación de Bolivia (M6-08, BO-IMP-11): datos del consignatario según el tipo de sociedad y del transportista; el TATC de las unidades se registra al enviar y al aprobar; la aprueba Customer Service y la carta se emite al aprobarse. Sin cobro. Se solicita desde los documentos del embarque.",
             DescriptionEn = "Release and deconsolidation letter for the selected units, Bolivia imports (M6-08): consignee data by legal entity type and carrier data; the units' TATC is recorded on submission and approval; Customer Service approves it and the letter is issued on approval. No charge. Requested from the shipment documents.",
+            NamePt = "Carta de liberação e desova",
+            DescriptionPt = "Carta de liberação e desova das unidades selecionadas, importação da Bolívia (M6-08, BO-IMP-11): dados do consignatário conforme o tipo de pessoa e dados da transportadora; o TATC das unidades é registrado no envio e na aprovação; o Customer Service a aprova e a carta é emitida após a aprovação. Sem cobrança. É solicitada a partir dos documentos do embarque.",
             Operations = ServiceOperations.Import,
             Countries = CountryCodes.Bolivia,
             ActionCode = ShipmentActionCodes.GenerateReleaseLetter,
@@ -233,23 +241,35 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             RequiresContainers = true,
             InputSchemaJson = ServiceInputSchema.Serialize(
             [
-                new ServiceInputField(ReleaseLetterFields.Containers, "Contenedores", "Containers", ServiceInputFieldTypes.Containers, true),
+                new ServiceInputField(ReleaseLetterFields.Containers, "Contenedores", "Containers", ServiceInputFieldTypes.Containers, true,
+                    LabelPt: "Contêineres"),
                 new ServiceInputField(ReleaseLetterFields.LegalEntityType, "Tipo de sociedad", "Legal entity type", ServiceInputFieldTypes.Select, true,
                 [
-                    new ServiceInputOption(LegalEntityTypes.Company, "Empresa", "Company"),
-                    new ServiceInputOption(LegalEntityTypes.NaturalPerson, "Persona natural", "Natural person")
-                ]),
-                new ServiceInputField(ReleaseLetterFields.ConsigneeName, "Consignatario (razón social o nombre)", "Consignee (legal name or name)", ServiceInputFieldTypes.Text, true, MaxLength: 200),
-                new ServiceInputField(ReleaseLetterFields.ConsigneeTaxId, "NIT o documento de identidad", "Tax ID or ID document", ServiceInputFieldTypes.Text, true, MaxLength: 30),
-                new ServiceInputField(ReleaseLetterFields.ConsigneeAddress, "Domicilio", "Address", ServiceInputFieldTypes.Text, MaxLength: 300),
-                new ServiceInputField(ReleaseLetterFields.LegalRepresentativeName, "Representante legal", "Legal representative", ServiceInputFieldTypes.Text, MaxLength: 200),
-                new ServiceInputField(ReleaseLetterFields.LegalRepresentativeId, "Documento del representante", "Representative's ID", ServiceInputFieldTypes.Text, MaxLength: 30),
-                new ServiceInputField(ReleaseLetterFields.CarrierName, "Transportista", "Carrier", ServiceInputFieldTypes.Text, true, MaxLength: 200),
-                new ServiceInputField(ReleaseLetterFields.CarrierTaxId, "NIT / RUT del transportista", "Carrier tax ID", ServiceInputFieldTypes.Text, true, MaxLength: 30),
-                new ServiceInputField(ReleaseLetterFields.DriverName, "Conductor", "Driver", ServiceInputFieldTypes.Text, MaxLength: 200),
-                new ServiceInputField(ReleaseLetterFields.DriverId, "Documento del conductor", "Driver's ID", ServiceInputFieldTypes.Text, MaxLength: 30),
-                new ServiceInputField(ReleaseLetterFields.TruckPlate, "Patente", "Truck plate", ServiceInputFieldTypes.Text, MaxLength: 20),
-                new ServiceInputField(ReleaseLetterFields.Observations, "Observaciones", "Remarks", ServiceInputFieldTypes.TextArea, MaxLength: 1000)
+                    new ServiceInputOption(LegalEntityTypes.Company, "Empresa", "Company", "Pessoa jurídica"),
+                    new ServiceInputOption(LegalEntityTypes.NaturalPerson, "Persona natural", "Natural person", "Pessoa física")
+                ], LabelPt: "Tipo de pessoa"),
+                new ServiceInputField(ReleaseLetterFields.ConsigneeName, "Consignatario (razón social o nombre)", "Consignee (legal name or name)", ServiceInputFieldTypes.Text, true, MaxLength: 200,
+                    LabelPt: "Consignatário (razão social ou nome)"),
+                new ServiceInputField(ReleaseLetterFields.ConsigneeTaxId, "NIT o documento de identidad", "Tax ID or ID document", ServiceInputFieldTypes.Text, true, MaxLength: 30,
+                    LabelPt: "NIT ou documento de identidade"),
+                new ServiceInputField(ReleaseLetterFields.ConsigneeAddress, "Domicilio", "Address", ServiceInputFieldTypes.Text, MaxLength: 300,
+                    LabelPt: "Endereço"),
+                new ServiceInputField(ReleaseLetterFields.LegalRepresentativeName, "Representante legal", "Legal representative", ServiceInputFieldTypes.Text, MaxLength: 200,
+                    LabelPt: "Representante legal"),
+                new ServiceInputField(ReleaseLetterFields.LegalRepresentativeId, "Documento del representante", "Representative's ID", ServiceInputFieldTypes.Text, MaxLength: 30,
+                    LabelPt: "Documento do representante"),
+                new ServiceInputField(ReleaseLetterFields.CarrierName, "Transportista", "Carrier", ServiceInputFieldTypes.Text, true, MaxLength: 200,
+                    LabelPt: "Transportadora"),
+                new ServiceInputField(ReleaseLetterFields.CarrierTaxId, "NIT / RUT del transportista", "Carrier tax ID", ServiceInputFieldTypes.Text, true, MaxLength: 30,
+                    LabelPt: "NIT / RUT da transportadora"),
+                new ServiceInputField(ReleaseLetterFields.DriverName, "Conductor", "Driver", ServiceInputFieldTypes.Text, MaxLength: 200,
+                    LabelPt: "Motorista"),
+                new ServiceInputField(ReleaseLetterFields.DriverId, "Documento del conductor", "Driver's ID", ServiceInputFieldTypes.Text, MaxLength: 30,
+                    LabelPt: "Documento do motorista"),
+                new ServiceInputField(ReleaseLetterFields.TruckPlate, "Patente", "Truck plate", ServiceInputFieldTypes.Text, MaxLength: 20,
+                    LabelPt: "Placa do caminhão"),
+                new ServiceInputField(ReleaseLetterFields.Observations, "Observaciones", "Remarks", ServiceInputFieldTypes.TextArea, MaxLength: 1000,
+                    LabelPt: "Observações")
             ]),
             PricingMode = ServicePricingModes.None,
             ChargeConceptCode = ChargeConceptCodes.ReleaseLetter,
@@ -752,6 +772,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 TitleEn = "New opening hours at the San Antonio empty depot",
                 BodyEs = "Desde el 1 de octubre el depósito de vacíos de San Antonio recibe devoluciones de lunes a sábado de 08:00 a 20:00. Programe el Gate In con anticipación para evitar demoras.",
                 BodyEn = "From October 1st the San Antonio empty depot receives returns Monday to Saturday from 08:00 to 20:00. Schedule the Gate In in advance to avoid delays.",
+                TitlePt = "Novo horário do depósito de vazios em San Antonio",
+                BodyPt = "A partir de 1º de outubro, o depósito de vazios de San Antonio recebe devoluções de segunda a sábado, das 08:00 às 20:00. Agende o Gate In com antecedência para evitar atrasos.",
                 Countries = CountryCodes.Chile,
                 Operation = AnnouncementOperations.Import,
                 Severity = AnnouncementSeverities.Important,
@@ -771,6 +793,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 TitleEn = "Bolivian export BL exchange in Arica",
                 BodyEs = "El canje de los BL de exportación de Bolivia se realiza en el Counter de Arica presentando el BL original y la carta de liberación. El estado del canje queda visible en el detalle del embarque.",
                 BodyEn = "Bolivian export BLs are exchanged at the Arica Counter presenting the original BL and the release letter. The exchange status is shown in the shipment detail.",
+                TitlePt = "Troca de BL de exportação boliviana em Arica",
+                BodyPt = "A troca dos BLs de exportação da Bolívia é feita no Counter de Arica, com a apresentação do BL original e da carta de liberação. O status da troca fica visível no detalhe do embarque.",
                 Countries = CountryCodes.Bolivia,
                 Operation = AnnouncementOperations.Export,
                 Severity = AnnouncementSeverities.Info,
@@ -789,6 +813,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 TitleEn = "Scheduled portal maintenance",
                 BodyEs = "El portal no estará disponible el 20 de octubre entre las 23:00 y las 23:59 (hora de Chile) por mantención programada.",
                 BodyEn = "The portal will be unavailable on October 20th between 23:00 and 23:59 (Chile time) for scheduled maintenance.",
+                TitlePt = "Manutenção programada do portal",
+                BodyPt = "O portal ficará indisponível em 20 de outubro, entre 23:00 e 23:59 (horário do Chile), para manutenção programada.",
                 Countries = "CL,BO",
                 Operation = AnnouncementOperations.Both,
                 Severity = AnnouncementSeverities.Important,
@@ -822,6 +848,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             NameEn = "How to pay from the cart",
             DescriptionEs = "Recorre el carro unificado: cargos agregados, RUT de facturación, moneda, medio de pago y confirmación.",
             DescriptionEn = "Walks through the unified cart: added charges, billing tax ID, currency, payment method and confirmation.",
+            NamePt = "Como pagar pelo carrinho",
+            DescriptionPt = "Percorre o carrinho unificado: cobranças adicionadas, RUT de faturamento, moeda, forma de pagamento e confirmação.",
             Route = "/cart",
             Audience = GuideAudiences.Client,
             IsActive = true,
@@ -831,19 +859,29 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             [
                 new GuideStepDto(1, "/cart", "cart.items", "Revise los cargos", "Review the charges",
                     "Aquí están los cargos que agregó desde sus embarques, agrupados por moneda. Puede quitar los que no pagará ahora.",
-                    "These are the charges you added from your shipments, grouped by currency. You can remove the ones you will not pay now."),
+                    "These are the charges you added from your shipments, grouped by currency. You can remove the ones you will not pay now.",
+                    TitlePt: "Revise as cobranças",
+                    TextPt: "Aqui estão as cobranças que você adicionou a partir dos seus embarques, agrupadas por moeda. Você pode remover as que não vai pagar agora."),
                 new GuideStepDto(2, "/cart", "cart.billing-tax-id", "RUT de facturación", "Billing tax ID",
                     "Indique a qué RUT se emitirá la factura de cada cargo. Por defecto es el de su organización.",
-                    "Choose the tax ID to be invoiced for each charge. By default it is your organization's."),
+                    "Choose the tax ID to be invoiced for each charge. By default it is your organization's.",
+                    TitlePt: "RUT de faturamento",
+                    TextPt: "Indique para qual RUT será emitida a fatura de cada cobrança. Por padrão, é o RUT da sua organização."),
                 new GuideStepDto(3, "/cart", "cart.currency", "Moneda de pago", "Payment currency",
                     "Elija la moneda en que pagará; si es distinta de la del cargo se usa el tipo de cambio del día.",
-                    "Choose the payment currency; if it differs from the charge currency the day's exchange rate applies."),
+                    "Choose the payment currency; if it differs from the charge currency the day's exchange rate applies.",
+                    TitlePt: "Moeda de pagamento",
+                    TextPt: "Escolha a moeda em que vai pagar; se for diferente da moeda da cobrança, será usada a taxa de câmbio do dia."),
                 new GuideStepDto(4, "/cart", "cart.payment-method", "Medio de pago", "Payment method",
                     "Seleccione el medio de pago habilitado para su país y moneda.",
-                    "Select a payment method enabled for your country and currency."),
+                    "Select a payment method enabled for your country and currency.",
+                    TitlePt: "Forma de pagamento",
+                    TextPt: "Selecione a forma de pagamento habilitada para o seu país e a sua moeda."),
                 new GuideStepDto(5, "/cart", "cart.checkout", "Pague", "Pay",
                     "Confirme el pago. Recibirá el comprobante en la bandeja de notificaciones y en el historial de pagos.",
-                    "Confirm the payment. You will receive the receipt in the notification inbox and in the payment history.")
+                    "Confirm the payment. You will receive the receipt in the notification inbox and in the payment history.",
+                    TitlePt: "Pague",
+                    TextPt: "Confirme o pagamento. Você receberá o comprovante na caixa de notificações e no histórico de pagamentos.")
             ]),
             CreatedAt = created,
             CreatedBy = "SYSTEM"
@@ -1168,6 +1206,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             NameEn = "IAO re-invoicing and VAT loss",
             DescriptionEs = "Refacturación de una factura emitida a una nueva razón social: el cliente registra los nuevos datos de facturación y adjunta la aprobación de la nueva razón social; se cobran juntos la refacturación y la pérdida de IVA, y la factura se emite solo con la aceptación del cobro por la nueva razón social (M3-11, CL-EXP-11, CL-IMP-09). Se solicita desde la factura.",
             DescriptionEn = "Re-invoicing of an issued invoice to a new legal entity: the customer enters the new billing data and attaches the new entity's approval; the re-invoicing fee and the VAT loss are paid together, and the invoice is issued only after the new legal entity accepts the charge (M3-11). Requested from the invoice.",
+            NamePt = "Refaturamento IAO e perda de IVA",
+            DescriptionPt = "Refaturamento de uma fatura emitida para uma nova razão social: o cliente registra os novos dados de faturamento e anexa a aprovação da nova razão social; o refaturamento e a perda de IVA são cobrados juntos, e a fatura só é emitida após o aceite da cobrança pela nova razão social (M3-11, CL-EXP-11, CL-IMP-09). É solicitado a partir da fatura.",
             Operations = $"{ServiceOperations.Import},{ServiceOperations.Export}",
             Countries = CountryCodes.Chile,
             ActionCode = ShipmentActionCodes.PayOnDemandLocalCharges,
@@ -1175,9 +1215,9 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             InputSchemaJson = ServiceInputSchema.Serialize(
             [
                 new ServiceInputField(ReinvoicingFields.Approval, "Aprobación de la nueva razón social", "Approval of the new legal entity",
-                    ServiceInputFieldTypes.File, true),
+                    ServiceInputFieldTypes.File, true, LabelPt: "Aprovação da nova razão social"),
                 new ServiceInputField(ReinvoicingFields.Reason, "Motivo de la refacturación", "Reason for the re-invoicing",
-                    ServiceInputFieldTypes.TextArea, MaxLength: 1000)
+                    ServiceInputFieldTypes.TextArea, MaxLength: 1000, LabelPt: "Motivo do refaturamento")
             ]),
             BillingDataRequired = true,
             TariffAcceptanceRequired = true,
@@ -1973,19 +2013,21 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
         // ── Definiciones de servicio ──────────────────────────────────
         static ServiceInputField Containers(bool required = true) =>
-            new("containers", "Contenedores", "Containers", ServiceInputFieldTypes.Containers, required);
+            new("containers", "Contenedores", "Containers", ServiceInputFieldTypes.Containers, required, LabelPt: "Contêineres");
         static ServiceInputField Observations() =>
-            new("observations", "Observaciones", "Remarks", ServiceInputFieldTypes.TextArea, MaxLength: 1000);
+            new("observations", "Observaciones", "Remarks", ServiceInputFieldTypes.TextArea, MaxLength: 1000, LabelPt: "Observações");
 
-        ServiceDefinition Definition(string code, string nameEs, string nameEn, string descriptionEs, string descriptionEn,
-            string operations, string countries, string actionCode, int order, IReadOnlyList<ServiceInputField> fields) => new()
+        ServiceDefinition Definition(string code, string nameEs, string nameEn, string namePt, string descriptionEs, string descriptionEn,
+            string descriptionPt, string operations, string countries, string actionCode, int order, IReadOnlyList<ServiceInputField> fields) => new()
         {
             Id = DeterministicGuid($"service-definition:{code}"),
             Code = code,
             NameEs = nameEs,
             NameEn = nameEn,
+            NamePt = namePt,
             DescriptionEs = descriptionEs,
             DescriptionEn = descriptionEn,
+            DescriptionPt = descriptionPt,
             Operations = operations,
             Countries = countries,
             ActionCode = actionCode,
@@ -1995,11 +2037,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             CreatedBy = "SYSTEM"
         };
 
-        var seals = Definition(ServiceDefinitionCodes.SealManagement, "Gestión de sellos", "Seal management",
+        var seals = Definition(ServiceDefinitionCodes.SealManagement, "Gestión de sellos", "Seal management", "Gestão de lacres",
             "Ingreso de los datos de sellos del booking; se presta tras el pago (M3-07, CL-EXP-09).",
             "Seal data entry for the booking; provided after payment (M3-07).",
+            "Registro dos dados dos lacres do booking; o serviço é prestado após o pagamento (M3-07, CL-EXP-09).",
             ServiceOperations.Export, CountryCodes.Chile, ShipmentActionCodes.PayOnDemandLocalCharges, 10,
-            [Containers(), new("sealNumbers", "Números de sello", "Seal numbers", ServiceInputFieldTypes.Text, true, MaxLength: 500), Observations()]);
+            [Containers(), new("sealNumbers", "Números de sello", "Seal numbers", ServiceInputFieldTypes.Text, true, MaxLength: 500, LabelPt: "Números dos lacres"), Observations()]);
         seals.ReferenceType = ServiceReferenceTypes.Booking;
         seals.AvailabilityWindow = ServiceAvailabilityWindows.BeforeDeparture;
         seals.RequiresContainers = true;
@@ -2009,11 +2052,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         seals.QuantityMode = ServiceQuantityModes.PerContainer;
         seals.FulfillmentTeam = ServiceTeams.CustomerService;
 
-        var lateArrival = Definition(ServiceDefinitionCodes.LateArrival, "Late Arrival", "Late Arrival",
+        var lateArrival = Definition(ServiceDefinitionCodes.LateArrival, "Late Arrival", "Late Arrival", "Late Arrival",
             "Ingreso de unidades después del cierre de recepción; tarifa por tramos de horas de atraso; se presta tras el pago (M3-08, CL-EXP-10).",
             "Container delivery after the receiving cut-off; tiered by hours late; provided after payment (M3-08).",
+            "Entrada de unidades após o deadline de recebimento; tarifa por faixas de horas de atraso; o serviço é prestado após o pagamento (M3-08, CL-EXP-10).",
             ServiceOperations.Export, CountryCodes.Chile, ShipmentActionCodes.PayOnDemandLocalCharges, 20,
-            [Containers(), new("hours", "Horas de atraso respecto del cierre", "Hours after the cut-off", ServiceInputFieldTypes.Number, true, Min: 1, Max: 240, Integer: true), Observations()]);
+            [Containers(), new("hours", "Horas de atraso respecto del cierre", "Hours after the cut-off", ServiceInputFieldTypes.Number, true, Min: 1, Max: 240, Integer: true, LabelPt: "Horas de atraso após o deadline"), Observations()]);
         lateArrival.ReferenceType = ServiceReferenceTypes.Booking;
         lateArrival.AvailabilityWindow = ServiceAvailabilityWindows.BeforeDeparture;
         lateArrival.RequiresContainers = true;
@@ -2024,11 +2068,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         lateArrival.Taxable = false;
         lateArrival.FulfillmentTeam = ServiceTeams.CustomerService;
 
-        var early = Definition(ServiceDefinitionCodes.EarlyArrival, "Early", "Early arrival",
+        var early = Definition(ServiceDefinitionCodes.EarlyArrival, "Early", "Early arrival", "Entrega antecipada (Early)",
             "Ingreso anticipado de unidades antes de la apertura del stacking; tarifa por tramos de días; se presta tras el pago (M3-08).",
             "Container delivery before the stacking opens; tiered by days early; provided after payment (M3-08).",
+            "Entrada antecipada de unidades antes da abertura do stacking; tarifa por faixas de dias de antecedência; o serviço é prestado após o pagamento (M3-08).",
             ServiceOperations.Export, CountryCodes.Chile, ShipmentActionCodes.PayOnDemandLocalCharges, 30,
-            [Containers(), new("days", "Días de anticipación", "Days early", ServiceInputFieldTypes.Number, true, Min: 1, Max: 30, Integer: true), Observations()]);
+            [Containers(), new("days", "Días de anticipación", "Days early", ServiceInputFieldTypes.Number, true, Min: 1, Max: 30, Integer: true, LabelPt: "Dias de antecedência"), Observations()]);
         early.ReferenceType = ServiceReferenceTypes.Booking;
         early.AvailabilityWindow = ServiceAvailabilityWindows.BeforeDeparture;
         early.RequiresContainers = true;
@@ -2039,19 +2084,20 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         early.Taxable = false;
         early.FulfillmentTeam = ServiceTeams.CustomerService;
 
-        var dropOff = Definition(ServiceDefinitionCodes.DropOff, "Drop Off SCL", "Drop Off SCL",
+        var dropOff = Definition(ServiceDefinitionCodes.DropOff, "Drop Off SCL", "Drop Off SCL", "Drop Off SCL",
             "Devolución de contenedores en Santiago: el cliente elige las unidades, acepta la tarifa y el equipo ED aprueba o rechaza (M3-09, CL-IMP-10).",
             "Container return in Santiago: the customer selects the units, accepts the tariff and the ED team approves or rejects (M3-09).",
+            "Devolução de contêineres em Santiago: o cliente escolhe as unidades, aceita a tarifa e a equipe ED aprova ou rejeita (M3-09, CL-IMP-10).",
             ServiceOperations.Import, CountryCodes.Chile, ShipmentActionCodes.RequestDropOff, 40,
             [
                 Containers(),
-                new("returnDate", "Fecha de devolución", "Return date", ServiceInputFieldTypes.Date, true),
+                new("returnDate", "Fecha de devolución", "Return date", ServiceInputFieldTypes.Date, true, LabelPt: "Data de devolução"),
                 new("depot", "Depósito de devolución", "Return depot", ServiceInputFieldTypes.Select, true,
                 [
-                    new("SCL_PUDAHUEL", "Depósito Pudahuel", "Pudahuel depot"),
-                    new("SCL_QUILICURA", "Depósito Quilicura", "Quilicura depot"),
-                    new("SCL_SAN_BERNARDO", "Depósito San Bernardo", "San Bernardo depot"),
-                ]),
+                    new("SCL_PUDAHUEL", "Depósito Pudahuel", "Pudahuel depot", "Depósito Pudahuel"),
+                    new("SCL_QUILICURA", "Depósito Quilicura", "Quilicura depot", "Depósito Quilicura"),
+                    new("SCL_SAN_BERNARDO", "Depósito San Bernardo", "San Bernardo depot", "Depósito San Bernardo"),
+                ], LabelPt: "Depósito de devolução"),
                 Observations()
             ]);
         dropOff.AvailabilityWindow = ServiceAvailabilityWindows.AfterArrival;
@@ -2063,9 +2109,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         dropOff.QuantityMode = ServiceQuantityModes.PerContainer;
         dropOff.ApprovalTeam = ServiceTeams.Ed;
 
-        var xom = Definition(ServiceDefinitionCodes.ContainerAdministrationXom, "Administración de contenedor (XOM)", "Container administration (XOM)",
+        var xom = Definition(ServiceDefinitionCodes.ContainerAdministrationXom, "Administración de contenedor (XOM)", "Container administration (XOM)", "Administração de contêiner (XOM)",
             "Cargo por unidad en bolivianos para la operación de Bolivia; no se cobra con una excepción vigente en Nexus (XOM) ni a las unidades del embarcador (SOC) (M3-10, BO-EXP-02, BO-IMP-04).",
             "Per-unit charge in bolivianos for the Bolivia operation; waived by a Nexus exception (XOM) and for shipper-owned units (M3-10).",
+            "Cobrança por unidade em bolivianos para a operação da Bolívia; não é cobrada quando há uma exceção vigente no Nexus (XOM) nem para as unidades do embarcador (SOC) (M3-10, BO-EXP-02, BO-IMP-04).",
             $"{ServiceOperations.Import},{ServiceOperations.Export}", CountryCodes.Bolivia, ShipmentActionCodes.PayOnDemandLocalCharges, 50,
             [Containers()]);
         xom.RequiresContainers = true;
@@ -2077,34 +2124,37 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         xom.ExemptionConcept = ChargeConceptCodes.ContainerAdministrationXom;
         xom.ExcludeShipperOwnedContainers = true;
 
-        var correction = Definition(ServiceDefinitionCodes.BlCorrection, "Corrección o aclaración de BL", "BL correction or clarification",
+        var correction = Definition(ServiceDefinitionCodes.BlCorrection, "Corrección o aclaración de BL", "BL correction or clarification", "Correção ou esclarecimento de BL",
             "Solicitud y pago de correcciones o aclaraciones del BL, con seguimiento de su estado; Customer Service la atiende tras el pago (M3-12).",
             "Request and payment of BL corrections or clarifications, with status tracking; handled by Customer Service after payment (M3-12).",
+            "Solicitação e pagamento de correções ou esclarecimentos do BL, com acompanhamento do status; o Customer Service a atende após o pagamento (M3-12).",
             $"{ServiceOperations.Import},{ServiceOperations.Export}", "CL,BO", ShipmentActionCodes.PayOnDemandLocalCharges, 60,
             [
                 new("requestType", "Tipo de solicitud", "Request type", ServiceInputFieldTypes.Select, true,
-                [new("CORRECTION", "Corrección", "Correction"), new("CLARIFICATION", "Aclaración", "Clarification")]),
+                [new("CORRECTION", "Corrección", "Correction", "Correção"), new("CLARIFICATION", "Aclaración", "Clarification", "Esclarecimento")],
+                    LabelPt: "Tipo de solicitação"),
                 new("section", "Sección del BL", "BL section", ServiceInputFieldTypes.Select, true,
                 [
-                    new("SHIPPER", "Embarcador", "Shipper"), new("CONSIGNEE", "Consignatario", "Consignee"),
-                    new("NOTIFY", "Notificar a", "Notify party"), new("CARGO", "Descripción de la carga", "Cargo description"),
-                    new("CONTAINERS", "Contenedores y sellos", "Containers and seals"), new("FREIGHT", "Flete", "Freight"),
-                    new("OTHER", "Otra", "Other"),
-                ]),
-                new("description", "Detalle de la corrección o aclaración", "Correction or clarification details", ServiceInputFieldTypes.TextArea, true, MaxLength: 2000),
-                new("supportingDocument", "Documento de respaldo", "Supporting document", ServiceInputFieldTypes.File),
+                    new("SHIPPER", "Embarcador", "Shipper", "Embarcador"), new("CONSIGNEE", "Consignatario", "Consignee", "Consignatário"),
+                    new("NOTIFY", "Notificar a", "Notify party", "Notify party"), new("CARGO", "Descripción de la carga", "Cargo description", "Descrição da carga"),
+                    new("CONTAINERS", "Contenedores y sellos", "Containers and seals", "Contêineres e lacres"), new("FREIGHT", "Flete", "Freight", "Frete"),
+                    new("OTHER", "Otra", "Other", "Outra"),
+                ], LabelPt: "Seção do BL"),
+                new("description", "Detalle de la corrección o aclaración", "Correction or clarification details", ServiceInputFieldTypes.TextArea, true, MaxLength: 2000, LabelPt: "Detalhe da correção ou do esclarecimento"),
+                new("supportingDocument", "Documento de respaldo", "Supporting document", ServiceInputFieldTypes.File, LabelPt: "Documento comprobatório"),
             ]);
         correction.BillingDataRequired = true;
         correction.PricingMode = ServicePricingModes.Tariff;
         correction.ChargeConceptCode = ChargeConceptCodes.BlCorrection;
         correction.FulfillmentTeam = ServiceTeams.CustomerService;
 
-        var blHouse = Definition(ServiceDefinitionCodes.BlHouseTransmission, "Transmisión de BL hijo", "House BL transmission",
+        var blHouse = Definition(ServiceDefinitionCodes.BlHouseTransmission, "Transmisión de BL hijo", "House BL transmission", "Transmissão de BL filhote",
             "Transmisión de BL hijo de exportación dentro o fuera de plazo: el plazo es el aduanero del BL o de su manifiesto (BL_EMPTY_OUT) o, sin él, el zarpe más 72 horas; fuera de plazo se cobra por tramos de horas (M3-13).",
             "Export house BL transmission in time or late: the deadline is the customs one of the BL or its manifest (BL_EMPTY_OUT) or, without it, departure plus 72 hours; late transmissions are tiered by hours (M3-13).",
+            "Transmissão de BL filhote de exportação dentro ou fora do prazo: o prazo é o aduaneiro do BL ou do seu manifesto (BL_EMPTY_OUT) ou, na falta dele, a saída do navio mais 72 horas; fora do prazo, a cobrança é feita por faixas de horas (M3-13).",
             ServiceOperations.Export, "CL,BO", ShipmentActionCodes.PayOnDemandLocalCharges, 70,
             [
-                new("houseBlNumbers", "Números de BL hijo", "House BL numbers", ServiceInputFieldTypes.Text, true, MaxLength: 500),
+                new("houseBlNumbers", "Números de BL hijo", "House BL numbers", ServiceInputFieldTypes.Text, true, MaxLength: 500, LabelPt: "Números dos BLs filhotes"),
                 Observations()
             ]);
         blHouse.AvailabilityWindow = ServiceAvailabilityWindows.AfterDeparture;
@@ -2120,9 +2170,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         blHouse.Taxable = false;
         blHouse.FulfillmentTeam = ServiceTeams.CustomerService;
 
-        var matrix = Definition(ServiceDefinitionCodes.MatrixLate, "Matriz fuera de plazo", "Late matrix submission",
+        var matrix = Definition(ServiceDefinitionCodes.MatrixLate, "Matriz fuera de plazo", "Late matrix submission", "Matriz fora do prazo",
             "Cobro por presentar la matriz después del plazo (48 horas antes del zarpe mientras Nexus no informe los plazos documentales, M2-10); tarifa por tramos de días desde el plazo (M3-14).",
             "Charge for submitting the matrix after the deadline (48 hours before departure until Nexus reports document deadlines, M2-10); tiered by days since the deadline (M3-14).",
+            "Cobrança pela apresentação da matriz após o prazo (48 horas antes da saída do navio, enquanto o Nexus não informar os prazos documentais, M2-10); tarifa por faixas de dias desde o prazo (M3-14).",
             ServiceOperations.Export, "CL,BO", ShipmentActionCodes.PayOnDemandLocalCharges, 80,
             [Observations()]);
         matrix.AllowMultiplePerBl = false;
@@ -2134,9 +2185,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         matrix.TimingRule = ServiceTimingRules.LateOnly;
         matrix.Taxable = false;
 
-        var gateIn = Definition(ServiceDefinitionCodes.GateInReturn, "Gate In por devolución de unidades", "Gate In for returned export units",
+        var gateIn = Definition(ServiceDefinitionCodes.GateInReturn, "Gate In por devolución de unidades", "Gate In for returned export units", "Gate In por devolução de unidades",
             "El cliente selecciona el booking y ve sus unidades; el cargo es el Gate In registrado en el sistema de origen, con las exenciones de Nexus (M3-15, CL-EXP-07).",
             "The customer selects the booking and sees its units; the charge is the Gate In registered in the source system, with Nexus exemptions (M3-15).",
+            "O cliente seleciona o booking e vê as suas unidades; a cobrança é o Gate In registrado no sistema de origem, com as isenções do Nexus (M3-15, CL-EXP-07).",
             ServiceOperations.Export, CountryCodes.Chile, ShipmentActionCodes.PayMandatoryLocalCharges, 90,
             [Containers(required: false)]);
         gateIn.ReferenceType = ServiceReferenceTypes.Booking;
@@ -2147,13 +2199,15 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
         // Apertura y Valorización (CL-IMP-05/06) homologadas al estándar: cargo del sistema de origen con las reglas
         // de cobro; inactivas mientras el cargo siga pagándose desde la pestaña de recargos locales.
-        var opening = Definition(ServiceDefinitionCodes.Opening, "Apertura", "Opening",
+        var opening = Definition(ServiceDefinitionCodes.Opening, "Apertura", "Opening", "Abertura",
             "Homologación de CL-IMP-05 con el modelo estándar: cargo del sistema de origen con reglas de Nexus. Inactiva: hoy se paga como recargo local.",
             "CL-IMP-05 mapped to the standard model: source-system charge with Nexus rules. Inactive: currently paid as a local charge.",
+            "Homologação do CL-IMP-05 com o modelo padrão: cobrança do sistema de origem com regras do Nexus. Inativa: hoje é paga como taxa local.",
             ServiceOperations.Import, CountryCodes.Chile, ShipmentActionCodes.PayMandatoryLocalCharges, 100, []);
-        var valuation = Definition(ServiceDefinitionCodes.Valuation, "Valorización", "Valuation",
+        var valuation = Definition(ServiceDefinitionCodes.Valuation, "Valorización", "Valuation", "Valoração",
             "Homologación de CL-IMP-06 con el modelo estándar: cargo del sistema de origen con reglas de Nexus. Inactiva: hoy se paga como recargo local.",
             "CL-IMP-06 mapped to the standard model: source-system charge with Nexus rules. Inactive: currently paid as a local charge.",
+            "Homologação do CL-IMP-06 com o modelo padrão: cobrança do sistema de origem com regras do Nexus. Inativa: hoje é paga como taxa local.",
             ServiceOperations.Import, CountryCodes.Chile, ShipmentActionCodes.PayMandatoryLocalCharges, 110, []);
         foreach (var (definition, concept) in new[] { (opening, ChargeConceptCodes.Opening), (valuation, ChargeConceptCodes.Valuation) })
         {
@@ -2930,40 +2984,41 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         }));
 
         // ── M10-06: muestra de referencia (números ONU, nombres y clases de la lista de la ONU) ──
-        var dangerousGoods = new (string? Un, string Es, string En, string? Class, string? Subsidiary, string? Group, string? Notes, string? Keywords)[]
+        // Nombres en portugués según la Relação de Produtos Perigosos de la Resolução ANTT nº 5.998/2022.
+        var dangerousGoods = new (string? Un, string Es, string En, string Pt, string? Class, string? Subsidiary, string? Group, string? Notes, string? Keywords)[]
         {
-            ("1203", "Gasolina", "Gasoline (motor spirit)", "3", null, "II", null, "bencina, nafta, combustible"),
-            ("1202", "Combustible diésel", "Diesel fuel", "3", null, "III", null, "petroleo diesel, gasoil, combustible"),
-            ("1090", "Acetona", "Acetone", "3", null, "II", null, "solvente, quitaesmalte"),
-            ("1170", "Etanol (alcohol etílico) o solución de etanol", "Ethanol (ethyl alcohol) or ethanol solution", "3", null, "II", "Grupo de embalaje II o III según la concentración.", "alcohol etilico, alcohol"),
-            ("1263", "Pintura", "Paint", "3", null, null, "Grupo de embalaje I, II o III según el punto de inflamación.", "pinturas, barniz, laca, esmalte"),
-            ("1993", "Líquido inflamable, n.e.p.", "Flammable liquid, n.o.s.", "3", null, null, "Grupo de embalaje según el punto de inflamación.", "liquido inflamable"),
-            ("1075", "Gases de petróleo licuados", "Petroleum gases, liquefied", "2.1", null, null, null, "glp, gas licuado"),
-            ("1978", "Propano", "Propane", "2.1", null, null, null, "gas propano, glp"),
-            ("1950", "Aerosoles", "Aerosols", "2.1", null, null, "La división (2.1, 2.2 o 2.3) depende del contenido del aerosol.", "spray, aerosol"),
-            ("1005", "Amoníaco anhidro", "Ammonia, anhydrous", "2.3", "8", null, null, "amoniaco, refrigerante"),
-            ("1013", "Dióxido de carbono", "Carbon dioxide", "2.2", null, null, null, "co2, gas carbonico"),
-            ("1845", "Dióxido de carbono sólido (hielo seco)", "Carbon dioxide, solid (dry ice)", "9", null, null, null, "hielo seco, co2 solido"),
-            ("1830", "Ácido sulfúrico", "Sulphuric acid", "8", null, "II", null, "acido sulfurico"),
-            ("1789", "Ácido clorhídrico", "Hydrochloric acid", "8", null, null, "Grupo de embalaje II o III según la concentración.", "acido clorhidrico, acido muriatico"),
-            ("1823", "Hidróxido de sodio sólido", "Sodium hydroxide, solid", "8", null, "II", null, "soda caustica, sosa caustica"),
-            ("2794", "Baterías húmedas llenas de ácido", "Batteries, wet, filled with acid", "8", null, null, null, "baterias, acumuladores, bateria de plomo"),
-            ("3480", "Baterías de ion litio", "Lithium ion batteries", "9", null, null, "Incluye baterías de polímero de ion litio.", "baterias de litio, pilas de litio"),
-            ("3481", "Baterías de ion litio contenidas en un equipo o embaladas con él", "Lithium ion batteries contained in equipment or packed with equipment", "9", null, null, null, "baterias de litio, equipos electronicos"),
-            ("3090", "Baterías de metal litio", "Lithium metal batteries", "9", null, null, null, "baterias de litio, pilas de litio"),
-            ("1942", "Nitrato de amonio", "Ammonium nitrate", "5.1", null, "III", "Con no más del 0,2 % de sustancia combustible.", "nitrato de amonio"),
-            ("2067", "Abonos a base de nitrato de amonio", "Ammonium nitrate based fertilizer", "5.1", null, "III", null, "fertilizante, abono"),
-            ("1748", "Hipoclorito de calcio seco", "Calcium hypochlorite, dry", "5.1", null, "II", null, "cloro, cloro granulado, piscina"),
-            ("3077", "Sustancia sólida peligrosa para el medio ambiente, n.e.p.", "Environmentally hazardous substance, solid, n.o.s.", "9", null, "III", null, "contaminante marino"),
-            ("3082", "Sustancia líquida peligrosa para el medio ambiente, n.e.p.", "Environmentally hazardous substance, liquid, n.o.s.", "9", null, "III", null, "contaminante marino"),
-            ("3166", "Vehículo propulsado por líquido inflamable", "Vehicle, flammable liquid powered", "9", null, null, null, "automovil, auto, vehiculo"),
-            ("1361", "Carbón de origen animal o vegetal", "Carbon, animal or vegetable origin", "4.2", null, null, "Grupo de embalaje II o III.", "carbon vegetal, carbon"),
-            ("1987", "Alcoholes, n.e.p.", "Alcohols, n.o.s.", "3", null, null, "Grupo de embalaje II o III según el punto de inflamación.", "alcohol"),
-            (null, "Muebles de madera", "Wooden furniture", null, null, null, null, "muebles, mobiliario"),
-            (null, "Fruta fresca", "Fresh fruit", null, null, null, "Carga refrigerada no clasificada como mercancía peligrosa.", "fruta, manzanas, uvas, cerezas"),
-            (null, "Vino embotellado", "Bottled wine", null, null, null, "Las bebidas alcohólicas con más de 24 % de alcohol en volumen se clasifican como UN3065, clase 3.", "vino, bebidas alcoholicas"),
-            (null, "Cátodos de cobre", "Copper cathodes", null, null, null, null, "cobre, catodos"),
-            (null, "Prendas de vestir", "Clothing", null, null, null, null, "ropa, textiles, vestuario"),
+            ("1203", "Gasolina", "Gasoline (motor spirit)", "Gasolina", "3", null, "II", null, "bencina, nafta, combustible"),
+            ("1202", "Combustible diésel", "Diesel fuel", "Óleo diesel", "3", null, "III", null, "petroleo diesel, gasoil, combustible"),
+            ("1090", "Acetona", "Acetone", "Acetona", "3", null, "II", null, "solvente, quitaesmalte"),
+            ("1170", "Etanol (alcohol etílico) o solución de etanol", "Ethanol (ethyl alcohol) or ethanol solution", "Etanol (álcool etílico) ou etanol em solução", "3", null, "II", "Grupo de embalaje II o III según la concentración.", "alcohol etilico, alcohol"),
+            ("1263", "Pintura", "Paint", "Tintas", "3", null, null, "Grupo de embalaje I, II o III según el punto de inflamación.", "pinturas, barniz, laca, esmalte"),
+            ("1993", "Líquido inflamable, n.e.p.", "Flammable liquid, n.o.s.", "Líquido inflamável, N.E.", "3", null, null, "Grupo de embalaje según el punto de inflamación.", "liquido inflamable"),
+            ("1075", "Gases de petróleo licuados", "Petroleum gases, liquefied", "Gases de petróleo liquefeitos", "2.1", null, null, null, "glp, gas licuado"),
+            ("1978", "Propano", "Propane", "Propano", "2.1", null, null, null, "gas propano, glp"),
+            ("1950", "Aerosoles", "Aerosols", "Aerossóis", "2.1", null, null, "La división (2.1, 2.2 o 2.3) depende del contenido del aerosol.", "spray, aerosol"),
+            ("1005", "Amoníaco anhidro", "Ammonia, anhydrous", "Amônia anidra", "2.3", "8", null, null, "amoniaco, refrigerante"),
+            ("1013", "Dióxido de carbono", "Carbon dioxide", "Dióxido de carbono", "2.2", null, null, null, "co2, gas carbonico"),
+            ("1845", "Dióxido de carbono sólido (hielo seco)", "Carbon dioxide, solid (dry ice)", "Dióxido de carbono sólido (gelo seco)", "9", null, null, null, "hielo seco, co2 solido"),
+            ("1830", "Ácido sulfúrico", "Sulphuric acid", "Ácido sulfúrico", "8", null, "II", null, "acido sulfurico"),
+            ("1789", "Ácido clorhídrico", "Hydrochloric acid", "Ácido clorídrico", "8", null, null, "Grupo de embalaje II o III según la concentración.", "acido clorhidrico, acido muriatico"),
+            ("1823", "Hidróxido de sodio sólido", "Sodium hydroxide, solid", "Hidróxido de sódio sólido", "8", null, "II", null, "soda caustica, sosa caustica"),
+            ("2794", "Baterías húmedas llenas de ácido", "Batteries, wet, filled with acid", "Baterias úmidas, contendo ácido", "8", null, null, null, "baterias, acumuladores, bateria de plomo"),
+            ("3480", "Baterías de ion litio", "Lithium ion batteries", "Baterias de íon lítio", "9", null, null, "Incluye baterías de polímero de ion litio.", "baterias de litio, pilas de litio"),
+            ("3481", "Baterías de ion litio contenidas en un equipo o embaladas con él", "Lithium ion batteries contained in equipment or packed with equipment", "Baterias de íon lítio contidas em equipamento ou embaladas com equipamento", "9", null, null, null, "baterias de litio, equipos electronicos"),
+            ("3090", "Baterías de metal litio", "Lithium metal batteries", "Baterias de lítio metálico", "9", null, null, null, "baterias de litio, pilas de litio"),
+            ("1942", "Nitrato de amonio", "Ammonium nitrate", "Nitrato de amônio", "5.1", null, "III", "Con no más del 0,2 % de sustancia combustible.", "nitrato de amonio"),
+            ("2067", "Abonos a base de nitrato de amonio", "Ammonium nitrate based fertilizer", "Fertilizantes à base de nitrato de amônio", "5.1", null, "III", null, "fertilizante, abono"),
+            ("1748", "Hipoclorito de calcio seco", "Calcium hypochlorite, dry", "Hipoclorito de cálcio seco", "5.1", null, "II", null, "cloro, cloro granulado, piscina"),
+            ("3077", "Sustancia sólida peligrosa para el medio ambiente, n.e.p.", "Environmentally hazardous substance, solid, n.o.s.", "Substância que apresenta risco para o meio ambiente, sólida, N.E.", "9", null, "III", null, "contaminante marino"),
+            ("3082", "Sustancia líquida peligrosa para el medio ambiente, n.e.p.", "Environmentally hazardous substance, liquid, n.o.s.", "Substância que apresenta risco para o meio ambiente, líquida, N.E.", "9", null, "III", null, "contaminante marino"),
+            ("3166", "Vehículo propulsado por líquido inflamable", "Vehicle, flammable liquid powered", "Veículo movido a líquido inflamável", "9", null, null, null, "automovil, auto, vehiculo"),
+            ("1361", "Carbón de origen animal o vegetal", "Carbon, animal or vegetable origin", "Carvão de origem animal ou vegetal", "4.2", null, null, "Grupo de embalaje II o III.", "carbon vegetal, carbon"),
+            ("1987", "Alcoholes, n.e.p.", "Alcohols, n.o.s.", "Álcoois, N.E.", "3", null, null, "Grupo de embalaje II o III según el punto de inflamación.", "alcohol"),
+            (null, "Muebles de madera", "Wooden furniture", "Móveis de madeira", null, null, null, null, "muebles, mobiliario"),
+            (null, "Fruta fresca", "Fresh fruit", "Frutas frescas", null, null, null, "Carga refrigerada no clasificada como mercancía peligrosa.", "fruta, manzanas, uvas, cerezas"),
+            (null, "Vino embotellado", "Bottled wine", "Vinho engarrafado", null, null, null, "Las bebidas alcohólicas con más de 24 % de alcohol en volumen se clasifican como UN3065, clase 3.", "vino, bebidas alcoholicas"),
+            (null, "Cátodos de cobre", "Copper cathodes", "Catodos de cobre", null, null, null, null, "cobre, catodos"),
+            (null, "Prendas de vestir", "Clothing", "Roupas", null, null, null, null, "ropa, textiles, vestuario"),
         };
 
         modelBuilder.Entity<DangerousGood>().HasData(dangerousGoods.Select(d =>
@@ -2974,6 +3029,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 UnNumber = d.Un,
                 ProperShippingNameEs = d.Es,
                 ProperShippingNameEn = d.En,
+                ProperShippingNamePt = d.Pt,
                 HazardClass = d.Class,
                 SubsidiaryRisk = d.Subsidiary,
                 PackingGroup = d.Group,

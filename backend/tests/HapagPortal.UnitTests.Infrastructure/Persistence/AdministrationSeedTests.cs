@@ -80,6 +80,22 @@ public sealed class AdministrationSeedTests : IDisposable
     }
 
     [Fact]
+    public async Task Announcements_AndCartGuide_ShouldHavePortuguese()
+    {
+        var announcements = await _context.Announcements.AsNoTracking().ToListAsync();
+        var guide = await _context.GuideDefinitions.AsNoTracking().SingleAsync();
+        var steps = GuideSteps.Parse(guide.StepsJson);
+
+        announcements.Should().OnlyContain(a => !string.IsNullOrWhiteSpace(a.TitlePt) && !string.IsNullOrWhiteSpace(a.BodyPt));
+        announcements.Single(a => a.Id == SeedDataIds.AnnouncementBO).TitlePt.Should().Be("Troca de BL de exportação boliviana em Arica");
+        guide.NamePt.Should().Be("Como pagar pelo carrinho");
+        guide.DescriptionPt.Should().NotBeNullOrWhiteSpace();
+        guide.Version.Should().Be(1);
+        steps.Should().HaveCount(5).And.OnlyContain(s => !string.IsNullOrWhiteSpace(s.TitlePt) && !string.IsNullOrWhiteSpace(s.TextPt));
+        steps[0].TitlePt.Should().Be("Revise as cobranças");
+    }
+
+    [Fact]
     public async Task Holding_ShouldSeeItsSubsidiaryShipments_AsParent_AndNotThePendingOne()
     {
         var evaluator = EvaluatorFor(SeedDataIds.HoldingUser, AccessPermissions.OperateShipments);

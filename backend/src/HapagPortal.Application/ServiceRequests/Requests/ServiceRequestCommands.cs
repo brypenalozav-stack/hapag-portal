@@ -278,7 +278,9 @@ public sealed class GetAvailableServicesQueryHandler(
                 definition.ApprovalTeam,
                 definition.FulfillmentTeam,
                 quote,
-                quoteError));
+                quoteError,
+                definition.NamePt,
+                definition.DescriptionPt));
         }
 
         return Result<AvailableServicesDto>.Success(new AvailableServicesDto(
@@ -724,7 +726,7 @@ public sealed class GetServiceRequestQueryHandler(
 }
 
 /// <summary>
-/// Servicio on demand activo para filtros del cliente (Ola G): código, nombres ES/EN, operaciones y países. No
+/// Servicio on demand activo para filtros del cliente (Ola G): código, nombres ES/EN/PT, operaciones y países. No
 /// expone la configuración interna (tarifas, equipos, formulario). <c>DedicatedFlow</c>: se solicita por un flujo
 /// propio (la refacturación IAO, desde la factura).
 /// </summary>
@@ -735,7 +737,8 @@ public sealed record ServiceCatalogItemDto(
     IReadOnlyList<string> Operations,
     IReadOnlyList<string> Countries,
     string ReferenceType,
-    bool DedicatedFlow);
+    bool DedicatedFlow,
+    string? NamePt);
 
 /// <summary>Definiciones activas (opcionalmente de un país y una operación) para cualquier usuario autenticado.</summary>
 public sealed record GetServiceCatalogQuery(string? Country = null, string? Operation = null) : IQuery<IReadOnlyList<ServiceCatalogItemDto>>;
@@ -775,7 +778,8 @@ public sealed class GetServiceCatalogQueryHandler(IApplicationDbContext dbContex
                 ServiceCatalogEvaluator.Csv(d.Operations),
                 ServiceCatalogEvaluator.Csv(d.Countries),
                 d.ReferenceType,
-                ServiceDefinitionCodes.DedicatedFlow.Contains(d.Code)))
+                ServiceDefinitionCodes.DedicatedFlow.Contains(d.Code),
+                d.NamePt))
             .Where(d => (country is null || d.Countries.Contains(country)) && (operation is null || d.Operations.Contains(operation)))
             .ToList();
 

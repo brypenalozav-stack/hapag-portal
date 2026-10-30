@@ -13,7 +13,7 @@ using HapagPortal.Domain.Errors;
 using HapagPortal.Domain.Results;
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>Entrada de la base de referencia DG con el nombre de su clase en español e inglés.</summary>
+/// <summary>Entrada de la base de referencia DG con el nombre de su clase en español, inglés y portugués.</summary>
 public sealed record DangerousGoodDto(
     Guid Id,
     string? UnNumber,
@@ -26,7 +26,9 @@ public sealed record DangerousGoodDto(
     string? PackingGroup,
     string? Notes,
     bool Classified,
-    string Source);
+    string Source,
+    string? ProperShippingNamePt,
+    string? HazardClassNamePt);
 
 /// <summary>
 /// Resultado del buscador (M10-06). <c>ResultCode</c>: <c>CLASSIFIED</c>, <c>NOT_CLASSIFIED</c> (la carga figura
@@ -57,9 +59,10 @@ public sealed record SearchDangerousGoodsQuery(string Query) : IQuery<DangerousG
 /// <summary>
 /// Carga interna de la base de referencia desde un CSV (separador ";" o ","), para incorporar la lista completa
 /// cuando Hapag-Lloyd defina la fuente y su licencia. Encabezado obligatorio con <c>unNumber</c>, <c>nameEs</c>,
-/// <c>nameEn</c> y <c>class</c>; opcionales <c>subsidiaryRisk</c>, <c>packingGroup</c>, <c>notes</c>,
+/// <c>nameEn</c> y <c>class</c>; opcionales <c>namePt</c>, <c>subsidiaryRisk</c>, <c>packingGroup</c>, <c>notes</c>,
 /// <c>keywords</c> y <c>classified</c> (true/false). Una fila existente (mismo número ONU y nombre en inglés) se
-/// actualiza. Cada alta o cambio queda en el registro de NF-15.
+/// actualiza. Sin la columna <c>namePt</c>, o con la celda vacía, se conserva el nombre en portugués ya cargado: la
+/// importación nunca borra traducciones. Cada alta o cambio queda en el registro de NF-15.
 /// </summary>
 public sealed record ImportDangerousGoodsCommand(string Content) : ICommand<DangerousGoodImportResultDto>;
 
@@ -98,6 +101,7 @@ public static partial class DangerousGoodCatalog
         entry.UnNumber is null ? string.Empty : $"un{entry.UnNumber} {entry.UnNumber}",
         entry.ProperShippingNameEs,
         entry.ProperShippingNameEn,
+        entry.ProperShippingNamePt ?? string.Empty,
         entry.Keywords ?? string.Empty));
 
     public static string? NormalizeUnNumber(string? value)
@@ -124,7 +128,9 @@ public static partial class DangerousGoodCatalog
             d.PackingGroup,
             d.Notes,
             d.IsClassified,
-            d.Source);
+            d.Source,
+            d.ProperShippingNamePt,
+            name?.Pt);
     }
 
     [GeneratedRegex(@"^(?:UN\s*)?(\d{4})$", RegexOptions.IgnoreCase)]
@@ -182,9 +188,12 @@ public sealed class SearchDangerousGoodsQueryHandler(IApplicationDbContext dbCon
     {
         var es = SearchText.Normalize(entry.ProperShippingNameEs);
         var en = SearchText.Normalize(entry.ProperShippingNameEn);
-        if (es == normalized || en == normalized)
+        var pt = SearchText.Normalize(entry.ProperShippingNamePt ?? string.Empty);
+        if (es == normalized || en == normalized || pt == normalized)
             return 0;
-        return es.StartsWith(normalized, StringComparison.Ordinal) || en.StartsWith(normalized, StringComparison.Ordinal) ? 1 : 2;
+        return es.StartsWith(normalized, StringComparison.Ordinal)
+            || en.StartsWith(normalized, StringComparison.Ordinal)
+            || (pt.Length > 0 && pt.StartsWith(normalized, StringComparison.Ordinal)) ? 1 : 2;
     }
 }
 
@@ -200,11 +209,11 @@ public sealed class ImportDangerousGoodsCommandHandler(
 
     private sealed record DangerousGoodSnapshot(
         string? UnNumber, string NameEs, string NameEn, string? HazardClass, string? SubsidiaryRisk,
-        string? PackingGroup, string? Notes, string? Keywords, bool IsClassified, string Source, bool IsActive)
+        string? PackingGroup, string? Notes, string? Keywords, bool IsClassified, string Source, bool IsActive, string? NamePt)
     {
         public static DangerousGoodSnapshot From(DangerousGood d) => new(
             d.UnNumber, d.ProperShippingNameEs, d.ProperShippingNameEn, d.HazardClass, d.SubsidiaryRisk, d.PackingGroup,
-            d.Notes, d.Keywords, d.IsClassified, d.Source, d.IsActive);
+            d.Notes, d.Keywords, d.IsClassified, d.Source, d.IsActive, d.ProperShippingNamePt);
     }
 
     public async Task<Result<DangerousGoodImportResultDto>> Handle(ImportDangerousGoodsCommand request, CancellationToken cancellationToken)
@@ -254,11 +263,13 @@ public sealed class ImportDangerousGoodsCommandHandler(
             var unNumber = DangerousGoodCatalog.NormalizeUnNumber(Cell("unNumber"));
             var nameEs = Cell("nameEs");
             var nameEn = Cell("nameEn");
+            var namePt = Cell("namePt");
             var packingGroup = Cell("packingGroup")?.ToUpperInvariant();
 
             var reason =
                 nameEs is null || nameEn is null ? "nameEs and nameEn are required" :
                 nameEs.Length > 300 || nameEn.Length > 300 ? "names must be at most 300 characters" :
+                namePt is { Length: > 300 } ? "namePt must be at most 300 characters" :
                 isClassified && unNumber is null ? "unNumber must have 4 digits (e.g. 1203 or UN1203)" :
                 isClassified && !DangerousGoodClasses.IsValid(hazardClass) ? $"unknown class '{hazardClass}'" :
                 packingGroup is not null && !PackingGroups.Contains(packingGroup) ? "packingGroup must be I, II or III" :
@@ -289,6 +300,8 @@ public sealed class ImportDangerousGoodsCommandHandler(
             entry.UnNumber = unNumber;
             entry.ProperShippingNameEs = nameEs!;
             entry.ProperShippingNameEn = nameEn!;
+            if (namePt is not null)
+                entry.ProperShippingNamePt = namePt;
             entry.HazardClass = isClassified ? hazardClass : null;
             entry.SubsidiaryRisk = Cell("subsidiaryRisk");
             entry.PackingGroup = packingGroup;

@@ -27,6 +27,13 @@ public sealed class ServiceDefinitionMaintainerTests
             ServiceMilestones.None, 0, null, ServiceTimingRules.None, true, null, false, ServiceTeams.None,
             ServiceTeams.CustomerService, false, actionCode, 10);
 
+    /// <summary>Entrada completa en ES, EN y PT (nombre y etiquetas de los campos), como la exige el validador.</summary>
+    private static ServiceDefinitionInput CompleteInput(
+        string quantityMode = ServiceQuantityModes.PerRequest,
+        string? measureField = null) =>
+        Input(quantityMode: quantityMode, measureField: measureField,
+            fields: [new("notes", "Notas", "Notes", ServiceInputFieldTypes.TextArea, LabelPt: "Observações")]) with { NamePt = "Serviço novo" };
+
     [Fact]
     public async Task Create_ShouldNormalizeAndLogTheChange_AndUpdateShouldKeepThePreviousValue()
     {
@@ -70,22 +77,81 @@ public sealed class ServiceDefinitionMaintainerTests
     {
         var validator = new CreateServiceDefinitionCommandValidator();
 
-        validator.Validate(new CreateServiceDefinitionCommand(Input())).IsValid.Should().BeTrue();
+        validator.Validate(new CreateServiceDefinitionCommand(CompleteInput())).IsValid.Should().BeTrue();
 
-        var perContainerWithoutField = validator.Validate(new CreateServiceDefinitionCommand(Input(quantityMode: ServiceQuantityModes.PerContainer)));
+        var perContainerWithoutField = validator.Validate(new CreateServiceDefinitionCommand(CompleteInput(quantityMode: ServiceQuantityModes.PerContainer)));
         perContainerWithoutField.Errors.Should().Contain(e => e.PropertyName == "QuantityMode");
 
-        var measureNotNumber = validator.Validate(new CreateServiceDefinitionCommand(Input(measureField: "notes")));
+        var measureNotNumber = validator.Validate(new CreateServiceDefinitionCommand(CompleteInput(measureField: "notes")));
         measureNotNumber.Errors.Should().Contain(e => e.PropertyName == "MeasureFieldKey");
 
-        var lateWithoutMilestone = validator.Validate(new CreateServiceDefinitionCommand(Input() with { TimingRule = ServiceTimingRules.LateOnly }));
+        var lateWithoutMilestone = validator.Validate(new CreateServiceDefinitionCommand(CompleteInput() with { TimingRule = ServiceTimingRules.LateOnly }));
         lateWithoutMilestone.Errors.Should().Contain(e => e.PropertyName == "Milestone");
 
-        var badSchema = validator.Validate(new CreateServiceDefinitionCommand(Input(fields:
-            [new("kind", "Tipo", "Type", ServiceInputFieldTypes.Select)])));
+        var badSchema = validator.Validate(new CreateServiceDefinitionCommand(CompleteInput() with
+        {
+            InputSchema = [new("kind", "Tipo", "Type", ServiceInputFieldTypes.Select, LabelPt: "Tipo")],
+        }));
         badSchema.Errors.Should().Contain(e => e.PropertyName == "InputSchema");
 
-        var badCountry = validator.Validate(new CreateServiceDefinitionCommand(Input() with { Countries = ["AR"] }));
+        var badCountry = validator.Validate(new CreateServiceDefinitionCommand(CompleteInput() with { Countries = ["AR"] }));
         badCountry.Errors.Should().Contain(e => e.PropertyName == "Countries");
+    }
+
+    [Fact]
+    public void Validator_ShouldRequirePortugueseNameAndLabels_AndLimitItsLength()
+    {
+        var validator = new CreateServiceDefinitionCommandValidator();
+
+        // La descripción en portugués es opcional, como en español e inglés.
+        validator.Validate(new CreateServiceDefinitionCommand(CompleteInput())).IsValid.Should().BeTrue();
+        validator.Validate(new CreateServiceDefinitionCommand(CompleteInput() with { DescriptionPt = "Descrição" }))
+            .IsValid.Should().BeTrue();
+        validator.Validate(new CreateServiceDefinitionCommand(CompleteInput() with { NamePt = null }))
+            .Errors.Should().Contain(e => e.PropertyName == "NamePt");
+        validator.Validate(new CreateServiceDefinitionCommand(CompleteInput() with { NamePt = " " }))
+            .Errors.Should().Contain(e => e.PropertyName == "NamePt");
+        validator.Validate(new CreateServiceDefinitionCommand(CompleteInput() with
+            {
+                InputSchema = [new("notes", "Notas", "Notes", ServiceInputFieldTypes.TextArea)],
+            }))
+            .Errors.Should().Contain(e => e.PropertyName == "InputSchema");
+        validator.Validate(new CreateServiceDefinitionCommand(CompleteInput() with { NamePt = new string('a', 151) }))
+            .Errors.Should().Contain(e => e.PropertyName == "NamePt");
+        validator.Validate(new CreateServiceDefinitionCommand(CompleteInput() with { DescriptionPt = new string('a', 1001) }))
+            .Errors.Should().Contain(e => e.PropertyName == "DescriptionPt");
+        new UpdateServiceDefinitionCommandValidator().Validate(new UpdateServiceDefinitionCommand(Guid.NewGuid(), CompleteInput() with { NamePt = null }))
+            .Errors.Should().Contain(e => e.PropertyName == "NamePt");
+    }
+
+    [Fact]
+    public async Task Update_WithLegacySchemaJson_AndSameFields_ShouldKeepTheSameInputSchemaJson()
+    {
+        var created = await new CreateServiceDefinitionCommandHandler(_f.Db, _f.Internal)
+            .Handle(new CreateServiceDefinitionCommand(Input()), CancellationToken.None);
+        // Formato guardado antes del portugués: ayudas nulas escritas y sin labelPt ni helpPt.
+        const string legacy =
+            """[{"key":"notes","labelEs":"Notas","labelEn":"Notes","type":"textarea","required":false,"options":null,"min":null,"max":null,"integer":false,"maxLength":null,"helpEs":null,"helpEn":null}]""";
+        var definition = _f.Db.ServiceDefinitionList.Single(d => d.Id == created.Value.Id);
+        definition.InputSchemaJson = legacy;
+
+        await new UpdateServiceDefinitionCommandHandler(_f.Db, _f.Internal)
+            .Handle(new UpdateServiceDefinitionCommand(created.Value.Id, Input()), CancellationToken.None);
+        var history = await new GetServiceDefinitionHistoryQueryHandler(_f.Db)
+            .Handle(new GetServiceDefinitionHistoryQuery(created.Value.Id), CancellationToken.None);
+
+        definition.InputSchemaJson.Should().Be(legacy);
+        var change = history.Value.Single(h => h.Action == MaintainerActions.Updated);
+        change.Current!.InputSchemaJson.Should().Be(change.Previous!.InputSchemaJson);
+    }
+
+    [Fact]
+    public async Task Create_ShouldKeepPortugueseNameAndDescription()
+    {
+        var created = await new CreateServiceDefinitionCommandHandler(_f.Db, _f.Internal)
+            .Handle(new CreateServiceDefinitionCommand(Input() with { NamePt = " Serviço novo ", DescriptionPt = " " }), CancellationToken.None);
+
+        created.Value.NamePt.Should().Be("Serviço novo");
+        created.Value.DescriptionPt.Should().BeNull();
     }
 }

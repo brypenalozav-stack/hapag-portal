@@ -20,17 +20,18 @@ public sealed class DangerousGoodSearchTests
 
     public DangerousGoodSearchTests()
     {
-        Add("1203", "Gasolina", "Gasoline (motor spirit)", "3", "bencina, nafta");
+        Add("1203", "Gasolina", "Gasoline (motor spirit)", "3", "bencina, nafta", "Gasolina");
+        Add("1202", "Combustible diésel", "Diesel fuel", "3", null, "Óleo diesel");
         Add("1830", "Ácido sulfúrico", "Sulphuric acid", "8", null);
-        Add("3480", "Baterías de ion litio", "Lithium ion batteries", "9", "pilas de litio");
+        Add("3480", "Baterías de ion litio", "Lithium ion batteries", "9", "pilas de litio", "Baterias de íon lítio");
         Add(null, "Muebles de madera", "Wooden furniture", null, "muebles");
     }
 
-    private void Add(string? un, string es, string en, string? hazardClass, string? keywords)
+    private void Add(string? un, string es, string en, string? hazardClass, string? keywords, string? pt = null)
     {
         var entry = new DangerousGood
         {
-            UnNumber = un, ProperShippingNameEs = es, ProperShippingNameEn = en, HazardClass = hazardClass, Keywords = keywords,
+            UnNumber = un, ProperShippingNameEs = es, ProperShippingNameEn = en, ProperShippingNamePt = pt, HazardClass = hazardClass, Keywords = keywords,
             IsClassified = hazardClass is not null, Source = DangerousGoodSources.Sample, SearchText = string.Empty, CreatedBy = "t"
         };
         entry.SearchText = DangerousGoodCatalog.BuildSearchText(entry);
@@ -67,6 +68,27 @@ public sealed class DangerousGoodSearchTests
 
         result.Items.Select(i => i.UnNumber).Should().Equal(un);
         result.Classified.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("óleo diesel", "UN1202")]
+    [InlineData("OLEO", "UN1202")]
+    [InlineData("baterias de íon", "UN3480")]
+    public async Task PortugueseName_ShouldMatchIgnoringAccents(string query, string un)
+    {
+        var result = await Search(query);
+
+        result.Items.Select(i => i.UnNumber).Should().Equal(un);
+    }
+
+    [Fact]
+    public async Task Item_ShouldIncludeThePortugueseNameAndClassName()
+    {
+        var item = (await Search("1202")).Items.Should().ContainSingle().Subject;
+
+        item.ProperShippingNamePt.Should().Be("Óleo diesel");
+        item.HazardClassNamePt.Should().Be("Líquidos inflamáveis");
+        (await Search("1830")).Items.Single().ProperShippingNamePt.Should().BeNull();
     }
 
     [Fact]
@@ -112,6 +134,38 @@ public sealed class DangerousGoodSearchTests
         (await Search("acetona")).Items.Should().ContainSingle(i => i.UnNumber == "UN1090" && i.Source == DangerousGoodSources.Import);
         (await Search("combustible")).Items.Should().ContainSingle(i => i.UnNumber == "UN1203" && i.PackingGroup == "II");
         _db.MaintainerChangeLogList.Should().HaveCount(2).And.OnlyContain(c => c.Maintainer == MaintainerNames.DangerousGood);
+    }
+
+    [Fact]
+    public async Task Import_NamePt_ShouldSetWhenPresent_AndKeepWhenMissingOrEmpty()
+    {
+        var currentUser = Substitute.For<HapagPortal.Application.Common.Interfaces.ICurrentUserService>();
+        currentUser.Email.Returns("admin@hapag-lloyd.cl");
+        var handler = new ImportDangerousGoodsCommandHandler(_db, currentUser);
+        string PtOf(string un) => _db.DangerousGoodList.Single(d => d.UnNumber == un).ProperShippingNamePt!;
+        async Task<DangerousGoodImportResultDto> Import(string csv) =>
+            (await handler.Handle(new ImportDangerousGoodsCommand(csv), CancellationToken.None)).Value;
+
+        // Sin la columna namePt: se conserva el nombre en portugués.
+        await Import("unNumber;nameEs;nameEn;class\n3480;Baterías de ion litio;Lithium ion batteries;9\n");
+        PtOf("3480").Should().Be("Baterias de íon lítio");
+
+        // Con la columna y la celda vacía: también se conserva.
+        await Import("unNumber;nameEs;nameEn;class;namePt\n3480;Baterías de ion litio;Lithium ion batteries;9;\n");
+        PtOf("3480").Should().Be("Baterias de íon lítio");
+
+        // Con valor: se fija, también en una fila nueva, y la búsqueda lo encuentra.
+        await Import("unNumber;nameEs;nameEn;class;namePt\n3480;Baterías de ion litio;Lithium ion batteries;9;Baterias de íon lítio novas\n" +
+            "1090;Acetona;Acetone;3;Acetona (propanona)\n");
+        PtOf("3480").Should().Be("Baterias de íon lítio novas");
+        PtOf("1090").Should().Be("Acetona (propanona)");
+        (await Search("propanona")).Items.Should().ContainSingle(i => i.UnNumber == "UN1090");
+
+        // Más de 300 caracteres: la fila se omite con su motivo y no cambia nada.
+        var tooLong = await Import($"unNumber;nameEs;nameEn;class;namePt\n3480;Baterías de ion litio;Lithium ion batteries;9;{new string('a', 301)}\n");
+        tooLong.Skipped.Should().Be(1);
+        tooLong.Errors.Should().ContainSingle(e => e.Line == 2 && e.Reason == "namePt must be at most 300 characters");
+        PtOf("3480").Should().Be("Baterias de íon lítio novas");
     }
 
     [Fact]
